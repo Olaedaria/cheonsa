@@ -3,6 +3,16 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# 
+cache/
+code/dream/
+code/dream_client/
+data/editor/
+data/game/
+cheonsa.sln
+d3dcompiler_47.dll
+settings.ini
+
 # User-specific files
 *.suo
 *.user

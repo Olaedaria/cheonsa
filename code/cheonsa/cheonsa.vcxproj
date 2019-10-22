@@ -1,0 +1,828 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug Static|Win32">
+      <Configuration>Debug Static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug Static|x64">
+      <Configuration>Debug Static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Static|Win32">
+      <Configuration>Release Static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Static|x64">
+      <Configuration>Release Static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7B3D3D70-3089-4B6F-AE28-261ABEFB51D0}</ProjectGuid>
+    <RootNamespace>Silk</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>cheonsa</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">
+    <IncludePath>$(SolutionDir)cheonsa\third_party;$(SolutionDir)cheonsa\third_party\bullet;$(SolutionDir)cheonsa\third_party\freetype;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'">
+    <IncludePath>$(SolutionDir)cheonsa\third_party;$(SolutionDir)cheonsa\third_party\bullet;$(SolutionDir)cheonsa\third_party\freetype;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'">
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(SolutionDir)$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'">
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(SolutionDir)$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>BT_USE_DOUBLE_PRECISION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4351;</DisableSpecificWarnings>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib />
+    <Lib />
+    <CustomBuildStep />
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>BT_USE_DOUBLE_PRECISION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4351;</DisableSpecificWarnings>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib />
+    <Lib />
+    <CustomBuildStep />
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>D3D10.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Ws2_32.lib;Winmm.lib;d3d10_1.lib;Xinput9_1_0.lib;freetype26.lib;</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>D3D10.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Ws2_32.lib;Winmm.lib;d3d10_1.lib;Xinput9_1_0.lib;freetype26.lib;</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="cheonsa_debug.h" />
+    <ClInclude Include="cheonsa_audio_buffer.h" />
+    <ClInclude Include="cheonsa_audio_buffer_ogg.h" />
+    <ClInclude Include="cheonsa_audio_buffer_raw.h" />
+    <ClInclude Include="cheonsa_audio_listener.h" />
+    <ClInclude Include="cheonsa_audio_player.h" />
+    <ClInclude Include="cheonsa_audio_player_ogg.h" />
+    <ClInclude Include="cheonsa_audio_player_raw.h" />
+    <ClInclude Include="cheonsa_audio_source.h" />
+    <ClInclude Include="cheonsa_audio_types.h" />
+    <ClInclude Include="cheonsa_content_manager.h" />
+    <ClInclude Include="cheonsa_database.h" />
+    <ClInclude Include="cheonsa_database_field_schema.h" />
+    <ClInclude Include="cheonsa_database_record.h" />
+    <ClInclude Include="cheonsa_database_record_schema.h" />
+    <ClInclude Include="cheonsa_database_stack.h" />
+    <ClInclude Include="cheonsa_database_stack_record.h" />
+    <ClInclude Include="cheonsa_database_table.h" />
+    <ClInclude Include="cheonsa_database_types.h" />
+    <ClInclude Include="cheonsa_menu_style_for_frame.h" />
+    <ClInclude Include="cheonsa_menu_style_file.h" />
+    <ClInclude Include="cheonsa_menu_style_for_text_glyph.h" />
+    <ClInclude Include="cheonsa_menu_style_map.h" />
+    <ClInclude Include="cheonsa_menu_style_for_text.h" />
+    <ClInclude Include="cheonsa_menu_thing.h" />
+    <ClInclude Include="cheonsa_platform_critical_section.h" />
+    <ClInclude Include="cheonsa_reflection_class.h" />
+    <ClInclude Include="cheonsa_reflection_enumeration.h" />
+    <ClInclude Include="cheonsa_reflection_object.h" />
+    <ClInclude Include="cheonsa_reflection_property.h" />
+    <ClInclude Include="cheonsa_reflection_types.h" />
+    <ClInclude Include="cheonsa_resource_object_menu_layout.h" />
+    <ClInclude Include="cheonsa_sprite.h" />
+    <ClInclude Include="cheonsa_string.h" />
+    <ClInclude Include="cheonsa_string_file.h" />
+    <ClInclude Include="cheonsa_base_types.h" />
+    <ClInclude Include="cheonsa_audio_scene.h" />
+    <ClInclude Include="cheonsa_menu_control_label.h" />
+    <ClInclude Include="cheonsa_menu_control_list_i.h" />
+    <ClInclude Include="cheonsa_menu_control_scene.h" />
+    <ClInclude Include="cheonsa_core_circle_buffer.h" />
+    <ClInclude Include="cheonsa_core_hasher.h" />
+    <ClInclude Include="cheonsa_data_scribe_png.h" />
+    <ClInclude Include="cheonsa_data_scribe_text.h" />
+    <ClInclude Include="cheonsa_data_types.h" />
+    <ClInclude Include="cheonsa_image.h" />
+    <ClInclude Include="cheonsa_input_types.h" />
+    <ClInclude Include="cheonsa_core_linked_list.h" />
+    <ClInclude Include="cheonsa_menu_control_combo.h" />
+    <ClInclude Include="cheonsa_menu_control_menu.h" />
+    <ClInclude Include="cheonsa_menu_control_panel.h" />
+    <ClInclude Include="cheonsa_menu_style_manager.h" />
+    <ClInclude Include="cheonsa_ops.h" />
+    <ClInclude Include="cheonsa_physics_body.h" />
+    <ClInclude Include="cheonsa_physics_bullet_debug_drawer.h" />
+    <ClInclude Include="cheonsa_physics_constraint.h" />
+    <ClInclude Include="cheonsa_physics_scene.h" />
+    <ClInclude Include="cheonsa_physics_shape.h" />
+    <ClInclude Include="cheonsa_physics_types.h" />
+    <ClInclude Include="cheonsa_platform_thread.h" />
+    <ClInclude Include="cheonsa_scene_component_planet.h" />
+    <ClInclude Include="cheonsa_resource_object_model.h" />
+    <ClInclude Include="cheonsa_scene_component_body.h" />
+    <ClInclude Include="cheonsa_scene_component_model.h" />
+    <ClInclude Include="cheonsa_scene_tree_kd.h" />
+    <ClInclude Include="cheonsa_resource_object_sprite_set.h" />
+    <ClInclude Include="cheonsa_string8.h" />
+    <ClInclude Include="cheonsa_time_types.h" />
+    <ClInclude Include="cheonsa_video_types.h" />
+    <ClInclude Include="cheonsa_core_xxhash.h" />
+    <ClInclude Include="cheonsa_data_scribe_ini.h" />
+    <ClInclude Include="cheonsa_data_scribe_structure.h" />
+    <ClInclude Include="cheonsa_glyph_manager.h" />
+    <ClInclude Include="cheonsa_menu_element_frame.h" />
+    <ClInclude Include="cheonsa_menu_element_text.h" />
+    <ClInclude Include="cheonsa_memory_allocator_pool.h" />
+    <ClInclude Include="cheonsa_menu_control_button.h" />
+    <ClInclude Include="cheonsa_menu_control_check.h" />
+    <ClInclude Include="cheonsa_menu_control_text.h" />
+    <ClInclude Include="cheonsa_menu_element.h" />
+    <ClInclude Include="cheonsa_physics_point_spring_strand.h" />
+    <ClInclude Include="cheonsa_resource_object.h" />
+    <ClInclude Include="cheonsa_scene_component.h" />
+    <ClInclude Include="cheonsa_scene_component_light.h" />
+    <ClInclude Include="cheonsa_scene_component_light_probe.h" />
+    <ClInclude Include="cheonsa_scene_component_menu_control.h" />
+    <ClInclude Include="cheonsa_scene_component_sound.h" />
+    <ClInclude Include="cheonsa_scene_component_sprite.h" />
+    <ClInclude Include="cheonsa_scene_object.h" />
+    <ClInclude Include="cheonsa_scene_tree_octo.h" />
+    <ClInclude Include="cheonsa_string16.h" />
+    <ClInclude Include="cheonsa_data_scribe_markup.h" />
+    <ClInclude Include="cheonsa_data_scribe_binary_property.h" />
+    <ClInclude Include="cheonsa_video_renderer_canvas.h" />
+    <ClInclude Include="cheonsa_resource_object_font.h" />
+    <ClInclude Include="cheonsa_resource_object_material_map.h" />
+    <ClInclude Include="cheonsa_scene.h" />
+    <ClInclude Include="cheonsa_scene_types.h" />
+    <ClInclude Include="cheonsa_script_context.h" />
+    <ClInclude Include="cheonsa_script_scope.h" />
+    <ClInclude Include="cheonsa_script_instance.h" />
+    <ClInclude Include="cheonsa_script_value.h" />
+    <ClInclude Include="cheonsa_script_types.h" />
+    <ClInclude Include="cheonsa_time_date.h" />
+    <ClInclude Include="cheonsa_time_date_gregorian.h" />
+    <ClInclude Include="cheonsa_math_types.h" />
+    <ClInclude Include="cheonsa_platform_icon.h" />
+    <ClInclude Include="cheonsa_platform_pointer.h" />
+    <ClInclude Include="cheonsa_data_scribe_binary.h" />
+    <ClInclude Include="cheonsa_data_directory_memory.h" />
+    <ClInclude Include="cheonsa_data_stream.h" />
+    <ClInclude Include="cheonsa_data_stream_file.h" />
+    <ClInclude Include="cheonsa_data_stream_memory.h" />
+    <ClInclude Include="cheonsa_input_manager.h" />
+    <ClInclude Include="cheonsa_menu_control_list.h" />
+    <ClInclude Include="cheonsa_menu_control.h" />
+    <ClInclude Include="cheonsa_user_interface.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll.h" />
+    <ClInclude Include="cheonsa_menu_types.h" />
+    <ClInclude Include="cheonsa_network.h" />
+    <ClInclude Include="cheonsa_audio_interface_wave_out.h" />
+    <ClInclude Include="cheonsa_reflection_manager.h" />
+    <ClInclude Include="cheonsa_audio_interface.h" />
+    <ClInclude Include="cheonsa_core_dictionary.h" />
+    <ClInclude Include="cheonsa_core_event.h" />
+    <ClInclude Include="cheonsa_core_list.h" />
+    <ClInclude Include="cheonsa_resource_manager.h" />
+    <ClInclude Include="cheonsa_video_renderer_interface.h" />
+    <ClInclude Include="cheonsa_video_interface_d3d11.h" />
+    <ClInclude Include="cheonsa_video_interface.h" />
+    <ClInclude Include="cheonsa_resource_object_sound.h" />
+    <ClInclude Include="cheonsa_resource_object_texture.h" />
+    <ClInclude Include="cheonsa_engine.h" />
+    <ClInclude Include="cheonsa_video_renderer_types.h" />
+    <ClInclude Include="cheonsa_video_renderer_shader_manager.h" />
+    <ClInclude Include="cheonsa_script_manager.h" />
+    <ClInclude Include="cheonsa_game.h" />
+    <ClInclude Include="cheonsa_menu_window.h" />
+    <ClInclude Include="cheonsa_menu_control_color_picker.h" />
+    <ClInclude Include="cheonsa_menu_window_dialog.h" />
+    <ClInclude Include="cheonsa_menu_control_file_picker.h" />
+    <ClInclude Include="cheonsa_menu_control_property_inspector.h" />
+    <ClInclude Include="cheonsa_scene_tree_tetrahedron.h" />
+    <ClInclude Include="cheonsa___build.h" />
+    <ClInclude Include="cheonsa_menu_control_collection.h" />
+    <ClInclude Include="cheonsa_menu_control_image.h" />
+    <ClInclude Include="cheonsa_input_action_manager.h" />
+    <ClInclude Include="third_party\bullet\btBulletCollisionCommon.h" />
+    <ClInclude Include="third_party\bullet\btBulletDynamicsCommon.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btAxisSweep3Internal.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btBroadphaseInterface.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btBroadphaseProxy.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btDbvt.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btDbvtBroadphase.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btDispatcher.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btOverlappingPairCache.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btOverlappingPairCallback.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btQuantizedBvh.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btBox2dBox2dCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btBoxBoxDetector.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionConfiguration.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionCreateFunc.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionDispatcher.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionDispatcherMt.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionObject.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionObjectWrapper.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionWorld.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCollisionWorldImporter.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCompoundCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btCompoundCompoundCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btConvex2dConvex2dAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btConvexConcaveCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btConvexConvexAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btConvexPlaneCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btEmptyCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btGhostObject.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btHashedSimplePairCache.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btInternalEdgeUtility.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btManifoldResult.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btSimulationIslandManager.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btSphereBoxCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btSphereTriangleCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\btUnionFind.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionDispatch\SphereTriangleDetector.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btBox2dShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btBoxShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btBvhTriangleMeshShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btCapsuleShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btCollisionMargin.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btCollisionShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btCompoundShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConcaveShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConeShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConvex2dShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConvexHullShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConvexInternalShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConvexPointCloudShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConvexPolyhedron.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConvexShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btConvexTriangleMeshShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btCylinderShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btEmptyShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btMaterial.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btMiniSDF.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btMinkowskiSumShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btMultiSphereShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btOptimizedBvh.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btPolyhedralConvexShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btScaledBvhTriangleMeshShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btSdfCollisionShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btShapeHull.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btSphereShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btStaticPlaneShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btStridingMeshInterface.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTetrahedronShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleBuffer.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleCallback.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleIndexVertexArray.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleIndexVertexMaterialArray.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleInfoMap.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleMesh.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleMeshShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btTriangleShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\CollisionShapes\btUniformScalingShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btBoxCollision.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btClipPolygon.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btCompoundFromGimpact.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btContactProcessing.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btContactProcessingStructs.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGenericPoolAllocator.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGeometryOperations.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGImpactBvh.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGImpactBvhStructs.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGImpactCollisionAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGImpactMassUtil.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGImpactQuantizedBvh.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGImpactQuantizedBvhStructs.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btGImpactShape.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btQuantization.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\btTriangleShapeEx.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_array.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_basic_geometry_operations.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_bitset.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_box_collision.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_box_set.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_clip_polygon.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_contact.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_geometry.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_geom_types.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_hash_table.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_linear_math.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_math.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_memory.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_radixsort.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\Gimpact\gim_tri_collision.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btComputeGjkEpaPenetration.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btContinuousConvexCollision.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btConvexCast.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btConvexPenetrationDepthSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btDiscreteCollisionDetectorInterface.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btGjkCollisionDescription.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btGjkEpa2.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btGjkEpa3.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btGjkEpaPenetrationDepthSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btGjkPairDetector.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btManifoldPoint.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btMinkowskiPenetrationDepthSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btMprPenetration.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btPersistentManifold.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btPointCollector.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btPolyhedralContactClipping.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btRaycastCallback.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btSimplexSolverInterface.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btSubSimplexConvexCast.h" />
+    <ClInclude Include="third_party\bullet\BulletCollision\NarrowPhaseCollision\btVoronoiSimplexSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Character\btCharacterControllerInterface.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Character\btKinematicCharacterController.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btBatchedConstraints.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btConeTwistConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btConstraintSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btContactConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btContactSolverInfo.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btFixedConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btGearConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btGeneric6DofConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btGeneric6DofSpring2Constraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btGeneric6DofSpringConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btHinge2Constraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btHingeConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btJacobianEntry.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btNNCGConstraintSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btPoint2PointConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolverMt.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btSliderConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btSolverBody.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btSolverConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btTypedConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\ConstraintSolver\btUniversalConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Dynamics\btActionInterface.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Dynamics\btDiscreteDynamicsWorldMt.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Dynamics\btDynamicsWorld.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Dynamics\btRigidBody.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Dynamics\btSimpleDynamicsWorld.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Dynamics\btSimulationIslandManagerMt.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBody.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyConstraintSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyDynamicsWorld.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyFixedConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyGearConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyJointFeedback.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyJointLimitConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyJointMotor.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyLink.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyLinkCollider.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyMLCPConstraintSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodyPoint2Point.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodySliderConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodySolverConstraint.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Featherstone\btMultiBodySphericalJointMotor.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btDantzigLCP.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btDantzigSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btLemkeAlgorithm.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btLemkeSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btMLCPSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btMLCPSolverInterface.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btPATHSolver.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\MLCPSolvers\btSolveProjectedGaussSeidel.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Vehicle\btRaycastVehicle.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Vehicle\btVehicleRaycaster.h" />
+    <ClInclude Include="third_party\bullet\BulletDynamics\Vehicle\btWheelInfo.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btAabbUtil2.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btAlignedAllocator.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btAlignedObjectArray.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btConvexHull.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btConvexHullComputer.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btCpuFeatureUtility.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btDefaultMotionState.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btGeometryUtil.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btGrahamScan2dConvexHull.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btHashMap.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btIDebugDraw.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btList.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btMatrix3x3.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btMatrixX.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btMinMax.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btMotionState.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btPolarDecomposition.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btPoolAllocator.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btQuadWord.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btQuaternion.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btQuickprof.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btRandom.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btScalar.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btSerializer.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btSpatialAlgebra.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btStackAlloc.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btThreads.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btTransform.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btTransformUtil.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\btVector3.h" />
+    <ClInclude Include="third_party\bullet\LinearMath\TaskScheduler\btThreadSupportInterface.h" />
+    <ClInclude Include="third_party\freetype\config\ftconfig.h" />
+    <ClInclude Include="third_party\freetype\config\ftheader.h" />
+    <ClInclude Include="third_party\freetype\config\ftmodule.h" />
+    <ClInclude Include="third_party\freetype\config\ftoption.h" />
+    <ClInclude Include="third_party\freetype\config\ftstdlib.h" />
+    <ClInclude Include="third_party\freetype\freetype\config\ftconfig.h" />
+    <ClInclude Include="third_party\freetype\freetype\config\ftheader.h" />
+    <ClInclude Include="third_party\freetype\freetype\config\ftmodule.h" />
+    <ClInclude Include="third_party\freetype\freetype\config\ftoption.h" />
+    <ClInclude Include="third_party\freetype\freetype\config\ftstdlib.h" />
+    <ClInclude Include="third_party\freetype\freetype\freetype.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftadvanc.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftbbox.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftbdf.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftbitmap.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftbzip2.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftcache.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftchapters.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftcid.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftdriver.h" />
+    <ClInclude Include="third_party\freetype\freetype\fterrdef.h" />
+    <ClInclude Include="third_party\freetype\freetype\fterrors.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftfntfmt.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftgasp.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftglyph.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftgxval.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftgzip.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftimage.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftincrem.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftlcdfil.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftlist.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftlzw.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftmac.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftmm.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftmodapi.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftmoderr.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftotval.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftoutln.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftparams.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftpfr.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftrender.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftsizes.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftsnames.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftstroke.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftsynth.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftsystem.h" />
+    <ClInclude Include="third_party\freetype\freetype\fttrigon.h" />
+    <ClInclude Include="third_party\freetype\freetype\fttypes.h" />
+    <ClInclude Include="third_party\freetype\freetype\ftwinfnt.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\autohint.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\cffotypes.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\cfftypes.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftcalc.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftdebug.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftdrv.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftgloadr.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\fthash.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftmemory.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftobjs.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftpic.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftpsprop.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftrfork.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftserv.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftstream.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\fttrace.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\ftvalid.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\internal.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\psaux.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\pshints.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svbdf.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svcfftl.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svcid.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svfntfmt.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svgldict.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svgxval.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svkern.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svmetric.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svmm.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svotval.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svpfr.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svpostnm.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svprop.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svpscmap.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svpsinfo.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svsfnt.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svttcmap.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svtteng.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svttglyf.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\services\svwinfnt.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\sfnt.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\t1types.h" />
+    <ClInclude Include="third_party\freetype\freetype\internal\tttypes.h" />
+    <ClInclude Include="third_party\freetype\freetype\t1tables.h" />
+    <ClInclude Include="third_party\freetype\freetype\ttnameid.h" />
+    <ClInclude Include="third_party\freetype\freetype\tttables.h" />
+    <ClInclude Include="third_party\freetype\freetype\tttags.h" />
+    <ClInclude Include="third_party\freetype\ft2build.h" />
+    <ClInclude Include="third_party\freetype\internal\autohint.h" />
+    <ClInclude Include="third_party\freetype\internal\cffotypes.h" />
+    <ClInclude Include="third_party\freetype\internal\cfftypes.h" />
+    <ClInclude Include="third_party\freetype\internal\ftcalc.h" />
+    <ClInclude Include="third_party\freetype\internal\ftdebug.h" />
+    <ClInclude Include="third_party\freetype\internal\ftdrv.h" />
+    <ClInclude Include="third_party\freetype\internal\ftgloadr.h" />
+    <ClInclude Include="third_party\freetype\internal\fthash.h" />
+    <ClInclude Include="third_party\freetype\internal\ftmemory.h" />
+    <ClInclude Include="third_party\freetype\internal\ftobjs.h" />
+    <ClInclude Include="third_party\freetype\internal\ftpic.h" />
+    <ClInclude Include="third_party\freetype\internal\ftpsprop.h" />
+    <ClInclude Include="third_party\freetype\internal\ftrfork.h" />
+    <ClInclude Include="third_party\freetype\internal\ftserv.h" />
+    <ClInclude Include="third_party\freetype\internal\ftstream.h" />
+    <ClInclude Include="third_party\freetype\internal\fttrace.h" />
+    <ClInclude Include="third_party\freetype\internal\ftvalid.h" />
+    <ClInclude Include="third_party\freetype\internal\internal.h" />
+    <ClInclude Include="third_party\freetype\internal\psaux.h" />
+    <ClInclude Include="third_party\freetype\internal\pshints.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svbdf.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svcfftl.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svcid.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svfntfmt.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svgldict.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svgxval.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svkern.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svmetric.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svmm.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svotval.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svpfr.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svpostnm.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svprop.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svpscmap.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svpsinfo.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svsfnt.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svttcmap.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svtteng.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svttglyf.h" />
+    <ClInclude Include="third_party\freetype\internal\services\svwinfnt.h" />
+    <ClInclude Include="third_party\freetype\internal\sfnt.h" />
+    <ClInclude Include="third_party\freetype\internal\t1types.h" />
+    <ClInclude Include="third_party\freetype\internal\tttypes.h" />
+    <ClInclude Include="third_party\half.hpp" />
+    <ClInclude Include="third_party\jpgd.h" />
+    <ClInclude Include="third_party\jpge.h" />
+    <ClInclude Include="third_party\jsmn.h" />
+    <ClInclude Include="third_party\lodepng.h" />
+    <ClInclude Include="third_party\micropather.h" />
+    <ClInclude Include="third_party\r128.h" />
+    <ClInclude Include="third_party\stb_truetype.h" />
+    <ClInclude Include="third_party\stb_vorbis.h" />
+    <ClInclude Include="third_party\strnatcmp.h" />
+    <ClInclude Include="third_party\xxhash.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cheonsa_audio_buffer.cpp" />
+    <ClCompile Include="cheonsa_audio_buffer_ogg.cpp" />
+    <ClCompile Include="cheonsa_audio_buffer_raw.cpp" />
+    <ClCompile Include="cheonsa_audio_listener.cpp" />
+    <ClCompile Include="cheonsa_audio_player.cpp" />
+    <ClCompile Include="cheonsa_audio_player_ogg.cpp" />
+    <ClCompile Include="cheonsa_audio_player_raw.cpp" />
+    <ClCompile Include="cheonsa_audio_source.cpp" />
+    <ClCompile Include="cheonsa_content_manager.cpp" />
+    <ClCompile Include="cheonsa_database.cpp" />
+    <ClCompile Include="cheonsa_database_field_schema.cpp" />
+    <ClCompile Include="cheonsa_database_record.cpp" />
+    <ClCompile Include="cheonsa_database_record_schema.cpp" />
+    <ClCompile Include="cheonsa_database_stack.cpp" />
+    <ClCompile Include="cheonsa_database_stack_record.cpp" />
+    <ClCompile Include="cheonsa_database_table.cpp" />
+    <ClCompile Include="cheonsa_database_types.cpp" />
+    <ClCompile Include="cheonsa_debug.cpp" />
+    <ClCompile Include="cheonsa_menu_style_file.cpp" />
+    <ClCompile Include="cheonsa_menu_style_for_frame.cpp" />
+    <ClCompile Include="cheonsa_menu_style_for_text.cpp" />
+    <ClCompile Include="cheonsa_menu_style_for_text_glyph.cpp" />
+    <ClCompile Include="cheonsa_menu_style_map.cpp" />
+    <ClCompile Include="cheonsa_platform_critical_section.cpp" />
+    <ClCompile Include="cheonsa_reflection_class.cpp" />
+    <ClCompile Include="cheonsa_reflection_enumeration.cpp" />
+    <ClCompile Include="cheonsa_reflection_object.cpp" />
+    <ClCompile Include="cheonsa_reflection_property.cpp" />
+    <ClCompile Include="cheonsa_reflection_types.cpp" />
+    <ClCompile Include="cheonsa_resource_object_menu_layout.cpp" />
+    <ClCompile Include="cheonsa_scene_types.cpp" />
+    <ClCompile Include="cheonsa_base_types.cpp" />
+    <ClCompile Include="cheonsa_audio_scene.cpp" />
+    <ClCompile Include="cheonsa_audio_types.cpp" />
+    <ClCompile Include="cheonsa_data_scribe_png.cpp" />
+    <ClCompile Include="cheonsa_data_scribe_text.cpp" />
+    <ClCompile Include="cheonsa_data_types.cpp" />
+    <ClCompile Include="cheonsa_image.cpp" />
+    <ClCompile Include="cheonsa_input_types.cpp" />
+    <ClCompile Include="cheonsa_menu_control_collection.cpp" />
+    <ClCompile Include="cheonsa_menu_control_combo.cpp" />
+    <ClCompile Include="cheonsa_menu_control_image.cpp" />
+    <ClCompile Include="cheonsa_menu_control_label.cpp" />
+    <ClCompile Include="cheonsa_menu_control_list_i.cpp" />
+    <ClCompile Include="cheonsa_menu_control_menu.cpp" />
+    <ClCompile Include="cheonsa_menu_control_panel.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scene.cpp" />
+    <ClCompile Include="cheonsa_menu_style_manager.cpp" />
+    <ClCompile Include="cheonsa_ops.cpp" />
+    <ClCompile Include="cheonsa_physics_body.cpp" />
+    <ClCompile Include="cheonsa_physics_bullet_debug_drawer.cpp" />
+    <ClCompile Include="cheonsa_physics_constraint.cpp" />
+    <ClCompile Include="cheonsa_physics_scene.cpp" />
+    <ClCompile Include="cheonsa_physics_shape.cpp" />
+    <ClCompile Include="cheonsa_physics_types.cpp" />
+    <ClCompile Include="cheonsa_platform_thread.cpp" />
+    <ClCompile Include="cheonsa_resource_object_model.cpp" />
+    <ClCompile Include="cheonsa_scene_component_body.cpp" />
+    <ClCompile Include="cheonsa_scene_component_model.cpp" />
+    <ClCompile Include="cheonsa_scene_tree_kd.cpp" />
+    <ClCompile Include="cheonsa_resource_object_sprite_set.cpp" />
+    <ClCompile Include="cheonsa_sprite.cpp" />
+    <ClCompile Include="cheonsa_string.cpp" />
+    <ClCompile Include="cheonsa_string8.cpp" />
+    <ClCompile Include="cheonsa_string_file.cpp" />
+    <ClCompile Include="cheonsa_video_types.cpp" />
+    <ClCompile Include="cheonsa_core_xxhash.cpp" />
+    <ClCompile Include="cheonsa_data_scribe_ini.cpp" />
+    <ClCompile Include="cheonsa_data_scribe_structure.cpp" />
+    <ClCompile Include="cheonsa_glyph_manager.cpp" />
+    <ClCompile Include="cheonsa_menu_element_frame.cpp" />
+    <ClCompile Include="cheonsa_menu_element_text.cpp" />
+    <ClCompile Include="cheonsa_memory_allocator_pool.cpp" />
+    <ClCompile Include="cheonsa_menu_control_button.cpp" />
+    <ClCompile Include="cheonsa_menu_control_check.cpp" />
+    <ClCompile Include="cheonsa_menu_control_text.cpp" />
+    <ClCompile Include="cheonsa_menu_element.cpp" />
+    <ClCompile Include="cheonsa_physics_point_spring_strand.cpp" />
+    <ClCompile Include="cheonsa_reflection_manager.cpp" />
+    <ClCompile Include="cheonsa_resource_object.cpp" />
+    <ClCompile Include="cheonsa_script_manager.cpp" />
+    <ClCompile Include="cheonsa_string16.cpp" />
+    <ClCompile Include="cheonsa_data_scribe_markup.cpp" />
+    <ClCompile Include="cheonsa_data_scribe_binary_property.cpp" />
+    <ClCompile Include="cheonsa_math_types.cpp" />
+    <ClCompile Include="cheonsa_video_renderer_canvas.cpp" />
+    <ClCompile Include="cheonsa_resource_object_font.cpp" />
+    <ClCompile Include="cheonsa_resource_object_material_map.cpp" />
+    <ClCompile Include="cheonsa_scene_component.cpp" />
+    <ClCompile Include="cheonsa_scene_component_light_probe.cpp" />
+    <ClCompile Include="cheonsa_scene_component_menu_control.cpp" />
+    <ClCompile Include="cheonsa_scene_component_sound.cpp" />
+    <ClCompile Include="cheonsa_scene_component_sprite.cpp" />
+    <ClCompile Include="cheonsa_scene_object.cpp" />
+    <ClCompile Include="cheonsa_scene.cpp" />
+    <ClCompile Include="cheonsa_script_context.cpp" />
+    <ClCompile Include="cheonsa_script_scope.cpp" />
+    <ClCompile Include="cheonsa_script_instance.cpp" />
+    <ClCompile Include="cheonsa_script_value.cpp" />
+    <ClCompile Include="cheonsa_time_date_gregorian.cpp" />
+    <ClCompile Include="cheonsa_audio_interface.cpp" />
+    <ClCompile Include="cheonsa_audio_interface_wave_out.cpp" />
+    <ClCompile Include="cheonsa_platform_icon.cpp" />
+    <ClCompile Include="cheonsa_platform_pointer.cpp" />
+    <ClCompile Include="cheonsa_data_scribe_binary.cpp" />
+    <ClCompile Include="cheonsa_data_directory_memory.cpp" />
+    <ClCompile Include="cheonsa_data_stream.cpp" />
+    <ClCompile Include="cheonsa_data_stream_file.cpp" />
+    <ClCompile Include="cheonsa_data_stream_memory.cpp" />
+    <ClCompile Include="cheonsa_input_manager.cpp" />
+    <ClCompile Include="cheonsa_menu_control_list.cpp" />
+    <ClCompile Include="cheonsa_menu_control.cpp" />
+    <ClCompile Include="cheonsa_user_interface.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll.cpp" />
+    <ClCompile Include="cheonsa_menu_types.cpp" />
+    <ClCompile Include="cheonsa_network.cpp" />
+    <ClCompile Include="cheonsa_resource_manager.cpp" />
+    <ClCompile Include="cheonsa_video_renderer_interface.cpp" />
+    <ClCompile Include="cheonsa_video_interface_d3d11.cpp" />
+    <ClCompile Include="cheonsa_resource_object_sound.cpp" />
+    <ClCompile Include="cheonsa_resource_object_texture.cpp" />
+    <ClCompile Include="cheonsa_engine.cpp" />
+    <ClCompile Include="cheonsa_scene_component_light.cpp" />
+    <ClCompile Include="cheonsa_video_renderer_shader_manager.cpp" />
+    <ClCompile Include="cheonsa_menu_window.cpp" />
+    <ClCompile Include="cheonsa_menu_control_color_picker.cpp" />
+    <ClCompile Include="cheonsa_menu_window_dialog.cpp" />
+    <ClCompile Include="cheonsa_menu_control_file_picker.cpp" />
+    <ClCompile Include="cheonsa_menu_control_property_inspector.cpp" />
+    <ClCompile Include="third_party\jpgd.cpp" />
+    <ClCompile Include="third_party\jpge.cpp" />
+    <ClCompile Include="third_party\jsmn.cpp" />
+    <ClCompile Include="third_party\lodepng.cpp" />
+    <ClCompile Include="third_party\micropather.cpp" />
+    <ClCompile Include="third_party\stb_truetype.cpp" />
+    <ClCompile Include="third_party\stb_vorbis.c" />
+    <ClCompile Include="third_party\xxhash.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

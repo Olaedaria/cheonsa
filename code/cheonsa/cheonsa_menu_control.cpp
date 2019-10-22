@@ -1,0 +1,1671 @@
+#include "cheonsa_menu_control.h"
+#include "cheonsa_menu_control_button.h"
+#include "cheonsa_menu_control_check.h"
+#include "cheonsa_menu_control_collection.h"
+#include "cheonsa_menu_control_color_picker.h"
+#include "cheonsa_menu_control_combo.h"
+#include "cheonsa_menu_control_file_picker.h"
+#include "cheonsa_menu_control_image.h"
+#include "cheonsa_menu_control_label.h"
+#include "cheonsa_menu_control_list.h"
+#include "cheonsa_menu_control_menu.h"
+#include "cheonsa_menu_control_panel.h"
+#include "cheonsa_menu_control_property_inspector.h"
+#include "cheonsa_menu_control_scene.h"
+#include "cheonsa_menu_control_scroll.h"
+#include "cheonsa_menu_control_text.h"
+#include "cheonsa_menu_element.h"
+#include "cheonsa_user_interface.h"
+#include "cheonsa_ops.h"
+#include "cheonsa_engine.h"
+
+namespace cheonsa
+{
+
+	core_linked_list_c< menu_control_c * > menu_control_c::_global_list;
+
+	menu_control_c * menu_control_c::make_new_instance( string8_c const & type )
+	{
+		if ( type == menu_control_button_c::get_type_name_static() )
+		{
+			return new menu_control_button_c();
+		}
+		else if ( type == menu_control_check_c::get_type_name_static() )
+		{
+			return new menu_control_check_c();
+		}
+		else if ( type == menu_control_collection_c::get_type_name_static() )
+		{
+			return new menu_control_collection_c();
+		}
+		else if ( type == menu_control_color_picker_c::get_type_name_static() )
+		{
+			return new menu_control_color_picker_c();
+		}
+		else if ( type == menu_control_combo_c::get_type_name_static() )
+		{
+			return new menu_control_combo_c();
+		}
+		else if ( type == menu_control_file_picker_c::get_type_name_static() )
+		{
+			return new menu_control_file_picker_c();
+		}
+		else if ( type == menu_control_image_c::get_type_name_static() )
+		{
+			return new menu_control_image_c();
+		}
+		else if ( type == menu_control_label_c::get_type_name_static() )
+		{
+			return new menu_control_label_c();
+		}
+		else if ( type == menu_control_list_c::get_type_name_static() )
+		{
+			return new menu_control_list_c();
+		}
+		else if ( type == menu_control_menu_list_c::get_type_name_static() )
+		{
+			return new menu_control_menu_list_c();
+		}
+		else if ( type == menu_control_property_inspector_c::get_type_name_static() )
+		{
+			return new menu_control_property_inspector_c( nullptr, nullptr );
+		}
+		else if ( type == menu_control_scene_c::get_type_name_static() )
+		{
+			return new menu_control_scene_c();
+		}
+		else if ( type == menu_control_scroll_c::get_type_name_static() )
+		{
+			return new menu_control_scroll_c();
+		}
+		else if ( type == menu_control_text_c::get_type_name_static() )
+		{
+			return new menu_control_text_c();
+		}
+		
+		return nullptr;
+	}
+
+	void_c menu_control_c::_global_resolve_style_maps()
+	{
+		core_linked_list_c< menu_control_c * >::node_c const * menu_control_list_node = _global_list.get_first();
+		while ( menu_control_list_node != nullptr )
+		{
+			menu_control_list_node->get_value()->_style_map_reference.refresh();
+			menu_control_list_node = menu_control_list_node->get_next();
+		}
+	}
+
+	void_c menu_control_c::_handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value )
+	{
+		if ( _style_map_reference.get_value() )
+		{
+			for ( sint32_c i = 0; i < _style_map_reference.get_value()->entry_list.get_length(); i++ )
+			{
+				menu_style_map_c::entry_c * entry = _style_map_reference.get_value()->entry_list[ i ];
+				string8_c target_type = entry->get_target_type();
+				string8_c target_name = entry->get_target_name();
+				if ( target_type == "element" )
+				{
+					core_list_c< menu_element_c * > element_list;
+					_find_elements_with_name( target_name, element_list );
+					for ( sint32_c j = 0; j < element_list.get_length(); j++ )
+					{
+						menu_element_c * element = element_list[ j ];
+						if ( entry->style_key == "[invisible]" )
+						{
+							element->_is_showing_from_style = false;
+							element->set_style_key( string8_c() );
+						}
+						else
+						{
+							element->_is_showing_from_style = true;
+							element->set_style_key( entry->style_key );
+						}
+					}
+				}
+				else if ( target_type == "control" )
+				{
+					core_list_c< menu_control_c * > control_list;
+					_find_controls_with_name( target_name, control_list );
+					for ( sint32_c j = 0; j < control_list.get_length(); j++ )
+					{
+						control_list[ j ]->set_style_map_key( entry->style_key );
+					}
+				}
+			}
+		}
+		else
+		{
+			for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+			{
+				menu_element_c * element = _element_list[ i ];
+				element->set_style_key( string8_c() );
+			}
+		}
+	}
+
+	void_c menu_control_c::_add_control( menu_control_c * control, sint32_c index )
+	{
+		cheonsa_assert( control );
+		cheonsa_assert( control->_user_interface == nullptr );
+		cheonsa_assert( control->_mother_control == nullptr );
+		cheonsa_assert( control->_index == -1 );
+		cheonsa_assert( index >= -1 && index <= _control_list.get_length() );
+
+		// update relationships.
+		if ( index == -1 )
+		{
+			index = _control_list.get_length();
+		}
+		control->_mother_control = this;
+		control->_index = index;
+		_control_list.insert_at_index( index, control );
+		for ( sint32_c i = index + 1; i < _control_list.get_length(); i++ )
+		{
+			_control_list[ i ]->_index = i;
+		}
+
+		// update style map if possible.
+		if ( _style_map_reference.get_value() )
+		{
+			if ( control->get_name().get_length() > 0 )
+			{
+				string8_c target;
+				target += "control:";
+				target += control->get_name();
+				menu_style_map_c::entry_c const * style_map_entry = _style_map_reference.get_value()->find_entry( target );
+				if ( style_map_entry )
+				{
+					control->set_style_map_key( style_map_entry->style_key );
+				}
+			}
+		}
+
+		// update layout.
+		_content_box_is_dirty = true;
+		control->update_transform_and_layout();
+	}
+
+	void_c menu_control_c::_remove_control( sint32_c index )
+	{
+		cheonsa_assert( index >= 0 && index < _control_list.get_length() );
+		user_interface_c * user_interface = get_user_interface();
+		menu_control_c * control = _control_list[ index ];
+		cheonsa_assert( control->_user_interface == nullptr );
+		cheonsa_assert( control->_mother_control == this );
+		cheonsa_assert( control->_index == index );
+		if ( user_interface )
+		{
+			user_interface->_suspend_control( control );
+		}
+		_control_list.remove( control );
+		control->_mother_control = nullptr;
+		control->_index = -1;
+		for ( sint32_c i = index; i < _control_list.get_length(); i++ )
+		{
+			_control_list[ i ]->_index = i;
+		}
+		_content_box_is_dirty = true;
+	}
+
+	void_c menu_control_c::_remove_all_controls()
+	{
+		user_interface_c * user_interface = get_user_interface();
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * daughter_control = _control_list[ i ];
+			if ( user_interface )
+			{
+				user_interface->_suspend_control( daughter_control );
+			}
+		}
+		_control_list.remove_all();
+		_content_box_is_dirty = true;
+	}
+
+	void_c menu_control_c::_remove_and_delete_all_controls()
+	{
+		user_interface_c * user_interface = get_user_interface();
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * daughter_control = _control_list[ i ];
+			if ( user_interface )
+			{
+				user_interface->_suspend_control( daughter_control );
+			}
+			delete daughter_control;
+		}
+		_control_list.remove_all();
+		_content_box_is_dirty = true;
+	}
+
+	menu_control_c * menu_control_c::_find_control( string8_c const & name, string8_c const & type )
+	{
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * control = _control_list[ i ];
+			if ( type == control->get_type_name() )
+			{
+				if ( name.get_length() == 0 || name == control->_name )
+				{
+					return control;
+				}
+			}
+		}
+		return nullptr;
+	}
+
+	void_c menu_control_c::_find_controls_with_name( string8_c const & name, core_list_c< menu_control_c * > & result )
+	{
+		result.construct_mode_dynamic( 0 );
+		if ( name.character_list.get_length() > 1 )
+		{
+			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+			{
+				menu_control_c * daughter = _control_list[ i ];
+				if ( name == daughter->_name )
+				{
+					result.insert_at_end( daughter );
+				}
+			}
+		}
+	}
+
+	void_c menu_control_c::_add_element( menu_element_c * element )
+	{
+		cheonsa_assert( element );
+		cheonsa_assert( element->_mother_control == nullptr );
+
+		// update relationships.
+		element->_mother_control = this;
+		_element_list.insert_at_end( element );
+
+		// update style map if possible.
+		if ( _style_map_reference.get_value() )
+		{
+			if ( element->get_name().get_length() > 0 )
+			{
+				string8_c target;
+				target += "element:";
+				target += element->get_name();
+				menu_style_map_c::entry_c const * style_map_entry = _style_map_reference.get_value()->find_entry( target );
+				if ( style_map_entry )
+				{
+					element->set_style_key( style_map_entry->style_key );
+				}
+			}
+		}
+
+		// update layout.
+		element->update_layout( _local_box );
+	}
+
+	void_c menu_control_c::_remove_element( menu_element_c * element )
+	{
+		cheonsa_assert( element != nullptr );
+		cheonsa_assert( element->_mother_control == this );
+		_element_list.remove( element );
+		element->_mother_control = nullptr;
+	}
+
+	menu_element_c * menu_control_c::_find_element( string8_c const & name, string8_c const & type )
+	{
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			menu_element_c * element = _element_list[ i ];
+			if ( type == element->get_type_name() )
+			{
+				if ( name.get_length() == 0 || name == element->get_name() )
+				{
+					return element;
+				}
+			}
+		}
+		return nullptr;
+	}
+
+	void_c menu_control_c::_find_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result )
+	{
+		result.construct_mode_dynamic( 0 );
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			menu_element_c * daughter = _element_list[ i ];
+			if ( daughter->get_name() == name )
+			{
+				result.insert_at_end( daughter );
+			}
+		}
+	}
+
+	void_c menu_control_c::_handle_resource_object_menu_on_load( resource_object_c * resource_object )
+	{
+		cheonsa_assert( resource_object != nullptr );
+		cheonsa_assert( resource_object->get_is_loaded() );
+		cheonsa_assert( _resource_object_menu == resource_object );
+		load_hierarchy_and_properties( _resource_object_menu->get_markup().get_node( 1 ) );
+	}
+
+	void_c menu_control_c::_handle_resource_object_menu_on_unload( resource_object_c * resource_object )
+	{
+		cheonsa_assert( resource_object != nullptr );
+		cheonsa_assert( resource_object->get_is_loaded() );
+		load_hierarchy_and_properties( nullptr );
+	}
+
+	boolean_c menu_control_c::_get_is_descendant_character_focused()
+	{
+		menu_control_c * control = get_user_interface()->get_text_focused();
+		while ( control != nullptr )
+		{
+			if ( control == this )
+			{
+				return true;
+			}
+			control = control->_mother_control;
+		}
+		return false;
+	}
+
+	boolean_c menu_control_c::_get_is_descendant_mouse_focused()
+	{
+		menu_control_c * control = get_user_interface()->get_mouse_focused();
+		while ( control != nullptr )
+		{
+			if ( control == this )
+			{
+				return true;
+			}
+			control = control->_mother_control;
+		}
+		return false;
+	}
+
+	void_c menu_control_c::_on_added_to_user_interface()
+	{
+		on_added_to_user_interface.invoke( get_user_interface() );
+	}
+
+	void_c menu_control_c::_on_removed_from_user_interface()
+	{
+		on_removed_from_user_interface.invoke( get_user_interface() );
+	}
+
+	void_c menu_control_c::_on_show()
+	{
+		on_show.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_hide()
+	{
+		on_hide.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_enable()
+	{
+		on_enable.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_disable()
+	{
+		on_disable.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_clicked( input_event_c * input_event )
+	{
+		on_clicked.invoke( menu_event_info_c( this, input_event ) );
+	}
+
+	void_c menu_control_c::_on_multi_clicked( input_event_c * input_event )
+	{
+		on_multi_clicked.invoke( menu_event_info_c( this, input_event ) );
+	}
+
+	void_c menu_control_c::_on_deep_text_focus_gained()
+	{
+		on_deep_text_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_deep_text_focus_lost()
+	{
+		on_deep_text_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_text_focus_gained()
+	{
+		on_text_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_text_focus_lost()
+	{
+		on_text_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_mouse_over_gained()
+	{
+		on_mouse_over_gained.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_mouse_over_lost()
+	{
+		on_mouse_over_lost.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_mouse_focus_gained()
+	{
+		on_mouse_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_mouse_focus_lost()
+	{
+		on_mouse_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
+	}
+
+	void_c menu_control_c::_on_input( input_event_c * input_event )
+	{
+	}
+
+	menu_control_c::thing_added_by_xml_c::thing_added_by_xml_c()
+		: type( type_e_none )
+		, element( nullptr )
+	{
+	}
+
+	menu_control_c::thing_added_by_xml_c::thing_added_by_xml_c( menu_element_c * element )
+		: type( type_e_element )
+		, element( element )
+	{
+	}
+
+	menu_control_c::thing_added_by_xml_c::thing_added_by_xml_c( menu_control_c * control )
+		: type( type_e_control )
+		, control( control )
+	{
+	}
+
+	menu_control_c::menu_control_c()
+		: _global_list_node( this )
+		, _style_map_reference()
+		, _name()
+		, _user_interface( nullptr )
+		, _mother_control( nullptr )
+		, _index( -1 )
+		, _content_offset( 0.0f, 0.0f )
+		, _content_box( 0.0f, 0.0f, 0.0f, 0.0f )
+		, _content_box_is_dirty( true )
+		, _element_list()
+		, _control_list()
+		, _layer( menu_layer_e_undefined )
+		, _select_mode( menu_select_mode_e_mouse )
+		, _wants_to_be_deleted( false )
+		, _is_showing( true )
+		, _is_showing_weight( 0.0f )
+		, _is_enabled( true )
+		, _is_deep_text_focused( 0 )
+		, _is_mouse_overed( 0 )
+		, _is_mouse_focused( 0 )
+		, _is_text_focused( 0 )
+		, _is_pressed( 0 )
+		, _layout_mode( menu_layout_mode_e_simple )
+		, _local_origin( 0.0f, 0.0f )
+		, _local_anchor( menu_anchor_e_none )
+		, _local_anchor_measures( 0.0f, 0.0f, 0.0f, 0.0f )
+		, _local_box( 0.0f, 0.0f, 100.0f, 100.0f )
+		, _local_angle( 0.0f )
+		, _local_scale( 1.0f )
+		, _local_basis()
+		, _local_color( 1.0f, 1.0f, 1.0f, 1.0f )
+		, _global_origin( 0.0f, 0.0f )
+		, _global_basis()
+		, _global_basis_inverse()
+		, _global_color()
+		, _control_group_is_root( false )
+		, _control_group_mother( nullptr )
+		, _control_group_daughter_list()
+		, _control_group_texture( nullptr )
+		, _control_group_texture_wrapper( true )
+		, _control_group_origin()
+		, _control_group_basis()
+		, _control_group_draw_list()
+		, _scene_component_menu_control( nullptr )
+		, _non_client_type( menu_non_client_type_e_none )
+		, _user_pointer( nullptr )
+	{
+		_global_list.insert_at_end( &_global_list_node );
+		_style_map_reference.on_refreshed.subscribe( this, &menu_control_c::_handle_style_map_reference_on_refreshed );
+	}
+
+	menu_control_c::~menu_control_c()
+	{
+		_global_list.remove( &_global_list_node );
+
+		if ( _control_group_texture != nullptr )
+		{
+			delete _control_group_texture;
+			_control_group_texture = nullptr;
+		}
+
+		cheonsa_assert( get_user_interface() == nullptr );
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			delete _control_list[ i ];
+		}
+	}
+
+	void_c menu_control_c::update_animations( float32_c time_step )
+	{
+		float32_c transition_step = global_engine_instance.interfaces.menu_style_manager->shared_transition_speed * static_cast< float32_c >( time_step );
+		_is_showing_weight = ops::math_saturate( _is_showing_weight + ( _is_showing ? transition_step : -transition_step ) );
+		//_global_is_showing_weight = _is_showing_weight;
+		//if ( _mother_control != nullptr )
+		//{
+		//	_global_is_showing_weight *= _mother_control->_global_is_showing_weight;
+		//}
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			menu_element_c * element = _element_list[ i ];
+			element->_is_pressed = _is_pressed && _is_mouse_overed;
+			element->update_animations( time_step );
+		}
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * control = _control_list[ i ];
+			control->_index = i;
+			control->update_animations( time_step );
+			if ( control->_wants_to_be_deleted && control->_is_showing_weight <= 0.0f )
+			{
+				_remove_control( i );
+				delete control;
+				i--;
+			}
+		}
+	}
+
+	void_c menu_control_c::load_hierarchy_and_properties( data_scribe_markup_c::node_c const * node )
+	{
+		// remove and delete previous instances that were instantiated by xml from a previous load.
+		for ( sint32_c i = 0; i < _things_added_by_xml.get_length(); i++ )
+		{
+			thing_added_by_xml_c const & thing = _things_added_by_xml[ i ];
+			if ( thing.type == thing_added_by_xml_c::type_e_element )
+			{
+				_remove_element( thing.element );
+				delete thing.element;
+			}
+			else if ( thing.type == thing_added_by_xml_c::type_e_control )
+			{
+				_remove_control( thing.control->_index );
+				delete thing.control;
+			}
+		}
+		_things_added_by_xml.remove_all();
+
+		// reset properties to default.
+		//reset_properties();
+
+		// exit early if nothing else to do.
+		if ( node == nullptr )
+		{
+			return;
+		}
+
+		// load properties of this control.
+		// which also updates transform and layout of this control.
+		load_properties( node );
+
+		// daughter elements.
+		// will use existing ones when possible otherwise will instantiate new ones.
+		core_list_c< data_scribe_markup_c::node_c const * > sub_nodes;
+		node->find_tags( "elements", sub_nodes );
+		for ( sint32_c i = 0; i < sub_nodes.get_length(); i++ )
+		{
+			data_scribe_markup_c::node_c const * sub_node = sub_nodes[ i ];
+
+			if ( sub_node->get_type() == data_scribe_markup_c::node_c::type_e_tag )
+			{
+				data_scribe_markup_c::attribute_c const * type_attribute = sub_node->find_attribute( "type" );
+				data_scribe_markup_c::attribute_c const * name_attribute = sub_node->find_attribute( "name" );
+				if ( type_attribute != nullptr )
+				{
+					menu_element_c * element = nullptr;
+					element = _find_element( name_attribute != nullptr ? name_attribute->get_value() : string8_c(), type_attribute->get_value() );
+					//if ( element == nullptr )
+					//{
+					//	element = menu_element_c::make_new_instance( type_attribute->get_value() );
+					//	if ( element == nullptr )
+					//	{
+					//		continue;
+					//	}
+					//	if ( name_attribute != nullptr )
+					//	{
+					//		element->set_name( name_attribute->get_value() );
+					//	}
+					//	_things_added_by_xml.insert_at_end( thing_added_by_xml_c( element ) );
+					//	_add_element( element );
+					//}
+					if ( element != nullptr )
+					{
+						element->load_properties( sub_node );
+					}
+				}
+			}
+		}
+
+		// daughter controls.
+		// will use existing ones when possible otherwise will instantiate new ones.
+		sub_nodes.remove_all();
+		node->find_tags( "control", sub_nodes );
+		for ( sint32_c i = 0; i < sub_nodes.get_length(); i++ )
+		{
+			data_scribe_markup_c::node_c const * sub_node = sub_nodes[ i ];
+			if ( sub_node->get_type() == data_scribe_markup_c::node_c::type_e_tag )
+			{
+				data_scribe_markup_c::attribute_c const * type_attribute = sub_node->find_attribute( "type" );
+				data_scribe_markup_c::attribute_c const * name_attribute = sub_node->find_attribute( "name" );
+				if ( type_attribute != nullptr )
+				{
+					menu_control_c * control = nullptr;
+					control = _find_control( name_attribute != nullptr ? name_attribute->get_value() : string8_c(), type_attribute->get_value() );
+					//if ( control == nullptr )
+					//{
+					//	control = menu_control_c::make_new_instance( type_attribute->get_value() );
+					//	if ( control == nullptr )
+					//	{
+					//		continue;
+					//	}
+					//	if ( name_attribute != nullptr )
+					//	{
+					//		control->set_name( name_attribute->get_value() );
+					//	}
+					//	_things_added_by_xml.insert_at_end( thing_added_by_xml_c( control ) );
+					//	_add_control( control );
+					//}
+					if ( control != nullptr )
+					{
+						control->load_hierarchy_and_properties( sub_node );
+					}
+				}
+			}
+		}
+	}
+
+	void_c menu_control_c::reset_properties()
+	{
+		_layout_mode = menu_layout_mode_e_simple;
+		_local_origin = vector32x2_c( 0.0f, 0.0f );
+		_local_anchor = menu_anchor_e_none;
+		_local_box = box32x2_c( 0.0f, 0.0f, 100.0f, 100.0f );
+		_local_angle = 0.0f;
+		_local_scale = 1.0f;
+		_local_color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::load_properties( data_scribe_markup_c::node_c const * node )
+	{
+		data_scribe_markup_c::attribute_c const * attribute;
+
+		attribute = node->find_attribute( "layout_mode" );
+		if ( attribute )
+		{
+			if ( attribute->get_value() == "box_anchor" )
+			{
+				_layout_mode = menu_layout_mode_e_box_anchor;
+			}
+			else if ( attribute->get_value() == "point_anchor" )
+			{
+				_layout_mode = menu_layout_mode_e_point_anchor;
+			}
+			else if ( attribute->get_value() == "simple" )
+			{
+				_layout_mode = menu_layout_mode_e_simple;
+			}
+		}
+
+		attribute = node->find_attribute( "local_origin" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_origin.as_array(), 2 ) );
+		}
+
+		attribute = node->find_attribute( "local_anchor" );
+		if ( attribute )
+		{
+			sint32_c dummy = 0;
+			_local_anchor = menu_anchor_e_none;
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "left" ), dummy ) )
+			{
+				_local_anchor |= menu_anchor_e_left;
+			}
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "top" ), dummy ) )
+			{
+				_local_anchor |= menu_anchor_e_top;
+			}
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "right" ), dummy ) )
+			{
+				_local_anchor |= menu_anchor_e_right;
+			}
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "bottom" ), dummy ) )
+			{
+				_local_anchor |= menu_anchor_e_bottom;
+			}
+		}
+
+		attribute = node->find_attribute( "local_anchor_measures" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_anchor_measures.as_array(), 4 ) );
+		}
+
+		attribute = node->find_attribute( "local_box" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_box.as_array(), 4 ) );
+		}
+
+		attribute = node->find_attribute( "local_angle" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_float32( attribute->get_value(), _local_angle );
+		}
+
+		attribute = node->find_attribute( "local_scale" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_float32( attribute->get_value(), _local_scale );
+		}
+
+		update_transform_and_layout();
+
+		//attribute = node->find_attribute( "style_map_key" );
+		//_style_map_reference.set_key( attribute ? attribute->get_value() : string8_c() );
+	}
+
+	resource_object_menu_layout_c * menu_control_c::get_menu_layout_resource() const
+	{
+		return _resource_object_menu;
+	}
+
+	void_c menu_control_c::set_menu_layout_resource( resource_object_menu_layout_c * value )
+	{
+		if ( _resource_object_menu.is_reference_set() )
+		{
+			if ( _resource_object_menu->get_is_loaded() )
+			{
+				_handle_resource_object_menu_on_unload( _resource_object_menu );
+			}
+			_resource_object_menu->on_load.unsubscribe( this, &menu_control_c::_handle_resource_object_menu_on_load );
+			_resource_object_menu->on_unload.unsubscribe( this, &menu_control_c::_handle_resource_object_menu_on_unload );
+		}
+		_resource_object_menu = value;
+		if ( _resource_object_menu.is_reference_set() )
+		{
+			_resource_object_menu->on_load.subscribe( this, &menu_control_c::_handle_resource_object_menu_on_load );
+			_resource_object_menu->on_unload.subscribe( this, &menu_control_c::_handle_resource_object_menu_on_unload );
+			if ( _resource_object_menu->get_is_loaded() )
+			{
+				_handle_resource_object_menu_on_load( _resource_object_menu );
+			}
+		}
+	}
+
+	menu_control_c * menu_control_c::pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer )
+	{
+		if ( _is_showing == false )
+		{
+			return nullptr;
+		}
+
+		menu_control_c * best_pick = nullptr;
+
+		if ( contains_global_point( global_point ) )
+		{
+			// test public controls.
+			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+			{
+				menu_control_c * daughter = _control_list[ i ]->pick_control_with_global_point( global_point, layer );
+				if ( daughter != nullptr )
+				{
+					menu_layer_e daughter_layer = daughter->get_expressed_layer();
+					if ( daughter_layer >= layer )
+					{
+						layer = daughter_layer;
+						best_pick = daughter;
+					}
+				}
+			}
+
+			//// test private controls.
+			//if ( _private_control_list.get_length() )
+			//{
+			//	for ( sint32_c i = _private_control_list.get_length() - 1; i >= 0; i-- )
+			//	{
+			//		menu_control_c * daughter = _private_control_list[ i ]->pick_control_with_global_point( global_point, layer );
+			//		if ( daughter != nullptr )
+			//		{
+			//			menu_layer_e daughter_layer = daughter->get_expressed_layer();
+			//			if ( daughter_layer >= layer )
+			//			{
+			//				layer = daughter_layer;
+			//				best_pick = daughter;
+			//			}
+			//		}
+			//	}
+			//}
+		}
+
+		// return result if we found one by now.
+		if ( best_pick != nullptr )
+		{
+			return best_pick;
+		}
+
+		// finally, test against this.
+		menu_layer_e this_layer = get_expressed_layer();
+		if ( _select_mode != menu_select_mode_e_none && this_layer >= layer && contains_global_point( global_point ) )
+		{
+			layer = this_layer;
+			return this;
+		}
+
+		return nullptr;
+	}
+
+	vector32x2_c menu_control_c::transform_point_from_global_to_local( vector32x2_c const & global_point ) const
+	{
+		return ops::make_vector32x2_transformed_point( global_point - _global_origin, _global_basis_inverse );
+	}
+
+	vector32x2_c menu_control_c::transform_point_from_local_to_global( vector32x2_c const & local_point ) const
+	{
+		return ops::make_vector32x2_transformed_point( local_point, _global_basis ) + _global_origin;
+	}
+
+	boolean_c menu_control_c::contains_global_point( vector32x2_c const & global_point ) const
+	{
+		vector32x2_c local_point = transform_point_from_global_to_local( global_point );
+		return ops::intersect_rectangle_vs_point( _local_box, local_point );
+	}
+
+	boolean_c menu_control_c::contains_local_point( vector32x2_c const & local_point ) const
+	{
+		return ops::intersect_rectangle_vs_point( _local_box, local_point );
+	}
+
+	string8_c const & menu_control_c::get_style_map_key() const
+	{
+		return _style_map_reference.get_key();
+	}
+
+	void_c menu_control_c::set_style_map_key( string8_c const & value )
+	{
+		_style_map_reference.set_key( value );
+	}
+
+	string8_c const & menu_control_c::get_name() const
+	{
+		return _name;
+	}
+
+	void_c menu_control_c::set_name( string8_c const & value )
+	{
+		_name = value;
+	}
+
+	sint32_c menu_control_c::get_index() const
+	{
+		return _index;
+	}
+
+	user_interface_c * menu_control_c::get_user_interface()
+	{
+		return get_root_mother_control()->_user_interface;
+	}
+
+	menu_control_c * menu_control_c::get_root_mother_control()
+	{
+		menu_control_c * control = this;
+		while ( control->_mother_control )
+		{
+			control = control->_mother_control;
+		}
+		return control;
+	}
+
+	menu_control_c * menu_control_c::get_mother_control()
+	{
+		return _mother_control;
+	}
+
+	sint32_c menu_control_c::get_control_count() const
+	{
+		return _control_list.get_length();
+	}
+
+	menu_control_c * menu_control_c::get_control( sint32_c index ) const
+	{
+		return _control_list[ index ];
+	}
+
+	boolean_c menu_control_c::is_descendant_of( menu_control_c * control )
+	{
+		menu_control_c * mother_control = _mother_control;
+		while ( mother_control )
+		{
+			if ( mother_control == control )
+			{
+				return true;
+			}
+			mother_control = mother_control->_mother_control;
+		}
+		return false;
+	}
+
+	menu_layer_e menu_control_c::get_expressed_layer()
+	{
+		menu_control_c * control = this;
+		while ( control != nullptr )
+		{
+			if ( control->_layer != menu_layer_e_undefined )
+			{
+				return control->_layer;
+			}
+			control = control->_mother_control;
+		}
+		return menu_layer_e_base;
+	}
+
+	menu_select_mode_e menu_control_c::get_select_mode() const
+	{
+		return _select_mode;
+	}
+
+	void_c menu_control_c::set_select_mode( menu_select_mode_e value )
+	{
+		_select_mode = value;
+	}
+
+	boolean_c menu_control_c::get_is_showing() const
+	{
+		return _is_showing;
+	}
+
+	float32_c menu_control_c::get_is_showing_weight() const
+	{
+		return _is_showing_weight;
+	}
+
+	void_c menu_control_c::show()
+	{
+		if ( _is_showing == false )
+		{
+			_is_showing = true;
+			_wants_to_be_deleted = false;
+			_on_show();
+		}
+	}
+
+	void_c menu_control_c::show_immediately()
+	{
+		if ( _is_showing == false )
+		{
+			_is_showing = true;
+			_is_showing_weight = 1.0f;
+			//if ( _mother_control )
+			//{
+			//	_global_is_showing_weight = _mother_control->_global_is_showing_weight;
+			//}
+			//else
+			//{
+			//	_global_is_showing_weight = _is_showing_weight;
+			//}
+			_wants_to_be_deleted = false;
+			_on_show();
+		}
+	}
+
+	void_c menu_control_c::hide( boolean_c wants_to_be_deleted )
+	{
+		if ( _is_showing == true )
+		{
+			_is_showing = false;
+			_wants_to_be_deleted = wants_to_be_deleted;
+			_on_hide();
+			user_interface_c * user_interface = get_user_interface();
+			if ( user_interface )
+			{
+				user_interface->_suspend_control( this );
+			}
+		}
+	}
+
+	void_c menu_control_c::hide_immediately()
+	{
+		if ( _is_showing == true )
+		{
+			_is_showing = false;
+			_is_showing_weight = 0.0f;
+			//_global_is_showing_weight = 0.0f;
+			_on_hide();
+			user_interface_c * user_interface = get_user_interface();
+			if ( user_interface )
+			{
+				user_interface->_suspend_control( this );
+			}
+		}
+	}
+
+	boolean_c menu_control_c::get_is_enabled() const
+	{
+		return _is_enabled;
+	}
+
+	void_c menu_control_c::enable()
+	{
+		_is_enabled = true;
+	}
+
+	void_c menu_control_c::disable()
+	{
+		_is_enabled = false;
+		user_interface_c * user_interface = get_user_interface();
+		if ( user_interface )
+		{
+			user_interface->_suspend_control( this );
+		}
+	}
+
+	sint32_c menu_control_c::get_is_deep_text_focused() const
+	{
+		return _is_deep_text_focused;
+	}
+
+	boolean_c menu_control_c::get_is_mouse_overed() const
+	{
+		return _is_mouse_overed;
+	}
+
+	boolean_c menu_control_c::get_is_mouse_focused() const
+	{
+		return _is_mouse_focused;
+	}
+
+	boolean_c menu_control_c::get_is_text_focused() const
+	{
+		return _is_text_focused;
+	}
+
+	boolean_c menu_control_c::get_is_pressed() const
+	{
+		return _is_pressed;
+	}
+
+	menu_state_e menu_control_c::get_state() const
+	{
+		if ( _is_enabled )
+		{
+			if ( _is_pressed )
+			{
+				return menu_state_e_pressed;
+			}
+			else if ( _is_mouse_focused || _is_text_focused )
+			{
+				return menu_state_e_selected;
+			}
+			else
+			{
+				return menu_state_e_normal;
+			}
+		}
+		else
+		{
+			return menu_state_e_disabled;
+		}
+	}
+
+	void_c menu_control_c::set_layout_simple( vector32x2_c const & local_origin, box32x2_c const & local_box_around_origin, float32_c local_angle, float32_c local_scale )
+	{
+		_layout_mode = menu_layout_mode_e_simple;
+		_local_anchor = menu_anchor_e_none;
+		_local_origin = local_origin;
+		_local_box = local_box_around_origin;
+		_local_angle = local_angle;
+		_local_scale = local_scale;
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::set_layout_simple( box32x2_c const & local_box, float32_c local_angle, float32_c local_scale )
+	{
+		_layout_mode = menu_layout_mode_e_simple;
+		_local_anchor = menu_anchor_e_none;
+		_local_origin = local_box.get_center();
+		_local_box = local_box;
+		_local_angle = local_angle;
+		_local_scale = local_scale;
+		_local_box.minimum -= _local_origin;
+		_local_box.maximum -= _local_origin;
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::set_layout_box_anchor( menu_anchor_e local_anchor, box32x2_c const & local_anchor_measures, float32_c local_angle, float32_c local_scale )
+	{
+		_layout_mode = menu_layout_mode_e_box_anchor;
+		_local_anchor = local_anchor;
+		_local_anchor_measures = local_anchor_measures;
+		_local_angle = local_angle;
+		_local_scale = local_scale;
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::set_layout_point_anchor( menu_anchor_e local_anchor, vector32x2_c const & local_anchor_measures, box32x2_c const & local_box, float32_c local_angle, float32_c local_scale )
+	{
+		_layout_mode = menu_layout_mode_e_point_anchor;
+		_local_anchor = local_anchor;
+		_local_anchor_measures.minimum = local_anchor_measures;
+		_local_anchor_measures.maximum = vector32x2_c();
+		_local_box = local_box;
+		_local_angle = local_angle;
+		_local_scale = local_scale;
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::update_transform_and_layout()
+	{
+		user_interface_c * user_interface = get_user_interface();
+		if ( user_interface == nullptr )
+		{
+			return;
+		}
+
+		box32x2_c old_local_box = _local_box;
+
+		// update _local_basis.
+		_local_basis = ops::make_matrix32x2x2_transform( _local_angle, _local_scale );
+
+		// layout _local_box.
+		if ( _layout_mode == menu_layout_mode_e_box_anchor )
+		{
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
+			if ( ( _local_anchor & menu_anchor_e_left ) && ( _local_anchor & menu_anchor_e_right ) )
+			{
+				// anchor left and right edges.
+				_local_box.minimum.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
+				_local_box.maximum.a = mother_rectangle.maximum.a - _local_anchor_measures.maximum.a;
+			}
+			else if ( _local_anchor & menu_anchor_e_left )
+			{
+				// anchor left edge.
+				_local_box.minimum.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
+				_local_box.maximum.a = _local_box.minimum.a + _local_anchor_measures.maximum.a;
+			}
+			else if ( _local_anchor & menu_anchor_e_right )
+			{
+				// anchor right edge.
+				_local_box.maximum.a = mother_rectangle.maximum.a - _local_anchor_measures.maximum.a;
+				_local_box.minimum.a = _local_box.maximum.a - _local_anchor_measures.minimum.a;
+			}
+			if ( ( _local_anchor & menu_anchor_e_top ) && ( _local_anchor & menu_anchor_e_bottom ) )
+			{
+				// anchor top and bottom edges.
+				_local_box.minimum.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
+				_local_box.maximum.b = mother_rectangle.maximum.b - _local_anchor_measures.maximum.b;
+			}
+			else if ( _local_anchor & menu_anchor_e_top )
+			{
+				// anchor top edge.
+				_local_box.minimum.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
+				_local_box.maximum.b = _local_box.minimum.b + _local_anchor_measures.maximum.b;
+			}
+			else if ( _local_anchor & menu_anchor_e_bottom )
+			{
+				// anchor bottom edge.
+				_local_box.maximum.b = mother_rectangle.maximum.b - _local_anchor_measures.maximum.b;
+				_local_box.minimum.b = _local_box.maximum.b - _local_anchor_measures.minimum.b;
+			}
+
+			// constrain dimensions such that width and height don't become smaller than zero.
+			if ( _local_box.maximum.a < _local_box.minimum.a )
+			{
+				_local_box.maximum.a = _local_box.minimum.a;
+			}
+			if ( _local_box.maximum.b < _local_box.minimum.b )
+			{
+				_local_box.maximum.b = _local_box.minimum.b;
+			}
+
+			//// if we are scaled differently from our mother then we can factor in corrective adjustments here.
+			//// this keeps the effect of anchor offsets constant even as our local scale changes.
+			//if ( _local_scale != 1.0f )
+			//{
+			//	float32_c local_scale_inverse = 1.0f / _local_scale;
+			//	_local_box.minimum.a *= local_scale_inverse;
+			//	_local_box.minimum.b *= local_scale_inverse;
+			//	_local_box.maximum.a *= local_scale_inverse;
+			//	_local_box.maximum.b *= local_scale_inverse;
+			//}
+
+			// set result_local_origin to center of result_local_box, then translate the result_local_box by the inverse.
+			_local_origin = _local_box.get_center();
+			_local_box.minimum -= _local_origin;
+			_local_box.maximum -= _local_origin;
+		}
+		else if ( _layout_mode == menu_layout_mode_e_point_anchor )
+		{
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
+			_local_origin = vector32x2_c();
+			if ( _local_anchor & menu_anchor_e_left )
+			{
+				_local_origin.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
+			}
+			else if ( _local_anchor & menu_anchor_e_right )
+			{
+				_local_origin.a = mother_rectangle.maximum.a - _local_anchor_measures.minimum.a;
+			}
+			if ( _local_anchor & menu_anchor_e_top )
+			{
+				_local_origin.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
+			}
+			else if ( _local_anchor & menu_anchor_e_bottom )
+			{
+				_local_origin.b = mother_rectangle.maximum.b - _local_anchor_measures.minimum.b;
+			}
+		}
+
+		// invalidate content box if needed.
+		if ( old_local_box != _local_box )
+		{
+			_content_box_is_dirty = true;
+		}
+
+		// update _global_origin and _global_basis and _global_basis_inverse.
+		if ( _mother_control != nullptr )
+		{
+			_global_origin = ops::make_vector32x2_transformed_point( _local_origin + _mother_control->_content_offset, _mother_control->_global_basis ) + _mother_control->_global_origin;
+			_global_basis = _mother_control->_global_basis * _local_basis;
+			_global_color = _mother_control->_global_color * _local_color;
+		}
+		else
+		{
+			_global_origin = _local_origin;
+			_global_basis = _local_basis;
+			_global_color = _local_color;
+		}
+		_global_basis_inverse = ops::make_matrix32x2x2_inverted( _global_basis );
+
+		// layout daughters.
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			menu_element_c * element = _element_list[ i ];
+			element->update_layout( _local_box );
+		}
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * daughter = _control_list[ i ];
+			daughter->update_transform_and_layout();
+		}
+	}
+
+	vector32x2_c const & menu_control_c::get_local_origin() const
+	{
+		return _local_origin;
+	}
+
+	void_c menu_control_c::set_local_origin( vector32x2_c const & value )
+	{
+		_local_origin = value;
+		update_transform_and_layout();
+	}
+
+	box32x2_c const & menu_control_c::get_local_box() const
+	{
+		return _local_box;
+	}
+
+	box32x2_c const & menu_control_c::get_local_anchor_measures() const
+	{
+		return _local_anchor_measures;
+	}
+
+	void_c menu_control_c::set_local_anchor_measures( box32x2_c const & value )
+	{
+		_local_anchor_measures = value;
+		update_transform_and_layout();
+	}
+
+	float32_c menu_control_c::get_local_angle() const
+	{
+		return _local_angle;
+	}
+
+	void_c menu_control_c::set_local_angle( float32_c value )
+	{
+		_local_angle = value;
+		update_transform_and_layout();
+	}
+
+	float32_c menu_control_c::get_local_scale() const
+	{
+		return _local_scale;
+	}
+
+	void_c menu_control_c::set_local_scale( float32_c value )
+	{
+		_local_scale = value;
+		update_transform_and_layout();
+	}
+
+	vector32x4_c const & menu_control_c::get_local_color() const
+	{
+		return _local_color;
+	}
+
+	void_c menu_control_c::set_local_color( vector32x4_c const & value )
+	{
+		_local_color = value;
+		update_transform_and_layout();
+	}
+
+	vector32x2_c const & menu_control_c::get_global_origin() const
+	{
+		return _global_origin;
+	}
+
+	matrix32x2x2_c const & menu_control_c::get_global_basis() const
+	{
+		return _global_basis;
+	}
+
+	matrix32x2x2_c const & menu_control_c::get_global_basis_inverse() const
+	{
+		return _global_basis_inverse;
+	}
+
+	vector32x4_c const & menu_control_c::get_global_color() const
+	{
+		return _global_color;
+	}
+
+	scene_component_menu_control_c * menu_control_c::get_scene_component() const
+	{
+		return _scene_component_menu_control;
+	}
+
+	void_c menu_control_c::set_scene_component( scene_component_menu_control_c * value )
+	{
+		_scene_component_menu_control = value;
+	}
+
+	menu_non_client_type_e menu_control_c::get_non_client_type() const
+	{
+		return _non_client_type;
+	}
+
+	void_c menu_control_c::set_non_client_type( menu_non_client_type_e value )
+	{
+		_non_client_type = value;
+	}
+
+	void_c * menu_control_c::get_user_pointer() const
+	{
+		return _user_pointer;
+	}
+
+	void_c menu_control_c::set_user_pointer( void_c * value )
+	{
+		_user_pointer = value;
+	}
+
+	void_c menu_control_c::bring_to_front()
+	{
+		if ( _user_interface )
+		{
+			_user_interface->bring_control_to_front( this );
+		}
+		else if ( _mother_control )
+		{
+			cheonsa_assert( _mother_control->_control_list[ _index ] == this );
+			_mother_control->_control_list.remove_at_index( _index );
+			_mother_control->_control_list.insert_at_index( 0, this );
+			for ( sint32_c i = 0; i < _mother_control->_control_list.get_length(); i++ )
+			{
+				_mother_control->_control_list[ i ]->_index = i;
+			}
+		}
+	}
+
+	void_c menu_control_c::give_text_focus()
+	{
+		user_interface_c * user_interface = get_user_interface();
+		if ( user_interface )
+		{
+			user_interface->set_text_focused( this );
+		}
+	}
+
+	box32x2_c const & menu_control_c::get_content_box()
+	{
+		if ( _content_box_is_dirty )
+		{
+			_content_box_is_dirty = false;
+			_content_box = box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f );
+			boolean_c first = true;
+			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+			{
+				menu_control_c const * control = _control_list[ i ];
+				box32x2_c control_box = ops::make_aabb_from_obb( control->_local_box, vector32x2_c(), control->_local_basis );
+				if ( first )
+				{
+					first = false;
+					_content_box = control_box;
+				}
+				else
+				{
+					_content_box.accumulate_bounds( control_box );
+				}
+			}
+			for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+			{
+				menu_element_c const * element = _element_list[ i ];
+				box32x2_c const & element_box = element->_local_box;
+				if ( first )
+				{
+					first = false;
+					_content_box = element_box;
+				}
+				else
+				{
+					_content_box.accumulate_bounds( element_box );
+				}
+			}
+		}
+		return _content_box;
+	}
+
+	vector32x2_c const & menu_control_c::get_content_offset() const
+	{
+		return _content_offset;
+	}
+
+	void_c menu_control_c::set_content_offset( vector32x2_c const & value )
+	{
+		_content_offset = value;
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::set_content_offset_horizontal( float32_c value )
+	{
+		_content_offset.a = value;
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::set_content_offset_vertical( float32_c value )
+	{
+		_content_offset.b = value;
+		update_transform_and_layout();
+	}
+
+	void_c menu_control_c::get_control_group_clip_planes( core_list_c< vector32x4_c > & result )
+	{
+		menu_control_c * control = this;
+		while ( control != nullptr && !control->_control_group_is_root )
+		{
+			matrix32x2x2_c control_group_basis = control->get_control_group_basis();
+			vector32x2_c control_group_origin = control->get_control_group_origin();
+			vector32x2_c minimum = ops::make_vector32x2_transformed_point( control->_local_box.minimum, control_group_basis ) + control_group_origin;
+			vector32x2_c maximum = ops::make_vector32x2_transformed_point( control->_local_box.maximum, control_group_basis ) + control_group_origin;
+			vector32x2_c normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 1.0f, 0.0f ), control_group_basis ) );
+			vector32x4_c * plane = result.emplace_at_end();
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->d = 0.0f;
+			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, 1.0f ), control_group_basis ) );
+			plane = result.emplace_at_end();
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->d = 0.0f;
+			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( -1.0f, 0.0f ), control_group_basis ) );
+			plane = result.emplace_at_end();
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->d = 0.0f;
+			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, -1.0f ), control_group_basis ) );
+			plane = result.emplace_at_end();
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->d = 0.0f;
+			control = control->_mother_control;
+		}
+	}
+
+	matrix32x2x2_c menu_control_c::get_control_group_basis() const
+	{
+		//matrix32x2x2_c control_group_basis = matrix32x2x2_c( 1.0f, 0.0f, 0.0f, 1.0f ); //_global_basis;
+		//if ( _control_group_mother != nullptr )
+		//{
+		//	control_group_basis = _global_basis * _control_group_mother->_global_basis_inverse;
+		//}
+		//return control_group_basis;
+		return _control_group_basis;
+	}
+
+	vector32x2_c menu_control_c::get_control_group_origin() const
+	{
+		//vector32x2_c control_group_origin = vector32x2_c( 0.0f, 0.0f );
+		//if ( _control_group_mother && !_control_group_is_root )
+		//{
+		//	control_group_origin = ops::make_vector32x2_transformed_point( _global_origin, _control_group_mother->_global_basis_inverse ) - _control_group_mother->_global_origin;
+		//}
+		//return control_group_origin;
+		return _control_group_origin;
+	}
+
+	void_c menu_control_c::_compile_control_groups( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list )
+	{
+		if ( _scene_component_menu_control != nullptr )
+		{
+			// todo: control is 3d, skip if it is not visible to the primary view.
+		}
+
+		if ( _is_showing_weight <= 0.0f || _local_color.d <= 0.0f )
+		{
+			return;
+		}
+
+		// determine control group root state of this control.
+		_control_group_is_root = ( _mother_control == nullptr || _is_showing_weight < 1.0f || _local_color.d < 1.0f );
+		_control_group_mother = nullptr;
+		_control_group_daughter_list.remove_all();
+		_control_group_draw_list.reset();
+		if ( _mother_control != nullptr )
+		{
+			_control_group_mother = _mother_control;
+			while ( _control_group_mother->_control_group_is_root == false )
+			{
+				_control_group_mother = _control_group_mother->_mother_control;
+				cheonsa_assert( _control_group_mother != nullptr );
+			}
+			if ( _control_group_is_root )
+			{
+				_control_group_mother->_control_group_daughter_list.insert_at_end( this );
+			}
+		}
+		if ( _control_group_is_root )
+		{
+			control_group_list.insert_at_end( this );
+
+			// create or recreate control group texture target.
+			sint32_c needed_width = ops::math_maximum( 16, static_cast< sint32_c >( _local_box.get_width() + 0.5f ) );
+			sint32_c needed_height = ops::math_maximum( 16, static_cast< sint32_c >( _local_box.get_height() + 0.5f ) );
+			if ( _control_group_texture == nullptr || ( _control_group_texture->get_width() < needed_width || _control_group_texture->get_height() < needed_height ) )
+			{
+				if ( _control_group_texture != nullptr )
+				{
+					delete _control_group_texture;
+					_control_group_texture = nullptr;
+				}
+				cheonsa_assert( needed_width <= 4096 && needed_height <= 4096 );
+				_control_group_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
+				cheonsa_assert( _control_group_texture != nullptr );
+				_control_group_texture_wrapper._video_texture = _control_group_texture;
+			}
+
+			// control group spatial transform.
+			_control_group_basis = matrix32x2x2_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			_control_group_origin = vector32x2_c( 0.0f, 0.0f );
+			_control_group_color = _local_color;
+
+			// compile draw list that will copy the _control_group_texture to the mother control group.
+			box32x2_c map;
+			map.minimum.a = 0.0f;
+			map.minimum.b = 0.0f;
+			map.maximum.a = static_cast< float32_c >( _local_box.get_width() ) / static_cast< float32_c >( _control_group_texture->get_width() );
+			map.maximum.b = static_cast< float32_c >( _local_box.get_height() ) / static_cast< float32_c >( _control_group_texture->get_height() );
+			box32x2_c box = _local_box;
+			_control_group_draw_list.append_rectangle( box, map, global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_frame, &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			draw_list_list.insert_at_end( &_control_group_draw_list );
+		}
+		else
+		{
+			cheonsa_assert( _mother_control != nullptr );
+
+			// release control group texture target.
+			if ( _control_group_texture != nullptr )
+			{
+				delete _control_group_texture;
+				_control_group_texture = nullptr;
+				_control_group_texture_wrapper._video_texture = nullptr;
+			}
+
+			// control group spatial transform.
+			_control_group_basis = _mother_control->_control_group_basis * _local_basis;
+			_control_group_origin = ops::make_vector32x2_transformed_point( _local_origin, _mother_control->_control_group_basis ) + _mother_control->_control_group_origin;
+			_control_group_color = _mother_control->_control_group_color * _local_color;
+		}
+
+		// compile daughter elements.
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			menu_element_c * element = _element_list[ i ];
+			element->_draw_list_is_dirty = true; // for now always force rebuild.
+			if ( element->_draw_list_is_dirty )
+			{
+				element->_build_draw_list();
+			}
+			if ( element->_is_showing && element->_is_showing_from_style )
+			{
+				draw_list_list.insert_at_end( &element->_draw_list );
+			}
+		}
+
+		// compile daughter controls.
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			_control_list[ i ]->_compile_control_groups( control_group_list, draw_list_list );
+		}
+	}
+
+}

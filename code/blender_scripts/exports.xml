@@ -1,0 +1,105 @@
+<export>
+	<!-- this file serves as reference for how to build an export.xml that the blender model export script can read -->
+
+	<!-- properties define additional arbitrary data about the model that might be used by the game engine or game for a little bit of future proofing. -->
+	<property
+		key=""
+		value=""/>
+
+	<!--
+	name is the exact name of the action in the blend file.
+	pruned name (which is the name minus the last dot and everything after it) will be the name that the animation has when it is exported and which the game engine will know it by.
+	frame_start and frame_end define the range of frames that make up the relevant or loopable part of the animation. there can be keys that lie outside of this frame range and they will also be exported because they are often needed for correct interpolation for looping animations.
+	move_speed is optional, it defines the locomotive speed in meters per second of a character with scale of 1 and while playing the animation at a speed of 1, this is used to keep feet from sliding for walk/run cycles.
+	export_time_scale is optional, it defines how to scale the time of the exported key frames to artificially speed up or slow down the exported animation, so if we set it to 2 then we will have an animation in the game engine that plays for twice as long as it does in blender.
+	-->
+	<animation
+		name=""
+		frame_start=""
+		frame_end=""
+		move_speed=""
+		export_time_scale="">
+		<event
+			frame=""
+			type=""
+			value=""/>
+	</animation>
+
+	<!--
+	copies transform from another bone.
+	this is useful for equips, for example if you have an equiappable hair model which has its own "head" bone.
+	when the hair is equipped on a character model in the game, the copy_transform logic is applied to the "head" bone in the hair model, and it is set to copy the transform of the "head" bone in the character model.
+	this_bone_name is the name of the bone to affect.
+	that_bone_name is the name of the bone to copy the transform from.
+	-->
+	<bone_logic
+		type="copy_transform"
+		this_bone_name="head"
+		that_bone_name="head"/>
+
+	<!--
+	copies animation properties from another bone.
+	this_bone_name is the bone to drive.
+	that_bone_name is the bone to copy the animation properties from.
+	this logic can be used to create tween bones, so given a chain of bones, the animator only needs to define the animation for the tail bone, and the tween bones will be driven by it.
+	this is useful for arms that twist, we can create tween bones along the length of the arm, so that volume of the mesh is preserved as the arm twists around its main axis.
+	in this way it solves the same kind of problem that dual quaternion skinning solves without using dual quaternions.
+	-->
+	<bone_logic
+		type="copy_animation"
+		this_bone_name=""
+		that_bone_name=""
+		position_weight=""
+		rotation_weight=""
+		scale_weight=""/>
+
+	<!--
+	muscle ties the tail of a given bone to another bone, the head of the given bone will be driven by the bone that the given bone is daughter to.
+	this_bone_name is the bone that will act as the muscle. it is daughter to another bone, which will control its head point.
+	that_bone_name is the bone that will act as the anchor for the tail point of the bone referenced by this_bone_name.
+	compression_factor is a float that defines the ratio of how the muscle will shrink/grow around its main axis as it stretches/compresses along its main axis.
+	-->
+	<bone_logic
+		type="muscle"
+		this_bone_name=""
+		that_bone_name=""
+		compression_factor=""/>
+
+	<!--
+	jiggle uses the pose transform to define the target points of the head and tail of the given bone.
+	a simple mass spring model is used to simulate the head and tail points of the bone separately.
+	the head and tail points don't actually interact with each other or influence each other, so it's pretty fake.
+	they are good for simulating breats, legs, etc.
+	-->
+	<bone_logic
+		type="jiggle"
+		this_bone_name=""
+		head_tension=""
+		head_damping=""
+		head_limit=""
+		head_gravity=""
+		tail_tension=""
+		tail_damping=""
+		tail_limit=""
+		tail_gravity=""/>
+	
+	<!--
+	spring uses a more physically accurate model than jiggle to simulate bones.
+	spring can be linked together with little limitations. even linked together into closed loops. or linked together in forking branches.
+	they are good for simulating trees, hair, ropes, clothes, etc.
+	-->
+	<bone_logic
+		type="spring"
+		this_bone_name=""
+		that_bone_name=""
+		linear_tension=""
+		linear_damping=""
+		linear_limit=""
+		angular_tension=""
+		angular_damping=""
+		angular_limit=""
+		twist_tension=""
+		twist_damping=""
+		twist_limit=""/>
+
+</export>
