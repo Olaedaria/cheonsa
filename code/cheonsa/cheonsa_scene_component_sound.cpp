@@ -2,7 +2,6 @@
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
 #include "cheonsa_user_interface.h"
-#include "cheonsa_audio_source.h"
 #include "cheonsa_ops.h"
 
 namespace cheonsa
@@ -12,114 +11,82 @@ namespace cheonsa
 	{
 		assert( _scene_object != nullptr );
 		assert( _scene_object->get_scene() != nullptr );
-		if ( _audio_source )
-		{
-			_scene_object->get_scene()->get_audio_scene()->add_source( _audio_source );
-		}
+		_scene_object->get_scene()->_sound_list.insert_at_end( &_sound_list_node );
 	}
 
 	void_c scene_component_sound_c::_handle_before_removed_from_scene()
 	{
 		assert( _scene_object != nullptr );
 		assert( _scene_object->get_scene() != nullptr );
-		if ( _audio_source && _scene_object->get_scene() )
-		{
-			_scene_object->get_scene()->get_audio_scene()->remove_source( _audio_source );
-		}
-	}
-
-	void_c scene_component_sound_c::_handle_sound_resource_on_load( resource_object_c * resource )
-	{
-		assert( _audio_source == nullptr );
-		_audio_source = new audio_source_c( _sound_resource->get_audio_buffer() );
-		_audio_source->set_layer( _audio_layer );
-		_audio_source->set_volume( ops::random_float32( _volume_minimum, _volume_maximum ) );
-		_audio_source->set_speed( ops::random_float32( _speed_minimum, _speed_maximum ) );
-
-		if ( _scene_object != nullptr )
-		{
-			_audio_source->set_world_space_transform( &_scene_object->get_world_space_transform() );
-		}
-		_audio_source->start( true );
-		if ( _scene_object && _scene_object->get_scene() )
-		{
-			_scene_object->get_scene()->get_audio_scene()->add_source( _audio_source );
-		}
-	}
-
-	void_c scene_component_sound_c::_handle_sound_resource_on_un_load( resource_object_c * resource )
-	{
-		if ( _audio_source != nullptr )
-		{
-			if ( _scene_object && _scene_object->get_scene() )
-			{
-				_scene_object->get_scene()->get_audio_scene()->remove_source( _audio_source );
-			}
-			_audio_source->set_world_space_transform( nullptr );
-			_audio_source->remove_reference();
-			_audio_source = nullptr;
-		}
-
-		if ( _sound_resource != nullptr )
-		{
-			_sound_resource->on_load.unsubscribe( this, &scene_component_sound_c::_handle_sound_resource_on_load );
-			_sound_resource->on_unload.unsubscribe( this, &scene_component_sound_c::_handle_sound_resource_on_un_load );
-		}
+		_scene_object->get_scene()->_sound_list.remove( &_sound_list_node );
 	}
 
 	scene_component_sound_c::scene_component_sound_c()
 		: scene_component_c()
-		, _audio_source( nullptr )
-		, _sound_resource()
-		, _audio_layer( audio_layer_e_ambient )
-		, _volume_minimum( 1.0f )
-		, _volume_maximum( 1.0f )
+		, _sound_list_node( this )
+		, _audio_wave_buffer( nullptr )
+		, _audio_scene_source( nullptr )
+		, _play( true )
+		, _is_first_play( true )
+		, _power_minimum( 1.0f )
+		, _power_maximum( 1.0f )
 		, _speed_minimum( 1.0f )
 		, _speed_maximum( 1.0f )
 		, _interval_minimum( 0.0f )
 		, _interval_maximum( 0.0f )
 	{
+		_audio_wave_buffer = new audio2_wave_buffer_c();
+		_audio_scene_source = new audio2_scene_source_c();
 	}
 
 	scene_component_sound_c::~scene_component_sound_c()
 	{
-		_handle_sound_resource_on_un_load( _sound_resource );
+		_audio_scene_source->remove_reference();
+		_audio_scene_source = nullptr;
 	}
 
-	resource_object_sound_c * scene_component_sound_c::get_sound_resource()
+	string16_c scene_component_sound_c::get_sound_file_path()
 	{
-		return _sound_resource;
+		return _audio_scene_source->get_wave_player()->get_wave_buffer()->get_file_path();
 	}
 
-	void_c scene_component_sound_c::set_sound_resource( resource_object_sound_c * value )
+	void_c scene_component_sound_c::set_sound_file_path( string16_c const & value )
 	{
-		_handle_sound_resource_on_un_load( nullptr );
-		_sound_resource = value;
-		_handle_sound_resource_on_load( nullptr );
+		return _audio_scene_source->get_wave_player()->get_wave_buffer()->set_file_path( value );
 	}
 
-	audio_layer_e scene_component_sound_c::get_audio_layer() const
+	audio2_layer_e scene_component_sound_c::get_audio_layer() const
 	{
-		return _audio_layer;
+		return _audio_scene_source->get_wave_player()->get_layer();
 	}
 
-	void_c scene_component_sound_c::set_audio_layer( audio_layer_e value )
+	void_c scene_component_sound_c::set_audio_layer( audio2_layer_e value )
 	{
-		_audio_layer = value;
+		_audio_scene_source->get_wave_player()->set_layer( value );
 	}
 
-	void_c scene_component_sound_c::get_volume( float32_c & minimum, float32_c & maximum ) const
+	boolean_c scene_component_sound_c::get_play() const
 	{
-		minimum = _volume_minimum;
-		maximum = _volume_maximum;
+		return _play;
 	}
 
-	void_c scene_component_sound_c::set_volume( float32_c minimum, float32_c maximum )
+	void_c scene_component_sound_c::set_play( boolean_c value )
+	{
+		_play = value;
+	}
+
+	void_c scene_component_sound_c::get_power( float32_c & minimum, float32_c & maximum ) const
+	{
+		minimum = _power_minimum;
+		maximum = _power_maximum;
+	}
+
+	void_c scene_component_sound_c::set_power( float32_c minimum, float32_c maximum )
 	{
 		static float32_c const limit_minimum = 0.0f;
 		static float32_c const limit_maximum = 100.0f;
-		_volume_minimum = ops::math_clamp( minimum, limit_minimum, limit_maximum );
-		_volume_maximum = ops::math_clamp( maximum, _volume_minimum, limit_maximum );
+		_power_minimum = ops::math_clamp( minimum, limit_minimum, limit_maximum );
+		_power_maximum = ops::math_clamp( maximum, _power_minimum, limit_maximum );
 	}
 
 	void_c scene_component_sound_c::get_speed( float32_c & minimum, float32_c & maximum ) const
@@ -148,6 +115,32 @@ namespace cheonsa
 		static float32_c const limit_maximum = 1000000.0f;
 		_interval_minimum = ops::math_clamp( minimum, limit_minimum, limit_maximum );
 		_interval_maximum = ops::math_clamp( maximum, _interval_minimum, limit_maximum );
+	}
+
+	void_c scene_component_sound_c::update_audio( float32_c time_step )
+	{
+		if ( _play )
+		{
+			_interval_counter += time_step;
+			if ( _interval_counter >= _interval )
+			{
+				audio2_scene_listener_c * scene_listener = _scene_object->get_scene()->get_audio_scene()->get_scene_listener();
+				if ( _audio_scene_source->get_wave_player()->get_appears_to_be_playing() == false && scene_listener != nullptr )
+				{
+					float32_c distance_squared = ops::make_float32_length_squared( vector32x3_c( _scene_object->get_world_space_position() - scene_listener->get_world_space_position() ) );
+					float32_c effective_range_squared = _audio_scene_source->get_effective_range_squared();
+					if ( distance_squared <= effective_range_squared )
+					{
+						_audio_scene_source->get_wave_player()->set_volume( ops::random_float32( _power_minimum, _power_maximum ) );
+						_audio_scene_source->get_wave_player()->set_speed( ops::random_float32( _speed_minimum, _speed_maximum ) );
+						_scene_object->get_scene()->get_audio_scene()->add_scene_source( _audio_scene_source, _is_first_play );
+						_is_first_play = false;
+					}
+				}
+				_interval_counter = 0.0f;
+				_interval = ops::random_float32( _interval_minimum, _interval_maximum );
+			}
+		}
 	}
 
 }

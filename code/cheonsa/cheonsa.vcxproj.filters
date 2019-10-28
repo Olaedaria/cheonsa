@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="cheonsa_audio_interface.h" />
-    <ClInclude Include="cheonsa_audio_interface_wave_out.h" />
-    <ClInclude Include="cheonsa_audio_scene.h" />
     <ClInclude Include="cheonsa_string16.h" />
     <ClInclude Include="cheonsa_platform_pointer.h" />
     <ClInclude Include="cheonsa_platform_icon.h" />
@@ -51,7 +48,6 @@
     <ClInclude Include="cheonsa_data_scribe_structure.h" />
     <ClInclude Include="cheonsa_data_scribe_ini.h" />
     <ClInclude Include="cheonsa_resource_manager.h" />
-    <ClInclude Include="cheonsa_resource_object_sound.h" />
     <ClInclude Include="cheonsa_resource_object.h" />
     <ClInclude Include="cheonsa_resource_object_texture.h" />
     <ClInclude Include="cheonsa_resource_object_font.h" />
@@ -84,7 +80,6 @@
     <ClInclude Include="cheonsa_time_types.h" />
     <ClInclude Include="cheonsa_data_types.h" />
     <ClInclude Include="cheonsa_video_types.h" />
-    <ClInclude Include="cheonsa_audio_types.h" />
     <ClInclude Include="cheonsa_memory_allocator_pool.h" />
     <ClInclude Include="cheonsa_data_scribe_png.h" />
     <ClInclude Include="cheonsa_image.h" />
@@ -141,14 +136,6 @@
     <ClInclude Include="cheonsa_menu_style_for_frame.h" />
     <ClInclude Include="cheonsa_menu_style_for_text.h" />
     <ClInclude Include="cheonsa_menu_style_for_text_glyph.h" />
-    <ClInclude Include="cheonsa_audio_listener.h" />
-    <ClInclude Include="cheonsa_audio_source.h" />
-    <ClInclude Include="cheonsa_audio_buffer.h" />
-    <ClInclude Include="cheonsa_audio_player.h" />
-    <ClInclude Include="cheonsa_audio_buffer_ogg.h" />
-    <ClInclude Include="cheonsa_audio_buffer_raw.h" />
-    <ClInclude Include="cheonsa_audio_player_raw.h" />
-    <ClInclude Include="cheonsa_audio_player_ogg.h" />
     <ClInclude Include="cheonsa_platform_critical_section.h" />
     <ClInclude Include="cheonsa_menu_thing.h" />
     <ClInclude Include="third_party\freetype\config\ftconfig.h" />
@@ -527,11 +514,9 @@
     <ClInclude Include="cheonsa_resource_object_material_map.h" />
     <ClInclude Include="cheonsa_resource_object_sprite_set.h" />
     <ClInclude Include="cheonsa_sprite.h" />
+    <ClInclude Include="cheonsa_audio2.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cheonsa_audio_interface.cpp" />
-    <ClCompile Include="cheonsa_audio_interface_wave_out.cpp" />
-    <ClCompile Include="cheonsa_audio_scene.cpp" />
     <ClCompile Include="cheonsa_string16.cpp" />
     <ClCompile Include="cheonsa_platform_pointer.cpp" />
     <ClCompile Include="cheonsa_platform_icon.cpp" />
@@ -572,7 +557,6 @@
     <ClCompile Include="cheonsa_data_scribe_structure.cpp" />
     <ClCompile Include="cheonsa_data_scribe_ini.cpp" />
     <ClCompile Include="cheonsa_resource_manager.cpp" />
-    <ClCompile Include="cheonsa_resource_object_sound.cpp" />
     <ClCompile Include="cheonsa_resource_object.cpp" />
     <ClCompile Include="cheonsa_resource_object_texture.cpp" />
     <ClCompile Include="cheonsa_resource_object_font.cpp" />
@@ -600,7 +584,6 @@
     <ClCompile Include="cheonsa_input_types.cpp" />
     <ClCompile Include="cheonsa_data_types.cpp" />
     <ClCompile Include="cheonsa_video_types.cpp" />
-    <ClCompile Include="cheonsa_audio_types.cpp" />
     <ClCompile Include="cheonsa_memory_allocator_pool.cpp" />
     <ClCompile Include="cheonsa_image.cpp" />
     <ClCompile Include="cheonsa_data_scribe_png.cpp" />
@@ -649,14 +632,6 @@
     <ClCompile Include="cheonsa_menu_style_for_text_glyph.cpp" />
     <ClCompile Include="cheonsa_menu_style_map.cpp" />
     <ClCompile Include="cheonsa_reflection_types.cpp" />
-    <ClCompile Include="cheonsa_audio_listener.cpp" />
-    <ClCompile Include="cheonsa_audio_buffer.cpp" />
-    <ClCompile Include="cheonsa_audio_player.cpp" />
-    <ClCompile Include="cheonsa_audio_buffer_raw.cpp" />
-    <ClCompile Include="cheonsa_audio_player_raw.cpp" />
-    <ClCompile Include="cheonsa_audio_buffer_ogg.cpp" />
-    <ClCompile Include="cheonsa_audio_player_ogg.cpp" />
-    <ClCompile Include="cheonsa_audio_source.cpp" />
     <ClCompile Include="cheonsa_platform_critical_section.cpp" />
     <ClCompile Include="cheonsa_video_interface_d3d11.cpp" />
     <ClCompile Include="cheonsa_debug.cpp" />
@@ -666,5 +641,6 @@
     <ClCompile Include="cheonsa_resource_object_material_map.cpp" />
     <ClCompile Include="cheonsa_resource_object_sprite_set.cpp" />
     <ClCompile Include="cheonsa_sprite.cpp" />
+    <ClCompile Include="cheonsa_audio2.cpp" />
   </ItemGroup>
 </Project>

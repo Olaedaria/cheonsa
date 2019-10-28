@@ -18,10 +18,7 @@
 #include "cheonsa_video_interface_d3d11.h"
 #endif
 
-#if defined( cheonsa_platform_windows )
-#include "cheonsa_audio_interface_wave_out.h"
-#endif
-
+#include "cheonsa_audio2.h"
 #include "cheonsa_video_renderer_interface.h"
 #include "cheonsa_video_renderer_shader_manager.h"
 #include "cheonsa_platform_pointer.h"
@@ -40,12 +37,6 @@
 namespace cheonsa
 {
 
-	//enum run_time_mode_e
-	//{
-	//	run_time_mode_e_editor,
-	//	run_time_mode_e_player,
-	//};
-
 	enum window_state_e
 	{
 		window_state_e_minimized,
@@ -53,46 +44,50 @@ namespace cheonsa
 		window_state_e_maximized,
 	};
 
-	// the engine class.
-	//
-	// this is essentially the entry point to everything else.
-	// some terms:
-	// "engine", this class, of which there is only one global instance shared per application process, which can be accessed from any source file by including "cheonsa_engine.h" and referencing cheonsa::engine_instance.
-	// "client", the application process instance that runs on the user's computer, which executes the engine and game. this is going to be "dream_player.exe".
-	// "client window", the window of the application that runs on the user's computer, of which the user can interact with the engine and game and to which the engine and game outputs video to.
-	// 
-	// data_folder redirect override:
-	// data_folder defines the folder that contains "engine_data" and "game_data" sub-folders.
-	// data_folder defaults to the executable's folder.
-	// at engine start up, the engine scans the executable's folder for file with the same name as the executable but with ".txt" extension.
-	// if this file is found, then it is expected to contain one line of text that defines an absolute file path to set data_folder to.
-	//
-	// example folder structure, for default operation:
-	// "[executable folder]/dream_player.exe" (the game client)
-	// "[executable folder]/engine_data" (contains files that are required for the engine to run, for all locales)
-	// "[executable folder]/game_data" (contains all of the game's content, for all locales)
-	//
-	// override folder structure, for debug operation:
-	// "[executable folder]/dream_player.exe" (the game client)
-	// "[executable folder]/dream_player.txt" (text file that contains an absolute file path to the real data folder to use, which we will call data_folder)
-	// "[data_folder]/engine_data"
-	// "[data_folder]/game_data"
-	// localization:
-	// at start up, the engine attempts to load locale_code from the settings file, but if it can't then it defaults to "en-US".
-	// when apply_locale_code() is called, which happens once automatically after the engine loads its settings...
-	// the engine looks for core_engine_data_folder_path + locale_code + "strings.xml", which defines strings that are used by the engine.
-	// the engine looks for core_game_data_folder_path + locale_code + "strings.xml", which defines strings that are used by the game.
-	// then appropriate systems and objects are notified of the locale_code change so that they can re-acquire their strings and resources.
-	// however when this occurs during engine start up, there won't be any systems or objects instantiated yet that will be affected by this;
-	// they will acquire their strings and resources at the time that they are initialized, which happens later.
-	//
-	// user input evemts are routed through menu_context first, then if it isn't consumed then it is processed by game.
-	// then game updates, which updates animations:
-	//   models with animations can be updated on worker threads.
-	//   models with physically based animations i'm not sure yet.
-	//
-	// to do:
-	//   create our own physics engine that is integrated directly into our scene system, so that we can stop using bullet which simulates its own copy of our scene which is redundant.
+	/*
+
+	the engine class.
+	
+	this is essentially the entry point to everything else.
+	some terms:
+	"engine", this class, of which there is only one global instance shared per application process, which can be accessed from any source file by including "cheonsa_engine.h" and referencing cheonsa::global_engine_instance.
+	"client", the application process instance that runs on the user's computer, which executes the engine and game. this is going to be "dream_player.exe".
+	"client window", the window of the application that runs on the user's computer, of which the user can interact with the engine and game and to which the engine and game outputs video to.
+	
+	data_folder redirect override:
+	data_folder defines the folder that contains "engine_data" and "game_data" sub-folders.
+	data_folder defaults to the executable's folder.
+	at engine start up, the engine scans the executable's folder for file with the same name as the executable but with ".txt" extension.
+	if this file is found, then it is expected to contain one line of text that defines an absolute file path to set data_folder to.
+	
+	example folder structure, for default operation:
+	"[executable folder]/dream_player.exe" (the game client)
+	"[executable folder]/engine_data" (contains files that are required for the engine to run, for all locales)
+	"[executable folder]/game_data" (contains all of the game's content, for all locales)
+	
+	override folder structure, for debug operation:
+	"[executable folder]/dream_player.exe" (the game client)
+	"[executable folder]/dream_player.txt" (text file that contains an absolute file path to the real data folder to use, which we will call data_folder)
+	"[data_folder]/engine_data"
+	"[data_folder]/game_data"
+	localization:
+	at start up, the engine attempts to load locale_code from the settings file, but if it can't then it defaults to "en-US".
+	when apply_locale_code() is called, which happens once automatically after the engine loads its settings...
+	the engine looks for core_engine_data_folder_path + locale_code + "strings.xml", which defines strings that are used by the engine.
+	the engine looks for core_game_data_folder_path + locale_code + "strings.xml", which defines strings that are used by the game.
+	then appropriate systems and objects are notified of the locale_code change so that they can re-acquire their strings and resources.
+	however when this occurs during engine start up, there won't be any systems or objects instantiated yet that will be affected by this;
+	they will acquire their strings and resources at the time that they are initialized, which happens later.
+	
+	user input evemts are routed through menu_context first, then if it isn't consumed then it is processed by game.
+	then game updates, which updates animations:
+	  models with animations can be updated on worker threads.
+	  models with physically based animations i'm not sure yet.
+	
+	to do:
+	  create our own physics engine that is integrated directly into our scene system, so that we can stop using bullet which simulates its own copy of our scene which is redundant.
+
+	  */
 	class engine_c
 	{
 	public:
@@ -103,7 +98,7 @@ namespace cheonsa
 			game_c * const game; // the game instance.
 			content_manager_c * const content_manager; // defines data folders, locale setting, and manages game strings.
 			resource_manager_c * const resource_manager; // pointer to global resource manager instance, which manages loading of localized fonts, models, model materials, sounds, and textures.
-			audio_interface_c * const audio_interface; // platform specific audio interface for the game to use.
+			audio2_interface_c * const audio_interface; // platform specific audio interface for the game to use.
 			video_interface_c * const video_interface; // platform specific video interface for the game to use.
 			video_renderer_interface_c * const video_renderer_interface; // renderer interface for the game to use.
 			video_renderer_shader_manager_c * const video_renderer_shader_manager; // manages shader loading, compiling, and caching.

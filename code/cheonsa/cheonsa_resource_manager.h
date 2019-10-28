@@ -10,10 +10,10 @@
 #include "cheonsa_resource_object_material_map.h"
 #include "cheonsa_resource_object_menu_layout.h"
 #include "cheonsa_resource_object_model.h"
-#include "cheonsa_resource_object_sound.h"
 #include "cheonsa_resource_object_sprite_set.h"
 #include "cheonsa_resource_object_texture.h"
 #include "cheonsa_platform_thread.h"
+#include "cheonsa_platform_critical_section.h"
 
 namespace cheonsa
 {
@@ -64,7 +64,6 @@ namespace cheonsa
 		resource_object_material_map_c * load_material_map( string16_c const & file_path_relative, boolean_c load_now = true );
 		resource_object_menu_layout_c * load_menu_layout( string16_c const & file_path_relative, boolean_c load_now = true );
 		resource_object_model_c * load_model( string16_c const & file_path_relative, boolean_c load_now = true );
-		resource_object_sound_c * load_sound( string16_c const & file_path_relative, boolean_c load_now = true );
 		resource_object_sprite_set_c * load_sprite_set( string16_c const & file_path_relative, boolean_c load_now = true );
 		resource_object_texture_c * load_texture( string16_c const & file_path_relative, boolean_c load_now = true );
 

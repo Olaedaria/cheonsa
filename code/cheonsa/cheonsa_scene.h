@@ -2,7 +2,7 @@
 
 #include "cheonsa_scene_types.h"
 #include "cheonsa_scene_tree_octo.h"
-#include "cheonsa_audio_scene.h"
+#include "cheonsa_audio2.h"
 #include "cheonsa_physics_scene.h"
 #include "cheonsa_video_interface.h"
 #include "cheonsa_video_renderer_interface.h"
@@ -58,16 +58,19 @@ namespace cheonsa
 		static float64_c quick_sort_function( scene_pick_c const & pick );
 	};
 
-	// a 3d scene.
+	// a 3d scene, or world.
 	// it's spatially optimized a little bit, it uses octo trees to hold scene components and scene lights, which allows for quick look up based on proximity.
 	// update on scene objecst has to be managed by the game, and it should occur in the following order:
-	//   game calls update() on all its animated model scene components.
+	//   game calls update_animations() on all its animated model scene components.
 	//   game calls update() on the physics scene contained in the scene.
 	//   game calls update_simulated_bone_logics() on all its animated model scene components.
+	//   game calls get_scene_camera() to update the camera's properties. the camera's transform will be fed to the audio scene listener when update_audio() is called.
+	//   game calls update_audio() on the scene to tell the sound components in the scene to add their sources to the audio scene if they are in range of the camera.
 	class scene_c
 	{
 	private:
 		friend class scene_component_c;
+		friend class scene_component_sound_c;
 		friend class scene_component_model_c;
 		friend class scene_component_light_c;
 		friend class scene_component_light_probe_c;
@@ -90,7 +93,7 @@ namespace cheonsa
 		// flat list that holds just the global effect (direction) lights in the scene.
 		core_list_c< scene_light_c * > _global_lights_list;
 		// octo tree that holds just the local effect (point, cone) lights in the scene.
-		// this is a little rendundant with _scene_component_tree, but we do it this way because it lets model resources create have light instances without needing to spawn scene objects and light components.
+		// this is a little rendundant with _scene_component_tree, but we do it this way because it lets model instances create internal light instances without spawning additional scene objects and light components.
 		scene_tree_octo_c< scene_light_c * > _local_lights_tree;
 
 		// counters.
@@ -99,7 +102,8 @@ namespace cheonsa
 		float32_c _random_number; // used by renderer as input to some shaders.
 
 		// corresponding audio scene.
-		audio_scene_c * _audio_scene;
+		audio2_scene_c * _audio_scene;
+		audio2_scene_listener_c * _audio_scene_listener;
 
 		// corresponding physics scene.
 		// uses bullet compiled to use double precision float, hopefully its enough for open world.
@@ -110,6 +114,9 @@ namespace cheonsa
 		//core_linked_list_c< scene_component_light_c * > _light_list; // all of the light components in this scene in a flat list.
 		core_linked_list_c< scene_component_light_probe_c * > _light_probe_list; // all of the light probe components in this scene in a flat list.
 		scene_component_light_probe_c * _last_baked_light_probe; // used by the renderer to keep track of the last light probe that was baked, for incremental baking over multiple frames.
+
+		// audibles.
+		core_linked_list_c< scene_component_sound_c * > _sound_list; // flat list for now, could be spatially partitioned later.
 
 	public:
 		// sky setup.
@@ -145,6 +152,8 @@ namespace cheonsa
 
 		scene_camera_c & get_scene_camera();
 
+		void_c update_audio( float32_c time_step );
+
 		virtual void_c add_object( scene_object_c * object ); // adds a scene object to this scene.
 		virtual void_c remove_object( scene_object_c * object ); // removes a scene object from this scene.
 
@@ -171,7 +180,7 @@ namespace cheonsa
 
 		user_interface_c * get_user_interface() const;
 
-		audio_scene_c * get_audio_scene();
+		audio2_scene_c * get_audio_scene();
 
 		physics_scene_c * get_physics_scene();
 

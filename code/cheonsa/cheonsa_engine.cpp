@@ -980,7 +980,7 @@ namespace cheonsa
 		}
 
 		#if defined( cheonsa_platform_windows )
-		const_cast< audio_interface_c * >( interfaces.audio_interface ) = new audio_interface_wave_out_c();
+		const_cast< audio2_interface_c * >( interfaces.audio_interface ) = new audio2_interface_c();
 		if ( !interfaces.audio_interface->start() )
 		{
 			cheonsa_annoy( L"error", L"audio_interface_wave_out_c::start() failed." );
@@ -1195,7 +1195,7 @@ namespace cheonsa
 		if ( interfaces.audio_interface != nullptr )
 		{
 			delete interfaces.audio_interface;
-			const_cast< audio_interface_c * >( interfaces.audio_interface ) = nullptr;
+			const_cast< audio2_interface_c * >( interfaces.audio_interface ) = nullptr;
 		}
 
 		debug._stop();

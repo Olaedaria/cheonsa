@@ -421,7 +421,7 @@ namespace cheonsa
 		// remove controls from old scene.
 		if ( _scene )
 		{
-			global_engine_instance.interfaces.audio_interface->remove_audio_scene( _scene->get_audio_scene() );
+			global_engine_instance.interfaces.audio_interface->remove_scene( _scene->get_audio_scene() );
 			core_linked_list_c< scene_object_c * >::node_c const * scene_object_list_node = _scene->get_scene_object_list().get_first();
 			while ( scene_object_list_node )
 			{
@@ -463,7 +463,7 @@ namespace cheonsa
 					}
 				}
 			}
-			global_engine_instance.interfaces.audio_interface->add_audio_scene( _scene->get_audio_scene() );
+			global_engine_instance.interfaces.audio_interface->add_scene( _scene->get_audio_scene() );
 		}
 	}
 

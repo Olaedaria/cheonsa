@@ -39,25 +39,19 @@ namespace cheonsa
 			recognizes hexadecimal entities:
 				$#x[hexadecimal number];
 
-		special character sequences like &amp;, &#x27;, and &#27 are translated into single characters (utf-8 encoded though so up to 3 bytes).
-		consecutive tab and space characters are condensed into a single space.
-		characters after names and values are replaced with null characters so that given the starting address or index of the name or value they can be interpreted as typical null ternimated strings.
-	
-	the differences are designed for convenience, but may be inconvenient if you are using an off-the-shelf text editor to edit your files, since they may expect more proper XML syntax.
-	so the parser will still understand proper XML, if you prefer to use that.
-	but the parser will also understand "improper" XML, if you prefer to use that.
-
+	the differences when compared to proper XML are designed for convenience, but may be inconvenient if you are editing the files with your favorite code editor because it won't understand.
+	this parser will also understand proper XML though too if you prefer to use that.
 	some differeneces when compared to proper XML:
 		we are not required to have <?xml ... ?> as the first line,
 			it can be present but if it is then it is ignored.
 		we are not required to have a single root level tag.
 		we can have any number of root level nodes, and they can be any combination of text, tags, and comments.
 		closing tags can simply be "</>", but you can give them a name if you want.
-		closing tags are allowed to define attributes, but there's no reason for it since you won't be able to access them.
+		closing tags are also allowed to define attributes, but there's no reason for it since you won't be able to access them.
 		comments may start with "<!" or "<!--".
 		comments may end with "!>" or "-->".
-		comments may be nested, the root comment containing any number of other nested comments is parsed into a single comment node.
-
+		comments may be nested, the root comment containing any number of other nested comments is converted to a single comment node which you can access when you walk the nodes.
+	
 	*/
 
 	class data_scribe_markup_c

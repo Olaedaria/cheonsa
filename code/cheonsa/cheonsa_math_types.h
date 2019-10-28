@@ -402,6 +402,9 @@ namespace cheonsa
 		vector32x3_c b;
 		vector32x3_c c;
 
+		static matrix32x3x3_c get_zero();
+		static matrix32x3x3_c get_identity();
+
 	public:
 		matrix32x3x3_c();
 		matrix32x3x3_c( vector32x3_c const & a, vector32x3_c const & b, vector32x3_c const & c );

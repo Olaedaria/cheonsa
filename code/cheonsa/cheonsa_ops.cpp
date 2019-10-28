@@ -226,6 +226,17 @@ namespace cheonsa
 			return multiple * count;
 		}
 
+		sint32_c math_next_nearest_multiple( sint32_c value, sint32_c multiple )
+		{
+			cheonsa_assert( multiple > 0 );
+			sint32_c modulo = value % multiple;
+			if ( modulo > 0 )
+			{
+				return value + ( multiple - modulo );
+			}
+			return value;
+		}
+
 		float32_c math_round( float32_c value )
 		{
 			return floor( value + 0.5f );

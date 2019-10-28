@@ -7,7 +7,7 @@
 namespace cheonsa
 {
 
-	// if you set the position to the middle of the stream, and then write to the stream, it overwrites the existing bytes with tne new bytes rather than inserting the new bytes and shifting the existing bytes.
+	// if you set the position to the middle of the stream and then write to the stream, then it overwrites the existing bytes rather than inserts.
 	class data_stream_memory_c : public data_stream_c
 	{
 	private:

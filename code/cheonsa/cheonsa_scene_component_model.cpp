@@ -953,7 +953,7 @@ namespace cheonsa
 		get_root_model()->_restart_bone_logics();
 
 		// update with 0 time step so that animations apply but don't advance.
-		update( 0.0f );
+		update_animations( 0.0f );
 
 		// notify listeners that we are now bound.
 		on_model_resource_bound.invoke( this );
@@ -1460,7 +1460,7 @@ namespace cheonsa
 		set_model_resource( nullptr ); // releases reference and unsubscribes from events.
 	}
 
-	void_c scene_component_model_c::update( float32_c time_step )
+	void_c scene_component_model_c::update_animations( float32_c time_step )
 	{
 		// update velocity.
 		if ( _mother_model == nullptr )
@@ -1560,7 +1560,7 @@ namespace cheonsa
 		core_linked_list_c< scene_component_model_c * >::node_c const * daughter_component_list_node = _daughter_model_list.get_first();
 		while ( daughter_component_list_node )
 		{
-			daughter_component_list_node->get_value()->update( time_step );
+			daughter_component_list_node->get_value()->update_animations( time_step );
 			daughter_component_list_node = daughter_component_list_node->get_next();
 		}
 

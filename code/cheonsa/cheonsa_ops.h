@@ -41,6 +41,7 @@ namespace cheonsa
 		float64_c math_saturate( float64_c value );
 		float32_c math_nearest_multiple( float32_c value, float32_c multiple );
 		float64_c math_nearest_multiple( float64_c value, float64_c multiple );
+		sint32_c math_next_nearest_multiple( sint32_c value, sint32_c multiple );
 		float32_c math_round( float32_c value );
 		float64_c math_round( float64_c value );
 		float32_c math_round_down( float32_c value );

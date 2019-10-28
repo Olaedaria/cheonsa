@@ -235,10 +235,10 @@ namespace cheonsa
 			menu_style_file_c * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
 			for ( sint32_c i = 0; i < 2; i++ )
 			{
-				menu_style_for_frame_c const * const * result = style_file_list[ i ]->_frame_style_dictionary.find_value_pointer( key );
+				menu_style_for_frame_c const * result = style_file_list[ i ]->_frame_style_dictionary.find_value_else_nullptr( key );
 				if ( result )
 				{
-					return *result;
+					return result;
 				}
 			}
 		}
@@ -252,10 +252,10 @@ namespace cheonsa
 			menu_style_file_c * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
 			for ( sint32_c i = 0; i < 2; i++ )
 			{
-				menu_style_for_text_c const * const * result = style_file_list[ i ]->_text_style_dictionary.find_value_pointer( key );
+				menu_style_for_text_c const * result = style_file_list[ i ]->_text_style_dictionary.find_value_else_nullptr( key );
 				if ( result )
 				{
-					return *result;
+					return result;
 				}
 			}
 		}
@@ -269,10 +269,10 @@ namespace cheonsa
 			menu_style_file_c * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
 			for ( sint32_c i = 0; i < 2; i++ )
 			{
-				menu_style_map_c * * result = style_file_list[ i ]->_style_map_dictionary.find_value_pointer( key );
-				if ( result != nullptr )
+				menu_style_map_c const * result = style_file_list[ i ]->_style_map_dictionary.find_value_else_nullptr( key );
+				if ( result )
 				{
-					return *result;
+					return result;
 				}
 			}
 		}

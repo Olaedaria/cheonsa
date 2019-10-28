@@ -1107,6 +1107,18 @@ namespace cheonsa
 		return * this;
 	}
 
+	matrix32x3x3_c matrix32x3x3_c::get_zero()
+	{
+		static matrix32x3x3_c result = matrix32x3x3_c( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
+		return result;
+	}
+	
+	matrix32x3x3_c matrix32x3x3_c::get_identity()
+	{
+		static matrix32x3x3_c result = matrix32x3x3_c( 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f );
+		return result;
+	}
+
 	matrix32x3x3_c::matrix32x3x3_c()
 		: a()
 		, b()

@@ -3,6 +3,7 @@
 #include "cheonsa_scene_component.h"
 #include "cheonsa_scene_component_model.h"
 #include "cheonsa_scene_component_sprite.h"
+#include "cheonsa_scene_component_sound.h"
 #include "cheonsa_scene_component_light_probe.h"
 #include "cheonsa_ops.h"
 
@@ -31,6 +32,7 @@ namespace cheonsa
 		, _time_counter( 0.0 )
 		, _random_number( 0.0 )
 		, _audio_scene( nullptr )
+		, _audio_scene_listener( nullptr )
 		, _physics_scene( nullptr )
 		, _light_probe_list()
 		, _last_baked_light_probe( nullptr )
@@ -50,8 +52,10 @@ namespace cheonsa
 		_scene_component_tree.initialize( 512.0, 5 ); // 512, 256, 128, 64, 32
 		_local_lights_tree.initialize( 512.0, 5 );
 
-		_audio_scene = new audio_scene_c();
-		_audio_scene->get_audio_listener().set_world_space_transform( &_scene_camera._world_space_transform );
+		_audio_scene_listener = new audio2_scene_listener_c();
+
+		_audio_scene = new audio2_scene_c();
+		_audio_scene->set_scene_listener( _audio_scene_listener );
 
 		_physics_scene = new physics_scene_c();
 	}
@@ -61,6 +65,9 @@ namespace cheonsa
 		_audio_scene->remove_reference();
 		_audio_scene = nullptr;
 
+		_audio_scene_listener->remove_reference();
+		_audio_scene_listener = nullptr;
+
 		delete _physics_scene;
 		_physics_scene = nullptr;
 	}
@@ -68,6 +75,18 @@ namespace cheonsa
 	scene_camera_c & scene_c::get_scene_camera()
 	{
 		return _scene_camera;
+	}
+
+	void_c scene_c::update_audio( float32_c time_step )
+	{
+		_audio_scene_listener->set_world_space_transform( _scene_camera.get_world_space_transform() );
+		core_linked_list_c< scene_component_sound_c * >::node_c const * sound_list_node = _sound_list.get_first();
+		while ( sound_list_node != nullptr )
+		{
+			scene_component_sound_c * sound = sound_list_node->get_value();
+			sound_list_node = sound_list_node->get_next();
+			sound->update_audio( time_step );
+		}
 	}
 
 	void_c scene_c::add_object( scene_object_c * object )
@@ -331,7 +350,7 @@ namespace cheonsa
 		return _user_interface;
 	}
 
-	audio_scene_c * scene_c::get_audio_scene()
+	audio2_scene_c * scene_c::get_audio_scene()
 	{
 		return _audio_scene;
 	}

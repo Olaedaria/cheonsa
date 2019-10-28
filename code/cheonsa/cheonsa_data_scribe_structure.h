@@ -13,7 +13,6 @@ namespace cheonsa
 	// but with a scribe such as this one, we can nest the load/save code, such that b_c calls the save/load function in a_c to save/load properties of the base class, and then b_c can save/load its own properties afterward. 
 	// all of the engine specific file formats will probably use this container format to store data because it allows for pretty simple forward compatability.
 	// just don't use this to work with large data, because it all has to fit in memory.
-	// if large data is a requirement, then a linear scribe like scribe_data_binary_c or scribe_data_binary_property_c will be a better choice, but then the limitation stated above will be in effect.
 	class data_scribe_structure_c
 	{
 	public:
@@ -62,7 +61,7 @@ namespace cheonsa
 			};
 
 		private:
-			friend class cheonsa::data_scribe_structure_c;
+			friend class data_scribe_structure_c;
 			string16_c _name; // the name that is used to identify this property.
 			type_e _type; // the value type, which determines how _value is allocated and interpreted.
 			uint8_c _type_count; // for plain old data types, this defines the number of elements of the given _type that are in _value.

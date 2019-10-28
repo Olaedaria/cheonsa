@@ -6,7 +6,8 @@
 namespace cheonsa
 {
 
-	class data_stream_c // base stream interface.
+	// abstract base stream interface.
+	class data_stream_c
 	{
 	public:
 		virtual ~data_stream_c() = 0; // virtual destructor.

@@ -1,11 +1,14 @@
 #pragma once
 
 #include "cheonsa_scene_component.h"
-#include "cheonsa_resource_object_sound.h"
+#include "cheonsa_audio2.h"
 
 namespace cheonsa
 {
 
+	// plays looping audio for ambient sound effects.
+	// randomizes upon on first play, so that upon loading into a scene for the first time everything isn't all synchronized.
+	// for one-off play-once sound effects, don't use this component.
 	class scene_component_sound_c : public scene_component_c
 	{
 	public:
@@ -13,43 +16,52 @@ namespace cheonsa
 		virtual inline uint8_c get_type_code() const override { return get_type_code_static(); }
 
 	public:
-		// the underlying audio interface audio source, which also manages its own audio player.
-		// we hold a reference to this so that we can check on it and restart it when it finishes playing.
-		// we are responsible for looping because the audio thread 
-		audio_source_c * _audio_source;
-		resource_object_sound_c::reference_c _sound_resource;
-		audio_layer_e _audio_layer;
-		float32_c _volume_minimum;
-		float32_c _volume_maximum;
+		core_linked_list_c< scene_component_sound_c * >::node_c _sound_list_node;
+
+		audio2_wave_buffer_c * _audio_wave_buffer;
+		audio2_scene_source_c * _audio_scene_source;
+
+		boolean_c _play;
+
+		boolean_c _is_first_play;
+
+		float32_c _power_minimum;
+		float32_c _power_maximum;
+
 		float32_c _speed_minimum;
 		float32_c _speed_maximum;
+
 		float32_c _interval_minimum;
 		float32_c _interval_maximum;
+		float32_c _interval;
+		float32_c _interval_counter;
 
 		virtual void_c _handle_after_added_to_scene() override;
 		virtual void_c _handle_before_removed_from_scene() override;
-
-		void_c _handle_sound_resource_on_load( resource_object_c * resource );
-		void_c _handle_sound_resource_on_un_load( resource_object_c * resource );
 
 	public:
 		scene_component_sound_c(); // constructor is protected to prevent instantiation on the stack. use make_new_instance() to make a new instance on the heap. then use delete as normal to delete it.
 		virtual ~scene_component_sound_c() override;
 
-		resource_object_sound_c * get_sound_resource();
-		void_c set_sound_resource( resource_object_sound_c * value );
+		string16_c get_sound_file_path();
+		void_c set_sound_file_path( string16_c const & value );
 
-		audio_layer_e get_audio_layer() const;
-		void_c set_audio_layer( audio_layer_e value );
+		audio2_layer_e get_audio_layer() const;
+		void_c set_audio_layer( audio2_layer_e value );
 
-		void_c get_volume( float32_c & minimum, float32_c & maximum ) const;
-		void_c set_volume( float32_c minimum, float32_c maximum );
+		boolean_c get_play() const;
+		void_c set_play( boolean_c value );
+
+		void_c get_power( float32_c & minimum, float32_c & maximum ) const;
+		void_c set_power( float32_c minimum, float32_c maximum );
 
 		void_c get_speed( float32_c & minimum, float32_c & maximum ) const;
 		void_c set_speed( float32_c minimum, float32_c maximum );
 
 		void_c get_interval( float32_c & minimum, float32_c & maximum ) const;
 		void_c set_interval( float32_c minimum, float32_c maximum );
+
+		void_c update_audio( float32_c time_step );
 
 	};
 

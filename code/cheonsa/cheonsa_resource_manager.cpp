@@ -221,11 +221,6 @@ namespace cheonsa
 		return _load< resource_object_model_c >( file_path_relative, load_now );
 	}
 	
-	resource_object_sound_c * resource_manager_c::load_sound( string16_c const & file_path_relative, boolean_c load_now )
-	{
-		return _load< resource_object_sound_c >( file_path_relative, load_now );
-	}
-
 	resource_object_sprite_set_c * resource_manager_c::load_sprite_set( string16_c const & file_path_relative, boolean_c load_now )
 	{
 		return _load< resource_object_sprite_set_c >( file_path_relative, load_now );

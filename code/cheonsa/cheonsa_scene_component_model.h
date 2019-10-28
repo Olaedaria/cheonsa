@@ -515,7 +515,7 @@ namespace cheonsa
 		scene_component_model_c(); // constructor is protected to prevent instantiation on the stack. use make_new_instance() to make a new instance on the heap. then use delete as normal to delete it.
 		virtual ~scene_component_model_c() override;
 
-		void_c update( float32_c time_step ); // updates and applies animations, then updates and applies non-simulated bone logics.
+		void_c update_animations( float32_c time_step ); // updates and applies animations, then updates and applies non-simulated bone logics.
 		void_c update_simulated_bone_logics( float32_c time_step ); // updates simulated bone logics.
 
 		void_c invalidate_light_probes(); // invalidates all light probes that are in range of this model instance.

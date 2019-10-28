@@ -9,6 +9,7 @@ namespace cheonsa
 	// holds a list of databases.
 	// the first database is the master, the rest are mods, this order is also called the load order.
 	// equivalent tables across different databases must have the same id and record schema in order for merged record lookup.
+	// the intention for this was to create a data system that could do bethesda-like mods.
 	class database_stack_c
 	{
 	private:
