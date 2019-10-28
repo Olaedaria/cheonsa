@@ -4,11 +4,6 @@
 #include "cheonsa_math_types.h"
 #include "cheonsa_core_list.h"
 
-#if defined( cheonsa_platform_windows )
-#define WIN32_LEAN_AND_MEAN // tells windows.h to not include every other windows related header for us, which solves the conflicts that when we include winsock2.h a couple lines later.
-#include <Windows.h> // for most of windows.
-#endif
-
 namespace cheonsa
 {
 

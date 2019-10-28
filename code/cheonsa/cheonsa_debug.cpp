@@ -3,7 +3,7 @@
 #include "cheonsa_ops.h"
 #include "cheonsa___build.h"
 #if defined( cheonsa_platform_windows )
-#include <winuser.h>
+#include <windows.h>
 #endif
 
 namespace cheonsa
@@ -27,9 +27,9 @@ namespace cheonsa
 			full_message += message;
 		}
 		cheonsa_log( log_type_e_error, full_message.character_list.get_internal_array() );
-	#if !defined( _DEBUG )
+#if !defined( _DEBUG )
 		cheonsa_annoy( L"assert", full_message.character_list.get_internal_array() );
-	#endif
+#endif
 #if defined( cheonsa_platform_windows )
 		_CrtDbgReportW( _CRT_ASSERT, file_name.character_list.get_internal_array(), line, nullptr, expression );
 #else
@@ -44,11 +44,11 @@ namespace cheonsa
 
 	void cheonsa_annoy( wchar_t const * title, wchar_t const * message )
 	{
-	#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 		MessageBoxW( NULL, message, title, MB_OK | MB_ICONERROR );
-	#else
-		#error not implemented.
-	#endif
+#else
+#error not implemented.
+#endif
 	}
 
 }
