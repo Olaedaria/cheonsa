@@ -261,7 +261,7 @@ namespace cheonsa
 		}
 	}
 
-	audio2_wave_buffer_c::state_c::state_c( string16_c const & file_path_absolute )
+	audio2_wave_buffer_c::state_c::state_c( data_stream_c * stream )
 		: _reference_count( 1 )
 		, _format( audio2_wave_buffer_format_e_none )
 		, _channel_count( 0 )
@@ -271,18 +271,15 @@ namespace cheonsa
 		, _data_buffer( nullptr )
 		, _data_buffer_size( 0 )
 	{
-		data_stream_file_c file_stream;
-		if ( !file_stream.open( file_path_absolute, data_stream_mode_e_read ) )
-		{
-			return;
-		}
+		cheonsa_assert( stream != nullptr );
+		cheonsa_assert( stream->get_position() == 0 );
 
-		data_scribe_binary_c file_scribe;
-		file_scribe.open( &file_stream, data_endianness_e_little );
+		data_scribe_binary_c scribe;
+		scribe.open( stream, data_endianness_e_little );
 
 		// determine file type.
 		char8_c loaded_file_signature[ 4 ];
-		file_stream.load( loaded_file_signature, 4 ); // endian agnostic.
+		stream->load( loaded_file_signature, 4 ); // endian agnostic.
 
 		if ( loaded_file_signature[ 0 ] == 'R' && loaded_file_signature[ 1 ] == 'I' && loaded_file_signature[ 2 ] == 'F' && loaded_file_signature[ 3 ] == 'F' )
 		{
@@ -290,9 +287,9 @@ namespace cheonsa
 			// load the riff wave file.
 
 			// RIFF header.
-			uint32_c file_size = file_scribe.load_uint32(); // little endian.
+			uint32_c file_size = scribe.load_uint32(); // little endian.
 			char8_c file_format[ 4 ];
-			file_stream.load( file_format, 4 ); // endian agnostic.
+			stream->load( file_format, 4 ); // endian agnostic.
 			if ( !( file_format[ 0 ] == 'W' && file_format[ 1 ] == 'a' && file_format[ 2 ] == 'v' && file_format[ 3 ] == 'E' ) )
 			{
 				return;
@@ -314,9 +311,9 @@ namespace cheonsa
 			{
 				// load chunk header.
 				char8_c chunk_id[ 4 ];
-				file_stream.load( chunk_id, 4 ); // endianness agnostic.
-				uint32_c chunk_size = file_scribe.load_uint32(); // little endian.
-				uint32_c next_chunk = file_stream.get_position() + chunk_size;
+				stream->load( chunk_id, 4 ); // endianness agnostic.
+				uint32_c chunk_size = scribe.load_uint32(); // little endian.
+				uint32_c next_chunk = stream->get_position() + chunk_size;
 
 				// process chunks that we recognize.
 				if ( chunk_id[ 0 ] == 'f' && chunk_id[ 1 ] == 'm' && chunk_id[ 2 ] == 't' && chunk_id[ 3 ] == ' ' )
@@ -326,12 +323,12 @@ namespace cheonsa
 					if ( has_format == false )
 					{
 						has_format = true;
-						audio_format = file_scribe.load_uint16();
-						channel_count = file_scribe.load_uint16();
-						sample_rate = file_scribe.load_uint32();
-						byte_rate = file_scribe.load_uint32();
-						block_align = file_scribe.load_uint16();
-						bits_per_sample = file_scribe.load_uint16();
+						audio_format = scribe.load_uint16();
+						channel_count = scribe.load_uint16();
+						sample_rate = scribe.load_uint32();
+						byte_rate = scribe.load_uint32();
+						block_align = scribe.load_uint16();
+						bits_per_sample = scribe.load_uint16();
 					}
 				}
 				else if ( chunk_id[ 0 ] == 'd' && chunk_id[ 1 ] == 'a' && chunk_id[ 2 ] == 't' && chunk_id[ 3 ] == 'a' )
@@ -343,13 +340,13 @@ namespace cheonsa
 						has_data = true;
 						_data_buffer_size = chunk_size;
 						_data_buffer = new uint8_c[ _data_buffer_size ];
-						file_stream.load( _data_buffer, _data_buffer_size );
+						stream->load( _data_buffer, _data_buffer_size );
 					}
 				}
 
 				// go to next chunk.
-				file_stream.set_position( next_chunk );
-			} while ( file_stream.get_position() < file_stream.get_size() );
+				stream->set_position( next_chunk );
+			} while ( stream->get_position() < stream->get_size() );
 
 			if ( !has_format || !has_data )
 			{
@@ -386,11 +383,11 @@ namespace cheonsa
 		}
 		else if ( loaded_file_signature[ 0 ] == 'O' && loaded_file_signature[ 1 ] == 'g' && loaded_file_signature[ 2 ] == 'g' && loaded_file_signature[ 3 ] == 'S' )
 		{
-			file_stream.set_position( 0 );
+			stream->set_position( 0 );
 
-			_data_buffer_size = file_stream.get_size();
+			_data_buffer_size = stream->get_size();
 			_data_buffer = new uint8_c[ _data_buffer_size ];
-			file_stream.load( _data_buffer, _data_buffer_size );
+			stream->load( _data_buffer, _data_buffer_size );
 
 			// load info about the ogg.
 			int error = 0;
@@ -449,9 +446,6 @@ namespace cheonsa
 		: _instance_list_node( this )
 		, _reference_count( 1 )
 		, _state( nullptr )
-		, _file_path()
-		, _file_path_absolute()
-		, _file_time_modified( 0 )
 	{
 		_instance_list.insert_at_end( &_instance_list_node );
 	}
@@ -484,37 +478,23 @@ namespace cheonsa
 		return result;
 	}
 
-	string16_c const & audio2_wave_buffer_c::get_file_path() const
+	void_c audio2_wave_buffer_c::load_new_state( data_stream_c * stream )
 	{
-		return _file_path;
+		state_c * old_state = _state;
+		_state = new state_c( stream );
+		if ( old_state != nullptr )
+		{
+			old_state->remove_reference();
+		}
 	}
 
-	void_c audio2_wave_buffer_c::set_file_path( string16_c const & value )
+	void_c audio2_wave_buffer_c::release_state()
 	{
-		// detect changes to source file if needed.
-		string16_c file_path_absolute;
-		sint64_c file_time_modified = 0;
-		if ( _state != nullptr )
+		state_c * old_state = _state;
+		_state = nullptr;
+		if ( old_state != nullptr )
 		{
-			if ( global_engine_instance.interfaces.content_manager->resolve_file_path( value, file_path_absolute ) )
-			{
-				ops::data_get_file_or_folder_modified_time( file_path_absolute, file_time_modified );
-			}
-		}
-
-		// create and load new state if needed.
-		// do this in such a way that we don't interrupt the audio thread if it is currently using our old state.
-		if ( _state == nullptr || file_time_modified != _file_time_modified || file_path_absolute != _file_path_absolute )
-		{
-			state_c * old_state = _state; // save for later, so we can remove reference later, so that we don't delete it if audio thread is using it.
-			_state = new state_c( value ); // create new state.
-			_file_path = value;
-			_file_path_absolute = file_path_absolute;
-			_file_time_modified = file_time_modified;
-			if ( old_state != nullptr )
-			{
-				old_state->remove_reference(); // now that new _state is set, we can remove reference on the old state.
-			}
+			old_state->remove_reference();
 		}
 	}
 
@@ -644,8 +624,11 @@ namespace cheonsa
 		return true;
 	}
 
+	core_linked_list_c< audio2_wave_player_c * > audio2_wave_player_c::_instance_list;
+
 	audio2_wave_player_c::audio2_wave_player_c()
-		: _wave_player_list_node( this )
+		: _instance_list_node( this )
+		, _wave_player_list_node( this )
 		, _reference_count( 1 )
 		, _wave_buffer( nullptr )
 		, _wave_buffer_state( nullptr )
@@ -660,10 +643,12 @@ namespace cheonsa
 		, _linked_audio_scene_source( nullptr )
 		, _linked_audio_interface( nullptr )
 	{
+		_instance_list.insert_at_end( &_instance_list_node );
 	}
 
 	audio2_wave_player_c::~audio2_wave_player_c()
 	{
+		_instance_list.remove( &_instance_list_node );
 		if ( _ogg_stb_vorbis != nullptr )
 		{
 			stb_vorbis_close( _ogg_stb_vorbis );
@@ -1638,12 +1623,12 @@ namespace cheonsa
 
 		// iterate over each wave buffer instance.
 		_critical_section.enter();
-		core_linked_list_c< audio2_wave_buffer_c * >::node_c const * wave_buffer_list_node = audio2_wave_buffer_c::_instance_list.get_first();
-		while ( wave_buffer_list_node != nullptr )
+		core_linked_list_c< audio2_wave_player_c * >::node_c const * wave_player_list_node = audio2_wave_player_c::_instance_list.get_first();
+		while ( wave_player_list_node != nullptr )
 		{
-			audio2_wave_buffer_c * wave_buffer = wave_buffer_list_node->get_value();
-			wave_buffer_list_node = wave_buffer_list_node->get_next();
-			wave_buffer->set_file_path( wave_buffer->get_file_path() );
+			audio2_wave_player_c * wave_player = wave_player_list_node->get_value();
+			wave_player_list_node = wave_player_list_node->get_next();
+			wave_player->_start();
 		}
 		_critical_section.exit();
 

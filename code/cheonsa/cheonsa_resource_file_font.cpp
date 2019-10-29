@@ -1,4 +1,4 @@
-#include "cheonsa_resource_object_font.h"
+#include "cheonsa_resource_file_font.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa_ops.h"
@@ -12,9 +12,9 @@
 namespace cheonsa
 {
 
-	uint8_c const resource_object_font_c::_quantized_sizes[ resource_object_font_c::_quantized_count ] = { 12, 24, 32, 48 };
+	uint8_c const resource_file_font_c::_quantized_sizes[ resource_file_font_c::_quantized_count ] = { 12, 24, 32, 48 };
 
-	core_linked_list_c< resource_object_font_c * > resource_object_font_c::_global_list;
+	core_linked_list_c< resource_file_font_c * > resource_file_font_c::_global_list;
 
 	glyph_key_c::glyph_key_c()
 		: font_file_hash( 0 )
@@ -27,7 +27,7 @@ namespace cheonsa
 	glyph_key_c::glyph_key_c( uint32_c font_file_hash, float32_c font_size, char16_c code_point )
 		: font_file_hash( font_file_hash )
 		, code_point( code_point )
-		, quantized_size( resource_object_font_c::get_quantized_size( font_size ) )
+		, quantized_size( resource_file_font_c::get_quantized_size( font_size ) )
 		, unused( 0 )
 	{
 	}
@@ -47,7 +47,7 @@ namespace cheonsa
 	{
 	}
 
-	resource_object_font_c::size_metrics_c::size_metrics_c()
+	resource_file_font_c::size_metrics_c::size_metrics_c()
 		: free_type_size_handle( nullptr )
 		, quantized_size( 0 )
 		, ascender( 0.0f )
@@ -56,7 +56,7 @@ namespace cheonsa
 	{
 	}
 
-	boolean_c resource_object_font_c::size_metrics_c::_load( void_c * free_type_face_handle, uint8_c quantized_size )
+	boolean_c resource_file_font_c::size_metrics_c::_load( void_c * free_type_face_handle, uint8_c quantized_size )
 	{
 		assert( free_type_size_handle == nullptr );
 		assert( quantized_size == get_quantized_size( quantized_size ) );
@@ -95,7 +95,7 @@ namespace cheonsa
 		return false;
 	}
 
-	void_c resource_object_font_c::size_metrics_c::_unload()
+	void_c resource_file_font_c::size_metrics_c::_unload()
 	{
 		if ( free_type_size_handle != nullptr )
 		{
@@ -108,9 +108,10 @@ namespace cheonsa
 		space_horizontal_advance = 0.0f;
 	}
 
-	boolean_c resource_object_font_c::_load( data_stream_c * stream )
+	boolean_c resource_file_font_c::_load( data_stream_c * stream )
 	{
-		assert( stream->get_position() == 0 );
+		cheonsa_assert( stream != nullptr );
+		cheonsa_assert( _is_loaded == false );
 
 		_file_size = stream->get_size();
 		_file = new uint8_c[ _file_size ];
@@ -157,7 +158,7 @@ namespace cheonsa
 		return false;
 	}
 
-	void_c resource_object_font_c::_unload()
+	void_c resource_file_font_c::_unload()
 	{
 		assert( _is_loaded == true );
 		_is_loaded = false;
@@ -177,8 +178,8 @@ namespace cheonsa
 		menu_element_text_c::invalidate_glyph_layout_of_all_instances_with_font( this );
 	}
 
-	resource_object_font_c::resource_object_font_c()
-		: resource_object_c()
+	resource_file_font_c::resource_file_font_c()
+		: resource_file_c()
 		, _global_list_node( this )
 		, _file( nullptr )
 		, _file_size( 0 )
@@ -189,44 +190,44 @@ namespace cheonsa
 		_global_list.insert_at_end( &_global_list_node );
 	}
 
-	resource_object_font_c::~resource_object_font_c()
+	resource_file_font_c::~resource_file_font_c()
 	{
 		assert( _is_loaded == false );
 		_global_list.remove( &_global_list_node );
 	}
 
-	uint32_c resource_object_font_c::get_file_hash() const
+	uint32_c resource_file_font_c::get_file_hash() const
 	{
 		return _file_hash;
 	}
 
-	void_c * resource_object_font_c::get_free_type_face_handle() const
+	void_c * resource_file_font_c::get_free_type_face_handle() const
 	{
 		return _free_type_face_handle;
 	}
 
-	float32_c resource_object_font_c::get_unquantized_ascender( float32_c size ) const
+	float32_c resource_file_font_c::get_unquantized_ascender( float32_c size ) const
 	{
 		assert( _is_loaded );
 		size_metrics_c const * size_metrics = get_quantized_size_metrics( size );
 		return size_metrics->ascender * ( size / static_cast< float32_c >( size_metrics->quantized_size ) );
 	}
 
-	float32_c resource_object_font_c::get_unquantized_descender( float32_c size ) const
+	float32_c resource_file_font_c::get_unquantized_descender( float32_c size ) const
 	{
 		assert( _is_loaded );
 		size_metrics_c const * size_metrics = get_quantized_size_metrics( size );
 		return size_metrics->descender * ( size / static_cast< float32_c >( size_metrics->quantized_size ) );
 	}
 
-	float32_c resource_object_font_c::get_unquantized_horizontal_advance_for_space( float32_c size ) const
+	float32_c resource_file_font_c::get_unquantized_horizontal_advance_for_space( float32_c size ) const
 	{
 		assert( _is_loaded );
 		size_metrics_c const * size_metrics = get_quantized_size_metrics( size );
 		return size_metrics->space_horizontal_advance * ( size / static_cast< float32_c >( size_metrics->quantized_size ) );
 	}
 
-	float32_c resource_object_font_c::find_kern_advance( float32_c left_font_size, char16_c left_code_point, float32_c right_font_size, char16_c right_code_point )
+	float32_c resource_file_font_c::find_kern_advance( float32_c left_font_size, char16_c left_code_point, float32_c right_font_size, char16_c right_code_point )
 	{
 		assert( _is_loaded );
 		if ( left_font_size == right_font_size )
@@ -266,7 +267,7 @@ namespace cheonsa
 		}
 	}
 
-	resource_object_font_c::size_metrics_c const * resource_object_font_c::get_quantized_size_metrics( float32_c size ) const
+	resource_file_font_c::size_metrics_c const * resource_file_font_c::get_quantized_size_metrics( float32_c size ) const
 	{
 		for ( sint32_c i = 0; i < _quantized_count - 1; i++ )
 		{
@@ -278,7 +279,7 @@ namespace cheonsa
 		return &_quantized_size_metrics[ _quantized_count - 1 ];
 	}
 
-	uint8_c resource_object_font_c::get_quantized_size( float32_c size )
+	uint8_c resource_file_font_c::get_quantized_size( float32_c size )
 	{
 		for ( sint32_c i = 0; i < _quantized_count - 1; i++ )
 		{
@@ -290,7 +291,7 @@ namespace cheonsa
 		return _quantized_sizes[ _quantized_count - 1 ];
 	}
 
-	float32_c resource_object_font_c::get_scale_to_unquantize_size( float32_c size )
+	float32_c resource_file_font_c::get_scale_to_unquantize_size( float32_c size )
 	{
 		return size / static_cast< float32_c >( get_quantized_size( size ) );
 	}

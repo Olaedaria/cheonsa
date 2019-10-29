@@ -48,9 +48,6 @@
     <ClInclude Include="cheonsa_data_scribe_structure.h" />
     <ClInclude Include="cheonsa_data_scribe_ini.h" />
     <ClInclude Include="cheonsa_resource_manager.h" />
-    <ClInclude Include="cheonsa_resource_object.h" />
-    <ClInclude Include="cheonsa_resource_object_texture.h" />
-    <ClInclude Include="cheonsa_resource_object_font.h" />
     <ClInclude Include="cheonsa_menu_control_check.h" />
     <ClInclude Include="cheonsa_menu_control_list.h" />
     <ClInclude Include="cheonsa_menu_control_scroll.h" />
@@ -72,7 +69,6 @@
     <ClInclude Include="cheonsa_scene_tree_tetrahedron.h" />
     <ClInclude Include="cheonsa_scene_component_body.h" />
     <ClInclude Include="cheonsa_scene_component_planet.h" />
-    <ClInclude Include="cheonsa_resource_object_model.h" />
     <ClInclude Include="cheonsa_scene_component_model.h" />
     <ClInclude Include="cheonsa_input_types.h" />
     <ClInclude Include="cheonsa_math_types.h" />
@@ -510,11 +506,16 @@
     <ClInclude Include="third_party\bullet\btBulletDynamicsCommon.h" />
     <ClInclude Include="cheonsa_string.h" />
     <ClInclude Include="cheonsa_string_file.h" />
-    <ClInclude Include="cheonsa_resource_object_menu_layout.h" />
-    <ClInclude Include="cheonsa_resource_object_material_map.h" />
-    <ClInclude Include="cheonsa_resource_object_sprite_set.h" />
     <ClInclude Include="cheonsa_sprite.h" />
     <ClInclude Include="cheonsa_audio2.h" />
+    <ClInclude Include="cheonsa_resource_file.h" />
+    <ClInclude Include="cheonsa_resource_file_font.h" />
+    <ClInclude Include="cheonsa_resource_file_material_map.h" />
+    <ClInclude Include="cheonsa_resource_file_menu_layout.h" />
+    <ClInclude Include="cheonsa_resource_file_model.h" />
+    <ClInclude Include="cheonsa_resource_file_sprite_set.h" />
+    <ClInclude Include="cheonsa_resource_file_texture.h" />
+    <ClInclude Include="cheonsa_resource_file_sound.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -557,9 +558,6 @@
     <ClCompile Include="cheonsa_data_scribe_structure.cpp" />
     <ClCompile Include="cheonsa_data_scribe_ini.cpp" />
     <ClCompile Include="cheonsa_resource_manager.cpp" />
-    <ClCompile Include="cheonsa_resource_object.cpp" />
-    <ClCompile Include="cheonsa_resource_object_texture.cpp" />
-    <ClCompile Include="cheonsa_resource_object_font.cpp" />
     <ClCompile Include="cheonsa_menu_control_check.cpp" />
     <ClCompile Include="cheonsa_menu_control_list.cpp" />
     <ClCompile Include="cheonsa_menu_control_scroll.cpp" />
@@ -578,7 +576,6 @@
     <ClCompile Include="cheonsa_physics_types.cpp" />
     <ClCompile Include="cheonsa_scene_tree_kd.cpp" />
     <ClCompile Include="cheonsa_scene_component_body.cpp" />
-    <ClCompile Include="cheonsa_resource_object_model.cpp" />
     <ClCompile Include="cheonsa_scene_component_model.cpp" />
     <ClCompile Include="cheonsa_math_types.cpp" />
     <ClCompile Include="cheonsa_input_types.cpp" />
@@ -637,10 +634,15 @@
     <ClCompile Include="cheonsa_debug.cpp" />
     <ClCompile Include="cheonsa_string.cpp" />
     <ClCompile Include="cheonsa_string_file.cpp" />
-    <ClCompile Include="cheonsa_resource_object_menu_layout.cpp" />
-    <ClCompile Include="cheonsa_resource_object_material_map.cpp" />
-    <ClCompile Include="cheonsa_resource_object_sprite_set.cpp" />
     <ClCompile Include="cheonsa_sprite.cpp" />
     <ClCompile Include="cheonsa_audio2.cpp" />
+    <ClCompile Include="cheonsa_resource_file.cpp" />
+    <ClCompile Include="cheonsa_resource_file_font.cpp" />
+    <ClCompile Include="cheonsa_resource_file_material_map.cpp" />
+    <ClCompile Include="cheonsa_resource_file_menu_layout.cpp" />
+    <ClCompile Include="cheonsa_resource_file_model.cpp" />
+    <ClCompile Include="cheonsa_resource_file_sprite_set.cpp" />
+    <ClCompile Include="cheonsa_resource_file_texture.cpp" />
+    <ClCompile Include="cheonsa_resource_file_sound.cpp" />
   </ItemGroup>
 </Project>

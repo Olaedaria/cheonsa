@@ -102,7 +102,7 @@ namespace cheonsa
 			sint32_c _data_buffer_size;
 
 		public:
-			state_c( string16_c const & file_path_absolute );
+			state_c( data_stream_c * stream );
 			~state_c();
 
 			sint32_c add_reference();
@@ -115,10 +115,6 @@ namespace cheonsa
 		sint32_c _reference_count;
 		state_c * _state; // the state of this wave buffer that the mixer is mixing. the main thread may replace this at any time with a new instance. the mixing thread needs to detect when it changes so it can resituate.
 
-		string16_c _file_path; // relative file path of source file (wav or ogg).
-		string16_c _file_path_absolute; // resolved file path of source file, current for _state.
-		sint64_c _file_time_modified; // file time modified, current for _state.
-
 	public:
 		audio2_wave_buffer_c();
 		~audio2_wave_buffer_c();
@@ -126,8 +122,8 @@ namespace cheonsa
 		sint32_c add_reference();
 		sint32_c remove_reference();
 
-		string16_c const & get_file_path() const;
-		void_c set_file_path( string16_c const & value ); // creates a new state if needed.
+		void_c load_new_state( data_stream_c * stream ); // creates a new state from the given stream, which may contain a riff wave (.wav) or vorbis ogg (.ogg). wave players that are still playing this wave buffer will continue to play the old state.
+		void_c release_state(); // forgets state. wave players that are still playing this wave buffer will continue to play the old state.
 
 	};
 
@@ -139,6 +135,9 @@ namespace cheonsa
 		friend class audio2_interface_c;
 		friend class audio2_scene_source_c;
 		friend class audio2_scene_c;
+
+		static core_linked_list_c< audio2_wave_player_c * > _instance_list;
+		core_linked_list_c< audio2_wave_player_c * >::node_c _instance_list_node;
 
 		core_linked_list_c< audio2_wave_player_c * >::node_c _wave_player_list_node; // for use by audio2_interface_c.
 
@@ -380,7 +379,7 @@ namespace cheonsa
 
 		boolean_c start( sint32_c sample_rate = 44100, sint32_c channel_count = 2 );
 
-		void_c refresh(); // pauses mixing thread, scans for changes to source files and reloads any changes, restarts mixing thread.
+		void_c refresh(); // pauses mixing thread, syncs wave players to any new wave buffer states (which restarts play back of those wave players, so it might "break" how things sound temporarily), resumes mixing thread.
 		
 		void_c add_scene( audio2_scene_c * value ); // adds a scene to this audio interface, for 3d mixing.
 		void_c remove_scene( audio2_scene_c * value ); // removes a scene from this audio interface.

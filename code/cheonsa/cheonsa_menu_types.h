@@ -31,8 +31,8 @@ scroll bars control the transform properties of a container, so when a scroll oc
 #include "cheonsa_input_manager.h"
 #include "cheonsa_video_renderer_shader_manager.h"
 #include "cheonsa_video_renderer_types.h"
-#include "cheonsa_resource_object_texture.h"
-#include "cheonsa_resource_object_font.h"
+#include "cheonsa_resource_file_texture.h"
+#include "cheonsa_resource_file_font.h"
 #include "cheonsa_sprite.h"
 
 namespace cheonsa
@@ -323,7 +323,7 @@ namespace cheonsa
 		{
 		public:
 			video_pixel_shader_c * pixel_shader; // optional pixel shader to use. if it's nullptr then the renderer will pick a default given the type of the mother_element.
-			resource_object_texture_c * texture; // optional texture to use. if it's nullptr then the renderer will pick a default given the type of the mother_element. (only used by frame type elements though).
+			resource_file_texture_c * texture; // optional texture to use. if it's nullptr then the renderer will pick a default given the type of the mother_element. (only used by frame type elements though).
 			uint32_c vertex_start;
 			uint32_c vertex_count;
 			uint32_c index_start;
@@ -348,10 +348,10 @@ namespace cheonsa
 		void_c reset();
 
 		// interprets the input_vertex_list as a list of quads to build the index_list.
-		void_c append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_object_texture_c * texture );
+		void_c append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture );
 
 		// generates vertices and indices for a box.
-		void_c append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_object_texture_c * texture, vector32x4_c const & color );
+		void_c append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color );
 
 	};
 

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "cheonsa_resource_object.h"
-#include "cheonsa_resource_object_texture.h"
+#include "cheonsa_resource_file.h"
+#include "cheonsa_resource_file_texture.h"
 #include "cheonsa_math_types.h"
 
 namespace cheonsa
 {
 
 	// a sprite set defines sprite animations, which reference a texture, and defines a list of frames, each with a duration and a rectangle.
-	class resource_object_sprite_set_c : public resource_object_c
+	class resource_file_sprite_set_c : public resource_file_c
 	{
 	public:
-		typedef resource_object_reference_c< resource_object_sprite_set_c > reference_c;
+		typedef resource_file_reference_c< resource_file_sprite_set_c > reference_c;
 
 	public:
 		static char8_c const * get_type_static() { return "sprite"; }
@@ -30,7 +30,7 @@ namespace cheonsa
 		struct sprite_c
 		{
 			string8_c name; // name to reference this animation by.
-			resource_object_texture_c::reference_c texture_resource;
+			resource_file_texture_c::reference_c texture_resource;
 			float32_c font_size; // for sprites that are inlined in text, this defines the native font size of this sprite. then the sprite will be scaled appropriately depending on the text size that is being rendered. if left unset, will be set to 1 for safety (since it is used in a division to how to scale at a given font size).
 			float32_c font_horizontal_advance; // for sprites that are inlined in text, this defines how far to advance the cursor after printing the sprite.
 			core_list_c< frame_c > frame_list;
@@ -43,10 +43,10 @@ namespace cheonsa
 		virtual void_c _unload() override;
 
 	public:
-		resource_object_sprite_set_c();
-		resource_object_sprite_set_c( resource_object_sprite_set_c const & ) = delete;
-		virtual ~resource_object_sprite_set_c() override;
-		resource_object_sprite_set_c & operator = ( resource_object_sprite_set_c const & ) = delete;
+		resource_file_sprite_set_c();
+		resource_file_sprite_set_c( resource_file_sprite_set_c const & ) = delete;
+		virtual ~resource_file_sprite_set_c() override;
+		resource_file_sprite_set_c & operator = ( resource_file_sprite_set_c const & ) = delete;
 
 		sprite_c const * find_sprite( string8_c const & name ) const;
 

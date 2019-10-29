@@ -1068,7 +1068,7 @@ namespace cheonsa
 		return true;
 	}
 
-	glyph_c const * glyph_manager_c::load_quantized_glyph( resource_object_font_c * font, float32_c font_size, char16_c code_point )
+	glyph_c const * glyph_manager_c::load_quantized_glyph( resource_file_font_c * font, float32_c font_size, char16_c code_point )
 	{
 		assert( font );
 		assert( font->get_is_loaded() );
@@ -1086,7 +1086,7 @@ namespace cheonsa
 			return glyph;
 		}
 
-		resource_object_font_c::size_metrics_c const * font_size_metrics = font->get_quantized_size_metrics( glyph_key.quantized_size );
+		resource_file_font_c::size_metrics_c const * font_size_metrics = font->get_quantized_size_metrics( glyph_key.quantized_size );
 		FT_Activate_Size( reinterpret_cast< FT_Size >( font_size_metrics->free_type_size_handle ) );
 		FT_Face free_type_face_handle = reinterpret_cast< FT_Face >( font->get_free_type_face_handle() );
 		FT_Select_Charmap( free_type_face_handle, FT_ENCODING_UNICODE );

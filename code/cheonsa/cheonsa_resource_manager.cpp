@@ -24,7 +24,7 @@ namespace cheonsa
 			// load the next resource in the queue.
 			if ( resource_manager->_worker_thread_load_queue.get_length() > 0 )
 			{
-				resource_object_c * resource = resource_manager->_worker_thread_load_queue[ 0 ];
+				resource_file_c * resource = resource_manager->_worker_thread_load_queue[ 0 ];
 				resource_manager->_worker_thread_load_queue.remove_at_index( 0 );
 					
 				string16_c file_path_absolute;
@@ -47,7 +47,7 @@ namespace cheonsa
 		return 0;
 	}
 
-	void_c resource_manager_c::_load_internal( resource_object_c * resource, data_stream_c * stream, string16_c const & file_path_absolute, boolean_c for_async_load_thread )
+	void_c resource_manager_c::_load_internal( resource_file_c * resource, data_stream_c * stream, string16_c const & file_path_absolute, boolean_c for_async_load_thread )
 	{
 		if ( resource->_load( stream ) )
 		{
@@ -62,7 +62,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c resource_manager_c::_refresh_resource( resource_object_c * resource )
+	void_c resource_manager_c::_refresh_resource( resource_file_c * resource )
 	{
 		string16_c file_path_absolute = resource->_file_path_absolute;
 		sint64_c file_modified_time = resource->_file_modified_time;
@@ -131,7 +131,7 @@ namespace cheonsa
 			sint32_c scan_per_frame = 4;
 			for ( sint32_c i = 0; i < scan_per_frame; i++ )
 			{
-				resource_object_c * resource = _resource_list[ _scan_index ];
+				resource_file_c * resource = _resource_list[ _scan_index ];
 				_refresh_resource( resource );
 				_scan_index++;
 				if ( _scan_index >= _resource_list.get_length() )
@@ -146,7 +146,7 @@ namespace cheonsa
 	{
 		for ( sint32_c i = 0; i < _resource_list.get_length(); i++ )
 		{
-			resource_object_c * resource = _resource_list[ i ];
+			resource_file_c * resource = _resource_list[ i ];
 			_refresh_resource( resource );
 		}
 	}
@@ -162,7 +162,7 @@ namespace cheonsa
 		// search for existing resource instance.
 		for ( sint32_c i = 0; i < _resource_list.get_length(); i++ )
 		{
-			resource_object_c * resource = _resource_list[ i ];
+			resource_file_c * resource = _resource_list[ i ];
 			if ( resource->get_type() == resource_type_c::get_type_static() && resource->_file_path_relative == file_path_relative )
 			{
 				return dynamic_cast< resource_type_c * >( resource );
@@ -201,34 +201,34 @@ namespace cheonsa
 		return new_resource;
 	}
 
-	resource_object_font_c * resource_manager_c::load_font( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_font_c * resource_manager_c::load_font( string16_c const & file_path_relative, boolean_c load_now )
 	{
-		return _load< resource_object_font_c >( file_path_relative, load_now );
+		return _load< resource_file_font_c >( file_path_relative, load_now );
 	}
 
-	resource_object_material_map_c * resource_manager_c::load_material_map( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_material_map_c * resource_manager_c::load_material_map( string16_c const & file_path_relative, boolean_c load_now )
 	{
-		return _load< resource_object_material_map_c >( file_path_relative, load_now );
+		return _load< resource_file_material_map_c >( file_path_relative, load_now );
 	}
 
-	resource_object_menu_layout_c * resource_manager_c::load_menu_layout( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_menu_layout_c * resource_manager_c::load_menu_layout( string16_c const & file_path_relative, boolean_c load_now )
 	{
-		return _load< resource_object_menu_layout_c >( file_path_relative, load_now );
+		return _load< resource_file_menu_layout_c >( file_path_relative, load_now );
 	}
 
-	resource_object_model_c * resource_manager_c::load_model( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_model_c * resource_manager_c::load_model( string16_c const & file_path_relative, boolean_c load_now )
 	{
-		return _load< resource_object_model_c >( file_path_relative, load_now );
+		return _load< resource_file_model_c >( file_path_relative, load_now );
 	}
 	
-	resource_object_sprite_set_c * resource_manager_c::load_sprite_set( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_sprite_set_c * resource_manager_c::load_sprite_set( string16_c const & file_path_relative, boolean_c load_now )
 	{
-		return _load< resource_object_sprite_set_c >( file_path_relative, load_now );
+		return _load< resource_file_sprite_set_c >( file_path_relative, load_now );
 	}
 
-	resource_object_texture_c * resource_manager_c::load_texture( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_texture_c * resource_manager_c::load_texture( string16_c const & file_path_relative, boolean_c load_now )
 	{
-		return _load< resource_object_texture_c >( file_path_relative, load_now );
+		return _load< resource_file_texture_c >( file_path_relative, load_now );
 	}
 
 }

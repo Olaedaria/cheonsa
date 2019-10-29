@@ -5,7 +5,7 @@
 #include "cheonsa_video_renderer_canvas.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_menu_types.h"
-#include "cheonsa_resource_object_model.h"
+#include "cheonsa_resource_file_model.h"
 #include "cheonsa_data_scribe_ini.h"
 
 namespace cheonsa
@@ -305,15 +305,15 @@ namespace cheonsa
 		scene_c * _scene; // primary scene that is currently being rendered.
 
 		video_texture_c * texture_white_pixel; // white pixel.
-		resource_object_texture_c texture_white_pixel_wrapper;
+		resource_file_texture_c texture_white_pixel_wrapper;
 
 		video_texture_c * texture_green_pixel; // green pixel for pointing out missing textures.
-		resource_object_texture_c texture_green_pixel_wrapper;
+		resource_file_texture_c texture_green_pixel_wrapper;
 
 		scene_material_c _scene_default_material;
 
 		scene_object_c * _scene_light_probe_object; // we need an object to reuse multiple times per frame to visualize light probes.
-		resource_object_model_c::reference_c _scene_light_probe_model; // one model resource (ideally a sphere) is used to visualize all of the light probes.
+		resource_file_model_c::reference_c _scene_light_probe_model; // one model resource (ideally a sphere) is used to visualize all of the light probes.
 		//scene_component_model_c * _scene_light_probe_model_component; // one model component instance (ideally a sphere model) is used to visualize all of the light probes, it isn't associated with a .
 
 		video_vertex_buffer_c * _quad_vertex_buffer; // full screen rectangle, used to draw rectangle quad that covers the whole screen, for post process and resolve passes.

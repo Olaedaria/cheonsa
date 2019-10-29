@@ -18,7 +18,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_element_text_c::invalidate_glyph_layout_of_all_instances_with_font( resource_object_font_c * font )
+	void_c menu_element_text_c::invalidate_glyph_layout_of_all_instances_with_font( resource_file_font_c * font )
 	{
 		core_linked_list_c< menu_element_text_c * >::node_c const * menu_element_text_list_node = _global_list.get_first();
 		while ( menu_element_text_list_node != nullptr )
@@ -141,7 +141,7 @@ namespace cheonsa
 		return *this;
 	}
 
-	resource_object_font_c * menu_element_text_c::text_span_c::get_style_font() const
+	resource_file_font_c * menu_element_text_c::text_span_c::get_style_font() const
 	{
 		text_span_c const * span = this;
 		while ( true )
@@ -516,7 +516,7 @@ namespace cheonsa
 		return _mother_element_text->get_style_glyph_spacing();
 	}
 
-	resource_object_font_c * menu_element_text_c::text_paragraph_c::get_style_font() const
+	resource_file_font_c * menu_element_text_c::text_paragraph_c::get_style_font() const
 	{
 		assert( _mother_element_text );
 		if ( _style_reference.get_value() )
@@ -738,7 +738,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_element_text_c::_invalidate_glyph_flow_in_all_paragraphs_with_font( resource_object_font_c * font )
+	void_c menu_element_text_c::_invalidate_glyph_flow_in_all_paragraphs_with_font( resource_file_font_c * font )
 	{
 		for ( sint32_c paragraph_index = 0; paragraph_index < _paragraph_list.get_length(); paragraph_index++ )
 		{
@@ -859,7 +859,7 @@ namespace cheonsa
 					current_laid_out_glyph_spacing = current_paragraph->get_style_glyph_spacing() * current_text_glyph_style.size;
 				}
 				
-				float32_c quantized_size = static_cast< float32_c >( resource_object_font_c::get_quantized_size( current_text_glyph_style.size ) );
+				float32_c quantized_size = static_cast< float32_c >( resource_file_font_c::get_quantized_size( current_text_glyph_style.size ) );
 				current_scale_to_unquantize_size = current_text_glyph_style.font->get_scale_to_unquantize_size( current_text_glyph_style.size );
 				current_text_glyph_style.softness += 1.0f / current_scale_to_unquantize_size * 0.025f; // softness bias, so that edges are base-line level of soft by default.
 				current_laid_out_ascender = current_text_glyph_style.font->get_unquantized_ascender( current_text_glyph_style.size );
@@ -2171,7 +2171,7 @@ namespace cheonsa
 
 		struct laid_out_sprite_c
 		{
-			resource_object_texture_c * texture_resource;
+			resource_file_texture_c * texture_resource;
 			vector32x4_c color;
 			box32x2_c box;
 			box32x2_c map;
@@ -2385,8 +2385,8 @@ namespace cheonsa
 										menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
 										if ( entity_sprite->value.get_is_ready() )
 										{
-											resource_object_sprite_set_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
-											resource_object_sprite_set_c::frame_c const * current_frame = entity_sprite->value.get_frame();
+											resource_file_sprite_set_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
+											resource_file_sprite_set_c::frame_c const * current_frame = entity_sprite->value.get_frame();
 
 											float32_c scale_to_size = laid_out_glyph->_style->size / entity_sprite->value.get_sprite()->font_size;
 
@@ -3107,7 +3107,7 @@ namespace cheonsa
 		return global_engine_instance.interfaces.menu_style_manager->default_text_style.glyph_spacing;
 	}
 
-	resource_object_font_c * menu_element_text_c::get_style_font() const
+	resource_file_font_c * menu_element_text_c::get_style_font() const
 	{
 		if ( _style_reference.get_value() )
 		{

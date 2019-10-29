@@ -24,7 +24,7 @@ namespace cheonsa
 	scene_component_sound_c::scene_component_sound_c()
 		: scene_component_c()
 		, _sound_list_node( this )
-		, _audio_wave_buffer( nullptr )
+		, _sound_resource()
 		, _audio_scene_source( nullptr )
 		, _play( true )
 		, _is_first_play( true )
@@ -35,7 +35,6 @@ namespace cheonsa
 		, _interval_minimum( 0.0f )
 		, _interval_maximum( 0.0f )
 	{
-		_audio_wave_buffer = new audio2_wave_buffer_c();
 		_audio_scene_source = new audio2_scene_source_c();
 	}
 
@@ -45,14 +44,14 @@ namespace cheonsa
 		_audio_scene_source = nullptr;
 	}
 
-	string16_c scene_component_sound_c::get_sound_file_path()
+	resource_file_sound_c * scene_component_sound_c::get_sound_resource() const
 	{
-		return _audio_scene_source->get_wave_player()->get_wave_buffer()->get_file_path();
+		return _sound_resource;
 	}
 
-	void_c scene_component_sound_c::set_sound_file_path( string16_c const & value )
+	void_c scene_component_sound_c::set_sound_resource( resource_file_sound_c * value )
 	{
-		return _audio_scene_source->get_wave_player()->get_wave_buffer()->set_file_path( value );
+		_sound_resource = value;
 	}
 
 	audio2_layer_e scene_component_sound_c::get_audio_layer() const

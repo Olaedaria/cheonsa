@@ -21,7 +21,7 @@ namespace cheonsa
 			_element_frame_style.state_list[ 0 ].texture_map[ 1 ] = 1;
 			_element_frame_style.state_list[ 0 ].texture_map[ 2 ] = static_cast< sint16_c >( _canvas->get_apparent_width() );
 			_element_frame_style.state_list[ 0 ].texture_map[ 3 ] = static_cast< sint16_c >( _canvas->get_apparent_height() );
-			_canvas_wrapper.wrap( _canvas->get_target_color_final() );
+			_canvas_wrapper.set_video_texture( _canvas->get_target_color_final() );
 		}
 	}
 
@@ -34,7 +34,7 @@ namespace cheonsa
 		, _canvas_wrapper( true )
 	{
 		_canvas = new video_renderer_canvas_c( true, true, nullptr );
-		_canvas_wrapper._video_texture = _canvas->get_target_color_final();
+		_canvas_wrapper.set_video_texture( _canvas->get_target_color_final() );
 		_element_frame_style.texture_map_mode = menu_style_for_frame_c::texture_map_mode_e_stretch;
 		_element_frame_style.texture = &_canvas_wrapper;
 		_element_frame.set_override_style( &_element_frame_style );
@@ -43,7 +43,7 @@ namespace cheonsa
 
 	menu_control_scene_c::~menu_control_scene_c()
 	{
-		_canvas_wrapper._video_texture = nullptr;
+		_canvas_wrapper.set_video_texture( nullptr );
 		delete _canvas;
 		_canvas = nullptr;
 	}

@@ -338,18 +338,18 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_c::_handle_resource_object_menu_on_load( resource_object_c * resource_object )
+	void_c menu_control_c::_handle_resource_file_menu_on_load( resource_file_c * resource_file )
 	{
-		cheonsa_assert( resource_object != nullptr );
-		cheonsa_assert( resource_object->get_is_loaded() );
-		cheonsa_assert( _resource_object_menu == resource_object );
-		load_hierarchy_and_properties( _resource_object_menu->get_markup().get_node( 1 ) );
+		cheonsa_assert( resource_file != nullptr );
+		cheonsa_assert( resource_file->get_is_loaded() );
+		cheonsa_assert( _resource_file_menu == resource_file );
+		load_hierarchy_and_properties( _resource_file_menu->get_markup().get_node( 1 ) );
 	}
 
-	void_c menu_control_c::_handle_resource_object_menu_on_unload( resource_object_c * resource_object )
+	void_c menu_control_c::_handle_resource_file_menu_on_unload( resource_file_c * resource_file )
 	{
-		cheonsa_assert( resource_object != nullptr );
-		cheonsa_assert( resource_object->get_is_loaded() );
+		cheonsa_assert( resource_file != nullptr );
+		cheonsa_assert( resource_file->get_is_loaded() );
 		load_hierarchy_and_properties( nullptr );
 	}
 
@@ -781,30 +781,30 @@ namespace cheonsa
 		//_style_map_reference.set_key( attribute ? attribute->get_value() : string8_c() );
 	}
 
-	resource_object_menu_layout_c * menu_control_c::get_menu_layout_resource() const
+	resource_file_menu_layout_c * menu_control_c::get_menu_layout_resource() const
 	{
-		return _resource_object_menu;
+		return _resource_file_menu;
 	}
 
-	void_c menu_control_c::set_menu_layout_resource( resource_object_menu_layout_c * value )
+	void_c menu_control_c::set_menu_layout_resource( resource_file_menu_layout_c * value )
 	{
-		if ( _resource_object_menu.is_reference_set() )
+		if ( _resource_file_menu.is_reference_set() )
 		{
-			if ( _resource_object_menu->get_is_loaded() )
+			if ( _resource_file_menu->get_is_loaded() )
 			{
-				_handle_resource_object_menu_on_unload( _resource_object_menu );
+				_handle_resource_file_menu_on_unload( _resource_file_menu );
 			}
-			_resource_object_menu->on_load.unsubscribe( this, &menu_control_c::_handle_resource_object_menu_on_load );
-			_resource_object_menu->on_unload.unsubscribe( this, &menu_control_c::_handle_resource_object_menu_on_unload );
+			_resource_file_menu->on_load.unsubscribe( this, &menu_control_c::_handle_resource_file_menu_on_load );
+			_resource_file_menu->on_unload.unsubscribe( this, &menu_control_c::_handle_resource_file_menu_on_unload );
 		}
-		_resource_object_menu = value;
-		if ( _resource_object_menu.is_reference_set() )
+		_resource_file_menu = value;
+		if ( _resource_file_menu.is_reference_set() )
 		{
-			_resource_object_menu->on_load.subscribe( this, &menu_control_c::_handle_resource_object_menu_on_load );
-			_resource_object_menu->on_unload.subscribe( this, &menu_control_c::_handle_resource_object_menu_on_unload );
-			if ( _resource_object_menu->get_is_loaded() )
+			_resource_file_menu->on_load.subscribe( this, &menu_control_c::_handle_resource_file_menu_on_load );
+			_resource_file_menu->on_unload.subscribe( this, &menu_control_c::_handle_resource_file_menu_on_unload );
+			if ( _resource_file_menu->get_is_loaded() )
 			{
-				_handle_resource_object_menu_on_load( _resource_object_menu );
+				_handle_resource_file_menu_on_load( _resource_file_menu );
 			}
 		}
 	}
@@ -1610,7 +1610,7 @@ namespace cheonsa
 				cheonsa_assert( needed_width <= 4096 && needed_height <= 4096 );
 				_control_group_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
 				cheonsa_assert( _control_group_texture != nullptr );
-				_control_group_texture_wrapper._video_texture = _control_group_texture;
+				_control_group_texture_wrapper.set_video_texture( _control_group_texture );
 			}
 
 			// control group spatial transform.
@@ -1637,7 +1637,7 @@ namespace cheonsa
 			{
 				delete _control_group_texture;
 				_control_group_texture = nullptr;
-				_control_group_texture_wrapper._video_texture = nullptr;
+				_control_group_texture_wrapper.set_video_texture( nullptr );
 			}
 
 			// control group spatial transform.

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_resource_object.h"
+#include "cheonsa_resource_file.h"
 #include "cheonsa_video_types.h"
 #include "cheonsa_physics_types.h"
 #include "cheonsa_scene_types.h"
@@ -15,15 +15,15 @@ namespace cheonsa
 	// why are enums defined in the file format when they basically mirror 1 to 1 the enums defined in the engine's system? it seems redundant.
 	// this is done so that files remain compatible with the engine even as enum values evolve between versions.
 	// enums:
-	//		resource_object_model_c::mesh_draw_c::primitive_type_e maps to video_primitive_type_e.
-	//		resource_object_model_c::physics_body_c::layer_e maps to physics_layer_e.
-	//		resource_object_model_c::physics_shape_c::type_e maps to physics_shape_type_e.
-	//		resource_object_model_c::physics_constraint_c::type_e maps to physics_constraint_type_e.
-	//		resource_object_model_c::light_c::type_e maps to scene_light_type_e.
-	class resource_object_model_c : public resource_object_c
+	//		resource_file_model_c::mesh_draw_c::primitive_type_e maps to video_primitive_type_e.
+	//		resource_file_model_c::physics_body_c::layer_e maps to physics_layer_e.
+	//		resource_file_model_c::physics_shape_c::type_e maps to physics_shape_type_e.
+	//		resource_file_model_c::physics_constraint_c::type_e maps to physics_constraint_type_e.
+	//		resource_file_model_c::light_c::type_e maps to scene_light_type_e.
+	class resource_file_model_c : public resource_file_c
 	{
 	public:
-		typedef resource_object_reference_c< resource_object_model_c > reference_c;
+		typedef resource_file_reference_c< resource_file_model_c > reference_c;
 
 	public:
 		static char8_c const * get_type_static() { return "model2"; }
@@ -563,14 +563,14 @@ namespace cheonsa
 		boolean_c find_bone_logic_property_as_string8( bone_logic_c const * logic, string8_c const & name, string8_c & value );
 
 	private:
-		virtual boolean_c _load( data_stream_c * stream );
-		virtual void_c _unload();
+		virtual boolean_c _load( data_stream_c * stream ) override;
+		virtual void_c _unload() override;
 
 	public:
-		resource_object_model_c();
-		resource_object_model_c( resource_object_model_c const & ) = delete;
-		virtual ~resource_object_model_c() override;
-		resource_object_model_c & operator = ( resource_object_model_c const & ) = delete;
+		resource_file_model_c();
+		resource_file_model_c( resource_file_model_c const & ) = delete;
+		virtual ~resource_file_model_c() override;
+		resource_file_model_c & operator = ( resource_file_model_c const & ) = delete;
 
 		data_c const & get_data() const;
 

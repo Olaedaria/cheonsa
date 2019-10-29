@@ -28,7 +28,7 @@ namespace cheonsa
 		menu_style_for_frame_c _element_frame_style; // style override for frame element.
 
 		video_renderer_canvas_c * _canvas; // canvas, sized to be same as size of _local_box.
-		resource_object_texture_c _canvas_wrapper; // canvas wrapper, so that the contents of the canvas can be bound as a texture input and rendered like a menu frame. this has to be resized each time the canvas is resized.
+		resource_file_texture_c _canvas_wrapper; // canvas wrapper, so that the contents of the canvas can be bound as a texture input and rendered like a menu frame. this has to be resized each time the canvas is resized.
 
 		scene_c * _scene; // the 3d scene that this menu control will render. this needs to be provided by and managed by the game.
 

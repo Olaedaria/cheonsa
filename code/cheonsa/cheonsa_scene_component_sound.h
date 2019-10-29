@@ -2,6 +2,7 @@
 
 #include "cheonsa_scene_component.h"
 #include "cheonsa_audio2.h"
+#include "cheonsa_resource_file_sound.h"
 
 namespace cheonsa
 {
@@ -18,7 +19,8 @@ namespace cheonsa
 	public:
 		core_linked_list_c< scene_component_sound_c * >::node_c _sound_list_node;
 
-		audio2_wave_buffer_c * _audio_wave_buffer;
+		resource_file_sound_c::reference_c _sound_resource;
+
 		audio2_scene_source_c * _audio_scene_source;
 
 		boolean_c _play;
@@ -43,9 +45,9 @@ namespace cheonsa
 		scene_component_sound_c(); // constructor is protected to prevent instantiation on the stack. use make_new_instance() to make a new instance on the heap. then use delete as normal to delete it.
 		virtual ~scene_component_sound_c() override;
 
-		string16_c get_sound_file_path();
-		void_c set_sound_file_path( string16_c const & value );
-
+		resource_file_sound_c * get_sound_resource() const;
+		void_c set_sound_resource( resource_file_sound_c * value );
+		
 		audio2_layer_e get_audio_layer() const;
 		void_c set_audio_layer( audio2_layer_e value );
 

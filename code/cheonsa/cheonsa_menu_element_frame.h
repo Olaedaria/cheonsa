@@ -2,7 +2,7 @@
 
 #include "cheonsa_menu_element.h"
 #include "cheonsa_menu_style_for_frame.h"
-#include "cheonsa_resource_object_texture.h"
+#include "cheonsa_resource_file_texture.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_video_renderer_shader_manager.h"
 

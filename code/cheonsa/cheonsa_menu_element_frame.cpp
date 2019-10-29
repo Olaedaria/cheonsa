@@ -22,8 +22,8 @@ namespace cheonsa
 			frame_style = &global_engine_instance.interfaces.menu_style_manager->default_frame_style;
 		}
 
-		resource_object_texture_c * texture = frame_style->texture;
-		if ( texture == nullptr || texture->_video_texture == nullptr )
+		resource_file_texture_c * texture = frame_style->texture;
+		if ( texture == nullptr || texture->get_video_texture() == nullptr )
 		{
 			return;
 		}
@@ -34,9 +34,9 @@ namespace cheonsa
 		vector32x4_c element_color = frame_style_state.get_expressed_color() * _local_color;
 		float32_c element_saturation = frame_style_state.saturation;
 
-		float32_c texture_width = static_cast< float32_c >( texture->_video_texture->get_width() );
+		float32_c texture_width = static_cast< float32_c >( texture->get_video_texture()->get_width() );
 		float32_c texture_width_inverse = 1.0f / texture_width;
-		float32_c texture_height = static_cast< float32_c >( texture->_video_texture->get_height() );
+		float32_c texture_height = static_cast< float32_c >( texture->get_video_texture()->get_height() );
 		float32_c texture_height_inverse = 1.0f / texture_height;
 
 		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference.get_loaded() ? frame_style->pixel_shader_reference.get_pixel_shader() : global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_frame;

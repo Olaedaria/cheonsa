@@ -1,11 +1,11 @@
-#include "cheonsa_resource_object_model.h"
+#include "cheonsa_resource_file_model.h"
 #include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
 {
 
-	video_primitive_type_e resource_object_model_c::mesh_draw_c::get_video_primitive_type() const
+	video_primitive_type_e resource_file_model_c::mesh_draw_c::get_video_primitive_type() const
 	{
 		switch ( static_cast< primitive_type_e >( primitive_type_ ) )
 		{
@@ -23,7 +23,7 @@ namespace cheonsa
 		return video_primitive_type_e_point_list;
 	}
 
-	uint16_c resource_object_model_c::physics_body_c::get_physics_layer() const
+	uint16_c resource_file_model_c::physics_body_c::get_physics_layer() const
 	{
 		switch ( static_cast< layer_e >( layer_ ) )
 		{
@@ -45,12 +45,12 @@ namespace cheonsa
 		return 0;
 	}
 
-	uint16_c resource_object_model_c::physics_body_c::get_physics_layer_mask() const
+	uint16_c resource_file_model_c::physics_body_c::get_physics_layer_mask() const
 	{
 		return physics_get_layer_mask_for_layer( get_physics_layer() );
 	}
 
-	physics_shape_type_e resource_object_model_c::physics_shape_c::get_physics_shape_type() const
+	physics_shape_type_e resource_file_model_c::physics_shape_c::get_physics_shape_type() const
 	{
 		switch ( static_cast< type_e >( type_ ) )
 		{
@@ -72,7 +72,7 @@ namespace cheonsa
 		return physics_shape_type_e_none;
 	}
 
-	physics_constraint_type_e resource_object_model_c::physics_constraint_c::get_physics_constraint_type() const
+	physics_constraint_type_e resource_file_model_c::physics_constraint_c::get_physics_constraint_type() const
 	{
 		switch ( static_cast< type_e >( type_ ) )
 		{
@@ -90,7 +90,7 @@ namespace cheonsa
 		return physics_constraint_type_e_none;
 	}
 
-	scene_light_type_e resource_object_model_c::light_c::get_scene_light_type() const
+	scene_light_type_e resource_file_model_c::light_c::get_scene_light_type() const
 	{
 		switch ( static_cast< type_e >( type_ ) )
 		{
@@ -104,7 +104,7 @@ namespace cheonsa
 		return scene_light_type_e_point;
 	}
 
-	void_c resource_object_model_c::data_c::reset()
+	void_c resource_file_model_c::data_c::reset()
 	{
 		mesh_bone_name_list.remove_all();
 		mesh_list.remove_all();
@@ -147,7 +147,7 @@ namespace cheonsa
 		}
 	}
 
-	sint32_c resource_object_model_c::find_bone_index_with_bone_name( uint16_c bone_name )
+	sint32_c resource_file_model_c::find_bone_index_with_bone_name( uint16_c bone_name )
 	{
 		if ( bone_name > 0 )
 		{
@@ -162,7 +162,7 @@ namespace cheonsa
 		return -1;
 	}
 
-	sint32_c resource_object_model_c::find_bone_index_with_bone_name( string8_c const & bone_name )
+	sint32_c resource_file_model_c::find_bone_index_with_bone_name( string8_c const & bone_name )
 	{
 		if ( bone_name.get_length() > 0 )
 		{
@@ -177,7 +177,7 @@ namespace cheonsa
 		return -1;
 	}
 
-	boolean_c resource_object_model_c::find_bone_logic_property_as_sint32( bone_logic_c const * logic, string8_c const & name, sint32_c & value )
+	boolean_c resource_file_model_c::find_bone_logic_property_as_sint32( bone_logic_c const * logic, string8_c const & name, sint32_c & value )
 	{
 		cheonsa_assert( _is_loaded );
 		cheonsa_assert( logic != nullptr );
@@ -194,7 +194,7 @@ namespace cheonsa
 		return false;
 	}
 
-	boolean_c resource_object_model_c::find_bone_logic_property_as_float32( bone_logic_c const * logic, string8_c const & name, float32_c & value )
+	boolean_c resource_file_model_c::find_bone_logic_property_as_float32( bone_logic_c const * logic, string8_c const & name, float32_c & value )
 	{
 		cheonsa_assert( _is_loaded );
 		cheonsa_assert( logic != nullptr );
@@ -211,7 +211,7 @@ namespace cheonsa
 		return false;
 	}
 
-	boolean_c resource_object_model_c::find_bone_logic_property_as_string8( bone_logic_c const * logic, string8_c const & name, string8_c & value )
+	boolean_c resource_file_model_c::find_bone_logic_property_as_string8( bone_logic_c const * logic, string8_c const & name, string8_c & value )
 	{
 		cheonsa_assert( _is_loaded );
 		cheonsa_assert( logic != nullptr );
@@ -238,9 +238,10 @@ namespace cheonsa
 		return offset;
 	}
 
-	boolean_c resource_object_model_c::_load( data_stream_c * stream )
+	boolean_c resource_file_model_c::_load( data_stream_c * stream )
 	{
-		cheonsa_assert( !_is_loaded );
+		cheonsa_assert( stream != nullptr );
+		cheonsa_assert( _is_loaded == false );
 
 		// check signature and version.
 		char8_c signature[ 4 ];
@@ -463,7 +464,7 @@ namespace cheonsa
 		return false;
 	}
 
-	void_c resource_object_model_c::_unload()
+	void_c resource_file_model_c::_unload()
 	{
 		cheonsa_assert( _is_loaded == true );
 		cheonsa_assert( _raw_data_size > 0 && _raw_data != nullptr );
@@ -474,25 +475,25 @@ namespace cheonsa
 		_is_loaded = false;
 	}
 
-	resource_object_model_c::resource_object_model_c()
-		: resource_object_c()
+	resource_file_model_c::resource_file_model_c()
+		: resource_file_c()
 		, _raw_data_size( 0 )
 		, _raw_data( nullptr )
 		, _data()
 	{
 	}
 
-	resource_object_model_c::~resource_object_model_c()
+	resource_file_model_c::~resource_file_model_c()
 	{
 		cheonsa_assert( _is_loaded == false );
 	}
 
-	resource_object_model_c::data_c const & resource_object_model_c::get_data() const
+	resource_file_model_c::data_c const & resource_file_model_c::get_data() const
 	{
 		return _data;
 	}
 
-	space_transform_c resource_object_model_c::make_bone_transform( vector64x3_c const & bone_head, vector64x3_c const & bone_tail, float32_c bone_roll, vector32x3_c const & global_up )
+	space_transform_c resource_file_model_c::make_bone_transform( vector64x3_c const & bone_head, vector64x3_c const & bone_tail, float32_c bone_roll, vector32x3_c const & global_up )
 	{
 		// this algorithm is essentially copied from a file in Blender.
 		// in Blender, the bone's main axis is along the y axis of the matrix.

@@ -6,7 +6,7 @@
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_scene_tree_octo.h"
 #include "cheonsa_video_types.h"
-#include "cheonsa_resource_object_texture.h"
+#include "cheonsa_resource_file_texture.h"
 #include "cheonsa_video_renderer_shader_manager.h"
 
 namespace cheonsa
@@ -88,7 +88,7 @@ namespace cheonsa
 		boolean_c is_masked; // masked means alpha masked, which means that the pxiel shader will discard pixels with alpha < 0.5f. tells the renderer what kind of pixel shader to use for this material when drawing early-z and shadow maps.
 		boolean_c is_waved; // waved means wave displaced, which means that vertices will be animated over time based on parameters stored in the vertex's texture_b (useful for faking wind in cloth and foliage). tells the renderer what kind of vertex shader to use for this material.
 		vector32x4_c colors[ 4 ]; // colors to supply as input to the pixel shader. alpha defines transparency.
-		resource_object_texture_c::reference_c textures[ 4 ]; // textures to supply as input to the pixel shader.
+		resource_file_texture_c::reference_c textures[ 4 ]; // textures to supply as input to the pixel shader.
 		video_renderer_pixel_shader_c::reference_c pixel_shader; // pixel shader to put it all together.
 
 	public:

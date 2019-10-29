@@ -759,9 +759,11 @@ namespace cheonsa
 
 	video_renderer_interface_c::~video_renderer_interface_c()
 	{
+		texture_white_pixel_wrapper.set_video_texture( nullptr );
 		delete texture_white_pixel;
 		texture_white_pixel = nullptr;
 
+		texture_green_pixel_wrapper.set_video_texture( nullptr );
 		delete texture_green_pixel;
 		texture_green_pixel = nullptr;
 
@@ -928,11 +930,11 @@ namespace cheonsa
 
 		uint8_c white[ 4 ] = { 255, 255, 255, 255 };
 		texture_white_pixel = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, white, 4, false, false, false, false );
-		texture_white_pixel_wrapper._video_texture = texture_white_pixel;
+		texture_white_pixel_wrapper.set_video_texture( texture_white_pixel );
 
 		uint8_c green[ 4 ] = { 0, 255, 0, 255 };
 		texture_green_pixel = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, green, 4, false, false, false, false );
-		texture_green_pixel_wrapper._video_texture = texture_green_pixel;
+		texture_green_pixel_wrapper.set_video_texture( texture_green_pixel );
 
 		return true;
 	}
@@ -1382,7 +1384,7 @@ namespace cheonsa
 						_bind_mesh_vs_for_normal_and_depth( sprite->_material.is_waved, view.clip_plane_enable );
 						if ( sprite->_material.is_masked )
 						{
-							textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->_video_texture : nullptr;
+							textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : nullptr;
 							textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 							global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 							global_engine_instance.interfaces.video_interface->bind_pixel_shader( global_engine_instance.interfaces.video_renderer_shader_manager->scene_camera_normal_and_depth_ps_mesh_masked );
@@ -1449,7 +1451,7 @@ namespace cheonsa
 							}
 							else
 							{
-								textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->_video_texture : texture_green_pixel;
+								textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : texture_green_pixel;
 								textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 								global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
 								global_engine_instance.interfaces.video_interface->bind_pixel_shader( global_engine_instance.interfaces.video_renderer_shader_manager->scene_camera_outline_ps_mesh_masked );
@@ -2521,11 +2523,11 @@ namespace cheonsa
 			{
 				for ( uint32_c j = mesh._source_mesh->draw_start; j < mesh._source_mesh->draw_end; j++ )
 				{
-					resource_object_model_c::mesh_draw_c const & source_mesh_draw = model->_model_resource->_data.mesh_draw_list[ j ];
+					resource_file_model_c::mesh_draw_c const & source_mesh_draw = model->_model_resource->_data.mesh_draw_list[ j ];
 					for ( uint32_c k = source_mesh_draw.vertex_start; k < source_mesh_draw.vertex_end; k++ )
 					{
-						resource_object_model_c::mesh_vertex_base_c source_vertex_base = model->_model_resource->_data.mesh_vertex_list_base[ k ];
-						resource_object_model_c::mesh_vertex_bone_weight_c source_vertex_bone_weight = model->_model_resource->_data.mesh_vertex_list_bone_weight[ k ];
+						resource_file_model_c::mesh_vertex_base_c source_vertex_base = model->_model_resource->_data.mesh_vertex_list_base[ k ];
+						resource_file_model_c::mesh_vertex_bone_weight_c source_vertex_bone_weight = model->_model_resource->_data.mesh_vertex_list_bone_weight[ k ];
 						video_renderer_vertex_mesh_base_c & skinned_vertex = model->_mesh_vertex_list_cpu_skinned[ k ];
 						matrix32x4x4_c bone_skin_matrix_blended = matrix32x4x4_c();
 						if ( source_vertex_bone_weight.bone_weights[ 0 ] > 0 )
@@ -2640,7 +2642,7 @@ namespace cheonsa
 		{
 			for ( sint32_c i = 0; i < object_textures_count; i++ )
 			{
-				textures_to_bind[ i ] = model->object_textures[ i ].is_reference_set_and_loaded() ? model->object_textures[ i ]->_video_texture : nullptr;
+				textures_to_bind[ i ] = model->object_textures[ i ].is_reference_set_and_loaded() ? model->object_textures[ i ]->get_video_texture() : nullptr;
 				textures_to_bind_types[ i ] = video_texture_type_e_texture2d;
 			}
 			global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( _texture_bind_index_for_model_textures, object_textures_count, textures_to_bind, textures_to_bind_types );
@@ -2727,7 +2729,7 @@ namespace cheonsa
 
 		for ( uint32_c i = 0; i < material_textures_count; i++ )
 		{
-			textures_to_bind[ i ] = material->textures[ i ].is_reference_set_and_loaded() ? material->textures[ i ]->_video_texture : texture_green_pixel;
+			textures_to_bind[ i ] = material->textures[ i ].is_reference_set_and_loaded() ? material->textures[ i ]->get_video_texture() : texture_green_pixel;
 			textures_to_bind_types[ i ] = video_texture_type_e_texture2d;
 		}
 		global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, material_textures_count, textures_to_bind, textures_to_bind_types );
@@ -2774,7 +2776,7 @@ namespace cheonsa
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
-				resource_object_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
+				resource_file_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
 				global_engine_instance.interfaces.video_interface->bind_primitive_type( draw->get_video_primitive_type() );
 				global_engine_instance.interfaces.video_interface->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
@@ -2828,7 +2830,7 @@ namespace cheonsa
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
-				resource_object_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
+				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
 				global_engine_instance.interfaces.video_interface->bind_primitive_type( draw->get_video_primitive_type() );
 				global_engine_instance.interfaces.video_interface->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
@@ -2884,7 +2886,7 @@ namespace cheonsa
 			}
 			else
 			{
-				textures_to_bind[ 0 ] = material->textures[ 0 ].is_reference_set_and_loaded() ? material->textures[ 0 ]->_video_texture : texture_green_pixel;
+				textures_to_bind[ 0 ] = material->textures[ 0 ].is_reference_set_and_loaded() ? material->textures[ 0 ]->get_video_texture() : texture_green_pixel;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 				global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 				global_engine_instance.interfaces.video_interface->bind_pixel_shader( global_engine_instance.interfaces.video_renderer_shader_manager->scene_camera_outline_ps_mesh_masked );
@@ -2892,7 +2894,7 @@ namespace cheonsa
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
-				resource_object_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
+				resource_file_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
 				global_engine_instance.interfaces.video_interface->bind_primitive_type( draw->get_video_primitive_type() );
 				global_engine_instance.interfaces.video_interface->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
@@ -2957,7 +2959,7 @@ namespace cheonsa
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
-				resource_object_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
+				resource_file_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
 				global_engine_instance.interfaces.video_interface->bind_primitive_type( draw->get_video_primitive_type() );
 				global_engine_instance.interfaces.video_interface->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
@@ -3009,7 +3011,7 @@ namespace cheonsa
 
 			for ( uint32_c draw_index = mesh->source_mesh->draw_start; draw_index < mesh->source_mesh->draw_end; draw_index++ )
 			{
-				resource_object_model_c::mesh_draw_c * draw = &model->_model_resource->_header_extras.mesh_draw_list[ draw_index ];
+				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_header_extras.mesh_draw_list[ draw_index ];
 				global_engine_instance.interfaces.video_interface->bind_primitive_type( static_cast< video_primitive_type_e >( draw->primitive_type ) );
 				global_engine_instance.interfaces.video_interface->draw_indexed( draw->index_start, draw->index_end - draw->index_start );
 			}
@@ -3067,7 +3069,7 @@ namespace cheonsa
 
 			if ( material->is_masked && material->textures[ 0 ].is_reference_set_and_loaded() )
 			{
-				textures_to_bind[ 0 ] = material->textures[ 0 ]->_video_texture;
+				textures_to_bind[ 0 ] = material->textures[ 0 ]->get_video_texture();
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 				global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 				global_engine_instance.interfaces.video_interface->bind_pixel_shader( global_engine_instance.interfaces.video_renderer_shader_manager->scene_shadow_ps_mesh_masked );
@@ -3081,7 +3083,7 @@ namespace cheonsa
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
-				resource_object_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
+				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
 				global_engine_instance.interfaces.video_interface->bind_primitive_type( draw->get_video_primitive_type() );
 				global_engine_instance.interfaces.video_interface->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
@@ -3148,7 +3150,7 @@ namespace cheonsa
 
 			if ( material->is_masked && material->textures[ 0 ].is_reference_set_and_loaded() )
 			{
-				textures_to_bind[ 0 ] = material->textures[ 0 ]->_video_texture;
+				textures_to_bind[ 0 ] = material->textures[ 0 ]->get_video_texture();
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 				global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 				global_engine_instance.interfaces.video_interface->bind_pixel_shader( global_engine_instance.interfaces.video_renderer_shader_manager->scene_camera_normal_and_depth_ps_mesh_masked );
@@ -3162,7 +3164,7 @@ namespace cheonsa
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
-				resource_object_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
+				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
 				global_engine_instance.interfaces.video_interface->bind_primitive_type( draw->get_video_primitive_type() );
 				global_engine_instance.interfaces.video_interface->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
@@ -3632,7 +3634,7 @@ namespace cheonsa
 			menu_draw_list_c::draw_c const & draw = draw_list.draw_list[ i ];
 			assert( draw.pixel_shader );
 			global_engine_instance.interfaces.video_interface->bind_pixel_shader( draw.pixel_shader );
-			textures_to_bind[ 0 ] = draw.texture ? draw.texture->_video_texture : texture_green_pixel;
+			textures_to_bind[ 0 ] = draw.texture ? draw.texture->get_video_texture() : texture_green_pixel;
 			textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 			global_engine_instance.interfaces.video_interface->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
 			global_engine_instance.interfaces.video_interface->draw_indexed( draw_list.index_base + draw.index_start, draw.index_count, draw_list.vertex_base );

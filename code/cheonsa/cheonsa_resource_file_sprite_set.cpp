@@ -1,4 +1,4 @@
-#include "cheonsa_resource_object_sprite_set.h"
+#include "cheonsa_resource_file_sprite_set.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
@@ -6,8 +6,9 @@
 namespace cheonsa
 {
 
-	boolean_c resource_object_sprite_set_c::_load( data_stream_c * stream )
+	boolean_c resource_file_sprite_set_c::_load( data_stream_c * stream )
 	{
+		assert( stream != nullptr );
 		assert( _is_loaded == false );
 
 		data_scribe_markup_c markup( '<' );
@@ -86,23 +87,23 @@ namespace cheonsa
 		return true;
 	}
 
-	void_c resource_object_sprite_set_c::_unload()
+	void_c resource_file_sprite_set_c::_unload()
 	{
 		assert( _is_loaded == true );
 		_sprite_list.remove_all();
 		_is_loaded = false;
 	}
 
-	resource_object_sprite_set_c::resource_object_sprite_set_c()
+	resource_file_sprite_set_c::resource_file_sprite_set_c()
 		: _sprite_list()
 	{
 	}
 
-	resource_object_sprite_set_c::~resource_object_sprite_set_c()
+	resource_file_sprite_set_c::~resource_file_sprite_set_c()
 	{
 	}
 
-	resource_object_sprite_set_c::sprite_c const * resource_object_sprite_set_c::find_sprite( string8_c const & name ) const
+	resource_file_sprite_set_c::sprite_c const * resource_file_sprite_set_c::find_sprite( string8_c const & name ) const
 	{
 		for ( sint32_c i = 0; i < _sprite_list.get_length(); i++ )
 		{

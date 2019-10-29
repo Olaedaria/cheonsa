@@ -9,7 +9,7 @@
 #include "cheonsa_data_scribe_structure.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_input_manager.h"
-#include "cheonsa_resource_object_menu.h"
+#include "cheonsa_resource_file_menu.h"
 
 namespace cheonsa
 {
@@ -134,9 +134,9 @@ namespace cheonsa
 		};
 		core_list_c< thing_added_by_xml_c > _things_added_by_xml;
 
-		resource_object_menu_layout_c::reference_c _resource_object_menu;
-		void_c _handle_resource_object_menu_on_load( resource_object_c * resource_object );
-		void_c _handle_resource_object_menu_on_unload( resource_object_c * resource_object );
+		resource_file_menu_layout_c::reference_c _resource_file_menu;
+		void_c _handle_resource_file_menu_on_load( resource_file_c * resource_file );
+		void_c _handle_resource_file_menu_on_unload( resource_file_c * resource_file );
 
 		virtual void_c _on_added_to_user_interface(); // protected first responder to on_added_to_user_interface event.
 		virtual void_c _on_removed_from_user_interface(); // protected first responder to on_removed_from_user_interface event.
@@ -180,11 +180,11 @@ namespace cheonsa
 		// loads only just the properties for this control from an xml node.
 		virtual void_c load_properties( data_scribe_markup_c::node_c const * node );
 
-		resource_object_menu_layout_c * get_menu_resource() const;
+		resource_file_menu_layout_c * get_menu_resource() const;
 		// menu resource is optional.
 		// but you can set it on your root level menu controls.
 		// it will enable a markup file to define the layout and properties of the whole menu (mother and daughters).
-		void_c set_menu_resource( resource_object_menu_layout_c * value );
+		void_c set_menu_resource( resource_file_menu_layout_c * value );
 
 		virtual menu_thing_c * pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer );
 

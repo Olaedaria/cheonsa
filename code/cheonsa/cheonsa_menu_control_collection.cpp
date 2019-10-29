@@ -43,7 +43,7 @@ namespace cheonsa
 		return _index;
 	}
 
-	boolean_c menu_control_collection_item_c::query_icon( resource_object_texture_c * & result ) const
+	boolean_c menu_control_collection_item_c::query_icon( resource_file_texture_c * & result ) const
 	{
 		result = nullptr;
 		return false;

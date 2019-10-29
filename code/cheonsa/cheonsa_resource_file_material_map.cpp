@@ -1,15 +1,15 @@
-#include "cheonsa_resource_object_material_map.h"
+#include "cheonsa_resource_file_material_map.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
 {
-
-	boolean_c resource_object_material_map_c::_load( data_stream_c * stream )
+	
+	boolean_c resource_file_material_map_c::_load( data_stream_c * stream )
 	{
+		cheonsa_assert( stream != nullptr );
 		cheonsa_assert( _is_loaded == false );
-		cheonsa_assert( stream );
 
 		sint32_c data_size = stream->get_size();
 		string8_c data;
@@ -180,7 +180,7 @@ namespace cheonsa
 		return true;
 	}
 
-	void_c resource_object_material_map_c::_unload()
+	void_c resource_file_material_map_c::_unload()
 	{
 		cheonsa_assert( _is_loaded == true );
 		_is_loaded = false;
@@ -193,13 +193,13 @@ namespace cheonsa
 		things.remove_all();
 	}
 
-	resource_object_material_map_c::resource_object_material_map_c()
-		: resource_object_c()
+	resource_file_material_map_c::resource_file_material_map_c()
+		: resource_file_c()
 		, things()
 	{
 	}
 
-	resource_object_material_map_c::~resource_object_material_map_c()
+	resource_file_material_map_c::~resource_file_material_map_c()
 	{
 		cheonsa_assert( _is_loaded == false );
 	}

@@ -15,7 +15,7 @@ namespace cheonsa
 	class menu_style_manager_c
 	{
 	public:
-		resource_object_font_c::reference_c default_font; // global default font to use.
+		resource_file_font_c::reference_c default_font; // global default font to use.
 		menu_style_for_frame_c default_frame_style; // global frame style to use when the specific frame style can't be found.
 		menu_style_for_text_c default_text_style; // global text style to use when the specific text style can't be found.
 

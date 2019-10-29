@@ -81,7 +81,7 @@ namespace cheonsa
 		index_base = 0;
 	}
 
-	void_c menu_draw_list_c::append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_object_texture_c * texture )
+	void_c menu_draw_list_c::append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture )
 	{
 		// add draw.
 		draw_c * draw = draw_list.emplace_at_end();
@@ -111,7 +111,7 @@ namespace cheonsa
 		vertex_list.insert_range_at_end( input_vertex_list.get_internal_array(), input_vertex_list.get_length() );
 	}
 
-	void_c menu_draw_list_c::append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_object_texture_c * texture, vector32x4_c const & color )
+	void_c menu_draw_list_c::append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color )
 	{
 		// add draw.
 		draw_c * draw = draw_list.emplace_at_end();

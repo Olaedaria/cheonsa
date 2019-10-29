@@ -441,7 +441,7 @@
 	<map key="e_menu_list_item">
 		<entry target="element:frame" style_key="e_list_item_frame"/>
 		<entry target="element:selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry target="element:text" style_key="e_list_item_text_p"/>
+		<entry target="element:text" style_key="e_list_item_text_p" anchor_measures="10 0 10 0"/>
 	</map>
 
 	<map key="e_scroll">

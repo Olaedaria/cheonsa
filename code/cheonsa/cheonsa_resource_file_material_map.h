@@ -1,16 +1,16 @@
 #pragma once
 
-#include "cheonsa_resource_object.h"
+#include "cheonsa_resource_file.h"
 #include "cheonsa_scene_types.h"
 
 namespace cheonsa
 {
 
-	// maps renderer materials to things in an object.
-	class resource_object_material_map_c : public resource_object_c
+	// defines what materials to apply to what things in an object.
+	class resource_file_material_map_c : public resource_file_c
 	{
 	public:
-		typedef resource_object_reference_c< resource_object_material_map_c > reference_c;
+		typedef resource_file_reference_c< resource_file_material_map_c > reference_c;
 
 	public:
 		static char8_c const * get_type_static() { return "model_materials"; }
@@ -32,10 +32,10 @@ namespace cheonsa
 		virtual void_c _unload() override;
 
 	public:
-		resource_object_material_map_c();
-		resource_object_material_map_c( resource_object_material_map_c const & ) = delete;
-		virtual ~resource_object_material_map_c() override;
-		resource_object_material_map_c & operator = ( resource_object_material_map_c const & ) = delete;
+		resource_file_material_map_c();
+		resource_file_material_map_c( resource_file_material_map_c const & ) = delete;
+		virtual ~resource_file_material_map_c() override;
+		resource_file_material_map_c & operator = ( resource_file_material_map_c const & ) = delete;
 
 	};
 

@@ -55,7 +55,7 @@ namespace cheonsa
 		string8_c key; // unique key to identify this text style by.
 
 		boolean_c font_is_defined;
-		resource_object_font_c::reference_c font;
+		resource_file_font_c::reference_c font;
 
 		boolean_c size_is_defined;
 		float32_c size; // size of font in pixels.

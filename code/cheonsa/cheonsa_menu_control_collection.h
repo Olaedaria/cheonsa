@@ -47,7 +47,7 @@ namespace cheonsa
 
 		// queries the icon or thumbnail for this item.
 		// if _mother_collection->get_display_mode() == menu_control_collection_c::display_mode_e_icons then you can return a thumbnail instead of an icon if you want.
-		virtual boolean_c query_icon( resource_object_texture_c * & result ) const;
+		virtual boolean_c query_icon( resource_file_texture_c * & result ) const;
 
 		// queries the values of a property with key.
 		// override with your own implementation.

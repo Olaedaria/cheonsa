@@ -11,7 +11,7 @@ namespace cheonsa
 	class menu_style_for_text_glyph_c
 	{
 	public:
-		resource_object_font_c::reference_c font;
+		resource_file_font_c::reference_c font;
 		vector32x4_c color;
 		float32_c size;
 		float32_c weight;

@@ -8,7 +8,7 @@
 #include "cheonsa_time_date_gregorian.h"
 #include "cheonsa_ops.h"
 #include "cheonsa_debug.h"
-#include "cheonsa_resource_object_font.h" // to manage global glyph cache.
+#include "cheonsa_resource_file_font.h" // to manage global glyph cache.
 
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN // tells windows.h to not include every other windows related header for us, which solves the conflicts that when we include winsock2.h a couple lines later.

@@ -67,7 +67,7 @@ namespace cheonsa
 			_object_player_list.construct_mode_dynamic( animation_object_count );
 			for ( uint32_c i = 0; i < animation_object_count; i++ )
 			{
-				resource_object_model_c::animation_object_c const * source_animation_object = &_source_model->get_data().animation_object_list[ _source_animation->object_start + i ];
+				resource_file_model_c::animation_object_c const * source_animation_object = &_source_model->get_data().animation_object_list[ _source_animation->object_start + i ];
 
 				object_player_c * animation_object_player = &_object_player_list[ i ];
 
@@ -78,16 +78,16 @@ namespace cheonsa
 				{
 					// object being bound to is a bone.
 					animation_object_player->property_player_list.construct_mode_dynamic( 3, 3 );
-					animation_object_player->property_player_list[ 0 ].property_type = static_cast< uint32_c >( resource_object_model_c::animation_property_c::type_e::position );
+					animation_object_player->property_player_list[ 0 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e::position );
 					//animation_object_player->property_player_list[ 0 ].property_index = 0;
-					animation_object_player->property_player_list[ 1 ].property_type = static_cast< uint32_c >( resource_object_model_c::animation_property_c::type_e::rotation );
+					animation_object_player->property_player_list[ 1 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e::rotation );
 					//animation_object_player->property_player_list[ 1 ].property_index = 1;
-					animation_object_player->property_player_list[ 2 ].property_type = static_cast< uint32_c >( resource_object_model_c::animation_property_c::type_e::scale );
+					animation_object_player->property_player_list[ 2 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e::scale );
 					//animation_object_player->property_player_list[ 2 ].property_index = 2;
 					uint32_c animation_property_count = source_animation_object->property_end - source_animation_object->property_start;
 					for ( uint32_c j = 0; j < animation_property_count; j++ )
 					{
-						resource_object_model_c::animation_property_c const * source_animation_property = &_source_model->get_data().animation_property_list[ source_animation_object->property_start + j ];
+						resource_file_model_c::animation_property_c const * source_animation_property = &_source_model->get_data().animation_property_list[ source_animation_object->property_start + j ];
 						for ( sint32_c k = 0; k < animation_object_player->property_player_list.get_length(); k++ )
 						{
 							if ( source_animation_property->type == animation_object_player->property_player_list[ k ].property_type )
@@ -397,10 +397,10 @@ namespace cheonsa
 		sint32_c key_c_index = ops::math_clamp( key_current + 1, key_minimum, key_maximum );
 		//sint32_c key_d_index = ops::clamp( key_current + 2, key_minimum, key_maximum );
 
-		//const resource_object_model_c::animation_key_c & key_a = _source_model->_header_extras.animation_key_list[ key_a_index ];
-		const resource_object_model_c::animation_key_c & key_b = _source_model->get_data().animation_key_list[ key_b_index ];
-		const resource_object_model_c::animation_key_c & key_c = _source_model->get_data().animation_key_list[ key_c_index ];
-		//const resource_object_model_c::animation_key_c & key_d = _source_model->_header_extras.animation_key_list[ key_d_index ];
+		//const resource_file_model_c::animation_key_c & key_a = _source_model->_header_extras.animation_key_list[ key_a_index ];
+		const resource_file_model_c::animation_key_c & key_b = _source_model->get_data().animation_key_list[ key_b_index ];
+		const resource_file_model_c::animation_key_c & key_c = _source_model->get_data().animation_key_list[ key_c_index ];
+		//const resource_file_model_c::animation_key_c & key_d = _source_model->_header_extras.animation_key_list[ key_d_index ];
 
 		float32_c weight = 1.0f;
 		if ( key_c.time > key_b.time )
@@ -529,7 +529,7 @@ namespace cheonsa
 		return _mother_bone;
 	}
 
-	resource_object_model_c::mesh_c const * scene_component_model_c::mesh_c::get_source_mesh() const
+	resource_file_model_c::mesh_c const * scene_component_model_c::mesh_c::get_source_mesh() const
 	{
 		return _source_mesh;
 	}
@@ -539,7 +539,7 @@ namespace cheonsa
 		return _material_assignment;
 	}
 
-	scene_component_model_c::bone_logic_c::bone_logic_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic )
+	scene_component_model_c::bone_logic_c::bone_logic_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic )
 		: _model( model )
 		, _source_bone_logic( source_bone_logic )
 		, _is_ready( false )
@@ -561,7 +561,7 @@ namespace cheonsa
 	{
 	}
 
-	scene_component_model_c::bone_logic_copy_transform_c::bone_logic_copy_transform_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic )
+	scene_component_model_c::bone_logic_copy_transform_c::bone_logic_copy_transform_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic )
 		: bone_logic_c( model, source_bone_logic )
 	{
 	}
@@ -584,7 +584,7 @@ namespace cheonsa
 		_this_bone->_object_space_transform = _that_bone->_object_space_transform;
 	}
 
-	scene_component_model_c::bone_logic_copy_animation_c::bone_logic_copy_animation_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic )
+	scene_component_model_c::bone_logic_copy_animation_c::bone_logic_copy_animation_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic )
 		: bone_logic_c( model, source_bone_logic )
 		, position_weight( 1.0f )
 		, rotation_weight( 1.0f )
@@ -616,7 +616,7 @@ namespace cheonsa
 		_this_bone->build_object_space_transform_from_local_space_transform();
 	}
 
-	scene_component_model_c::bone_logic_muscle_c::bone_logic_muscle_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic )
+	scene_component_model_c::bone_logic_muscle_c::bone_logic_muscle_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic )
 		: bone_logic_c( model, source_bone_logic )
 		, compression_factor( 1.0f )
 	{
@@ -681,7 +681,7 @@ namespace cheonsa
 		velocity -= ( velocity - model_velocity ) * ( damping );
 	}
 
-	scene_component_model_c::bone_logic_jiggle_c::bone_logic_jiggle_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic )
+	scene_component_model_c::bone_logic_jiggle_c::bone_logic_jiggle_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic )
 		: bone_logic_c( model, source_bone_logic )
 		, _head_particle()
 		, _tail_particle()
@@ -731,7 +731,7 @@ namespace cheonsa
 		target_axis_length = ops::make_float64_length( target_axis ) / _this_bone->_source_bone_extras->length;
 		target_axis = ops::make_vector64x3_normalized( target_axis );
 
-		_this_bone->_world_space_transform = resource_object_model_c::make_bone_transform( _head_particle.position, _tail_particle.position, 0.0f, _this_bone->_world_space_transform.get_scaled_basis_c() );
+		_this_bone->_world_space_transform = resource_file_model_c::make_bone_transform( _head_particle.position, _tail_particle.position, 0.0f, _this_bone->_world_space_transform.get_scaled_basis_c() );
 		_this_bone->build_object_space_transform_from_world_space_transform( _model->get_scene_object()->get_world_space_transform().get_inverted() );
 	}
 
@@ -832,7 +832,7 @@ namespace cheonsa
 		return _object_space_transform;
 	}
 
-	void_c scene_component_model_c::_handle_model_resource_on_load( resource_object_c * resource )
+	void_c scene_component_model_c::_handle_model_resource_on_load( resource_file_c * resource )
 	{
 		assert( resource == _model_resource );
 		assert( _model_resource_is_bound == false );
@@ -924,8 +924,8 @@ namespace cheonsa
 				light->_scene_light.set_color( light->_source_light->color );
 				light->_scene_light.set_brightness( light->_source_light->brightness );
 				light->_scene_light.set_cone_angle( light->_source_light->cone_angle );
-				light->_scene_light.set_render_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_object_model_c::light_c::flags_e::render_enable ) ) != 0 );
-				light->_scene_light.set_shadow_cast_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_object_model_c::light_c::flags_e::shadow_cast_enable ) ) != 0 );
+				light->_scene_light.set_render_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e::render_enable ) ) != 0 );
+				light->_scene_light.set_shadow_cast_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e::shadow_cast_enable ) ) != 0 );
 				if ( _scene_object != nullptr && _scene_object->get_scene() != nullptr )
 				{
 					_scene_object->get_scene()->add_light( &light->_scene_light );
@@ -962,7 +962,7 @@ namespace cheonsa
 		_on_animation_resources_updated.invoke( this );
 	}
 
-	void_c scene_component_model_c::_handle_model_resource_on_un_load( resource_object_c * resource )
+	void_c scene_component_model_c::_handle_model_resource_on_un_load( resource_file_c * resource )
 	{
 		assert( resource == _model_resource );
 
@@ -1031,19 +1031,19 @@ namespace cheonsa
 		_reset_local_space_obb();
 	}
 
-	void_c scene_component_model_c::_handle_animations_resource_on_load( resource_object_c * resource )
+	void_c scene_component_model_c::_handle_animations_resource_on_load( resource_file_c * resource )
 	{
 		refresh_animation_map_dictionary();
 		_on_animation_resources_updated.invoke( this );
 	}
 
-	void_c scene_component_model_c::_handle_animations_resource_on_un_load( resource_object_c * resource )
+	void_c scene_component_model_c::_handle_animations_resource_on_un_load( resource_file_c * resource )
 	{
 		refresh_animation_map_dictionary();
 		_on_animation_resources_updated.invoke( this );
 	}
 
-	void_c scene_component_model_c::_handle_material_map_resource_on_load( resource_object_c * resource )
+	void_c scene_component_model_c::_handle_material_map_resource_on_load( resource_file_c * resource )
 	{
 		assert( resource == _material_map_resource );
 
@@ -1052,7 +1052,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _material_map_resource->things.get_length(); i++ )
 		{
 			material_assignment_c * material_assignment = new material_assignment_c( _material_map_resource->things[ i ]->target_name );
-			material_assignment->_source_model_materials = dynamic_cast< resource_object_material_map_c * >( resource );
+			material_assignment->_source_model_materials = dynamic_cast< resource_file_material_map_c * >( resource );
 			material_assignment->_material = _material_map_resource->things[ i ]->material;
 			material_assignment_list.insert_at_end( material_assignment );
 		}
@@ -1060,7 +1060,7 @@ namespace cheonsa
 		apply_material_assignments();
 	}
 
-	void_c scene_component_model_c::_handle_material_map_resource_on_unload( resource_object_c * resource )
+	void_c scene_component_model_c::_handle_material_map_resource_on_unload( resource_file_c * resource )
 	{
 		assert( resource == _material_map_resource );
 
@@ -1144,7 +1144,7 @@ namespace cheonsa
 		}
 	}
 
-	scene_component_model_c::bone_logic_c * scene_component_model_c::_instantiate_new_bone_logic( resource_object_model_c::bone_logic_c const * source_bone_logic )
+	scene_component_model_c::bone_logic_c * scene_component_model_c::_instantiate_new_bone_logic( resource_file_model_c::bone_logic_c const * source_bone_logic )
 	{
 		string8_c source_bone_logic_type( mode_e_static, &_model_resource->get_data().string_table[ source_bone_logic->type ] );
 		if ( source_bone_logic_type == bone_logic_copy_transform_c::get_type_static() )
@@ -1571,7 +1571,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < _bone_list.get_length(); i++ )
 			{
 				bone_c * bone = &_bone_list[ i ];
-				if ( ( bone->_source_bone->flags & static_cast< uint8_c >( resource_object_model_c::bone_c::flags_e::do_not_rebound ) ) != 0 )
+				if ( ( bone->_source_bone->flags & static_cast< uint8_c >( resource_file_model_c::bone_c::flags_e::do_not_rebound ) ) != 0 )
 				{
 					continue;
 				}
@@ -1694,12 +1694,12 @@ namespace cheonsa
 		return result;
 	}
 
-	resource_object_model_c * scene_component_model_c::get_model_resource()
+	resource_file_model_c * scene_component_model_c::get_model_resource()
 	{
 		return _model_resource;
 	}
 
-	void_c scene_component_model_c::set_model_resource( resource_object_model_c * resource )
+	void_c scene_component_model_c::set_model_resource( resource_file_model_c * resource )
 	{
 		if ( _model_resource == resource )
 		{
@@ -1734,7 +1734,7 @@ namespace cheonsa
 		return _model_resource_is_bound;
 	}
 
-	void_c scene_component_model_c::add_animations_resource( resource_object_model_c * resource )
+	void_c scene_component_model_c::add_animations_resource( resource_file_model_c * resource )
 	{
 		assert( _animations_resource_list.find_index_of( resource ) < 0 );
 		resource->on_load.subscribe( this, &scene_component_model_c::_handle_animations_resource_on_load );
@@ -1742,7 +1742,7 @@ namespace cheonsa
 		_animations_resource_list.insert_at_end( resource );
 	}
 
-	void_c scene_component_model_c::remove_animations_resource( resource_object_model_c * resource )
+	void_c scene_component_model_c::remove_animations_resource( resource_file_model_c * resource )
 	{
 		assert( _animations_resource_list.find_index_of( resource ) >= 0 );
 		resource->on_load.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_load );
@@ -1755,7 +1755,7 @@ namespace cheonsa
 		return _animations_resource_list.get_length();
 	}
 
-	resource_object_model_c * scene_component_model_c::get_animations_resource_at_index( sint32_c index )
+	resource_file_model_c * scene_component_model_c::get_animations_resource_at_index( sint32_c index )
 	{
 		return _animations_resource_list[ index ];
 	}
@@ -1764,7 +1764,7 @@ namespace cheonsa
 	{
 		for ( sint32_c i = 0; i < _animations_resource_list.get_length(); i++ )
 		{
-			resource_object_model_c * animations_resource = _animations_resource_list[ i ];
+			resource_file_model_c * animations_resource = _animations_resource_list[ i ];
 			animations_resource->on_load.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_load );
 			animations_resource->on_unload.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_un_load );
 		}
@@ -1774,7 +1774,7 @@ namespace cheonsa
 
 	void_c scene_component_model_c::refresh_animation_map_dictionary()
 	{
-		core_list_c< resource_object_model_c * > animations_resource_list;
+		core_list_c< resource_file_model_c * > animations_resource_list;
 		if ( _model_resource->get_is_loaded() )
 		{
 			animations_resource_list.insert_at_end( _model_resource );
@@ -1790,7 +1790,7 @@ namespace cheonsa
 		_animation_map_dictionary.remove_all();
 		for ( sint32_c j = 0; j < animations_resource_list.get_length(); j++ )
 		{
-			resource_object_model_c * animation_resource = animations_resource_list[ j ];
+			resource_file_model_c * animation_resource = animations_resource_list[ j ];
 			for ( sint32_c i = 0; i < animation_resource->get_data().animation_list.get_length(); i++ )
 			{
 				animation_map_c animation_map;
@@ -1801,12 +1801,12 @@ namespace cheonsa
 		}
 	}
 
-	resource_object_material_map_c * scene_component_model_c::get_material_map_resource()
+	resource_file_material_map_c * scene_component_model_c::get_material_map_resource()
 	{
 		return _material_map_resource;
 	}
 
-	void_c scene_component_model_c::set_material_map_resource( resource_object_material_map_c * value )
+	void_c scene_component_model_c::set_material_map_resource( resource_file_material_map_c * value )
 	{
 		if ( _material_map_resource )
 		{

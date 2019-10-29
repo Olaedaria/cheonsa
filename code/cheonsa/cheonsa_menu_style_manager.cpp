@@ -208,7 +208,7 @@ namespace cheonsa
 		default_text_style.text_align_vertical_is_defined = true;
 		default_text_style.text_align_vertical = menu_text_align_vertical_e_center;
 
-		refresh();
+		//refresh();
 
 		return true;
 	}

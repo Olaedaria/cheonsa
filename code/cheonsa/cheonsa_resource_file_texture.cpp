@@ -1,11 +1,14 @@
-#include "cheonsa_resource_object_texture.h"
+#include "cheonsa_resource_file_texture.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
 {
 
-	boolean_c resource_object_texture_c::_load( data_stream_c * stream )
+	boolean_c resource_file_texture_c::_load( data_stream_c * stream )
 	{
+		cheonsa_assert( stream != nullptr );
+		cheonsa_assert( _is_loaded == false );
+
 		static uint8_c png_file_signature[ 8 ] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 		static uint8_c jpg_file_signature[ 4 ] = { 0xFF, 0xD8, 0xFF, 0xE0 };
 
@@ -67,7 +70,7 @@ namespace cheonsa
 		return _is_loaded;
 	}
 
-	void_c resource_object_texture_c::_unload()
+	void_c resource_file_texture_c::_unload()
 	{
 		if ( _is_wrapper )
 		{
@@ -87,34 +90,39 @@ namespace cheonsa
 		}
 	}
 
-	resource_object_texture_c::resource_object_texture_c()
-		: resource_object_c()
+	resource_file_texture_c::resource_file_texture_c()
+		: resource_file_c()
 		, _video_texture( nullptr )
 		, _is_wrapper( false )
 	{
 	}
 
-	resource_object_texture_c::resource_object_texture_c( boolean_c is_wrapper )
-		: resource_object_c()
+	resource_file_texture_c::resource_file_texture_c( boolean_c is_wrapper )
+		: resource_file_c()
 		, _video_texture( nullptr )
 		, _is_wrapper( true )
 	{
 		cheonsa_assert( is_wrapper );
 	}
 
-	resource_object_texture_c::~resource_object_texture_c()
+	resource_file_texture_c::~resource_file_texture_c()
 	{
 		cheonsa_assert( _is_loaded == false );
 	}
 
-	void_c resource_object_texture_c::wrap( video_texture_c * video_texture )
+	video_texture_c * resource_file_texture_c::get_video_texture() const
+	{
+		return _video_texture;
+	}
+
+	void_c resource_file_texture_c::set_video_texture( video_texture_c * video_texture )
 	{
 		cheonsa_assert( _is_wrapper );
 		_video_texture = video_texture;
 		_is_loaded = _video_texture != nullptr;
 	}
 
-	boolean_c resource_object_texture_c::create_video_texture_from_image(
+	boolean_c resource_file_texture_c::create_video_texture_from_image(
 			image_c const & image,
 			video_texture_c * & video_texture
 		)
@@ -239,7 +247,7 @@ namespace cheonsa
 		return video_texture != nullptr;
 	}
 
-	boolean_c resource_object_texture_c::get_image_from_video_texture(
+	boolean_c resource_file_texture_c::get_image_from_video_texture(
 		video_texture_c const * video_texture,
 		image_c & image
 	)

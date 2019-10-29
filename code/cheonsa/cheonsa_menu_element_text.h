@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa_menu_element.h"
-#include "cheonsa_resource_object_font.h"
+#include "cheonsa_resource_file_font.h"
 #include "cheonsa_input_manager.h"
 #include "cheonsa_core_dictionary.h"
 #include "cheonsa_core_linked_list.h"
@@ -83,7 +83,7 @@ namespace cheonsa
 	public:
 		static core_linked_list_c< menu_element_text_c * > _global_list;
 		static void_c invalidate_glyph_layout_of_all_instances(); // invalidates lay out of all text elements, this also causes sprite references and string references to be updated.
-		static void_c invalidate_glyph_layout_of_all_instances_with_font( resource_object_font_c * font ); // invalidates lay out of all text elements that have paragraphs that reference font.
+		static void_c invalidate_glyph_layout_of_all_instances_with_font( resource_file_font_c * font ); // invalidates lay out of all text elements that have paragraphs that reference font.
 
 	public:
 		// once text style lay out has been calculated for a line of text, it is remembered in one of these.
@@ -152,7 +152,7 @@ namespace cheonsa
 
 			text_span_c & operator = ( text_span_c const & other );
 
-			resource_object_font_c * get_style_font() const; // goes up the inheritance tree to find the font for this span.
+			resource_file_font_c * get_style_font() const; // goes up the inheritance tree to find the font for this span.
 			vector32x4_c get_style_color() const; // goes up the inheritance tree to find the color for this span.
 			float32_c get_style_size() const; // goes up the inheritance tree to find the size for this span.
 			float32_c get_style_skew() const; // goes up the inheritance tree to find the skew for this span.
@@ -207,7 +207,7 @@ namespace cheonsa
 			float32_c get_style_paragraph_spacing() const;
 			float32_c get_style_line_spacing() const;
 			float32_c get_style_glyph_spacing() const;
-			resource_object_font_c * get_style_font() const; // goes up the inheritance tree to find the font for this paragraph.
+			resource_file_font_c * get_style_font() const; // goes up the inheritance tree to find the font for this paragraph.
 			vector32x4_c get_style_color() const; // goes up the inheritance tree to find the color for this paragraph.
 			float32_c get_style_size() const; // goes up the inheritance tree to find the size for this paragraph.
 			float32_c get_style_skew() const; // goes up the inheritance tree to find the skew for this paragraph.
@@ -275,7 +275,7 @@ namespace cheonsa
 
 		// goes through each paragraph and checks if any spans reference a style which references the given font, and if so then sets _text_layout_is_dirty to true for that paragraph.
 		// this is called in response to a font being reloaded.
-		void_c _invalidate_glyph_flow_in_all_paragraphs_with_font( resource_object_font_c * font );
+		void_c _invalidate_glyph_flow_in_all_paragraphs_with_font( resource_file_font_c * font );
 
 		// needs to be called when _layout_is_dirty is true.
 		// reflows text in all paragraphs that have _text_layout_is_dirty set to true. calls _reflow_glyphs_in_paragraph() for each affected paragraph and then calls _update_vertical_layout_of_paragraphs_at_and_after() at the end to finish it up.
@@ -465,7 +465,7 @@ namespace cheonsa
 		float32_c get_style_paragraph_spacing() const;
 		float32_c get_style_line_spacing() const;
 		float32_c get_style_glyph_spacing() const;
-		resource_object_font_c * get_style_font() const;
+		resource_file_font_c * get_style_font() const;
 		vector32x4_c get_style_color() const;
 		float32_c get_style_size() const;
 		float32_c get_style_skew() const;

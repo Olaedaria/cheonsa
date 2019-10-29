@@ -64,7 +64,7 @@ namespace cheonsa
 
 	public:
 		string8_c key; // unique key to identify this frame style by.
-		resource_object_texture_c::reference_c texture; // texture to map to the frame.
+		resource_file_texture_c::reference_c texture; // texture to map to the frame.
 		texture_map_mode_e texture_map_mode; // how we want to map the texture to the frame.
 		boolean_c texture_map_fill_middle; // for nine slice texture mapping modes, this says whether to draw the middle part or not.
 		video_renderer_pixel_shader_c::reference_c pixel_shader_reference; // pixel shader override, if not set then the built-in frame pixel shader will be used.

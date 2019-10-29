@@ -1,16 +1,16 @@
 #pragma once
 
-#include "cheonsa_resource_object.h"
+#include "cheonsa_resource_file.h"
 #include "cheonsa_data_scribe_markup.h"
 
 namespace cheonsa
 {
 
 	// enables a markup file to define the layout of a menu.
-	class resource_object_menu_layout_c : public resource_object_c
+	class resource_file_menu_layout_c : public resource_file_c
 	{
 	public:
-		typedef resource_object_reference_c< resource_object_menu_layout_c > reference_c;
+		typedef resource_file_reference_c< resource_file_menu_layout_c > reference_c;
 
 	public:
 		static char8_c const * get_type_static() { return "menu"; }
@@ -23,11 +23,11 @@ namespace cheonsa
 		virtual void_c _unload() override;
 
 	public:
-		resource_object_menu_layout_c();
-		resource_object_menu_layout_c( resource_object_menu_layout_c const & ) = delete;
-		virtual ~resource_object_menu_layout_c() override;
+		resource_file_menu_layout_c();
+		resource_file_menu_layout_c( resource_file_menu_layout_c const & ) = delete;
+		virtual ~resource_file_menu_layout_c() override;
 		data_scribe_markup_c const & get_markup() const;
-		resource_object_menu_layout_c & operator = ( resource_object_menu_layout_c const & ) = delete;
+		resource_file_menu_layout_c & operator = ( resource_file_menu_layout_c const & ) = delete;
 	};
 
 }

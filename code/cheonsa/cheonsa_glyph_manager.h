@@ -2,7 +2,7 @@
 
 #include "cheonsa_base_types.h"
 #include "cheonsa_core_list.h"
-#include "cheonsa_resource_object_font.h"
+#include "cheonsa_resource_file_font.h"
 #include "cheonsa_memory_allocator_pool.h"
 
 namespace cheonsa
@@ -72,7 +72,7 @@ namespace cheonsa
 
 		boolean_c start();
 
-		glyph_c const * load_quantized_glyph( resource_object_font_c * font, float32_c font_size, char16_c code_point ); // retreives a previously cached glyph or renders and caches a new glyph.
+		glyph_c const * load_quantized_glyph( resource_file_font_c * font, float32_c font_size, char16_c code_point ); // retreives a previously cached glyph or renders and caches a new glyph.
 
 		boolean_c needs_reset; // will be set to true if the glyph cash runs out of space, this will force a reset at the next opportune moment.
 		void_c reset(); // clears the glyph cache, and reflows all menu text element instances. this function is supposed to be called in the case that the glyph cache fills up, and works like garbage collection. this may cause the program to hang since the glyph cache will be rebuilt. ideally, this shouldn't need to ever be called, there should be enough glyph atlas texture room to hold all glyphs that would ever be needed concurrently.

@@ -5,7 +5,7 @@
 namespace cheonsa
 {
 
-	class resource_object_sprite_set_c;
+	class resource_file_sprite_set_c;
 
 	class game_c
 	{
@@ -20,7 +20,7 @@ namespace cheonsa
 		//virtual void_c render( float32_c time_step ) = 0; // occurs as frequently as possible but not more than once per frame.
 
 		//virtual boolean_c resolve_string( string8_c const & key, string8_c & result ) = 0; // called by text elements that contain game string references when they lay out their glyphs.
-		//virtual boolean_c resolve_sprite( string8_c const & key, resource_object_sprite_set_c::reference_c & result ) = 0; // called by text elements that contain sprite references when they lay out their glyphs.
+		//virtual boolean_c resolve_sprite( string8_c const & key, resource_file_sprite_set_c::reference_c & result ) = 0; // called by text elements that contain sprite references when they lay out their glyphs.
 
 	};
 

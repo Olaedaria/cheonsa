@@ -5,6 +5,7 @@
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_stream.h"
+#include "cheonsa_data_stream_file.h"
 #include "cheonsa_debug.h"
 
 namespace cheonsa
@@ -14,15 +15,15 @@ namespace cheonsa
 
 	// base class of resources.
 	// a resource object represents a file that is loaded from disk, which the game uses to instantiate content.
-	class resource_object_c
+	class resource_file_c
 	{
 	public:
 		static char8_c const * get_type_static() { return "none"; }
 		virtual char8_c const * get_type() const { return get_type_static(); }
 
 	protected:
-		template< typename resource_object_type_c >
-		friend class resource_object_reference_c;
+		template< typename resource_file_type_c >
+		friend class resource_file_reference_c;
 		friend class resource_manager_c;
 
 		boolean_c _is_loaded; // tracks if this resource is loaded and ready to be used or not.
@@ -35,10 +36,10 @@ namespace cheonsa
 		virtual void_c _unload() = 0;
 
 	public:
-		resource_object_c();
-		resource_object_c( resource_object_c const & ) = delete;
-		virtual ~resource_object_c() = 0;
-		resource_object_c & operator = ( resource_object_c const & ) = delete;
+		resource_file_c();
+		resource_file_c( resource_file_c const & ) = delete;
+		virtual ~resource_file_c() = 0;
+		resource_file_c & operator = ( resource_file_c const & ) = delete;
 
 		boolean_c get_is_loaded() const;
 
@@ -50,27 +51,27 @@ namespace cheonsa
 		sint32_c get_reference_count() const;
 
 	public:
-		core_event_c< void_c, resource_object_c * > on_load; // users may subscribe to this event to be notified when we are done loading.
-		core_event_c< void_c, resource_object_c * > on_unload; // users may subscribe to this event to be notified when we are about to unload.
+		core_event_c< void_c, resource_file_c * > on_load; // users may subscribe to this event to be notified when we are done loading.
+		core_event_c< void_c, resource_file_c * > on_unload; // users may subscribe to this event to be notified when we are about to unload.
 
 	};
 
-	// handles reference counting for resource_object_c pointer types.
+	// handles reference counting for resource_file_c pointer types.
 	// does not delete referenced instance when reference count reaches 0.
 	// resource manager is in charge of doing that during garbage collection.
-	template< typename resource_object_type_c >
-	class resource_object_reference_c
+	template< typename resource_file_type_c >
+	class resource_file_reference_c
 	{
 	private:
-		resource_object_type_c * _reference;
+		resource_file_type_c * _reference;
 
 	public:
-		resource_object_reference_c()
+		resource_file_reference_c()
 			: _reference( nullptr )
 		{
 		}
 
-		resource_object_reference_c( resource_object_reference_c const & other )
+		resource_file_reference_c( resource_file_reference_c const & other )
 			: _reference( other._reference )
 		{
 			if ( _reference )
@@ -79,7 +80,7 @@ namespace cheonsa
 			}
 		}
 
-		resource_object_reference_c( resource_object_type_c * other_value )
+		resource_file_reference_c( resource_file_type_c * other_value )
 			: _reference( other_value )
 		{
 			if ( _reference )
@@ -88,7 +89,7 @@ namespace cheonsa
 			}
 		}
 
-		~resource_object_reference_c()
+		~resource_file_reference_c()
 		{
 			if ( _reference )
 			{
@@ -97,7 +98,7 @@ namespace cheonsa
 			}
 		}
 
-		resource_object_reference_c & operator = ( resource_object_type_c * other_reference )
+		resource_file_reference_c & operator = ( resource_file_type_c * other_reference )
 		{
 			if ( _reference != other_reference )
 			{
@@ -115,18 +116,18 @@ namespace cheonsa
 			return *this;
 		}
 
-		resource_object_reference_c & operator = ( resource_object_reference_c & other )
+		resource_file_reference_c & operator = ( resource_file_reference_c & other )
 		{
 			return operator = ( other._reference );
 		}
 
-		resource_object_type_c * operator -> () const
+		resource_file_type_c * operator -> () const
 		{
 			cheonsa_assert( _reference );
 			return _reference;
 		}
 
-		operator resource_object_type_c * () const
+		operator resource_file_type_c * () const
 		{
 			return _reference;
 		}

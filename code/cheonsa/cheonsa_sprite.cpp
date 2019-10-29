@@ -4,7 +4,7 @@
 namespace cheonsa
 {
 
-	void_c sprite_c::_handle_sprite_set_resource_on_load( resource_object_c * resource )
+	void_c sprite_c::_handle_sprite_set_resource_on_load( resource_file_c * resource )
 	{
 		_sprite = _sprite_set_resource->find_sprite( _sprite_name );
 		if ( _sprite )
@@ -17,7 +17,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c sprite_c::_handle_sprite_set_resource_on_unload( resource_object_c * resource )
+	void_c sprite_c::_handle_sprite_set_resource_on_unload( resource_file_c * resource )
 	{
 		_sprite = nullptr;
 	}
@@ -62,12 +62,12 @@ namespace cheonsa
 		}
 	}
 
-	resource_object_sprite_set_c * sprite_c::get_sprite_set_resource() const
+	resource_file_sprite_set_c * sprite_c::get_sprite_set_resource() const
 	{
 		return _sprite_set_resource;
 	}
 
-	void_c sprite_c::set_sprite_set_resource( resource_object_sprite_set_c * value )
+	void_c sprite_c::set_sprite_set_resource( resource_file_sprite_set_c * value )
 	{
 		if ( _sprite_set_resource )
 		{
@@ -108,13 +108,13 @@ namespace cheonsa
 		}
 	}
 
-	resource_object_sprite_set_c::sprite_c const * sprite_c::get_sprite() const
+	resource_file_sprite_set_c::sprite_c const * sprite_c::get_sprite() const
 	{
 		cheonsa_assert( _sprite );
 		return _sprite;
 	}
 
-	resource_object_sprite_set_c::frame_c const * sprite_c::get_frame() const
+	resource_file_sprite_set_c::frame_c const * sprite_c::get_frame() const
 	{
 		cheonsa_assert( _sprite );
 		return &_sprite->frame_list[ _current_frame ];

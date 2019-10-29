@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cheonsa_scene_component.h"
-#include "cheonsa_resource_object_model.h"
-#include "cheonsa_resource_object_material_map.h"
+#include "cheonsa_resource_file_model.h"
+#include "cheonsa_resource_file_material_map.h"
 #include "cheonsa_video_renderer_interface.h"
 
 namespace cheonsa
@@ -29,8 +29,8 @@ namespace cheonsa
 		class animation_map_c
 		{
 		public:
-			resource_object_model_c const * source_model;
-			resource_object_model_c::animation_c const * source_animation;
+			resource_file_model_c const * source_model;
+			resource_file_model_c::animation_c const * source_animation;
 
 		public:
 			animation_map_c();
@@ -92,8 +92,8 @@ namespace cheonsa
 
 			string8_c _animation_name; // name of animation within _model_component that this animation player should play.
 
-			resource_object_model_c const * _source_model; // model resource instance that _animation is from.
-			resource_object_model_c::animation_c const * _source_animation; // animation instance in _animation_model.
+			resource_file_model_c const * _source_model; // model resource instance that _animation is from.
+			resource_file_model_c::animation_c const * _source_animation; // animation instance in _animation_model.
 
 			core_list_c< animation_player_c::object_player_c > _object_player_list; // animation players for each animated object in _animation.
 
@@ -166,7 +166,7 @@ namespace cheonsa
 			friend class scene_component_model_c;
 
 			scene_material_c _material; // the material.
-			resource_object_material_map_c * _source_model_materials; // if set, then this is the model material resource that created this material assignment. this lets us remove material assignments when the materials resource is unloaded or unbound.
+			resource_file_material_map_c * _source_model_materials; // if set, then this is the model material resource that created this material assignment. this lets us remove material assignments when the materials resource is unloaded or unbound.
 			string8_c _target_mesh_name; // the name of the meshes within this model that this material will be applied to.
 
 		public:
@@ -185,7 +185,7 @@ namespace cheonsa
 			friend class scene_component_model_c;
 
 			//boolean_c render_enable;
-			resource_object_model_c::light_c const * _source_light;
+			resource_file_model_c::light_c const * _source_light;
 
 			bone_c * _mother_bone;
 
@@ -217,7 +217,7 @@ namespace cheonsa
 
 			boolean_c _render_enable; // set to true to enable this mesh instance to be rendered.
 			bone_c * _mother_bone; // when set, then this unskinned vertices in this mesh will inherit from the world space transform of this bone instance, otherwise the unskinned vertices in this mesh will inherit from the world space transform of the model instance.
-			resource_object_model_c::mesh_c const * _source_mesh; // a pointer to the original mesh in the model resource that this mesh is an instance of. this is depracated in order to allow for _explicit_mode, which needs to work in such a way that it does not need to point to a model resource.
+			resource_file_model_c::mesh_c const * _source_mesh; // a pointer to the original mesh in the model resource that this mesh is an instance of. this is depracated in order to allow for _explicit_mode, which needs to work in such a way that it does not need to point to a model resource.
 			material_assignment_c * _material_assignment; // if set then this defines the material that is assigned to this mesh.
 
 		public:
@@ -228,7 +228,7 @@ namespace cheonsa
 
 			bone_c * get_mother_bone() const;
 
-			resource_object_model_c::mesh_c const * get_source_mesh() const;
+			resource_file_model_c::mesh_c const * get_source_mesh() const;
 
 			material_assignment_c * get_material_assignment() const;
 
@@ -246,7 +246,7 @@ namespace cheonsa
 		public:
 			scene_component_model_c * _model;
 
-			resource_object_model_c::bone_logic_c const * _source_bone_logic; // original bone logic data that this bone logic is instanced from.
+			resource_file_model_c::bone_logic_c const * _source_bone_logic; // original bone logic data that this bone logic is instanced from.
 
 			boolean_c _is_ready;
 
@@ -263,7 +263,7 @@ namespace cheonsa
 			bone_c * _that_bone;
 
 		public:
-			bone_logic_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic );
+			bone_logic_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic );
 
 			virtual void_c start();
 			virtual void_c update( float32_c time_step );
@@ -279,7 +279,7 @@ namespace cheonsa
 			virtual char8_c const * get_type() const { return get_type_static(); }
 
 		public:
-			bone_logic_copy_transform_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic );
+			bone_logic_copy_transform_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic );
 
 			virtual void_c start() override;
 			virtual void_c update( float32_c time_step ) override;
@@ -303,7 +303,7 @@ namespace cheonsa
 			float32_c scale_weight;
 
 		public:
-			bone_logic_copy_animation_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic );
+			bone_logic_copy_animation_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic );
 
 			virtual void_c start() override;
 			virtual void_c update( float32_c time_step ) override;
@@ -322,7 +322,7 @@ namespace cheonsa
 			float32_c compression_factor; // if 1 then the bone stays the same thickness as it compresses or stretches. if greater than 0 then the bone gets thicker or thinner by this factor when it compresses or stretches. a value of 2 for example means that the bone gets twice as thick when it is compressed to half its natural length, and gets half as thick when the bone is stretched to twice its natural length.
 
 		public:
-			bone_logic_muscle_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic );
+			bone_logic_muscle_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic );
 
 			virtual void_c start() override;
 			virtual void_c update( float32_c time_step ) override;
@@ -356,7 +356,7 @@ namespace cheonsa
 			particle_c _tail_particle;
 
 		public:
-			bone_logic_jiggle_c( scene_component_model_c * model, resource_object_model_c::bone_logic_c const * source_bone_logic );
+			bone_logic_jiggle_c( scene_component_model_c * model, resource_file_model_c::bone_logic_c const * source_bone_logic );
 
 			virtual void_c start() override;
 			virtual void_c update( float32_c time_step ) override;
@@ -376,8 +376,8 @@ namespace cheonsa
 
 			scene_component_model_c * _model; // this bone's model component, which is the component that owns this bone.
 
-			resource_object_model_c::bone_c const * _source_bone; // the original source bone data from the model resource that this bone is instanced from.
-			resource_object_model_c::bone_extras_c const * _source_bone_extras; // original source bone extras data from the model resource that this bone is instanced from.
+			resource_file_model_c::bone_c const * _source_bone; // the original source bone data from the model resource that this bone is instanced from.
+			resource_file_model_c::bone_extras_c const * _source_bone_extras; // original source bone extras data from the model resource that this bone is instanced from.
 
 			bone_c * _mother_bone; // this bone's mother bone if any.
 
@@ -417,7 +417,7 @@ namespace cheonsa
 
 			//scene_component_model_c * _model; // this bone's model component, which is the component that owns this attachment.
 
-			resource_object_model_c::bone_attachment_c const * _source_bone_attachment;
+			resource_file_model_c::bone_attachment_c const * _source_bone_attachment;
 
 			bone_c * _mother_bone; // this attachment's mother bone if any.
 
@@ -438,17 +438,17 @@ namespace cheonsa
 		friend class video_renderer_interface_c;
 
 		boolean_c _model_resource_is_bound; // will be true if a model resource is loaded and bound (instanced) and this model component is ready to be rendered.
-		resource_object_model_c::reference_c _model_resource; // the model resource to load and bind, or that is already bound.
-		void_c _handle_model_resource_on_load( resource_object_c * resource ); // responds to when _model_resource is loaded.
-		void_c _handle_model_resource_on_un_load( resource_object_c * resource ); // responds to when _model_resource is un loaded.
+		resource_file_model_c::reference_c _model_resource; // the model resource to load and bind, or that is already bound.
+		void_c _handle_model_resource_on_load( resource_file_c * resource ); // responds to when _model_resource is loaded.
+		void_c _handle_model_resource_on_un_load( resource_file_c * resource ); // responds to when _model_resource is un loaded.
 
-		core_list_c< resource_object_model_c::reference_c > _animations_resource_list; // optional references other model resources that contain additional animations which can then be referenced by name.
-		void_c _handle_animations_resource_on_load( resource_object_c * resource ); // responds to when _animations_resource is loaded.
-		void_c _handle_animations_resource_on_un_load( resource_object_c * resource ); // responds to when _animations_resource is un loaded.
+		core_list_c< resource_file_model_c::reference_c > _animations_resource_list; // optional references other model resources that contain additional animations which can then be referenced by name.
+		void_c _handle_animations_resource_on_load( resource_file_c * resource ); // responds to when _animations_resource is loaded.
+		void_c _handle_animations_resource_on_un_load( resource_file_c * resource ); // responds to when _animations_resource is un loaded.
 
-		resource_object_material_map_c::reference_c _material_map_resource;
-		void_c _handle_material_map_resource_on_load( resource_object_c * resource ); // responds to when _model_materials_resource is loaded.
-		void_c _handle_material_map_resource_on_unload( resource_object_c * resource ); // responds to when _model_materials_resource is un loaded.
+		resource_file_material_map_c::reference_c _material_map_resource;
+		void_c _handle_material_map_resource_on_load( resource_file_c * resource ); // responds to when _model_materials_resource is loaded.
+		void_c _handle_material_map_resource_on_unload( resource_file_c * resource ); // responds to when _model_materials_resource is un loaded.
 
 		vector64x3_c _object_velocity; // the difference of the current position with the position from the last frame, divided by time between frames.
 		vector64x3_c _object_position_last;
@@ -476,7 +476,7 @@ namespace cheonsa
 
 		void_c _gather_meshes_with_name( string8_c const & name, core_list_c< mesh_c * > & result ); // finds all meshes in this model that match name, which may optionally end in a wild card character '*' to match against meshes that start with name.
 
-		bone_logic_c * _instantiate_new_bone_logic( resource_object_model_c::bone_logic_c const * source_bone_logic );
+		bone_logic_c * _instantiate_new_bone_logic( resource_file_model_c::bone_logic_c const * source_bone_logic );
 
 		core_list_c< bone_c > _bone_list; // all of the bones in this model.
 		core_linked_list_c< bone_c * > _root_bone_list; // just the root bones in this model (pointers to bone instances in _bone_list).
@@ -526,19 +526,19 @@ namespace cheonsa
 
 		scene_component_model_c * get_root_model();
 
-		resource_object_model_c * get_model_resource(); // will return the set model resource.
-		void_c set_model_resource( resource_object_model_c * resource ); // sets the model resource to bind to this model instance. it will bind as soon as it is able to, since a pointer to a yet-to-be-loaded model resource instance may be suppled.
+		resource_file_model_c * get_model_resource(); // will return the set model resource.
+		void_c set_model_resource( resource_file_model_c * resource ); // sets the model resource to bind to this model instance. it will bind as soon as it is able to, since a pointer to a yet-to-be-loaded model resource instance may be suppled.
 		boolean_c get_model_resource_is_bound(); // returns true only if the model resource is set, loaded, and bound.
 
-		void_c add_animations_resource( resource_object_model_c * resource ); // additional model resources can be referenced which contain animations that we want to play on this model.
-		void_c remove_animations_resource( resource_object_model_c * resource );
+		void_c add_animations_resource( resource_file_model_c * resource ); // additional model resources can be referenced which contain animations that we want to play on this model.
+		void_c remove_animations_resource( resource_file_model_c * resource );
 		sint32_c get_animations_resource_count();
-		resource_object_model_c * get_animations_resource_at_index( sint32_c index );
+		resource_file_model_c * get_animations_resource_at_index( sint32_c index );
 		void_c remove_all_animations_resources();
 		void_c refresh_animation_map_dictionary(); // is called whenever _model_resource becomes bound or unbound. but it should also be called when one or more animations resources are added at once.
 
-		resource_object_material_map_c * get_material_map_resource();
-		void_c set_material_map_resource( resource_object_material_map_c * value ); // sets the model materials assignments. this works in addition to the material_assignment_list, which has higher priority.
+		resource_file_material_map_c * get_material_map_resource();
+		void_c set_material_map_resource( resource_file_material_map_c * value ); // sets the model materials assignments. this works in addition to the material_assignment_list, which has higher priority.
 
 		vertex_skin_mode_e get_vertex_skin_mode() const;
 		void_c set_vertex_skin_mode( vertex_skin_mode_e value );
@@ -572,7 +572,7 @@ namespace cheonsa
 		boolean_c object_colors_enable;
 		vector32x4_c object_colors[ video_renderer_interface_c::object_colors_count ];
 		boolean_c object_textures_enable;
-		resource_object_texture_c::reference_c object_textures[ video_renderer_interface_c::object_textures_count ];
+		resource_file_texture_c::reference_c object_textures[ video_renderer_interface_c::object_textures_count ];
 
 		core_list_c< material_assignment_c * > material_assignment_list; // list of game defined material assignments to apply to mesh instances. this is not tied to instantiation, therefore it persists even as the model resource is bound/unbound or loaded/unloaded. these assignments are applied when the model resource is bound and parts are instanced.
 		void_c unapply_material_assignments(); // call this before modifying material_assignment_list.

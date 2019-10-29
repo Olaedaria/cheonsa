@@ -1,7 +1,7 @@
 #pragma once
 
-#include "cheonsa_resource_object.h"
-#include "cheonsa_resource_object_texture.h"
+#include "cheonsa_resource_file.h"
+#include "cheonsa_resource_file_texture.h"
 #include "cheonsa_core_dictionary.h"
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_math_types.h"
@@ -12,7 +12,7 @@ namespace cheonsa
 #pragma pack( push, 1 )
 	// used to index glyphs in the glyph dictionary.
 	// needs to be packed a certain way to prevent the compiler from adding invisible bytes to the structure.
-	// this is because the dictionary's hash function is byte-wise, and those invisible bytes could break it.
+	// this is because the dictionary's generic hash function works on bytes, and those invisible bytes could break it.
 	class glyph_key_c
 	{
 	public:
@@ -53,18 +53,18 @@ namespace cheonsa
 
 	// font formats conventionally place the coordinate frame in bottom-left, but cheonsa tranlsates this coordinate frame to top-left.
 	// font formats conventionally describe the ascender and descender as distance above the base line, so that descender would usually be a negative value, but cheonsa converts descender to distance below the base line so that it will usually be a positive value too.
-	class resource_object_font_c : public resource_object_c
+	class resource_file_font_c : public resource_file_c
 	{
 	public:
-		typedef resource_object_reference_c< resource_object_font_c > reference_c;
+		typedef resource_file_reference_c< resource_file_font_c > reference_c;
 
 	public:
 		static char8_c const * get_type_static() { return "font"; }
 		virtual char8_c const * get_type() const override { return get_type_static(); }
 
 	public:
-		static core_linked_list_c< resource_object_font_c * > _global_list;
-		core_linked_list_c< resource_object_font_c * >::node_c _global_list_node;
+		static core_linked_list_c< resource_file_font_c * > _global_list;
+		core_linked_list_c< resource_file_font_c * >::node_c _global_list_node;
 
 	public:
 		// caches some info about a given font size...
@@ -100,10 +100,10 @@ namespace cheonsa
 		virtual void_c _unload() override;
 
 	public:
-		resource_object_font_c();
-		resource_object_font_c( resource_object_font_c const & ) = delete;
-		~resource_object_font_c();
-		resource_object_font_c & operator = ( resource_object_font_c const & ) = delete;
+		resource_file_font_c();
+		resource_file_font_c( resource_file_font_c const & ) = delete;
+		~resource_file_font_c();
+		resource_file_font_c & operator = ( resource_file_font_c const & ) = delete;
 
 		uint32_c get_file_hash() const;
 

@@ -8,7 +8,7 @@
 #include "cheonsa_data_scribe_structure.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_input_manager.h"
-#include "cheonsa_resource_object_menu_layout.h"
+#include "cheonsa_resource_file_menu_layout.h"
 
 namespace cheonsa
 {
@@ -115,7 +115,7 @@ namespace cheonsa
 		menu_control_c * _control_group_mother; // if this control is the root control of a control group, then this points to the control that is the root control of the control group that is the mother of this control group.
 		core_list_c< menu_control_c * > _control_group_daughter_list; // points to daughter controls that are root controls of the control groups that are daughter to this control group.
 		video_texture_c * _control_group_texture; // managed by renderer, is initialized to be large enough to draw this control to (without scale or angle).
-		resource_object_texture_c _control_group_texture_wrapper;
+		resource_file_texture_c _control_group_texture_wrapper;
 		vector32x2_c _control_group_origin; // is zero for root, is inherited for daughters.
 		matrix32x2x2_c _control_group_basis; // is identity for root control of control group, is mother control's _control_group_basis times _local_basis if otherwise.
 		vector32x4_c _control_group_color; // is _local_color for root, is inherited for daughters.
@@ -147,9 +147,9 @@ namespace cheonsa
 		};
 		core_list_c< thing_added_by_xml_c > _things_added_by_xml;
 
-		resource_object_menu_layout_c::reference_c _resource_object_menu;
-		void_c _handle_resource_object_menu_on_load( resource_object_c * resource_object );
-		void_c _handle_resource_object_menu_on_unload( resource_object_c * resource_object );
+		resource_file_menu_layout_c::reference_c _resource_file_menu;
+		void_c _handle_resource_file_menu_on_load( resource_file_c * resource_file );
+		void_c _handle_resource_file_menu_on_unload( resource_file_c * resource_file );
 
 		void_c * _user_pointer; // can be set by the user to associate some other kind of data with this control.
 
@@ -201,10 +201,10 @@ namespace cheonsa
 
 		// gets the menu layout of this control system.
 		// this should only be set on the root control of a control system.
-		resource_object_menu_layout_c * get_menu_layout_resource() const;
+		resource_file_menu_layout_c * get_menu_layout_resource() const;
 		// sets the menu layout of this control system.
 		// this should only be set on the root control of a control system.
-		void_c set_menu_layout_resource( resource_object_menu_layout_c * value );
+		void_c set_menu_layout_resource( resource_file_menu_layout_c * value );
 
 		virtual menu_control_c * pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer );
 

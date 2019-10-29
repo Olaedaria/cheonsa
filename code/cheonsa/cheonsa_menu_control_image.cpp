@@ -50,7 +50,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_image_c::set_image( resource_object_texture_c * value )
+	void_c menu_control_image_c::set_image( resource_file_texture_c * value )
 	{
 		_element_frame_style.texture = value;
 	}
