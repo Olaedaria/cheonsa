@@ -811,50 +811,35 @@ namespace cheonsa
 
 	menu_control_c * menu_control_c::pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer )
 	{
+		// ignore controls that are hiding or in the process of hiding.
 		if ( _is_showing == false )
 		{
 			return nullptr;
 		}
 
-		menu_control_c * best_pick = nullptr;
-
-		if ( contains_global_point( global_point ) )
+		// ignore this control if the point doesn't even touch us.
+		if ( !contains_global_point( global_point ) )
 		{
-			// test public controls.
-			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-			{
-				menu_control_c * daughter = _control_list[ i ]->pick_control_with_global_point( global_point, layer );
-				if ( daughter != nullptr )
-				{
-					menu_layer_e daughter_layer = daughter->get_expressed_layer();
-					if ( daughter_layer >= layer )
-					{
-						layer = daughter_layer;
-						best_pick = daughter;
-					}
-				}
-			}
-
-			//// test private controls.
-			//if ( _private_control_list.get_length() )
-			//{
-			//	for ( sint32_c i = _private_control_list.get_length() - 1; i >= 0; i-- )
-			//	{
-			//		menu_control_c * daughter = _private_control_list[ i ]->pick_control_with_global_point( global_point, layer );
-			//		if ( daughter != nullptr )
-			//		{
-			//			menu_layer_e daughter_layer = daughter->get_expressed_layer();
-			//			if ( daughter_layer >= layer )
-			//			{
-			//				layer = daughter_layer;
-			//				best_pick = daughter;
-			//			}
-			//		}
-			//	}
-			//}
+			return nullptr;
 		}
 
-		// return result if we found one by now.
+		// test daughter controls.
+		menu_control_c * best_pick = nullptr;
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * daughter = _control_list[ i ]->pick_control_with_global_point( global_point, layer );
+			if ( daughter != nullptr )
+			{
+				menu_layer_e daughter_layer = daughter->get_expressed_layer();
+				if ( daughter_layer >= layer )
+				{
+					layer = daughter_layer;
+					best_pick = daughter;
+				}
+			}
+		}
+
+		// return daughter if we found one.
 		if ( best_pick != nullptr )
 		{
 			return best_pick;
@@ -862,7 +847,7 @@ namespace cheonsa
 
 		// finally, test against this.
 		menu_layer_e this_layer = get_expressed_layer();
-		if ( _select_mode != menu_select_mode_e_none && this_layer >= layer && contains_global_point( global_point ) )
+		if ( _select_mode != menu_select_mode_e_none && this_layer >= layer )
 		{
 			layer = this_layer;
 			return this;
@@ -871,19 +856,19 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	vector32x2_c menu_control_c::transform_point_from_global_to_local( vector32x2_c const & global_point ) const
+	vector32x2_c menu_control_c::transform_global_point_to_local_point( vector32x2_c const & global_point ) const
 	{
 		return ops::make_vector32x2_transformed_point( global_point - _global_origin, _global_basis_inverse );
 	}
 
-	vector32x2_c menu_control_c::transform_point_from_local_to_global( vector32x2_c const & local_point ) const
+	vector32x2_c menu_control_c::transform_local_point_to_global_point( vector32x2_c const & local_point ) const
 	{
 		return ops::make_vector32x2_transformed_point( local_point, _global_basis ) + _global_origin;
 	}
 
 	boolean_c menu_control_c::contains_global_point( vector32x2_c const & global_point ) const
 	{
-		vector32x2_c local_point = transform_point_from_global_to_local( global_point );
+		vector32x2_c local_point = transform_global_point_to_local_point( global_point );
 		return ops::intersect_rectangle_vs_point( _local_box, local_point );
 	}
 

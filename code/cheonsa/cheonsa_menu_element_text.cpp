@@ -349,6 +349,8 @@ namespace cheonsa
 		result.skew = get_style_skew();
 		result.softness = get_style_softness();
 		result.underline = get_style_underline();
+		result.quantized_size = glyph_manager_c::get_quantized_size( result.size );
+		result.sdf_range = glyph_manager_c::get_sdf_range( result.quantized_size );
 		return result;
 	}
 
@@ -622,6 +624,8 @@ namespace cheonsa
 		result.skew = get_style_skew();
 		result.softness = get_style_softness();
 		result.underline = get_style_underline();
+		result.quantized_size = glyph_manager_c::get_quantized_size( result.size );
+		result.sdf_range = glyph_manager_c::get_sdf_range( result.quantized_size );
 		return result;
 	}
 
@@ -859,8 +863,7 @@ namespace cheonsa
 					current_laid_out_glyph_spacing = current_paragraph->get_style_glyph_spacing() * current_text_glyph_style.size;
 				}
 				
-				float32_c quantized_size = static_cast< float32_c >( resource_file_font_c::get_quantized_size( current_text_glyph_style.size ) );
-				current_scale_to_unquantize_size = current_text_glyph_style.font->get_scale_to_unquantize_size( current_text_glyph_style.size );
+				current_scale_to_unquantize_size = current_text_glyph_style.size / static_cast< float32_c >( current_text_glyph_style.quantized_size );
 				current_text_glyph_style.softness += 1.0f / current_scale_to_unquantize_size * 0.025f; // softness bias, so that edges are base-line level of soft by default.
 				current_laid_out_ascender = current_text_glyph_style.font->get_unquantized_ascender( current_text_glyph_style.size );
 				current_laid_out_descender = current_text_glyph_style.font->get_unquantized_descender( current_text_glyph_style.size );
@@ -1170,61 +1173,82 @@ namespace cheonsa
 			_reflow_glyphs_in_all_paragraphs_that_need_it();
 		}
 
-		// translate point from element space to content space, which takes into account offset from scroll bars.
-		vector32x2_c extra_local_point = local_point - _content_offset;
-
-
-		// magnetize the point to stick to the nearest paragraph.
-		// this causes the cursor to be placed even if the point lies outside of the paragraph.
-
-		//// constrain the extra_local_point to fit between the first and last paragraphs.
-		//text_paragraph_c * last_paragraph = _paragraph_list[ _paragraph_list.get_length() - 1 ];
-		//if ( extra_local_point.b < 0.0f )
-		//{
-		//	extra_local_point.b = 0.0f;
-		//}
-		//else if ( extra_local_point.b > last_paragraph->_top + last_paragraph->_content_height )
-		//{
-		//	extra_local_point.b = last_paragraph->_top + last_paragraph->_content_height;
-		//}
-
-		sint32_c new_cursor_index = 0;
-		boolean_c new_cursor_index_is_at_end_of_virtual_line = false;
-		float32_c new_cursor_sticky_x = 0.0f;
-
-		for ( sint32_c paragraph_index = 0; paragraph_index < _paragraph_list.get_length(); paragraph_index++ )
+		float32_c vertically_algined_y = 0.0f;
+		menu_text_align_vertical_e text_align_vertical = get_style_text_align_vertical();
+		if ( text_align_vertical == menu_text_align_vertical_e_center )
 		{
-			text_paragraph_c * paragraph = _paragraph_list[ paragraph_index ];
-			if ( extra_local_point.b >= paragraph->_top && extra_local_point.b <= paragraph->_top + paragraph->_content_height )
-			{
-				for ( sint32_c formatted_line_index = 0; formatted_line_index < paragraph->_line_list.get_length(); formatted_line_index++ )
-				{
-					text_line_c * line = &paragraph->_line_list[ formatted_line_index ];
+			vertically_algined_y = ( _local_box.get_height() * 0.5f ) - ( get_content_height() * 0.5f );
+		}
+		else if ( text_align_vertical == menu_text_align_vertical_e_bottom )
+		{
+			vertically_algined_y = _local_box.get_height() - get_content_height();
+		}
 
-					if ( extra_local_point.b < line->_top )
+		boolean_c picked = false;
+		sint32_c new_cursor_index = 0;
+		float32_c new_cursor_sticky_x = 0.0f;
+		boolean_c new_cursor_is_at_end_of_virtual_line = false;
+
+		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
+		{
+			text_paragraph_c * paragraph = _paragraph_list[ i ];
+
+			float32_c paragraph_left = _local_box.minimum.a + _content_offset.a;
+			float32_c paragraph_right = paragraph_left + _local_box.get_width();
+			float32_c paragraph_top = _local_box.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
+			float32_c paragraph_bottom = paragraph_top + paragraph->_content_height;
+
+			if ( local_point.b < paragraph_top )
+			{
+				new_cursor_index = paragraph->_character_start;
+				new_cursor_sticky_x = paragraph_left;
+				goto finish;
+			}
+
+			if ( local_point.b >= paragraph_top && local_point.b <= paragraph_bottom )
+			{
+				for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
+				{
+					text_line_c const * line = &paragraph->_line_list[ j ];
+
+					float32_c line_left = paragraph_left + line->_left; // baseline offset from left.
+					float32_c line_top = paragraph_top; // force top of hit box of first line to be flush with paragraph_top.
+					if ( j > 0 ) // tops of hit boxes of subsequent lines will be placed correctly.
 					{
-						return;
+						line_top += line->_top;
+					}
+					float32_c line_bottom = paragraph_top + line->_top + line->_ascender - line->_descender; // bottoms of hit boxes of lines will be placed correctly.
+					if ( j == paragraph->_line_list.get_length() - 1 ) // force bottom of hit box of last line to be flush with paragraph bottom.
+					{
+						line_bottom = paragraph_bottom;
 					}
 
-					if ( extra_local_point.b >= paragraph->_top + line->_top && extra_local_point.b <= paragraph->_top + line->_top + line->_ascender - line->_descender )
+					if ( local_point.b < line_top )
 					{
 						new_cursor_index = line->_character_start;
-						new_cursor_index_is_at_end_of_virtual_line = false;
-						new_cursor_sticky_x = 0.0f;
+						new_cursor_sticky_x = line->_left;
+						goto finish;
+					}
 
-						float32_c formatted_line_width_actual = paragraph->_glyph_list[ line->_character_end - paragraph->_character_start - 1 ]._left; // the width of the formatted line may not include the width of trailing white space characters, so in order to include those in the hit detection we find the actual width here.
-						if ( extra_local_point.a < line->_left )
+					if ( local_point.b >= line_top && local_point.b <= line_bottom )
+					{
+						new_cursor_index = line->_character_start;
+						new_cursor_is_at_end_of_virtual_line = false;
+						new_cursor_sticky_x = line->_left;
+
+						float32_c line_width_with_trailing_white_space = paragraph->_glyph_list[ line->_character_end - paragraph->_character_start - 1 ]._left; // because line->_width does not include traling white space.
+						if ( local_point.a < line_left )
 						{
 							// point lies to the left of formatted line.
 							new_cursor_index = line->_character_start;
-							new_cursor_index_is_at_end_of_virtual_line = false;
+							new_cursor_is_at_end_of_virtual_line = false;
 							new_cursor_sticky_x = line->_left;
 						}
-						else if ( extra_local_point.a > line->_left + formatted_line_width_actual )
+						else if ( local_point.a > line_left + line_width_with_trailing_white_space )
 						{
 							// point lies to the right of formatted line.
-							new_cursor_index_is_at_end_of_virtual_line = formatted_line_index < paragraph->_line_list.get_length() - 1;
-							new_cursor_index = new_cursor_index_is_at_end_of_virtual_line ? line->_character_end : line->_character_end - 1;
+							new_cursor_is_at_end_of_virtual_line = j < paragraph->_line_list.get_length() - 1;
+							new_cursor_index = new_cursor_is_at_end_of_virtual_line ? line->_character_end : line->_character_end - 1;
 							text_glyph_c const * last_glyph = &paragraph->_glyph_list[ line->_character_end - paragraph->_character_start - 1 ];
 							new_cursor_sticky_x = line->_left + last_glyph->_left + last_glyph->_horizontal_advance;
 						}
@@ -1234,24 +1258,33 @@ namespace cheonsa
 							for ( ; new_cursor_index < line->_character_end; new_cursor_index++ )
 							{
 								text_glyph_c * glyph = &paragraph->_glyph_list[ new_cursor_index - paragraph->_character_start ];
-								if ( extra_local_point.a < line->_left + glyph->_left + ( glyph->_horizontal_advance * 0.5f ) )
+								if ( local_point.a < line_left + glyph->_left + ( glyph->_horizontal_advance * 0.5f ) )
 								{
 									new_cursor_sticky_x = line->_left + glyph->_left;
-									break;
+									goto finish;
 								}
 							}
 						}
-						break;
+						goto finish;
 					}
 				}
-				break;
 			}
 		}
 
+		// point lies below everything.
+		// place cursor at last index.
+		text_paragraph_c const * last_paragraph = _paragraph_list[ _paragraph_list.get_length() - 1 ];
+		new_cursor_index = last_paragraph->_character_end - 1;
+		text_line_c const * last_line = &last_paragraph->_line_list[ last_paragraph->_line_list.get_length() - 1 ];
+		text_glyph_c const * last_glyph = &last_paragraph->_glyph_list[ last_line->_character_end - last_paragraph->_character_start - 1 ];
+		new_cursor_sticky_x = last_line->_left + last_glyph->_left + last_glyph->_horizontal_advance;
+		new_cursor_is_at_end_of_virtual_line = false;
+
+	finish:
 		if ( _text_selection_mode == menu_text_selection_mode_e_character )
 		{
 			_cursor_index = new_cursor_index;
-			_cursor_is_at_end_of_virtual_line = new_cursor_index_is_at_end_of_virtual_line;
+			_cursor_is_at_end_of_virtual_line = new_cursor_is_at_end_of_virtual_line;
 			if ( shift == false )
 			{
 				_selection_anchor_index_start = new_cursor_index;
@@ -1456,35 +1489,6 @@ namespace cheonsa
 			_cursor_sticky_x = laid_out_line->_left + laid_out_glyph->_left;
 		}
 	}
-
-	//float32_c menu_control_text_c::_get_formatted_character_x( sint32_c character_index, boolean_c at_end_of_virtual_line )
-	//{
-	//	for ( sint32_c i = 0; i < _paragraph_list.get_count(); i++ )
-	//	{
-	//		text_paragraph_c * block = _paragraph_list[i];
-	//		for ( sint32_c j = 0; j < block->formatted_line_list.get_count(); j++ )
-	//		{
-	//			text_line_c * laid_out_line = &block->formatted_line_list[j];
-	//			if ( at_end_of_virtual_line == false && character_index >= laid_out_line->character_start && character_index < laid_out_line->character_end )
-	//			{
-	//				return laid_out_line->formatted_left + block->formatted_glyph_list[character_index - block->character_start].formatted_left;
-	//			}
-	//			else if ( at_end_of_virtual_line == true && character_index == laid_out_line->character_end )
-	//			{
-	//				return laid_out_line->formatted_left + block->formatted_glyph_list[character_index - block->character_start].formatted_horizontal_advance;
-	//			}
-	//		}
-	//	}
-	//	return 0.0f;
-	//}
-
-	//void_c menu_control_text_c::_delete_character_range( sint32_c character_start, sint32_c character_end )
-	//{
-	//	assert( character_end > character_start );
-	//	assert( character_start >= 0 && character_end <= _value.get_count() );
-	//	_value.characters.remove_range_at_index( character_start, character_end - character_start );
-	//	_remove_character_offset_range( character_start, character_end );
-	//}
 
 	void_c menu_element_text_c::_insert_plain_text_at_cursor( string16_c const & value )
 	{
@@ -1808,205 +1812,6 @@ namespace cheonsa
 		}
 	}
 
-	/*
-	void_c menu_control_text_c::_remove_character_offset_range( sint32_c start, sint32_c end )
-	{
-		sint32_c partial_block_start = -1; // if start is in the middle of a block (which indicates that the later portion of that block is being deleted), then this will be set to the index of that block.
-		sint32_c partial_block_end = -1; // if end is in the middle of a block (which indicates that the former portion of that block is being deleted), then this will be set to the index of that block.
-
-		sint32_c characters_removed_so_far = 0;
-		for ( sint32_c i = 0; i < _paragraph_list.get_count(); i++ )
-		{
-			text_paragraph_c * block = _paragraph_list[i];
-			if ( end > block->character_start && start < block->character_end )
-			{
-				if ( start > block->character_start && start < block->character_end )
-				{
-					partial_block_start = i;
-				}
-				if ( end >= block->character_start && end < block->character_end - 1 )
-				{
-					partial_block_end = i;
-				}
-
-				block->character_start -= characters_removed_so_far;
-				for ( sint32_c j = 0; j < block->span_list.get_count(); j++ )
-				{
-					text_span_c * span = block->span_list[j];
-
-					if ( end > span->character_start && start < span->character_end )
-					{
-						sint32_c capped_character_start = maximum( start, span->character_start );
-						sint32_c capped_character_end = minimum( end, span->character_end );
-						span->character_start -= characters_removed_so_far;
-						characters_removed_so_far += capped_character_end - capped_character_start;
-						span->character_end -= characters_removed_so_far;
-						if ( span->character_start == span->character_end )
-						{
-							if ( block->span_list.get_count() > 1 )
-							{
-								delete span;
-								block->span_list.remove_at_index( j );
-								j--;
-							}
-						}
-					}
-					else
-					{
-						span->character_start -= characters_removed_so_far;
-						span->character_end -= characters_removed_so_far;
-					}
-				}
-				block->character_end -= characters_removed_so_far;
-				if ( block->character_start == block->character_end )
-				{
-					if ( _paragraph_list.get_count() > 1 )
-					{
-						delete block;
-						_paragraph_list.remove_at_index( i );
-						i--;
-					}
-				}
-			}
-			else
-			{
-				block->character_start -= characters_removed_so_far;
-				block->character_end -= characters_removed_so_far;
-			}
-		}
-
-		// merge the partial blocks if they are different.
-		if ( partial_block_start >= 0 && partial_block_end >= 0 && partial_block_start != partial_block_end )
-		{
-			text_paragraph_c * block_a = _paragraph_list[partial_block_start];
-			text_paragraph_c * block_b = _paragraph_list[partial_block_end];
-			block_a->span_list.insert_range_at_end( block_b->span_list.get_array(), block_b->span_list.get_count() );
-			block_b->span_list.remove_all();
-			block_a->character_end = block_b->character_end;
-			delete block_b;
-			_paragraph_list.remove_at_index( partial_block_end );
-		}
-	}
-	*/
-
-	//void_c menu_element_text_c::_subdivide_span( sint32_c at_character_index, sint32_c & paragraph_index, sint32_c & span_index )
-	//{
-	//	assert( at_character_index >= 0 && at_character_index <= _value.character_list.get_count() - 2 );
-
-	//	if ( at_character_index == _value.character_list.get_count() - 2 )
-	//	{
-	//		paragraph_index = _paragraph_list.get_count() - 1; // index of last paragraph.
-	//		span_index = _paragraph_list[ paragraph_index ]->span_list.get_count(); // index of imaginary span past the last, which is out of bounds of the list, but it will keep the gather step of _subdivide_and_gather_spans_in_character_range straight forward to do.
-	//		return;
-	//	}
-
-	//	for ( sint32_c i = 0; i < _paragraph_list.get_count(); i++ )
-	//	{
-	//		text_paragraph_c * paragraph = _paragraph_list[ i ];
-	//		if ( at_character_index == paragraph->character_start )
-	//		{
-	//			paragraph_index = i;
-	//			span_index = 0;
-	//			return;
-	//		}
-	//		else if ( at_character_index > paragraph->character_start && at_character_index <= paragraph->character_end )
-	//		{
-	//			paragraph_index = i;
-	//			for ( sint32_c j = 0; j < paragraph->span_list.get_count(); j++ )
-	//			{
-	//				text_span_c * span = paragraph->span_list[ j ];
-	//				if ( at_character_index == span->character_start )
-	//				{
-	//					span_index = j;
-	//					return;
-	//				}
-	//				else if ( at_character_index > span->character_start && at_character_index <= span->character_end )
-	//				{
-	//					text_span_c * new_span = new text_span_c();
-	//					new_span->_style_reference = span->_style_reference;
-	//					new_span->character_start = at_character_index;
-	//					new_span->character_end = span->character_end;
-	//					span->character_end = at_character_index - 1;
-	//					paragraph->span_list.insert_at_index( j + 1, new_span );
-	//					span_index = j + 1;
-	//					return;
-	//				}
-	//			}
-	//		}
-	//		else if ( at_character_index < paragraph->character_start )
-	//		{
-	//			// it shouldn't be possible for us to get here.
-	//			return;
-	//		}
-	//	}
-	//}
-
-	//void_c menu_element_text_c::_subdivide_spans_in_character_range( sint32_c character_start, sint32_c character_end, sint32_c & paragraph_start, sint32_c & paragraph_end, sint32_c & span_start, sint32_c & span_end )
-	//{
-	//	_subdivide_span( character_start, paragraph_start, span_start);
-	//	_subdivide_span( character_end, paragraph_end, span_end );
-	//	paragraph_end++;
-	//	span_end++;
-	//}
-
-	//void_c menu_element_text_c::_gather_spans( core_list_c< text_span_c * > & result, sint32_c paragraph_start, sint32_c paragraph_end, sint32_c span_start, sint32_c span_end )
-	//{
-	//	for ( sint32_c i = paragraph_start; i <= paragraph_end; i++ )
-	//	{
-	//		text_paragraph_c * paragraph = _paragraph_list[ i ];
-	//		sint32_c j_start = i != paragraph_start ? span_start : 0;
-	//		sint32_c j_end = i != paragraph_end - 1 ? paragraph->span_list.get_count() : span_end;
-	//		for ( sint32_c j = j_start; j < j_end; j++ )
-	//		{
-	//			text_span_c * span = paragraph->span_list[ j ];
-	//			result.insert_at_end( span );
-	//		}
-	//	}
-	//}
-
-	//void_c menu_element_text_c::_gather_spans_in_character_range( sint32_c character_start, sint32_c character_end, core_list_c< text_span_c * > & result )
-	//{
-	//	for ( sint32_c i = 0; i < _paragraph_list.get_count(); i++ )
-	//	{
-	//		text_paragraph_c * paragraph = _paragraph_list[ i ];
-	//		if ( character_start <= paragraph->character_end && character_end >= paragraph->character_start )
-	//		{
-	//			for ( sint32_c j = 0; j < paragraph->span_list.get_count(); j++ )
-	//			{
-	//				text_span_c * span = paragraph->span_list[ j ];
-	//				if ( character_start <= span->character_end && character_end >= span->character_start )
-	//				{
-	//					result.insert_at_end( span );
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
-
-	//void_c menu_element_text_c::_clean_spans_in_paragraph_range( sint32_c paragraph_start, sint32_c paragraph_end )
-	//{
-	//	for ( sint32_c i = paragraph_start; i <= paragraph_end; i++ )
-	//	{
-	//		text_paragraph_c * paragraph = _paragraph_list[ i ];
-	//		text_span_c * previous_span = paragraph->_span_list[ 0 ];
-	//		for ( sint32_c j = 1; j < paragraph->_span_list.get_count(); j++ )
-	//		{
-	//			text_span_c * span = paragraph->_span_list[ j ];
-	//			if ( span->_style_reference == previous_span->_style_reference )
-	//			{
-	//				previous_span->_character_end = span->_character_end;
-	//				delete span;
-	//				paragraph->_span_list.remove_at_index( j );
-	//				j--;
-	//			}
-	//			else
-	//			{
-	//				previous_span = span;
-	//			}
-	//		}
-	//	}
-	//}
-
 	sint32_c menu_element_text_c::_insert_new_paragraph( sint32_c at_character_index, string16_c const & plain_text )
 	{
 		assert( _text_edit_mode == menu_text_edit_mode_e_editable );
@@ -2183,55 +1988,49 @@ namespace cheonsa
 		sint32_c selection_index_end;
 		get_selected_text_range( selection_index_start, selection_index_end );
 
-		box32x2_c visible_box = _local_box;
-
-		float32_c text_content_height = get_content_height();
 		float32_c vertically_algined_y = 0.0f;
 		menu_text_align_vertical_e text_align_vertical = get_style_text_align_vertical();
 		if ( text_align_vertical == menu_text_align_vertical_e_center )
 		{
-			vertically_algined_y = ( visible_box.get_height() * 0.5f ) - ( text_content_height * 0.5f );
+			vertically_algined_y = ( _local_box.get_height() * 0.5f ) - ( get_content_height() * 0.5f );
 		}
 		else if ( text_align_vertical == menu_text_align_vertical_e_bottom )
 		{
-			vertically_algined_y = visible_box.get_height() - text_content_height;
+			vertically_algined_y = _local_box.get_height() - get_content_height();
 		}
 
 		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
 		{
 			menu_element_text_c::text_paragraph_c const * paragraph = _paragraph_list[ i ];
 
-			float32_c paragraph_left = visible_box.minimum.a + _content_offset.a;
+			float32_c paragraph_left = _local_box.minimum.a + _content_offset.a;
 			float32_c paragraph_right = paragraph_left + _local_box.get_width();
-			float32_c paragraph_top = visible_box.minimum.b + _content_offset.b + paragraph->_top;
+			float32_c paragraph_top = _local_box.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
 			float32_c paragraph_bottom = paragraph_top + paragraph->_content_height;
 
 			// render this paragraph if it is visible.
-			if ( paragraph_bottom >= visible_box.minimum.b && paragraph_top <= visible_box.maximum.b )
+			if ( paragraph_bottom >= _local_box.minimum.b && paragraph_top <= _local_box.maximum.b )
 			{
 				for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
 				{
-					menu_element_text_c::text_line_c const * laid_out_line = &paragraph->_line_list[ j ];
+					text_line_c const * line = &paragraph->_line_list[ j ];
 
-					float32_c line_left = paragraph_left + laid_out_line->_left; // baseline offset from left.
-					float32_c line_top = vertically_algined_y + paragraph_top + laid_out_line->_top;
-					float32_c line_top_baseline = line_top + laid_out_line->_ascender; // baseline offset from top.
-					float32_c line_bottom = line_top_baseline - laid_out_line->_descender;
+					float32_c line_left = paragraph_left + line->_left; // baseline offset from left.
+					float32_c line_top = paragraph_top + line->_top;
+					float32_c line_top_baseline = line_top + line->_ascender; // baseline offset from top.
+					float32_c line_bottom = line_top_baseline - line->_descender;
 
 					// render this line if it is visible.
-					if ( line_bottom >= visible_box.minimum.b && line_top <= visible_box.maximum.b )
+					if ( line_bottom >= _local_box.minimum.b && line_top <= _local_box.maximum.b )
 					{
-						sint32_c laid_out_glyph_start = laid_out_line->_character_start - paragraph->_character_start;
-						sint32_c laid_out_glyph_end = laid_out_line->_character_end - paragraph->_character_start;
-
 						// draw selection for current line.
-						if ( ( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable ) && selection_index_start != selection_index_end && selection_index_end > laid_out_line->_character_start && selection_index_start < laid_out_line->_character_end )
+						if ( ( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable ) && selection_index_start != selection_index_end && selection_index_end > line->_character_start && selection_index_start < line->_character_end )
 						{
-							menu_element_text_c::text_glyph_c const * selection_laid_out_glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selection_index_start, laid_out_line->_character_start ) - paragraph->_character_start ];
+							menu_element_text_c::text_glyph_c const * selection_laid_out_glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selection_index_start, line->_character_start ) - paragraph->_character_start ];
 							float32_c selection_left = line_left + selection_laid_out_glyph_left->_box.minimum.a;
 							float32_c selection_top = line_top;
 
-							menu_element_text_c::text_glyph_c const * selection_laid_out_glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selection_index_end, laid_out_line->_character_end ) - 1 - paragraph->_character_start ];
+							menu_element_text_c::text_glyph_c const * selection_laid_out_glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selection_index_end, line->_character_end ) - 1 - paragraph->_character_start ];
 							float32_c selection_right = line_left + selection_laid_out_glyph_right->_box.minimum.a + selection_laid_out_glyph_right->_horizontal_advance;
 							float32_c selection_bottom = line_bottom;
 
@@ -2262,19 +2061,18 @@ namespace cheonsa
 						{
 							boolean_c do_cursor = false;
 							float32_c cursor_left;
-							vector32x4_c cursor_color;
-							if ( _cursor_is_at_end_of_virtual_line == false && _cursor_index >= laid_out_line->_character_start && _cursor_index < laid_out_line->_character_end )
+							vector32x4_c cursor_color = global_engine_instance.interfaces.menu_style_manager->shared_colors[ menu_shared_color_e_field_normal_accent ].value;
+							if ( _cursor_is_at_end_of_virtual_line == false && _cursor_index >= line->_character_start && _cursor_index < line->_character_end )
 							{
 								menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ _cursor_index - paragraph->_character_start ];
-								cursor_left = line_left + laid_out_glyph->_box.minimum.a - ( _cursor_width * 0.5f );
-								cursor_color = _cursor_color; //laid_out_glyph.format->color;
+								cursor_left = line_left + laid_out_glyph->_left;
+								//cursor_color = _cursor_color; //laid_out_glyph.format->color;
 								do_cursor = true;
 							}
-							else if ( _cursor_is_at_end_of_virtual_line == true && _cursor_index == laid_out_line->_character_end )
+							else if ( _cursor_is_at_end_of_virtual_line == true && _cursor_index == line->_character_end )
 							{
 								menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ _cursor_index - paragraph->_character_start - 1 ];
-								cursor_left = line_left + laid_out_glyph->_box.minimum.a + laid_out_glyph->_horizontal_advance - ( _cursor_width * 0.5f );
-								cursor_color = _cursor_color; //laid_out_glyph.format->color;
+								cursor_left = line_left + laid_out_glyph->_left + laid_out_glyph->_horizontal_advance;
 								do_cursor = true;
 							}
 							if ( do_cursor == true )
@@ -2283,7 +2081,7 @@ namespace cheonsa
 								float32_c cursor_right = cursor_left + _cursor_width;
 								float32_c cursor_top = line_top;
 								float32_c cursor_bottom = line_bottom;
-								cursor_color.d = ops::math_saturate( ops::math_sine( _cursor_time * 15.0f ) * 0.5f + 0.5f );
+								cursor_color.d = ops::math_saturate( ops::math_sine( _cursor_time * 2.0f ) * 0.5f + 0.5f );
 
 								video_renderer_vertex_menu_c * vertex = vertex_list_for_cursor.emplace_at_end();
 								vertex->position.a = cursor_left;
@@ -2307,7 +2105,9 @@ namespace cheonsa
 							}
 						}
 
-						for ( sint32_c k = laid_out_glyph_start; k < laid_out_glyph_end; k++ )
+						sint32_c glyph_start = line->_character_start - paragraph->_character_start;
+						sint32_c glyph_end = line->_character_end - paragraph->_character_start;
+						for ( sint32_c k = glyph_start; k < glyph_end; k++ )
 						{
 							char16_c character = _plain_text.character_list[ paragraph->_character_start + k ];
 							menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ k ];
@@ -2322,13 +2122,13 @@ namespace cheonsa
 										assert( laid_out_glyph->_glyph->key.code_point == character );
 
 										// this glyph is displayable.
-										float32_c glyph_left = line_left + laid_out_glyph->_box.minimum.a + laid_out_glyph->_left;
+										float32_c glyph_left = line_left + laid_out_glyph->_left + laid_out_glyph->_box.minimum.a;
 										float32_c glyph_top = line_top_baseline + laid_out_glyph->_box.minimum.b;
-										float32_c glyph_right = line_left + laid_out_glyph->_box.maximum.a + laid_out_glyph->_left;
+										float32_c glyph_right = line_left + laid_out_glyph->_left + laid_out_glyph->_box.maximum.a;
 										float32_c glyph_bottom = line_top_baseline + laid_out_glyph->_box.maximum.b;
 										float32_c glyph_map_texture_slice_index = static_cast< float32_c >( laid_out_glyph->_glyph->atlas_index );
 
-										if ( glyph_right >= visible_box.minimum.a && glyph_left <= visible_box.maximum.a && glyph_bottom >= visible_box.minimum.b && glyph_top <= visible_box.maximum.b )
+										if ( glyph_right >= _local_box.minimum.a && glyph_left <= _local_box.maximum.a && glyph_bottom >= _local_box.minimum.b && glyph_top <= _local_box.maximum.b )
 										{
 											float32_c skew = laid_out_glyph->_style->skew;
 											vector32x4_c parameters = vector32x4_c( laid_out_glyph->_style->skew, laid_out_glyph->_style->weight, laid_out_glyph->_style->softness, static_cast< float32_c >( k + paragraph->_character_start ) );
@@ -2407,13 +2207,13 @@ namespace cheonsa
 							}
 						}
 					}
-					else if ( line_top > visible_box.maximum.b )
+					else if ( line_top > _local_box.maximum.b )
 					{
 						goto stitch;
 					}
 				}
 			}
-			else if ( paragraph_top > visible_box.maximum.b )
+			else if ( paragraph_top > _local_box.maximum.b )
 			{
 				goto stitch;
 			}
@@ -3350,13 +3150,14 @@ namespace cheonsa
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
 		{
-			vector32x2_c local_point = input_event->menu_mouse_position; // transform_point_from_global_to_local( input_event->menu_mouse_position );
+			cheonsa_assert( _mother_control != nullptr );
+			vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
 			if ( input_event->mouse_key == input_mouse_key_e_left && ( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable ) )
 			{
 				if ( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 )
 				{
 					_text_selection_mode = menu_text_selection_mode_e_character;
-					_place_cursor_at_local_point( local_point, true );
+					_place_cursor_at_local_point( local_mouse_position, true );
 				}
 				else
 				{
@@ -3372,7 +3173,7 @@ namespace cheonsa
 					{
 						_text_selection_mode = menu_text_selection_mode_e_paragraph;
 					}
-					_place_cursor_at_local_point( local_point, false );
+					_place_cursor_at_local_point( local_mouse_position, false );
 					_cursor_time = 0.0f;
 				}
 				//_input_lmb_down = true;
@@ -3381,7 +3182,7 @@ namespace cheonsa
 			else if ( input_event->mouse_key == input_mouse_key_e_right )
 			{
 				// if the * is not in the selected text, then move the cursor to the point under the *.
-				_place_cursor_at_local_point( local_point, false );
+				_place_cursor_at_local_point( local_mouse_position, false );
 				// open context menu.
 				return true;
 			}
@@ -3397,8 +3198,9 @@ namespace cheonsa
 		{
 			if ( ( input_event->mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) != 0 )
 			{
-				vector32x2_c local_point = input_event->menu_mouse_position; // transform_point_from_global_to_local( input_event->menu_mouse_position );
-				_place_cursor_at_local_point( local_point, true );
+				cheonsa_assert( _mother_control != nullptr );
+				vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
+				_place_cursor_at_local_point( local_mouse_position, true );
 				return true;
 			}
 		}
@@ -3823,7 +3625,7 @@ namespace cheonsa
 		text_paragraph_c * paragraph = _paragraph_list[ paragraph_index ];
 		sint32_c line_index = paragraph->get_line_index( _cursor_index );
 		text_line_c * line = &paragraph->_line_list[ line_index ];
-		_cursor_index = line->_character_end + 1;
+		_cursor_index = line->_character_end;
 		_cursor_is_at_end_of_virtual_line = line_index < paragraph->_line_list.get_length() - 1;
 		if ( _cursor_is_at_end_of_virtual_line )
 		{
@@ -3883,157 +3685,6 @@ namespace cheonsa
 			return true;
 		}
 		return false;
-	}
-
-	void_c menu_element_text_c::load_properties( data_scribe_markup_c::node_c const * node )
-	{
-		menu_element_c::load_properties( node );
-
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-
-		string8_c style_key;
-		attribute = node->find_attribute( "style_key" );
-		if ( attribute )
-		{
-			style_key = attribute->get_value();
-		}
-		set_style_key( style_key );
-
-
-		/*
-		_mode = mode_e_plain_editable;
-		attribute = node->find_attribute( "mode" );
-		if ( attribute )
-		{
-			if ( attribute->value == "plain_editable" )
-			{
-				_mode = mode_e_plain_editable;
-			}
-			else if ( attribute->value == "plain_static" )
-			{
-				_mode = mode_e_plain_static;
-			}
-			else if ( attribute->value == "plain_static_selectable" )
-			{
-				_mode = mode_e_plain_static_selectable;
-			}
-			else if ( attribute->value == "rich_static" )
-			{
-				_mode = mode_e_rich_static;
-			}
-		}
-
-		_multi_line = true;
-		attribute = node->find_attribute( "multi_line" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_boolean( attribute->value, _multi_line );
-		}
-
-		_word_wrap = true;
-		attribute = node->find_attribute( "word_wrap" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_boolean( attribute->value, _word_wrap );
-		}
-
-		_character_limit = 1000;
-		attribute = node->find_attribute( "character_limit" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_sint32( attribute->value, _character_limit );
-		}
-
-		_text_align_horizontal = menu_text_align_horizontal_e_inherit_from_style;
-		attribute = node->find_attribute( "text_align_horizontal" );
-		if ( attribute )
-		{
-			if ( attribute->value == "left" )
-			{
-				_text_align_horizontal = menu_text_align_horizontal_e_left;
-			}
-			else if ( attribute->value == "center" )
-			{
-				_text_align_horizontal = menu_text_align_horizontal_e_center;
-			}
-			else if ( attribute->value == "right" )
-			{
-				_text_align_horizontal = menu_text_align_horizontal_e_right;
-			}
-		}
-
-		_text_align_vertical = menu_text_align_vertical_e_inherit_from_style;
-		attribute = node->find_attribute( "text_align_vertical" );
-		if ( attribute )
-		{
-			if ( attribute->value == "top" )
-			{
-				_text_align_vertical = menu_text_align_vertical_e_top;
-			}
-			else if ( attribute->value == "center" )
-			{
-				_text_align_vertical = menu_text_align_vertical_e_center;
-			}
-			else if ( attribute->value == "bottom" )
-			{
-				_text_align_vertical = menu_text_align_vertical_e_bottom;
-			}
-		}
-
-		_cursor_width = 2.0f;
-		attribute = node->find_attribute( "cursor_width" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_float32( attribute->value, _cursor_width );
-		}
-
-		_cursor_color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		attribute = node->find_attribute( "cursor_color" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_rgba( attribute->value, _cursor_color );
-		}
-
-		// try to get text value from text attribute.
-		boolean_c found_text = false;
-		attribute = node->find_attribute( "text" );
-		if ( attribute )
-		{
-			found_text = true;
-			if ( _mode == mode_e_plain_static || _mode == mode_e_plain_static_selectable || _mode == mode_e_plain_editable )
-			{
-				set_plain_text( string16_c( attribute->value ) );
-			}
-			else
-			{
-				set_rich_text( attribute->value );
-			}
-		}
-
-		// otherwise try to get text value from daughter text node.
-		if ( found_text == false )
-		{
-			if ( node->node_daughter_first > 0 )
-			{
-				data_scribe_markup_c::node_c const * daughter_node = node->_markup->get_node( node->node_daughter_first );
-				if ( daughter_node->type == data_scribe_markup_c::node_c::type_e_text )
-				{
-					found_text = true;
-					if ( _mode == mode_e_plain_static || _mode == mode_e_plain_static_selectable || _mode == mode_e_plain_editable )
-					{
-						set_plain_text( string16_c( daughter_node->value ) );
-					}
-					else
-					{
-						set_rich_text( daughter_node->value );
-					}
-				}
-			}
-		}
-
-		_text_layout_is_dirty = true;
-		_reflow_glyphs_in_all_paragraphs_that_need_it();
-		*/
 	}
 
 }

@@ -41,7 +41,7 @@ namespace cheonsa
 		{
 			if ( input_event->mouse_key == input_mouse_key_e_left )
 			{
-				vector32x2_c local_mouse_position = transform_point_from_global_to_local( input_event->menu_mouse_position );
+				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
 				if ( ops::intersect_rectangle_vs_point( _grip_element.get_local_box(), local_mouse_position ) )
 				{
 					_mouse_grab = true;
@@ -77,7 +77,7 @@ namespace cheonsa
 		{
 			if ( _mouse_grab )
 			{
-				vector32x2_c local_mouse_position = transform_point_from_global_to_local( input_event->menu_mouse_position );
+				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
 				float32_c grip_effective_range = ( _orientation == orientation_e_vertical ? _local_box.get_height() : _local_box.get_width() ) - _dynamic_grip_length;
 				float64_c grip_position = ops::math_clamp( ( _orientation == orientation_e_vertical ? local_mouse_position.b : local_mouse_position.a ) - _mouse_grab_offset - ( _orientation == orientation_e_vertical ? _local_box.minimum.b : _local_box.minimum.a ), 0.0f, grip_effective_range );
 				float64_c grip_position_percent = grip_position / grip_effective_range;

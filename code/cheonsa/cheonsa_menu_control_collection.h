@@ -213,7 +213,7 @@ namespace cheonsa
 
 		box32x2_c _get_item_rectangle( sint32_c item_index, float32_c x, float32_c y );
 
-		menu_control_collection_item_c * _get_item_under_local_point( vector32x2_c const & local_point );
+		menu_control_collection_item_c * _pick_item_at_local_point( vector32x2_c const & local_point );
 
 	public:
 		// handles item click selection.

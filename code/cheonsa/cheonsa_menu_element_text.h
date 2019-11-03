@@ -12,17 +12,6 @@
 namespace cheonsa
 {
 
-	//// defines how a user is able to interact with a text element.
-	//enum menu_text_mode_e
-	//{
-	//	menu_text_mode_e_plain_static, // plain text, text can't be selected or edited.
-	//	menu_text_mode_e_plain_static_selectable, // plain text, text can be selected and copied but text can't be edited.
-	//	menu_text_mode_e_plain_editable, // plain text, can be selected and edited.
-	//	menu_text_mode_e_rich_static, // rich text, raw text may contain markup, but text can't be selected or edited.
-	//	//menu_text_mode_e_rich_static_selectable, // not implemented.
-	//	//menu_text_mode_e_rich_editable // not implemented.
-	//};
-
 	enum menu_text_format_mode_e
 	{
 		menu_text_format_mode_e_plain, // all text uses the same style, does not support rich formatting.
@@ -538,11 +527,6 @@ namespace cheonsa
 	public:
 		core_event_c< void_c, menu_element_text_c * > on_value_changed_preview; // occurs whenever the text value changes as the user types.
 		core_event_c< void_c, menu_element_text_c * > on_value_changed_commit; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
-
-	public:
-		// only loads layout and style key.
-		// other functional properties and text contents are managed at the control level.
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

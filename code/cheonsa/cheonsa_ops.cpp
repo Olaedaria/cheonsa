@@ -2423,43 +2423,6 @@ namespace cheonsa
 			return ( source * ( 1.0f - amount ) ) + ( destination * amount );
 		}
 
-		quaternion32_c interpolate_spherical_linear( quaternion32_c const & source, quaternion32_c const & destination, float32_c const amount )
-		{
-			// this code taken from:
-			// http://www.eudclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/index.html
-
-			if ( amount <= 0.0f )
-			{
-				return source;
-			}
-			else if ( amount >= 1.0f )
-			{
-				return destination;
-			}
-
-			float32_c cosine_half_theta = make_float32_dot_product( source, destination );
-			if ( math_absolute_value( cosine_half_theta ) >= 1.0f ) // difference is 0 degrees, or 360 degrees, or greater than 360 degrees (if quaternions are not normalized), so source and destination are the same.
-			{
-				return source;
-			}
-			float32_c half_theta = math_arc_cosine( cosine_half_theta );
-			float32_c sine_half_theta = math_square_root( 1.0f - ( cosine_half_theta * cosine_half_theta ) );
-			if ( math_absolute_value( sine_half_theta ) < 0.0f )
-			{
-				return destination;
-			}
-
-			float32_c ratio_source = math_sine( ( 1.0f - amount ) * half_theta ) / sine_half_theta;
-			float32_c ratio_destination = math_sine( amount * half_theta ) / sine_half_theta;
-
-			quaternion32_c result(
-				( source.a * ratio_source ) + ( destination.a * ratio_destination ),
-				( source.b * ratio_source ) + ( destination.b * ratio_destination ),
-				( source.c * ratio_source ) + ( destination.c * ratio_destination ),
-				( source.d * ratio_source ) + ( destination.d * ratio_destination ) );
-			return make_quaternion32_normalized( result );
-		}
-
 		float32_c interpolate_cosine( float32_c const source, float32_c const destination, float32_c const amount )
 		{
 			float32_c ratio = ( 1.0f - cos( amount * constants< float32_c >::pi() ) ) / 2.0f;
@@ -2574,6 +2537,43 @@ namespace cheonsa
 			float32_c a2 = mu3 - mu2;
 			float32_c a3 = ( -2.0f * mu3 ) + ( 3.0f * mu2 );
 			return ( ( source * a0 ) + ( m0 * a1 ) + ( m1 * a2 ) + ( destination * a3 ) );
+		}
+
+		quaternion32_c interpolate_spherical_linear( quaternion32_c const & source, quaternion32_c const & destination, float32_c const amount )
+		{
+			// this code taken from:
+			// http://www.eudclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/index.html
+
+			if ( amount <= 0.0f )
+			{
+				return source;
+			}
+			else if ( amount >= 1.0f )
+			{
+				return destination;
+			}
+
+			float32_c cosine_half_theta = make_float32_dot_product( source, destination );
+			if ( math_absolute_value( cosine_half_theta ) >= 1.0f ) // difference is 0 degrees, or 360 degrees, or greater than 360 degrees (if quaternions are not normalized), so source and destination are the same.
+			{
+				return source;
+			}
+			float32_c half_theta = math_arc_cosine( cosine_half_theta );
+			float32_c sine_half_theta = math_square_root( 1.0f - ( cosine_half_theta * cosine_half_theta ) );
+			if ( math_absolute_value( sine_half_theta ) < 0.0f )
+			{
+				return destination;
+			}
+
+			float32_c ratio_source = math_sine( ( 1.0f - amount ) * half_theta ) / sine_half_theta;
+			float32_c ratio_destination = math_sine( amount * half_theta ) / sine_half_theta;
+
+			quaternion32_c result(
+				( source.a * ratio_source ) + ( destination.a * ratio_destination ),
+				( source.b * ratio_source ) + ( destination.b * ratio_destination ),
+				( source.c * ratio_source ) + ( destination.c * ratio_destination ),
+				( source.d * ratio_source ) + ( destination.d * ratio_destination ) );
+			return make_quaternion32_normalized( result );
 		}
 
 		quaternion32_c traverse( quaternion32_c const & source, quaternion32_c const & destination, float32_c amount )

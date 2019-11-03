@@ -9,7 +9,7 @@ namespace cheonsa
 
 	// these strings are loaded from a "strings.xml" file, they are immutable, they have a unique key which the game uses to find and reference the string, and they have a value which the game can read.
 	// don't confuse these strings with the typical kind of programmer string construct, see string8_c and string16_c for that.
-	// these are not reference counted, so each time a "strings.xml" file is unloaded or reloaded, all string references that exist are forced to refresh so that they don't hold on to any dead references.
+	// these are not reference counted, so each time a "strings.xml" file is unloaded or reloaded, all string reference instances that exist are forced to refresh so that they don't hold on to any dead references.
 	class string_c
 	{
 	public:

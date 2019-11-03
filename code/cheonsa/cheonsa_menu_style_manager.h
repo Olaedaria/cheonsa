@@ -24,7 +24,7 @@ namespace cheonsa
 		menu_style_file_c _game_styles; // game defined styles used by game menus, loaded from "[g]menus/styles.xml".
 
 	public:
-		menu_shared_color_c shared_colors[ menu_color_e_count_ ]; // engine and/or game can set these programatically to customize the color scheme. style files may reference these with keys "[n]", where n is a number between 0 and 7.
+		menu_shared_color_c shared_colors[ menu_shared_color_e_count_ ]; // engine and/or game can set these programatically to customize the color scheme. style files may reference these with keys "[n]", where n is a number between 0 and 7.
 		core_dictionary_c< string8_c, menu_shared_color_c * > shared_colors_map;
 		float32_c shared_transition_speed; // speed in units per second of visual state transitions. a speed of 1 will take 1 second, a speed of 100 will take 1/100th of a second.
 

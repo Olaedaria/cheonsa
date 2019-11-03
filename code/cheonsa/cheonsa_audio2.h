@@ -337,6 +337,9 @@ namespace cheonsa
 		sint32_c _output_channel_count; // how many channels the mixer is configured to mix output to. at the monment this is fixed to stereo and can't be changed.
 		sint32_c _output_frame_rate; // how many times the mixer thread is supposed to update per second.
 
+		float32_c _music_pause_volume;
+		core_list_c< audio2_wave_player_c * > _music_player_list;
+
 		float32_c _compressor_threshold; // when a sample exceeds this threshold, then the compressor takes effect instantly. hence no attack option, and no look ahead feature.
 		float32_c _compressor_fall_off_duration; // similar to release, rate of falloff of compressor effect until normalization. linear normalization, maybe just okay and not great.
 		float32_c _compressor_peak; // current peak sample. minimum value is _compressor_threshold, this falls off towards _compressor_threshold at rate defined by _compressor_falloff.
@@ -386,6 +389,11 @@ namespace cheonsa
 
 		void_c add_wave_player( audio2_wave_player_c * value ); // adds a wave player to this audio interface, for 2d mixing. the wave player will play once and then be removed.
 		void_c remove_wave_player( audio2_wave_player_c * value ); // removes a wave player from this audio interface, for 2d mixing.
+
+		void_c play_music( string16_c const & file_path, float32_c fade_duration );
+		void_c stop_music( float32_c fade_duration );
+		void_c pause_music();
+		void_c resume_music();
 
 	};
 

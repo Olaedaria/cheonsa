@@ -193,7 +193,7 @@ namespace cheonsa
 		return item_rectangle;
 	}
 
-	menu_control_collection_item_c * menu_control_collection_c::_get_item_under_local_point( vector32x2_c const & local_point )
+	menu_control_collection_item_c * menu_control_collection_c::_pick_item_at_local_point( vector32x2_c const & local_point )
 	{
 		float32_c x = 0.0f;
 		float32_c y = static_cast< float32_c >( -_vertical_scroll->get_value() );
@@ -227,8 +227,8 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::_on_clicked( input_event_c * input_event )
 	{
-		vector32x2_c mouse_position = transform_point_from_global_to_local( input_event->mouse_position );
-		menu_control_collection_item_c * picked_item = _get_item_under_local_point( mouse_position );
+		vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+		menu_control_collection_item_c * picked_item = _pick_item_at_local_point( local_mouse_position );
 		if ( ( ( input_event->modifier_keys_state[ input_modifier_flag_e_ctrl ] & input_key_state_bit_e_on ) != 0 ) && ( _select_mode == select_mode_e_multiple ) )
 		{
 			if ( picked_item )
@@ -265,8 +265,8 @@ namespace cheonsa
 
 		if ( input_event->type == input_event_c::type_e_mouse_move || input_event->type == input_event_c::type_e_mouse_key_pressed )
 		{
-			vector32x2_c mouse_position = transform_point_from_global_to_local( input_event->mouse_position );
-			_mouse_selected_item = _get_item_under_local_point( mouse_position );
+			vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+			_mouse_selected_item = _pick_item_at_local_point( local_mouse_position );
 		}
 
 		float32_c x = 0.0f;

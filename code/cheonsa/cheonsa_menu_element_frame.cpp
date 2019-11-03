@@ -378,19 +378,4 @@ namespace cheonsa
 		_override_style = value;
 	}
 
-	void_c menu_element_frame_c::load_properties( data_scribe_markup_c::node_c const * node )
-	{
-		menu_element_c::load_properties( node );
-
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-
-		string8_c style_key;
-		attribute = node->find_attribute( "style_key" );
-		if ( attribute )
-		{
-			style_key = attribute->get_value();
-		}
-		_style_reference.set_key( style_key );
-	}
-
 }

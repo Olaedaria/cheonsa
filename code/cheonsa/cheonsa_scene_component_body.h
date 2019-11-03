@@ -15,17 +15,19 @@ namespace cheonsa
 	// initialization procedure has a bunch of steps:
 	//     1. add the scene component to the scene object (so that the scale of the scene object can be accessed when initialize() is called).
 	//     2. call add_physics_shape() one or more times to add physics shapes to the body.
-	//         2.1. call any of the initialize_*() functions on the physics shape.
+	//         2.1. call any of the initialize_*() functions on each of the physics shapes that were added.
 	//     3. call initialize().
-	// the physics can now be added to a physics scene.
+	// the physics body can now be added to a physics scene.
 	//
-	// physics shape properties can't be modified during run time.
+	// physics shape properties can't really be modified easily.
 	// if you want to modify shapes at run time, you have to:
-	//     1. uninitialize the physics body.
-	//	   2. uninitialize and initialize the shapes that you want to reuse, remove the shapes that you don't want to reuse.
-	//     3. initialize the physics body.
+	//     1. call uninitialize() on the physics body.
+	//     2. change shapes (uninitialize and (re)initialize (with potentially different properties) the shape instances that you want to reuse, remove the shape instances that you don't want to reuse, add new shape instances and initialize them).
+	//     3. call initialize() on the physics body.
 	//
-	// physics shapes need to be reinitialzied every time the object's scale changes.
+	// keep in mind that physics shapes need to be reinitialzied every time the scene object's scale changes.
+	// this is a limitation with the physics engine, because object scale is not a property that the physics engine is programmed to be able to work with.
+	// physics shapes always have an implicit unit scale, so when cheonsa scene objects have a non-unit scale, those physics shapes need to be initialized with dimensions that reflect the non-unit scale.
 	class scene_component_body_c : public scene_component_c
 	{
 	public:

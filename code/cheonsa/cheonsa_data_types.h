@@ -12,9 +12,9 @@ namespace cheonsa
 	};
 
 	// this enum is used with binary property scribe, reflection system, and database system.
-	// be warned that modifying these values will break any files that you have created using these values, so if you need to modify it maybe you can do so without changing mappings.
+	// modifying these values will break any files that you have created using these values.
 	// the sizes of each type are usually straight forward but not always.
-	// for databases, string8 and string16 are 4 bytes long (interpret as uint32_c), as an offset in bytes into the table's string buffer. the length of the string that is referenced can be anything.
+	// for databases, string8 and string16 types are 4 bytes long (interpret as uint32_c), as an offset in bytes into the table's string buffer.
 	enum data_type_e
 	{
 		data_type_e_none = 0,
@@ -39,6 +39,9 @@ namespace cheonsa
 		data_type_e_category_label = 35, // only used with reflection system.
 	};
 
+	// gets the size in bytes of the given type.
+	// returns a valid value for all numeric types.
+	// returns 0 for anything else.
 	sint32_c data_get_type_size( data_type_e type );
 
 	// used with databases and reflection to define what kind of editor to use for the data.

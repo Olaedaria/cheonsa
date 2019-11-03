@@ -208,8 +208,8 @@ namespace cheonsa
 
 		virtual menu_control_c * pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer );
 
-		vector32x2_c transform_point_from_global_to_local( vector32x2_c const & global_point ) const;
-		vector32x2_c transform_point_from_local_to_global( vector32x2_c const & local_point ) const;
+		vector32x2_c transform_global_point_to_local_point( vector32x2_c const & global_point ) const;
+		vector32x2_c transform_local_point_to_global_point( vector32x2_c const & local_point ) const;
 
 		boolean_c contains_global_point( vector32x2_c const & global_point ) const;
 		boolean_c contains_local_point( vector32x2_c const & local_point ) const;

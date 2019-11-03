@@ -28,13 +28,10 @@ namespace cheonsa
 		return 0;
 	}
 
-	static union { uint16_c i; uint8_c c[ 2 ]; } const bint = { 0x0001 }; // the shortest-handest c i have ever seened.
-
-	data_endianness_e _native_endianness = ( bint.c[ 0 ] == 0x00 ? data_endianness_e_big : data_endianness_e_little );
-
 	data_endianness_e data_get_native_endianness()
 	{
-		return _native_endianness;
+		const union { uint32_c u; uint8_c c[ 4 ]; } probe = { 1 };
+		return probe.c[ 0 ] != 0 ? data_endianness_e_little : data_endianness_e_big;
 	}
 
 }

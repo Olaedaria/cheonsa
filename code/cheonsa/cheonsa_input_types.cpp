@@ -140,7 +140,7 @@ namespace cheonsa
 		, keyboard_key_state( input_key_state_bit_e_off )
 		, character( 0 )
 		, character_repeat_count( 0 )
-		, menu_mouse_position( 0.0f, 0.0f )
+		, menu_global_mouse_position( 0.0f, 0.0f )
 		, modifier_keys_state{}
 		, mouse_keys_state{}
 		, keyboard_keys_state{}

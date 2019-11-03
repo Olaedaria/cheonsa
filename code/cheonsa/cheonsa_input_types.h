@@ -385,7 +385,7 @@ namespace cheonsa
 		input_key_state_bit_e mouse_keys_state[ input_mouse_key_e_count_ ]; // mouse keys state snapshot at the time of this input event.
 		input_key_state_bit_e keyboard_keys_state[ input_keyboard_key_e_count_ ]; // keyboard keys state snapshot at the time of this input event.
 
-		vector32x2_c menu_mouse_position; // localized mouse position in the menu only used when picking.
+		vector32x2_c menu_global_mouse_position; // 2d mouse position in menu space. for 2d user interfaces this is basically screen space. for 3d user interfaces this is in local 2d space of the root intersected 3d menu.
 
 		boolean_c processed; // is initially set to false, until some object uses or consumes the event. used with menu context event bubbling, so that an event will continue to bubble up the control heirarchy until it is processed.
 

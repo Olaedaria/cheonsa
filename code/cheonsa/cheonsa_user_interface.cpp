@@ -90,7 +90,7 @@ namespace cheonsa
 			if ( window->_scene_component_menu_control == nullptr )
 			{
 				control_distance = 0.0f;
-				//input_event->menu_mouse_position = input_event->mouse_position; // - _canvas_size * 0.5f; // local 2D menu space mouse position is just the mouse position from the input manager.
+				//input_event->menu_global_mouse_position = input_event->mouse_position; // - _canvas_size * 0.5f; // local 2D menu space mouse position is just the mouse position from the input manager.
 			}
 			else
 			{
@@ -106,11 +106,11 @@ namespace cheonsa
 					vector64x3_c world_space_intersection_point = world_space_mouse_ray.position + ( world_space_mouse_ray.normal * control_distance );
 					space_transform_c world_space_window_transform_inverted = window->get_scene_component()->get_scene_object()->get_world_space_transform().get_inverted();
 					vector64x3_c menu_space_intersection_point = ops::make_vector64x3_transformed_point( world_space_intersection_point, world_space_window_transform_inverted );
-					input_event->menu_mouse_position.a = static_cast< float32_c >( menu_space_intersection_point.a );
-					input_event->menu_mouse_position.b = static_cast< float32_c >( menu_space_intersection_point.b );
+					input_event->menu_global_mouse_position.a = static_cast< float32_c >( menu_space_intersection_point.a );
+					input_event->menu_global_mouse_position.b = static_cast< float32_c >( menu_space_intersection_point.b );
 				}
 			}
-			menu_control_c * candidate = window->pick_control_with_global_point( input_event->menu_mouse_position, minimum_layer );
+			menu_control_c * candidate = window->pick_control_with_global_point( input_event->menu_global_mouse_position, minimum_layer );
 			if ( candidate != nullptr && ( result == nullptr || control_distance < result_distance ) )
 			{
 				_is_mouse_inside = true;
@@ -138,7 +138,7 @@ namespace cheonsa
 		//_is_modal_window_open = false;
 
 		// default to 2d, until we have to pick 3d.
-		input_event->menu_mouse_position = input_event->mouse_position;
+		input_event->menu_global_mouse_position = input_event->mouse_position;
 
 		// determine if there is a top level modal window that is showing.
 		// if a modal window is open then it has exclusive access to input events.

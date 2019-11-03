@@ -334,6 +334,14 @@ namespace cheonsa
 		{
 			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_box.as_array(), 4 ) );
 		}
+
+		string8_c style_key;
+		attribute = node->find_attribute( "style_key" );
+		if ( attribute )
+		{
+			style_key = attribute->get_value();
+		}
+		set_style_key( style_key );
 	}
 
 }

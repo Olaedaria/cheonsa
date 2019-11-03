@@ -43,10 +43,6 @@ namespace cheonsa
 		menu_style_for_frame_c * get_override_style() const;
 		void_c set_override_style( menu_style_for_frame_c * value );
 
-	public:
-		// only loads layout and style key.
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
-
 	};
 
 }

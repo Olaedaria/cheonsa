@@ -12,34 +12,34 @@ namespace cheonsa
 
 	void_c menu_window_c::_on_input( input_event_c * input_event )
 	{
+		vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+
 		if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
 		{
 			if ( input_event->mouse_key == input_mouse_key_e_left )
 			{
-				vector32x2_c menu_mouse_position_local = transform_point_from_global_to_local( input_event->mouse_position );
-
 				// check for intersection with horizontal edge.
-				if ( menu_mouse_position_local.a >= _local_box.minimum.a && menu_mouse_position_local.a <= _local_box.minimum.a + _local_edge_size )
+				if ( local_mouse_position.a >= _local_box.minimum.a && local_mouse_position.a <= _local_box.minimum.a + _local_edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_left );
-					_grabbed_point_local.a = menu_mouse_position_local.a;
+					_grabbed_point_local.a = local_mouse_position.a;
 				}
-				else if ( menu_mouse_position_local.a <= _local_box.maximum.a && menu_mouse_position_local.a >= _local_box.maximum.a - _local_edge_size )
+				else if ( local_mouse_position.a <= _local_box.maximum.a && local_mouse_position.a >= _local_box.maximum.a - _local_edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_right );
-					_grabbed_point_local.a = _local_box.maximum.a - menu_mouse_position_local.a;
+					_grabbed_point_local.a = _local_box.maximum.a - local_mouse_position.a;
 				}
 
 				// check for intersection with vertical edge.
-				if ( menu_mouse_position_local.b >= _local_box.minimum.b && menu_mouse_position_local.b <= _local_box.minimum.b + _local_edge_size )
+				if ( local_mouse_position.b >= _local_box.minimum.b && local_mouse_position.b <= _local_box.minimum.b + _local_edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_top );
-					_grabbed_point_local.b = menu_mouse_position_local.b;
+					_grabbed_point_local.b = local_mouse_position.b;
 				}
-				else if ( menu_mouse_position_local.b <= _local_box.maximum.b && menu_mouse_position_local.b >= _local_box.maximum.b - _local_edge_size )
+				else if ( local_mouse_position.b <= _local_box.maximum.b && local_mouse_position.b >= _local_box.maximum.b - _local_edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_bottom );
-					_grabbed_point_local.b = _local_box.maximum.b - menu_mouse_position_local.b;
+					_grabbed_point_local.b = _local_box.maximum.b - local_mouse_position.b;
 				}
 				
 				if ( _grabbed_element && !_user_can_resize )
@@ -47,8 +47,8 @@ namespace cheonsa
 					if ( _user_can_move )
 					{
 						_grabbed_element = grabbed_element_e_title_bar;
-						_grabbed_point_local.a = menu_mouse_position_local.a;
-						_grabbed_point_local.b = menu_mouse_position_local.b;
+						_grabbed_point_local.a = local_mouse_position.a;
+						_grabbed_point_local.b = local_mouse_position.b;
 					}
 					else
 					{
@@ -59,11 +59,11 @@ namespace cheonsa
 				if ( _user_can_move )
 				{
 					// check for intersection with title bar.
-					if ( _grabbed_element == grabbed_element_e_none && menu_mouse_position_local.a > _local_box.minimum.a + _local_edge_size && menu_mouse_position_local.a < _local_box.maximum.a - _local_edge_size && menu_mouse_position_local.b > _local_box.minimum.a + _local_edge_size && menu_mouse_position_local.b <= _local_box.minimum.b + _local_edge_size + _local_title_bar_size )
+					if ( _grabbed_element == grabbed_element_e_none && local_mouse_position.a > _local_box.minimum.a + _local_edge_size && local_mouse_position.a < _local_box.maximum.a - _local_edge_size && local_mouse_position.b > _local_box.minimum.a + _local_edge_size && local_mouse_position.b <= _local_box.minimum.b + _local_edge_size + _local_title_bar_size )
 					{
 						_grabbed_element = grabbed_element_e_title_bar;
-						_grabbed_point_local.a = menu_mouse_position_local.a;
-						_grabbed_point_local.b = menu_mouse_position_local.b;
+						_grabbed_point_local.a = local_mouse_position.a;
+						_grabbed_point_local.b = local_mouse_position.b;
 					}
 				}
 			}
@@ -81,14 +81,14 @@ namespace cheonsa
 			//vector32x2_c menu_mouse_position_local = transform_point_from_global_to_local( input_event->menu_mouse_position );
 			if ( _grabbed_element == grabbed_element_e_title_bar )
 			{
-				_local_origin = input_event->menu_mouse_position - _grabbed_point_local;
+				_local_origin = input_event->menu_global_mouse_position - _grabbed_point_local;
 				update_transform_and_layout();
 			}
 			else
 			{
 				if ( _grabbed_element & grabbed_element_e_edge_left )
 				{
-					float32_c left = input_event->menu_mouse_position.a - _grabbed_point_local.a;
+					float32_c left = input_event->menu_global_mouse_position.a - _grabbed_point_local.a;
 					float32_c right = _local_origin.a + _local_box.maximum.a;
 					float32_c width = right - left;
 					if ( width < _local_size_minimum.a )
@@ -104,7 +104,7 @@ namespace cheonsa
 				}
 				else if ( _grabbed_element & grabbed_element_e_edge_right )
 				{
-					float32_c width = input_event->menu_mouse_position.a + _grabbed_point_local.a - _local_origin.a;
+					float32_c width = input_event->menu_global_mouse_position.a + _grabbed_point_local.a - _local_origin.a;
 					if ( width < _local_size_minimum.a )
 					{
 						width = _local_size_minimum.a;
@@ -117,7 +117,7 @@ namespace cheonsa
 				}
 				if ( _grabbed_element & grabbed_element_e_edge_top )
 				{
-					float32_c top = input_event->menu_mouse_position.b - _grabbed_point_local.b;
+					float32_c top = input_event->menu_global_mouse_position.b - _grabbed_point_local.b;
 					float32_c bottom = _local_origin.b + _local_box.maximum.b;
 					float32_c height = bottom - top;
 					if ( height < _local_size_minimum.b )
@@ -133,7 +133,7 @@ namespace cheonsa
 				}
 				else if ( _grabbed_element & grabbed_element_e_edge_bottom )
 				{
-					float32_c height = input_event->menu_mouse_position.b + _grabbed_point_local.b - _local_origin.b;
+					float32_c height = input_event->menu_global_mouse_position.b + _grabbed_point_local.b - _local_origin.b;
 					if ( height < _local_size_minimum.b )
 					{
 						height = _local_size_minimum.b;

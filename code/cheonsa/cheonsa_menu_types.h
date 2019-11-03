@@ -198,45 +198,45 @@ namespace cheonsa
 	// types of colors:
 	// "base" is intended for backgrounds.
 	// "accent" is intended for borders, title bars, and text.
-	enum menu_color_e
+	enum menu_shared_color_e
 	{
-		menu_color_e_window_normal_base,
-		menu_color_e_window_normal_accent,
-		menu_color_e_window_selected_base,
-		menu_color_e_window_selected_accent,
-		menu_color_e_window_pressed_base,
-		menu_color_e_window_pressed_accent,
-		menu_color_e_window_disabled_base,
-		menu_color_e_window_disabled_accent,
+		menu_shared_color_e_window_normal_base,
+		menu_shared_color_e_window_normal_accent,
+		menu_shared_color_e_window_selected_base,
+		menu_shared_color_e_window_selected_accent,
+		menu_shared_color_e_window_pressed_base,
+		menu_shared_color_e_window_pressed_accent,
+		menu_shared_color_e_window_disabled_base,
+		menu_shared_color_e_window_disabled_accent,
 
-		menu_color_e_button_normal_base,
-		menu_color_e_button_normal_accent,
-		menu_color_e_button_selected_base,
-		menu_color_e_button_selected_accent,
-		menu_color_e_button_pressed_base,
-		menu_color_e_button_pressed_accent,
-		menu_color_e_button_disabled_base,
-		menu_color_e_button_disabled_accent,
+		menu_shared_color_e_button_normal_base,
+		menu_shared_color_e_button_normal_accent,
+		menu_shared_color_e_button_selected_base,
+		menu_shared_color_e_button_selected_accent,
+		menu_shared_color_e_button_pressed_base,
+		menu_shared_color_e_button_pressed_accent,
+		menu_shared_color_e_button_disabled_base,
+		menu_shared_color_e_button_disabled_accent,
 
-		menu_color_e_button_prime_normal_base,
-		menu_color_e_button_prime_normal_accent,
-		menu_color_e_button_prime_selected_base,
-		menu_color_e_button_prime_selected_accent,
-		menu_color_e_button_prime_pressed_base,
-		menu_color_e_button_prime_pressed_accent,
-		menu_color_e_button_prime_disabled_base,
-		menu_color_e_button_prime_disabled_accent,
+		menu_shared_color_e_button_prime_normal_base,
+		menu_shared_color_e_button_prime_normal_accent,
+		menu_shared_color_e_button_prime_selected_base,
+		menu_shared_color_e_button_prime_selected_accent,
+		menu_shared_color_e_button_prime_pressed_base,
+		menu_shared_color_e_button_prime_pressed_accent,
+		menu_shared_color_e_button_prime_disabled_base,
+		menu_shared_color_e_button_prime_disabled_accent,
 
-		menu_color_e_field_normal_base,
-		menu_color_e_field_normal_accent,
-		menu_color_e_field_selected_base,
-		menu_color_e_field_selected_accent,
-		menu_color_e_field_pressed_base,
-		menu_color_e_field_pressed_accent,
-		menu_color_e_field_disabled_base,
-		menu_color_e_field_disabled_accent,
+		menu_shared_color_e_field_normal_base,
+		menu_shared_color_e_field_normal_accent,
+		menu_shared_color_e_field_selected_base,
+		menu_shared_color_e_field_selected_accent,
+		menu_shared_color_e_field_pressed_base,
+		menu_shared_color_e_field_pressed_accent,
+		menu_shared_color_e_field_disabled_base,
+		menu_shared_color_e_field_disabled_accent,
 
-		menu_color_e_count_
+		menu_shared_color_e_count_
 	};
 
 	class menu_shared_color_c

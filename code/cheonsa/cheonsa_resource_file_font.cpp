@@ -12,23 +12,21 @@
 namespace cheonsa
 {
 
-	uint8_c const resource_file_font_c::_quantized_sizes[ resource_file_font_c::_quantized_count ] = { 12, 24, 32, 48 };
-
-	core_linked_list_c< resource_file_font_c * > resource_file_font_c::_global_list;
+	//core_linked_list_c< resource_file_font_c * > resource_file_font_c::_global_list;
 
 	glyph_key_c::glyph_key_c()
 		: font_file_hash( 0 )
 		, code_point( 0 )
 		, quantized_size( 0 )
-		, unused( 0 )
+		, unused_0{}
 	{
 	}
 
 	glyph_key_c::glyph_key_c( uint32_c font_file_hash, float32_c font_size, char16_c code_point )
 		: font_file_hash( font_file_hash )
 		, code_point( code_point )
-		, quantized_size( resource_file_font_c::get_quantized_size( font_size ) )
-		, unused( 0 )
+		, quantized_size( glyph_manager_c::get_quantized_size( font_size ) )
+		, unused_0{}
 	{
 	}
 
@@ -43,7 +41,8 @@ namespace cheonsa
 		, map()
 		, horizontal_advance( 0.0f )
 		, atlas_index( 0 )
-		, unused{}
+		, unused_0{}
+		, unused_1{}
 	{
 	}
 
@@ -59,7 +58,7 @@ namespace cheonsa
 	boolean_c resource_file_font_c::size_metrics_c::_load( void_c * free_type_face_handle, uint8_c quantized_size )
 	{
 		assert( free_type_size_handle == nullptr );
-		assert( quantized_size == get_quantized_size( quantized_size ) );
+		assert( quantized_size == glyph_manager_c::get_quantized_size( quantized_size ) );
 
 		this->quantized_size = quantized_size;
 
@@ -123,9 +122,9 @@ namespace cheonsa
 			goto clean_up;
 		}
 
-		for ( sint32_c i = 0; i < _quantized_count; i++ )
+		for ( sint32_c i = 0; i < glyph_manager_c::quantized_count; i++ )
 		{
-			if ( !_quantized_size_metrics[ i ]._load( _free_type_face_handle, static_cast< uint8_c >( _quantized_sizes[ i ] ) ) )
+			if ( !_quantized_size_metrics[ i ]._load( _free_type_face_handle, static_cast< uint8_c >( glyph_manager_c::quantized_sizes[ i ] ) ) )
 			{
 				goto clean_up;
 			}
@@ -141,7 +140,7 @@ namespace cheonsa
 	clean_up:
 		if ( _free_type_face_handle != nullptr )
 		{
-			for ( sint32_c i = 0; i < _quantized_count; i++ )
+			for ( sint32_c i = 0; i < glyph_manager_c::quantized_count; i++ )
 			{
 				_quantized_size_metrics[ i ]._unload();
 			}
@@ -168,7 +167,7 @@ namespace cheonsa
 		_file = nullptr;
 		_file_size = 0;
 
-		for ( sint32_c i = 0; i < _quantized_count; i++ )
+		for ( sint32_c i = 0; i < glyph_manager_c::quantized_count; i++ )
 		{
 			_quantized_size_metrics[ i ]._unload();
 		}
@@ -180,20 +179,20 @@ namespace cheonsa
 
 	resource_file_font_c::resource_file_font_c()
 		: resource_file_c()
-		, _global_list_node( this )
+		//, _global_list_node( this )
 		, _file( nullptr )
 		, _file_size( 0 )
 		, _file_hash( 0 )
 		, _free_type_face_handle( nullptr )
 		, _quantized_size_metrics()
 	{
-		_global_list.insert_at_end( &_global_list_node );
+		//_global_list.insert_at_end( &_global_list_node );
 	}
 
 	resource_file_font_c::~resource_file_font_c()
 	{
 		assert( _is_loaded == false );
-		_global_list.remove( &_global_list_node );
+		//_global_list.remove( &_global_list_node );
 	}
 
 	uint32_c resource_file_font_c::get_file_hash() const
@@ -269,31 +268,14 @@ namespace cheonsa
 
 	resource_file_font_c::size_metrics_c const * resource_file_font_c::get_quantized_size_metrics( float32_c size ) const
 	{
-		for ( sint32_c i = 0; i < _quantized_count - 1; i++ )
+		for ( sint32_c i = 0; i < glyph_manager_c::quantized_count - 1; i++ )
 		{
-			if ( size <= _quantized_sizes[ i ] )
+			if ( size <= glyph_manager_c::quantized_sizes[ i ] )
 			{
 				return &_quantized_size_metrics[ i ];
 			}
 		}
-		return &_quantized_size_metrics[ _quantized_count - 1 ];
-	}
-
-	uint8_c resource_file_font_c::get_quantized_size( float32_c size )
-	{
-		for ( sint32_c i = 0; i < _quantized_count - 1; i++ )
-		{
-			if ( size <= _quantized_sizes[ i ] )
-			{
-				return _quantized_sizes[ i ];
-			}
-		}
-		return _quantized_sizes[ _quantized_count - 1 ];
-	}
-
-	float32_c resource_file_font_c::get_scale_to_unquantize_size( float32_c size )
-	{
-		return size / static_cast< float32_c >( get_quantized_size( size ) );
+		return &_quantized_size_metrics[ glyph_manager_c::quantized_count - 1 ];
 	}
 
 }

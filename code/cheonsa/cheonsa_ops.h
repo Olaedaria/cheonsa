@@ -306,8 +306,6 @@ namespace cheonsa
 		vector64x3_c interpolate_linear( vector64x3_c const & source, vector64x3_c const & destination, float64_c const amount );
 		vector64x4_c interpolate_linear( vector64x4_c const & source, vector64x4_c const & destination, float64_c const amount );
 
-		quaternion32_c interpolate_spherical_linear( quaternion32_c const & source, quaternion32_c const & destination, float32_c const amount );
-
 		float32_c interpolate_cosine( float32_c const source, float32_c const destination, float32_c const amount );
 		vector32x2_c interpolate_cosine( vector32x2_c const & source, vector32x2_c const & destination, float32_c const amount );
 		vector32x3_c interpolate_cosine( vector32x3_c const & source, vector32x3_c const & destination, float32_c const amount );
@@ -322,6 +320,8 @@ namespace cheonsa
 		vector32x2_c interpolate_hermite( vector32x2_c const & previous_source, vector32x2_c const & source, vector32x2_c const & destination, vector32x2_c const & next_destination, float32_c const amount, float32_c const tension, float32_c const bias );
 		vector32x3_c interpolate_hermite( vector32x3_c const & previous_source, vector32x3_c const & source, vector32x3_c const & destination, vector32x3_c const & next_destination, float32_c const amount, float32_c const tension, float32_c const bias );
 		vector32x4_c interpolate_hermite( vector32x4_c const & previous_source, vector32x4_c const & source, vector32x4_c const & destination, vector32x4_c const & next_destination, float32_c const amount, float32_c const tension, float32_c const bias );
+
+		quaternion32_c interpolate_spherical_linear( quaternion32_c const & source, quaternion32_c const & destination, float32_c const amount );
 
 		quaternion32_c traverse( quaternion32_c const & source, quaternion32_c const & destination, float32_c amount ); // traverses from source to destination by amount in radians.
 
@@ -402,6 +402,7 @@ namespace cheonsa
 		//
 		//
 		// file path operations.
+		// file paths always use string16_c instances.
 		//
 		//
 
@@ -488,12 +489,9 @@ namespace cheonsa
 		//
 		//
 		// string conversions and operations.
+		// string conversions always use string8_c instances.
 		//
 		//
-
-		// i don't like how i am using two types of string classes, one 8 bit and one 16 bit.
-		// i don't like how these operators have to be replicated for both.
-		// but some times it makes more sense to use one type in some places, and the other type in other places, so we have both.
 
 		char8_c convert_digit_to_char8( sint8_c const digit ); // converts a number value in range 0-15 to a character value in range '0'-'9' or 'A'-'F'.
 		sint8_c convert_char8_to_digit( char8_c const character ); // converts a character value in range '0'-'9' or 'a'-'f' or 'A'-'F' to a number value in range 0-15. returns -1 (which in unsigned types is actually maximum: 0xFF, 255) if character is invalid.

@@ -1,6 +1,7 @@
 #include "cheonsa_glyph_manager.h"
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
+#include "cheonsa_resource_file_font.h"
 #include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
@@ -847,7 +848,7 @@ namespace cheonsa
 		, _row_list()
 		, _was_modified_during_run_time( false )
 	{
-		_texture_data_size = _glyph_atlas_width * _glyph_atlas_height;
+		_texture_data_size = glyph_manager_c::glyph_atlas_width * glyph_manager_c::glyph_atlas_height;
 		_texture_data = new uint8_c[ _texture_data_size ];
 		ops::memory_zero( _texture_data, _texture_data_size );
 	}
@@ -887,8 +888,8 @@ namespace cheonsa
 			if ( current_row.quantized_size == quantized_size )
 			{
 				// find out how much space is available in the current row.
-				sint32_c available_width = _glyph_atlas_width - current_row.width;
-				sint32_c available_height = row_index < _row_list.get_length() - 1 ? current_row.height : _glyph_atlas_height - current_row.top;
+				sint32_c available_width = glyph_manager_c::glyph_atlas_width - current_row.width;
+				sint32_c available_height = row_index < _row_list.get_length() - 1 ? current_row.height : glyph_manager_c::glyph_atlas_height - current_row.top;
 
 				// check if the glyph can fit in the current row.
 				if ( width <= available_width && height <= available_height )
@@ -896,8 +897,8 @@ namespace cheonsa
 					// the glyph can fit in the current row.
 					x = current_row.width;
 					y = current_row.top;
-					assert( x >= 0 && x + width <= _glyph_atlas_width );
-					assert( y >= 0 && y + height <= _glyph_atlas_height );
+					assert( x >= 0 && x + width <= glyph_manager_c::glyph_atlas_width );
+					assert( y >= 0 && y + height <= glyph_manager_c::glyph_atlas_height );
 					current_row.width += width;
 					if ( height > current_row.height )
 					{
@@ -913,7 +914,7 @@ namespace cheonsa
 			{
 				// create a new row that can contain the glyph in the next iteration.
 				sint32_c new_row_top = current_row.top + current_row.height; // save because current_row reference could be invalidated after call to emplace_at_end().
-				if ( new_row_top + height > _glyph_atlas_height )
+				if ( new_row_top + height > glyph_manager_c::glyph_atlas_height )
 				{
 					// there's no room left in this atlas texture array slice (page).
 					return false;
@@ -932,16 +933,16 @@ namespace cheonsa
 
 	void_c glyph_manager_c::glyph_atlas_c::set_pixel( sint32_c x, sint32_c y, uint8_c value )
 	{
-		assert( x >= 0 && x < _glyph_atlas_width && y >= 0 && y < _glyph_atlas_height );
-		_texture_data[ ( y * _glyph_atlas_width ) + x ] = value;
+		assert( x >= 0 && x < glyph_manager_c::glyph_atlas_width && y >= 0 && y < glyph_manager_c::glyph_atlas_height );
+		_texture_data[ ( y * glyph_manager_c::glyph_atlas_width ) + x ] = value;
 	}
 
 	void_c glyph_manager_c::glyph_atlas_c::copy_sub_image( glyph_atlas_c * from, sint32_c from_left, sint32_c from_top, glyph_atlas_c * to, sint32_c to_left, sint32_c to_top, sint32_c width, sint32_c height )
 	{
 		assert( from != nullptr && to != nullptr );
 		//assert( from->_texture_width == to->_texture_width && from->_texture_height == to->_texture_height );
-		assert( from_left >= 0 && from_left + width <= _glyph_atlas_width && from_top >= 0 && from_top + height <= _glyph_atlas_height );
-		assert( to_left >= 0 && to_left + width <= _glyph_atlas_width && to_top >= 0 && to_top + height <= _glyph_atlas_height );
+		assert( from_left >= 0 && from_left + width <= glyph_manager_c::glyph_atlas_width && from_top >= 0 && from_top + height <= glyph_manager_c::glyph_atlas_height );
+		assert( to_left >= 0 && to_left + width <= glyph_manager_c::glyph_atlas_width && to_top >= 0 && to_top + height <= glyph_manager_c::glyph_atlas_height );
 
 		sint32_c to_x_delta = to_left - from_left;
 		sint32_c to_y_delta = to_top - from_top;
@@ -954,8 +955,8 @@ namespace cheonsa
 			sint32_c from_x = from_left;
 			for ( ; from_x < from_right; from_x++ )
 			{
-				sint32_c from_i = ( from_y * _glyph_atlas_width ) + from_x;
-				sint32_c to_i = ( ( from_y + to_y_delta ) * _glyph_atlas_width ) + ( from_x + to_x_delta );
+				sint32_c from_i = ( from_y * glyph_manager_c::glyph_atlas_width ) + from_x;
+				sint32_c to_i = ( ( from_y + to_y_delta ) * glyph_manager_c::glyph_atlas_width ) + ( from_x + to_x_delta );
 				from->_texture_data[ from_i ] = to->_texture_data[ to_i ];
 			}
 		}
@@ -1043,7 +1044,7 @@ namespace cheonsa
 
 	boolean_c glyph_manager_c::start()
 	{
-		_glyph_atlas_array = new glyph_atlas_c[ _glyph_atlas_array_slice_count ];
+		_glyph_atlas_array = new glyph_atlas_c[ glyph_manager_c::glyph_atlas_array_slice_count ];
 		FT_Error error = FT_Init_FreeType( reinterpret_cast< FT_Library * >( &_free_type_library_handle ) );
 		if ( error != 0 )
 		{
@@ -1051,14 +1052,14 @@ namespace cheonsa
 			return false;
 		}
 
-		_glyph_atlas_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8_unorm, _glyph_atlas_width, _glyph_atlas_height, 1, _glyph_atlas_array_slice_count, nullptr, 0, false, false, false, false );
+		_glyph_atlas_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, glyph_manager_c::glyph_atlas_array_slice_count, nullptr, 0, false, false, false, false );
 		if ( _glyph_atlas_texture == nullptr )
 		{
 			cheonsa_annoy( L"error", L"glyph atlas texture creation failed." );
 			return false;
 		}
 
-		_glyph_atlas_staging_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8_unorm, _glyph_atlas_width, _glyph_atlas_height, 1, 1, nullptr, 0, true, false, false, false );
+		_glyph_atlas_staging_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, 1, nullptr, 0, true, false, false, false );
 		if ( _glyph_atlas_staging_texture == nullptr )
 		{
 			cheonsa_annoy( L"error", L"glyph atlas staging texture creation failed." );
@@ -1110,7 +1111,7 @@ namespace cheonsa
 			return nullptr;
 		}
 
-		sint32_c sdf_range = glyph_key.quantized_size / 2;
+		sint32_c sdf_range = glyph_manager_c::get_sdf_range( glyph_key.quantized_size );
 		glyph_c * new_glyph = reinterpret_cast< glyph_c * >( _glyph_pool.allocate() );
 		new_glyph->key = glyph_key;
 		new_glyph->box.minimum.a = ( static_cast< float32_c >( free_type_face_handle->glyph->metrics.horiBearingX ) / 64.0f ) - sdf_range;
@@ -1144,7 +1145,7 @@ namespace cheonsa
 		assert( integer_map_width < 512 && integer_map_height < 512 ); // this should be pretty generous.
 
 		glyph_atlas_c * glyph_atlas = nullptr;
-		for ( sint32_c i = 0; i < _glyph_atlas_array_slice_count; i++ )
+		for ( sint32_c i = 0; i < glyph_manager_c::glyph_atlas_array_slice_count; i++ )
 		{
 			glyph_atlas = &_glyph_atlas_array[ i ];
 			if ( glyph_atlas->find_space( integer_map_width, integer_map_height, integer_map_position_x, integer_map_position_y, glyph_key.quantized_size ) )
@@ -1152,7 +1153,7 @@ namespace cheonsa
 				new_glyph->atlas_index = static_cast< uint8_c >( i );
 				break;
 			}
-			else if ( i == _glyph_atlas_array_slice_count - 1 )
+			else if ( i == glyph_manager_c::glyph_atlas_array_slice_count - 1 )
 			{
 				// there's no more room to add another glyph atlas.
 				needs_reset = true;
@@ -1160,10 +1161,10 @@ namespace cheonsa
 			}
 		}
 
-		new_glyph->map.minimum.a = static_cast< float32_c >( integer_map_position_x ) / static_cast< float32_c >( _glyph_atlas_width );
-		new_glyph->map.minimum.b = static_cast< float32_c >( integer_map_position_y ) / static_cast< float32_c >( _glyph_atlas_height );
-		new_glyph->map.maximum.a = static_cast< float32_c >( integer_map_position_x + integer_map_width ) / static_cast< float32_c >( _glyph_atlas_width );
-		new_glyph->map.maximum.b = static_cast< float32_c >( integer_map_position_y + integer_map_height ) / static_cast< float32_c >( _glyph_atlas_height );
+		new_glyph->map.minimum.a = static_cast< float32_c >( integer_map_position_x ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_width );
+		new_glyph->map.minimum.b = static_cast< float32_c >( integer_map_position_y ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_height );
+		new_glyph->map.maximum.a = static_cast< float32_c >( integer_map_position_x + integer_map_width ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_width );
+		new_glyph->map.maximum.b = static_cast< float32_c >( integer_map_position_y + integer_map_height ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_height );
 
 		_glyph_dictionary.insert( glyph_key, new_glyph );
 
@@ -1272,7 +1273,7 @@ namespace cheonsa
 		{
 			_glyph_dictionary.remove_all();
 			_glyph_pool.reset();
-			for ( sint32_c i = 0; i < _glyph_atlas_array_slice_count; i++ )
+			for ( sint32_c i = 0; i < glyph_manager_c::glyph_atlas_array_slice_count; i++ )
 			{
 				_glyph_atlas_array[ i ].reset();
 			}
@@ -1283,7 +1284,7 @@ namespace cheonsa
 
 	void_c glyph_manager_c::update_glyph_map_texture()
 	{
-		for ( sint32_c i = 0; i < _glyph_atlas_array_slice_count; i++ )
+		for ( sint32_c i = 0; i < glyph_manager_c::glyph_atlas_array_slice_count; i++ )
 		{
 			glyph_atlas_c * glyph_atlas = &_glyph_atlas_array[ i ];
 			if ( glyph_atlas->_needs_upload )
@@ -1320,7 +1321,7 @@ namespace cheonsa
 		data_stream_memory_c row_stream;
 		data_scribe_binary_c row_scribe;
 		image_png_chunk_c * chunk = nullptr;
-		for ( sint32_c i = 0; i < _glyph_atlas_array_slice_count; i++ )
+		for ( sint32_c i = 0; i < glyph_manager_c::glyph_atlas_array_slice_count; i++ )
 		{
 			glyph_atlas_c const * glyph_atlas = &_glyph_atlas_array[ i ];
 
@@ -1341,9 +1342,9 @@ namespace cheonsa
 			{
 				glyph_stream.open();
 				glyph_scribe.open( &glyph_stream, data_endianness_e_little );
-				glyph_scribe.save_uint32( _glyph_atlas_width );
-				glyph_scribe.save_uint32( _glyph_atlas_height );
-				glyph_scribe.save_uint32( _glyph_atlas_array_slice_count );
+				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_width );
+				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_height );
+				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_array_slice_count );
 				glyph_scribe.save_uint32( _glyph_dictionary.get_length() );
 				sint32_c glyphs_saved = 0;
 				core_dictionary_c< glyph_key_c, glyph_c const * >::iterator_c iterator = _glyph_dictionary.get_iterator();
@@ -1357,10 +1358,10 @@ namespace cheonsa
 					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.minimum.b ) );
 					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.maximum.a ) );
 					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.maximum.b ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.a * _glyph_atlas_width ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.b * _glyph_atlas_height ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.a * _glyph_atlas_width ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.b * _glyph_atlas_height ) );
+					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.a * glyph_manager_c::glyph_atlas_width ) );
+					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.b * glyph_manager_c::glyph_atlas_height ) );
+					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.a * glyph_manager_c::glyph_atlas_width ) );
+					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.b * glyph_manager_c::glyph_atlas_height ) );
 					glyph_scribe.save_float32( glyph->horizontal_advance );
 					glyph_scribe.save_uint8( glyph->atlas_index );
 					glyphs_saved++;
@@ -1401,8 +1402,8 @@ namespace cheonsa
 
 			// create png file data.
 			image_c image;
-			image.width = _glyph_atlas_width;
-			image.height = _glyph_atlas_height;
+			image.width = glyph_manager_c::glyph_atlas_width;
+			image.height = glyph_manager_c::glyph_atlas_height;
 			image.channel_count = 1;
 			image.channel_bit_depth = 8;
 			image.data.construct_mode_static_from_array( glyph_atlas->_texture_data, glyph_atlas->_texture_data_size );
@@ -1455,7 +1456,7 @@ namespace cheonsa
 		core_list_c< image_png_chunk_c > chunk_list;
 		image_c image;
 		core_list_c< uint8_c > file_data;
-		for ( sint32_c i = 0; i < _glyph_atlas_array_slice_count; i++ )
+		for ( sint32_c i = 0; i < glyph_manager_c::glyph_atlas_array_slice_count; i++ )
 		{
 			glyph_atlas_c * glyph_atlas = &_glyph_atlas_array[ i ];
 
@@ -1500,7 +1501,7 @@ namespace cheonsa
 			{
 				goto karens_house;
 			}
-			if ( image.width != _glyph_atlas_width || image.height != _glyph_atlas_height || image.channel_count != 1 || image.channel_bit_depth != 8 || image.data.get_length() != glyph_atlas->_texture_data_size )
+			if ( image.width != glyph_manager_c::glyph_atlas_width || image.height != glyph_manager_c::glyph_atlas_height || image.channel_count != 1 || image.channel_bit_depth != 8 || image.data.get_length() != glyph_atlas->_texture_data_size )
 			{
 				goto karens_house;
 			}
@@ -1529,7 +1530,7 @@ namespace cheonsa
 					uint32_c texture_width = chunk_scribe.load_uint32();
 					uint32_c texture_height = chunk_scribe.load_uint32();
 					uint32_c texture_array_slice_count = chunk_scribe.load_uint32();
-					if ( texture_width != _glyph_atlas_width || texture_height != _glyph_atlas_height || texture_array_slice_count != _glyph_atlas_array_slice_count )
+					if ( texture_width != glyph_manager_c::glyph_atlas_width || texture_height != glyph_manager_c::glyph_atlas_height || texture_array_slice_count != glyph_manager_c::glyph_atlas_array_slice_count )
 					{
 						goto karens_house;
 					}
@@ -1544,10 +1545,10 @@ namespace cheonsa
 						glyph->box.minimum.b = chunk_scribe.load_sint16();
 						glyph->box.maximum.a = chunk_scribe.load_sint16();
 						glyph->box.maximum.b = chunk_scribe.load_sint16();
-						glyph->map.minimum.a = static_cast< float32_c >( chunk_scribe.load_sint16() ) / _glyph_atlas_width;
-						glyph->map.minimum.b = static_cast< float32_c >( chunk_scribe.load_sint16() ) / _glyph_atlas_height;
-						glyph->map.maximum.a = static_cast< float32_c >( chunk_scribe.load_sint16() ) / _glyph_atlas_width;
-						glyph->map.maximum.b = static_cast< float32_c >( chunk_scribe.load_sint16() ) / _glyph_atlas_height;
+						glyph->map.minimum.a = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_width;
+						glyph->map.minimum.b = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_height;
+						glyph->map.maximum.a = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_width;
+						glyph->map.maximum.b = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_height;
 						glyph->horizontal_advance = chunk_scribe.load_float32();
 						glyph->atlas_index = chunk_scribe.load_uint8();
 						_glyph_dictionary.insert( glyph->key, glyph );
@@ -1588,6 +1589,37 @@ namespace cheonsa
 	karens_house:
 		reset();
 		return false;
+	}
+
+	uint8_c const glyph_manager_c::quantized_sizes[ glyph_manager_c::quantized_count ] = { 12, 24, 32, 48 };
+
+	sint32_c glyph_manager_c::get_quantized_index( float32_c size )
+	{
+		for ( sint32_c i = 0; i < glyph_manager_c::quantized_count - 1; i++ )
+		{
+			if ( size <= glyph_manager_c::quantized_sizes[ i ] )
+			{
+				return i;
+			}
+		}
+		return glyph_manager_c::quantized_count - 1;
+	}
+
+	uint8_c glyph_manager_c::get_quantized_size( float32_c size )
+	{
+		for ( sint32_c i = 0; i < glyph_manager_c::quantized_count - 1; i++ )
+		{
+			if ( size <= glyph_manager_c::quantized_sizes[ i ] )
+			{
+				return glyph_manager_c::quantized_sizes[ i ];
+			}
+		}
+		return glyph_manager_c::quantized_sizes[ glyph_manager_c::quantized_count - 1 ];
+	}
+
+	uint8_c glyph_manager_c::get_sdf_range( uint8_c quantized_size )
+	{
+		return quantized_size / 2;
 	}
 
 }
