@@ -2,7 +2,7 @@
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_resource_file_font.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 #include <ft2build.h>
@@ -1341,7 +1341,7 @@ namespace cheonsa
 			if ( i == 0 )
 			{
 				glyph_stream.open();
-				glyph_scribe.open( &glyph_stream, data_endianness_e_little );
+				glyph_scribe.open( &glyph_stream, endianness_e_little );
 				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_width );
 				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_height );
 				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_array_slice_count );
@@ -1380,7 +1380,7 @@ namespace cheonsa
 
 			// build row list data.
 			row_stream.open();
-			row_scribe.open( &row_stream, data_endianness_e_little );
+			row_scribe.open( &row_stream, endianness_e_little );
 			row_scribe.save_sint32( glyph_atlas->_row_list.get_length() );
 			for ( sint32_c j = 0; j < glyph_atlas->_row_list.get_length(); j++ )
 			{
@@ -1526,7 +1526,7 @@ namespace cheonsa
 
 					chunk_giRl = chunk;
 					chunk_stream.open_static( chunk->data, chunk->data_size );
-					chunk_scribe.open( &chunk_stream, data_endianness_e_little );
+					chunk_scribe.open( &chunk_stream, endianness_e_little );
 					uint32_c texture_width = chunk_scribe.load_uint32();
 					uint32_c texture_height = chunk_scribe.load_uint32();
 					uint32_c texture_array_slice_count = chunk_scribe.load_uint32();
@@ -1569,7 +1569,7 @@ namespace cheonsa
 
 					chunk_gaRl = chunk;
 					chunk_stream.open_static( chunk_gaRl->data, chunk_gaRl->data_size );
-					chunk_scribe.open( &chunk_stream, data_endianness_e_little );
+					chunk_scribe.open( &chunk_stream, endianness_e_little );
 					sint32_c row_count = chunk_scribe.load_sint32();
 					for ( sint32_c j = 0; j < row_count; j++ )
 					{

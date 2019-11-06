@@ -1,7 +1,7 @@
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -39,7 +39,7 @@ namespace cheonsa
 
 	data_scribe_markup_c::attribute_c & data_scribe_markup_c::attribute_c::operator = ( attribute_c const & )
 	{
-		cheonsa_assert( false );
+		assert( false );
 		return *this;
 	}
 
@@ -51,7 +51,7 @@ namespace cheonsa
 
 	data_scribe_markup_c::node_c & data_scribe_markup_c::node_c::operator = ( node_c const & )
 	{
-		cheonsa_assert( false );
+		assert( false );
 		return *this;
 	}
 
@@ -89,7 +89,7 @@ namespace cheonsa
 
 	data_scribe_markup_c::node_c const * data_scribe_markup_c::node_c::get_node( sint32_c index ) const
 	{
-		cheonsa_assert( index >= 0 && index < _daughter_count );
+		assert( index >= 0 && index < _daughter_count );
 		sint32_c current_index = 0;
 		sint32_c node_index = _first_daughter;
 		while ( current_index <= index )
@@ -195,7 +195,7 @@ namespace cheonsa
 
 	data_scribe_markup_c::node_c const * data_scribe_markup_c::node_c::get_daughter_at_index( sint32_c index ) const
 	{
-		cheonsa_assert( index < _daughter_count );
+		assert( index < _daughter_count );
 		node_c const * result = _markup->get_node( _first_daughter );
 		for ( sint32_c i = 0; i <= index; i++ )
 		{
@@ -582,7 +582,7 @@ namespace cheonsa
 				comment_depth--;
 				if ( comment_depth == 0 )
 				{
-					cheonsa_assert( _current - comment_start + 1 < static_cast< sint_native_c >( constants< sint32_c >::maximum() ) );
+					assert( _current - comment_start + 1 < static_cast< sint_native_c >( constants< sint32_c >::maximum() ) );
 					node->_value.character_list.construct_mode_static_volatile_from_array( comment_start, static_cast< sint32_c >( _current - comment_start ) );
 					_current[ 0 ] = 0; // null terminate value of comment text.
 					_advance( close_comment );
@@ -592,7 +592,7 @@ namespace cheonsa
 			}
 		}
 
-		cheonsa_assert( false ); // it shouldn't be possible to reach here.
+		assert( false ); // it shouldn't be possible to reach here.
 		return false;
 	}
 
@@ -607,7 +607,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		cheonsa_assert( _current - start + 1 < static_cast< sint_native_c >( constants< sint32_c >::maximum() ) );
+		assert( _current - start + 1 < static_cast< sint_native_c >( constants< sint32_c >::maximum() ) );
 		out.character_list.construct_mode_static_volatile_from_array( start, static_cast< sint32_c >( _current - start + 1 ) ); // null terminator will be set later.
 		return true;
 	}
@@ -627,7 +627,7 @@ namespace cheonsa
 		}
 		char8_c * end = _current;
 		_process_string( start, end );
-		cheonsa_assert( end - start + 1 < static_cast< sint_native_c >( constants< sint32_c >::maximum() ) );
+		assert( end - start + 1 < static_cast< sint_native_c >( constants< sint32_c >::maximum() ) );
 		out.character_list.construct_mode_static_volatile_from_array( start, static_cast< sint32_c >( end - start + 1 ) );
 		end[ 0 ] = 0; // replace byte past end of string value with null character terminator.
 		_advance( 1 ); // skip closing double quote.
@@ -636,8 +636,8 @@ namespace cheonsa
 
 	void_c data_scribe_markup_c::_process_string( char8_c * start, char8_c * & end )
 	{
-		cheonsa_assert( start && end );
-		cheonsa_assert( start <= end );
+		assert( start && end );
+		assert( start <= end );
 
 		// process text.
 		// replace character entity references with actual characters.
@@ -816,7 +816,7 @@ namespace cheonsa
 		, _node_heap()
 		, _attribute_heap()
 	{
-		cheonsa_assert( bracket_type == '<' || bracket_type == '[' );
+		assert( bracket_type == '<' || bracket_type == '[' );
 
 		_node_heap.set_list_item_move_function( &node_c::move_list_item );
 		_attribute_heap.set_list_item_move_function( &attribute_c::move_list_item );
@@ -863,8 +863,8 @@ namespace cheonsa
 
 	boolean_c data_scribe_markup_c::parse( data_stream_c * document_stream )
 	{
-		cheonsa_assert( document_stream != nullptr );
-		cheonsa_assert( document_stream->get_position() == 0 );
+		assert( document_stream != nullptr );
+		assert( document_stream->get_position() == 0 );
 		reset();
 		sint32_c size = document_stream->get_size();
 		sint32_c padding = 5; // add a bunch of terminating zeros so that the parser can scan ahead a few bytes without needing to check if it will go out of bounds.
@@ -895,7 +895,7 @@ namespace cheonsa
 
 	boolean_c data_scribe_markup_c::parse_first_tag( data_stream_c * stream )
 	{
-		cheonsa_assert( _current == nullptr );
+		assert( _current == nullptr );
 
 		// read 512 bytes at a time from the stream until we find a tag.
 		// 0 is scanning for '<'.
@@ -949,7 +949,7 @@ namespace cheonsa
 			}
 		}
 
-		cheonsa_assert( line_start != -1 && line_end != -1 );
+		assert( line_start != -1 && line_end != -1 );
 
 		_current = _text_with_mark_up.get_internal_array();
 

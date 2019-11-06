@@ -1,6 +1,6 @@
 #include "cheonsa_input_types.h"
 #include "cheonsa_engine.h"
-#include <assert.h>
+#include <cassert>
 
 namespace cheonsa
 {

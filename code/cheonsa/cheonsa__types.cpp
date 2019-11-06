@@ -1,9 +1,45 @@
-#include "cheonsa_math_types.h"
-#include "cheonsa_ops.h"
-#include <assert.h>
+#include "cheonsa__types.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
+
+	four_character_code_c::four_character_code_c()
+	{
+		characters[ 0 ] = 0;
+		characters[ 1 ] = 0;
+		characters[ 2 ] = 0;
+		characters[ 3 ] = 0;
+	}
+
+	four_character_code_c::four_character_code_c( char8_c const * four_character_string )
+	{
+		characters[ 0 ] = four_character_string[ 0 ];
+		characters[ 1 ] = four_character_string[ 1 ];
+		characters[ 2 ] = four_character_string[ 2 ];
+		characters[ 3 ] = four_character_string[ 3 ];
+	}
+
+	boolean_c four_character_code_c::operator == ( four_character_code_c const & other ) const
+	{
+		return uint32 == other.uint32;
+	}
+
+	boolean_c four_character_code_c::operator != ( four_character_code_c const & other ) const
+	{
+		return uint32 != other.uint32;
+	}
+
+	four_character_code_c four_character_code_c::get_flipped() const
+	{
+		four_character_code_c result;
+		result.characters[ 0 ] = characters[ 3 ];
+		result.characters[ 1 ] = characters[ 2 ];
+		result.characters[ 2 ] = characters[ 1 ];
+		result.characters[ 3 ] = characters[ 0 ];
+		return result;
+	}
 
 	color32_c::color32_c()
 	{
@@ -12,10 +48,15 @@ namespace cheonsa
 
 	color32_c::color32_c( uint32_c uint32 )
 	{
+		value_uint32 = uint32;
 	}
 
 	color32_c::color32_c( vector32x4_c const & vector32x4 )
 	{
+		value_bytes[ 0 ] = static_cast< uint8_c >( ops::math_saturate( vector32x4.a ) * 255.0f );
+		value_bytes[ 1 ] = static_cast< uint8_c >( ops::math_saturate( vector32x4.b ) * 255.0f );
+		value_bytes[ 2 ] = static_cast< uint8_c >( ops::math_saturate( vector32x4.c ) * 255.0f );
+		value_bytes[ 3 ] = static_cast< uint8_c >( ops::math_saturate( vector32x4.d ) * 255.0f );
 	}
 
 	uint32_c color32_c::as_uint32() const
@@ -781,14 +822,6 @@ namespace cheonsa
 	{
 	}
 
-	//vector32x4_c::vector32x4_c( vector32x3_c const & abc, float32_c d )
-	//	: a( abc.a )
-	//	, b( abc.b )
-	//	, c( abc.c )
-	//	, d( d )
-	//{
-	//}
-
 	vector32x4_c::vector32x4_c( vector64x4_c const & other )
 		: a( static_cast< float32_c >( other.a ) )
 		, b( static_cast< float32_c >( other.b ) )
@@ -1355,14 +1388,6 @@ namespace cheonsa
 		, d( values[ 3 ] )
 	{
 	}
-
-	//quaternion32_c::quaternion32_c( quaternion64_c const & other )
-	//	: a( static_cast< float32_c >( other.a ) )
-	//	, b( static_cast< float32_c >( other.b ) )
-	//	, c( static_cast< float32_c >( other.c ) )
-	//	, d( static_cast< float32_c >( other.d ) )
-	//{
-	//}
 
 	boolean_c quaternion32_c::operator == ( quaternion32_c const & other ) const
 	{

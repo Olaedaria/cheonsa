@@ -1,12 +1,168 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
-
-// this file contains the most basic and common vocabulary used everywhere else in the program.
-// cheonsa uses abcd for vector elements instead of xyzw because it makes more logical sense to me to use the first four letters of the alphabet in their natural order rather than the last four letters of the alphabet out of their natural order.
+#include "cheonsa___build.h"
+#include "third_party/half.hpp"
 
 namespace cheonsa
 {
+
+	typedef void void_c;
+	typedef char char8_c;
+	typedef wchar_t char16_c;
+	typedef signed char sint8_c;
+	typedef unsigned char uint8_c;
+	typedef signed short int sint16_c;
+	typedef unsigned short int uint16_c;
+	typedef signed long int sint32_c;
+	typedef unsigned long int uint32_c;
+	typedef signed long long int sint64_c;
+	typedef unsigned long long int uint64_c;
+	typedef half_float::half float16_c;
+	typedef float float32_c;
+	typedef double float64_c;
+	typedef bool boolean_c;
+
+#if defined( cheonsa_32_bit )
+	typedef sint32_c sint_native_c;
+	typedef uint32_c uint_native_c;
+#elif defined( cheonsa_64_bit )
+	typedef sint64_c sint_native_c;
+	typedef uint64_c uint_native_c;
+#else
+	#error can't determine if compiling for 32 bit or 64 bit.
+#endif
+
+	// using templates, because it's actually more convenient when writing templatized code.
+	// in particular, i need this when writing templatized string to int and int to string functions.
+	template< typename number_type_c > 
+	struct constants
+	{
+	};
+
+	template<>
+	struct constants< sint8_c >
+	{
+		static inline boolean_c is_signed() { return true; }
+		static inline sint8_c minimum() { return -127; }
+		static inline sint8_c maximum() { return  127; }
+	};
+
+	template<>
+	struct constants< uint8_c >
+	{
+		static inline boolean_c is_signed() { return false; }
+		static inline uint8_c minimum() { return 0; }
+		static inline uint8_c maximum() { return 255; }
+	};
+
+	template<>
+	struct constants< sint16_c >
+	{
+		static inline boolean_c is_signed() { return true; }
+		static inline sint16_c minimum() { return -32767; }
+		static inline sint16_c maximum() { return  32767; }
+	};
+
+	template<>
+	struct constants< uint16_c >
+	{
+		static inline boolean_c is_signed() { return false; }
+		static inline uint16_c minimum() { return 0; }
+		static inline uint16_c maximum() { return 65535; }
+	};
+
+	template<>
+	struct constants< sint32_c >
+	{
+		static inline boolean_c is_signed() { return true; }
+		static inline sint32_c minimum() { return -2147483647l; }
+		static inline sint32_c maximum() { return  2147483647l; }
+	};
+
+	template<>
+	struct constants< uint32_c >
+	{
+		static inline boolean_c is_signed() { return false; }
+		static inline uint32_c minimum() { return 0ul; }
+		static inline uint32_c maximum() { return 4294967295ul; }
+	};
+
+	template<>
+	struct constants< sint64_c >
+	{
+		static inline boolean_c is_signed() { return true; }
+		static inline sint64_c minimum() { return -9223372036854775807ll; }
+		static inline sint64_c maximum() { return  9223372036854775807ll; }
+	};
+
+	template<>
+	struct constants< uint64_c >
+	{
+		static inline boolean_c is_signed() { return false; }
+		static inline uint64_c minimum() { return 0ull; }
+		static inline uint64_c maximum() { return 18446744073709551615ull; }
+	};
+
+	template<>
+	struct constants< float32_c >
+	{
+		static inline boolean_c is_signed() { return true; }
+		static inline float32_c minimum() { return 0.0f; } // minimum positive value. unlike two's compliment ints, floats use a signed bit, so rather than returning the largest negative number here (as we do with signed int types), we return 0.
+		static inline float32_c maximum() { return 3.402823466e+38f; } // maximum positive value. negate this value for the largest negative value.
+		static inline float32_c epsilon() { return 1.192092896e-07f; } // smallest positive number x, such that x + 1.0 is not equal to 1.0.
+		static inline float32_c smallest() { return 1.175494351e-38f; } // smallest positive value.
+		static inline float32_c pi() { return 3.141592653589793238462643383279f; }
+		static inline float32_c degrees_to_radians() { return pi() / 180.0f; }
+		static inline float32_c radians_to_degrees() { return 180.0f / pi(); }
+		static inline float32_c value_near_zero() { return 1e-20f; }
+		static inline float32_c division_near_zero() { return 1e-15f; }
+		static inline float32_c angle_near_zero() { return 1e-7f; } // angle is in radians.
+	};
+
+	template<>
+	struct constants< float64_c >
+	{
+		static inline boolean_c is_signed() { return true; }
+		static inline float64_c minimum() { return 0.0; } // minimum positive value. unlike two's compliment ints, floats use a signed bit, so rather than returning the largest negative number here (as we do with signed int types), we return 0.
+		static inline float64_c maximum() { return 1.7976931348623158e+308; } // maximum positive value.
+		static inline float64_c epsilon() { return 2.2204460492503131e-016; } // smallest positive number x, such that x + 1.0 is not equal to 1.0.
+		static inline float64_c smallest() { return 2.2250738585072014e-308; } // smallest positive value.
+		static inline float64_c pi() { return 3.141592653589793238462643383279; }
+		static inline float64_c square_root_of_2() { return 1.41421356237309504880; }
+		static inline float64_c degrees_to_radians() { return pi() / 180.0; }
+		static inline float64_c radians_to_degrees() { return 180.0f / pi(); }
+		static inline float64_c value_near_zero() { return 1e-20; }
+		static inline float64_c division_near_zero() { return 1e-15; }
+		static inline float64_c angle_near_zero() { return 1e-7; }
+	};
+
+	// four character codes are frequently used as file [type|format] [signatures|magic numbers].
+	// four character codes are always supposed to be saved and loaded in big endian byte order (even if the format of other parts of the file are not big endian), so that they can be read by humans who open the file in a hex editor.
+	struct four_character_code_c
+	{
+	public:
+		union
+		{
+			char8_c characters[ 4 ]; // the four character code, in the correct order.
+			uint32_c uint32; // equivalent uint32 value in native endianness, same as reinterpret_cast< uint32_c * >( this ).
+		};
+		
+	public:
+		four_character_code_c();
+		four_character_code_c( char8_c const * four_character_string );
+
+		boolean_c operator == ( four_character_code_c const & other ) const;
+		boolean_c operator != ( four_character_code_c const & other ) const;
+
+		four_character_code_c get_flipped() const;
+
+	};
+
+	enum endianness_e
+	{
+		endianness_e_little,
+		endianness_e_big,
+	};
 
 	class vector32x2_c;
 	class vector64x2_c;
@@ -30,10 +186,10 @@ namespace cheonsa
 	class capsule64_c;
 	class triangle64_c;
 
+	// r8g8b8a8 color.
 	class color32_c
 	{
 	public:
-		// lowest byte, byte index 0, right-most, is r.
 		union
 		{
 			uint32_c value_uint32;
@@ -65,6 +221,7 @@ namespace cheonsa
 
 	/*
 	// provides a range of values from 0 to 281,474,976,710,655.
+	// i forgot the reason for this.
 	class uint48
 	{
 	public:
@@ -109,6 +266,7 @@ namespace cheonsa
 	{
 	public:
 		sint64_c value;
+
 	public:
 		inline fixed64() : value( 0 ) {}
 		inline fixed64( sint64_c a ) : value( a ) {}
@@ -131,6 +289,7 @@ namespace cheonsa
 		inline boolean_c operator >= ( fixed64 const b ) const { return value >= b.value; };
 		inline float64_c as_float64() { return static_cast<float64_c>( value / ( 1 << fixed_precision ) ); }
 		inline float32_c as_float32() { return static_cast<float32_c>( as_float64() ); }
+
 	};
 	*/
 
@@ -142,9 +301,9 @@ namespace cheonsa
 		float32_c b;
 
 	public:
-		vector32x2_c();
-		vector32x2_c( float32_c const a, float32_c const b );
-		vector32x2_c( float32_c const * values );
+		explicit vector32x2_c();
+		explicit vector32x2_c( float32_c const a, float32_c const b );
+		explicit vector32x2_c( float32_c const * values );
 		explicit vector32x2_c( vector64x2_c const & other );
 
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
@@ -183,9 +342,9 @@ namespace cheonsa
 		float64_c b;
 
 	public:
-		vector64x2_c();
-		vector64x2_c( float64_c const a, float64_c const b );
-		vector64x2_c( float64_c const * values );
+		explicit vector64x2_c();
+		explicit vector64x2_c( float64_c const a, float64_c const b );
+		explicit vector64x2_c( float64_c const * values );
 		explicit vector64x2_c( vector32x2_c const & other );
 
 		inline float64_c * as_array() { return reinterpret_cast< float64_c * >( this ); }
@@ -224,9 +383,9 @@ namespace cheonsa
 		float32_c c;
 
 	public:
-		vector32x3_c();
-		vector32x3_c( float32_c const a, float32_c const b, float32_c const c );
-		vector32x3_c( float32_c const * values );
+		explicit vector32x3_c();
+		explicit vector32x3_c( float32_c const a, float32_c const b, float32_c const c );
+		explicit vector32x3_c( float32_c const * values );
 		explicit vector32x3_c( vector64x3_c const & other );
 
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
@@ -271,10 +430,10 @@ namespace cheonsa
 		float64_c c;
 
 	public:
-		vector64x3_c();
-		vector64x3_c( float64_c const a, float64_c const b, float64_c const c );
-		vector64x3_c( float64_c const * values );
-		vector64x3_c( float32_c const * values );
+		explicit vector64x3_c();
+		explicit vector64x3_c( float64_c const a, float64_c const b, float64_c const c );
+		explicit vector64x3_c( float64_c const * values );
+		explicit vector64x3_c( float32_c const * values );
 		explicit vector64x3_c( vector32x3_c const & other );
 
 		inline float64_c * as_array() { return reinterpret_cast< float64_c * >( this ); }
@@ -317,10 +476,9 @@ namespace cheonsa
 		float32_c d;
 
 	public:
-		vector32x4_c();
-		vector32x4_c( float32_c const a, float32_c const b, float32_c const c, float32_c const d );
-		vector32x4_c( float32_c const * values );
-		//vector32x4_c( vector32x3_c const & abc, float32_c d );
+		explicit vector32x4_c();
+		explicit vector32x4_c( float32_c const a, float32_c const b, float32_c const c, float32_c const d );
+		explicit vector32x4_c( float32_c const * values );
 		explicit vector32x4_c( vector64x4_c const & other );
 
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
@@ -361,9 +519,9 @@ namespace cheonsa
 		float64_c d;
 
 	public:
-		vector64x4_c();
-		vector64x4_c( float64_c const a, float64_c const b, float64_c const c, float64_c const d );
-		vector64x4_c( float64_c const * values );
+		explicit vector64x4_c();
+		explicit vector64x4_c( float64_c const a, float64_c const b, float64_c const c, float64_c const d );
+		explicit vector64x4_c( float64_c const * values );
 		explicit vector64x4_c( vector32x4_c const & other );
 
 		inline float64_c * as_array() { return reinterpret_cast< float64_c * >( this ); }
@@ -394,7 +552,7 @@ namespace cheonsa
 
 	};
 
-	// single precision basis transform.
+	// single precision 3d basis transform matrix, used to rotate and scale 3d points and vectors.
 	class matrix32x3x3_c
 	{
 	public:
@@ -406,9 +564,9 @@ namespace cheonsa
 		static matrix32x3x3_c get_identity();
 
 	public:
-		matrix32x3x3_c();
-		matrix32x3x3_c( vector32x3_c const & a, vector32x3_c const & b, vector32x3_c const & c );
-		matrix32x3x3_c( float32_c aa, float32_c ab, float32_c ac, float32_c ba, float32_c bb, float32_c bc, float32_c ca, float32_c cb, float32_c cc );
+		explicit matrix32x3x3_c();
+		explicit matrix32x3x3_c( vector32x3_c const & a, vector32x3_c const & b, vector32x3_c const & c );
+		explicit matrix32x3x3_c( float32_c aa, float32_c ab, float32_c ac, float32_c ba, float32_c bb, float32_c bc, float32_c ca, float32_c cb, float32_c cc );
 
 		vector32x3_c & get_element_at_index( sint32_c i );
 		vector32x3_c const & get_element_at_index( sint32_c i ) const;
@@ -419,7 +577,8 @@ namespace cheonsa
 
 	};
 
-	// single precision, 3D transform matrix, row major, GPU compatible.
+	// single precision 3d transform matrix, used to rotate, scale, and translate 3d points and vectors.
+	// row major, GPU compatible.
 	class matrix32x4x4_c
 	{
 	public:
@@ -429,15 +588,12 @@ namespace cheonsa
 		vector32x4_c d; // usually position.
 
 	public:
-		matrix32x4x4_c();
-		matrix32x4x4_c( vector32x3_c const & basis_a, vector32x3_c const & basis_b, vector32x3_c const & basis_c, vector32x3_c const & position );
-		matrix32x4x4_c( vector32x4_c const & a, vector32x4_c const & b, vector32x4_c const & c, vector32x4_c const & d );
-		matrix32x4x4_c( float32_c const aa, float32_c const ab, float32_c const ac, float32_c const ad, float32_c const ba, float32_c const bb, float32_c const bc, float32_c const bd, float32_c const ca, float32_c const cb, float32_c const cc, float32_c const cd, float32_c const da, float32_c const db, float32_c const dc, float32_c const dd );
-		matrix32x4x4_c( float32_c const * values );
-		//explicit matrix32x4x4_c( matrix64x4x4_c const & other );
-		//explicit matrix32x4x4_c( matrix64x3x4_c const & other );
-		//explicit matrix32x4x4_c( matrix64x3x4_c const & other, vector64x3_c const & negative_translation ); // builds a transposed version of other with negative_translation subtracted from the position. intended to convert 64-bit matrix to 32-bit to upload to gpu and work with shaders.
-		
+		explicit matrix32x4x4_c();
+		explicit matrix32x4x4_c( vector32x3_c const & basis_a, vector32x3_c const & basis_b, vector32x3_c const & basis_c, vector32x3_c const & position );
+		explicit matrix32x4x4_c( vector32x4_c const & a, vector32x4_c const & b, vector32x4_c const & c, vector32x4_c const & d );
+		explicit matrix32x4x4_c( float32_c const aa, float32_c const ab, float32_c const ac, float32_c const ad, float32_c const ba, float32_c const bb, float32_c const bc, float32_c const bd, float32_c const ca, float32_c const cb, float32_c const cc, float32_c const cd, float32_c const da, float32_c const db, float32_c const dc, float32_c const dd );
+		explicit matrix32x4x4_c( float32_c const * values );
+
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
 		inline float32_c const * as_array() const { return reinterpret_cast< float32_c const * >( this ); }
 
@@ -463,7 +619,7 @@ namespace cheonsa
 
 	};
 
-	// single precision 2D transform matrix.
+	// single precision 2d transform matrix, used to rotate and scale 2d points.
 	class matrix32x2x2_c
 	{
 	public:
@@ -471,10 +627,10 @@ namespace cheonsa
 		vector32x2_c b;
 
 	public:
-		matrix32x2x2_c();
-		matrix32x2x2_c( vector32x2_c const & a, vector32x2_c const & b );
-		matrix32x2x2_c( float32_c const aa, float32_c const ab, float32_c const ba, float32_c const bb );
-		matrix32x2x2_c( float32_c const * values );
+		explicit matrix32x2x2_c();
+		explicit matrix32x2x2_c( vector32x2_c const & a, vector32x2_c const & b );
+		explicit matrix32x2x2_c( float32_c const aa, float32_c const ab, float32_c const ba, float32_c const bb );
+		explicit matrix32x2x2_c( float32_c const * values );
 		
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
 		inline float32_c const * as_array() const { return reinterpret_cast< float32_c const * >( this ); }
@@ -488,6 +644,7 @@ namespace cheonsa
 
 	};
 
+	// single precision quaternion, used to rotate 3d points and vectors.
 	class quaternion32_c
 	{
 	public:
@@ -497,10 +654,9 @@ namespace cheonsa
 		float32_c d;
 
 	public:
-		quaternion32_c();
-		quaternion32_c( float32_c const a, float32_c const b, float32_c const c, float32_c const d );
-		quaternion32_c( float32_c const * values );
-		//quaternion32_c( quaternion64_c const & other );
+		explicit quaternion32_c();
+		explicit quaternion32_c( float32_c const a, float32_c const b, float32_c const c, float32_c const d );
+		explicit quaternion32_c( float32_c const * values );
 
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
 		inline float32_c const * as_array() const { return reinterpret_cast< float32_c const * >( this ); }
@@ -533,9 +689,9 @@ namespace cheonsa
 		float32_c d; // distance component.
 
 	public:
-		plane32_c();
-		plane32_c( float32_c const a, float32_c const b, float32_c const c, float32_c const d );
-		plane32_c( float32_c const * values );
+		explicit plane32_c();
+		explicit plane32_c( float32_c const a, float32_c const b, float32_c const c, float32_c const d );
+		explicit plane32_c( float32_c const * values );
 
 		inline float32_c * as_float32_array() { return reinterpret_cast< float32_c * >( this ); }
 		inline float32_c const * as_float32_array() const { return reinterpret_cast< float32_c const * >( this ); }
@@ -566,9 +722,9 @@ namespace cheonsa
 		float32_c c; // distance component.
 
 	public:
-		line32_c();
-		line32_c( float32_c a, float32_c b, float32_c c );
-		line32_c( float32_c const * value );
+		explicit line32_c();
+		explicit line32_c( float32_c a, float32_c b, float32_c c );
+		explicit line32_c( float32_c const * value );
 
 		inline float32_c * as_float32_array() { return reinterpret_cast< float32_c * >( this ); }
 		inline float32_c const * as_float32_array() const { return reinterpret_cast< float32_c const * >( this ); }
@@ -599,9 +755,9 @@ namespace cheonsa
 		float64_c d; // distance component.
 
 	public:
-		plane64_c();
-		plane64_c( float64_c const a, float64_c const b, float64_c const c, float64_c const d );
-		plane64_c( float64_c const * values );
+		explicit plane64_c();
+		explicit plane64_c( float64_c const a, float64_c const b, float64_c const c, float64_c const d );
+		explicit plane64_c( float64_c const * values );
 
 		inline float64_c * as_float64_array() { return reinterpret_cast< float64_c * >( this ); }
 		inline float64_c const * as_float64_array() const { return reinterpret_cast< float64_c const * >( this ); }
@@ -682,10 +838,10 @@ namespace cheonsa
 		vector32x2_c maximum; // right, bottom.
 
 	public:
-		box32x2_c();
-		box32x2_c( vector32x2_c const & minimum, vector32x2_c const & maximum );
-		box32x2_c( float32_c const minimum_a, float32_c const minimum_b, float32_c const maximum_a, float32_c const maximum_b );
-		box32x2_c( float32_c const * array );
+		explicit box32x2_c();
+		explicit box32x2_c( vector32x2_c const & minimum, vector32x2_c const & maximum );
+		explicit box32x2_c( float32_c const minimum_a, float32_c const minimum_b, float32_c const maximum_a, float32_c const maximum_b );
+		explicit box32x2_c( float32_c const * array );
 		
 		static inline box32x2_c make_regular( float32_c width, float32_c height ) // top left at (0, 0), bottom right at (width, height).
 		{
@@ -726,10 +882,10 @@ namespace cheonsa
 		vector64x2_c maximum;
 
 	public:
-		box64x2_c();
-		box64x2_c( vector64x2_c const & minimum, vector64x2_c const & maximum );
-		box64x2_c( float64_c minimum_a, float64_c minimum_b, float64_c maximum_a, float64_c maximum_b );
-		box64x2_c( float64_c const * array );
+		explicit box64x2_c();
+		explicit box64x2_c( vector64x2_c const & minimum, vector64x2_c const & maximum );
+		explicit box64x2_c( float64_c minimum_a, float64_c minimum_b, float64_c maximum_a, float64_c maximum_b );
+		explicit box64x2_c( float64_c const * array );
 
 		inline float64_c * as_array() { return reinterpret_cast< float64_c * >( this ); }
 		inline float64_c const * as_array() const { return reinterpret_cast< float64_c const * >( this ); }
@@ -754,11 +910,11 @@ namespace cheonsa
 		vector32x3_c maximum;
 
 	public:
-		box32x3_c();
-		box32x3_c( vector32x3_c const & minimum, vector32x3_c const & maximum );
-		box32x3_c( float32_c const minimum_a, float32_c const minimum_b, float32_c const minimum_c, float32_c const maximum_a, float32_c const maximum_b, float32_c const maximum_c );
-		box32x3_c( float32_c const * array );
-		box32x3_c( box64x3_c const & other );
+		explicit box32x3_c();
+		explicit box32x3_c( vector32x3_c const & minimum, vector32x3_c const & maximum );
+		explicit box32x3_c( float32_c const minimum_a, float32_c const minimum_b, float32_c const minimum_c, float32_c const maximum_a, float32_c const maximum_b, float32_c const maximum_c );
+		explicit box32x3_c( float32_c const * array );
+		explicit box32x3_c( box64x3_c const & other );
 
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
 		inline float32_c const * as_array() const { return reinterpret_cast< float32_c const * >( this ); }
@@ -788,9 +944,9 @@ namespace cheonsa
 		vector64x3_c maximum;
 
 	public:
-		box64x3_c();
-		box64x3_c( vector64x3_c const & minimum, vector64x3_c const & maximum );
-		box64x3_c( float64_c const minimum_a, float64_c const minimum_b, float64_c const minimum_c, float64_c const maximum_a, float64_c const maximum_b, float64_c const maximum_c );
+		explicit box64x3_c();
+		explicit box64x3_c( vector64x3_c const & minimum, vector64x3_c const & maximum );
+		explicit box64x3_c( float64_c const minimum_a, float64_c const minimum_b, float64_c const minimum_c, float64_c const maximum_a, float64_c const maximum_b, float64_c const maximum_c );
 		explicit box64x3_c( box32x3_c const & other );
 		
 		inline float64_c * as_array() { return reinterpret_cast< float64_c * >( this ); }

@@ -1,12 +1,12 @@
 #include "cheonsa_image.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_data_scribe_png.h"
 #include "third_party/jpgd.h"
 #include "third_party/jpge.h"
 #include "third_party/lodepng.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -41,15 +41,15 @@ namespace cheonsa
 	boolean_c image_copy_and_convert( image_c const & in, image_c & out )
 	{
 		// validate inputs.
-		cheonsa_assert( in.width >= 1 && in.width <= 4096 );
-		cheonsa_assert( in.height >= 1 && in.height <= 4096 );
-		cheonsa_assert( in.channel_count >= 1 && in.channel_count <= 4 );
-		cheonsa_assert( in.channel_bit_depth == 8 || in.channel_bit_depth == 16 );
-		cheonsa_assert( in.data.get_length() == in.width * in.height * in.channel_count * ( in.channel_bit_depth / 8 ) );
-		cheonsa_assert( out.width == in.width );
-		cheonsa_assert( out.height == in.height );
-		cheonsa_assert( out.channel_count >= 1 && out.channel_count <= 4 );
-		cheonsa_assert( out.channel_bit_depth == 8 || out.channel_bit_depth == 16 );
+		assert( in.width >= 1 && in.width <= 4096 );
+		assert( in.height >= 1 && in.height <= 4096 );
+		assert( in.channel_count >= 1 && in.channel_count <= 4 );
+		assert( in.channel_bit_depth == 8 || in.channel_bit_depth == 16 );
+		assert( in.data.get_length() == in.width * in.height * in.channel_count * ( in.channel_bit_depth / 8 ) );
+		assert( out.width == in.width );
+		assert( out.height == in.height );
+		assert( out.channel_count >= 1 && out.channel_count <= 4 );
+		assert( out.channel_bit_depth == 8 || out.channel_bit_depth == 16 );
 
 		// copy and/or convert.
 		sint32_c pixel_count = in.width * in.height;
@@ -57,7 +57,7 @@ namespace cheonsa
 		out.data.construct_mode_dynamic( out_data_size, out_data_size );
 		if ( in.channel_count == out.channel_count && in.channel_bit_depth == out.channel_bit_depth )
 		{
-			cheonsa_assert( in.data.get_length() == out.data.get_length() );
+			assert( in.data.get_length() == out.data.get_length() );
 			ops::memory_copy( in.data.get_internal_array(), out.data.get_internal_array(), in.data.get_length() );
 			return true;
 		}
@@ -156,14 +156,14 @@ namespace cheonsa
 		stream.open_static( png_file_data.get_internal_array(), png_file_data.get_internal_array_size_used() );
 
 		data_scribe_binary_c scribe;
-		scribe.open( &stream, data_endianness_e_big );
+		scribe.open( &stream, endianness_e_big );
 		
 		stream.set_position( 8 );
 		while ( stream.get_position() + 8 <= stream.get_size() );
 		{
 			image_png_chunk_c * chunk = chunks.emplace_at_end();
 			chunk->data_size = scribe.load_uint32();
-			cheonsa_assert( stream.get_position() + 4 + chunk->data_size + 4 <= stream.get_size() );
+			assert( stream.get_position() + 4 + chunk->data_size + 4 <= stream.get_size() );
 			chunk->type[ 0 ] = scribe.load_uint8();
 			chunk->type[ 1 ] = scribe.load_uint8();
 			chunk->type[ 2 ] = scribe.load_uint8();
@@ -186,12 +186,12 @@ namespace cheonsa
 		// validate inputs.
 		if ( image.channel_count == 0 || image.channel_bit_depth == 0 )
 		{
-			cheonsa_assert( image.channel_count == 0 && image.channel_bit_depth == 0 );
+			assert( image.channel_count == 0 && image.channel_bit_depth == 0 );
 		}
 		else
 		{
-			cheonsa_assert( image.channel_count >= 1 && image.channel_count <= 4 );
-			cheonsa_assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
+			assert( image.channel_count >= 1 && image.channel_count <= 4 );
+			assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
 		}
 
 		if ( extra_chunks != nullptr )
@@ -275,13 +275,13 @@ namespace cheonsa
 		{
 			image.channel_count = decoded_image.channel_count;
 			image.channel_bit_depth = decoded_image.channel_bit_depth;
-			cheonsa_assert( decoded_image_data.size() < constants< sint32_c >::maximum() );
+			assert( decoded_image_data.size() < constants< sint32_c >::maximum() );
 			image.data.construct_mode_dynamic_from_array( &decoded_image_data[ 0 ], static_cast< sint32_c >( decoded_image_data.size() ) );
 			return true;
 		}
 		else
 		{
-			cheonsa_assert( decoded_image_data.size() < constants< sint32_c >::maximum() );
+			assert( decoded_image_data.size() < constants< sint32_c >::maximum() );
 			decoded_image.data.construct_mode_static_from_array( &decoded_image_data[ 0 ], static_cast< sint32_c >( decoded_image_data.size() ) );
 			return image_copy_and_convert( decoded_image, image );
 		}
@@ -297,10 +297,10 @@ namespace cheonsa
 	)
 	{
 		// validate inputs.
-		cheonsa_assert( image.width >= 1 && image.width <= 4096 );
-		cheonsa_assert( image.height >= 1 && image.height <= 4096 );
-		cheonsa_assert( image.channel_count >= 1 && image.channel_count <= 4 );
-		cheonsa_assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
+		assert( image.width >= 1 && image.width <= 4096 );
+		assert( image.height >= 1 && image.height <= 4096 );
+		assert( image.channel_count >= 1 && image.channel_count <= 4 );
+		assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
 
 		// initialize a state so we can customize some things.
 		lodepng::State lodepng_state;
@@ -344,7 +344,7 @@ namespace cheonsa
 		}
 
 		// redundant, copying from std vector to our own container type, but it's okay.
-		cheonsa_assert( png_file_data_std.size() < constants< sint32_c >::maximum() );
+		assert( png_file_data_std.size() < constants< sint32_c >::maximum() );
 		png_file_data.construct_mode_dynamic_from_array( &png_file_data_std[ 0 ], static_cast< sint32_c >( png_file_data_std.size() ) );
 
 		// we should be good.
@@ -359,12 +359,12 @@ namespace cheonsa
 		// validate inputs.
 		if ( image.channel_count == 0 || image.channel_bit_depth == 0 )
 		{
-			cheonsa_assert( image.channel_count == 0 && image.channel_bit_depth == 0 );
+			assert( image.channel_count == 0 && image.channel_bit_depth == 0 );
 		}
 		else
 		{
-			cheonsa_assert( image.channel_count >= 1 && image.channel_count <= 4 );
-			cheonsa_assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
+			assert( image.channel_count >= 1 && image.channel_count <= 4 );
+			assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
 		}
 
 		// decode jpg into pixels.
@@ -428,11 +428,11 @@ namespace cheonsa
 		core_list_c< uint8_c > & jpg_file_data
 	)
 	{
-		cheonsa_assert( image.width >= 1 && image.width <= 4096 );
-		cheonsa_assert( image.height >= 1 && image.height <= 4096 );
-		cheonsa_assert( image.channel_count >= 3 && image.channel_count <= 4 );
-		cheonsa_assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
-		cheonsa_assert( jpg_quality >= 1 && jpg_quality <= 100 );
+		assert( image.width >= 1 && image.width <= 4096 );
+		assert( image.height >= 1 && image.height <= 4096 );
+		assert( image.channel_count >= 3 && image.channel_count <= 4 );
+		assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
+		assert( jpg_quality >= 1 && jpg_quality <= 100 );
 
 		image_c const * conformant_image = &image;
 		image_c stage_image; // will be initialized if needed to hold r8g8b8 image.

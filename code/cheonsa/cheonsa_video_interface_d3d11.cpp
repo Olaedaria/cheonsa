@@ -1,7 +1,6 @@
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
-#include "cheonsa_debug.h"
-
+#include <cassert>
 #if defined( cheonsa_platform_windows )
 #include "cheonsa_video_interface_d3d11.h"
 #define WIN32_LEAN_AND_MEAN
@@ -93,8 +92,8 @@ namespace cheonsa
 				DXGI_FORMAT_UNKNOWN,
 				DXGI_FORMAT_R32G32B32A32_FLOAT
 			};
-			cheonsa_assert( texture_format > 0 && texture_format < video_texture_format_e_count_ );
-			cheonsa_assert( map[ texture_format ] != DXGI_FORMAT_UNKNOWN );
+			assert( texture_format > 0 && texture_format < video_texture_format_e_count_ );
+			assert( map[ texture_format ] != DXGI_FORMAT_UNKNOWN );
 			return map[ texture_format ];
 		}
 
@@ -105,8 +104,8 @@ namespace cheonsa
 				DXGI_FORMAT_D24_UNORM_S8_UINT,
 				DXGI_FORMAT_D32_FLOAT
 			};
-			cheonsa_assert( depth_stencil_format > 0 && depth_stencil_format < video_depth_stencil_format_e_count_ );
-			cheonsa_assert( map[ depth_stencil_format ] != DXGI_FORMAT_UNKNOWN );
+			assert( depth_stencil_format > 0 && depth_stencil_format < video_depth_stencil_format_e_count_ );
+			assert( map[ depth_stencil_format ] != DXGI_FORMAT_UNKNOWN );
 			return map[ depth_stencil_format ];
 		}
 
@@ -227,7 +226,7 @@ namespace cheonsa
 					}
 					break;
 			}
-			cheonsa_assert( false );
+			assert( false );
 			return DXGI_FORMAT_UNKNOWN;
 		}
 
@@ -238,7 +237,7 @@ namespace cheonsa
 				DXGI_FORMAT_R16_UINT,
 				DXGI_FORMAT_R32_UINT
 			};
-			cheonsa_assert( index_format > 0 && index_format < video_index_format_e_count_ );
+			assert( index_format > 0 && index_format < video_index_format_e_count_ );
 			return map[ index_format ];
 		}
 
@@ -251,7 +250,7 @@ namespace cheonsa
 				D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 				D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
 			};
-			cheonsa_assert( primitive_type >= 0 && primitive_type < video_primitive_type_e_count_ );
+			assert( primitive_type >= 0 && primitive_type < video_primitive_type_e_count_ );
 			return map[ primitive_type ];
 		}
 
@@ -268,7 +267,7 @@ namespace cheonsa
 				D3D11_COMPARISON_GREATER,
 				D3D11_COMPARISON_GREATER_EQUAL
 			};
-			cheonsa_assert( compare_mode >= 0 && compare_mode < video_compare_function_e_count_ );
+			assert( compare_mode >= 0 && compare_mode < video_compare_function_e_count_ );
 			return map[ compare_mode ];
 		}
 
@@ -279,7 +278,7 @@ namespace cheonsa
 				D3D11_FILL_WIREFRAME,
 				D3D11_FILL_SOLID
 			};
-			cheonsa_assert( fill_mode >= 0 && fill_mode < video_fill_type_e_count_ );
+			assert( fill_mode >= 0 && fill_mode < video_fill_type_e_count_ );
 			return map[ fill_mode ];
 		}
 
@@ -290,7 +289,7 @@ namespace cheonsa
 				D3D11_CULL_FRONT,
 				D3D11_CULL_BACK
 			};
-			cheonsa_assert( cull_mode >= 0 && cull_mode < video_cull_type_e_count_ );
+			assert( cull_mode >= 0 && cull_mode < video_cull_type_e_count_ );
 			return map[ cull_mode ];
 		}
 
@@ -320,7 +319,7 @@ namespace cheonsa
 						return D3D11_FILTER_COMPARISON_ANISOTROPIC;
 				}
 			}
-			cheonsa_assert( false );
+			assert( false );
 			return D3D11_FILTER_ANISOTROPIC;
 		}
 
@@ -330,7 +329,7 @@ namespace cheonsa
 				D3D11_TEXTURE_ADDRESS_CLAMP,
 				D3D11_TEXTURE_ADDRESS_WRAP
 			};
-			cheonsa_assert( sample_address_mode >= 0 && sample_address_mode < video_sample_address_type_e_count_ );
+			assert( sample_address_mode >= 0 && sample_address_mode < video_sample_address_type_e_count_ );
 			return map[ sample_address_mode ];
 		}
 
@@ -346,7 +345,7 @@ namespace cheonsa
 				D3D11_STENCIL_OP_INCR,
 				D3D11_STENCIL_OP_DECR
 			};
-			cheonsa_assert( stencil_operation >= 0 && stencil_operation < video_stencil_operation_e_count_ );
+			assert( stencil_operation >= 0 && stencil_operation < video_stencil_operation_e_count_ );
 			return map[ stencil_operation ];
 		}
 
@@ -358,14 +357,14 @@ namespace cheonsa
 			ID3D11ShaderResourceView * * ppBufferSRV,
 			sint32_c data_size )
 		{
-			cheonsa_assert( d3d11_device );
-			cheonsa_assert( ppBuffer );
-			cheonsa_assert( ppBufferSRV );
-			cheonsa_assert( data_size );
+			assert( d3d11_device );
+			assert( ppBuffer );
+			assert( ppBufferSRV );
+			assert( data_size );
 
 			// make sure data matches up with float4 boundaries.
 			sint32_c DataExcess = data_size % 16;
-			cheonsa_assert( !DataExcess );
+			assert( !DataExcess );
 
 			HRESULT h_result;
 
@@ -376,7 +375,7 @@ namespace cheonsa
 			d3d11_buffer_description.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			d3d11_buffer_description.MiscFlags = 0;
 			h_result = d3d11_device->CreateBuffer( &d3d11_buffer_description, NULL, ppBuffer );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC d3d11_shader_resource_view_description;
 			d3d11_shader_resource_view_description.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -384,7 +383,7 @@ namespace cheonsa
 			d3d11_shader_resource_view_description.Buffer.ElementOffset = 0;
 			d3d11_shader_resource_view_description.Buffer.ElementWidth = data_size / 16;
 			h_result = d3d11_device->CreateShaderResourceView( *ppBuffer, &d3d11_shader_resource_view_description, ppBufferSRV );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 		*/
 
@@ -395,9 +394,9 @@ namespace cheonsa
 			ID3D11Buffer * * d3d11_buffer,
 			sint32_c data_size )
 		{
-			cheonsa_assert( d3d11_device );
-			cheonsa_assert( d3d11_buffer );
-			cheonsa_assert( data_size );
+			assert( d3d11_device );
+			assert( d3d11_buffer );
+			assert( data_size );
 
 			D3D11_BUFFER_DESC d3d11_buffer_description;
 			d3d11_buffer_description.ByteWidth = data_size;
@@ -406,7 +405,7 @@ namespace cheonsa
 			d3d11_buffer_description.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			d3d11_buffer_description.MiscFlags = 0;
 			HRESULT h_result = d3d11_device->CreateBuffer( &d3d11_buffer_description, NULL, d3d11_buffer );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 		*/
 
@@ -422,7 +421,7 @@ namespace cheonsa
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
 			d3d11_device->GetImmediateContext( &d3d11_device_context );
 			D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource;
-			cheonsa_assert( SUCCEEDED( d3d11_device_context->Map( d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
+			assert( SUCCEEDED( d3d11_device_context->Map( d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
 			ops::memory_copy( data, d3d11_mapped_subresource.pData, data_size );
 			d3d11_device_context->Unmap( d3d11_buffer, 0 );
 			d3d11_device_context->Release();
@@ -634,7 +633,7 @@ namespace cheonsa
 				"BLENDWEIGHT",
 				"BLENDINDICES"
 			};
-			cheonsa_assert( name > 0 && name < video_vertex_format_c::element_c::name_e_count_ );
+			assert( name > 0 && name < video_vertex_format_c::element_c::name_e_count_ );
 			return map[ name ];
 		}
 
@@ -679,8 +678,8 @@ namespace cheonsa
 				"BLENDINDICES2",
 				"BLENDINDICES3"
 			};
-			cheonsa_assert( name > 0 && name < video_vertex_format_c::element_c::name_e_count_ );
-			cheonsa_assert( index >= 0 && index < 4 );
+			assert( name > 0 && name < video_vertex_format_c::element_c::name_e_count_ );
+			assert( index >= 0 && index < 4 );
 			return map[ name * 4 + index ];
 		}
 	}
@@ -744,24 +743,24 @@ namespace cheonsa
 			, _size( 0 )
 		{
 			// check stuff
-			cheonsa_assert( vertex_format );
-			cheonsa_assert( vertex_format->elements_count >= 1 && vertex_format->elements_count <= 8 );
-			cheonsa_assert( vertex_format->stride > 0 && vertex_format->stride <= 128 );
-			cheonsa_assert( vertex_count > 0 );
+			assert( vertex_format );
+			assert( vertex_format->elements_count >= 1 && vertex_format->elements_count <= 8 );
+			assert( vertex_format->stride > 0 && vertex_format->stride <= 128 );
+			assert( vertex_count > 0 );
 			if ( set_data_enable == true )
 			{
-				cheonsa_assert( get_data_enable == false );
-				cheonsa_assert( target_enable == false );
+				assert( get_data_enable == false );
+				assert( target_enable == false );
 			}
 			if ( get_data_enable == true )
 			{
-				cheonsa_assert( set_data_enable == false );
-				cheonsa_assert( target_enable == false );
+				assert( set_data_enable == false );
+				assert( target_enable == false );
 			}
 			if ( target_enable == true )
 			{
-				cheonsa_assert( set_data_enable == false );
-				cheonsa_assert( get_data_enable == false );
+				assert( set_data_enable == false );
+				assert( get_data_enable == false );
 			}
 
 			// copy stuff
@@ -771,8 +770,8 @@ namespace cheonsa
 			_target_enable = target_enable;
 			if ( set_data_enable == false && target_enable == false )
 			{
-				cheonsa_assert( data );
-				cheonsa_assert( data_size == _size );
+				assert( data );
+				assert( data_size == _size );
 			}
 
 			// create buffer description
@@ -806,7 +805,7 @@ namespace cheonsa
 
 			// create buffer
 			HRESULT h_result = d3d11_device->CreateBuffer( &d3d11_buffer_description, ( data != nullptr ? &d3d11_sub_resource_data_description : NULL ), &_d3d11_buffer );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 	public:
@@ -827,15 +826,15 @@ namespace cheonsa
 
 		virtual void_c set_data( void_c * data, sint32_c data_size ) const override
 		{
-			cheonsa_assert( _set_data_enable == true );
-			cheonsa_assert( data != 0 );
-			cheonsa_assert( data_size <= _size );
+			assert( _set_data_enable == true );
+			assert( data != 0 );
+			assert( data_size <= _size );
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_buffer->GetDevice( &d3d11_device );
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
 			d3d11_device->GetImmediateContext( &d3d11_device_context );
 			D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource = {};
-			cheonsa_assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
+			assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
 			ops::memory_copy( data, d3d11_mapped_subresource.pData, data_size );
 			d3d11_device_context->Unmap( _d3d11_buffer, 0 );
 			d3d11_device_context->Release();
@@ -866,15 +865,15 @@ namespace cheonsa
 			, _dxgi_format( DXGI_FORMAT_UNKNOWN )
 		{
 			// check stuff
-			cheonsa_assert( index_format > video_index_format_e_none && index_format < video_index_format_e_count_ );
-			cheonsa_assert( index_count > 0 );
+			assert( index_format > video_index_format_e_none && index_format < video_index_format_e_count_ );
+			assert( index_count > 0 );
 			if ( set_data_enable == true )
 			{
-				cheonsa_assert( get_data_enable == false );
+				assert( get_data_enable == false );
 			}
 			if ( get_data_enable == true )
 			{
-				cheonsa_assert( set_data_enable == false );
+				assert( set_data_enable == false );
 			}
 
 			// copy stuff
@@ -884,8 +883,8 @@ namespace cheonsa
 			_set_data_enable = set_data_enable;
 			if ( set_data_enable == false )
 			{
-				cheonsa_assert( data );
-				cheonsa_assert( data_size == _size );
+				assert( data );
+				assert( data_size == _size );
 			}
 			_dxgi_format = d3d11_helpers::get_format( index_format );
 
@@ -915,7 +914,7 @@ namespace cheonsa
 
 			// create buffer
 			HRESULT h_result = d3d11_device->CreateBuffer( &d3d11_buffer_description, ( data != nullptr ? &d3d11_sub_resource_data_description : NULL ), &_d3d11_buffer );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 	public:
@@ -936,15 +935,15 @@ namespace cheonsa
 
 		virtual void_c set_data( void_c * data, sint32_c data_size ) override
 		{
-			cheonsa_assert( _set_data_enable == true );
-			cheonsa_assert( data != 0 );
-			cheonsa_assert( data_size <= _size );
+			assert( _set_data_enable == true );
+			assert( data != 0 );
+			assert( data_size <= _size );
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_buffer->GetDevice( &d3d11_device );
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
 			d3d11_device->GetImmediateContext( &d3d11_device_context );
 			D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource = {};
-			cheonsa_assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
+			assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
 			ops::memory_copy( data, d3d11_mapped_subresource.pData, data_size );
 			d3d11_device_context->Unmap( _d3d11_buffer, 0 );
 			d3d11_device_context->Release();
@@ -966,7 +965,7 @@ namespace cheonsa
 			, _d3d11_buffer( nullptr )
 		{
 			// check stuff
-			cheonsa_assert( size % 16 == 0 ); // constant buffers must be multiples of 16 bytes in size
+			assert( size % 16 == 0 ); // constant buffers must be multiples of 16 bytes in size
 
 			// copy stuff
 			_size = size;
@@ -981,7 +980,7 @@ namespace cheonsa
 
 			// create buffer
 			HRESULT h_result = d3d11_device->CreateBuffer( &d3d11_buffer_description, NULL, &_d3d11_buffer );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 	public:
@@ -992,14 +991,14 @@ namespace cheonsa
 
 		virtual void_c set_data( void_c * data, sint32_c data_size ) const override
 		{
-			cheonsa_assert( data );
-			cheonsa_assert( data_size <= _size );
+			assert( data );
+			assert( data_size <= _size );
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_buffer->GetDevice( &d3d11_device );
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
 			d3d11_device->GetImmediateContext( &d3d11_device_context );
 			D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource = {};
-			cheonsa_assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
+			assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
 			ops::memory_copy( data, d3d11_mapped_subresource.pData, data_size );
 			d3d11_device_context->Unmap( _d3d11_buffer, 0 );
 			d3d11_device_context->Release();
@@ -1023,7 +1022,7 @@ namespace cheonsa
 			, _d3d11_buffer_srv( nullptr )
 		{
 			// check stuff
-			cheonsa_assert( size % 16 == 0 ); // constant buffers must be multiples of 16 bytes in size
+			assert( size % 16 == 0 ); // constant buffers must be multiples of 16 bytes in size
 
 			// copy stuff
 			_size = size;
@@ -1038,7 +1037,7 @@ namespace cheonsa
 
 			// create buffer
 			HRESULT h_result = d3d11_device->CreateBuffer( &d3d11_buffer_description, NULL, &_d3d11_buffer );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 
 			// create shader resource view description
 			D3D11_SHADER_RESOURCE_VIEW_DESC d3d11_shader_resource_view_description;
@@ -1049,7 +1048,7 @@ namespace cheonsa
 
 			// create shader resource view
 			h_result = d3d11_device->CreateShaderResourceView( _d3d11_buffer, &d3d11_shader_resource_view_description, &_d3d11_buffer_srv );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 	public:
@@ -1061,14 +1060,14 @@ namespace cheonsa
 
 		virtual void_c set_data( void_c * data, sint32_c data_size ) const override
 		{
-			cheonsa_assert( data );
-			cheonsa_assert( data_size <= _size );
+			assert( data );
+			assert( data_size <= _size );
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_buffer->GetDevice( &d3d11_device );
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
 			d3d11_device->GetImmediateContext( &d3d11_device_context );
 			D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource = {};
-			cheonsa_assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
+			assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource ) ) );
 			ops::memory_copy( data, d3d11_mapped_subresource.pData, data_size );
 			d3d11_device_context->Unmap( _d3d11_buffer, 0 );
 			d3d11_device_context->Release();
@@ -1151,32 +1150,32 @@ namespace cheonsa
 		void_c start( ID3D11Device * d3d11_device, video_texture_format_e texture_format, sint32_c width, sint32_c height, sint32_c multi_sample_count, sint32_c array_slice_count, void_c * top_mip_level_data, sint32_c top_mip_level_data_size, boolean_c set_data_enable, boolean_c get_data_enable, boolean_c target_enable, boolean_c mip_enable )
 		{
 			// validate current state and inputs.
-			cheonsa_assert( _texture_format == video_texture_format_e_none );
-			cheonsa_assert( texture_format > video_texture_format_e_none && texture_format < video_texture_format_e_count_ );
-			cheonsa_assert( width > 0 );
-			cheonsa_assert( height > 0 );
-			cheonsa_assert( multi_sample_count == 1 || multi_sample_count == 2 || multi_sample_count == 4 || multi_sample_count == 8 );
-			cheonsa_assert( array_slice_count > 0 );
-			cheonsa_assert( !top_mip_level_data == !top_mip_level_data_size ); // exclusive or, both must be set or neither must be set.
+			assert( _texture_format == video_texture_format_e_none );
+			assert( texture_format > video_texture_format_e_none && texture_format < video_texture_format_e_count_ );
+			assert( width > 0 );
+			assert( height > 0 );
+			assert( multi_sample_count == 1 || multi_sample_count == 2 || multi_sample_count == 4 || multi_sample_count == 8 );
+			assert( array_slice_count > 0 );
+			assert( !top_mip_level_data == !top_mip_level_data_size ); // exclusive or, both must be set or neither must be set.
 			if ( mip_enable )
 			{
-				cheonsa_assert( multi_sample_count == 1 ); // mip maps are not compatible with multi sample.
+				assert( multi_sample_count == 1 ); // mip maps are not compatible with multi sample.
 			}
 			if ( set_data_enable == true )
 			{
-				cheonsa_assert( get_data_enable == false ); // set data is not compatible with get data.
-				cheonsa_assert( target_enable == false ); // set data is not compatible with render target.
-				cheonsa_assert( array_slice_count == 1 ); // can't set data on texture arrays.
+				assert( get_data_enable == false ); // set data is not compatible with get data.
+				assert( target_enable == false ); // set data is not compatible with render target.
+				assert( array_slice_count == 1 ); // can't set data on texture arrays.
 			}
 			if ( get_data_enable == true )
 			{
-				cheonsa_assert( set_data_enable == false ); // get data is not compatible with set data.
-				cheonsa_assert( target_enable == false ); // get data is not compatible with render target.
+				assert( set_data_enable == false ); // get data is not compatible with set data.
+				assert( target_enable == false ); // get data is not compatible with render target.
 			}
 			if ( target_enable == true )
 			{
-				cheonsa_assert( set_data_enable == false ); // set data is not compatible with render target.
-				cheonsa_assert( get_data_enable == false ); // get data is not compatible with render target.
+				assert( set_data_enable == false ); // set data is not compatible with render target.
+				assert( get_data_enable == false ); // get data is not compatible with render target.
 			}
 
 			// copy inputs.
@@ -1264,7 +1263,7 @@ namespace cheonsa
 			sint32_c top_mip_level_data_size_expected = width * height * video_texture_format_size_get( texture_format ) * array_slice_count;
 			if ( top_mip_level_data_is_required )
 			{
-				cheonsa_assert( multi_sample_count == 1 );
+				assert( multi_sample_count == 1 );
 				//boolean_c top_mip_level_data_is_ours = false;
 				if ( top_mip_level_data == nullptr )
 				{
@@ -1276,7 +1275,7 @@ namespace cheonsa
 			}
 			if ( top_mip_level_data != nullptr )
 			{
-				cheonsa_assert( top_mip_level_data_size == top_mip_level_data_size_expected );
+				assert( top_mip_level_data_size == top_mip_level_data_size_expected );
 				d3d11_sub_resource_data_description_array = new D3D11_SUBRESOURCE_DATA[ array_slice_count * _mip_level_count ];
 				char8_c const * top_mip_level_data_for_current_array_slice = reinterpret_cast< char8_c * >( top_mip_level_data );
 				sint32_c k = 0;
@@ -1300,7 +1299,7 @@ namespace cheonsa
 			}
 
 			// create the texture.
-			cheonsa_assert( SUCCEEDED( d3d11_device->CreateTexture2D( &d3d11_texture2d_description, d3d11_sub_resource_data_description_array, &_d3d11_texture2d ) ) );
+			assert( SUCCEEDED( d3d11_device->CreateTexture2D( &d3d11_texture2d_description, d3d11_sub_resource_data_description_array, &_d3d11_texture2d ) ) );
 
 			// release memory
 			if ( d3d11_sub_resource_data_description_array )
@@ -1330,7 +1329,7 @@ namespace cheonsa
 						d3d11_shader_resource_view_description.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 						d3d11_shader_resource_view_description.Texture2D.MipLevels = d3d11_texture2d_description.MipLevels;
 						d3d11_shader_resource_view_description.Texture2D.MostDetailedMip = 0;
-						cheonsa_assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2d_srv ) ) );
+						assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2d_srv ) ) );
 					}
 					else
 					{
@@ -1338,7 +1337,7 @@ namespace cheonsa
 						D3D11_SHADER_RESOURCE_VIEW_DESC d3d11_shader_resource_view_description = {};
 						d3d11_shader_resource_view_description.Format = d3d11_texture2d_description.Format;
 						d3d11_shader_resource_view_description.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-						cheonsa_assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2d_srv ) ) );
+						assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2d_srv ) ) );
 					}
 
 					if ( _multi_sample_count == 1 )
@@ -1351,7 +1350,7 @@ namespace cheonsa
 						d3d11_shader_resource_view_description.Texture2DArray.MostDetailedMip = 0;
 						d3d11_shader_resource_view_description.Texture2DArray.FirstArraySlice = 0;
 						d3d11_shader_resource_view_description.Texture2DArray.ArraySize = array_slice_count;
-						cheonsa_assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2darray_srv ) ) );
+						assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2darray_srv ) ) );
 					}
 					else
 					{
@@ -1361,7 +1360,7 @@ namespace cheonsa
 						d3d11_shader_resource_view_description.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
 						d3d11_shader_resource_view_description.Texture2DMSArray.FirstArraySlice = 0;
 						d3d11_shader_resource_view_description.Texture2DMSArray.ArraySize = array_slice_count;
-						cheonsa_assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2darray_srv ) ) );
+						assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texture2darray_srv ) ) );
 					}
 				}
 
@@ -1374,7 +1373,7 @@ namespace cheonsa
 						d3d11_shader_resource_view_description.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 						d3d11_shader_resource_view_description.TextureCube.MostDetailedMip = 0;
 						d3d11_shader_resource_view_description.TextureCube.MipLevels = d3d11_texture2d_description.MipLevels;
-						cheonsa_assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texturecube_srv ) ) );
+						assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texturecube_srv ) ) );
 					}
 					{
 						// TextureCubeArray.
@@ -1385,7 +1384,7 @@ namespace cheonsa
 						d3d11_shader_resource_view_description.TextureCubeArray.MipLevels = d3d11_texture2d_description.MipLevels;
 						d3d11_shader_resource_view_description.TextureCubeArray.First2DArrayFace = 0;
 						d3d11_shader_resource_view_description.TextureCubeArray.NumCubes = array_slice_count / 6;
-						cheonsa_assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texturecubearray_srv ) ) );
+						assert( SUCCEEDED( d3d11_device->CreateShaderResourceView( _d3d11_texture2d, &d3d11_shader_resource_view_description, &_d3d11_texturecubearray_srv ) ) );
 					}
 				}
 			}
@@ -1407,7 +1406,7 @@ namespace cheonsa
 						// Texture2DMS.
 						d3d11_render_target_view_description.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
 					}
-					cheonsa_assert( SUCCEEDED( d3d11_device->CreateRenderTargetView( _d3d11_texture2d, &d3d11_render_target_view_description, &_d3d11_texture2d_rtv ) ) );
+					assert( SUCCEEDED( d3d11_device->CreateRenderTargetView( _d3d11_texture2d, &d3d11_render_target_view_description, &_d3d11_texture2d_rtv ) ) );
 				}
 
 				{
@@ -1428,7 +1427,7 @@ namespace cheonsa
 						d3d11_render_target_view_description.Texture2DMSArray.FirstArraySlice = 0;
 						d3d11_render_target_view_description.Texture2DMSArray.ArraySize = _array_slice_count;
 					}
-					cheonsa_assert( SUCCEEDED( d3d11_device->CreateRenderTargetView( _d3d11_texture2d, &d3d11_render_target_view_description, &_d3d11_texture2darray_rtv ) ) );
+					assert( SUCCEEDED( d3d11_device->CreateRenderTargetView( _d3d11_texture2d, &d3d11_render_target_view_description, &_d3d11_texture2darray_rtv ) ) );
 				}
 
 				_d3d11_texture2darray_slice_rtvs = new ID3D11RenderTargetView * [ _array_slice_count ];
@@ -1452,7 +1451,7 @@ namespace cheonsa
 						d3d11_render_target_view_description.Texture2DMSArray.FirstArraySlice = i;
 						d3d11_render_target_view_description.Texture2DMSArray.ArraySize = 1;
 					}
-					cheonsa_assert( SUCCEEDED( d3d11_device->CreateRenderTargetView( _d3d11_texture2d, &d3d11_render_target_view_description, &_d3d11_texture2darray_slice_rtvs[ i ] ) ) );
+					assert( SUCCEEDED( d3d11_device->CreateRenderTargetView( _d3d11_texture2d, &d3d11_render_target_view_description, &_d3d11_texture2darray_slice_rtvs[ i ] ) ) );
 				}
 			}
 
@@ -1498,15 +1497,15 @@ namespace cheonsa
 
 		virtual void_c set_data( void_c * top_mip_level_data, sint32_c top_mip_level_data_size ) const override
 		{
-			cheonsa_assert( _set_data_enable == true );
-			cheonsa_assert( top_mip_level_data != nullptr );
-			cheonsa_assert( top_mip_level_data_size == _width * _height * video_texture_format_size_get( _texture_format ) );
+			assert( _set_data_enable == true );
+			assert( top_mip_level_data != nullptr );
+			assert( top_mip_level_data_size == _width * _height * video_texture_format_size_get( _texture_format ) );
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_texture2d->GetDevice( &d3d11_device );
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
 			d3d11_device->GetImmediateContext( &d3d11_device_context );
 			D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource = {};
-			cheonsa_assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_texture2d, 0, _array_slice_count == 1 ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE, 0, &d3d11_mapped_subresource ) ) );
+			assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_texture2d, 0, _array_slice_count == 1 ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE, 0, &d3d11_mapped_subresource ) ) );
 			ops::memory_copy( top_mip_level_data, d3d11_mapped_subresource.pData, top_mip_level_data_size );
 			d3d11_device_context->Unmap( _d3d11_texture2d, 0 );
 			d3d11_device_context->Release();
@@ -1515,15 +1514,15 @@ namespace cheonsa
 
 		virtual void_c get_data( void_c * top_mip_level_data, sint32_c top_mip_level_data_size ) const override
 		{
-			cheonsa_assert( _get_data_enable == true );
-			cheonsa_assert( top_mip_level_data != nullptr );
-			cheonsa_assert( top_mip_level_data_size == _width * _height * video_texture_format_size_get( _texture_format ) );
+			assert( _get_data_enable == true );
+			assert( top_mip_level_data != nullptr );
+			assert( top_mip_level_data_size == _width * _height * video_texture_format_size_get( _texture_format ) );
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_texture2d->GetDevice( &d3d11_device );
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
 			d3d11_device->GetImmediateContext( &d3d11_device_context );
 			D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource = {};
-			cheonsa_assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_texture2d, 0, D3D11_MAP_READ, 0, &d3d11_mapped_subresource ) ) );
+			assert( SUCCEEDED( d3d11_device_context->Map( _d3d11_texture2d, 0, D3D11_MAP_READ, 0, &d3d11_mapped_subresource ) ) );
 			ops::memory_copy( d3d11_mapped_subresource.pData, top_mip_level_data, top_mip_level_data_size );
 			d3d11_device_context->Unmap( _d3d11_texture2d, 0 );
 			d3d11_device_context->Release();
@@ -1532,9 +1531,9 @@ namespace cheonsa
 
 		virtual void_c generate_mips() const
 		{
-			cheonsa_assert( _d3d11_texture2d != nullptr );
-			cheonsa_assert( _mip_enable == true );
-			cheonsa_assert( _target_enable == true );
+			assert( _d3d11_texture2d != nullptr );
+			assert( _mip_enable == true );
+			assert( _target_enable == true );
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_texture2d->GetDevice( reinterpret_cast< ID3D11Device * * >( &d3d11_device ) );
 			ID3D11DeviceContext * d3d11_device_context = nullptr;
@@ -1580,11 +1579,11 @@ namespace cheonsa
 			, _d3d11_texture2darray_slice_dsvs( nullptr )
 		{
 			// check stuff
-			cheonsa_assert( depth_stencil_format > video_depth_stencil_format_e_none && depth_stencil_format < video_depth_stencil_format_e_count_ );
-			cheonsa_assert( width > 0 );
-			cheonsa_assert( height > 0 );
-			cheonsa_assert( multi_sample_count == 1 || multi_sample_count == 2 || multi_sample_count == 4 || multi_sample_count == 8 );
-			cheonsa_assert( array_slice_count > 0 );
+			assert( depth_stencil_format > video_depth_stencil_format_e_none && depth_stencil_format < video_depth_stencil_format_e_count_ );
+			assert( width > 0 );
+			assert( height > 0 );
+			assert( multi_sample_count == 1 || multi_sample_count == 2 || multi_sample_count == 4 || multi_sample_count == 8 );
+			assert( array_slice_count > 0 );
 
 			// copy stuff
 			_depth_stencil_format = depth_stencil_format;
@@ -1610,7 +1609,7 @@ namespace cheonsa
 
 			// create texture
 			HRESULT h_result = d3d11_device->CreateTexture2D( &d3d11_texture2d_description, NULL, &_d3d11_texture2d );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 
 			// create Texture2D depth stencil view
 			if ( true )
@@ -1627,7 +1626,7 @@ namespace cheonsa
 					d3d11_depth_stencil_view_description.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 				}
 				h_result = d3d11_device->CreateDepthStencilView( _d3d11_texture2d, &d3d11_depth_stencil_view_description, &_d3d11_texture2d_dsv );
-				cheonsa_assert( SUCCEEDED( h_result ) );
+				assert( SUCCEEDED( h_result ) );
 			}
 
 			// create texture depth stencil view
@@ -1648,7 +1647,7 @@ namespace cheonsa
 					d3d11_depth_stencil_view_description.Texture2DMSArray.ArraySize = array_slice_count;
 				}
 				h_result = d3d11_device->CreateDepthStencilView( _d3d11_texture2d, &d3d11_depth_stencil_view_description, &_d3d11_texture2darray_dsv );
-				cheonsa_assert( SUCCEEDED( h_result ) );
+				assert( SUCCEEDED( h_result ) );
 			}
 
 			_d3d11_texture2darray_slice_dsvs = new ID3D11DepthStencilView * [ array_slice_count ];
@@ -1670,7 +1669,7 @@ namespace cheonsa
 					d3d11_depth_stencil_view_description.Texture2DMSArray.ArraySize = 1;
 				}
 				h_result = d3d11_device->CreateDepthStencilView( _d3d11_texture2d, &d3d11_depth_stencil_view_description, &_d3d11_texture2darray_slice_dsvs[ i ] );
-				cheonsa_assert( SUCCEEDED( h_result ) );
+				assert( SUCCEEDED( h_result ) );
 			}
 		}
 
@@ -1736,7 +1735,7 @@ namespace cheonsa
 		{
 			// create vertex shader.
 			HRESULT h_result = d3d11_device->CreateVertexShader( _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), NULL, &_d3d11_vertex_shader );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 
 			// create input layout.
 			D3D11_INPUT_ELEMENT_DESC D3D11InputElementDescArray[ 16 ] = {};
@@ -1748,7 +1747,7 @@ namespace cheonsa
 				for ( sint32_c j = 0; j < vertex_format->elements_count; j++ )
 				{
 					video_vertex_format_c::element_c const * vertex_format_element = &vertex_format->elements[ j ];
-					cheonsa_assert( vertex_format_element->format_count >= 1 && vertex_format_element->format_count <= 4 );
+					assert( vertex_format_element->format_count >= 1 && vertex_format_element->format_count <= 4 );
 					D3D11_INPUT_ELEMENT_DESC & input_element_desc = D3D11InputElementDescArray[ k ];
 					input_element_desc.SemanticName = d3d11_helpers::get_semantic_name( vertex_format_element->semantic_name );
 					input_element_desc.SemanticIndex = vertex_format_element->semantic_index;
@@ -1759,11 +1758,11 @@ namespace cheonsa
 					input_element_desc.InstanceDataStepRate = 0;
 					offset += video_get_vertex_format_element_type_size( vertex_format_element->format_type ) * vertex_format_element->format_count;
 					k++;
-					cheonsa_assert( k < 16 );
+					assert( k < 16 );
 				}
 			}
 			h_result = d3d11_device->CreateInputLayout( D3D11InputElementDescArray, k, _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), &_d3d11_input_layout );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 	protected:
@@ -1780,10 +1779,10 @@ namespace cheonsa
 			, _error_messages()
 		{
 			// check stuff.
-			cheonsa_assert( _D3DCompile );
-			cheonsa_assert( source_code );
-			cheonsa_assert( source_code_size );
-			cheonsa_assert( input_vertex_layout );
+			assert( _D3DCompile );
+			assert( source_code );
+			assert( source_code_size );
+			assert( input_vertex_layout );
 
 			// translate defines.
 			D3D_SHADER_MACRO * d3d_shader_macros = nullptr;
@@ -1837,7 +1836,7 @@ namespace cheonsa
 		{
 			// create blob.
 			HRESULT h_result = D3DCreateBlob( compiled_code_size, &_d3d11_compiled_program );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 			CopyMemory( _d3d11_compiled_program->GetBufferPointer(), compiled_code, compiled_code_size );
 
 			// finish.
@@ -1856,9 +1855,9 @@ namespace cheonsa
 
 		virtual void_c enable_stream_out( video_vertex_format_c const * output_vertex_format ) override
 		{
-			cheonsa_assert( _d3d11_vertex_shader != nullptr );
-			cheonsa_assert( _d3d11_geometry_shader_output == nullptr );
-			cheonsa_assert( output_vertex_format );
+			assert( _d3d11_vertex_shader != nullptr );
+			assert( _d3d11_geometry_shader_output == nullptr );
+			assert( output_vertex_format );
 
 			_output_vertex_format = *output_vertex_format;
 
@@ -1868,7 +1867,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < _output_vertex_format.elements_count; i++ )
 			{
 				video_vertex_format_c::element_c const & vertex_format_element = _output_vertex_format.elements[ i ];
-				cheonsa_assert( vertex_format_element.format_type == video_vertex_format_c::element_c::type_e_float32 ); // stream output can only output float32s.
+				assert( vertex_format_element.format_type == video_vertex_format_c::element_c::type_e_float32 ); // stream output can only output float32s.
 				D3D11_SO_DECLARATION_ENTRY & so_declaration_entry = d3d11_so_declaration_entry_array[ i ];
 				so_declaration_entry.SemanticName = d3d11_helpers::get_semantic_name( _output_vertex_format.elements[ i ].semantic_name );
 				so_declaration_entry.SemanticIndex = _output_vertex_format.elements[ i ].semantic_index;
@@ -1881,15 +1880,15 @@ namespace cheonsa
 			ID3D11Device * d3d11_device = nullptr;
 			_d3d11_vertex_shader->GetDevice( reinterpret_cast< ID3D11Device * * >( &d3d11_device ) );
 			UINT buffer_strides[ 1 ] = { static_cast< UINT >( _output_vertex_format.stride ) };
-			cheonsa_assert( SUCCEEDED( d3d11_device->CreateGeometryShaderWithStreamOutput( _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), d3d11_so_declaration_entry_array, d3d11_declaration_entry_array_length, buffer_strides, 1, D3D11_SO_NO_RASTERIZED_STREAM, NULL, &_d3d11_geometry_shader_output ) ) );
+			assert( SUCCEEDED( d3d11_device->CreateGeometryShaderWithStreamOutput( _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), d3d11_so_declaration_entry_array, d3d11_declaration_entry_array_length, buffer_strides, 1, D3D11_SO_NO_RASTERIZED_STREAM, NULL, &_d3d11_geometry_shader_output ) ) );
 			d3d11_device->Release();
 		}
 
 		virtual void_c get_compiled_code( void_c const * & compiled_code, sint32_c & compiled_code_size ) override
 		{
-			cheonsa_assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
+			assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
 			compiled_code = _d3d11_compiled_program->GetBufferPointer();
-			cheonsa_assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
+			assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
 			compiled_code_size = static_cast< sint32_c >( _d3d11_compiled_program->GetBufferSize() );
 		}
 
@@ -1913,7 +1912,7 @@ namespace cheonsa
 			, _d3d11_geometry_shader( nullptr )
 			, _error_messages()
 		{
-			cheonsa_assert( _D3DCompile );
+			assert( _D3DCompile );
 
 			// translate defines
 			D3D_SHADER_MACRO * d3d_shader_macros = nullptr;
@@ -1950,7 +1949,7 @@ namespace cheonsa
 
 			// finish.
 			h_result = d3d11_device->CreateGeometryShader( _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), NULL, &_d3d11_geometry_shader );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 		// creates geometry shader from pre-compiled code.
@@ -1963,12 +1962,12 @@ namespace cheonsa
 		{
 			// create blob.
 			HRESULT h_result = D3DCreateBlob( compiled_code_size, &_d3d11_compiled_program );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 			CopyMemory( _d3d11_compiled_program->GetBufferPointer(), compiled_code, compiled_code_size );
 
 			// finish.
 			h_result = d3d11_device->CreateGeometryShader( _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), NULL, &_d3d11_geometry_shader );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 	public:
@@ -1980,9 +1979,9 @@ namespace cheonsa
 
 		virtual void_c get_compiled_code( void_c const * & compiled_code, sint32_c & compiled_code_size ) override
 		{
-			cheonsa_assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
+			assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
 			compiled_code = _d3d11_compiled_program->GetBufferPointer();
-			cheonsa_assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
+			assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
 			compiled_code_size = static_cast< sint32_c >( _d3d11_compiled_program->GetBufferSize() );
 		}
 
@@ -2005,7 +2004,7 @@ namespace cheonsa
 			, _d3d11_pixel_shader( nullptr )
 			, _error_messages()
 		{
-			cheonsa_assert( _D3DCompile );
+			assert( _D3DCompile );
 
 			// translate defines.
 			D3D_SHADER_MACRO * d3d_shader_macros = nullptr;
@@ -2042,7 +2041,7 @@ namespace cheonsa
 
 			// finish.
 			h_result = d3d11_device->CreatePixelShader( _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), NULL, &_d3d11_pixel_shader );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 		// creates pixel shader from pre-compiled code.
@@ -2055,12 +2054,12 @@ namespace cheonsa
 		{
 			// create blob.
 			HRESULT h_result = D3DCreateBlob( compiled_code_size, &_d3d11_compiled_program );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 			CopyMemory( _d3d11_compiled_program->GetBufferPointer(), compiled_code, compiled_code_size );
 
 			// finish.
 			h_result = d3d11_device->CreatePixelShader( _d3d11_compiled_program->GetBufferPointer(), _d3d11_compiled_program->GetBufferSize(), NULL, &_d3d11_pixel_shader );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 		}
 
 	public:
@@ -2072,9 +2071,9 @@ namespace cheonsa
 
 		virtual void_c get_compiled_code( void_c const * & compiled_code, sint32_c & compiled_code_size ) override
 		{
-			cheonsa_assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
+			assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
 			compiled_code = _d3d11_compiled_program->GetBufferPointer();
-			cheonsa_assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
+			assert( _d3d11_compiled_program->GetBufferSize() < static_cast< SIZE_T >( constants< sint32_c >::maximum() ) );
 			compiled_code_size = static_cast< sint32_c >( _d3d11_compiled_program->GetBufferSize() );
 		}
 
@@ -2178,14 +2177,14 @@ namespace cheonsa
 				h_result = _dxgi_factory->CreateSwapChain( _d3d11_device, &dxgi_swap_chain_description, &_dxgi_swap_chain );
 				if ( FAILED( h_result ) )
 				{
-					cheonsa_assert( false );
+					assert( false );
 					return false;
 				}
 
 				h_result = _dxgi_factory->MakeWindowAssociation( _window_handle, DXGI_MWA_NO_WINDOW_CHANGES );
 				if ( FAILED( h_result ) )
 				{
-					cheonsa_assert( false );
+					assert( false );
 					return false;
 				}
 
@@ -2202,7 +2201,7 @@ namespace cheonsa
 
 			// aquire swap chain buffer.
 			h_result = _dxgi_swap_chain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast< void_c * * >( &_texture->_d3d11_texture2d ) );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 			if ( !SUCCEEDED( h_result ) )
 			{
 				return false;
@@ -2210,7 +2209,7 @@ namespace cheonsa
 
 			// create render target view for swap chain buffer.
 			h_result = _d3d11_device->CreateRenderTargetView( _texture->_d3d11_texture2d, NULL, &_texture->_d3d11_texture2d_rtv );
-			cheonsa_assert( SUCCEEDED( h_result ) );
+			assert( SUCCEEDED( h_result ) );
 			if ( !SUCCEEDED( h_result ) )
 			{
 				return false;
@@ -2231,7 +2230,7 @@ namespace cheonsa
 
 		virtual void_c present() const override
 		{
-			cheonsa_assert( _dxgi_swap_chain );
+			assert( _dxgi_swap_chain );
 			_dxgi_swap_chain->Present( 1, 0 );
 		}
 
@@ -2374,8 +2373,8 @@ namespace cheonsa
 		_members = new video_interface_members_d3d11_c();
 		ops::memory_zero( _members, sizeof( video_interface_members_d3d11_c ) );
 
-		cheonsa_assert( _D3DCompile == nullptr );
-		cheonsa_assert( _members->d3d11_device == nullptr );
+		assert( _D3DCompile == nullptr );
+		assert( _members->d3d11_device == nullptr );
 
 		//
 		// load the embedded d3dcompiler dll file.
@@ -2383,15 +2382,15 @@ namespace cheonsa
 		//if ( System.is_in_editor == false )
 		//{
 		//	HRSRC ResourceHandle = FindResource( NULL, "D3DCompiler", "file" );
-		//	cheonsa_assert( ResourceHandle);
+		//	assert( ResourceHandle);
 		//	HGLOBAL ResourceDataHandle = LoadResource( NULL, ResourceHandle );
-		//	cheonsa_assert( ResourceDataHandle );
+		//	assert( ResourceDataHandle );
 		//	LPVOID ResourceData = LockResource( ResourceDataHandle );
-		//	cheonsa_assert( ResourceData );
+		//	assert( ResourceData );
 		//	HMEMORYMODULE ModuleHandle = MemoryLoadLibrary( ResourceData );
-		//	cheonsa_assert( ModuleHandle );
+		//	assert( ModuleHandle );
 		//	_D3DCompile = MemoryGetProcAddress( ModuleHandle, "D3DCompile" );
-		//	cheonsa_assert( _D3DCompile );
+		//	assert( _D3DCompile );
 		//}
 
 		//
@@ -2748,28 +2747,28 @@ namespace cheonsa
 	void_c video_interface_d3d11_c::copy_sub_resource( video_texture_c * destination_resource, uint32_c destination_sub_resource_index, video_texture_c * source_resource, uint32_c source_sub_resource_index )
 	{
 		video_texture_d3d11_c * resolved_destination_resource = dynamic_cast< video_texture_d3d11_c * >( destination_resource );
-		cheonsa_assert( resolved_destination_resource != nullptr );
-		cheonsa_assert( resolved_destination_resource->_d3d11_texture2d != nullptr );
+		assert( resolved_destination_resource != nullptr );
+		assert( resolved_destination_resource->_d3d11_texture2d != nullptr );
 		video_texture_d3d11_c * resolved_source_resource = dynamic_cast< video_texture_d3d11_c * >( source_resource );
-		cheonsa_assert( resolved_source_resource != nullptr );
-		cheonsa_assert( resolved_source_resource->_d3d11_texture2d != nullptr );
-		cheonsa_assert( resolved_destination_resource->_width == resolved_source_resource->_width );
-		cheonsa_assert( resolved_destination_resource->_height == resolved_source_resource->_height );
-		cheonsa_assert( resolved_destination_resource->_texture_format == resolved_source_resource->_texture_format );
+		assert( resolved_source_resource != nullptr );
+		assert( resolved_source_resource->_d3d11_texture2d != nullptr );
+		assert( resolved_destination_resource->_width == resolved_source_resource->_width );
+		assert( resolved_destination_resource->_height == resolved_source_resource->_height );
+		assert( resolved_destination_resource->_texture_format == resolved_source_resource->_texture_format );
 		_members->d3d11_device_context->CopySubresourceRegion( resolved_destination_resource->_d3d11_texture2d, destination_sub_resource_index, 0, 0, 0, resolved_source_resource->_d3d11_texture2d, source_sub_resource_index, nullptr );
 	}
 
 	void_c video_interface_d3d11_c::copy_sub_resource( video_texture_c * destination_resource, uint32_c destination_sub_resource_index, video_depth_stencil_c * source_resource, uint32_c source_sub_resource_index )
 	{
 		video_texture_d3d11_c * resolved_destination_resource = dynamic_cast< video_texture_d3d11_c * >( destination_resource );
-		cheonsa_assert( resolved_destination_resource != nullptr );
-		cheonsa_assert( resolved_destination_resource->_d3d11_texture2d != nullptr );
+		assert( resolved_destination_resource != nullptr );
+		assert( resolved_destination_resource->_d3d11_texture2d != nullptr );
 		video_depth_stencil_d3d11_c * resolved_source_resource = dynamic_cast< video_depth_stencil_d3d11_c * >( source_resource );
-		cheonsa_assert( resolved_source_resource != nullptr );
-		cheonsa_assert( resolved_source_resource->_d3d11_texture2d != nullptr );
-		cheonsa_assert( resolved_destination_resource->_width == resolved_source_resource->_width );
-		cheonsa_assert( resolved_destination_resource->_height == resolved_source_resource->_height );
-		cheonsa_assert( resolved_destination_resource->_texture_format == video_texture_format_e_r32_float && resolved_source_resource->_depth_stencil_format == video_depth_stencil_format_e_d32 );
+		assert( resolved_source_resource != nullptr );
+		assert( resolved_source_resource->_d3d11_texture2d != nullptr );
+		assert( resolved_destination_resource->_width == resolved_source_resource->_width );
+		assert( resolved_destination_resource->_height == resolved_source_resource->_height );
+		assert( resolved_destination_resource->_texture_format == video_texture_format_e_r32_float && resolved_source_resource->_depth_stencil_format == video_depth_stencil_format_e_d32 );
 		_members->d3d11_device_context->CopySubresourceRegion( resolved_destination_resource->_d3d11_texture2d, destination_sub_resource_index, 0, 0, 0, resolved_source_resource->_d3d11_texture2d, source_sub_resource_index, nullptr );
 	}
 
@@ -2830,22 +2829,22 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_target_textures( sint32_c textures_count, video_texture_c * * textures, video_depth_stencil_c * depth_stencil, video_texture_type_e texture_type )
 	{
-		cheonsa_assert( textures_count >= 0 && textures_count <= 8 );
+		assert( textures_count >= 0 && textures_count <= 8 );
 		sint32_c width = -1;
 		sint32_c height = -1;
 		ID3D11RenderTargetView * d3d11_render_target_views[ 8 ] = {};
 		if ( textures_count > 0 && depth_stencil != nullptr )
 		{
-			cheonsa_assert( texture_type == video_texture_type_e_texture2d || texture_type == video_texture_type_e_texture2dms || texture_type == video_texture_type_e_texture2darray || texture_type == video_texture_type_e_texture2dmsarray );
+			assert( texture_type == video_texture_type_e_texture2d || texture_type == video_texture_type_e_texture2dms || texture_type == video_texture_type_e_texture2darray || texture_type == video_texture_type_e_texture2dmsarray );
 		}
 		for ( sint32_c i = 0; i < textures_count; i++ )
 		{
 			if ( textures != nullptr )
 			{
-				cheonsa_assert( textures[ i ] != nullptr );
+				assert( textures[ i ] != nullptr );
 				video_texture_d3d11_c * texture2d_d3d11 = dynamic_cast< video_texture_d3d11_c * >( textures[ i ] );
-				cheonsa_assert( texture2d_d3d11 != nullptr );
-				cheonsa_assert( texture2d_d3d11->_target_enable );
+				assert( texture2d_d3d11 != nullptr );
+				assert( texture2d_d3d11->_target_enable );
 				if ( width == -1 )
 				{
 					width = texture2d_d3d11->_width;
@@ -2853,31 +2852,31 @@ namespace cheonsa
 				}
 				else
 				{
-					cheonsa_assert( texture2d_d3d11->_width == width );
-					cheonsa_assert( texture2d_d3d11->_height == height );
+					assert( texture2d_d3d11->_width == width );
+					assert( texture2d_d3d11->_height == height );
 				}
 				if ( texture_type == video_texture_type_e_texture2d )
 				{
-					cheonsa_assert( texture2d_d3d11->_d3d11_texture2d_rtv );
-					cheonsa_assert( texture2d_d3d11->_multi_sample_count == 1 );
+					assert( texture2d_d3d11->_d3d11_texture2d_rtv );
+					assert( texture2d_d3d11->_multi_sample_count == 1 );
 					d3d11_render_target_views[ i ] = texture2d_d3d11->_d3d11_texture2d_rtv;
 				}
 				else if ( texture_type == video_texture_type_e_texture2dms )
 				{
-					cheonsa_assert( texture2d_d3d11->_d3d11_texture2d_rtv );
-					cheonsa_assert( texture2d_d3d11->_multi_sample_count > 1 );
+					assert( texture2d_d3d11->_d3d11_texture2d_rtv );
+					assert( texture2d_d3d11->_multi_sample_count > 1 );
 					d3d11_render_target_views[ i ] = texture2d_d3d11->_d3d11_texture2d_rtv;
 				}
 				else if ( texture_type == video_texture_type_e_texture2darray )
 				{
-					cheonsa_assert( texture2d_d3d11->_d3d11_texture2darray_rtv );
-					cheonsa_assert( texture2d_d3d11->_multi_sample_count == 1 );
+					assert( texture2d_d3d11->_d3d11_texture2darray_rtv );
+					assert( texture2d_d3d11->_multi_sample_count == 1 );
 					d3d11_render_target_views[ i ] = texture2d_d3d11->_d3d11_texture2darray_rtv;
 				}
 				else if ( texture_type == video_texture_type_e_texture2dmsarray )
 				{
-					cheonsa_assert( texture2d_d3d11->_d3d11_texture2darray_rtv );
-					cheonsa_assert( texture2d_d3d11->_multi_sample_count > 1 );
+					assert( texture2d_d3d11->_d3d11_texture2darray_rtv );
+					assert( texture2d_d3d11->_multi_sample_count > 1 );
 					d3d11_render_target_views[ i ] = texture2d_d3d11->_d3d11_texture2darray_rtv;
 				}
 			}
@@ -2886,7 +2885,7 @@ namespace cheonsa
 		if ( depth_stencil != nullptr )
 		{
 			video_depth_stencil_d3d11_c * depth_stencil_d3d11 = dynamic_cast< video_depth_stencil_d3d11_c * >( depth_stencil );
-			cheonsa_assert( depth_stencil_d3d11 != nullptr );
+			assert( depth_stencil_d3d11 != nullptr );
 			if ( width == -1 )
 			{
 				width = depth_stencil_d3d11->_width;
@@ -2894,31 +2893,31 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( depth_stencil_d3d11->_width == width );
-				cheonsa_assert( depth_stencil_d3d11->_height == height );
+				assert( depth_stencil_d3d11->_width == width );
+				assert( depth_stencil_d3d11->_height == height );
 			}
 			if ( texture_type == video_texture_type_e_texture2d )
 			{
-				cheonsa_assert( depth_stencil_d3d11->_d3d11_texture2d_dsv );
-				cheonsa_assert( depth_stencil_d3d11->_multi_sample_count == 1 );
+				assert( depth_stencil_d3d11->_d3d11_texture2d_dsv );
+				assert( depth_stencil_d3d11->_multi_sample_count == 1 );
 				d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2d_dsv;
 			}
 			else if ( texture_type == video_texture_type_e_texture2dms )
 			{
-				cheonsa_assert( depth_stencil_d3d11->_d3d11_texture2d_dsv );
-				cheonsa_assert( depth_stencil_d3d11->_multi_sample_count > 1 );
+				assert( depth_stencil_d3d11->_d3d11_texture2d_dsv );
+				assert( depth_stencil_d3d11->_multi_sample_count > 1 );
 				d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2d_dsv;
 			}
 			else if ( texture_type == video_texture_type_e_texture2darray )
 			{
-				cheonsa_assert( depth_stencil_d3d11->_d3d11_texture2darray_dsv );
-				cheonsa_assert( depth_stencil_d3d11->_multi_sample_count == 1 );
+				assert( depth_stencil_d3d11->_d3d11_texture2darray_dsv );
+				assert( depth_stencil_d3d11->_multi_sample_count == 1 );
 				d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2darray_dsv;
 			}
 			else if ( texture_type == video_texture_type_e_texture2dmsarray )
 			{
-				cheonsa_assert( depth_stencil_d3d11->_d3d11_texture2darray_dsv );
-				cheonsa_assert( depth_stencil_d3d11->_multi_sample_count > 1 );
+				assert( depth_stencil_d3d11->_d3d11_texture2darray_dsv );
+				assert( depth_stencil_d3d11->_multi_sample_count > 1 );
 				d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2darray_dsv;
 			}
 		}
@@ -2939,7 +2938,7 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_target_texture2darrays_slices( sint32_c textures_count, video_texture_c * * textures, sint32_c * textures_slices, video_depth_stencil_c * depth_stencil, sint32_c depth_stencil_slice )
 	{
-		cheonsa_assert( textures_count >= 0 && textures_count <= 4 );
+		assert( textures_count >= 0 && textures_count <= 4 );
 		sint32_c width = -1;
 		sint32_c height = -1;
 		ID3D11RenderTargetView * d3d11_render_target_views[ 4 ] = {};
@@ -2947,12 +2946,12 @@ namespace cheonsa
 		{
 			if ( textures != nullptr )
 			{
-				cheonsa_assert( textures[ i ] != nullptr );
+				assert( textures[ i ] != nullptr );
 				video_texture_d3d11_c * texture2d_d3d11 = dynamic_cast< video_texture_d3d11_c * >( textures[ i ] );
-				cheonsa_assert( texture2d_d3d11 != nullptr );
-				cheonsa_assert( texture2d_d3d11->_target_enable );
-				cheonsa_assert( texture2d_d3d11->_d3d11_texture2darray_slice_rtvs );
-				cheonsa_assert( textures_slices[ i ] >= 0 && textures_slices[ i ] < texture2d_d3d11->_array_slice_count );
+				assert( texture2d_d3d11 != nullptr );
+				assert( texture2d_d3d11->_target_enable );
+				assert( texture2d_d3d11->_d3d11_texture2darray_slice_rtvs );
+				assert( textures_slices[ i ] >= 0 && textures_slices[ i ] < texture2d_d3d11->_array_slice_count );
 				if ( width == -1 )
 				{
 					width = texture2d_d3d11->_width;
@@ -2960,8 +2959,8 @@ namespace cheonsa
 				}
 				else
 				{
-					cheonsa_assert( texture2d_d3d11->_width == width );
-					cheonsa_assert( texture2d_d3d11->_height == height );
+					assert( texture2d_d3d11->_width == width );
+					assert( texture2d_d3d11->_height == height );
 				}
 				d3d11_render_target_views[ i ] = texture2d_d3d11->_d3d11_texture2darray_slice_rtvs[ textures_slices[ i ] ];
 			}
@@ -2970,9 +2969,9 @@ namespace cheonsa
 		if ( depth_stencil != nullptr )
 		{
 			video_depth_stencil_d3d11_c * depth_stencil_d3d11 = dynamic_cast< video_depth_stencil_d3d11_c * >( depth_stencil );
-			cheonsa_assert( depth_stencil_d3d11 != nullptr );
-			cheonsa_assert( depth_stencil_d3d11->_d3d11_texture2darray_slice_dsvs != nullptr );
-			cheonsa_assert( depth_stencil_slice >= 0 && depth_stencil_slice < depth_stencil_d3d11->_array_slice_count );
+			assert( depth_stencil_d3d11 != nullptr );
+			assert( depth_stencil_d3d11->_d3d11_texture2darray_slice_dsvs != nullptr );
+			assert( depth_stencil_slice >= 0 && depth_stencil_slice < depth_stencil_d3d11->_array_slice_count );
 			if ( width == -1 )
 			{
 				width = depth_stencil_d3d11->_width;
@@ -2980,8 +2979,8 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( depth_stencil_d3d11->_width == width );
-				cheonsa_assert( depth_stencil_d3d11->_height == height );
+				assert( depth_stencil_d3d11->_width == width );
+				assert( depth_stencil_d3d11->_height == height );
 			}
 			d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2darray_slice_dsvs[ depth_stencil_slice ];
 		}
@@ -3003,7 +3002,7 @@ namespace cheonsa
 	/*
 	void_c video_interface_d3d11_c::bind_target( sint32_c textures_count, video_texture_c * * textures, video_depth_stencil_c * depth_stencil )
 	{
-		cheonsa_assert( textures_count >= 0 && textures_count <= 4 );
+		assert( textures_count >= 0 && textures_count <= 4 );
 
 		ID3D11RenderTargetView * d3d11_render_target_views[ 4 ] = {};
 		for ( sint32_c i = 0; i < textures_count; i++ )
@@ -3011,7 +3010,7 @@ namespace cheonsa
 			if ( textures != nullptr && textures[ i ] != nullptr )
 			{
 				video_texture_d3d11_c * texture2d_d3d11 = reinterpret_cast< video_texture_d3d11_c * >( textures[ i ] );
-				cheonsa_assert( texture2d_d3d11->_target_enable );
+				assert( texture2d_d3d11->_target_enable );
 				d3d11_render_target_views[ i ] = texture2d_d3d11->_d3d11_texture2d_rtv;
 			}
 		}
@@ -3034,12 +3033,12 @@ namespace cheonsa
 			video_texture_d3d11_c * texture2d_d3d11 = reinterpret_cast< video_texture_d3d11_c * >( texture );
 			if ( array_slice_index >= 0 )
 			{
-				cheonsa_assert( array_slice_index < texture2d_d3d11->get_array_slice_count() );
+				assert( array_slice_index < texture2d_d3d11->get_array_slice_count() );
 				d3d11_render_target_views[ 0 ] = texture2d_d3d11->_d3d11_texture2darray_slice_rtvs[ array_slice_index ];
 			}
 			else
 			{
-				cheonsa_assert( texture2d_d3d11->get_array_slice_count() == 1 );
+				assert( texture2d_d3d11->get_array_slice_count() == 1 );
 				d3d11_render_target_views[ 0 ] = texture2d_d3d11->_d3d11_texture2d_rtv;
 			}
 		}
@@ -3050,12 +3049,12 @@ namespace cheonsa
 			video_depth_stencil_d3d11_c * depth_stencil_d3d11 = reinterpret_cast< video_depth_stencil_d3d11_c * >( depth_stencil );
 			if ( depth_stencil_slice_index >= 0 )
 			{
-				cheonsa_assert( depth_stencil_slice_index < depth_stencil_d3d11->get_array_count() );
+				assert( depth_stencil_slice_index < depth_stencil_d3d11->get_array_count() );
 				d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2d_array_slice_dsvs[ depth_stencil_slice_index ];
 			}
 			else
 			{
-				cheonsa_assert( depth_stencil_d3d11->get_array_count() == 1 );
+				assert( depth_stencil_d3d11->get_array_count() == 1 );
 				d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2d_dsv;
 			}
 			d3d11_depth_stencil_view = depth_stencil_d3d11->_d3d11_texture2d_array_dsv;
@@ -3066,7 +3065,7 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_target_arrays( sint32_c textures_count, video_texture_c * * textures, video_depth_stencil_c * depth_stencil )
 	{
-		cheonsa_assert( textures_count >= 0 && textures_count <= 4 );
+		assert( textures_count >= 0 && textures_count <= 4 );
 
 		ID3D11RenderTargetView * d3d11_render_target_views[ 4 ] = { nullptr, nullptr, nullptr, nullptr };
 		for ( sint32_c i = 0; i < textures_count; i++ )
@@ -3074,7 +3073,7 @@ namespace cheonsa
 			if ( textures != nullptr && textures[ i ] != nullptr )
 			{
 				video_texture_d3d11_c * texture2d_d3d11 = reinterpret_cast< video_texture_d3d11_c * >( textures[ i ] );
-				cheonsa_assert( texture2d_d3d11->_target_enable );
+				assert( texture2d_d3d11->_target_enable );
 				d3d11_render_target_views[ i ] = texture2d_d3d11->_d3d11_texture2darray_rtv;
 			}
 		}
@@ -3097,7 +3096,7 @@ namespace cheonsa
 		if ( texture )
 		{
 			video_texture_d3d11_c * TextureDirect3D10Instance = reinterpret_cast< video_texture_d3d11_c * >( texture );
-			cheonsa_assert( TextureDirect3D10Instance->_target_enable );
+			assert( TextureDirect3D10Instance->_target_enable );
 			if ( TargetWidth == -1 )
 			{
 				TargetWidth = TextureDirect3D10Instance->get_width();
@@ -3105,10 +3104,10 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( TargetWidth == TextureDirect3D10Instance->get_width() );
-				cheonsa_assert( TargetHeight == TextureDirect3D10Instance->get_height() );
+				assert( TargetWidth == TextureDirect3D10Instance->get_width() );
+				assert( TargetHeight == TextureDirect3D10Instance->get_height() );
 			}
-			cheonsa_assert( slice_index >= 0 && slice_index < TextureDirect3D10Instance->get_array_count() );
+			assert( slice_index >= 0 && slice_index < TextureDirect3D10Instance->get_array_count() );
 			rtvs[ 0 ] = TextureDirect3D10Instance->_Texture2DRtvSlices[ slice_index ];
 		}
 
@@ -3124,8 +3123,8 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( TargetWidth == DepthStencilDirect3D10Instance->get_width() );
-				cheonsa_assert( TargetHeight == DepthStencilDirect3D10Instance->get_height() );
+				assert( TargetWidth == DepthStencilDirect3D10Instance->get_width() );
+				assert( TargetHeight == DepthStencilDirect3D10Instance->get_height() );
 			}
 		}
 
@@ -3257,7 +3256,7 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_vertex_buffers( sint32_c vertex_buffers_count, video_vertex_buffer_c * * vertex_buffers )
 	{
-		cheonsa_assert( vertex_buffers_count >= 0 && vertex_buffers_count <= 2 );
+		assert( vertex_buffers_count >= 0 && vertex_buffers_count <= 2 );
 		_members->bound_vertex_validated = false;
 		_members->bound_vertex_buffers[ 0 ] = nullptr;
 		_members->bound_vertex_buffers[ 1 ] = nullptr;
@@ -3269,7 +3268,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < vertex_buffers_count; i++ )
 			{
 				video_vertex_buffer_d3d11_c * vertex_buffer_d3d11 = dynamic_cast< video_vertex_buffer_d3d11_c * >( vertex_buffers[ i ] );
-				cheonsa_assert( vertex_buffer_d3d11 != nullptr );
+				assert( vertex_buffer_d3d11 != nullptr );
 				_members->bound_vertex_buffers[ i ] = vertex_buffer_d3d11;
 				buffers[ i ] = vertex_buffer_d3d11->_d3d11_buffer;
 				strides[ i ] = vertex_buffer_d3d11->_vertex_format.stride;
@@ -3304,7 +3303,7 @@ namespace cheonsa
 		if ( vertex_shader )
 		{
 			video_vertex_shader_d3d11_c * vertex_shader_d3d11 = reinterpret_cast< video_vertex_shader_d3d11_c * >( vertex_shader );
-			cheonsa_assert( vertex_shader_d3d11 );
+			assert( vertex_shader_d3d11 );
 			_members->bound_vertex_shader = vertex_shader_d3d11;
 			_members->d3d11_device_context->IASetInputLayout( vertex_shader_d3d11->_d3d11_input_layout );
 			_members->d3d11_device_context->VSSetShader( vertex_shader_d3d11->_d3d11_vertex_shader, NULL, 0 );
@@ -3320,8 +3319,8 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_vertex_shader_constant_buffers( sint32_c bind_index, sint32_c constant_buffers_count, video_constant_buffer_c * * constant_buffers )
 	{
-		cheonsa_assert( constant_buffers_count <= 14 );
-		cheonsa_assert( bind_index + constant_buffers_count <= 14 );
+		assert( constant_buffers_count <= 14 );
+		assert( bind_index + constant_buffers_count <= 14 );
 		ID3D11Buffer * temp[ 14 ] = {};
 
 		for ( sint32_c i = 0; i < constant_buffers_count; i++ )
@@ -3337,8 +3336,8 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_vertex_shader_texture_buffers( sint32_c bind_index, sint32_c texture_buffers_count, video_texture_buffer_c * * texture_buffers )
 	{
-		cheonsa_assert( texture_buffers_count <= 16 );
-		cheonsa_assert( bind_index + texture_buffers_count <= 128 );
+		assert( texture_buffers_count <= 16 );
+		assert( bind_index + texture_buffers_count <= 128 );
 		ID3D11ShaderResourceView * temp[ 16 ] = {};
 
 		for ( sint32_c i = 0; i < texture_buffers_count; i++ )
@@ -3355,8 +3354,8 @@ namespace cheonsa
 
 	//void_c video_interface_d3d11_c::bind_vertex_shader_textures( sint32_c bind_index, sint32_c textures_count, video_texture_c * * textures )
 	//{
-	//	cheonsa_assert( textures_count <= 16 );
-	//	cheonsa_assert( bind_index + textures_count <= 128 );
+	//	assert( textures_count <= 16 );
+	//	assert( bind_index + textures_count <= 128 );
 	//	ID3D11ShaderResourceView * temp[ 16 ];
 
 	//	for ( sint32_c i = 0; i < textures_count; i++ )
@@ -3379,8 +3378,8 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_geometry_shader_constant_buffers( sint32_c bind_index, sint32_c constant_buffers_count, video_constant_buffer_c * * constant_buffers )
 	{
-		cheonsa_assert( constant_buffers_count <= 14 );
-		cheonsa_assert( bind_index + constant_buffers_count <= 14 );
+		assert( constant_buffers_count <= 14 );
+		assert( bind_index + constant_buffers_count <= 14 );
 		ID3D11Buffer * temp[ 14 ] = {};
 
 		for ( sint32_c i = 0; i < constant_buffers_count; i++ )
@@ -3396,8 +3395,8 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_geometry_shader_texture_buffers( sint32_c bind_index, sint32_c texture_buffers_count, video_texture_buffer_c * * texture_buffers )
 	{
-		cheonsa_assert( texture_buffers_count <= 16 );
-		cheonsa_assert( bind_index + texture_buffers_count <= 128 );
+		assert( texture_buffers_count <= 16 );
+		assert( bind_index + texture_buffers_count <= 128 );
 		ID3D11ShaderResourceView * temp[ 16 ] = {};
 
 		for ( sint32_c i = 0; i < texture_buffers_count; i++ )
@@ -3414,8 +3413,8 @@ namespace cheonsa
 
 	//void_c video_interface_d3d11_c::bind_geometry_shader_textures( sint32_c bind_index, sint32_c textures_count, video_texture_c * * textures )
 	//{
-	//	cheonsa_assert( textures_count <= 16 );
-	//	cheonsa_assert( bind_index + textures_count <= 128 );
+	//	assert( textures_count <= 16 );
+	//	assert( bind_index + textures_count <= 128 );
 	//	ID3D11ShaderResourceView * temp[ 16 ];
 
 	//	for ( sint32_c i = 0; i < textures_count; i++ )
@@ -3433,14 +3432,14 @@ namespace cheonsa
 	void_c video_interface_d3d11_c::bind_pixel_shader( video_pixel_shader_c * pixel_shader )
 	{
 		video_pixel_shader_d3d11_c * pixel_shader_d3d11 = dynamic_cast< video_pixel_shader_d3d11_c * >( pixel_shader );
-		cheonsa_assert( pixel_shader_d3d11 );
+		assert( pixel_shader_d3d11 );
 		_members->d3d11_device_context->PSSetShader( pixel_shader_d3d11 ? pixel_shader_d3d11->_d3d11_pixel_shader : 0, NULL, 0 );
 	}
 
 	void_c video_interface_d3d11_c::bind_pixel_shader_constant_buffers( sint32_c bind_index, sint32_c constant_buffers_count, video_constant_buffer_c * * constant_buffers )
 	{
-		cheonsa_assert( constant_buffers_count <= 14 );
-		cheonsa_assert( bind_index + constant_buffers_count <= 14 );
+		assert( constant_buffers_count <= 14 );
+		assert( bind_index + constant_buffers_count <= 14 );
 		ID3D11Buffer * temp[ 14 ] = {};
 
 		for ( sint32_c i = 0; i < constant_buffers_count; i++ )
@@ -3456,8 +3455,8 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_pixel_shader_texture_buffers( sint32_c bind_index, sint32_c texture_buffers_count, video_texture_buffer_c * * texture_buffers )
 	{
-		cheonsa_assert( texture_buffers_count <= 16 );
-		cheonsa_assert( bind_index + texture_buffers_count <= 128 );
+		assert( texture_buffers_count <= 16 );
+		assert( bind_index + texture_buffers_count <= 128 );
 		ID3D11ShaderResourceView * temp[ 16 ] = {};
 
 		for ( sint32_c i = 0; i < texture_buffers_count; i++ )
@@ -3473,7 +3472,7 @@ namespace cheonsa
 
 	void_c video_interface_d3d11_c::bind_pixel_shader_textures( sint32_c bind_index, sint32_c textures_count, video_texture_c * * textures, video_texture_type_e * textures_types )
 	{
-		cheonsa_assert( textures_count > 0 && textures_count <= 32 );
+		assert( textures_count > 0 && textures_count <= 32 );
 		static ID3D11ShaderResourceView * buffer[ 32 ] = {};
 
 		for ( sint32_c i = 0; i < textures_count; i++ )
@@ -3481,41 +3480,41 @@ namespace cheonsa
 			buffer[ i ] = nullptr;
 			if ( textures != nullptr && textures[ i ] != nullptr )
 			{
-				cheonsa_assert( textures_types[ i ] > video_texture_type_e_none && textures_types[ i ] <= video_texture_type_e_texturecubearray );
+				assert( textures_types[ i ] > video_texture_type_e_none && textures_types[ i ] <= video_texture_type_e_texturecubearray );
 				video_texture_d3d11_c * texture2 = dynamic_cast< video_texture_d3d11_c * >( textures[ i ] );
-				cheonsa_assert( texture2 != nullptr );
+				assert( texture2 != nullptr );
 				if ( textures_types[ i ] == video_texture_type_e_texture2d )
 				{
-					cheonsa_assert( texture2->_d3d11_texture2d_srv != nullptr );
-					cheonsa_assert( texture2->_multi_sample_count == 1 );
+					assert( texture2->_d3d11_texture2d_srv != nullptr );
+					assert( texture2->_multi_sample_count == 1 );
 					buffer[ i ] = texture2->_d3d11_texture2d_srv;
 				}
 				else if ( textures_types[ i ] == video_texture_type_e_texture2dms )
 				{
-					cheonsa_assert( texture2->_d3d11_texture2d_srv != nullptr );
-					cheonsa_assert( texture2->_multi_sample_count > 1 );
+					assert( texture2->_d3d11_texture2d_srv != nullptr );
+					assert( texture2->_multi_sample_count > 1 );
 					buffer[ i ] = texture2->_d3d11_texture2d_srv;
 				}
 				else if ( textures_types[ i ] == video_texture_type_e_texture2darray )
 				{
-					cheonsa_assert( texture2->_d3d11_texture2darray_srv != nullptr );
-					cheonsa_assert( texture2->_multi_sample_count == 1 );
+					assert( texture2->_d3d11_texture2darray_srv != nullptr );
+					assert( texture2->_multi_sample_count == 1 );
 					buffer[ i ] = texture2->_d3d11_texture2darray_srv;
 				}
 				else if ( textures_types[ i ] == video_texture_type_e_texture2dmsarray )
 				{
-					cheonsa_assert( texture2->_d3d11_texture2darray_srv != nullptr );
-					cheonsa_assert( texture2->_multi_sample_count > 1 );
+					assert( texture2->_d3d11_texture2darray_srv != nullptr );
+					assert( texture2->_multi_sample_count > 1 );
 					buffer[ i ] = texture2->_d3d11_texture2darray_srv;
 				}
 				else if ( textures_types[ i ] == video_texture_type_e_texturecube )
 				{
-					cheonsa_assert( texture2->_d3d11_texturecube_srv != nullptr );
+					assert( texture2->_d3d11_texturecube_srv != nullptr );
 					buffer[ i ] = texture2->_d3d11_texturecube_srv;
 				}
 				else if ( textures_types[ i ] == video_texture_type_e_texturecubearray )
 				{
-					cheonsa_assert( texture2->_d3d11_texturecubearray_srv != nullptr );
+					assert( texture2->_d3d11_texturecubearray_srv != nullptr );
 					buffer[ i ] = texture2->_d3d11_texturecubearray_srv;
 				}
 			}
@@ -3544,11 +3543,11 @@ namespace cheonsa
 	void_c video_interface_d3d11_c::_validate_vertex_bindings()
 	{
 		// validate that input layouts of bound vertex buffers and vertex shader match.
-		cheonsa_assert( _members->bound_vertex_buffers[ _members->bound_vertex_shader->_input_vertex_layout.vertex_formats_count - 1 ] != nullptr );
-		cheonsa_assert( _members->bound_vertex_buffers[ _members->bound_vertex_shader->_input_vertex_layout.vertex_formats_count ] == nullptr );
+		assert( _members->bound_vertex_buffers[ _members->bound_vertex_shader->_input_vertex_layout.vertex_formats_count - 1 ] != nullptr );
+		assert( _members->bound_vertex_buffers[ _members->bound_vertex_shader->_input_vertex_layout.vertex_formats_count ] == nullptr );
 		for ( sint32_c i = 0; i < _members->bound_vertex_shader->_input_vertex_layout.vertex_formats_count; i++ )
 		{
-			cheonsa_assert( *_members->bound_vertex_shader->_input_vertex_layout.vertex_formats[ i ] == _members->bound_vertex_buffers[ i ]->_vertex_format );
+			assert( *_members->bound_vertex_shader->_input_vertex_layout.vertex_formats[ i ] == _members->bound_vertex_buffers[ i ]->_vertex_format );
 		}
 		_members->bound_vertex_validated = true;
 	}

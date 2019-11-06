@@ -1,6 +1,5 @@
 #include "cheonsa_platform_thread.h"
-#include "cheonsa_debug.h"
-
+#include <cassert>
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -59,8 +58,8 @@ namespace cheonsa
 	{
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
-		cheonsa_assert( members->_handle == nullptr );
-		cheonsa_assert( function != nullptr );
+		assert( members->_handle == nullptr );
+		assert( function != nullptr );
 		_keep_alive = true;
 		_function = function;
 		_parameter = parameter;
@@ -72,7 +71,7 @@ namespace cheonsa
 	{
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
-		cheonsa_assert( members->_handle != nullptr );
+		assert( members->_handle != nullptr );
 		_keep_alive = false;
 		WaitForSingleObject( members->_handle, INFINITE );
 		CloseHandle( members->_handle );

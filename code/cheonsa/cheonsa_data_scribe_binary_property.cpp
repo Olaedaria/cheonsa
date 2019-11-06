@@ -1,5 +1,5 @@
 #include "cheonsa_data_scribe_binary_property.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
 
 namespace cheonsa
 {
@@ -20,14 +20,14 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::open( data_scribe_binary_c * scribe_binary )
 	{
-		cheonsa_assert( scribe_binary );
-		cheonsa_assert( _scribe_binary == nullptr );
+		assert( scribe_binary );
+		assert( _scribe_binary == nullptr );
 		_scribe_binary = scribe_binary;
 	}
 
 	void_c data_scribe_binary_property_c::close()
 	{
-		cheonsa_assert( _scribe_binary != nullptr );
+		assert( _scribe_binary != nullptr );
 		_scribe_binary = nullptr;
 		_loaded_key = "";
 		_loaded_type = 0;
@@ -46,7 +46,7 @@ namespace cheonsa
 
 	boolean_c data_scribe_binary_property_c::load()
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 
 		if ( _list_instance_stack.get_length() && !_list_instance_stack[ _list_instance_stack.get_length() - 1 ].handled )
 		{
@@ -63,14 +63,14 @@ namespace cheonsa
 
 		// load type.
 		_loaded_type = _scribe_binary->load_uint8();
-		cheonsa_assert( _loaded_type >= data_type_e_list && _loaded_type <= data_type_e_float64 );
+		assert( _loaded_type >= data_type_e_list && _loaded_type <= data_type_e_float64 );
 
 		// load type count.
 		_loaded_type_count = 1;
 		if ( _loaded_type >= data_type_e_uint8 && _loaded_type <= data_type_e_float64 )
 		{
 			_loaded_type_count = _scribe_binary->load_uint8();
-			cheonsa_assert( _loaded_type_count >= 1 && _loaded_type_count <= maximum_atomic_length );
+			assert( _loaded_type_count >= 1 && _loaded_type_count <= maximum_atomic_length );
 		}
 
 		// load key.
@@ -79,7 +79,7 @@ namespace cheonsa
 		// load value.
 		if ( _loaded_type >= data_type_e_uint8 && _loaded_type <= data_type_e_float64 )
 		{
-			sint32_c element_size = data_get_type_size( static_cast< data_type_e >( _loaded_type ) );
+			sint32_c element_size = ops::get_data_type_size( static_cast< data_type_e >( _loaded_type ) );
 			uint8_c * element_buffer = reinterpret_cast< uint8_c * >( _loaded_value_buffer );
 			for ( sint32_c i = 0; i < _loaded_type_count; i++ )
 			{
@@ -137,151 +137,151 @@ namespace cheonsa
 
 	sint32_c data_scribe_binary_property_c::loaded_list_length()
 	{
-		cheonsa_assert( _loaded_type == data_type_e_list );
+		assert( _loaded_type == data_type_e_list );
 		return _loaded_value_list_length;
 	}
 
 	sint32_c data_scribe_binary_property_c::loaded_list_size()
 	{
-		cheonsa_assert( _loaded_type == data_type_e_list );
+		assert( _loaded_type == data_type_e_list );
 		return _loaded_value_list_size;
 	}
 
 	string8_c const & data_scribe_binary_property_c::loaded_string8() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_string8 );
+		assert( _loaded_type == data_type_e_string8 );
 		return _loaded_value_string8;
 	}
 
 	string16_c const & data_scribe_binary_property_c::loaded_string16() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_string16 );
+		assert( _loaded_type == data_type_e_string16 );
 		return _loaded_value_string16;
 	}
 
 	uint8_c data_scribe_binary_property_c::loaded_uint8() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint8 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_uint8 && _loaded_type_count == 1 );
 		return reinterpret_cast< uint8_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	sint8_c data_scribe_binary_property_c::loaded_sint8() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint8 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_sint8 && _loaded_type_count == 1 );
 		return reinterpret_cast< sint8_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	uint16_c data_scribe_binary_property_c::loaded_uint16() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint16 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_uint16 && _loaded_type_count == 1 );
 		return reinterpret_cast< uint16_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	sint16_c data_scribe_binary_property_c::loaded_sint16() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint16 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_sint16 && _loaded_type_count == 1 );
 		return reinterpret_cast< sint16_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	uint32_c data_scribe_binary_property_c::loaded_uint32() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint32 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_uint32 && _loaded_type_count == 1 );
 		return reinterpret_cast< uint32_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	sint32_c data_scribe_binary_property_c::loaded_sint32() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint32 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_sint32 && _loaded_type_count == 1 );
 		return reinterpret_cast< sint32_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	uint64_c data_scribe_binary_property_c::loaded_uint64() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint64 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_uint64 && _loaded_type_count == 1 );
 		return reinterpret_cast< uint64_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	sint64_c data_scribe_binary_property_c::loaded_sint64() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint64 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_sint64 && _loaded_type_count == 1 );
 		return reinterpret_cast< sint64_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	float32_c data_scribe_binary_property_c::loaded_float32() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_float32 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_float32 && _loaded_type_count == 1 );
 		return reinterpret_cast< float32_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	float64_c data_scribe_binary_property_c::loaded_float64() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_float64 && _loaded_type_count == 1 );
+		assert( _loaded_type == data_type_e_float64 && _loaded_type_count == 1 );
 		return reinterpret_cast< float64_c const * >( _loaded_value_buffer )[ 0 ];
 	}
 
 	uint8_c const * data_scribe_binary_property_c::loaded_uint8_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint8 );
+		assert( _loaded_type == data_type_e_uint8 );
 		return reinterpret_cast< uint8_c const * >( _loaded_value_buffer );
 	}
 
 	sint8_c const * data_scribe_binary_property_c::loaded_sint8_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint8 );
+		assert( _loaded_type == data_type_e_sint8 );
 		return reinterpret_cast< sint8_c const * >( _loaded_value_buffer );
 	}
 
 	uint16_c const * data_scribe_binary_property_c::loaded_uint16_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint16 );
+		assert( _loaded_type == data_type_e_uint16 );
 		return reinterpret_cast< uint16_c const * >( _loaded_value_buffer );
 	}
 
 	sint16_c const * data_scribe_binary_property_c::loaded_sint16_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint16 );
+		assert( _loaded_type == data_type_e_sint16 );
 		return reinterpret_cast< sint16_c const * >( _loaded_value_buffer );
 	}
 
 	uint32_c const * data_scribe_binary_property_c::loaded_uint32_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint32 );
+		assert( _loaded_type == data_type_e_uint32 );
 		return reinterpret_cast< uint32_c const * >( _loaded_value_buffer );
 	}
 
 	sint32_c const * data_scribe_binary_property_c::loaded_sint32_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint32 );
+		assert( _loaded_type == data_type_e_sint32 );
 		return reinterpret_cast< sint32_c const * >( _loaded_value_buffer );
 	}
 
 	uint64_c const * data_scribe_binary_property_c::loaded_uint64_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_uint64 );
+		assert( _loaded_type == data_type_e_uint64 );
 		return reinterpret_cast< uint64_c const * >( _loaded_value_buffer );
 	}
 
 	sint64_c const * data_scribe_binary_property_c::loaded_sint64_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_sint64 );
+		assert( _loaded_type == data_type_e_sint64 );
 		return reinterpret_cast< sint64_c const * >( _loaded_value_buffer );
 	}
 
 	float32_c const * data_scribe_binary_property_c::loaded_float32_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_float32 );
+		assert( _loaded_type == data_type_e_float32 );
 		return reinterpret_cast< float32_c const * >( _loaded_value_buffer );
 	}
 
 	float64_c const * data_scribe_binary_property_c::loaded_float64_buffer() const
 	{
-		cheonsa_assert( _loaded_type == data_type_e_float64 );
+		assert( _loaded_type == data_type_e_float64 );
 		return reinterpret_cast< float64_c const * >( _loaded_value_buffer );
 	}
 
 	void_c data_scribe_binary_property_c::save_list_begin( char8_c const * key )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_list ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
 		_scribe_binary->save_uint32( 0 ); // number of items in the list, we will write the final value when save_list_end() is called.
@@ -291,7 +291,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_list_end( sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		uint32_c list_offset = _list_instance_stack[ _list_instance_stack.get_length() - 1 ].offset;
 		_list_instance_stack.remove_at_end();
 		uint32_c current_offset = _scribe_binary->get_stream()->get_position();
@@ -303,7 +303,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_string8( char8_c const * key, string8_c const & value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( data_type_e_string8 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
 		_scribe_binary->save_string8( value );
@@ -311,7 +311,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_string16( char8_c const * key, string16_c const & value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( data_type_e_string16 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
 		_scribe_binary->save_string16( value );
@@ -319,7 +319,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint8( char8_c const * key, uint8_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint8 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -328,7 +328,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint8( char8_c const * key, sint8_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint8 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -337,7 +337,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint16( char8_c const * key, uint16_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint16 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -346,7 +346,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint16( char8_c const * key, sint16_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint16 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -355,7 +355,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint32( char8_c const * key, uint32_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint32 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -364,7 +364,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint32( char8_c const * key, sint32_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint32 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -373,7 +373,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint64( char8_c const * key, uint64_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -382,7 +382,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint64( char8_c const * key, sint64_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -391,7 +391,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_float32( char8_c const * key, float32_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float32 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -400,7 +400,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_float64( char8_c const * key, float64_c value )
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float64 ) );
 		_scribe_binary->save_uint8( 1 );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -409,8 +409,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint8_buffer( char8_c const * key, uint8_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint8 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -422,8 +422,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint8_buffer( char8_c const * key, sint8_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint8 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -435,8 +435,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint16_buffer( char8_c const * key, uint16_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint16 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -448,8 +448,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint16_buffer( char8_c const * key, sint16_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint16 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -461,8 +461,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint32_buffer( char8_c const * key, uint32_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint32 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -474,8 +474,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint32_buffer( char8_c const * key, sint32_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint32 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -487,8 +487,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_uint64_buffer( char8_c const * key, uint64_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -500,8 +500,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_sint64_buffer( char8_c const * key, sint64_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint64 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -513,8 +513,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_float32_buffer( char8_c const * key, float32_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float32 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -526,8 +526,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_float64_buffer( char8_c const * key, float64_c const * value, sint32_c length )
 	{
-		cheonsa_assert( _scribe_binary );
-		cheonsa_assert( length > 0 && length < maximum_atomic_length );
+		assert( _scribe_binary );
+		assert( length > 0 && length < maximum_atomic_length );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float64 ) );
 		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
 		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
@@ -539,7 +539,7 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::save_end()
 	{
-		cheonsa_assert( _scribe_binary );
+		assert( _scribe_binary );
 		_scribe_binary->save_uint8( 0 );
 	}
 

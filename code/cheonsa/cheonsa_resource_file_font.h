@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_resource_file_texture.h"
 #include "cheonsa_glyph_manager.h"

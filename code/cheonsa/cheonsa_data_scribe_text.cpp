@@ -1,5 +1,5 @@
 #include "cheonsa_data_scribe_text.h"
-#include <assert.h>
+#include <cassert>
 
 namespace cheonsa
 {

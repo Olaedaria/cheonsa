@@ -1,7 +1,7 @@
 #include "cheonsa_video_renderer_shader_manager.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_video_renderer_interface.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -17,8 +17,8 @@ namespace cheonsa
 
 	video_renderer_pixel_shader_c::~video_renderer_pixel_shader_c()
 	{
-		cheonsa_assert( _reference_count == 0 );
-		cheonsa_assert( _shader_variations );
+		assert( _reference_count == 0 );
+		assert( _shader_variations );
 		delete _shader_variations;
 		_shader_variations = nullptr;
 	}
@@ -142,7 +142,7 @@ namespace cheonsa
 			"",
 			"_masked",
 		};
-		cheonsa_assert( variation >= 0 && variation < video_renderer_shader_manager_c::variation_e_count_ );
+		assert( variation >= 0 && variation < video_renderer_shader_manager_c::variation_e_count_ );
 		return map[ variation ];
 	}
 
@@ -155,7 +155,7 @@ namespace cheonsa
 			&video_renderer_interface_c::shader_define_waved_clipped,
 			nullptr,
 			&video_renderer_interface_c::shader_define_masked };
-		cheonsa_assert( variation >= 0 && variation < video_renderer_shader_manager_c::variation_e_count_ );
+		assert( variation >= 0 && variation < video_renderer_shader_manager_c::variation_e_count_ );
 		return map[ variation ];
 	}
 
@@ -344,7 +344,7 @@ namespace cheonsa
 		}
 
 		data_scribe_binary_c scribe_binary;
-		scribe_binary.open( &stream, data_get_native_endianness() );
+		scribe_binary.open( &stream, ops::get_native_endianness() );
 
 		scribe_binary.load_uint32(); // skip the value that defines the position of where the compiled code begins.
 		file_modified_time = scribe_binary.load_sint64();
@@ -363,8 +363,8 @@ namespace cheonsa
 
 	void_c video_renderer_shader_manager_c::_refresh_shader_variations( shader_variations_c * shader_variations )
 	{
-		cheonsa_assert( shader_variations->source_file.file_name.get_length() > 0 );
-		cheonsa_assert( shader_variations->source_file.file_path_absolute.get_length() > 0 );
+		assert( shader_variations->source_file.file_name.get_length() > 0 );
+		assert( shader_variations->source_file.file_path_absolute.get_length() > 0 );
 
 		// parse source file for "#include"s and build an up to date source_file_dependency_list.
 		_load_source_dependency_information( shader_variations );
@@ -427,32 +427,32 @@ namespace cheonsa
 
 		if ( variation == variation_e_vs )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs );
 			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs );
 		}
 		else if ( variation == variation_e_vs_waved )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs_waved );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs_waved );
 			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs_waved );
 		}
 		else if ( variation == variation_e_vs_clipped )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
 			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs_clipped );
 		}
 		else if ( variation == variation_e_vs_waved_clipped )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
 			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs_waved_clipped );
 		}
 		else if ( variation == variation_e_ps )
 		{
-			cheonsa_assert( shader_variations->ps );
+			assert( shader_variations->ps );
 			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->ps );
 		}
 		else if ( variation == variation_e_ps_masked )
 		{
-			cheonsa_assert( shader_variations->ps_masked );
+			assert( shader_variations->ps_masked );
 			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->ps_masked );
 		}
 		return false;
@@ -519,12 +519,12 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_write ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.open( &stream, data_get_native_endianness() );
+			scribe_binary.open( &stream, ops::get_native_endianness() );
 
 			sint32_c compiled_code_position = 0;
 			scribe_binary.save_sint32( 0 ); // place holder for where we will save the location of compiled code.
 			scribe_binary.save_sint64( shader_variations->source_file.file_modified_time );
-			cheonsa_assert( shader_variations->source_file_dependency_list.get_length() < 0xFF );
+			assert( shader_variations->source_file_dependency_list.get_length() < 0xFF );
 			scribe_binary.save_uint8( static_cast< uint8_c >( shader_variations->source_file_dependency_list.get_length() ) );
 			for ( sint32_c i = 0; i < shader_variations->source_file_dependency_list.get_length(); i++ )
 			{
@@ -547,7 +547,7 @@ namespace cheonsa
 		_resolve_cache_file_path_absolute( shader_variations->source_file, variation, cache_file_path_absolute );
 		if ( variation == variation_e_vs )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs );
 			if ( !__load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) ) )
 			{
 				return false;
@@ -560,27 +560,27 @@ namespace cheonsa
 		}
 		else if ( variation == variation_e_vs_waved )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs_waved );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs_waved );
 			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs_waved ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) );
 		}
 		else if ( variation == variation_e_vs_clipped )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
 			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs_clipped ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) );
 		}
 		else if ( variation == variation_e_vs_waved_clipped )
 		{
-			cheonsa_assert( shader_variations->input_vertex_layout && shader_variations->vs_waved_clipped );
+			assert( shader_variations->input_vertex_layout && shader_variations->vs_waved_clipped );
 			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs_waved_clipped ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) );
 		}
 		else if ( variation == variation_e_ps )
 		{
-			cheonsa_assert( shader_variations->ps );
+			assert( shader_variations->ps );
 			return __load_from_cache( cache_file_path_absolute, const_cast< video_pixel_shader_c * * >( shader_variations->ps ) );
 		}
 		else if ( variation == variation_e_ps_masked )
 		{
-			cheonsa_assert( shader_variations->ps_masked );
+			assert( shader_variations->ps_masked );
 			return __load_from_cache( cache_file_path_absolute, const_cast< video_pixel_shader_c * * >( shader_variations->ps_masked ) );
 		}
 		return false;
@@ -594,7 +594,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.open( &stream, data_get_native_endianness() );
+			scribe_binary.open( &stream, ops::get_native_endianness() );
 
 			sint32_c compiled_code_position = scribe_binary.load_sint32();
 			stream.set_position( compiled_code_position );
@@ -626,7 +626,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.open( &stream, data_get_native_endianness() );
+			scribe_binary.open( &stream, ops::get_native_endianness() );
 
 			sint32_c compiled_code_position = scribe_binary.load_sint32();
 			stream.set_position( compiled_code_position );
@@ -849,8 +849,8 @@ namespace cheonsa
 
 	boolean_c video_renderer_shader_manager_c::refresh()
 	{
-		cheonsa_assert( global_engine_instance.interfaces.resource_manager != nullptr );
-		cheonsa_assert( global_engine_instance.interfaces.video_interface != nullptr );
+		assert( global_engine_instance.interfaces.resource_manager != nullptr );
+		assert( global_engine_instance.interfaces.video_interface != nullptr );
 
 		for ( sint32_c i = 0; i < _material_pixel_shader_list.get_length(); i++ )
 		{
@@ -916,19 +916,19 @@ namespace cheonsa
 				}
 				//if ( shader_variations->ps_msaa_count_1 )
 				//{
-				//	cheonsa_assert( *shader_variations->ps_msaa_count_1 );
+				//	assert( *shader_variations->ps_msaa_count_1 );
 				//}
 				//if ( shader_variations->ps_msaa_count_2 )
 				//{
-				//	cheonsa_assert( *shader_variations->ps_msaa_count_2 );
+				//	assert( *shader_variations->ps_msaa_count_2 );
 				//}
 				//if ( shader_variations->ps_msaa_count_4 )
 				//{
-				//	cheonsa_assert( *shader_variations->ps_msaa_count_4 );
+				//	assert( *shader_variations->ps_msaa_count_4 );
 				//}
 				//if ( shader_variations->ps_msaa_count_8 )
 				//{
-				//	cheonsa_assert( *shader_variations->ps_msaa_count_8 );
+				//	assert( *shader_variations->ps_msaa_count_8 );
 				//}
 			}
 		}

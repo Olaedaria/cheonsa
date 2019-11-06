@@ -1,8 +1,7 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_core_list.h"
 
 namespace cheonsa
 {

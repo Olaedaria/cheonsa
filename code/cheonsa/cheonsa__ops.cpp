@@ -1,15 +1,15 @@
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_time_types.h"
 #include "third_party/strnatcmp.h"
+#include "third_party/xxhash.h"
 #include <cstdlib>
+#include <chrono> // for random number generation.
+#include <cassert>
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX // silly windows, leave us alone.
 #include <Windows.h>
-#include <malloc.h> // for _aligned_malloc and _aligned_free.
 #endif
-#include <chrono> // for random number generation.
 
 namespace cheonsa
 {
@@ -228,7 +228,7 @@ namespace cheonsa
 
 		sint32_c math_next_nearest_multiple( sint32_c value, sint32_c multiple )
 		{
-			cheonsa_assert( multiple > 0 );
+			assert( multiple > 0 );
 			sint32_c modulo = value % multiple;
 			if ( modulo > 0 )
 			{
@@ -1748,8 +1748,8 @@ namespace cheonsa
 		{
 			frustum64_c result;
 
-			cheonsa_assert( make_float64_length( forward ) > constants< float64_c >::division_near_zero() );
-			cheonsa_assert( make_float64_length( up ) > constants< float64_c >::division_near_zero() );
+			assert( make_float64_length( forward ) > constants< float64_c >::division_near_zero() );
+			assert( make_float64_length( up ) > constants< float64_c >::division_near_zero() );
 			vector64x3_c forward_normal = make_vector64x3_normalized( forward );
 			vector64x3_c up_normal = make_vector64x3_normalized( up );
 			vector64x3_c right_normal = make_vector64x3_cross_product( forward_normal, up_normal ); // used to find down that is orthogonal to forward, because up may not be orthogonal to forward.
@@ -1781,8 +1781,8 @@ namespace cheonsa
 		{
 			frustum64_c result;
 
-			cheonsa_assert( make_float64_length( forward ) > constants< float64_c >::division_near_zero() );
-			cheonsa_assert( make_float64_length( up ) > constants< float64_c >::division_near_zero() );
+			assert( make_float64_length( forward ) > constants< float64_c >::division_near_zero() );
+			assert( make_float64_length( up ) > constants< float64_c >::division_near_zero() );
 			vector64x3_c forward_normal = make_vector64x3_normalized( forward );
 			vector64x3_c up_normal = make_vector64x3_normalized( up );
 			vector64x3_c right_normal = make_vector64x3_cross_product( forward_normal, up_normal ); // used to find down that is orthogonal to forward, because up may not be orthogonal to forward.
@@ -2976,7 +2976,7 @@ namespace cheonsa
 
 		void_c project_polygon( polygon32x2_c const & polygon, vector32x2_c const & axis, float32_c & result_minimum, float32_c & result_maximum )
 		{
-			cheonsa_assert( polygon.points_count > 0 && polygon.points_count <= 8 );
+			assert( polygon.points_count > 0 && polygon.points_count <= 8 );
 			float32_c d = make_float32_dot_product( axis, polygon.points[ 0 ] );
 			result_minimum = d;
 			result_maximum = d;
@@ -3542,16 +3542,16 @@ namespace cheonsa
 		void_c path_format_for_windows( string16_c const & file_path_in, string16_c & file_path_out )
 		{
 			// os paths must be absolute paths so they must start with a drive letter.
-			cheonsa_assert( file_path_in.get_length() > 0 );
+			assert( file_path_in.get_length() > 0 );
 
 			// "File I/O functions in the Windows API convert "/" to "\" as part of converting the name to an NT-style name, except when using the "\\?\" prefix as detailed in the following sections."
 			// "Because you cannot use the "\\?\" prefix with a relative path, relative paths are always limited to a total of MAX_PATH characters."
 			// "The Windows API has many functions that also have Unicode versions to permit an extended-length path for a maximum total path length of 32,767 characters. This type of path is composed of components separated by backslashes, each up to the value returned in the lpMaximumComponentLength parameter of the GetVolumeInformation function (this value is commonly 255 characters). To specify an extended-length path, use the "\\?\" prefix. For example, "\\?\D:\very long path"."
 			if ( !string16_starts_with( file_path_in.character_list.get_internal_array(), "\\\\?\\" ) )
 			{
-				cheonsa_assert( ( file_path_in.character_list[ 0 ] >= 'a' && file_path_in.character_list[ 0 ] <= 'z' ) || ( file_path_in.character_list[ 0 ] >= 'A' && file_path_in.character_list[ 0 ] <= 'Z' ) );
-				cheonsa_assert( file_path_in.character_list[ 1 ] == ':' );
-				cheonsa_assert( file_path_in.character_list[ 2 ] == '\\' || file_path_in.character_list[ 2 ] == '/' );
+				assert( ( file_path_in.character_list[ 0 ] >= 'a' && file_path_in.character_list[ 0 ] <= 'z' ) || ( file_path_in.character_list[ 0 ] >= 'A' && file_path_in.character_list[ 0 ] <= 'Z' ) );
+				assert( file_path_in.character_list[ 1 ] == ':' );
+				assert( file_path_in.character_list[ 2 ] == '\\' || file_path_in.character_list[ 2 ] == '/' );
 				file_path_out += "\\\\?\\";
 				file_path_out += file_path_in;
 			}
@@ -3611,8 +3611,8 @@ namespace cheonsa
 
 			// file paths must not end with a slash.
 			sint32_c a_length = a.get_length();
-			cheonsa_assert( a_length > 0 );
-			cheonsa_assert( a.character_list[ a_length - 1 ] != '/' && a.character_list[ a_length - 1 ] != '\\' );
+			assert( a_length > 0 );
+			assert( a.character_list[ a_length - 1 ] != '/' && a.character_list[ a_length - 1 ] != '\\' );
 
 			// walk backwards until we find a dot.
 			sint32_c i = a_length - 1;
@@ -3731,7 +3731,7 @@ namespace cheonsa
 			{
 				return false;
 			}
-			cheonsa_assert( path_is_formatted_for_cheonsa( file_path, false ) );
+			assert( path_is_formatted_for_cheonsa( file_path, false ) );
 			#if defined( cheonsa_platform_windows )
 			string16_c file_path_windows;
 			ops::path_format_for_windows( file_path, file_path_windows );
@@ -3759,7 +3759,7 @@ namespace cheonsa
 
 		boolean_c data_set_file_or_folder_time_modified( string16_c const & file_path, sint64_c miliseconds_since_epoch )
 		{
-			cheonsa_assert( path_is_formatted_for_cheonsa( file_path, false ) );
+			assert( path_is_formatted_for_cheonsa( file_path, false ) );
 			#if defined( cheonsa_platform_windows )
 			string16_c file_path_windows;
 			ops::path_format_for_windows( file_path, file_path_windows );
@@ -3894,7 +3894,7 @@ namespace cheonsa
 			#if defined( cheonsa_platform_windows )
 
 			char16_c last_char = folder_path.character_list[ folder_path.character_list.get_length() - 2 ];
-			cheonsa_assert( last_char == '\\' || last_char == '/' );
+			assert( last_char == '\\' || last_char == '/' );
 
 			string16_c folder_path_windows;
 			path_format_for_windows( folder_path, folder_path_windows );
@@ -3950,7 +3950,7 @@ namespace cheonsa
 			#if defined( cheonsa_platform_windows )
 
 			char16_c last_char = folder_path.character_list[ folder_path.character_list.get_length() - 2 ];
-			cheonsa_assert( last_char == '\\' || last_char == '/' );
+			assert( last_char == '\\' || last_char == '/' );
 
 			string16_c folder_path_windows;
 			path_format_for_windows( folder_path, folder_path_windows );
@@ -4154,7 +4154,7 @@ namespace cheonsa
 
 		char8_c convert_digit_to_char8( sint8_c const digit )
 		{
-			cheonsa_assert( digit >= 0 && digit <= 15 );
+			assert( digit >= 0 && digit <= 15 );
 			static char8_c const map[] =
 			{
 				'0',
@@ -4236,7 +4236,7 @@ namespace cheonsa
 		template< typename string_type_c, typename int_type_c >
 		boolean_c _convert_string_to_int( string_type_c const & in, int_type_c & out, sint8_c base )
 		{
-			cheonsa_assert( base >= 2 && base <= 16 );
+			assert( base >= 2 && base <= 16 );
 
 			int_type_c result = 0;
 			auto const * c = in.character_list.get_internal_array();
@@ -4278,7 +4278,7 @@ namespace cheonsa
 		template< typename int_type_c, typename string_type_c >
 		void_c _convert_int_to_string( int_type_c in, string_type_c & out, sint8_c base )
 		{
-			cheonsa_assert( base >= 2 && base <= 16 );
+			assert( base >= 2 && base <= 16 );
 			out.character_list.remove_all();
 			if ( in < 0 )
 			{
@@ -4850,7 +4850,7 @@ namespace cheonsa
 			else
 			{
 				core_list_c< float64_c > result;
-				cheonsa_assert( result.get_mode_is_dynamic() );
+				assert( result.get_mode_is_dynamic() );
 				if ( convert_string8_to_float64xn( string, result ) )
 				{
 					if ( result.get_length() >= 3 )
@@ -5210,7 +5210,7 @@ namespace cheonsa
 		template< typename string_type_c >
 		string_type_c _string_find_and_replace_all( string_type_c const & string, string_type_c const & find, string_type_c const & replace, boolean_c case_sensitive )
 		{
-			cheonsa_assert( find.get_length() > 0 );
+			assert( find.get_length() > 0 );
 			string_type_c result;
 			result.character_list.remove_all();
 			auto const * s = string.character_list.get_internal_array();
@@ -5354,7 +5354,7 @@ namespace cheonsa
 		template< typename string_type_c >
 		string_type_c _string_sub_string( string_type_c const & string, sint32_c start, sint32_c length )
 		{
-			cheonsa_assert( start >= 0 && length >= 0 && start + length <= string.get_length() );
+			assert( start >= 0 && length >= 0 && start + length <= string.get_length() );
 			string_type_c result;
 			result.character_list.construct_mode_dynamic_from_array( &string.character_list.get_internal_array()[ start ], length );
 			result.character_list.insert_at_end( 0 );
@@ -5532,17 +5532,17 @@ namespace cheonsa
 						}
 						else
 						{
-							cheonsa_assert( false );
+							assert( false );
 						}
 					}
 					else
 					{
-						cheonsa_assert( false );
+						assert( false );
 					}
 				}
 				else
 				{
-					cheonsa_assert( false );
+					assert( false );
 				}
 				convert_utf8_to_char16( b_buffer, b_character );
 				if ( a[ a_index ] != b_character )
@@ -5581,7 +5581,7 @@ namespace cheonsa
 
 		boolean_c string8_compare( char8_c const * a, char8_c const * b )
 		{
-			cheonsa_assert( a != nullptr && b != nullptr );
+			assert( a != nullptr && b != nullptr );
 
 			if ( a == b )
 			{
@@ -5601,7 +5601,7 @@ namespace cheonsa
 
 		boolean_c string8_compare_case_insensitive( char8_c const * a, char8_c const * b )
 		{
-			cheonsa_assert( a != nullptr && b != nullptr );
+			assert( a != nullptr && b != nullptr );
 			if ( a == b )
 			{
 				return true;
@@ -5620,7 +5620,7 @@ namespace cheonsa
 
 		boolean_c string16_compare( char16_c const * a, char16_c const * b )
 		{
-			cheonsa_assert( a != nullptr && b != nullptr );
+			assert( a != nullptr && b != nullptr );
 			if ( a == b )
 			{
 				return true;
@@ -5639,7 +5639,7 @@ namespace cheonsa
 
 		boolean_c string16_compare_case_insensitive( char16_c const * a, char16_c const * b )
 		{
-			cheonsa_assert( a != nullptr && b != nullptr );
+			assert( a != nullptr && b != nullptr );
 			if ( a == b )
 			{
 				return true;
@@ -5658,7 +5658,7 @@ namespace cheonsa
 
 		boolean_c string16_compare( char16_c const * a, char8_c const * b )
 		{
-			cheonsa_assert( a != nullptr && b != nullptr );
+			assert( a != nullptr && b != nullptr );
 			while ( *a != 0 && *b != 0 )
 			{
 				char16_c character;
@@ -5674,7 +5674,7 @@ namespace cheonsa
 
 		boolean_c string16_compare_case_insensitive( char16_c const * a, char8_c const * b )
 		{
-			cheonsa_assert( a != nullptr && b != nullptr );
+			assert( a != nullptr && b != nullptr );
 			while ( *a != 0 && *b != 0 )
 			{
 				if ( char16_to_lower( *a ) != char16_to_lower( *b ) )
@@ -5690,7 +5690,7 @@ namespace cheonsa
 		template< typename char_type_c >
 		sint32_c _string_find_length( char_type_c const * string )
 		{
-			cheonsa_assert( string );
+			assert( string );
 			char_type_c const * string_start = string;
 			while ( *string != 0 )
 			{
@@ -5711,8 +5711,8 @@ namespace cheonsa
 
 		//sint32_c string8_find_length_safe( char8_c const * string, char8_c const * limit )
 		//{
-		//	cheonsa_assert( string != nullptr );
-		//	cheonsa_assert( string < limit );
+		//	assert( string != nullptr );
+		//	assert( string < limit );
 		//	char8_c const * string_start = string;
 		//	while ( string < limit && *string != 0 )
 		//	{
@@ -5742,14 +5742,14 @@ namespace cheonsa
 
 		uint8_c convert_utf8_to_char16( char8_c const * & in, char16_c & out )
 		{
-			cheonsa_assert( in != nullptr );
+			assert( in != nullptr );
 			out = 0;
 			if ( ( in[ 0 ] & 0x80 ) == 0x00 )
 			{
 				// out 7 bits
 				// in 1 byte
 				// 0bbbbbbb
-				cheonsa_assert( in[ 0 ] != 0 );
+				assert( in[ 0 ] != 0 );
 				out |= static_cast< char16_c >( in[ 0 ] );
 				in += 1;
 				return 1;
@@ -5759,8 +5759,8 @@ namespace cheonsa
 				// out 11 bits
 				// in 2 bytes
 				// 110bbbbb 10bbbbbb
-				cheonsa_assert( in[ 0 ] != 0 );
-				cheonsa_assert( in[ 1 ] != 0 );
+				assert( in[ 0 ] != 0 );
+				assert( in[ 1 ] != 0 );
 				out |= static_cast<char16_c>( in[ 0 ] & 0x1F ) << 6;
 				out |= static_cast<char16_c>( in[ 1 ] & 0x3F );
 				in += 2;
@@ -5771,27 +5771,27 @@ namespace cheonsa
 				// out 16 bits
 				// in 3 bytes
 				// 1110bbbb 10bbbbbb 10bbbbbb
-				cheonsa_assert( in[ 0 ] != 0 );
-				cheonsa_assert( in[ 1 ] != 0 );
-				cheonsa_assert( in[ 2 ] != 0 );
+				assert( in[ 0 ] != 0 );
+				assert( in[ 1 ] != 0 );
+				assert( in[ 2 ] != 0 );
 				out |= static_cast<char16_c>( in[ 0 ] & 0x0F ) << 12;
 				out |= static_cast<char16_c>( in[ 1 ] & 0x3F ) << 6;
 				out |= static_cast<char16_c>( in[ 2 ] & 0x3F );
 				in += 3;
 				return 3;
 			}
-			cheonsa_assert( false );
+			assert( false );
 			return 0;
 		}
 
 		void_c convert_string8_to_string16( core_list_c< char8_c > const & in, core_list_c< char16_c > & out )
 		{
-			cheonsa_assert( out.get_mode_is_dynamic() == true );
+			assert( out.get_mode_is_dynamic() == true );
 			if ( out.get_length() > 0 )
 			{
-				cheonsa_assert( out[ out.get_length() - 1 ] != 0 );
+				assert( out[ out.get_length() - 1 ] != 0 );
 			}
-			cheonsa_assert( in[ in.get_length() - 1 ] == 0 );
+			assert( in[ in.get_length() - 1 ] == 0 );
 			char8_c const * byte = in.get_internal_array();
 			while ( *byte != 0 )
 			{
@@ -5804,12 +5804,12 @@ namespace cheonsa
 
 		void_c convert_string8_to_string16_bytes( core_list_c< char8_c > const & in, core_list_c< char8_c > & out )
 		{
-			cheonsa_assert( out.get_mode_is_dynamic() == true );
+			assert( out.get_mode_is_dynamic() == true );
 			if ( out.get_length() > 0 )
 			{
-				cheonsa_assert( out[ out.get_length() - 1 ] != 0 );
+				assert( out[ out.get_length() - 1 ] != 0 );
 			}
-			cheonsa_assert( in[ in.get_length() - 1 ] == 0 );
+			assert( in[ in.get_length() - 1 ] == 0 );
 			char8_c const * byte = in.get_internal_array();
 			while ( *byte != 0 )
 			{
@@ -5863,16 +5863,16 @@ namespace cheonsa
 			//	out[ 0 ] = static_cast< char8_c >( in | 0xF0 );
 			//	out += 4;
 			//}
-			cheonsa_assert( false );
+			assert( false );
 			return 0;
 		}
 
 		void_c convert_string16_to_string8( core_list_c< char16_c > const & in, core_list_c< char8_c > & out )
 		{
-			cheonsa_assert( out.get_mode_is_dynamic() == true );
+			assert( out.get_mode_is_dynamic() == true );
 			if ( out.get_length() > 0 )
 			{
-				cheonsa_assert( out[ out.get_length() - 1 ] != 0 ); // i need to delete this check once i have peace of mind.
+				assert( out[ out.get_length() - 1 ] != 0 ); // i need to delete this check once i have peace of mind.
 			}
 			char16_c const * character = in.get_internal_array();
 			char16_c const * character_end = character + in.get_length();
@@ -5909,13 +5909,13 @@ namespace cheonsa
 
 		void_c * memory_allocate( sint32_c size )
 		{
-			cheonsa_assert( size > 0 );
+			assert( size > 0 );
 			return std::malloc( size );
 		}
 
 		void_c * memory_reallocate( void_c * block, sint32_c new_size )
 		{
-			cheonsa_assert( new_size > 0 );
+			assert( new_size > 0 );
 			return std::realloc( block, new_size );
 		}
 
@@ -5967,7 +5967,7 @@ namespace cheonsa
 					return false;
 				}
 			}
-			cheonsa_assert( reinterpret_cast< uint_native_c >( buffer_uint8 + bytes_before ) % sizeof( uint_native_c ) == 0 );
+			assert( reinterpret_cast< uint_native_c >( buffer_uint8 + bytes_before ) % sizeof( uint_native_c ) == 0 );
 			uint_native_c const * buffer_uint_native = reinterpret_cast< uint_native_c const * >( buffer_uint8 + bytes_before );
 			for ( uint_native_c i = 0; i < natives_in_the_middle; i++ )
 			{
@@ -5990,7 +5990,7 @@ namespace cheonsa
 
 		void_c memory_flip_byte_order( void_c * buffer, sint32_c buffer_size )
 		{
-			cheonsa_assert( buffer_size > 0 && buffer_size < 16 );
+			assert( buffer_size > 0 && buffer_size < 16 );
 			uint8_c * data_bytes = reinterpret_cast< uint8_c * >( buffer );
 			for ( sint32_c i = 0; i < buffer_size; i++ )
 			{
@@ -5998,6 +5998,69 @@ namespace cheonsa
 				data_bytes[ i ] = data_bytes[ buffer_size - i - 1 ];
 				data_bytes[ buffer_size - i - 1 ] = t;
 			}
+		}
+
+
+		//
+		//
+		// data operations.
+		//
+		//
+
+		sint32_c get_data_type_size( data_type_e type )
+		{
+			switch( type )
+			{
+			case data_type_e_uint8:
+			case data_type_e_sint8:
+				return 1;
+			case data_type_e_uint16:
+			case data_type_e_sint16:
+				return 2;
+			case data_type_e_uint32:
+			case data_type_e_sint32:
+				return 4;
+			case data_type_e_uint64:
+			case data_type_e_sint64:
+				return 8;
+			case data_type_e_float32:
+				return 4;
+			case data_type_e_float64:
+				return 8;
+			}
+			return 0;
+		}
+
+		endianness_e get_native_endianness()
+		{
+			const union { uint32_c u; uint8_c c[ 4 ]; } probe = { 1 };
+			return probe.c[ 0 ] != 0 ? endianness_e_little : endianness_e_big;
+		}
+
+
+		//
+		//
+		// hash operations.
+		//
+		//
+
+		uint32_c xxhash32( void_c const * data, uint_native_c data_size )
+		{
+			return XXH32( static_cast< const void_c * >( data ), static_cast< size_t >( data_size ), 0 );
+		}
+
+		uint64_c xxhash64( void_c const * data, uint_native_c data_size )
+		{
+			return XXH64( static_cast< const void_c * >( data ), static_cast< size_t >( data_size ), 0 );
+		}
+
+		uint_native_c xxhash_native( void_c const * data, uint_native_c data_size )
+		{
+#if defined( cheonsa_32_bit )
+			return XXH32( static_cast< const void_c * >( data ), static_cast< size_t >( data_size ), 0 );
+#elif defined( cheonsa_64_bit )
+			return XXH64( static_cast< const void_c * >( data ), static_cast< size_t >( data_size ), 0 );
+#endif
 		}
 
 	}

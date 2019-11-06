@@ -5,8 +5,8 @@ namespace cheonsa
 
 	boolean_c resource_file_menu_layout_c::_load( data_stream_c * stream )
 	{
-		cheonsa_assert( stream != nullptr );
-		cheonsa_assert( _is_loaded == false );
+		assert( stream != nullptr );
+		assert( _is_loaded == false );
 
 		_is_loaded = _markup.parse( stream );
 

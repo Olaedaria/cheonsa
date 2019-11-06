@@ -7,7 +7,7 @@
 #include "cheonsa_scene_component_sprite.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 
 namespace cheonsa
 {

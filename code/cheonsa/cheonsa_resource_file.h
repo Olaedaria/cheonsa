@@ -1,12 +1,11 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_core_event.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_stream.h"
 #include "cheonsa_data_stream_file.h"
-#include "cheonsa_debug.h"
 
 namespace cheonsa
 {
@@ -93,7 +92,7 @@ namespace cheonsa
 		{
 			if ( _reference )
 			{
-				cheonsa_assert( _reference->_reference_count > 0 );
+				assert( _reference->_reference_count > 0 );
 				_reference->_reference_count--;
 			}
 		}
@@ -104,7 +103,7 @@ namespace cheonsa
 			{
 				if ( _reference != nullptr )
 				{
-					cheonsa_assert( _reference->_reference_count > 0 );
+					assert( _reference->_reference_count > 0 );
 					_reference->_reference_count--;
 				}
 				_reference = other_reference;
@@ -123,7 +122,7 @@ namespace cheonsa
 
 		resource_file_type_c * operator -> () const
 		{
-			cheonsa_assert( _reference );
+			assert( _reference );
 			return _reference;
 		}
 

@@ -1,6 +1,6 @@
 #include "cheonsa_database_record_schema.h"
 #include "cheonsa_database_field_schema.h"
-#include "cheonsa_debug.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -8,7 +8,7 @@ namespace cheonsa
 	database_record_schema_c::database_record_schema_c()
 		: _fields()
 	{
-		cheonsa_assert( sizeof( database_record_header_c ) == 13 );
+		assert( sizeof( database_record_header_c ) == 13 );
 	}
 
 	void_c database_record_schema_c::reset()
@@ -24,16 +24,16 @@ namespace cheonsa
 	database_field_schema_c * database_record_schema_c::add_field( string8_c const & name, data_type_e type, uint8_c type_count )
 	{
 		// verify.
-		cheonsa_assert( _fields.get_length() + 1 < constants< uint16_c >::maximum() );
-		cheonsa_assert( get_field( name ) == nullptr );
-		cheonsa_assert( type >= data_type_e_string8 && type <= data_type_e_float64 );
+		assert( _fields.get_length() + 1 < constants< uint16_c >::maximum() );
+		assert( get_field( name ) == nullptr );
+		assert( type >= data_type_e_string8 && type <= data_type_e_float64 );
 		if ( type == data_type_e_string8 || type == data_type_e_string16 )
 		{
-			cheonsa_assert( type_count == 1 );
+			assert( type_count == 1 );
 		}
 		else
 		{
-			cheonsa_assert( type_count >= 1 && type_count <= 4 );
+			assert( type_count >= 1 && type_count <= 4 );
 		}
 
 		// calculate data offset and size.

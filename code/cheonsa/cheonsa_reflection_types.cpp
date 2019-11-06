@@ -2,8 +2,8 @@
 #include "cheonsa_reflection_property.h"
 #include "cheonsa_reflection_object.h"
 #include "cheonsa_reflection_class.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -21,10 +21,10 @@ namespace cheonsa
 
 	boolean_c reflection_get_object_property_value( reflection_object_c * object, reflection_property_c const * property, reflection_value_container_c & value )
 	{
-		cheonsa_assert( object && property );
-		cheonsa_assert( object->_reflection_class == property->_reflection_class );
-		cheonsa_assert( property->_type >= data_type_e_string8 && property->_type <= data_type_e_float64 );
-		cheonsa_assert( property->_accessors._value_getter );
+		assert( object && property );
+		assert( object->_reflection_class == property->_reflection_class );
+		assert( property->_type >= data_type_e_string8 && property->_type <= data_type_e_float64 );
+		assert( property->_accessors._value_getter );
 		if ( property->_type == data_type_e_string8 )
 		{
 			return property->_accessors._value_getter( object, &value.string8 );
@@ -41,10 +41,10 @@ namespace cheonsa
 
 	boolean_c reflection_set_object_property_value( reflection_object_c * object, reflection_property_c const * property, reflection_value_container_c const & value )
 	{
-		cheonsa_assert( object && property );
-		cheonsa_assert( object->_reflection_class == property->_reflection_class );
-		cheonsa_assert( property->_type >= data_type_e_string8 && property->_type <= data_type_e_float64 );
-		cheonsa_assert( property->_accessors._value_setter );
+		assert( object && property );
+		assert( object->_reflection_class == property->_reflection_class );
+		assert( property->_type >= data_type_e_string8 && property->_type <= data_type_e_float64 );
+		assert( property->_accessors._value_setter );
 		if ( property->_type == data_type_e_string8 )
 		{
 			return property->_accessors._value_setter( object, &value.string8 );
@@ -61,7 +61,7 @@ namespace cheonsa
 
 	string16_c reflection_convert_value_to_string16( reflection_property_c const * property, reflection_value_container_c const & value )
 	{
-		cheonsa_assert( property );
+		assert( property );
 		//reflection_value_container_c value_b;
 		//reflection_value_container_c & value = value_a ? *value_a : value_b;
 		string8_c value_as_string8;
@@ -75,7 +75,7 @@ namespace cheonsa
 			value_as_color.d = 1.0;
 			if ( property->_type == data_type_e_uint32 )
 			{
-				cheonsa_assert( property->_type_count == 1 );
+				assert( property->_type_count == 1 );
 				value_as_color.a = static_cast< float64_c >( ( value.uint32[ 0 ] >> 24 ) & 0x000000FF ) / 255.0;
 				value_as_color.b = static_cast< float64_c >( ( value.uint32[ 0 ] >> 16 ) & 0x000000FF ) / 255.0;
 				value_as_color.c = static_cast< float64_c >( ( value.uint32[ 0 ] >>  8 ) & 0x000000FF ) / 255.0;
@@ -89,7 +89,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_uint8 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value_as_color.a = static_cast< float64_c >( value.uint8[ 0 ] ) / 255.0;
 				value_as_color.b = static_cast< float64_c >( value.uint8[ 1 ] ) / 255.0;
 				value_as_color.c = static_cast< float64_c >( value.uint8[ 2 ] ) / 255.0;
@@ -110,7 +110,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_uint16 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value_as_color.a = static_cast< float64_c >( value.uint16[ 0 ] ) / 65535.0;
 				value_as_color.b = static_cast< float64_c >( value.uint16[ 1 ] ) / 65535.0;
 				value_as_color.c = static_cast< float64_c >( value.uint16[ 2 ] ) / 65535.0;
@@ -121,7 +121,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_float32 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value_as_color.a = static_cast< float64_c >( value.float32[ 0 ] );
 				value_as_color.b = static_cast< float64_c >( value.float32[ 1 ] );
 				value_as_color.c = static_cast< float64_c >( value.float32[ 2 ] );
@@ -132,7 +132,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_float64 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value_as_color.a = value.float64[ 0 ];
 				value_as_color.b = value.float64[ 1 ];
 				value_as_color.c = value.float64[ 2 ];
@@ -143,7 +143,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 			if ( property->_type_count == 3 )
 			{
@@ -155,7 +155,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 			value_as_string16 = value_as_string8;
 		}
@@ -181,7 +181,7 @@ namespace cheonsa
 				}
 				else
 				{
-					cheonsa_assert( false );
+					assert( false );
 				}
 			}
 			else if ( property->_type == data_type_e_float64 )
@@ -203,12 +203,12 @@ namespace cheonsa
 				}
 				else
 				{
-					cheonsa_assert( false );
+					assert( false );
 				}
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 			ops::convert_float32xn_to_string8( core_list_c< float32_c >( mode_e_static, value_as_euler_angles.as_array(), 3 ), value_as_string8 );
 			value_as_string16 = value_as_string8;
@@ -217,12 +217,12 @@ namespace cheonsa
 		{
 			if ( property->_type == data_type_e_string8 )
 			{
-				cheonsa_assert( property->_type_count == 1 );
+				assert( property->_type_count == 1 );
 				value_as_string16 = value.string8;
 			}
 			else if ( property->_type == data_type_e_string16 )
 			{
-				cheonsa_assert( property->_type_count == 1 );
+				assert( property->_type_count == 1 );
 				value_as_string16 = value.string16;
 			}
 			else if ( property->_type == data_type_e_uint8 )
@@ -276,7 +276,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		return value_as_string16;
@@ -284,7 +284,7 @@ namespace cheonsa
 
 	boolean_c reflection_convert_string16_to_value( reflection_property_c const * property, reflection_value_container_c & value, string16_c const & value_as_string16 )
 	{
-		cheonsa_assert( property );
+		assert( property );
 		string8_c value_as_string8;
 		if ( property->_view == data_view_e_color )
 		{
@@ -297,7 +297,7 @@ namespace cheonsa
 			}
 			if ( property->_type == data_type_e_uint32 )
 			{
-				cheonsa_assert( property->_type_count == 1 );
+				assert( property->_type_count == 1 );
 				value.uint32[ 0 ] =
 					( static_cast< uint32_c >( ops::math_saturate( value_as_color.a ) * 255.0 ) << 24 ) |
 					( static_cast< uint32_c >( ops::math_saturate( value_as_color.b ) * 255.0 ) << 16 ) |
@@ -306,7 +306,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_uint8 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value.uint8[ 0 ] = static_cast< uint8_c >( ops::math_saturate( value_as_color.a ) * 255 );
 				value.uint8[ 1 ] = static_cast< uint8_c >( ops::math_saturate( value_as_color.b ) * 255 );
 				value.uint8[ 2 ] = static_cast< uint8_c >( ops::math_saturate( value_as_color.c ) * 255 );
@@ -314,7 +314,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_uint16 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value.uint16[ 0 ] = static_cast< uint16_c >( ops::math_saturate( value_as_color.a ) * 65535.0 );
 				value.uint16[ 1 ] = static_cast< uint16_c >( ops::math_saturate( value_as_color.b ) * 65535.0 );
 				value.uint16[ 2 ] = static_cast< uint16_c >( ops::math_saturate( value_as_color.c ) * 65535.0 );
@@ -322,7 +322,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_float32 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value.float32[ 0 ] = static_cast< float32_c >( value_as_color.a );
 				value.float32[ 1 ] = static_cast< float32_c >( value_as_color.b );
 				value.float32[ 2 ] = static_cast< float32_c >( value_as_color.c );
@@ -330,7 +330,7 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_float64 )
 			{
-				cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+				assert( property->_type_count == 3 || property->_type_count == 4 );
 				value.float64[ 0 ] = value_as_color.a;
 				value.float64[ 1 ] = value_as_color.b;
 				value.float64[ 2 ] = value_as_color.c;
@@ -338,7 +338,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		else if ( property->_view == data_view_e_euler_angles )
@@ -367,7 +367,7 @@ namespace cheonsa
 				}
 				else
 				{
-					cheonsa_assert( false );
+					assert( false );
 				}
 			}
 			else if ( property->_type == data_type_e_float64 )
@@ -388,12 +388,12 @@ namespace cheonsa
 				}
 				else
 				{
-					cheonsa_assert( false );
+					assert( false );
 				}
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		else
@@ -478,7 +478,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		return true;
@@ -486,13 +486,13 @@ namespace cheonsa
 
 	vector64x4_c reflection_convert_value_to_color( reflection_property_c const * property, reflection_value_container_c const & value )
 	{
-		cheonsa_assert( property );
-		cheonsa_assert( property->_view == data_view_e_color );
+		assert( property );
+		assert( property->_view == data_view_e_color );
 		vector64x4_c value_as_color;
 		value_as_color.d = 1.0;
 		if ( property->_type == data_type_e_uint32 )
 		{
-			cheonsa_assert( property->_type_count == 1 );
+			assert( property->_type_count == 1 );
 			value_as_color.a = static_cast< float64_c >( ( value.uint32[ 0 ] >> 24 ) & 0x000000FF ) / 255.0;
 			value_as_color.b = static_cast< float64_c >( ( value.uint32[ 0 ] >> 16 ) & 0x000000FF ) / 255.0;
 			value_as_color.c = static_cast< float64_c >( ( value.uint32[ 0 ] >>  8 ) & 0x000000FF ) / 255.0;
@@ -500,7 +500,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_uint8 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value_as_color.a = static_cast< float64_c >( value.uint8[ 0 ] ) / 255.0;
 			value_as_color.b = static_cast< float64_c >( value.uint8[ 1 ] ) / 255.0;
 			value_as_color.c = static_cast< float64_c >( value.uint8[ 2 ] ) / 255.0;
@@ -511,7 +511,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_uint16 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value_as_color.a = static_cast< float64_c >( value.uint16[ 0 ] ) / 65535.0;
 			value_as_color.b = static_cast< float64_c >( value.uint16[ 1 ] ) / 65535.0;
 			value_as_color.c = static_cast< float64_c >( value.uint16[ 2 ] ) / 65535.0;
@@ -522,7 +522,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_float32 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value_as_color.a = static_cast< float64_c >( value.float32[ 0 ] );
 			value_as_color.b = static_cast< float64_c >( value.float32[ 1 ] );
 			value_as_color.c = static_cast< float64_c >( value.float32[ 2 ] );
@@ -533,7 +533,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_float64 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value_as_color.a = value.float64[ 0 ];
 			value_as_color.b = value.float64[ 1 ];
 			value_as_color.c = value.float64[ 2 ];
@@ -544,18 +544,18 @@ namespace cheonsa
 		}
 		else
 		{
-			cheonsa_assert( false );
+			assert( false );
 		}
 		return value_as_color;
 	}
 
 	void_c reflection_convert_color_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector64x4_c const & value_as_color )
 	{
-		cheonsa_assert( property );
-		cheonsa_assert( property->_view == data_view_e_color );
+		assert( property );
+		assert( property->_view == data_view_e_color );
 		if ( property->_type == data_type_e_uint32 )
 		{
-			cheonsa_assert( property->_type_count == 1 );
+			assert( property->_type_count == 1 );
 			value.uint32[ 0 ] =
 				( static_cast< uint32_c >( ops::math_saturate( value_as_color.a ) * 255.0 ) << 24 ) |
 				( static_cast< uint32_c >( ops::math_saturate( value_as_color.b ) * 255.0 ) << 16 ) |
@@ -564,7 +564,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_uint8 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value.uint8[ 0 ] = static_cast< uint8_c >( ops::math_saturate( value_as_color.a ) * 255 );
 			value.uint8[ 1 ] = static_cast< uint8_c >( ops::math_saturate( value_as_color.b ) * 255 );
 			value.uint8[ 2 ] = static_cast< uint8_c >( ops::math_saturate( value_as_color.c ) * 255 );
@@ -572,7 +572,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_uint16 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value.uint16[ 0 ] = static_cast< uint16_c >( ops::math_saturate( value_as_color.a ) * 65535.0 );
 			value.uint16[ 1 ] = static_cast< uint16_c >( ops::math_saturate( value_as_color.b ) * 65535.0 );
 			value.uint16[ 2 ] = static_cast< uint16_c >( ops::math_saturate( value_as_color.c ) * 65535.0 );
@@ -580,7 +580,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_float32 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value.float32[ 0 ] = static_cast< float32_c >( value_as_color.a );
 			value.float32[ 1 ] = static_cast< float32_c >( value_as_color.b );
 			value.float32[ 2 ] = static_cast< float32_c >( value_as_color.c );
@@ -588,7 +588,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_float64 )
 		{
-			cheonsa_assert( property->_type_count == 3 || property->_type_count == 4 );
+			assert( property->_type_count == 3 || property->_type_count == 4 );
 			value.float64[ 0 ] = value_as_color.a;
 			value.float64[ 1 ] = value_as_color.b;
 			value.float64[ 2 ] = value_as_color.c;
@@ -596,14 +596,14 @@ namespace cheonsa
 		}
 		else
 		{
-			cheonsa_assert( false );
+			assert( false );
 		}
 	}
 
 	vector32x3_c reflection_convert_value_to_euler_angles( reflection_property_c const * property, reflection_value_container_c const & value )
 	{
-		cheonsa_assert( property );
-		cheonsa_assert( property->_view == data_view_e_euler_angles );
+		assert( property );
+		assert( property->_view == data_view_e_euler_angles );
 		vector32x3_c value_as_euler_angles;
 		if ( property->_type == data_type_e_float32 )
 		{
@@ -624,7 +624,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		else if ( property->_type == data_type_e_float64 )
@@ -646,20 +646,20 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		else
 		{
-			cheonsa_assert( false );
+			assert( false );
 		}
 		return value_as_euler_angles;
 	}
 
 	void_c reflection_convert_euler_angles_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector32x3_c const & value_as_euler_angles )
 	{
-		cheonsa_assert( property );
-		cheonsa_assert( property->_view == data_view_e_euler_angles );
+		assert( property );
+		assert( property->_view == data_view_e_euler_angles );
 		if ( property->_type == data_type_e_float32 )
 		{
 			if ( property->_type_count == 3 )
@@ -678,7 +678,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		else if ( property->_type == data_type_e_float64 )
@@ -699,19 +699,19 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( false );
+				assert( false );
 			}
 		}
 		else
 		{
-			cheonsa_assert( false );
+			assert( false );
 		}
 	}
 
 	boolean_c reflection_compare_values( reflection_property_c const * property, reflection_value_container_c const & a, reflection_value_container_c const & b )
 	{
-		cheonsa_assert( property );
-		cheonsa_assert( property->_type_count >= 1 && property->_type_count <= 4 );
+		assert( property );
+		assert( property->_type_count >= 1 && property->_type_count <= 4 );
 		if ( property->_type == data_type_e_uint8 || property->_type == data_type_e_sint8 )
 		{
 			for ( sint32_c i = 0; i < property->_type_count; i++ )
@@ -754,7 +754,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_string8 )
 		{
-			cheonsa_assert( property->_type_count == 1 );
+			assert( property->_type_count == 1 );
 			if ( a.string8 != b.string8 )
 			{
 				return false;
@@ -762,7 +762,7 @@ namespace cheonsa
 		}
 		else if ( property->_type == data_type_e_string16 )
 		{
-			cheonsa_assert( property->_type_count == 1 );
+			assert( property->_type_count == 1 );
 			if ( a.string16 != b.string16 )
 			{
 				return false;
@@ -770,7 +770,7 @@ namespace cheonsa
 		}
 		else
 		{
-			cheonsa_assert( false );
+			assert( false );
 		}
 		return true;
 	}

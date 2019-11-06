@@ -1,8 +1,8 @@
 #pragma once
 
+#include "cheonsa__types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_resource_file_texture.h"
-#include "cheonsa_math_types.h"
 
 namespace cheonsa
 {

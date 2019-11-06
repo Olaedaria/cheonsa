@@ -1,6 +1,6 @@
 #include "cheonsa_data_scribe_structure.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -38,9 +38,9 @@ namespace cheonsa
 
 	void_c data_scribe_structure_c::property_c::set_buffer( sint32_c array_count, void_c * data, sint32_c data_size )
 	{
-		cheonsa_assert( data );
-		cheonsa_assert( data_size >= 0 );
-		cheonsa_assert( sizeof( buffer_c ) == 8 );
+		assert( data );
+		assert( data_size >= 0 );
+		assert( sizeof( buffer_c ) == 8 );
 
 		delete[] _value;
 		_value = nullptr;
@@ -60,49 +60,49 @@ namespace cheonsa
 
 	sint32_c data_scribe_structure_c::property_c::get_buffer_array_count()
 	{
-		cheonsa_assert( _type == type_e_buffer );
+		assert( _type == type_e_buffer );
 		return reinterpret_cast< property_c::buffer_c * >( _value )->array_count;
 	}
 
 	sint32_c data_scribe_structure_c::property_c::get_buffer_data_size()
 	{
-		cheonsa_assert( _type == type_e_buffer );
+		assert( _type == type_e_buffer );
 		return reinterpret_cast< property_c::buffer_c * >( _value )->data_size;
 	}
 
 	void_c * data_scribe_structure_c::property_c::get_buffer_data()
 	{
-		cheonsa_assert( _type == type_e_buffer );
+		assert( _type == type_e_buffer );
 		return reinterpret_cast< uint8_c * >( _value ) + sizeof( buffer_c );
 	}
 
 	string8_c & data_scribe_structure_c::property_c::get_string8()
 	{
-		cheonsa_assert( _type == type_e_string8 );
+		assert( _type == type_e_string8 );
 		return *reinterpret_cast< string8_c * >( _value );
 	}
 
 	string16_c & data_scribe_structure_c::property_c::get_string16()
 	{
-		cheonsa_assert( _type == type_e_string16 );
+		assert( _type == type_e_string16 );
 		return *reinterpret_cast< string16_c * >( _value );
 	}
 
 	data_scribe_structure_c * data_scribe_structure_c::property_c::get_structure()
 	{
-		cheonsa_assert( _type == type_e_structure );
+		assert( _type == type_e_structure );
 		return reinterpret_cast< data_scribe_structure_c * >( _value );
 	}
 
 	sint32_c data_scribe_structure_c::property_c::get_structure_list_count()
 	{
-		cheonsa_assert( _type == type_e_structure_list );
+		assert( _type == type_e_structure_list );
 		return reinterpret_cast< core_list_c< data_scribe_structure_c * > * >( _value )->get_length();
 	}
 
 	data_scribe_structure_c * data_scribe_structure_c::property_c::add_structure_to_structure_list()
 	{
-		cheonsa_assert( _type == type_e_structure_list );
+		assert( _type == type_e_structure_list );
 		data_scribe_structure_c * result = new data_scribe_structure_c();
 		reinterpret_cast< core_list_c< data_scribe_structure_c * > * >( _value )->insert_at_end( result );
 		return result;
@@ -110,115 +110,115 @@ namespace cheonsa
 
 	data_scribe_structure_c * data_scribe_structure_c::property_c::get_structure_in_structure_list_at_index( sint32_c index )
 	{
-		cheonsa_assert( _type == type_e_structure_list );
+		assert( _type == type_e_structure_list );
 		return (*reinterpret_cast< core_list_c< data_scribe_structure_c * > * >( _value ))[ index ];
 	}
 
 	sint8_c & data_scribe_structure_c::property_c::get_sint8()
 	{
-		cheonsa_assert( _type == type_e_sint8 && _type_count == 1 );
+		assert( _type == type_e_sint8 && _type_count == 1 );
 		return *reinterpret_cast< sint8_c * >( _value );
 	}
 
 	sint16_c & data_scribe_structure_c::property_c::get_sint16()
 	{
-		cheonsa_assert( _type == type_e_sint16 && _type_count == 1 );
+		assert( _type == type_e_sint16 && _type_count == 1 );
 		return *reinterpret_cast< sint16_c * >( _value );
 	}
 
 	sint32_c & data_scribe_structure_c::property_c::get_sint32()
 	{
-		cheonsa_assert( _type == type_e_sint32 && _type_count == 1 );
+		assert( _type == type_e_sint32 && _type_count == 1 );
 		return *reinterpret_cast< sint32_c * >( _value );
 	}
 
 	sint64_c & data_scribe_structure_c::property_c::get_sint64()
 	{
-		cheonsa_assert( _type == type_e_sint64 && _type_count == 1 );
+		assert( _type == type_e_sint64 && _type_count == 1 );
 		return *reinterpret_cast< sint64_c * >( _value );
 	}
 
 	uint8_c & data_scribe_structure_c::property_c::get_uint8()
 	{
-		cheonsa_assert( _type == type_e_uint8 && _type_count == 1 );
+		assert( _type == type_e_uint8 && _type_count == 1 );
 		return *reinterpret_cast< uint8_c * >( _value );
 	}
 
 	uint16_c & data_scribe_structure_c::property_c::get_uint16()
 	{
-		cheonsa_assert( _type == type_e_uint16 && _type_count == 1 );
+		assert( _type == type_e_uint16 && _type_count == 1 );
 		return *reinterpret_cast< uint16_c * >( _value );
 	}
 
 	uint32_c & data_scribe_structure_c::property_c::get_uint32()
 	{
-		cheonsa_assert( _type == type_e_uint32 && _type_count == 1 );
+		assert( _type == type_e_uint32 && _type_count == 1 );
 		return *reinterpret_cast< uint32_c * >( _value );
 	}
 
 	uint64_c & data_scribe_structure_c::property_c::get_uint64()
 	{
-		cheonsa_assert( _type == type_e_uint64 && _type_count == 1 );
+		assert( _type == type_e_uint64 && _type_count == 1 );
 		return *reinterpret_cast< uint64_c * >( _value );
 	}
 
 	float32_c & data_scribe_structure_c::property_c::get_float32()
 	{
-		cheonsa_assert( _type == type_e_float32 && _type_count == 1 );
+		assert( _type == type_e_float32 && _type_count == 1 );
 		return *reinterpret_cast< float32_c * >( _value );
 	}
 
 	vector32x2_c & data_scribe_structure_c::property_c::get_float32x2()
 	{
-		cheonsa_assert( _type == type_e_float32 && _type_count == 2 );
+		assert( _type == type_e_float32 && _type_count == 2 );
 		return *reinterpret_cast< vector32x2_c * >( _value );
 	}
 
 	vector32x3_c & data_scribe_structure_c::property_c::get_float32x3()
 	{
-		cheonsa_assert( _type == type_e_float32 && _type_count == 3 );
+		assert( _type == type_e_float32 && _type_count == 3 );
 		return *reinterpret_cast< vector32x3_c * >( _value );
 	}
 
 	vector32x4_c & data_scribe_structure_c::property_c::get_float32x4()
 	{
-		cheonsa_assert( _type == type_e_float32 && _type_count == 4 );
+		assert( _type == type_e_float32 && _type_count == 4 );
 		return *reinterpret_cast< vector32x4_c * >( _value );
 	}
 
 	box32x2_c & data_scribe_structure_c::property_c::get_rectangle32()
 	{
-		cheonsa_assert( _type == type_e_float32 && _type_count == 4 );
+		assert( _type == type_e_float32 && _type_count == 4 );
 		return *reinterpret_cast< box32x2_c * >( _value );
 	}
 
 	float64_c & data_scribe_structure_c::property_c::get_float64()
 	{
-		cheonsa_assert( _type == type_e_float64 && _type_count == 1 );
+		assert( _type == type_e_float64 && _type_count == 1 );
 		return *reinterpret_cast< float64_c * >( _value );
 	}
 
 	vector64x2_c & data_scribe_structure_c::property_c::get_float64x2()
 	{
-		cheonsa_assert( _type == type_e_float64 && _type_count == 2 );
+		assert( _type == type_e_float64 && _type_count == 2 );
 		return *reinterpret_cast< vector64x2_c * >( _value );
 	}
 
 	vector64x3_c & data_scribe_structure_c::property_c::get_float64x3()
 	{
-		cheonsa_assert( _type == type_e_float64 && _type_count == 3 );
+		assert( _type == type_e_float64 && _type_count == 3 );
 		return *reinterpret_cast< vector64x3_c * >( _value );
 	}
 
 	vector64x4_c & data_scribe_structure_c::property_c::get_float64x4()
 	{
-		cheonsa_assert( _type == type_e_float64 && _type_count == 4 );
+		assert( _type == type_e_float64 && _type_count == 4 );
 		return *reinterpret_cast< vector64x4_c * >( _value );
 	}
 
 	box64x2_c & data_scribe_structure_c::property_c::get_rectangle64()
 	{
-		cheonsa_assert( _type == type_e_float64 && _type_count == 4 );
+		assert( _type == type_e_float64 && _type_count == 4 );
 		return *reinterpret_cast< box64x2_c * >( _value );
 	}
 
@@ -228,38 +228,38 @@ namespace cheonsa
 		, _type_count( type_count )
 		, _value( nullptr )
 	{
-		cheonsa_assert( type > type_e_none && type < type_e_count_ );
+		assert( type > type_e_none && type < type_e_count_ );
 		if ( type == type_e_buffer )
 		{
-			cheonsa_assert( _type_count == 0 );
+			assert( _type_count == 0 );
 			_value = nullptr;
 		}
 		else if ( type == type_e_string8 )
 		{
-			cheonsa_assert( _type_count == 0 );
+			assert( _type_count == 0 );
 			_value = new string8_c();
 		}
 		else if ( type == type_e_string16 )
 		{
-			cheonsa_assert( _type_count == 0 );
+			assert( _type_count == 0 );
 			_value = new string16_c();
 		}
 		else if ( type == type_e_structure )
 		{
-			cheonsa_assert( _type_count == 0 );
+			assert( _type_count == 0 );
 			_value = new data_scribe_structure_c();
 		}
 		else if ( type == type_e_structure_list )
 		{
-			cheonsa_assert( _type_count == 0 );
+			assert( _type_count == 0 );
 			_value = new core_list_c< data_scribe_structure_c * >();
 		}
 		else
 		{
 			// plain old data.
-			cheonsa_assert( _type_count > 0 );
+			assert( _type_count > 0 );
 			sint32_c property_type_base_size = get_type_base_size( _type );
-			cheonsa_assert( property_type_base_size > 0 );
+			assert( property_type_base_size > 0 );
 			_value = new uint8_c[ property_type_base_size * _type_count ];
 		}
 	}
@@ -321,7 +321,7 @@ namespace cheonsa
 
 	void_c data_scribe_structure_c::remove_property( property_c * property )
 	{
-		cheonsa_assert( _property_list.remove( property ) );
+		assert( _property_list.remove( property ) );
 		delete property;
 	}
 
@@ -376,10 +376,10 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( property->_type_count > 0 );
+				assert( property->_type_count > 0 );
 				scribe_binary->save_uint8( property->_type_count );
 				sint32_c property_type_base_size = property_c::get_type_base_size( property->_type );
-				cheonsa_assert( property_type_base_size > 0 );
+				assert( property_type_base_size > 0 );
 				uint8_c const * value = reinterpret_cast< uint8_c const * >( property->_value );
 				for ( sint32_c j = 0; j < property->_type_count; j++ )
 				{
@@ -429,8 +429,8 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( property_type_count > 0 );
-				cheonsa_assert( property_type_base_size > 0 );
+				assert( property_type_count > 0 );
+				assert( property_type_base_size > 0 );
 				uint8_c * value = reinterpret_cast< uint8_c * >( property->_value );
 				for ( uint32_c i = 0; i < property_type_count; i++ )
 				{

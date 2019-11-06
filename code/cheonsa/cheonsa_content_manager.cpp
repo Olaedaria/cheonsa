@@ -1,5 +1,5 @@
 #include "cheonsa_content_manager.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 #define defined_user_data_file_name "user_data_folder_path_list.txt"
@@ -147,7 +147,7 @@ namespace cheonsa
 			return false;
 		}
 
-		cheonsa_assert( ops::path_is_formatted_for_cheonsa( file_path_relative, false ) );
+		assert( ops::path_is_formatted_for_cheonsa( file_path_relative, false ) );
 
 		locale_c const * locale = global_engine_instance.interfaces.content_manager->get_actual_locale();
 
@@ -190,7 +190,7 @@ namespace cheonsa
 					}
 					else
 					{
-						cheonsa_assert( locale != nullptr );
+						assert( locale != nullptr );
 						scan_path += locale->get_code();
 						scan_path += "/";
 					}
@@ -216,7 +216,7 @@ namespace cheonsa
 				}
 				else
 				{
-					cheonsa_assert( locale != nullptr );
+					assert( locale != nullptr );
 					scan_path += locale->get_code();
 					scan_path += "/";
 				}
@@ -254,7 +254,7 @@ namespace cheonsa
 
 	void_c content_manager_c::apply_changes()
 	{
-		cheonsa_assert( global_engine_instance.interfaces.resource_manager != nullptr );
+		assert( global_engine_instance.interfaces.resource_manager != nullptr );
 
 		// detect supported locales.
 		// scan sub folders, each sub folder should be another supported locale.

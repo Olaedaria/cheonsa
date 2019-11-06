@@ -1,5 +1,5 @@
 #include "cheonsa_resource_file_model.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -179,8 +179,8 @@ namespace cheonsa
 
 	boolean_c resource_file_model_c::find_bone_logic_property_as_sint32( bone_logic_c const * logic, string8_c const & name, sint32_c & value )
 	{
-		cheonsa_assert( _is_loaded );
-		cheonsa_assert( logic != nullptr );
+		assert( _is_loaded );
+		assert( logic != nullptr );
 		value = 0;
 		for ( uint32_c i = logic->property_start; i < logic->property_end; i++ )
 		{
@@ -196,8 +196,8 @@ namespace cheonsa
 
 	boolean_c resource_file_model_c::find_bone_logic_property_as_float32( bone_logic_c const * logic, string8_c const & name, float32_c & value )
 	{
-		cheonsa_assert( _is_loaded );
-		cheonsa_assert( logic != nullptr );
+		assert( _is_loaded );
+		assert( logic != nullptr );
 		value = 0.0f;
 		for ( uint32_c i = logic->property_start; i < logic->property_end; i++ )
 		{
@@ -213,8 +213,8 @@ namespace cheonsa
 
 	boolean_c resource_file_model_c::find_bone_logic_property_as_string8( bone_logic_c const * logic, string8_c const & name, string8_c & value )
 	{
-		cheonsa_assert( _is_loaded );
-		cheonsa_assert( logic != nullptr );
+		assert( _is_loaded );
+		assert( logic != nullptr );
 		value = "";
 		for ( uint32_c i = logic->property_start; i < logic->property_end; i++ )
 		{
@@ -240,8 +240,8 @@ namespace cheonsa
 
 	boolean_c resource_file_model_c::_load( data_stream_c * stream )
 	{
-		cheonsa_assert( stream != nullptr );
-		cheonsa_assert( _is_loaded == false );
+		assert( stream != nullptr );
+		assert( _is_loaded == false );
 
 		// check signature and version.
 		char8_c signature[ 4 ];
@@ -436,7 +436,7 @@ namespace cheonsa
 			sint32_c mother_bone_index = find_bone_index_with_bone_name( bone.mother_bone_name );
 			if ( mother_bone_index >= 0 )
 			{
-				cheonsa_assert( mother_bone_index < i ); // flat list, ordered by hierarchy, means that our mother bone should have its post-load extras data calculated by now.
+				assert( mother_bone_index < i ); // flat list, ordered by hierarchy, means that our mother bone should have its post-load extras data calculated by now.
 				bone_extras.local_space_rest_transform = bone_extras.object_space_rest_transform * _data.bone_extras_list[ mother_bone_index ].object_space_rest_transform_inverted;
 			}
 			else
@@ -446,11 +446,11 @@ namespace cheonsa
 		}
 
 		// calculate mesh bounds for static mesh.
-		_data.mesh_box.minimum = _data.mesh_vertex_list_base[ 0 ].position;
-		_data.mesh_box.maximum = _data.mesh_vertex_list_base[ 0 ].position;
+		_data.mesh_box.minimum = vector32x3_c( _data.mesh_vertex_list_base[ 0 ].position );
+		_data.mesh_box.maximum = vector32x3_c( _data.mesh_vertex_list_base[ 0 ].position );
 		for ( sint32_c i = 1; i < _data.mesh_vertex_list_base.get_length(); i++ )
 		{
-			_data.mesh_box.accumulate_bounds( _data.mesh_vertex_list_base[ i ].position );
+			_data.mesh_box.accumulate_bounds( vector32x3_c( _data.mesh_vertex_list_base[ i ].position ) );
 		}
 
 		// done.
@@ -466,8 +466,8 @@ namespace cheonsa
 
 	void_c resource_file_model_c::_unload()
 	{
-		cheonsa_assert( _is_loaded == true );
-		cheonsa_assert( _raw_data_size > 0 && _raw_data != nullptr );
+		assert( _is_loaded == true );
+		assert( _raw_data_size > 0 && _raw_data != nullptr );
 		_data.reset();
 		delete[] _raw_data;
 		_raw_data = nullptr;
@@ -485,7 +485,7 @@ namespace cheonsa
 
 	resource_file_model_c::~resource_file_model_c()
 	{
-		cheonsa_assert( _is_loaded == false );
+		assert( _is_loaded == false );
 	}
 
 	resource_file_model_c::data_c const & resource_file_model_c::get_data() const

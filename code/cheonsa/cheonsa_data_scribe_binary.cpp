@@ -1,5 +1,5 @@
 #include "cheonsa_data_scribe_binary.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
 
 namespace cheonsa
 {
@@ -8,13 +8,13 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::_load_straight( void_c * const data, uint32_c size )
 	{
-		cheonsa_assert( size > 0 && size <= flip_buffer_size );
+		assert( size > 0 && size <= flip_buffer_size );
 		_stream->load( data, size );
 	}
 
 	void_c data_scribe_binary_c::_load_switched( void_c * const data, uint32_c size )
 	{
-		cheonsa_assert( size > 0 && size <= flip_buffer_size );
+		assert( size > 0 && size <= flip_buffer_size );
 		uint8_c * data_bytes = reinterpret_cast< uint8_c * >( data );
 		uint8_c data_bytes_copy[ flip_buffer_size ];
 		_stream->load( data_bytes_copy, size );
@@ -26,13 +26,13 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::_save_straight( void_c const * const data, uint32_c size )
 	{
-		cheonsa_assert( size > 0 && size <= flip_buffer_size );
+		assert( size > 0 && size <= flip_buffer_size );
 		_stream->save( data, size );
 	}
 
 	void_c data_scribe_binary_c::_save_switched( void_c const * const data, uint32_c size )
 	{
-		cheonsa_assert( size > 0 && size <= flip_buffer_size );
+		assert( size > 0 && size <= flip_buffer_size );
 		uint8_c const * const data_bytes = reinterpret_cast< uint8_c const * const >( data );
 		uint8_c data_bytes_copy[ flip_buffer_size ];
 		for ( uint32_c i = 0; i < size; i++ )
@@ -44,18 +44,18 @@ namespace cheonsa
 
 	data_scribe_binary_c::data_scribe_binary_c()
 		: _stream( nullptr )
-		, _endianness( data_get_native_endianness() )
+		, _endianness( ops::get_native_endianness() )
 		, _load_function( nullptr )
 		, _save_function( nullptr )
 	{
 	}
 
-	void_c data_scribe_binary_c::open( data_stream_c * stream, data_endianness_e endianness )
+	void_c data_scribe_binary_c::open( data_stream_c * stream, endianness_e endianness )
 	{
-		cheonsa_assert( stream );
+		assert( stream );
 		_stream = stream;
 		_endianness = endianness;
-		if ( endianness == data_get_native_endianness() )
+		if ( endianness == ops::get_native_endianness() )
 		{
 			_load_function = & data_scribe_binary_c::_load_straight;
 			_save_function = & data_scribe_binary_c::_save_straight;
@@ -69,9 +69,9 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::close()
 	{
-		cheonsa_assert( _stream );
+		assert( _stream );
 		_stream = nullptr;
-		_endianness = data_get_native_endianness();
+		_endianness = ops::get_native_endianness();
 
 	}
 
@@ -83,16 +83,16 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::set_stream( data_stream_c * stream )
 	{
-		cheonsa_assert( stream );
+		assert( stream );
 		_stream = stream;
 	}
 
-	data_endianness_e data_scribe_binary_c::get_endianness()
+	endianness_e data_scribe_binary_c::get_endianness()
 	{
 		return _endianness;
 	}
 
-	void_c data_scribe_binary_c::set_endianness( data_endianness_e endianness )
+	void_c data_scribe_binary_c::set_endianness( endianness_e endianness )
 	{
 		_endianness = endianness;
 	}
@@ -213,7 +213,7 @@ namespace cheonsa
 		result.character_list.construct_mode_dynamic( length + 1, length + 1 );
 		result.character_list[ length ] = 0;
 		_stream->load( result.character_list.get_internal_array(), length * 2 );
-		if ( _endianness != data_get_native_endianness() )
+		if ( _endianness != ops::get_native_endianness() )
 		{
 			uint8_c * bytes = reinterpret_cast< uint8_c * >( result.character_list.get_internal_array() );
 			for ( sint32_c i = 0; i < length; i++ )
@@ -302,7 +302,7 @@ namespace cheonsa
 	void_c data_scribe_binary_c::save_string8( string8_c const & string )
 	{
 		sint32_c count = string.character_list.get_length() - 1;
-		cheonsa_assert( count >= 0 && count < constants< uint16_c >::maximum() );
+		assert( count >= 0 && count < constants< uint16_c >::maximum() );
 		save_uint16( static_cast< uint16_c >( count ) );
 		_stream->save( string.character_list.get_internal_array(), count );
 	}
@@ -310,10 +310,10 @@ namespace cheonsa
 	void_c data_scribe_binary_c::save_string16( string16_c const & string )
 	{
 		sint32_c count = string.character_list.get_length() - 1;
-		cheonsa_assert( count >= 0 && count < constants< uint16_c >::maximum() );
+		assert( count >= 0 && count < constants< uint16_c >::maximum() );
 		save_uint16( static_cast< uint16_c >( count ) );
 		char16_c const * string_buffer = string.character_list.get_internal_array();
-		if ( _endianness == data_get_native_endianness() )
+		if ( _endianness == ops::get_native_endianness() )
 		{
 			_stream->save( string_buffer, count * 2 );
 		}

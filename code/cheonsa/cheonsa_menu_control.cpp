@@ -16,7 +16,7 @@
 #include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_element.h"
 #include "cheonsa_user_interface.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -147,11 +147,11 @@ namespace cheonsa
 
 	void_c menu_control_c::_add_control( menu_control_c * control, sint32_c index )
 	{
-		cheonsa_assert( control );
-		cheonsa_assert( control->_user_interface == nullptr );
-		cheonsa_assert( control->_mother_control == nullptr );
-		cheonsa_assert( control->_index == -1 );
-		cheonsa_assert( index >= -1 && index <= _control_list.get_length() );
+		assert( control );
+		assert( control->_user_interface == nullptr );
+		assert( control->_mother_control == nullptr );
+		assert( control->_index == -1 );
+		assert( index >= -1 && index <= _control_list.get_length() );
 
 		// update relationships.
 		if ( index == -1 )
@@ -189,12 +189,12 @@ namespace cheonsa
 
 	void_c menu_control_c::_remove_control( sint32_c index )
 	{
-		cheonsa_assert( index >= 0 && index < _control_list.get_length() );
+		assert( index >= 0 && index < _control_list.get_length() );
 		user_interface_c * user_interface = get_user_interface();
 		menu_control_c * control = _control_list[ index ];
-		cheonsa_assert( control->_user_interface == nullptr );
-		cheonsa_assert( control->_mother_control == this );
-		cheonsa_assert( control->_index == index );
+		assert( control->_user_interface == nullptr );
+		assert( control->_mother_control == this );
+		assert( control->_index == index );
 		if ( user_interface )
 		{
 			user_interface->_suspend_control( control );
@@ -274,8 +274,8 @@ namespace cheonsa
 
 	void_c menu_control_c::_add_element( menu_element_c * element )
 	{
-		cheonsa_assert( element );
-		cheonsa_assert( element->_mother_control == nullptr );
+		assert( element );
+		assert( element->_mother_control == nullptr );
 
 		// update relationships.
 		element->_mother_control = this;
@@ -303,8 +303,8 @@ namespace cheonsa
 
 	void_c menu_control_c::_remove_element( menu_element_c * element )
 	{
-		cheonsa_assert( element != nullptr );
-		cheonsa_assert( element->_mother_control == this );
+		assert( element != nullptr );
+		assert( element->_mother_control == this );
 		_element_list.remove( element );
 		element->_mother_control = nullptr;
 	}
@@ -340,16 +340,16 @@ namespace cheonsa
 
 	void_c menu_control_c::_handle_resource_file_menu_on_load( resource_file_c * resource_file )
 	{
-		cheonsa_assert( resource_file != nullptr );
-		cheonsa_assert( resource_file->get_is_loaded() );
-		cheonsa_assert( _resource_file_menu == resource_file );
+		assert( resource_file != nullptr );
+		assert( resource_file->get_is_loaded() );
+		assert( _resource_file_menu == resource_file );
 		load_hierarchy_and_properties( _resource_file_menu->get_markup().get_node( 1 ) );
 	}
 
 	void_c menu_control_c::_handle_resource_file_menu_on_unload( resource_file_c * resource_file )
 	{
-		cheonsa_assert( resource_file != nullptr );
-		cheonsa_assert( resource_file->get_is_loaded() );
+		assert( resource_file != nullptr );
+		assert( resource_file->get_is_loaded() );
 		load_hierarchy_and_properties( nullptr );
 	}
 
@@ -545,7 +545,7 @@ namespace cheonsa
 			_control_group_texture = nullptr;
 		}
 
-		cheonsa_assert( get_user_interface() == nullptr );
+		assert( get_user_interface() == nullptr );
 		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 		{
 			delete _control_list[ i ];
@@ -1408,7 +1408,7 @@ namespace cheonsa
 		}
 		else if ( _mother_control )
 		{
-			cheonsa_assert( _mother_control->_control_list[ _index ] == this );
+			assert( _mother_control->_control_list[ _index ] == this );
 			_mother_control->_control_list.remove_at_index( _index );
 			_mother_control->_control_list.insert_at_index( 0, this );
 			for ( sint32_c i = 0; i < _mother_control->_control_list.get_length(); i++ )
@@ -1571,7 +1571,7 @@ namespace cheonsa
 			while ( _control_group_mother->_control_group_is_root == false )
 			{
 				_control_group_mother = _control_group_mother->_mother_control;
-				cheonsa_assert( _control_group_mother != nullptr );
+				assert( _control_group_mother != nullptr );
 			}
 			if ( _control_group_is_root )
 			{
@@ -1592,9 +1592,9 @@ namespace cheonsa
 					delete _control_group_texture;
 					_control_group_texture = nullptr;
 				}
-				cheonsa_assert( needed_width <= 4096 && needed_height <= 4096 );
+				assert( needed_width <= 4096 && needed_height <= 4096 );
 				_control_group_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
-				cheonsa_assert( _control_group_texture != nullptr );
+				assert( _control_group_texture != nullptr );
 				_control_group_texture_wrapper.set_video_texture( _control_group_texture );
 			}
 
@@ -1615,7 +1615,7 @@ namespace cheonsa
 		}
 		else
 		{
-			cheonsa_assert( _mother_control != nullptr );
+			assert( _mother_control != nullptr );
 
 			// release control group texture target.
 			if ( _control_group_texture != nullptr )

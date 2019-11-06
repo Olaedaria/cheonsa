@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_math_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_video_renderer_types.h"
 #include "cheonsa_video_renderer_canvas.h"
 #include "cheonsa_scene_types.h"

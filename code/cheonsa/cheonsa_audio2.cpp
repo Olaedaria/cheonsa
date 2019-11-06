@@ -1,10 +1,10 @@
 #include "cheonsa_audio2.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
-#include "cheonsa_debug.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_data_scribe_binary.h"
 
+#include <cassert>
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN 
 #include <Windows.h>
@@ -271,11 +271,11 @@ namespace cheonsa
 		, _data_buffer( nullptr )
 		, _data_buffer_size( 0 )
 	{
-		cheonsa_assert( stream != nullptr );
-		cheonsa_assert( stream->get_position() == 0 );
+		assert( stream != nullptr );
+		assert( stream->get_position() == 0 );
 
 		data_scribe_binary_c scribe;
-		scribe.open( stream, data_endianness_e_little );
+		scribe.open( stream, endianness_e_little );
 
 		// determine file type.
 		char8_c loaded_file_signature[ 4 ];
@@ -319,7 +319,7 @@ namespace cheonsa
 				if ( chunk_id[ 0 ] == 'f' && chunk_id[ 1 ] == 'm' && chunk_id[ 2 ] == 't' && chunk_id[ 3 ] == ' ' )
 				{
 					// load format chunk
-					cheonsa_assert( has_format == false );
+					assert( has_format == false );
 					if ( has_format == false )
 					{
 						has_format = true;
@@ -334,7 +334,7 @@ namespace cheonsa
 				else if ( chunk_id[ 0 ] == 'd' && chunk_id[ 1 ] == 'a' && chunk_id[ 2 ] == 't' && chunk_id[ 3 ] == 'a' )
 				{
 					// load data chunk.
-					cheonsa_assert( has_data == false );
+					assert( has_data == false );
 					if ( has_data == false )
 					{
 						has_data = true;
@@ -430,7 +430,7 @@ namespace cheonsa
 
 	sint32_c audio2_wave_buffer_c::state_c::remove_reference()
 	{
-		cheonsa_assert( _reference_count > 0 );
+		assert( _reference_count > 0 );
 		_reference_count--;
 		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
@@ -468,7 +468,7 @@ namespace cheonsa
 
 	sint32_c audio2_wave_buffer_c::remove_reference()
 	{
-		cheonsa_assert( _reference_count > 0 );
+		assert( _reference_count > 0 );
 		_reference_count--;
 		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
@@ -528,7 +528,7 @@ namespace cheonsa
 			// try to open ogg stream if needed.
 			if ( _wave_buffer_state->_format == audio2_wave_buffer_format_e_ogg )
 			{
-				cheonsa_assert( _ogg_stb_vorbis == nullptr );
+				assert( _ogg_stb_vorbis == nullptr );
 				int error = 0;
 				_ogg_stb_vorbis = stb_vorbis_open_memory( _wave_buffer_state->_data_buffer, _wave_buffer_state->_data_buffer_size, &error, nullptr );
 				if ( _ogg_stb_vorbis == nullptr )
@@ -564,7 +564,7 @@ namespace cheonsa
 
 	boolean_c audio2_wave_player_c::_sample_and_mix( sint32_c output_channel_count, sint32_c output_sample_rate, sint32_c output_sample_count, float32_c * output_sample_buffer, float32_c * output_channel_volumes )
 	{
-		cheonsa_assert( _is_playing && _wave_buffer_state != nullptr && _wave_buffer_state->_format != audio2_wave_buffer_format_e_none );
+		assert( _is_playing && _wave_buffer_state != nullptr && _wave_buffer_state->_format != audio2_wave_buffer_format_e_none );
 
 		// sample from the wave buffer and mix with output.
 		if ( _wave_buffer_state->_format == audio2_wave_buffer_format_e_raw )
@@ -597,13 +597,13 @@ namespace cheonsa
 		else if ( _wave_buffer_state->_format == audio2_wave_buffer_format_e_ogg )
 		{
 			// audio thread should not call us if we aren't ready.
-			cheonsa_assert( _ogg_stb_vorbis != nullptr );
+			assert( _ogg_stb_vorbis != nullptr );
 
 			// decode the ogg, sample from and advance the stream.
 			float64_c output_duration = static_cast< float64_c >( output_sample_count ) / static_cast< float64_c >( output_sample_rate );
 			sint32_c input_sample_count_needed = static_cast< sint32_c >( output_duration * _speed * static_cast< float64_c >( _wave_buffer_state->_sample_rate ) ); // number of samples that we need to decode from the stream to satisfy the output.
 			float32_c input_sample_buffer[ 0xFFFF ];
-			cheonsa_assert( input_sample_count_needed * _wave_buffer_state->_channel_count < 0xFFFF );
+			assert( input_sample_count_needed * _wave_buffer_state->_channel_count < 0xFFFF );
 			sint32_c input_sample_count = stb_vorbis_get_samples_float_interleaved( _ogg_stb_vorbis, _wave_buffer_state->_channel_count, input_sample_buffer, input_sample_count_needed * _wave_buffer_state->_channel_count );
 			_sample += input_sample_count; // update track of current play back so we can determine when we reach the end.
 			if ( _sample >= _wave_buffer->_state->_sample_count ) // detect if end is reached.
@@ -674,7 +674,7 @@ namespace cheonsa
 
 	sint32_c audio2_wave_player_c::remove_reference()
 	{
-		cheonsa_assert( _reference_count > 0 );
+		assert( _reference_count > 0 );
 		_reference_count--;
 		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
@@ -764,7 +764,7 @@ namespace cheonsa
 
 	sint32_c audio2_scene_source_c::remove_reference()
 	{
-		cheonsa_assert( _reference_count > 0 );
+		assert( _reference_count > 0 );
 		_reference_count--;
 		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
@@ -824,7 +824,7 @@ namespace cheonsa
 
 	sint32_c audio2_scene_listener_c::remove_reference()
 	{
-		cheonsa_assert( _reference_count > 0 );
+		assert( _reference_count > 0 );
 		_reference_count--;
 		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
@@ -915,7 +915,7 @@ namespace cheonsa
 
 	sint32_c audio2_scene_c::remove_reference()
 	{
-		cheonsa_assert( _reference_count > 0 );
+		assert( _reference_count > 0 );
 		_reference_count--;
 		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
@@ -947,7 +947,7 @@ namespace cheonsa
 
 	void_c audio2_scene_c::add_scene_source( audio2_scene_source_c * value, boolean_c randomize_seek )
 	{
-		cheonsa_assert( value != nullptr );
+		assert( value != nullptr );
 		if ( value->_wave_player->_is_queued == false )
 		{
 			_critical_section.enter();
@@ -963,7 +963,7 @@ namespace cheonsa
 
 	void_c audio2_scene_c::remove_scene_source( audio2_scene_source_c * value )
 	{
-		cheonsa_assert( value != nullptr );
+		assert( value != nullptr );
 		_critical_section.enter();
 		value->add_reference();
 		queued_scene_source_c * queued_scene_source = _queued_scene_source_list.emplace_at_end();
@@ -1076,7 +1076,7 @@ namespace cheonsa
 			float32_c time_step = 1.0f / static_cast< float32_c >( audio_interface->_output_frame_rate );
 			sint32_c mix_sample_count = audio_interface->_output_sample_rate / audio_interface->_output_frame_rate;
 			sint32_c mix_sample_element_count = mix_sample_count * audio_interface->_output_channel_count;
-			cheonsa_assert( mix_sample_element_count < 0xFFFF );
+			assert( mix_sample_element_count < 0xFFFF );
 			float32_c mix_buffer[ 0xFFFF ]; // buffer for mixing samples as floats before we convert and submit.
 			float32_c mix_layer_volumes[ audio2_layer_e_count_ ]; // local thread copy of layer volumes.
 			vector32x3_c mix_channel_normals[ 6 ]; // resolved normals for the current listener.

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_math_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_stream.h"
 #include "cheonsa_data_scribe_ini.h"
@@ -22,8 +22,8 @@ namespace cheonsa
 	enum audio2_wave_buffer_format_e
 	{
 		audio2_wave_buffer_format_e_none, // will be set when state is unusable.
-		audio2_wave_buffer_format_e_raw, // data format is raw wave.
-		audio2_wave_buffer_format_e_ogg, // data format is ogg stream.
+		audio2_wave_buffer_format_e_raw, // data buffer format is raw wave (pulse-code modulation sample buffer portion of wav file).
+		audio2_wave_buffer_format_e_ogg, // data buffer format is ogg stream (entire ogg file).
 	};
 
 	enum audio2_layer_e
@@ -43,10 +43,9 @@ namespace cheonsa
 	};
 
 	// mixes audio from input to output.
-	// input and output buffers should represent audio clips of equivalent durations.
-	// inout and output buffers can have different sample rates. if they are different then the mixer will resample automatically.
+	// input_sample_buffer and output_sample_buffer should be buffers of equivalent durations but they may be different sample rates (indicated by input_sample_count and output_sample_count), the mixer will resample automatically.
 	// input_sample_format is the data type of each sample element.
-	// input_channel_count is the numbers of channels in the input buffer.
+	// input_channel_count is the number of channels in the input buffer.
 	// input_sample_count is number of samples in input_sample_buffer. each sample has input_channel_count number of elements formatted as input_sample_format.
 	// input_sample_buffer is the buffer that has sound samples to mix with output.
 	// output_channel_count is the number of channels in the output buffer.
@@ -189,7 +188,6 @@ namespace cheonsa
 	// 3d audio source.
 	// wraps the functionality of a wave player, and provides spatial properties that define how it is mixed to the output.
 	// sources only play once and then they are removed from the audio scene.
-	// the main or game thread should only add audio sources to the scene if they are not already added.
 	class audio2_scene_source_c
 	{
 	private:
@@ -263,7 +261,7 @@ namespace cheonsa
 	// plug this in to the physics engine to do ray casts, to detect occluders, material properties, transmission mediums, reflections/echo/reverb, etc.
 	// simulate speed of sound, to create delay and doppler effects.
 	// simulate low pass filtering for occluded and distant sources.
-	// simulate distortions that become apparent at high energies and kilometer distances, like how lightning up close is a crack, but from kilometers away its a very low and drawn out rumble. the sound designer would only have to author the crack sound effect, the physical model do the rest.
+	// simulate distortions that become apparent at high energies and distances, like how lightning up close is a crack, but from kilometers away its a very low and drawn out rumble. the sound designer would only have to author the crack sound effect, the simulation model would do the rest.
 	class audio2_scene_c
 	{
 	private:
@@ -302,6 +300,7 @@ namespace cheonsa
 
 	// holds any number of audio scenes for 3d mixing.
 	// holds any number of wave players for 2d mixing.
+	// manages simple music mixing (fade in, cross fade, fade out).
 	// manages audio mixing.
 	// manages audio playback and output.
 	class audio2_interface_c
@@ -384,16 +383,16 @@ namespace cheonsa
 
 		void_c refresh(); // pauses mixing thread, syncs wave players to any new wave buffer states (which restarts play back of those wave players, so it might "break" how things sound temporarily), resumes mixing thread.
 		
-		void_c add_scene( audio2_scene_c * value ); // adds a scene to this audio interface, for 3d mixing.
-		void_c remove_scene( audio2_scene_c * value ); // removes a scene from this audio interface.
+		void_c add_scene( audio2_scene_c * value ); // adds a 3d scene to this audio interface.
+		void_c remove_scene( audio2_scene_c * value ); // removes a 3d scene from this audio interface.
 
-		void_c add_wave_player( audio2_wave_player_c * value ); // adds a wave player to this audio interface, for 2d mixing. the wave player will play once and then be removed.
-		void_c remove_wave_player( audio2_wave_player_c * value ); // removes a wave player from this audio interface, for 2d mixing.
+		void_c add_wave_player( audio2_wave_player_c * value ); // adds a wave player to this audio interface. the wave player will play once and then be removed.
+		void_c remove_wave_player( audio2_wave_player_c * value ); // removes a wave player from this audio interface.
 
 		void_c play_music( string16_c const & file_path, float32_c fade_duration );
 		void_c stop_music( float32_c fade_duration );
-		void_c pause_music();
-		void_c resume_music();
+		void_c pause_music(); // fades out the music really quick.
+		void_c resume_music(); // fades in the music really quick.
 
 	};
 

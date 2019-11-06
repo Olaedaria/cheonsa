@@ -5,12 +5,6 @@
 namespace cheonsa
 {
 
-	enum data_endianness_e
-	{
-		data_endianness_e_little,
-		data_endianness_e_big,
-	};
-
 	// this enum is used with binary property scribe, reflection system, and database system.
 	// modifying these values will break any files that you have created using these values.
 	// the sizes of each type are usually straight forward but not always.
@@ -38,11 +32,6 @@ namespace cheonsa
 		data_type_e_class_label = 34, // only used with reflection system.
 		data_type_e_category_label = 35, // only used with reflection system.
 	};
-
-	// gets the size in bytes of the given type.
-	// returns a valid value for all numeric types.
-	// returns 0 for anything else.
-	sint32_c data_get_type_size( data_type_e type );
 
 	// used with databases and reflection to define what kind of editor to use for the data.
 	enum data_view_e
@@ -97,8 +86,5 @@ namespace cheonsa
 		data_stream_mode_e_read = 0x01,
 		data_stream_mode_e_write = 0x02,
 	};
-
-	// gets the native endianess of the cpu.
-	data_endianness_e data_get_native_endianness();
 
 }

@@ -1,12 +1,12 @@
 #include "cheonsa_input_manager.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Xinput.h>
-#include <assert.h>
+#include <cassert>
 #endif
 
 namespace cheonsa

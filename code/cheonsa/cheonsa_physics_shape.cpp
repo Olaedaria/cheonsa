@@ -1,6 +1,6 @@
 #include "cheonsa_physics_shape.h"
 #include "btBulletCollisionCommon.h"
-#include <assert.h>
+#include <cassert>
 
 namespace cheonsa
 {

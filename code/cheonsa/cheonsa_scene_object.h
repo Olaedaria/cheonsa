@@ -1,7 +1,6 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
-#include "cheonsa_math_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_data_scribe_binary_property.h"

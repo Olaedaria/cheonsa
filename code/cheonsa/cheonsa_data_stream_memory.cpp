@@ -1,5 +1,5 @@
 #include "cheonsa_data_stream_memory.h"
-#include <assert.h>
+#include <cassert>
 
 namespace cheonsa
 {

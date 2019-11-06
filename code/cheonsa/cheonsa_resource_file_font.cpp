@@ -1,7 +1,7 @@
 #include "cheonsa_resource_file_font.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_menu_element_text.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 #include <ft2build.h>
@@ -109,8 +109,8 @@ namespace cheonsa
 
 	boolean_c resource_file_font_c::_load( data_stream_c * stream )
 	{
-		cheonsa_assert( stream != nullptr );
-		cheonsa_assert( _is_loaded == false );
+		assert( stream != nullptr );
+		assert( _is_loaded == false );
 
 		_file_size = stream->get_size();
 		_file = new uint8_c[ _file_size ];

@@ -1,5 +1,5 @@
 #include "cheonsa_network.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN
@@ -11,7 +11,7 @@
 #include <fcntl.h> // for networking on linux.
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 // legacy API design is so ugly.
 // how does the entire internet run on this cruft?

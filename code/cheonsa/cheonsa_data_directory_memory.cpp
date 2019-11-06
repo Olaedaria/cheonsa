@@ -1,6 +1,5 @@
 #include "cheonsa_data_directory_memory.h"
 #include "cheonsa_data_scribe_binary.h"
-#include "cheonsa_debug.h"
 
 namespace cheonsa
 {
@@ -91,9 +90,9 @@ namespace cheonsa
 		_file_list.remove_all();
 	}
 
-	boolean_c data_directory_memory_c::save( data_stream_c * stream, data_endianness_e endianness )
+	boolean_c data_directory_memory_c::save( data_stream_c * stream, endianness_e endianness )
 	{
-		cheonsa_assert( _file_list.get_length() < constants< sint32_c >::maximum() );
+		assert( _file_list.get_length() < constants< sint32_c >::maximum() );
 		data_scribe_binary_c scribe_binary;
 		scribe_binary.open( stream, endianness );
 		scribe_binary.save_uint32( _file_list.get_length() );
@@ -101,14 +100,14 @@ namespace cheonsa
 		{
 			file_c * file = _file_list[ i ];
 			scribe_binary.save_string8( string8_c( file->path ) );
-			cheonsa_assert( file->stream.get_size() < constants< sint32_c >::maximum() );
+			assert( file->stream.get_size() < constants< sint32_c >::maximum() );
 			scribe_binary.save_uint32( static_cast< uint32_c >( file->stream.get_size() ) );
 			stream->save( file->stream.get_internal_buffer().get_internal_array(), file->stream.get_size() );
 		}
 		return true;
 	}
 
-	boolean_c data_directory_memory_c::load( data_stream_c * stream, data_endianness_e endianness )
+	boolean_c data_directory_memory_c::load( data_stream_c * stream, endianness_e endianness )
 	{
 		reset();
 		data_scribe_binary_c scribe_binary;

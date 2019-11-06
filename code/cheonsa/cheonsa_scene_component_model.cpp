@@ -2,7 +2,7 @@
 #include "cheonsa_scene_component_light_probe.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -921,7 +921,7 @@ namespace cheonsa
 				light->_local_space_transform.position = vector64x3_c( light->_source_light->position );
 				light->_local_space_transform.rotation = quaternion32_c( light->_source_light->rotation );
 				light->_scene_light.set_type( light->_source_light->get_scene_light_type() );
-				light->_scene_light.set_color( light->_source_light->color );
+				light->_scene_light.set_color( vector32x3_c( light->_source_light->color ) );
 				light->_scene_light.set_brightness( light->_source_light->brightness );
 				light->_scene_light.set_cone_angle( light->_source_light->cone_angle );
 				light->_scene_light.set_render_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e::render_enable ) ) != 0 );

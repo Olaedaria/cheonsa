@@ -71,7 +71,6 @@
     <ClInclude Include="cheonsa_scene_component_planet.h" />
     <ClInclude Include="cheonsa_scene_component_model.h" />
     <ClInclude Include="cheonsa_input_types.h" />
-    <ClInclude Include="cheonsa_math_types.h" />
     <ClInclude Include="cheonsa___build.h" />
     <ClInclude Include="cheonsa_time_types.h" />
     <ClInclude Include="cheonsa_data_types.h" />
@@ -82,7 +81,6 @@
     <ClInclude Include="cheonsa_menu_style_manager.h" />
     <ClInclude Include="cheonsa_input_manager.h" />
     <ClInclude Include="cheonsa_glyph_manager.h" />
-    <ClInclude Include="cheonsa_ops.h" />
     <ClInclude Include="cheonsa_menu_control_combo.h" />
     <ClInclude Include="cheonsa_menu_control_menu.h" />
     <ClInclude Include="cheonsa_menu_window.h" />
@@ -96,7 +94,6 @@
     <ClInclude Include="cheonsa_core_dictionary.h" />
     <ClInclude Include="cheonsa_core_event.h" />
     <ClInclude Include="cheonsa_core_circle_buffer.h" />
-    <ClInclude Include="cheonsa_core_xxhash.h" />
     <ClInclude Include="cheonsa_menu_control_panel.h" />
     <ClInclude Include="cheonsa_menu_control_collection.h" />
     <ClInclude Include="cheonsa_data_scribe_text.h" />
@@ -114,7 +111,6 @@
     <ClInclude Include="cheonsa_database.h" />
     <ClInclude Include="cheonsa_reflection_types.h" />
     <ClInclude Include="cheonsa_reflection_enumeration.h" />
-    <ClInclude Include="cheonsa_base_types.h" />
     <ClInclude Include="cheonsa_game.h" />
     <ClInclude Include="cheonsa_engine.h" />
     <ClInclude Include="cheonsa_reflection_class.h" />
@@ -183,7 +179,6 @@
     <ClInclude Include="third_party\freetype\internal\t1types.h" />
     <ClInclude Include="third_party\freetype\internal\tttypes.h" />
     <ClInclude Include="cheonsa_video_interface_d3d11.h" />
-    <ClInclude Include="cheonsa_debug.h" />
     <ClInclude Include="third_party\freetype\freetype\config\ftconfig.h" />
     <ClInclude Include="third_party\freetype\freetype\config\ftheader.h" />
     <ClInclude Include="third_party\freetype\freetype\config\ftmodule.h" />
@@ -516,6 +511,9 @@
     <ClInclude Include="cheonsa_resource_file_sprite_set.h" />
     <ClInclude Include="cheonsa_resource_file_texture.h" />
     <ClInclude Include="cheonsa_resource_file_sound.h" />
+    <ClInclude Include="cheonsa__types.h" />
+    <ClInclude Include="cheonsa__debug.h" />
+    <ClInclude Include="cheonsa__ops.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -577,9 +575,7 @@
     <ClCompile Include="cheonsa_scene_tree_kd.cpp" />
     <ClCompile Include="cheonsa_scene_component_body.cpp" />
     <ClCompile Include="cheonsa_scene_component_model.cpp" />
-    <ClCompile Include="cheonsa_math_types.cpp" />
     <ClCompile Include="cheonsa_input_types.cpp" />
-    <ClCompile Include="cheonsa_data_types.cpp" />
     <ClCompile Include="cheonsa_video_types.cpp" />
     <ClCompile Include="cheonsa_memory_allocator_pool.cpp" />
     <ClCompile Include="cheonsa_image.cpp" />
@@ -587,7 +583,6 @@
     <ClCompile Include="cheonsa_menu_style_manager.cpp" />
     <ClCompile Include="cheonsa_input_manager.cpp" />
     <ClCompile Include="cheonsa_glyph_manager.cpp" />
-    <ClCompile Include="cheonsa_ops.cpp" />
     <ClCompile Include="cheonsa_menu_control_combo.cpp" />
     <ClCompile Include="cheonsa_menu_control_menu.cpp" />
     <ClCompile Include="cheonsa_menu_window.cpp" />
@@ -595,7 +590,6 @@
     <ClCompile Include="cheonsa_menu_control_file_picker.cpp" />
     <ClCompile Include="cheonsa_menu_control_property_inspector.cpp" />
     <ClCompile Include="cheonsa_menu_window_dialog.cpp" />
-    <ClCompile Include="cheonsa_core_xxhash.cpp" />
     <ClCompile Include="cheonsa_menu_control_collection.cpp" />
     <ClCompile Include="cheonsa_data_scribe_text.cpp" />
     <ClCompile Include="cheonsa_user_interface.cpp" />
@@ -610,7 +604,6 @@
     <ClCompile Include="cheonsa_content_manager.cpp" />
     <ClCompile Include="cheonsa_scene_types.cpp" />
     <ClCompile Include="cheonsa_database.cpp" />
-    <ClCompile Include="cheonsa_base_types.cpp" />
     <ClCompile Include="cheonsa_engine.cpp" />
     <ClCompile Include="cheonsa_reflection_enumeration.cpp" />
     <ClCompile Include="cheonsa_reflection_class.cpp" />
@@ -631,7 +624,6 @@
     <ClCompile Include="cheonsa_reflection_types.cpp" />
     <ClCompile Include="cheonsa_platform_critical_section.cpp" />
     <ClCompile Include="cheonsa_video_interface_d3d11.cpp" />
-    <ClCompile Include="cheonsa_debug.cpp" />
     <ClCompile Include="cheonsa_string.cpp" />
     <ClCompile Include="cheonsa_string_file.cpp" />
     <ClCompile Include="cheonsa_sprite.cpp" />
@@ -644,5 +636,8 @@
     <ClCompile Include="cheonsa_resource_file_sprite_set.cpp" />
     <ClCompile Include="cheonsa_resource_file_texture.cpp" />
     <ClCompile Include="cheonsa_resource_file_sound.cpp" />
+    <ClCompile Include="cheonsa__types.cpp" />
+    <ClCompile Include="cheonsa__debug.cpp" />
+    <ClCompile Include="cheonsa__ops.cpp" />
   </ItemGroup>
 </Project>

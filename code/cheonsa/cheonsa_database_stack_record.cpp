@@ -2,8 +2,8 @@
 #include "cheonsa_database_stack.h"
 #include "cheonsa_database_record.h"
 #include "cheonsa_database_table.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -29,7 +29,7 @@ namespace cheonsa
 			database_record_c const * record = _record_stack[ i ];
 			if ( record != nullptr )
 			{
-				cheonsa_assert( !record->get_is_hidden() );
+				assert( !record->get_is_hidden() );
 				uint8_c * field_data_pointer = nullptr;
 				record->get_field_data_pointer( expected_name, expected_type, expected_type_count, field_data_pointer );
 				uint8_c field_flags = *field_data_pointer;
@@ -70,7 +70,7 @@ namespace cheonsa
 			}
 			else
 			{
-				cheonsa_assert( _record_schema );
+				assert( _record_schema );
 				database_field_schema_c const * field = _record_schema->get_field( expected_name, expected_type, expected_type_count );
 				ops::memory_copy( &field->reflection_info.defaults_and_limits, field_value, field->_data_offset - 1 );
 			}

@@ -1,5 +1,5 @@
 #include "cheonsa_database_types.h"
-#include "cheonsa_debug.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -25,7 +25,7 @@ namespace cheonsa
 		case data_type_e_float64:
 			return 8;
 		}
-		cheonsa_assert( false );
+		assert( false );
 		return 0;
 	}
 

@@ -1,6 +1,5 @@
 #include "cheonsa_data_scribe_ini.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
 
 namespace cheonsa
 {
@@ -69,7 +68,7 @@ namespace cheonsa
 
 	boolean_c data_scribe_ini_c::load( data_stream_c * stream )
 	{
-		cheonsa_assert( stream->get_position() == 0 );
+		assert( stream->get_position() == 0 );
 		sint32_c size = stream->get_size();
 
 		_item_list.remove_all();
@@ -181,7 +180,7 @@ namespace cheonsa
 
 	void_c data_scribe_ini_c::add_section( string8_c const & section_name )
 	{
-		cheonsa_assert( section_name.get_length() > 0 );
+		assert( section_name.get_length() > 0 );
 		if ( _document.get_length() > 0 )
 		{
 			_document += "\n";

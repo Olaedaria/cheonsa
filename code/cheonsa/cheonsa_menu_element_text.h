@@ -272,15 +272,13 @@ namespace cheonsa
 
 		// needs to be called when _layout_is_dirty is true and because text in the paragraph was modified.
 		// reflows the text in the given paragraph and sets _text_layout_is_dirty to false for that paragraph.
-		// you will need to call _update_vertical_layout_of_paragraphs_at_and_after() to update vertical layout of affected paragraphs.
+		// you will need to call _update_vertical_layout_of_all_paragraphs() to update vertical layout of affected paragraphs.
 		void_c _reflow_glyphs_in_paragraph( sint32_c paragraph_index );
 
 		// needs to be called when horizontal text alignment is changed and _layout_is_dirty is false.
 		// because horizontal text alignment only affects the _left coordinate of each line, we don't need to reflow all the glyphs, so this is cheaper than calling _reflow_glyphs_in_all_paragraphs_that_need_it().
 		// if needs to be called when horizontal text alignment is changed and _layout_is_dirty is true, then _reflow_glyphs_in_all_paragraphs_that_need_it() should be called instead.
 		void_c _update_horizontal_layout_of_all_lines();
-
-		//void_c _update_vertical_layout_of_paragraphs_at_and_after( sint32_c paragraph_index );
 
 		// recalculates _content_size and updates vertical layout of all paragraphs.
 		void_c _update_vertical_layout_of_all_paragraphs();

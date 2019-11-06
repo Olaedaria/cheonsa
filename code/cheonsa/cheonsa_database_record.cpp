@@ -3,8 +3,8 @@
 #include "cheonsa_database_field_schema.h"
 #include "cheonsa_database.h"
 #include "cheonsa_database_stack.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -93,9 +93,9 @@ namespace cheonsa
 
 	void_c database_record_c::get_field_data_pointer( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, uint8_c * & field_data_pointer ) const
 	{
-		cheonsa_assert( _table );
-		cheonsa_assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
-		cheonsa_assert( expected_type_count >= 1 && expected_type_count <= 4 );
+		assert( _table );
+		assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
+		assert( expected_type_count >= 1 && expected_type_count <= 4 );
 		for ( sint32_c i = 0; i < _table->_records_schema._fields.get_length(); i++ )
 		{
 			database_field_schema_c const & field = _table->_records_schema._fields[ i ];
@@ -105,15 +105,15 @@ namespace cheonsa
 				return;
 			}
 		}
-		cheonsa_assert( false );
+		assert( false );
 	}
 
 	boolean_c database_record_c::get_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, void_c * field_value, boolean_c if_not_defined_then_get_default ) const
 	{
-		cheonsa_assert( field_value );
-		cheonsa_assert( _table );
-		cheonsa_assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
-		cheonsa_assert( expected_type_count >= 1 && expected_type_count <= 4 );
+		assert( field_value );
+		assert( _table );
+		assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
+		assert( expected_type_count >= 1 && expected_type_count <= 4 );
 		for ( sint32_c i = 0; i < _table->_records_schema._fields.get_length(); i++ )
 		{
 			database_field_schema_c const & field = _table->_records_schema._fields[ i ];
@@ -126,17 +126,17 @@ namespace cheonsa
 				{
 					if ( expected_type == data_type_e_string8 )
 					{
-						cheonsa_assert( expected_type_count == 1 );
+						assert( expected_type_count == 1 );
 						*reinterpret_cast< string8_c * >( field_value ) = _table->get_string8( *reinterpret_cast< sint32_c const * >( field_data_pointer ) );
 					}
 					else if ( expected_type == data_type_e_string16 )
 					{
-						cheonsa_assert( expected_type_count == 1 );
+						assert( expected_type_count == 1 );
 						*reinterpret_cast< string16_c * >( field_value ) = _table->get_string16( *reinterpret_cast< sint32_c const * >( field_data_pointer ) );
 					}
 					else
 					{
-						cheonsa_assert( field._data_size - 1 == database_get_data_type_size( expected_type ) * expected_type_count );
+						assert( field._data_size - 1 == database_get_data_type_size( expected_type ) * expected_type_count );
 						ops::memory_copy( field_data_pointer, field_value, field._data_size - 1 );
 					}
 					return true;
@@ -162,15 +162,15 @@ namespace cheonsa
 				}
 			}
 		}
-		cheonsa_assert( false );
+		assert( false );
 		return false; // should be urneachable.
 	}
 
 	void_c database_record_c::set_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, void_c const * field_value ) const
 	{
-		cheonsa_assert( _table );
-		cheonsa_assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
-		cheonsa_assert( expected_type_count >= 1 && expected_type_count <= 4 );
+		assert( _table );
+		assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
+		assert( expected_type_count >= 1 && expected_type_count <= 4 );
 		for ( sint32_c i = 0; i < _table->_records_schema._fields.get_length(); i++ )
 		{
 			database_field_schema_c const & field = _table->_records_schema._fields[ i ];
@@ -182,17 +182,17 @@ namespace cheonsa
 				field_data_pointer++; // advance past flags.
 				if ( expected_type == data_type_e_string8 )
 				{
-					cheonsa_assert( expected_type_count == 1 );
+					assert( expected_type_count == 1 );
 					*reinterpret_cast< sint32_c * >( field_data_pointer ) = _table->add_string8( *reinterpret_cast< string8_c const * >( field_value ) );
 				}
 				else if ( expected_type == data_type_e_string16 )
 				{
-					cheonsa_assert( expected_type_count == 1 );
+					assert( expected_type_count == 1 );
 					*reinterpret_cast< sint32_c * >( field_data_pointer ) = _table->add_string16( *reinterpret_cast< string16_c const * >( field_value ) );
 				}
 				else
 				{
-					cheonsa_assert( field._data_size - 1 == database_get_data_type_size( expected_type ) * expected_type_count );
+					assert( field._data_size - 1 == database_get_data_type_size( expected_type ) * expected_type_count );
 					ops::memory_copy( field_value, field_data_pointer, field._data_size - 1 );
 				}
 
@@ -210,14 +210,14 @@ namespace cheonsa
 				return;
 			}
 		}
-		cheonsa_assert( false );
+		assert( false );
 	}
 
 	void_c database_record_c::undefine_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count ) const
 	{
-		cheonsa_assert( _table );
-		cheonsa_assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
-		cheonsa_assert( expected_type_count >= 1 && expected_type_count <= 4 );
+		assert( _table );
+		assert( expected_type >= data_type_e_string8 && expected_type <= data_type_e_float64 );
+		assert( expected_type_count >= 1 && expected_type_count <= 4 );
 		for ( sint32_c i = 0; i < _table->_records_schema._fields.get_length(); i++ )
 		{
 			database_field_schema_c const & field = _table->_records_schema._fields[ i ];
@@ -242,7 +242,7 @@ namespace cheonsa
 				}
 			}
 		}
-		cheonsa_assert( false );
+		assert( false );
 	}
 
 }

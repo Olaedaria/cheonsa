@@ -5,8 +5,8 @@ namespace cheonsa
 
 	boolean_c resource_file_sound_c::_load( data_stream_c * stream )
 	{
-		cheonsa_assert( stream );
-		cheonsa_assert( _is_loaded == false );
+		assert( stream );
+		assert( _is_loaded == false );
 
 		_audio_wave_buffer->load_new_state( stream );
 
@@ -17,7 +17,7 @@ namespace cheonsa
 
 	void_c resource_file_sound_c::_unload()
 	{
-		cheonsa_assert( _is_loaded == true );
+		assert( _is_loaded == true );
 		_is_loaded = false;
 		_audio_wave_buffer->release_state();
 	}

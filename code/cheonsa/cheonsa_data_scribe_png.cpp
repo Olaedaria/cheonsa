@@ -2,7 +2,6 @@
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_debug.h"
 
 namespace cheonsa
 {
@@ -56,7 +55,7 @@ namespace cheonsa
 
 	boolean_c data_scribe_png_c::open( data_stream_c * stream )
 	{
-		cheonsa_assert( stream->get_position() == 0 );
+		assert( stream->get_position() == 0 );
 
 		// check for png file signature.
 		char8_c file_signature[ 8 ];
@@ -87,7 +86,7 @@ namespace cheonsa
 		local_stream.open_static( _file_data.get_internal_array(), _file_data.get_internal_array_size_used() );
 
 		data_scribe_binary_c local_scribe;
-		local_scribe.open( &local_stream, data_endianness_e_big ); // PNGs are big endian.
+		local_scribe.open( &local_stream, endianness_e_big ); // PNGs are big endian.
 		
 		local_stream.set_position( 8 ); // skip past png file signature.
 		while ( local_stream.get_position() < local_stream.get_size() )

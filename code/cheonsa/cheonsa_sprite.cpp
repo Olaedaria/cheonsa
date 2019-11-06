@@ -1,5 +1,5 @@
 #include "cheonsa_sprite.h"
-#include "cheonsa_debug.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -110,13 +110,13 @@ namespace cheonsa
 
 	resource_file_sprite_set_c::sprite_c const * sprite_c::get_sprite() const
 	{
-		cheonsa_assert( _sprite );
+		assert( _sprite );
 		return _sprite;
 	}
 
 	resource_file_sprite_set_c::frame_c const * sprite_c::get_frame() const
 	{
-		cheonsa_assert( _sprite );
+		assert( _sprite );
 		return &_sprite->frame_list[ _current_frame ];
 	}
 

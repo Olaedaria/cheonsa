@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_math_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
 
 // the global namespace is a lost cause when it comes to trying to keep it clean.

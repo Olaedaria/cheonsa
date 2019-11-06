@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_data_stream.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"
@@ -13,7 +13,7 @@ namespace cheonsa
 	{
 	private:
 		data_stream_c * _stream;
-		data_endianness_e _endianness;
+		endianness_e _endianness;
 
 		void_c ( data_scribe_binary_c:: * _load_function )( void_c * const, uint32_c );
 		void_c ( data_scribe_binary_c:: * _save_function )( void_c const * const, uint32_c );
@@ -26,14 +26,14 @@ namespace cheonsa
 	public:
 		data_scribe_binary_c();
 
-		void_c open( data_stream_c * stream, data_endianness_e endianness ); // initializes the scribe for reading from and writing to a stream.
+		void_c open( data_stream_c * stream, endianness_e endianness ); // initializes the scribe for reading from and writing to a stream.
 		void_c close(); // puts this scribe back into its initial state.
 
 		data_stream_c * get_stream();
 		void_c set_stream( data_stream_c * stream );
 
-		data_endianness_e get_endianness();
-		void_c set_endianness( data_endianness_e endianness );
+		endianness_e get_endianness();
+		void_c set_endianness( endianness_e endianness );
 
 		void_c load_generic( void_c * const value, sint32_c value_size ); // performs byte-order swizzling if needed.
 		uint8_c load_uint8();

@@ -6,30 +6,16 @@
 #include "cheonsa_data_scribe_text.h"
 #include "cheonsa_network.h"
 #include "cheonsa_time_date_gregorian.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
 #include "cheonsa_resource_file_font.h" // to manage global glyph cache.
+#include "cheonsa__ops.h"
 
 #if defined( cheonsa_platform_windows )
-#define WIN32_LEAN_AND_MEAN // tells windows.h to not include every other windows related header for us, which solves the conflicts that when we include winsock2.h a couple lines later.
-#include <Windows.h> // for most of windows.
-//#include <Windowsx.h> // for GET_X_LPARAM and GET_Y_LPARAM. no longer included because for some reason intellisense could see GET_X_LPARAM and GET_Y_LPARAM but when compiling they were not resolving. so we just bit manipulate by hand.
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include <dwmapi.h>
 #define cheonsa_window_style_normal ( WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CLIPCHILDREN )
 #define cheonsa_window_style_borderless ( WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CLIPCHILDREN )
-//#define cheonsa_window_style ( WS_OVERLAPPEDWINDOW )
-//#define cheonsa_window_style ( WS_POPUP | WS_VISIBLE | WS_MINIMIZEBOX | WS_MAXIMIZEBOX )
-//#define cheonsa_window_style_windowed ( WS_THICKFRAME | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX )
-//#define cheonsa_window_style_full_screen ( WS_POPUP | WS_VISIBLE )
 #endif
-
-// if this file exists in executable_folder_path, then it will be opened and read.
-// if it contains a single line of text that resolves as a valid folder path then that is what will be used as the engine_data_folder_path.
-//#define defined_engine_data_file_name "engine_data.txt"
-
-// if this file exists in the same folder as the executable, and if the engine is started in client mode, then it will be opened anr ead.
-// if it contains a single line of text that resolves as a valid folder path then that is what will be used as the game_data_folder_path.
-//#define defined_game_data_file_name "game_data.txt"
 
 // if this file exists in the same folder as the executable, and if the engine is started in client mode, then it will be opened and read.
 // it is scanned for a couple lines of text:
@@ -769,7 +755,7 @@ namespace cheonsa
 		window_class_ex.hCursor = LoadCursor( NULL, IDC_ARROW );
 		window_class_ex.hbrBackground = reinterpret_cast< HBRUSH >( GetStockObject( COLOR_WINDOW + 1 ) );
 		window_class_ex.lpszClassName = L"cheonsa";
-		cheonsa_assert( SUCCEEDED( RegisterClassEx( &window_class_ex ) ) );
+		assert( SUCCEEDED( RegisterClassEx( &window_class_ex ) ) );
 
 		//EnumDisplayMonitors( NULL, NULL, engine_members_c::monitor_enumeration_process, reinterpret_cast< LPARAM >( _members ) );
 		//engine_members_c::monitor_c & monitor = _members->monitors[ 0 ]; // default to primary display, at index 0.
@@ -779,7 +765,7 @@ namespace cheonsa
 		//environment.window_position[ 1 ] = ( ( monitor.rectangle[ 3 ] - monitor.rectangle[ 1 ] ) / 2 ) - ( environment.window_size[ 1 ] / 2 );
 
 		_members->window_handle = CreateWindow( L"cheonsa", _game_name.character_list.get_internal_array(), cheonsa_window_style_borderless, 0, 0, window_width_minimum, window_height_minimum, NULL, NULL, _members->process_handle, nullptr );
-		cheonsa_assert( _members->window_handle );
+		assert( _members->window_handle );
 		SetWindowLongPtr( _members->window_handle, GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) ); // associate our global game engine instance with the window.
 
 		//SetWindowLongPtr( _members->window_handle, GWL_STYLE, cheonsa_window_style_borderless );
@@ -798,7 +784,7 @@ namespace cheonsa
 		raw_input_device_array[ 0 ].usUsage = 0x02;
 		raw_input_device_array[ 0 ].dwFlags = 0;
 		raw_input_device_array[ 0 ].hwndTarget = reinterpret_cast< engine_members_c * >( _members )->window_handle;
-		cheonsa_assert( RegisterRawInputDevices( raw_input_device_array, 1, sizeof( RAWINPUTDEVICE ) ) );
+		assert( RegisterRawInputDevices( raw_input_device_array, 1, sizeof( RAWINPUTDEVICE ) ) );
 #endif
 	}
 
@@ -870,7 +856,7 @@ namespace cheonsa
 		, _members( nullptr )
 		, _is_running( true )
 	{
-		cheonsa_assert( ops::memory_is_zero( &interfaces, sizeof( interfaces ) ) );
+		assert( ops::memory_is_zero( &interfaces, sizeof( interfaces ) ) );
 		ops::memory_zero( &interfaces, sizeof( interfaces ) );
 
 		_members = new engine_members_c( this );
@@ -884,7 +870,7 @@ namespace cheonsa
 	
 	boolean_c engine_c::start( char16_c const * const * arguments, sint32_c arguments_count, game_c * game )
 	{
-		cheonsa_assert( game != nullptr );
+		assert( game != nullptr );
 		
 #if defined( cheonsa_platform_windows )
 		// we could have passed this in, but we can also just ask windows for it.
@@ -1052,7 +1038,7 @@ namespace cheonsa
 			cheonsa_annoy( L"error", L"user_interface_c::start() failed." );
 			goto clean_up;
 		}
-		cheonsa_assert( interfaces.user_interface != nullptr );
+		assert( interfaces.user_interface != nullptr );
 
 		// situate.
 		interfaces.content_manager->apply_changes();

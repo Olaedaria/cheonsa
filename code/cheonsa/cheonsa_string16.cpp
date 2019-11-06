@@ -1,7 +1,7 @@
 #include "cheonsa_string16.h"
 #include "cheonsa_string8.h"
-#include "cheonsa_ops.h"
-#include <assert.h>
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {

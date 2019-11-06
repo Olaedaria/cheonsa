@@ -1,7 +1,7 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__types.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -23,7 +23,7 @@ namespace cheonsa
 	public:
 		core_circle_buffer_c( sint32_c capacity )
 		{
-			cheonsa_assert( capacity > 0 );
+			assert( capacity > 0 );
 			_array = new value_type_c[ capacity ];
 			_capacity = capacity;
 			_push_index = 0;
@@ -47,7 +47,7 @@ namespace cheonsa
 		// asserts if the buffer is already full.
 		value_type_c & emplace_back()
 		{
-			cheonsa_assert( _length < _capacity );
+			assert( _length < _capacity );
 			_length++;
 			sint32_c push_index = _push_index;
 			_push_index = ( _push_index + 1 ) % _capacity;
@@ -58,7 +58,7 @@ namespace cheonsa
 		// asserts if the buffer is already full.
 		void_c push_back( value_type_c value )
 		{
-			cheonsa_assert( _length < _capacity );
+			assert( _length < _capacity );
 			_length++;
 			_array[ _push_index ] = value;
 			_push_index = ( _push_index + 1 ) % _capacity;
@@ -68,7 +68,7 @@ namespace cheonsa
 		// asserts if the buffer is empty.
 		value_type_c pop_front()
 		{
-			cheonsa_assert( _length > 0 );
+			assert( _length > 0 );
 			value_type_c result = _array[ _pop_index ];
 			_pop_index = ( _pop_index + 1 ) % _capacity;
 			_length--;
@@ -79,7 +79,7 @@ namespace cheonsa
 		// value at index 0 is the oldest value, the value at _pop_index.
 		value_type_c & operator [] ( sint32_c index )
 		{
-			cheonsa_assert( index >= 0 && index < _length );
+			assert( index >= 0 && index < _length );
 			return _array[ ( _pop_index + index ) % _capacity ];
 		}
 

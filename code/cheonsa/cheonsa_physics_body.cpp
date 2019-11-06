@@ -1,7 +1,7 @@
 #include "cheonsa_physics_body.h"
 #include "cheonsa_physics_scene.h"
 #include "btBulletDynamicsCommon.h"
-#include <assert.h>
+#include <cassert>
 
 namespace cheonsa
 {

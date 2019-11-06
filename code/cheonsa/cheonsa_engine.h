@@ -2,8 +2,8 @@
 
 // this file has two underscores in its name so that it appears at the top when the files are sorted alphabetically.
 
-#include "cheonsa_base_types.h"
-#include "cheonsa_math_types.h"
+#include "cheonsa__types.h"
+#include "cheonsa__debug.h"
 
 #include "cheonsa_user_interface.h"
 #include "cheonsa_content_manager.h"

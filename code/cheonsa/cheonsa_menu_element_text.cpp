@@ -1,6 +1,6 @@
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa_data_scribe_markup.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -1037,27 +1037,6 @@ namespace cheonsa
 		}
 	}
 
-	//void_c menu_element_text_c::_update_vertical_layout_of_paragraphs_at_and_after( sint32_c paragraph_index )
-	//{
-	//	assert( _text_layout_is_dirty == false ); // don't call this until glyphs have been flowed.
-	//	float32_c paragraph_spacing = get_style_paragraph_spacing();
-	//	for ( sint32_c i = paragraph_index; i < _paragraph_list.get_length(); i++ )
-	//	{
-	//		text_paragraph_c * paragraph = _paragraph_list[ i ];
-	//		if ( i > 0 )
-	//		{
-	//			text_paragraph_c * last_paragraph = _paragraph_list[ i - 1 ];
-	//			paragraph->_top = paragraph_spacing + last_paragraph->_top + last_paragraph->_content_height;
-	//			paragraph->_line_index_base = last_paragraph->_line_index_base + last_paragraph->_line_list.get_length();
-	//		}
-	//		else
-	//		{
-	//			paragraph->_top = 0.0f;
-	//			paragraph->_line_index_base = 0;
-	//		}
-	//	}
-	//}
-
 	void_c menu_element_text_c::_update_vertical_layout_of_all_paragraphs()
 	{
 		//assert( _text_layout_is_dirty == false ); // this function is only supposed to be called once glyphs have been reflowed.
@@ -2026,15 +2005,15 @@ namespace cheonsa
 						// draw selection for current line.
 						if ( ( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable ) && selection_index_start != selection_index_end && selection_index_end > line->_character_start && selection_index_start < line->_character_end )
 						{
-							menu_element_text_c::text_glyph_c const * selection_laid_out_glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selection_index_start, line->_character_start ) - paragraph->_character_start ];
-							float32_c selection_left = line_left + selection_laid_out_glyph_left->_box.minimum.a;
+							menu_element_text_c::text_glyph_c const * glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selection_index_start, line->_character_start ) - paragraph->_character_start ];
+							float32_c selection_left = line_left + glyph_left->_left;
+							menu_element_text_c::text_glyph_c const * glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selection_index_end, line->_character_end ) - 1 - paragraph->_character_start ];
+							float32_c selection_right = line_left + glyph_right->_left + glyph_right->_horizontal_advance;
 							float32_c selection_top = line_top;
-
-							menu_element_text_c::text_glyph_c const * selection_laid_out_glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selection_index_end, line->_character_end ) - 1 - paragraph->_character_start ];
-							float32_c selection_right = line_left + selection_laid_out_glyph_right->_box.minimum.a + selection_laid_out_glyph_right->_horizontal_advance;
 							float32_c selection_bottom = line_bottom;
 
-							vector32x4_c selection_color = vector32x4_c( 1.0f, 1.0f, 1.0f, 0.25f );
+							vector32x4_c selection_color = global_engine_instance.interfaces.menu_style_manager->shared_colors[ menu_shared_color_e_field_normal_accent ].value;
+							selection_color.d *= 0.5f;
 
 							video_renderer_vertex_menu_c * vertex = vertex_list_for_selection.emplace_at_end();
 							vertex->position.a = selection_left;
@@ -2066,7 +2045,6 @@ namespace cheonsa
 							{
 								menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ _cursor_index - paragraph->_character_start ];
 								cursor_left = line_left + laid_out_glyph->_left;
-								//cursor_color = _cursor_color; //laid_out_glyph.format->color;
 								do_cursor = true;
 							}
 							else if ( _cursor_is_at_end_of_virtual_line == true && _cursor_index == line->_character_end )
@@ -3150,7 +3128,7 @@ namespace cheonsa
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
 		{
-			cheonsa_assert( _mother_control != nullptr );
+			assert( _mother_control != nullptr );
 			vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
 			if ( input_event->mouse_key == input_mouse_key_e_left && ( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable ) )
 			{
@@ -3198,7 +3176,7 @@ namespace cheonsa
 		{
 			if ( ( input_event->mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) != 0 )
 			{
-				cheonsa_assert( _mother_control != nullptr );
+				assert( _mother_control != nullptr );
 				vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
 				_place_cursor_at_local_point( local_mouse_position, true );
 				return true;

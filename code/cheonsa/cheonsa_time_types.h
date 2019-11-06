@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa___build.h"
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 
 namespace cheonsa
 {
@@ -16,7 +16,7 @@ namespace cheonsa
 	sint64_c const miliseconds_per_minute = 60000;
 	sint64_c const miliseconds_per_second = 1000;
 
-	#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 	// windows measures time in 100 nanosecond intervals.
 	// cheonsa measures time in 1 millisecond intervals.
 	// 1 nanosecond   = 1/1,000,000,000 of 1 second
@@ -38,8 +38,8 @@ namespace cheonsa
 	// we use this value to translate between window's epoch and cheonsa's epoch.
 	sint64_c const windows_epoch_to_cheonsa_epoch = 12591201600;
 
-	#else
-	#error no platform defined.
-	#endif
+#else
+	#error not implemented.
+#endif
 
 }

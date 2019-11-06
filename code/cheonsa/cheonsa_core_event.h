@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa_core_list.h"
-#include <assert.h>
+#include <cassert>
 
 namespace cheonsa
 {

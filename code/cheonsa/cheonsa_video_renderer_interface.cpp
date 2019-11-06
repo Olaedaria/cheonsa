@@ -8,7 +8,7 @@
 #include "cheonsa_scene_component_sprite.h"
 #include "cheonsa_scene_component_sound.h"
 #include "cheonsa_scene_component_menu_control.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -2559,15 +2559,15 @@ namespace cheonsa
 							skinned_vertex.normal = ops::make_vector32x3_normalized( ops::make_vector32x3_transformed_vector( *reinterpret_cast< vector32x3_c * >( source_vertex_base.normal ), bone_skin_matrix_blended ) );
 							skinned_vertex.normal_u = ops::make_vector32x3_normalized( ops::make_vector32x3_transformed_vector( *reinterpret_cast< vector32x3_c * >( source_vertex_base.normal_u ), bone_skin_matrix_blended ) );
 							skinned_vertex.normal_v = ops::make_vector32x3_normalized( ops::make_vector32x3_transformed_vector( *reinterpret_cast< vector32x3_c * >( source_vertex_base.normal_v ), bone_skin_matrix_blended ) );
-							skinned_vertex.texture = source_vertex_base.texture;
+							skinned_vertex.texture = vector32x4_c( source_vertex_base.texture );
 						}
 						else
 						{
-							skinned_vertex.position = source_vertex_base.position;
-							skinned_vertex.normal = source_vertex_base.normal;
-							skinned_vertex.normal_u = source_vertex_base.normal_u;
-							skinned_vertex.normal_u = source_vertex_base.normal_v;
-							skinned_vertex.texture = source_vertex_base.texture;
+							skinned_vertex.position = vector32x3_c( source_vertex_base.position );
+							skinned_vertex.normal = vector32x3_c( source_vertex_base.normal );
+							skinned_vertex.normal_u = vector32x3_c( source_vertex_base.normal_u );
+							skinned_vertex.normal_u = vector32x3_c( source_vertex_base.normal_v );
+							skinned_vertex.texture = vector32x4_c( source_vertex_base.texture );
 						}
 					}
 				}

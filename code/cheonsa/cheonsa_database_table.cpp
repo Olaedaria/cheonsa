@@ -3,8 +3,8 @@
 #include "cheonsa_database_record.h"
 #include "cheonsa_database.h"
 #include "cheonsa_database_stack.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -39,7 +39,7 @@ namespace cheonsa
 		}
 
 		// save schema.
-		cheonsa_assert( _records_schema._fields.get_length() < constants< uint16_c >::maximum() );
+		assert( _records_schema._fields.get_length() < constants< uint16_c >::maximum() );
 		scribe.save_uint16( static_cast< uint16_c >( _records_schema._fields.get_length() ) );
 		for ( sint32_c i = 0; i < _records_schema._fields.get_length(); i++ )
 		{
@@ -77,18 +77,18 @@ namespace cheonsa
 
 		// load strings.
 		sint32_c count = scribe.load_sint32();
-		cheonsa_assert( count > 0 );
+		assert( count > 0 );
 		core_list_c< sint32_c > strings_offsets;
 		for ( sint32_c i = 0; i < count; i++ )
 		{
 			strings_offsets.insert_at_end( scribe.load_sint32() );
 		}
-		cheonsa_assert( strings_offsets[ 0 ] == 0 );
+		assert( strings_offsets[ 0 ] == 0 );
 		count = scribe.load_sint32();
-		cheonsa_assert( count > 0 );
+		assert( count > 0 );
 		_strings_buffer.set_length( count );
 		scribe.get_stream()->load( _strings_buffer.get_internal_array(), _strings_buffer.get_internal_array_size_used() );
-		cheonsa_assert( _strings_buffer[ 0 ] == 0 );
+		assert( _strings_buffer[ 0 ] == 0 );
 		for ( sint32_c i = 0; i < strings_offsets.get_length(); i++ )
 		{
 			sint32_c string_offset = strings_offsets[ i ];
@@ -98,7 +98,7 @@ namespace cheonsa
 
 		// load schema.
 		count = scribe.load_uint16();
-		cheonsa_assert( count > 0 );
+		assert( count > 0 );
 		for ( sint32_c i = 0; i < count; i++ )
 		{
 			string8_c field_name = scribe.load_string8();
@@ -112,7 +112,7 @@ namespace cheonsa
 		sint32_c records_buffer_length = scribe.load_sint32();
 		_records_buffer.set_length( records_buffer_length );
 		scribe.get_stream()->load( _records_buffer.get_internal_array(), _records_buffer.get_internal_array_size_used() );
-		cheonsa_assert( _records_schema.get_size() * records_count == records_buffer_length );
+		assert( _records_schema.get_size() * records_count == records_buffer_length );
 		uint8_c const * records_buffer_data = _records_buffer.get_internal_array();
 		sint32_c record_offset = 0;
 		sint32_c record_size = _records_schema.get_size();
@@ -212,7 +212,7 @@ namespace cheonsa
 
 	void_c database_table_c::set_records_schema( database_record_schema_c const & value )
 	{
-		cheonsa_assert( sizeof( database_record_header_c ) == 13 );
+		assert( sizeof( database_record_header_c ) == 13 );
 
 		if ( value._fields.get_length() == 0 )
 		{
@@ -344,7 +344,7 @@ namespace cheonsa
 		uint32_c i = 0;
 		while ( _records_map.contains( record_id ) )
 		{
-			cheonsa_assert( i != 0xFFFFFFFF );
+			assert( i != 0xFFFFFFFF );
 			i++;
 			record_id++;
 		}
@@ -384,7 +384,7 @@ namespace cheonsa
 	{
 		// remove and delete the record.
 		database_record_c * record = _records_map.find_value_else_nullptr( id );
-		cheonsa_assert( record );
+		assert( record );
 		_records_map.remove( id );
 		database_record_address_c mod_record_address = record->get_mod_record_address();
 		if ( mod_record_address.is_set() )

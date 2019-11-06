@@ -1,8 +1,7 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_video_types.h"
-#include "cheonsa_core_list.h"
 #include "cheonsa_string16.h"
 
 // this simple video API is primarily designed to wrap around Direct3D 10.1, but with the hope that it remains forward compatible enough so that Direct3D 11, Direct3D 12, and Vulkan can be implemented with it later.

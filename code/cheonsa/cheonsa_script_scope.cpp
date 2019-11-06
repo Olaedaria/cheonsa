@@ -1,8 +1,8 @@
 #include "cheonsa_script_scope.h"
 #include "cheonsa_script_context.h"
 #include "cheonsa_script_value.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_debug.h"
+#include "cheonsa__ops.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -72,7 +72,7 @@ namespace cheonsa
 
 	void_c script_scope_c::load( data_scribe_binary_property_c & scribe, char8_c const * key )
 	{
-		cheonsa_assert( scribe.loaded_check( key, data_type_e_list, 0 ) );
+		assert( scribe.loaded_check( key, data_type_e_list, 0 ) );
 		scribe.loaded_list_enter();
 
 		while ( scribe.load() )
@@ -83,10 +83,10 @@ namespace cheonsa
 				sint32_c count = scribe.loaded_list_length();
 				for ( sint32_c i = 0; i < count; i++ )
 				{
-					cheonsa_assert( scribe.load() );
-					cheonsa_assert( scribe.loaded_check( "name", data_type_e_string8, 0 ) );
+					assert( scribe.load() );
+					assert( scribe.loaded_check( "name", data_type_e_string8, 0 ) );
 					string8_c variable_name = scribe.loaded_string8();
-					cheonsa_assert( scribe.load() );
+					assert( scribe.load() );
 					script_value_c * variable_value = new script_value_c();
 					variable_value->load( scribe );
 					_variables.insert( variable_name, variable_value );

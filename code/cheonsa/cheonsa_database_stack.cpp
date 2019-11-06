@@ -3,7 +3,7 @@
 #include "cheonsa_database.h"
 #include "cheonsa_database_table.h"
 #include "cheonsa_database_record.h"
-#include "cheonsa_debug.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -15,8 +15,8 @@ namespace cheonsa
 
 	void_c database_stack_c::add_database( database_c * database )
 	{
-		cheonsa_assert( database );
-		cheonsa_assert( database->_database_stack == nullptr );
+		assert( database );
+		assert( database->_database_stack == nullptr );
 		database->_database_stack = this;
 		_database_stack.insert_at_end( database );
 	}
@@ -25,11 +25,11 @@ namespace cheonsa
 	{
 		record_stack._record_stack.remove_all();
 		record_stack._record_schema = nullptr;
-		cheonsa_assert( _database_stack.get_length() > 0 );
+		assert( _database_stack.get_length() > 0 );
 		boolean_c result = false;
 		boolean_c result_is_hidden = false;
 		database_table_c const * table = _database_stack[ 0 ]->get_table( record_address.table_id );
-		cheonsa_assert( table );
+		assert( table );
 		record_stack._record_schema = &table->get_records_schema();
 		for ( sint32_c i = 0; i < _database_stack.get_length(); i++ )
 		{

@@ -6,14 +6,14 @@ namespace cheonsa
 
 	boolean_c resource_file_texture_c::_load( data_stream_c * stream )
 	{
-		cheonsa_assert( stream != nullptr );
-		cheonsa_assert( _is_loaded == false );
+		assert( stream != nullptr );
+		assert( _is_loaded == false );
 
 		static uint8_c png_file_signature[ 8 ] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 		static uint8_c jpg_file_signature[ 4 ] = { 0xFF, 0xD8, 0xFF, 0xE0 };
 
-		cheonsa_assert( _is_wrapper == false );
-		cheonsa_assert( _is_loaded == false );
+		assert( _is_wrapper == false );
+		assert( _is_loaded == false );
 
 		// load first 8 bytes, to determine file type.
 		uint8_c loaded_file_signature[ 8 ] = {};
@@ -77,7 +77,7 @@ namespace cheonsa
 			return;
 		}
 
-		cheonsa_assert( _is_loaded == true );
+		assert( _is_loaded == true );
 
 		_is_loaded = false;
 
@@ -102,12 +102,12 @@ namespace cheonsa
 		, _video_texture( nullptr )
 		, _is_wrapper( true )
 	{
-		cheonsa_assert( is_wrapper );
+		assert( is_wrapper );
 	}
 
 	resource_file_texture_c::~resource_file_texture_c()
 	{
-		cheonsa_assert( _is_loaded == false );
+		assert( _is_loaded == false );
 	}
 
 	video_texture_c * resource_file_texture_c::get_video_texture() const
@@ -117,7 +117,7 @@ namespace cheonsa
 
 	void_c resource_file_texture_c::set_video_texture( video_texture_c * video_texture )
 	{
-		cheonsa_assert( _is_wrapper );
+		assert( _is_wrapper );
 		_video_texture = video_texture;
 		_is_loaded = _video_texture != nullptr;
 	}
@@ -128,13 +128,13 @@ namespace cheonsa
 		)
 	{
 		// validate inputs.
-		cheonsa_assert( video_texture == nullptr );
-		cheonsa_assert( image.data.get_length() > 0 );
-		cheonsa_assert( image.width >= 1 && image.width <= 4096 );
-		cheonsa_assert( image.height >= 1 && image.height <= 4096 );
-		cheonsa_assert( image.channel_count >= 1 && image.channel_count <= 4 );
-		cheonsa_assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
-		cheonsa_assert( image.data.get_length() == image.width * image.height * image.channel_count * ( image.channel_bit_depth / 8 ) );
+		assert( video_texture == nullptr );
+		assert( image.data.get_length() > 0 );
+		assert( image.width >= 1 && image.width <= 4096 );
+		assert( image.height >= 1 && image.height <= 4096 );
+		assert( image.channel_count >= 1 && image.channel_count <= 4 );
+		assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
+		assert( image.data.get_length() == image.width * image.height * image.channel_count * ( image.channel_bit_depth / 8 ) );
 
 		// if needed, convert the input image format to a format that is compatible with the gpu.
 		sint32_c pixel_count = image.width * image.height;
@@ -328,7 +328,7 @@ namespace cheonsa
 		}
 		else
 		{
-			cheonsa_assert( false ); // not supported.
+			assert( false ); // not supported.
 			return false;
 		}
 		sint32_c video_texture_pixel_size = video_texture_format_size_get( video_texture_format );

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "cheonsa__types.h"
 #include "cheonsa_data_scribe_binary.h"
-#include "cheonsa_math_types.h"
 
 namespace cheonsa
 {

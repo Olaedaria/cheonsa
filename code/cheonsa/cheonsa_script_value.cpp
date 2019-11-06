@@ -1,5 +1,5 @@
 #include "cheonsa_script_value.h"
-#include "cheonsa_debug.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -46,7 +46,7 @@ namespace cheonsa
 
 	float32_c script_value_c::get_number_value() const
 	{
-		cheonsa_assert( _type == type_e_number );
+		assert( _type == type_e_number );
 		return _number_value;
 	}
 
@@ -59,7 +59,7 @@ namespace cheonsa
 
 	string8_c const & script_value_c::get_string_value() const
 	{
-		cheonsa_assert( _type == type_e_string );
+		assert( _type == type_e_string );
 		return *_string_value;
 	}
 
@@ -102,7 +102,7 @@ namespace cheonsa
 
 	void_c script_value_c::load( data_scribe_binary_property_c & scribe )
 	{
-		cheonsa_assert( scribe.loaded_check( "script_value_c", data_type_e_list, 0 ) );
+		assert( scribe.loaded_check( "script_value_c", data_type_e_list, 0 ) );
 		scribe.loaded_list_enter();
 		while ( scribe.load() )
 		{
@@ -112,13 +112,13 @@ namespace cheonsa
 			}
 			else if ( scribe.loaded_check( "value", data_type_e_float32, 1 ) )
 			{
-				cheonsa_assert( _type == type_e_number );
+				assert( _type == type_e_number );
 				_number_value = scribe.loaded_float32_buffer()[0];
 			}
 			else if ( scribe.loaded_check( "value", data_type_e_string8, 0 ) )
 			{
-				cheonsa_assert( _type == type_e_string );
-				cheonsa_assert( _string_value == nullptr );
+				assert( _type == type_e_string );
+				assert( _string_value == nullptr );
 				_string_value = new string8_c( scribe.loaded_string8() );
 			}
 		}

@@ -1,8 +1,8 @@
 #include "cheonsa_database.h"
 #include "cheonsa_database_table.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_data_stream_file.h"
-#include "cheonsa_debug.h"
+#include <cassert>
 
 namespace cheonsa
 {
@@ -10,7 +10,7 @@ namespace cheonsa
 	database_c::database_c( string16_c const & file_path )
 		: _database_stack( nullptr )
 		, _file_path( file_path )
-		, _endianness( data_get_native_endianness() )
+		, _endianness( ops::get_native_endianness() )
 		, _name()
 		, _id( 0 )
 		, _flags( 0 )
@@ -34,12 +34,12 @@ namespace cheonsa
 		_file_path = value;
 	}
 
-	data_endianness_e database_c::get_endianness() const
+	endianness_e database_c::get_endianness() const
 	{
 		return _endianness;
 	}
 
-	void_c database_c::set_endianness( data_endianness_e value )
+	void_c database_c::set_endianness( endianness_e value )
 	{
 		_endianness = value;
 	}
@@ -142,8 +142,8 @@ namespace cheonsa
 
 	boolean_c database_c::save()
 	{
-		cheonsa_assert( _flags != 0 ); // make sure at least master or mod flag is set.
-		cheonsa_assert( ( ( _flags & database_flag_e_master ) != 0 ) != ( ( _flags & database_flag_e_mod ) != 0 ) ); // make sure only one flag is set.
+		assert( _flags != 0 ); // make sure at least master or mod flag is set.
+		assert( ( ( _flags & database_flag_e_master ) != 0 ) != ( ( _flags & database_flag_e_mod ) != 0 ) ); // make sure only one flag is set.
 
 		data_stream_file_c stream;
 		if ( !stream.open( _file_path, data_stream_mode_e_write ) )
@@ -154,19 +154,19 @@ namespace cheonsa
 		// save signature and endianness.
 		data_scribe_binary_c scribe;
 		scribe.open( &stream, _endianness );
-		scribe.save_four_character_code( _endianness == data_endianness_e_little ? get_file_signature_static().get_flipped() : get_file_signature_static() ); // we encode endianness in the signature.
+		scribe.save_four_character_code( _endianness == endianness_e_little ? get_file_signature_static().get_flipped() : get_file_signature_static() ); // we encode endianness in the signature.
 
 		// save rest of file.
 		scribe.save_string8( _name );
 		scribe.save_uint16( _id );
 		scribe.save_uint8( _flags );
-		cheonsa_assert( _dependency_ids.get_length() < constants< uint16_c >::maximum() );
+		assert( _dependency_ids.get_length() < constants< uint16_c >::maximum() );
 		scribe.save_uint16( static_cast< uint16_c >( _dependency_ids.get_length() ) );
 		for ( sint32_c i = 0; i < _dependency_ids.get_length(); i++ )
 		{
 			scribe.save_uint16( _dependency_ids[ i ] );
 		}
-		cheonsa_assert( _tables.get_length() < constants< uint16_c >::maximum() );
+		assert( _tables.get_length() < constants< uint16_c >::maximum() );
 		scribe.save_uint16( static_cast< uint16_c >( _tables.get_length() ) );
 		for ( sint32_c i = 0; i < _tables.get_length(); i++ )
 		{
@@ -192,17 +192,17 @@ namespace cheonsa
 		}
 
 		data_scribe_binary_c scribe;
-		scribe.open( &stream, data_endianness_e_little );
+		scribe.open( &stream, endianness_e_little );
 
 		// load signature and endianness.
 		four_character_code_c signature = scribe.load_four_character_code();
 		if ( signature == get_file_signature_static() )
 		{
-			_endianness = data_endianness_e_big;
+			_endianness = endianness_e_big;
 		}
 		else if ( signature == get_file_signature_static().get_flipped() )
 		{
-			_endianness = data_endianness_e_little;
+			_endianness = endianness_e_little;
 		}
 		else
 		{

@@ -1,10 +1,9 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_dictionary.h"
 #include "cheonsa_memory_allocator_pool.h"
-#include "cheonsa_math_types.h"
 #include "cheonsa_video_types.h"
 
 namespace cheonsa

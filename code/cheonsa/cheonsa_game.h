@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa__types.h"
 
 namespace cheonsa
 {
@@ -16,11 +16,6 @@ namespace cheonsa
 		virtual void_c process_input_event( input_event_c * input_event ) = 0; // occurs any number of times per frame, before update is called.
 
 		virtual void_c update( float32_c time_step ) = 0; // occurs once per frame, after all input events are processed.
-
-		//virtual void_c render( float32_c time_step ) = 0; // occurs as frequently as possible but not more than once per frame.
-
-		//virtual boolean_c resolve_string( string8_c const & key, string8_c & result ) = 0; // called by text elements that contain game string references when they lay out their glyphs.
-		//virtual boolean_c resolve_sprite( string8_c const & key, resource_file_sprite_set_c::reference_c & result ) = 0; // called by text elements that contain sprite references when they lay out their glyphs.
 
 	};
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "cheonsa_base_types.h"
+#include "cheonsa___build.h"
+#include "cheonsa__types.h"
+#include "cheonsa_data_types.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_math_types.h"
-#include "cheonsa___build.h"
 
 namespace cheonsa
 {
@@ -691,6 +691,32 @@ namespace cheonsa
 		void_c memory_zero( void_c * buffer, sint32_c buffer_size );
 		boolean_c memory_is_zero( void_c const * buffer, sint32_c buffer_size );
 		void_c memory_flip_byte_order( void_c * buffer, sint32_c buffer_size ); // swaps the byte order of the data in buffer.
+
+
+		//
+		//
+		// data operations.
+		//
+		//
+
+		// gets the size in bytes of the given type.
+		// returns a valid value for all numeric types.
+		// returns 0 for anything else.
+		sint32_c get_data_type_size( data_type_e type );
+		// gets the native endianess of the cpu.
+		endianness_e get_native_endianness();
+
+
+
+		//
+		//
+		// hash operations.
+		//
+		//
+
+		uint32_c xxhash32( void_c const * data, uint_native_c data_size );
+		uint64_c xxhash64( void_c const * data, uint_native_c data_size );
+		uint_native_c xxhash_native( void_c const * data, uint_native_c data_size );
 
 	}
 }
