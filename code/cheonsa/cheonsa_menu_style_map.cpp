@@ -13,7 +13,7 @@ namespace cheonsa
 
 	void_c menu_style_map_c::reference_c::refresh()
 	{
-		_value = global_engine_instance.interfaces.menu_style_manager->find_style_map( _key );
+		_value = engine_c::get_instance()->get_menu_style_manager()->find_style_map( _key );
 		on_refreshed.invoke( this );
 	}
 

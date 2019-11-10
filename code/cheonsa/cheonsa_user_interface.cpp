@@ -289,7 +289,7 @@ namespace cheonsa
 			height = 100;
 		}
 		box32x2_c local_box = box32x2_c( 0.0f, 0.0f, static_cast< float32_c >( width ), static_cast< float32_c >( height ) );
-		if ( global_engine_instance.environment.get_window_state() == window_state_e_maximized )
+		if ( engine_c::get_instance()->get_window_manager()->get_window_state() == window_state_e_maximized )
 		{
 			sint32_c compensate = 8; // for some reason, when windows are maximized in windows, their area is virtually 8 pixels larger than the screen.
 			local_box.minimum.a += compensate;
@@ -319,7 +319,7 @@ namespace cheonsa
 
 		// process input events.
 		boolean_c wants_to_refresh_resources = false;
-		core_list_c< input_event_c > & input_events = global_engine_instance.interfaces.input_manager->get_events();
+		core_list_c< input_event_c > & input_events = engine_c::get_instance()->get_input_manager()->get_events();
 		for ( sint32_c i = 0; i < input_events.get_length(); i++ )
 		{
 			input_event_c & input_event = input_events[ i ];
@@ -329,15 +329,15 @@ namespace cheonsa
 			{
 				if ( input_event.keyboard_key == debug_key_toggle_console )
 				{
-					global_engine_instance.debug.set_console_is_showing( !global_engine_instance.debug.get_console_is_showing() );
+					engine_c::get_instance()->get_debug_manager()->set_console_is_showing( !engine_c::get_instance()->get_debug_manager()->get_console_is_showing() );
 				}
 				else if ( input_event.keyboard_key == debug_key_toggle_stats )
 				{
-					global_engine_instance.debug.set_statistics_is_showing( !global_engine_instance.debug.get_statistics_is_showing() );
+					engine_c::get_instance()->get_debug_manager()->set_statistics_is_showing( !engine_c::get_instance()->get_debug_manager()->get_statistics_is_showing() );
 				}
 				else if ( input_event.keyboard_key == debug_key_toggle_menu_bounds )
 				{
-					global_engine_instance.debug.draw_menu_bounds = !global_engine_instance.debug.draw_menu_bounds;
+					engine_c::get_instance()->get_debug_manager()->set_draw_menu_bounds( !engine_c::get_instance()->get_debug_manager()->get_draw_menu_bounds() );
 				}
 				else if ( input_event.keyboard_key == debug_key_refresh_resources )
 				{
@@ -349,7 +349,7 @@ namespace cheonsa
 			_process_input_event( &input_event );
 
 			// let the game process the input event.
-			global_engine_instance.interfaces.game->process_input_event( &input_event );
+			engine_c::get_instance()->get_game()->process_input_event( &input_event );
 		}
 
 		// update animations of controls, and delete any that want to be deleted.
@@ -369,9 +369,9 @@ namespace cheonsa
 		// reload resources.
 		if ( wants_to_refresh_resources )
 		{
-			global_engine_instance.interfaces.video_renderer_shader_manager->refresh();
-			global_engine_instance.interfaces.resource_manager->refresh();
-			global_engine_instance.interfaces.menu_style_manager->refresh();
+			engine_c::get_instance()->get_video_renderer_shader_manager()->refresh();
+			engine_c::get_instance()->get_resource_manager()->refresh();
+			engine_c::get_instance()->get_menu_style_manager()->refresh();
 		}
 	}
 
@@ -381,16 +381,16 @@ namespace cheonsa
 		_canvas_and_output->clear();
 
 		// pre-render menus.
-		global_engine_instance.interfaces.video_renderer_interface->pre_render_menus( this );
+		engine_c::get_instance()->get_video_renderer_interface()->pre_render_menus( this );
 
 		// render 3d scene and 3d menu controls to canvas.
 		if ( _scene )
 		{
-			global_engine_instance.interfaces.video_renderer_interface->render_scene( _scene, &_scene->get_scene_camera(), _canvas_and_output );
+			engine_c::get_instance()->get_video_renderer_interface()->render_scene( _scene, &_scene->get_scene_camera(), _canvas_and_output );
 		}
 
 		// render 2d menus to canvas.
-		global_engine_instance.interfaces.video_renderer_interface->render_2d_menus( this );
+		engine_c::get_instance()->get_video_renderer_interface()->render_2d_menus( this );
 
 		// flip canvas back buffer to output window.
 		_canvas_and_output->present();
@@ -421,7 +421,7 @@ namespace cheonsa
 		// remove controls from old scene.
 		if ( _scene )
 		{
-			global_engine_instance.interfaces.audio_interface->remove_scene( _scene->get_audio_scene() );
+			engine_c::get_instance()->get_audio_interface()->remove_scene( _scene->get_audio_scene() );
 			core_linked_list_c< scene_object_c * >::node_c const * scene_object_list_node = _scene->get_scene_object_list().get_first();
 			while ( scene_object_list_node )
 			{
@@ -463,7 +463,7 @@ namespace cheonsa
 					}
 				}
 			}
-			global_engine_instance.interfaces.audio_interface->add_scene( _scene->get_audio_scene() );
+			engine_c::get_instance()->get_audio_interface()->add_scene( _scene->get_audio_scene() );
 		}
 	}
 

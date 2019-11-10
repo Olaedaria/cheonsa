@@ -28,7 +28,7 @@ namespace cheonsa
 				resource_manager->_worker_thread_load_queue.remove_at_index( 0 );
 					
 				string16_c file_path_absolute;
-				if ( global_engine_instance.interfaces.content_manager->resolve_file_path( resource->get_file_path_relative(), file_path_absolute ) )
+				if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( resource->get_file_path_relative(), file_path_absolute ) )
 				{
 					data_stream_file_c stream;
 					if ( stream.open( file_path_absolute, data_stream_mode_e_read ) )
@@ -67,7 +67,7 @@ namespace cheonsa
 		string16_c file_path_absolute = resource->_file_path_absolute;
 		sint64_c file_modified_time = resource->_file_modified_time;
 
-		if ( !global_engine_instance.interfaces.content_manager->resolve_file_path( resource->_file_path_relative, file_path_absolute ) )
+		if ( !engine_c::get_instance()->get_content_manager()->resolve_file_path( resource->_file_path_relative, file_path_absolute ) )
 		{
 			return;
 		}
@@ -178,7 +178,7 @@ namespace cheonsa
 		{
 			// load the resource data now on this main thread.
 			string16_c file_path_absolute;
-			if ( global_engine_instance.interfaces.content_manager->resolve_file_path( file_path_relative, file_path_absolute ) )
+			if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( file_path_relative, file_path_absolute ) )
 			{
 				data_stream_file_c stream;
 				if ( stream.open( file_path_absolute, data_stream_mode_e_read ) )

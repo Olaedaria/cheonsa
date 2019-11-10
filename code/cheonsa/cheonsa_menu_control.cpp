@@ -554,7 +554,7 @@ namespace cheonsa
 
 	void_c menu_control_c::update_animations( float32_c time_step )
 	{
-		float32_c transition_step = global_engine_instance.interfaces.menu_style_manager->shared_transition_speed * static_cast< float32_c >( time_step );
+		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showing_weight = ops::math_saturate( _is_showing_weight + ( _is_showing ? transition_step : -transition_step ) );
 		//_global_is_showing_weight = _is_showing_weight;
 		//if ( _mother_control != nullptr )
@@ -1593,7 +1593,7 @@ namespace cheonsa
 					_control_group_texture = nullptr;
 				}
 				assert( needed_width <= 4096 && needed_height <= 4096 );
-				_control_group_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
+				_control_group_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
 				assert( _control_group_texture != nullptr );
 				_control_group_texture_wrapper.set_video_texture( _control_group_texture );
 			}
@@ -1610,7 +1610,7 @@ namespace cheonsa
 			map.maximum.a = static_cast< float32_c >( _local_box.get_width() ) / static_cast< float32_c >( _control_group_texture->get_width() );
 			map.maximum.b = static_cast< float32_c >( _local_box.get_height() ) / static_cast< float32_c >( _control_group_texture->get_height() );
 			box32x2_c box = _local_box;
-			_control_group_draw_list.append_rectangle( box, map, global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_frame, &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			_control_group_draw_list.append_rectangle( box, map, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_frame(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ) );
 			draw_list_list.insert_at_end( &_control_group_draw_list );
 		}
 		else

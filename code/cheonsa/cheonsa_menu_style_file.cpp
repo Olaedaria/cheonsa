@@ -43,8 +43,8 @@ namespace cheonsa
 	boolean_c menu_style_file_c::refresh()
 	{
 		// try to open new data.
-		assert( global_engine_instance.interfaces.content_manager != nullptr );
-		if ( !global_engine_instance.interfaces.content_manager->resolve_file_path( _file_path_relative, _file_path_absolute ) )
+		assert( engine_c::get_instance()->get_content_manager() != nullptr );
+		if ( !engine_c::get_instance()->get_content_manager()->resolve_file_path( _file_path_relative, _file_path_absolute ) )
 		{
 			return false;
 		}

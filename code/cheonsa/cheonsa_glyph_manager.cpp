@@ -26,20 +26,20 @@
 //   and everything in and around #pragma omp parallel
 //
 // is code that is adapted/refactored from:
-//
-/*
- * MULTI-CHANNEL SIGNED DISTANCE FIELD GENERATOR v1.5 (2017-07-23)
- * ---------------------------------------------------------------
- * A utility by Viktor Chlumsky, (c) 2014 - 2017
- *
- * The technique used to generate multi-channel distance fields in this code
- * has been developed by Viktor Chlumsky in 2014 for his master's thesis,
- * "Shape Decomposition for Multi-Channel Distance Fields". It provides improved
- * quality of sharp corners in glyphs and other 2D shapes in comparison to monochrome
- * distance fields. To reconstruct an image of the shape, apply the median of three
- * operation on the triplet of sampled distance field values.
- *
- */
+
+	/*
+	 * MULTI-CHANNEL SIGNED DISTANCE FIELD GENERATOR v1.5 (2017-07-23)
+	 * ---------------------------------------------------------------
+	 * A utility by Viktor Chlumsky, (c) 2014 - 2017
+	 *
+	 * The technique used to generate multi-channel distance fields in this code
+	 * has been developed by Viktor Chlumsky in 2014 for his master's thesis,
+	 * "Shape Decomposition for Multi-Channel Distance Fields". It provides improved
+	 * quality of sharp corners in glyphs and other 2D shapes in comparison to monochrome
+	 * distance fields. To reconstruct an image of the shape, apply the median of three
+	 * operation on the triplet of sampled distance field values.
+	 *
+	 */
 
 #include "cheonsa_menu_element_text.h"
 
@@ -1048,21 +1048,21 @@ namespace cheonsa
 		FT_Error error = FT_Init_FreeType( reinterpret_cast< FT_Library * >( &_free_type_library_handle ) );
 		if ( error != 0 )
 		{
-			cheonsa_annoy( L"error", L"FT_Init_FreeType() failed." );
+			debug_annoy( L"error", L"FT_Init_FreeType() failed." );
 			return false;
 		}
 
-		_glyph_atlas_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, glyph_manager_c::glyph_atlas_array_slice_count, nullptr, 0, false, false, false, false );
+		_glyph_atlas_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, glyph_manager_c::glyph_atlas_array_slice_count, nullptr, 0, false, false, false, false );
 		if ( _glyph_atlas_texture == nullptr )
 		{
-			cheonsa_annoy( L"error", L"glyph atlas texture creation failed." );
+			debug_annoy( L"error", L"glyph atlas texture creation failed." );
 			return false;
 		}
 
-		_glyph_atlas_staging_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, 1, nullptr, 0, true, false, false, false );
+		_glyph_atlas_staging_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, 1, nullptr, 0, true, false, false, false );
 		if ( _glyph_atlas_staging_texture == nullptr )
 		{
-			cheonsa_annoy( L"error", L"glyph atlas staging texture creation failed." );
+			debug_annoy( L"error", L"glyph atlas staging texture creation failed." );
 			return false;
 		}
 		
@@ -1290,7 +1290,7 @@ namespace cheonsa
 			if ( glyph_atlas->_needs_upload )
 			{
 				_glyph_atlas_staging_texture->set_data( glyph_atlas->_texture_data, glyph_atlas->_texture_data_size );
-				global_engine_instance.interfaces.video_interface->copy_sub_resource( _glyph_atlas_texture, i, _glyph_atlas_staging_texture, 0 );
+				engine_c::get_instance()->get_video_interface()->copy_sub_resource( _glyph_atlas_texture, i, _glyph_atlas_staging_texture, 0 );
 				glyph_atlas->_needs_upload = false;
 			}
 		}
@@ -1302,7 +1302,7 @@ namespace cheonsa
 
 	boolean_c glyph_manager_c::save_to_disk()
 	{
-		string16_c folder_path = global_engine_instance.interfaces.content_manager->get_engine_data_folder_path();
+		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		folder_path += font_cache_folder;
 
 		if ( !ops::data_does_folder_exist( folder_path ) )
@@ -1341,7 +1341,8 @@ namespace cheonsa
 			if ( i == 0 )
 			{
 				glyph_stream.open();
-				glyph_scribe.open( &glyph_stream, endianness_e_little );
+				glyph_scribe.set_stream( &glyph_stream );
+				glyph_scribe.set_byte_order( byte_order_e_little );
 				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_width );
 				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_height );
 				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_array_slice_count );
@@ -1380,7 +1381,8 @@ namespace cheonsa
 
 			// build row list data.
 			row_stream.open();
-			row_scribe.open( &row_stream, endianness_e_little );
+			row_scribe.set_stream( &row_stream );
+			row_scribe.set_byte_order( byte_order_e_little );
 			row_scribe.save_sint32( glyph_atlas->_row_list.get_length() );
 			for ( sint32_c j = 0; j < glyph_atlas->_row_list.get_length(); j++ )
 			{
@@ -1412,10 +1414,10 @@ namespace cheonsa
 			// close glyph and row scribes streams.
 			if ( i == 0 )
 			{
-				glyph_scribe.close();
+				glyph_scribe.set_stream( nullptr );
 				glyph_stream.close();
 			}
-			row_scribe.close();
+			row_scribe.set_stream( nullptr );
 			row_stream.close();
 			chunk_list.remove_all();
 
@@ -1440,7 +1442,7 @@ namespace cheonsa
 
 	boolean_c glyph_manager_c::load_from_disk()
 	{
-		string16_c folder_path = global_engine_instance.interfaces.content_manager->get_engine_data_folder_path();
+		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		folder_path += font_cache_folder;
 
 		if ( !ops::data_does_folder_exist( folder_path ) )
@@ -1526,7 +1528,8 @@ namespace cheonsa
 
 					chunk_giRl = chunk;
 					chunk_stream.open_static( chunk->data, chunk->data_size );
-					chunk_scribe.open( &chunk_stream, endianness_e_little );
+					chunk_scribe.set_stream( &chunk_stream );
+					chunk_scribe.set_byte_order( byte_order_e_little );
 					uint32_c texture_width = chunk_scribe.load_uint32();
 					uint32_c texture_height = chunk_scribe.load_uint32();
 					uint32_c texture_array_slice_count = chunk_scribe.load_uint32();
@@ -1553,7 +1556,7 @@ namespace cheonsa
 						glyph->atlas_index = chunk_scribe.load_uint8();
 						_glyph_dictionary.insert( glyph->key, glyph );
 					}
-					chunk_scribe.close();
+					chunk_scribe.set_stream( nullptr );
 					chunk_stream.close();
 				}
 				else if (
@@ -1569,7 +1572,8 @@ namespace cheonsa
 
 					chunk_gaRl = chunk;
 					chunk_stream.open_static( chunk_gaRl->data, chunk_gaRl->data_size );
-					chunk_scribe.open( &chunk_stream, endianness_e_little );
+					chunk_scribe.set_stream( &chunk_stream );
+					chunk_scribe.set_byte_order( byte_order_e_little );
 					sint32_c row_count = chunk_scribe.load_sint32();
 					for ( sint32_c j = 0; j < row_count; j++ )
 					{
@@ -1579,7 +1583,7 @@ namespace cheonsa
 						row->width = chunk_scribe.load_sint32();
 						row->height = chunk_scribe.load_sint32();
 					}
-					chunk_scribe.close();
+					chunk_scribe.set_stream( nullptr );
 					chunk_stream.close();
 				}
 			}
@@ -1591,7 +1595,7 @@ namespace cheonsa
 		return false;
 	}
 
-	uint8_c const glyph_manager_c::quantized_sizes[ glyph_manager_c::quantized_count ] = { 12, 24, 32, 48 };
+	uint8_c const glyph_manager_c::quantized_sizes[ 4 ] = { 12, 24, 32, 48 };
 
 	sint32_c glyph_manager_c::get_quantized_index( float32_c size )
 	{

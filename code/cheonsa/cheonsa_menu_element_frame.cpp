@@ -19,7 +19,7 @@ namespace cheonsa
 		menu_style_for_frame_c const * frame_style = _override_style != nullptr ? _override_style : _style_reference.get_value();
 		if ( frame_style == nullptr )
 		{
-			frame_style = &global_engine_instance.interfaces.menu_style_manager->default_frame_style;
+			frame_style = engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_frame();
 		}
 
 		resource_file_texture_c * texture = frame_style->texture;
@@ -39,7 +39,7 @@ namespace cheonsa
 		float32_c texture_height = static_cast< float32_c >( texture->get_video_texture()->get_height() );
 		float32_c texture_height_inverse = 1.0f / texture_height;
 
-		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference.get_loaded() ? frame_style->pixel_shader_reference.get_pixel_shader() : global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_frame;
+		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference.get_loaded() ? frame_style->pixel_shader_reference.get_pixel_shader() : engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_frame();
 		assert( pixel_shader != nullptr );
 
 		float32_c x[ 4 ]; // always from left to right.
@@ -331,7 +331,7 @@ namespace cheonsa
 
 	void_c menu_element_frame_c::update_animations( float32_c time_step )
 	{
-		float32_c transition_step = global_engine_instance.interfaces.menu_style_manager->shared_transition_speed * static_cast< float32_c >( time_step );
+		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		//_is_showing_weight = ops::math_saturate( _is_showing_weight + ( _is_showing ? transition_step : -transition_step ) );
 		//_is_selected_weight = ops::math_saturate( _is_selected_weight + ( _is_selected ? transition_step : -transition_step ) );
 		//_is_pressed_weight = ops::math_saturate( _is_pressed_weight + ( _is_pressed ? transition_step : -transition_step ) );

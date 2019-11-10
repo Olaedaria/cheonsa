@@ -2,10 +2,41 @@
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
-#include "cheonsa_core_hasher.h"
+#include "cheonsa_string8.h"
+#include "cheonsa_string16.h"
+#include "cheonsa__ops.h"
 
 namespace cheonsa
 {
+
+	// these are templated dictionary hash functions, used to convert a value to a hash that can be used to index buckets in the dictionary.
+	// there was a time when i used function pointers to define custom hash functions, but this way is easier but less flexible.
+	template< typename type_c > 
+	struct core_hasher
+	{
+		static uint32_c hash( type_c const & value )
+		{
+			return ops::xxhash32( &value, sizeof( type_c ) );
+		};
+	};
+
+	template<>
+	struct core_hasher< string8_c >
+	{
+		static uint32_c hash( string8_c const & value )
+		{
+			return ops::xxhash32( value.character_list.get_internal_array(), value.character_list.get_internal_array_size_used() );
+		}
+	};
+
+	template<>
+	struct core_hasher< string16_c >
+	{
+		static uint32_c hash( string16_c const & value )
+		{
+			return ops::xxhash32( value.character_list.get_internal_array(), value.character_list.get_internal_array_size_used() );
+		}
+	};
 
 	// if key_type_c is a class type then it needs to implement operator = and operator ==.
 	// if value_type_c is a class type then it may need to implement operator =.
@@ -136,15 +167,10 @@ namespace cheonsa
 				for ( sint32_c j = 0; j < old_bucket.get_length(); j++ )
 				{
 					entry_c const & entry = old_bucket[ j ];
-					core_list_c< entry_c > & bucket = _buckets[ _hash( entry.key ) % _buckets.get_length() ];
+					core_list_c< entry_c > & bucket = _buckets[ core_hasher< key_type_c >::hash( entry.key ) % _buckets.get_length() ];
 					bucket.insert_at_end( entry );
 				}
 			}
-		}
-
-		static uint_native_c _hash( key_type_c const & key )
-		{
-			return hasher< key_type_c >::hash( key );
 		}
 
 	public:
@@ -166,7 +192,7 @@ namespace cheonsa
 		// finds an item in the dictionary, and optionally gets its specific address in the dictionary.
 		boolean_c find_entry( key_type_c const & key, core_list_c< entry_c > const * * out_bucket, sint32_c * out_entry_index, entry_c const * * out_entry ) const
 		{
-			core_list_c< entry_c > const & bucket = _buckets[ _hash( key ) % _buckets.get_length() ];
+			core_list_c< entry_c > const & bucket = _buckets[ core_hasher< key_type_c >::hash( key ) % _buckets.get_length() ];
 			for ( sint32_c i = 0; i < bucket.get_length(); i++ )
 			{
 				if ( bucket[ i ].key == key )
@@ -204,7 +230,7 @@ namespace cheonsa
 			}
 			else
 			{
-				core_list_c< entry_c > & bucket = _buckets[ _hash( key ) % _buckets.get_length() ];
+				core_list_c< entry_c > & bucket = _buckets[ core_hasher< key_type_c >::hash( key ) % _buckets.get_length() ];
 				entry_c * entry = bucket.emplace_at_end();
 				entry->key = key;
 				entry->value = value;

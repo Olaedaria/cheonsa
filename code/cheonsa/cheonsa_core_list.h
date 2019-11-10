@@ -404,7 +404,7 @@ namespace cheonsa
 			{
 				_shift( index, count );
 			}
-			for ( sint32_c i = 0; i < i; i++ )
+			for ( sint32_c i = 0; i < count; i++ )
 			{
 				_array[ index + i ] = values[ i ];
 			}

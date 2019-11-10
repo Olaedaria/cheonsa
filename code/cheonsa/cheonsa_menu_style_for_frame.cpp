@@ -40,7 +40,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture" );
 		if ( attribute )
 		{
-			texture = global_engine_instance.interfaces.resource_manager->load_texture( string16_c( attribute->get_value() ) );
+			texture = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 		}
 
 		boolean_c texture_map_size_is_defined = false;
@@ -101,7 +101,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "pixel_shader" );
 		if ( attribute )
 		{
-			pixel_shader_reference = global_engine_instance.interfaces.video_renderer_shader_manager->load_pixel_shader( string16_c( attribute->get_value() ) );
+			pixel_shader_reference = engine_c::get_instance()->get_video_renderer_shader_manager()->load_pixel_shader( string16_c( attribute->get_value() ) );
 		}
 
 		sint32_c state_index = 0;
@@ -239,18 +239,18 @@ namespace cheonsa
 
 	void_c menu_style_for_frame_c::reference_c::refresh()
 	{
-		assert( global_engine_instance.interfaces.menu_style_manager != nullptr );
+		assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
 		if ( _key == "[none]" )
 		{
 			_value = nullptr;
 		}
 		else if ( _key == "[default]" )
 		{
-			_value = &global_engine_instance.interfaces.menu_style_manager->default_frame_style;
+			_value = engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_frame();
 		}
 		else
 		{
-			_value = global_engine_instance.interfaces.menu_style_manager->find_style_for_frame( _key );
+			_value = engine_c::get_instance()->get_menu_style_manager()->find_style_for_frame( _key );
 		}
 		on_refreshed.invoke( this );
 	}

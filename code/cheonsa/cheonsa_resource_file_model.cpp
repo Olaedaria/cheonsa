@@ -295,7 +295,7 @@ namespace cheonsa
 				if ( data_end > _raw_data_size ) { goto clean_up; }
 				_data.mesh_vertex_list_base.construct_mode_static_from_array( reinterpret_cast< mesh_vertex_base_c * >( &_raw_data[ data_offset ] ), header->mesh_vertex_count );
 				data_offset = align_data_offset( data_end );
-				_data.mesh_vertex_buffer_base = global_engine_instance.interfaces.video_interface->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_base.get_length(), _data.mesh_vertex_list_base.get_internal_array(), _data.mesh_vertex_list_base.get_internal_array_size_used(), false, false, false );
+				_data.mesh_vertex_buffer_base = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_base.get_length(), _data.mesh_vertex_list_base.get_internal_array(), _data.mesh_vertex_list_base.get_internal_array_size_used(), false, false, false );
 
 				if ( header->mesh_bone_name_count > 0 )
 				{
@@ -303,7 +303,7 @@ namespace cheonsa
 					if ( data_end > _raw_data_size ) { goto clean_up; }
 					_data.mesh_vertex_list_bone_weight.construct_mode_static_from_array( reinterpret_cast< mesh_vertex_bone_weight_c * >( &_raw_data[ data_offset ] ), header->mesh_vertex_count );
 					data_offset = align_data_offset( data_end );
-					_data.mesh_vertex_buffer_bone_weight = global_engine_instance.interfaces.video_interface->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_bone_weight.get_length(), _data.mesh_vertex_list_bone_weight.get_internal_array(), _data.mesh_vertex_list_bone_weight.get_internal_array_size_used(), false, false, false );
+					_data.mesh_vertex_buffer_bone_weight = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_bone_weight.get_length(), _data.mesh_vertex_list_bone_weight.get_internal_array(), _data.mesh_vertex_list_bone_weight.get_internal_array_size_used(), false, false, false );
 				}
 			}
 
@@ -315,7 +315,7 @@ namespace cheonsa
 					if ( data_end > _raw_data_size ) { goto clean_up; }
 					_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c * >( &_raw_data[ data_offset ] ), header->mesh_index_count );
 					data_offset = align_data_offset( data_end );
-					_data.mesh_index_buffer = global_engine_instance.interfaces.video_interface->create_index_buffer( video_index_format_e_uint16, header->mesh_index_count, _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
+					_data.mesh_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, header->mesh_index_count, _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
 				}
 				else
 				{
@@ -323,7 +323,7 @@ namespace cheonsa
 					if ( data_end > _raw_data_size ) { goto clean_up; }
 					_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c * >( &_raw_data[ data_offset ] ), header->mesh_index_count * 2 ); // * 2 to account for actual type of uint32_c.
 					data_offset = align_data_offset( data_end );
-					_data.mesh_index_buffer = global_engine_instance.interfaces.video_interface->create_index_buffer( video_index_format_e_uint32, header->mesh_index_count, _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
+					_data.mesh_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint32, header->mesh_index_count, _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
 				}
 			}
 

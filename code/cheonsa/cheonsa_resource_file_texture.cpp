@@ -235,7 +235,7 @@ namespace cheonsa
 			return false;
 		}
 
-		video_texture = global_engine_instance.interfaces.video_interface->create_texture( video_texture_format, image.width, image.height, 1, 1, video_texture_data ? video_texture_data : image.data.get_internal_array(), video_texture_data ? video_texture_data_size : image.data.get_length(), false, false, false, true );
+		video_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format, image.width, image.height, 1, 1, video_texture_data ? video_texture_data : image.data.get_internal_array(), video_texture_data ? video_texture_data_size : image.data.get_length(), false, false, false, true );
 
 		if ( video_texture_data )
 		{

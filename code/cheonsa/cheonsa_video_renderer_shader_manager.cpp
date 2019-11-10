@@ -344,7 +344,7 @@ namespace cheonsa
 		}
 
 		data_scribe_binary_c scribe_binary;
-		scribe_binary.open( &stream, ops::get_native_endianness() );
+		scribe_binary.set_stream( &stream );
 
 		scribe_binary.load_uint32(); // skip the value that defines the position of where the compiled code begins.
 		file_modified_time = scribe_binary.load_sint64();
@@ -466,7 +466,7 @@ namespace cheonsa
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
 		ops::convert_string16_to_string8( shader_variations->source_file.file_path_absolute.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
-		video_vertex_shader_c * shader = global_engine_instance.interfaces.video_interface->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->input_vertex_layout );
+		video_vertex_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->input_vertex_layout );
 		if ( shader )
 		{
 			if ( shader_variations->output_vertex_format && variation == variation_e_vs )
@@ -495,7 +495,7 @@ namespace cheonsa
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
 		ops::convert_string16_to_string8( shader_variations->source_file.file_path_absolute.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
-		video_pixel_shader_c * shader = global_engine_instance.interfaces.video_interface->create_pixel_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ) );
+		video_pixel_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ) );
 		if ( shader )
 		{
 			void_c const * compiled_code;
@@ -519,7 +519,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_write ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.open( &stream, ops::get_native_endianness() );
+			scribe_binary.set_stream( &stream );
 
 			sint32_c compiled_code_position = 0;
 			scribe_binary.save_sint32( 0 ); // place holder for where we will save the location of compiled code.
@@ -594,7 +594,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.open( &stream, ops::get_native_endianness() );
+			scribe_binary.set_stream( &stream );
 
 			sint32_c compiled_code_position = scribe_binary.load_sint32();
 			stream.set_position( compiled_code_position );
@@ -604,7 +604,7 @@ namespace cheonsa
 			stream.load( compiled_code.get_internal_array(), compiled_code_size );
 			stream.close();
 
-			video_vertex_shader_c * shader = global_engine_instance.interfaces.video_interface->create_vertex_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size, vertex_layout );
+			video_vertex_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size, vertex_layout );
 			if ( shader != nullptr )
 			{
 				if ( *result != nullptr)
@@ -626,7 +626,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.open( &stream, ops::get_native_endianness() );
+			scribe_binary.set_stream( &stream );
 
 			sint32_c compiled_code_position = scribe_binary.load_sint32();
 			stream.set_position( compiled_code_position );
@@ -636,7 +636,7 @@ namespace cheonsa
 			stream.load( compiled_code.get_internal_array(), compiled_code_size );
 			stream.close();
 
-			video_pixel_shader_c * shader = global_engine_instance.interfaces.video_interface->create_pixel_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size );
+			video_pixel_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size );
 			if ( shader != nullptr )
 			{
 				if ( *result != nullptr )
@@ -651,41 +651,41 @@ namespace cheonsa
 	}
 
 	video_renderer_shader_manager_c::video_renderer_shader_manager_c()
-		: skin_mesh( nullptr )
-		, menu_ps_debug( nullptr )
-		, menu_ps_frame( nullptr )
-		, menu_ps_solid_color( nullptr )
-		, menu_ps_text( nullptr )
-		, menu2_vs( nullptr )
-		, menu2_vs_debug( nullptr )
-		, menu3_vs( nullptr )
-		, menu3_vs_debug( nullptr )
-		, scene_camera_normal_and_depth_ps_mesh( nullptr )
-		, scene_camera_normal_and_depth_ps_mesh_masked( nullptr )
-		, scene_camera_normal_and_depth_vs_mesh( nullptr )
-		, scene_camera_normal_and_depth_vs_mesh_waved( nullptr )
-		, scene_camera_normal_and_depth_vs_mesh_clipped( nullptr )
-		, scene_camera_normal_and_depth_vs_mesh_waved_clipped( nullptr )
-		, scene_camera_outline_ps_mesh( nullptr )
-		, scene_camera_outline_ps_mesh_masked( nullptr )
-		, scene_camera_color_ps_debug( nullptr )
-		, scene_camera_color_vs_debug( nullptr )
-		, scene_camera_color_vs_mesh( nullptr )
-		, scene_camera_color_vs_mesh_waved( nullptr )
-		, scene_camera_color_vs_mesh_clipped( nullptr )
-		, scene_camera_color_vs_mesh_waved_clipped( nullptr )
-		, scene_shadow_ps_mesh( nullptr )
-		, scene_shadow_ps_mesh_masked( nullptr )
-		, scene_shadow_vs_mesh( nullptr )
-		, scene_shadow_vs_mesh_waved( nullptr )
-		, scene_post_ps_blur_x( nullptr )
-		, scene_post_ps_blur_y( nullptr )
-		, scene_post_ps_resolve_native( nullptr )
-		, scene_post_ps_resolve_scaled( nullptr )
-		, scene_post_ps_resolve_quarter( nullptr )
-		, scene_post_ps_process( nullptr )
-		, scene_post_vs( nullptr )
-		, scene_camera_color_ps_mesh( nullptr )
+		: _skin_mesh( nullptr )
+		, _menu_ps_debug( nullptr )
+		, _menu_ps_frame( nullptr )
+		, _menu_ps_solid_color( nullptr )
+		, _menu_ps_text( nullptr )
+		, _menu2_vs( nullptr )
+		, _menu2_vs_debug( nullptr )
+		, _menu3_vs( nullptr )
+		, _menu3_vs_debug( nullptr )
+		, _scene_camera_normal_and_depth_ps_mesh( nullptr )
+		, _scene_camera_normal_and_depth_ps_mesh_masked( nullptr )
+		, _scene_camera_normal_and_depth_vs_mesh( nullptr )
+		, _scene_camera_normal_and_depth_vs_mesh_waved( nullptr )
+		, _scene_camera_normal_and_depth_vs_mesh_clipped( nullptr )
+		, _scene_camera_normal_and_depth_vs_mesh_waved_clipped( nullptr )
+		, _scene_camera_outline_ps_mesh( nullptr )
+		, _scene_camera_outline_ps_mesh_masked( nullptr )
+		, _scene_camera_color_ps_debug( nullptr )
+		, _scene_camera_color_vs_debug( nullptr )
+		, _scene_camera_color_vs_mesh( nullptr )
+		, _scene_camera_color_vs_mesh_waved( nullptr )
+		, _scene_camera_color_vs_mesh_clipped( nullptr )
+		, _scene_camera_color_vs_mesh_waved_clipped( nullptr )
+		, _scene_shadow_ps_mesh( nullptr )
+		, _scene_shadow_ps_mesh_masked( nullptr )
+		, _scene_shadow_vs_mesh( nullptr )
+		, _scene_shadow_vs_mesh_waved( nullptr )
+		, _scene_post_ps_blur_x( nullptr )
+		, _scene_post_ps_blur_y( nullptr )
+		, _scene_post_ps_resolve_native( nullptr )
+		, _scene_post_ps_resolve_scaled( nullptr )
+		, _scene_post_ps_resolve_quarter( nullptr )
+		, _scene_post_ps_process( nullptr )
+		, _scene_post_vs( nullptr )
+		, _scene_camera_color_ps_mesh( nullptr )
 		, _shader_variations_list()
 		, _material_pixel_shader_list()
 	{
@@ -695,7 +695,7 @@ namespace cheonsa
 	{
 		_shader_variations_list.remove_and_delete_all();
 
-		scene_camera_color_ps_mesh->_reference_count--; // remove the fake user.
+		_scene_camera_color_ps_mesh->_reference_count--; // remove the fake user.
 		_material_pixel_shader_list.remove_and_delete_all();
 	}
 
@@ -706,113 +706,113 @@ namespace cheonsa
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"skin_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base_and_bone_weight;
 		shader_variations->output_vertex_format = &video_renderer_interface_c::vertex_format_mesh_base;
-		shader_variations->vs = &skin_mesh;
+		shader_variations->vs = &_skin_mesh;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_debug.hlsl" ), true );
-		shader_variations->ps = &menu_ps_debug;
+		shader_variations->ps = &_menu_ps_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_frame.hlsl" ), true );
-		shader_variations->ps = &menu_ps_frame;
+		shader_variations->ps = &_menu_ps_frame;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_solid_color.hlsl" ), true );
-		shader_variations->ps = &menu_ps_solid_color;
+		shader_variations->ps = &_menu_ps_solid_color;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_text.hlsl" ), true );
-		shader_variations->ps = &menu_ps_text;
+		shader_variations->ps = &_menu_ps_text;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu2_vs.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
-		shader_variations->vs = &menu2_vs;
+		shader_variations->vs = &_menu2_vs;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu2_vs_debug.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
-		shader_variations->vs = &menu2_vs_debug;
+		shader_variations->vs = &_menu2_vs_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu3_vs.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
-		shader_variations->vs = &menu3_vs;
+		shader_variations->vs = &_menu3_vs;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu3_vs_debug.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
-		shader_variations->vs = &menu3_vs_debug;
+		shader_variations->vs = &_menu3_vs_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_normal_and_depth_ps_mesh.hlsl" ), true );
-		shader_variations->ps = &scene_camera_normal_and_depth_ps_mesh;
-		shader_variations->ps_masked = &scene_camera_normal_and_depth_ps_mesh_masked;
+		shader_variations->ps = &_scene_camera_normal_and_depth_ps_mesh;
+		shader_variations->ps_masked = &_scene_camera_normal_and_depth_ps_mesh_masked;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_normal_and_depth_vs_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
-		shader_variations->vs = &scene_camera_normal_and_depth_vs_mesh;
-		shader_variations->vs_waved = &scene_camera_normal_and_depth_vs_mesh_waved;
-		shader_variations->vs_clipped = &scene_camera_normal_and_depth_vs_mesh_clipped;
-		shader_variations->vs_waved_clipped = &scene_camera_normal_and_depth_vs_mesh_waved_clipped;
+		shader_variations->vs = &_scene_camera_normal_and_depth_vs_mesh;
+		shader_variations->vs_waved = &_scene_camera_normal_and_depth_vs_mesh_waved;
+		shader_variations->vs_clipped = &_scene_camera_normal_and_depth_vs_mesh_clipped;
+		shader_variations->vs_waved_clipped = &_scene_camera_normal_and_depth_vs_mesh_waved_clipped;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_outline_ps_mesh.hlsl" ), true );
-		shader_variations->ps = &scene_camera_outline_ps_mesh;
-		shader_variations->ps_masked = &scene_camera_outline_ps_mesh_masked;
+		shader_variations->ps = &_scene_camera_outline_ps_mesh;
+		shader_variations->ps_masked = &_scene_camera_outline_ps_mesh_masked;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_color_ps_debug.hlsl" ), true );
-		shader_variations->ps = &scene_camera_color_ps_debug;
+		shader_variations->ps = &_scene_camera_color_ps_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_color_vs_debug.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
-		shader_variations->vs = &scene_camera_color_vs_debug;
+		shader_variations->vs = &_scene_camera_color_vs_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_color_vs_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
-		shader_variations->vs = &scene_camera_color_vs_mesh;
-		shader_variations->vs_waved = &scene_camera_color_vs_mesh_waved;
-		shader_variations->vs_clipped = &scene_camera_color_vs_mesh_clipped;
-		shader_variations->vs_waved_clipped = &scene_camera_color_vs_mesh_waved_clipped;
+		shader_variations->vs = &_scene_camera_color_vs_mesh;
+		shader_variations->vs_waved = &_scene_camera_color_vs_mesh_waved;
+		shader_variations->vs_clipped = &_scene_camera_color_vs_mesh_clipped;
+		shader_variations->vs_waved_clipped = &_scene_camera_color_vs_mesh_waved_clipped;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_shadow_ps_mesh.hlsl" ), true );
-		shader_variations->ps = &scene_shadow_ps_mesh;
-		shader_variations->ps_masked = &scene_shadow_ps_mesh_masked;
+		shader_variations->ps = &_scene_shadow_ps_mesh;
+		shader_variations->ps_masked = &_scene_shadow_ps_mesh_masked;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_shadow_vs_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
-		shader_variations->vs = &scene_shadow_vs_mesh;
-		shader_variations->vs_waved = &scene_shadow_vs_mesh_waved;
+		shader_variations->vs = &_scene_shadow_vs_mesh;
+		shader_variations->vs_waved = &_scene_shadow_vs_mesh_waved;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_blur_x.hlsl" ), true );
-		shader_variations->ps = &scene_post_ps_blur_x;
+		shader_variations->ps = &_scene_post_ps_blur_x;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_blur_y.hlsl" ), true );
-		shader_variations->ps = &scene_post_ps_blur_y;
+		shader_variations->ps = &_scene_post_ps_blur_y;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_native.hlsl" ), true );
-		shader_variations->ps = &scene_post_ps_resolve_native;
+		shader_variations->ps = &_scene_post_ps_resolve_native;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_scaled.hlsl" ), true );
-		shader_variations->ps = &scene_post_ps_resolve_scaled;
+		shader_variations->ps = &_scene_post_ps_resolve_scaled;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_quarter.hlsl" ), true );
-		shader_variations->ps = &scene_post_ps_resolve_quarter;
+		shader_variations->ps = &_scene_post_ps_resolve_quarter;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_process.hlsl" ), true );
-		shader_variations->ps = &scene_post_ps_process;
+		shader_variations->ps = &_scene_post_ps_process;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		//shader_variations = new shader_variations_c( "scene_post_ps_resolve.hlsl", true );
@@ -824,33 +824,33 @@ namespace cheonsa
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_vs.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_point;
-		shader_variations->vs = &scene_post_vs;
+		shader_variations->vs = &_scene_post_vs;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		// load built in shaders.
 		if ( !refresh() )
 		{
-			cheonsa_annoy( L"error", L"could not load a built in shader." );
+			debug_annoy( L"error", L"could not load a built in shader." );
 			return false;
 		}
 
 		// load built in mesh material shader.
-		scene_camera_color_ps_mesh = load_pixel_shader( string16_c( "scene_camera_color_ps_mesh.hlsl" ) );
-		if ( !scene_camera_color_ps_mesh )
+		_scene_camera_color_ps_mesh = load_pixel_shader( string16_c( "scene_camera_color_ps_mesh.hlsl" ) );
+		if ( !_scene_camera_color_ps_mesh )
 		{
-			cheonsa_annoy( L"error", L"could not load a built in material shader." );
+			debug_annoy( L"error", L"could not load a built in material shader." );
 			return false;
 		}
 
-		scene_camera_color_ps_mesh->_reference_count++; // add one fake user to keep this shader loaded at all times, it's basically built in.
+		_scene_camera_color_ps_mesh->_reference_count++; // add one fake user to keep this shader loaded at all times, it's basically built in.
 
 		return true;
 	}
 
 	boolean_c video_renderer_shader_manager_c::refresh()
 	{
-		assert( global_engine_instance.interfaces.resource_manager != nullptr );
-		assert( global_engine_instance.interfaces.video_interface != nullptr );
+		assert( engine_c::get_instance()->get_resource_manager() != nullptr );
+		assert( engine_c::get_instance()->get_video_interface() != nullptr );
 
 		for ( sint32_c i = 0; i < _material_pixel_shader_list.get_length(); i++ )
 		{
@@ -988,7 +988,7 @@ namespace cheonsa
 		// scan game data folders.
 		if ( is_internal == false )
 		{
-			core_list_c< string16_c > const & game_data_folder_path_list = global_engine_instance.interfaces.content_manager->get_game_data_folder_path_list();
+			core_list_c< string16_c > const & game_data_folder_path_list = engine_c::get_instance()->get_content_manager()->get_game_data_folder_path_list();
 			for ( sint32_c i = game_data_folder_path_list.get_length() - 1; i >= 0; i-- )
 			{
 				result = game_data_folder_path_list[ i ];
@@ -1003,7 +1003,7 @@ namespace cheonsa
 		}
 
 		// scan engine data folder.
-		result = global_engine_instance.interfaces.content_manager->get_engine_data_folder_path();
+		result = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		result += shader_folder_path;
 		result += file_path_relative;
 		if ( ops::data_does_file_exist( result ) )

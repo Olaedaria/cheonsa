@@ -16,7 +16,7 @@ namespace cheonsa
 		platform_pointer_c();
 		~platform_pointer_c();
 		boolean_c load( string16_c const & file_path );
-		void_c un_load();
+		void_c unload();
 
 	};
 

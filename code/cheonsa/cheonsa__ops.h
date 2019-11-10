@@ -266,6 +266,9 @@ namespace cheonsa
 		//
 		//
 
+		void_c convert_rgba_to_rgba( vector32x4_c const & value, uint32_c & result );
+		void_c convert_rgba_to_rgba( uint32_c const & value, vector32x4_c & result );
+
 		boolean_c convert_rgb_to_hsv( vector64x3_c const & rgb, vector64x3_c & hsv ); // hue is in degrees, saturation and value are in range 0 to 1. red green and blue are in range 0 to 1.
 		boolean_c convert_hsv_to_rgb( vector64x3_c const & hsv, vector64x3_c & rgb ); // hue is in degrees, saturation and value are in range 0 to 1. red green and blue are in range 0 to 1.
 
@@ -449,15 +452,6 @@ namespace cheonsa
 		void_c data_get_file_path_list( core_list_c< string16_c > & result_absolute_file_paths, string16_c const & absolute_folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter ); // extension filter is an optional file extension (without asterisk, with the dot) like ".txt".
 		void_c data_get_folder_path_list( core_list_c< string16_c > & result_absolute_folder_paths, string16_c const & absolute_folder_path, boolean_c const search_sub_folders );
 
-		//
-		//
-		// hash operations.
-		//
-		//
-
-		uint32_c hash_jenkins_uint32( void_c const * const data, sint32_c const data_size ); // good for dictionary keys, has good distribution.
-		uint64_c hash_jenkins_uint64( void_c const * const data, sint32_c const data_size ); // good for dictionary keys, has good distribution.
-
 
 		//
 		//
@@ -477,7 +471,7 @@ namespace cheonsa
 		//
 		//
 
-		void_c random_initialize(); // initializes the random number generator, is called once at engine start up, needs to be called before any of the other random number generator functions can be called.
+		void_c random_start(); // initializes the random number generator, is called once at engine start up, needs to be called before any of the other random number generator functions can be called.
 		float32_c random_float32( float32_c minimum = 0.0f, float32_c maximum = 1.0f );
 		float64_c random_float64( float64_c minimum = 0.0, float64_c maximum = 1.0 );
 		sint32_c random_sint32( sint32_c minimum = -2147483647, sint32_c maximum = 2147483647 );
@@ -690,7 +684,6 @@ namespace cheonsa
 		void_c memory_copy( void_c const * buffer_source, void_c * buffer_destination, sint32_c buffer_size );
 		void_c memory_zero( void_c * buffer, sint32_c buffer_size );
 		boolean_c memory_is_zero( void_c const * buffer, sint32_c buffer_size );
-		void_c memory_flip_byte_order( void_c * buffer, sint32_c buffer_size ); // swaps the byte order of the data in buffer.
 
 
 		//
@@ -703,9 +696,8 @@ namespace cheonsa
 		// returns a valid value for all numeric types.
 		// returns 0 for anything else.
 		sint32_c get_data_type_size( data_type_e type );
-		// gets the native endianess of the cpu.
-		endianness_e get_native_endianness();
-
+		byte_order_e get_native_byte_order(); // gets the native endianess of the cpu.
+		void_c flip_byte_order( void_c * buffer, sint32_c buffer_size ); // swaps the byte order of the data in buffer.
 
 
 		//
@@ -716,7 +708,6 @@ namespace cheonsa
 
 		uint32_c xxhash32( void_c const * data, uint_native_c data_size );
 		uint64_c xxhash64( void_c const * data, uint_native_c data_size );
-		uint_native_c xxhash_native( void_c const * data, uint_native_c data_size );
 
 	}
 }

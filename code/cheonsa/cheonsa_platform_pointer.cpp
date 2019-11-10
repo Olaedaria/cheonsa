@@ -26,36 +26,30 @@ namespace cheonsa
 
 	boolean_c platform_pointer_c::load( string16_c const & file_path )
 	{
-		un_load();
+		unload();
+#if defined( cheonsa_platform_windows )
+		string16_c full_file_path;
+		if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( file_path, full_file_path ) )
+		{
+			pointer_handle = LoadCursorFromFileW( full_file_path.character_list.get_internal_array() );
+			if ( pointer_handle != nullptr )
+			{
+				return true;
+			}
+		}
+		pointer_handle = LoadCursor( NULL, IDC_ARROW );
+		return false;
+#endif
+	}
+
+	void_c platform_pointer_c::unload()
+	{
 #if defined( cheonsa_platform_windows )
 		if ( pointer_handle != nullptr )
 		{
 			DestroyCursor( static_cast< HCURSOR >( pointer_handle ) );
-			pointer_handle = nullptr;
-		}
-		string16_c full_file_path;
-		if ( global_engine_instance.interfaces.content_manager->resolve_file_path( file_path, full_file_path ) )
-		{
-			HCURSOR NewPointerHandle = LoadCursorFromFileW( full_file_path.character_list.get_internal_array() );
-			if ( NewPointerHandle )
-			{
-				pointer_handle = NewPointerHandle;
-				return true;
-			}
-		}
-		if ( pointer_handle == nullptr )
-		{
 			pointer_handle = LoadCursor( NULL, IDC_ARROW );
 		}
-#endif
-		return false;
-	}
-
-	void_c platform_pointer_c::un_load()
-	{
-#if defined( cheonsa_platform_windows )
-		DestroyCursor( static_cast< HCURSOR >( pointer_handle ) );
-		pointer_handle = LoadCursor( NULL, IDC_ARROW );
 #endif
 	}
 

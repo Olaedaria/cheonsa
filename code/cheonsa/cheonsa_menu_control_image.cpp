@@ -81,7 +81,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture_path" );
 		if ( attribute )
 		{
-			_element_frame_style.texture = global_engine_instance.interfaces.resource_manager->load_texture( string16_c( attribute->get_value() ) );
+			_element_frame_style.texture = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 		}
 	}
 

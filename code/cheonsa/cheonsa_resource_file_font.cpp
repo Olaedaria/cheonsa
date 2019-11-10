@@ -116,7 +116,7 @@ namespace cheonsa
 		_file = new uint8_c[ _file_size ];
 		stream->load( _file, _file_size );
 
-		FT_Error free_type_error = FT_New_Memory_Face( reinterpret_cast< FT_Library >( global_engine_instance.interfaces.glyph_manager->_free_type_library_handle ), reinterpret_cast< FT_Byte * >( _file ), static_cast< FT_Long >( _file_size ), 0, reinterpret_cast< FT_Face * >( &_free_type_face_handle ) );
+		FT_Error free_type_error = FT_New_Memory_Face( reinterpret_cast< FT_Library >( engine_c::get_instance()->get_glyph_manager()->_free_type_library_handle ), reinterpret_cast< FT_Byte * >( _file ), static_cast< FT_Long >( _file_size ), 0, reinterpret_cast< FT_Face * >( &_free_type_face_handle ) );
 		if ( free_type_error )
 		{
 			goto clean_up;
@@ -130,7 +130,7 @@ namespace cheonsa
 			}
 		}
 
-		_file_hash = ops::hash_jenkins_uint32( _file, _file_size );
+		_file_hash = ops::xxhash32( _file, _file_size );
 		_is_loaded = true;
 
 		menu_element_text_c::invalidate_glyph_layout_of_all_instances_with_font( this );

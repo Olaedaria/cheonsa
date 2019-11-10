@@ -16,8 +16,8 @@ namespace cheonsa
 		_key = value;
 		if ( _key.get_length() > 0 )
 		{
-			assert( global_engine_instance.interfaces.menu_style_manager != nullptr );
-			_value = global_engine_instance.interfaces.menu_style_manager->shared_colors_map.find_value_else_nullptr( _key );
+			assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
+			_value = engine_c::get_instance()->get_menu_style_manager()->get_shared_colors_map().find_value_else_nullptr( _key );
 		}
 		else
 		{

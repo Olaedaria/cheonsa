@@ -18,8 +18,6 @@ namespace cheonsa
 		float32_c skew;
 		float32_c softness;
 		float32_c underline;
-		sint32_c quantized_size; // cached, function of size.
-		sint32_c sdf_range; // cached, function of quantized_size.
 
 	public:
 		menu_style_for_text_glyph_c();

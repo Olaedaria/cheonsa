@@ -11,8 +11,6 @@ namespace cheonsa
 		, skew( 0.0f )
 		, softness( 0.0f )
 		, underline( 0.0f )
-		, quantized_size( 0 )
-		, sdf_range( 0 )
 	{
 	}
 
@@ -30,8 +28,6 @@ namespace cheonsa
 		skew = other.skew;
 		softness = other.softness;
 		underline = other.underline;
-		quantized_size = other.quantized_size;
-		sdf_range = other.sdf_range;
 		return *this;
 	}
 

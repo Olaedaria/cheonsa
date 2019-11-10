@@ -32,6 +32,8 @@ namespace cheonsa
 	#error can't determine if compiling for 32 bit or 64 bit.
 #endif
 
+	uint32_c fourcc( char8_c const * chars, boolean_c flipped = false );
+
 	// using templates, because it's actually more convenient when writing templatized code.
 	// in particular, i need this when writing templatized string to int and int to string functions.
 	template< typename number_type_c > 
@@ -136,32 +138,10 @@ namespace cheonsa
 		static inline float64_c angle_near_zero() { return 1e-7; }
 	};
 
-	// four character codes are frequently used as file [type|format] [signatures|magic numbers].
-	// four character codes are always supposed to be saved and loaded in big endian byte order (even if the format of other parts of the file are not big endian), so that they can be read by humans who open the file in a hex editor.
-	struct four_character_code_c
+	enum byte_order_e
 	{
-	public:
-		union
-		{
-			char8_c characters[ 4 ]; // the four character code, in the correct order.
-			uint32_c uint32; // equivalent uint32 value in native endianness, same as reinterpret_cast< uint32_c * >( this ).
-		};
-		
-	public:
-		four_character_code_c();
-		four_character_code_c( char8_c const * four_character_string );
-
-		boolean_c operator == ( four_character_code_c const & other ) const;
-		boolean_c operator != ( four_character_code_c const & other ) const;
-
-		four_character_code_c get_flipped() const;
-
-	};
-
-	enum endianness_e
-	{
-		endianness_e_little,
-		endianness_e_big,
+		byte_order_e_little,
+		byte_order_e_big,
 	};
 
 	class vector32x2_c;
@@ -175,6 +155,7 @@ namespace cheonsa
 	class matrix32x4x4_c;
 	class quaternion32_c;
 	class line32_c;
+	class plane32_c;
 	class plane64_c;
 	class frustum64_c;
 	class box64x3_c;
@@ -185,39 +166,6 @@ namespace cheonsa
 	class segment64_c;
 	class capsule64_c;
 	class triangle64_c;
-
-	// r8g8b8a8 color.
-	class color32_c
-	{
-	public:
-		union
-		{
-			uint32_c value_uint32;
-			uint8_c value_bytes[ 4 ]; // { r, g, b, a }
-		};
-
-	public:
-		color32_c();
-		color32_c( uint32_c uint32 );
-		color32_c( vector32x4_c const & vector32x4 );
-
-		uint32_c as_uint32() const;
-		vector32x4_c as_vector32x4() const;
-
-		float32_c r_get() const;
-		float32_c g_get() const;
-		float32_c b_get() const;
-		float32_c a_get() const;
-
-		void_c r_set( float32_c value );
-		void_c g_set( float32_c value );
-		void_c b_set( float32_c value );
-		void_c a_set( float32_c value );
-
-		boolean_c operator == ( color32_c const & other ) const;
-		boolean_c operator != ( color32_c const & other ) const;
-
-	};
 
 	/*
 	// provides a range of values from 0 to 281,474,976,710,655.
@@ -312,27 +260,28 @@ namespace cheonsa
 		float32_c & get_element_at_index( sint32_c const index );
 		float32_c const & get_element_at_index( sint32_c const index ) const;
 
-		boolean_c operator == ( vector32x2_c const & other ) const;
-		boolean_c operator != ( vector32x2_c const & other ) const;
-		vector32x2_c operator - () const;
-		vector32x2_c operator + ( float32_c const other ) const;
-		vector32x2_c operator - ( float32_c const other ) const;
-		vector32x2_c operator * ( float32_c const other ) const;
-		vector32x2_c operator / ( float32_c const other ) const;
-		vector32x2_c operator + ( vector32x2_c const & other ) const;
-		vector32x2_c operator - ( vector32x2_c const & other ) const;
-		vector32x2_c operator * ( vector32x2_c const & other ) const;
-		vector32x2_c operator / ( vector32x2_c const & other ) const;
-		vector32x2_c & operator += ( float32_c const other );
-		vector32x2_c & operator -= ( float32_c const other );
-		vector32x2_c & operator *= ( float32_c const other );
-		vector32x2_c & operator /= ( float32_c const other );
-		vector32x2_c & operator += ( vector32x2_c const & other );
-		vector32x2_c & operator -= ( vector32x2_c const & other );
-		vector32x2_c & operator *= ( vector32x2_c const & other );
-		vector32x2_c & operator /= ( vector32x2_c const & other );
+		//vector32x2_c & operator += ( float32_c b );
+		//vector32x2_c & operator -= ( float32_c b );
+		vector32x2_c & operator *= ( float32_c b );
+		vector32x2_c & operator /= ( float32_c b );
+		vector32x2_c & operator += ( vector32x2_c const & b );
+		vector32x2_c & operator -= ( vector32x2_c const & b );
+		vector32x2_c & operator *= ( vector32x2_c const & b );
+		vector32x2_c & operator /= ( vector32x2_c const & b );
 
 	};
+
+	boolean_c operator == ( vector32x2_c const & a, vector32x2_c const & b );
+	boolean_c operator != ( vector32x2_c const & a, vector32x2_c const & b );
+	vector32x2_c operator - ( vector32x2_c const & a );
+	//vector32x2_c operator + ( vector32x2_c a, float32_c const b );
+	//vector32x2_c operator - ( vector32x2_c a, float32_c const b );
+	vector32x2_c operator * ( vector32x2_c a, float32_c const b );
+	vector32x2_c operator / ( vector32x2_c a, float32_c const b );
+	vector32x2_c operator + ( vector32x2_c a, vector32x2_c const & b );
+	vector32x2_c operator - ( vector32x2_c a, vector32x2_c const & b );
+	vector32x2_c operator * ( vector32x2_c a, vector32x2_c const & b );
+	vector32x2_c operator / ( vector32x2_c a, vector32x2_c const & b );
 
 	// double precision 2D vector.
 	class vector64x2_c
@@ -353,26 +302,28 @@ namespace cheonsa
 		float64_c & get_element_at_index( sint32_c const index );
 		float64_c const & get_element_at_index( sint32_c const index ) const;
 
-		boolean_c operator == ( vector64x2_c const & other ) const;
-		boolean_c operator != ( vector64x2_c const & other ) const;
-		vector64x2_c operator - () const;
-		vector64x2_c operator + ( float64_c const other ) const;
-		vector64x2_c operator - ( float64_c const other ) const;
-		vector64x2_c operator * ( float64_c const other ) const;
-		vector64x2_c operator / ( float64_c const other ) const;
-		vector64x2_c operator + ( vector64x2_c const & other ) const;
-		vector64x2_c operator - ( vector64x2_c const & other ) const;
-		vector64x2_c operator * ( vector64x2_c const & other ) const;
-		vector64x2_c operator / ( vector64x2_c const & other ) const;
-		vector64x2_c & operator += ( float64_c const other );
-		vector64x2_c & operator -= ( float64_c const other );
-		vector64x2_c & operator *= ( float64_c const other );
-		vector64x2_c & operator /= ( float64_c const other );
-		vector64x2_c & operator += ( vector64x2_c const & other );
-		vector64x2_c & operator -= ( vector64x2_c const & other );
-		vector64x2_c & operator *= ( vector64x2_c const & other );
-		vector64x2_c & operator /= ( vector64x2_c const & other );
+		//vector64x2_c & operator += ( float64_c const b );
+		//vector64x2_c & operator -= ( float64_c const b );
+		vector64x2_c & operator *= ( float64_c const b );
+		vector64x2_c & operator /= ( float64_c const b );
+		vector64x2_c & operator += ( vector64x2_c const & b );
+		vector64x2_c & operator -= ( vector64x2_c const & b );
+		vector64x2_c & operator *= ( vector64x2_c const & b );
+		vector64x2_c & operator /= ( vector64x2_c const & b );
+
 	};
+
+	boolean_c operator == ( vector64x2_c const & a, vector64x2_c const & b );
+	boolean_c operator != ( vector64x2_c const & a, vector64x2_c const & b );
+	vector64x2_c operator - ( vector64x2_c const & a );
+	//vector64x2_c operator + ( vector64x2_c a, float64_c b );
+	//vector64x2_c operator - ( vector64x2_c a, float64_c b );
+	vector64x2_c operator * ( vector64x2_c a, float64_c b );
+	vector64x2_c operator / ( vector64x2_c a, float64_c b );
+	vector64x2_c operator + ( vector64x2_c a, vector64x2_c const & b );
+	vector64x2_c operator - ( vector64x2_c a, vector64x2_c const & b );
+	vector64x2_c operator * ( vector64x2_c a, vector64x2_c const & b );
+	vector64x2_c operator / ( vector64x2_c a, vector64x2_c const & b );
 
 	// single precision 3D vector.
 	class vector32x3_c
@@ -396,30 +347,31 @@ namespace cheonsa
 
 		float32_c get_largest_element() const; // gets the value of the component with the largest magnitude.
 
-		boolean_c operator == ( vector32x3_c const & other ) const;
-		boolean_c operator != ( vector32x3_c const & other ) const;
-		vector32x3_c operator - () const;
-		vector32x3_c operator + ( float32_c other ) const;
-		vector32x3_c operator - ( float32_c other ) const;
-		vector32x3_c operator * ( float32_c other ) const;
-		vector32x3_c operator / ( float32_c other ) const;
-		vector32x3_c operator + ( vector32x3_c const & other ) const;
-		vector32x3_c operator - ( vector32x3_c const & other ) const;
-		vector32x3_c operator * ( vector32x3_c const & other ) const;
-		vector32x3_c operator / ( vector32x3_c const & other ) const;
-		vector32x3_c & operator += ( float32_c const other );
-		vector32x3_c & operator -= ( float32_c const other );
-		vector32x3_c & operator *= ( float32_c const other );
-		vector32x3_c & operator /= ( float32_c const other );
-		vector32x3_c & operator += ( vector32x3_c const & other );
-		vector32x3_c & operator -= ( vector32x3_c const & other );
-		vector32x3_c & operator *= ( vector32x3_c const & other );
-		vector32x3_c & operator /= ( vector32x3_c const & other );
-
-		vector64x3_c operator * ( float64_c other ) const;
-		vector64x3_c operator * ( vector64x3_c const & other ) const;
+		//vector32x3_c & operator += ( float32_c b );
+		//vector32x3_c & operator -= ( float32_c b );
+		vector32x3_c & operator *= ( float32_c b );
+		vector32x3_c & operator /= ( float32_c b );
+		vector32x3_c & operator += ( vector32x3_c const & b );
+		vector32x3_c & operator -= ( vector32x3_c const & b );
+		vector32x3_c & operator *= ( vector32x3_c const & b );
+		vector32x3_c & operator /= ( vector32x3_c const & b );
 
 	};
+
+	boolean_c operator == ( vector32x3_c const & a, vector32x3_c const & b );
+	boolean_c operator != ( vector32x3_c const & a, vector32x3_c const & b );
+	vector32x3_c operator - ( vector32x3_c const & a );
+	//vector32x3_c operator + ( vector32x3_c a, float32_c b );
+	//vector32x3_c operator - ( vector32x3_c a, float32_c b );
+	vector32x3_c operator * ( vector32x3_c a, float32_c b );
+	vector32x3_c operator / ( vector32x3_c a, float32_c b );
+	vector32x3_c operator + ( vector32x3_c a, vector32x3_c const & b );
+	vector32x3_c operator - ( vector32x3_c a, vector32x3_c const & b );
+	vector32x3_c operator * ( vector32x3_c a, vector32x3_c const & b );
+	vector32x3_c operator / ( vector32x3_c a, vector32x3_c const & b );
+	
+	vector64x3_c operator * ( vector32x3_c a, float64_c b );
+	vector64x3_c operator * ( vector32x3_c a, vector64x3_c const & b );
 
 	// double precision 3D vector.
 	class vector64x3_c
@@ -442,29 +394,28 @@ namespace cheonsa
 		float64_c & get_element_at_index( sint32_c const index );
 		float64_c const & get_element_at_index( sint32_c const index ) const;
 
-		boolean_c operator == ( vector64x3_c const & other ) const;
-		boolean_c operator != ( vector64x3_c const & other ) const;
-		vector64x3_c operator - () const;
-		vector64x3_c operator + ( float64_c other ) const;
-		vector64x3_c operator - ( float64_c other ) const;
-		vector64x3_c operator * ( float64_c other ) const;
-		vector64x3_c operator / ( float64_c other ) const;
-		vector64x3_c operator + ( vector64x3_c const & other ) const;
-		vector64x3_c operator - ( vector64x3_c const & other ) const;
-		vector64x3_c operator * ( vector64x3_c const & other ) const;
-		vector64x3_c operator / ( vector64x3_c const & other ) const;
-		vector64x3_c & operator *= ( float64_c const other );
-		vector64x3_c & operator /= ( float64_c const other );
-		vector64x3_c & operator += ( vector64x3_c const & other );
-		vector64x3_c & operator -= ( vector64x3_c const & other );
-		vector64x3_c & operator *= ( vector64x3_c const & other );
-		vector64x3_c & operator /= ( vector64x3_c const & other );
-
-		vector64x3_c operator + ( vector32x3_c const & other ) const;
-		vector64x3_c operator * ( float32_c other ) const;
-		vector64x3_c operator * ( vector32x3_c const & other ) const;
+		vector64x3_c & operator *= ( float64_c const b );
+		vector64x3_c & operator /= ( float64_c const b );
+		vector64x3_c & operator += ( vector64x3_c const & b );
+		vector64x3_c & operator -= ( vector64x3_c const & b );
+		vector64x3_c & operator *= ( vector64x3_c const & b );
+		vector64x3_c & operator /= ( vector64x3_c const & b );
 
 	};
+
+	boolean_c operator == ( vector64x3_c const & a, vector64x3_c const & b );
+	boolean_c operator != ( vector64x3_c const & a, vector64x3_c const & b );
+	vector64x3_c operator - ( vector64x3_c const & a );
+	vector64x3_c operator * ( vector64x3_c a, float64_c b );
+	vector64x3_c operator / ( vector64x3_c a, float64_c b );
+	vector64x3_c operator + ( vector64x3_c a, vector64x3_c const & b );
+	vector64x3_c operator - ( vector64x3_c a, vector64x3_c const & b );
+	vector64x3_c operator * ( vector64x3_c a, vector64x3_c const & b );
+	vector64x3_c operator / ( vector64x3_c a, vector64x3_c const & b );
+
+	vector64x3_c operator + ( vector64x3_c a, vector32x3_c const & b );
+	vector64x3_c operator * ( vector64x3_c a, float32_c b );
+	vector64x3_c operator * ( vector64x3_c a, vector32x3_c const & b );
 
 	// single precision 4D vector.
 	class vector32x4_c
@@ -487,27 +438,24 @@ namespace cheonsa
 		float32_c & get_element_at_index( sint32_c const index );
 		float32_c const & get_element_at_index( sint32_c const index ) const;
 
-		boolean_c operator == ( vector32x4_c const & other ) const;
-		boolean_c operator != ( vector32x4_c const & other ) const;
-		vector32x4_c operator - () const;
-		vector32x4_c operator + ( float32_c other ) const;
-		vector32x4_c operator - ( float32_c other ) const;
-		vector32x4_c operator * ( float32_c other ) const;
-		vector32x4_c operator / ( float32_c other ) const;
-		vector32x4_c operator + ( vector32x4_c const & other ) const;
-		vector32x4_c operator - ( vector32x4_c const & other ) const;
-		vector32x4_c operator * ( vector32x4_c const & other ) const;
-		vector32x4_c operator / ( vector32x4_c const & other ) const;
-		vector32x4_c & operator += ( float32_c const other );
-		vector32x4_c & operator -= ( float32_c const other );
-		vector32x4_c & operator *= ( float32_c const other );
-		vector32x4_c & operator /= ( float32_c const other );
-		vector32x4_c & operator += ( vector32x4_c const & other );
-		vector32x4_c & operator -= ( vector32x4_c const & other );
-		vector32x4_c & operator *= ( vector32x4_c const & other );
-		vector32x4_c & operator /= ( vector32x4_c const & other );
+		vector32x4_c & operator *= ( float32_c const b );
+		vector32x4_c & operator /= ( float32_c const b );
+		vector32x4_c & operator += ( vector32x4_c const & b );
+		vector32x4_c & operator -= ( vector32x4_c const & b );
+		vector32x4_c & operator *= ( vector32x4_c const & b );
+		vector32x4_c & operator /= ( vector32x4_c const & b );
 
 	};
+
+	boolean_c operator == ( vector32x4_c const & a, vector32x4_c const & b );
+	boolean_c operator != ( vector32x4_c const & a, vector32x4_c const & b );
+	vector32x4_c operator - ( vector32x4_c const & a );
+	vector32x4_c operator * ( vector32x4_c a, float32_c b );
+	vector32x4_c operator / ( vector32x4_c a, float32_c b );
+	vector32x4_c operator + ( vector32x4_c a, vector32x4_c const & b );
+	vector32x4_c operator - ( vector32x4_c a, vector32x4_c const & b );
+	vector32x4_c operator * ( vector32x4_c a, vector32x4_c const & b );
+	vector32x4_c operator / ( vector32x4_c a, vector32x4_c const & b );
 
 	// double precision 4D vector.
 	class vector64x4_c
@@ -530,27 +478,24 @@ namespace cheonsa
 		float64_c & get_element_at_index( sint32_c const index );
 		float64_c const & get_element_at_index( sint32_c const index ) const;
 
-		boolean_c operator == ( vector64x4_c const & other ) const;
-		boolean_c operator != ( vector64x4_c const & other ) const;
-		vector64x4_c operator - () const;
-		vector64x4_c operator + ( float64_c other ) const;
-		vector64x4_c operator - ( float64_c other ) const;
-		vector64x4_c operator * ( float64_c other ) const;
-		vector64x4_c operator / ( float64_c other ) const;
-		vector64x4_c operator + ( vector64x4_c const & other ) const;
-		vector64x4_c operator - ( vector64x4_c const & other ) const;
-		vector64x4_c operator * ( vector64x4_c const & other ) const;
-		vector64x4_c operator / ( vector64x4_c const & other ) const;
-		vector64x4_c & operator += ( float64_c const other );
-		vector64x4_c & operator -= ( float64_c const other );
-		vector64x4_c & operator *= ( float64_c const other );
-		vector64x4_c & operator /= ( float64_c const other );
-		vector64x4_c & operator += ( vector64x4_c const & other );
-		vector64x4_c & operator -= ( vector64x4_c const & other );
-		vector64x4_c & operator *= ( vector64x4_c const & other );
-		vector64x4_c & operator /= ( vector64x4_c const & other );
+		vector64x4_c & operator *= ( float64_c const b );
+		vector64x4_c & operator /= ( float64_c const b );
+		vector64x4_c & operator += ( vector64x4_c const & b );
+		vector64x4_c & operator -= ( vector64x4_c const & b );
+		vector64x4_c & operator *= ( vector64x4_c const & b );
+		vector64x4_c & operator /= ( vector64x4_c const & b );
 
 	};
+
+	boolean_c operator == ( vector64x4_c const & a, vector64x4_c const & b );
+	boolean_c operator != ( vector64x4_c const & a, vector64x4_c const & b );
+	vector64x4_c operator - ( vector64x4_c const & a );
+	vector64x4_c operator * ( vector64x4_c a, float64_c b );
+	vector64x4_c operator / ( vector64x4_c a, float64_c b );
+	vector64x4_c operator + ( vector64x4_c a, vector64x4_c const & b );
+	vector64x4_c operator - ( vector64x4_c a, vector64x4_c const & b );
+	vector64x4_c operator * ( vector64x4_c a, vector64x4_c const & b );
+	vector64x4_c operator / ( vector64x4_c a, vector64x4_c const & b );
 
 	// single precision 3d basis transform matrix, used to rotate and scale 3d points and vectors.
 	class matrix32x3x3_c
@@ -571,11 +516,11 @@ namespace cheonsa
 		vector32x3_c & get_element_at_index( sint32_c i );
 		vector32x3_c const & get_element_at_index( sint32_c i ) const;
 
-		matrix32x3x3_c operator * ( matrix32x3x3_c const & other ) const;
-
-		matrix32x3x3_c operator *= ( float32_c scale );
+		matrix32x3x3_c operator *= ( float32_c b );
 
 	};
+
+	matrix32x3x3_c operator * ( matrix32x3x3_c a, matrix32x3x3_c const & b );
 
 	// single precision 3d transform matrix, used to rotate, scale, and translate 3d points and vectors.
 	// row major, GPU compatible.
@@ -603,21 +548,21 @@ namespace cheonsa
 		vector32x3_c & get_basis_element_at_index( sint32_c const index );
 		vector32x3_c const & get_basis_element_at_index( sint32_c const index ) const;
 
-		inline vector32x3_c & basis_a() { return * reinterpret_cast< vector32x3_c * >( & a ); }
-		inline vector32x3_c const & basis_a() const { return * reinterpret_cast< vector32x3_c const * >( & a ); }
-		inline vector32x3_c & basis_b() { return * reinterpret_cast< vector32x3_c * >( & b ); }
-		inline vector32x3_c const & basis_b() const { return * reinterpret_cast< vector32x3_c const * >( & b ); }
-		inline vector32x3_c & basis_c() { return * reinterpret_cast< vector32x3_c * >( & c ); }
-		inline vector32x3_c const & basis_c() const { return * reinterpret_cast< vector32x3_c const * >( & c ); }
-		inline vector32x3_c & position() { return * reinterpret_cast< vector32x3_c * >( & d ); }
-		inline vector32x3_c const & position() const { return * reinterpret_cast< vector32x3_c const * >( & d ); }
-
-		boolean_c operator == ( matrix32x4x4_c const & other ) const;
-		boolean_c operator != ( matrix32x4x4_c const & other ) const;
-
-		matrix32x4x4_c operator * ( matrix32x4x4_c const & other ) const;
+		inline vector32x3_c & get_basis_a() { return * reinterpret_cast< vector32x3_c * >( & a ); }
+		inline vector32x3_c const & get_basis_a() const { return * reinterpret_cast< vector32x3_c const * >( & a ); }
+		inline vector32x3_c & get_basis_b() { return * reinterpret_cast< vector32x3_c * >( & b ); }
+		inline vector32x3_c const & get_basis_b() const { return * reinterpret_cast< vector32x3_c const * >( & b ); }
+		inline vector32x3_c & get_basis_c() { return * reinterpret_cast< vector32x3_c * >( & c ); }
+		inline vector32x3_c const & get_basis_c() const { return * reinterpret_cast< vector32x3_c const * >( & c ); }
+		inline vector32x3_c & get_position() { return * reinterpret_cast< vector32x3_c * >( & d ); }
+		inline vector32x3_c const & get_position() const { return * reinterpret_cast< vector32x3_c const * >( & d ); }
 
 	};
+
+	boolean_c operator == ( matrix32x4x4_c const & a, matrix32x4x4_c const & b );
+	boolean_c operator != ( matrix32x4x4_c const & a, matrix32x4x4_c const & b );
+
+	matrix32x4x4_c operator * ( matrix32x4x4_c const & a, matrix32x4x4_c const & b );
 
 	// single precision 2d transform matrix, used to rotate and scale 2d points.
 	class matrix32x2x2_c
@@ -637,12 +582,12 @@ namespace cheonsa
 
 		inline vector32x4_c const & as_vector32x4() const { return *reinterpret_cast< vector32x4_c const * >( this ); }
 
-		boolean_c operator == ( matrix32x2x2_c const & other ) const;
-		boolean_c operator != ( matrix32x2x2_c const & other ) const;
-
-		matrix32x2x2_c operator * ( matrix32x2x2_c const & other ) const;
-
 	};
+
+	boolean_c operator == ( matrix32x2x2_c const & a, matrix32x2x2_c const & b );
+	boolean_c operator != ( matrix32x2x2_c const & a, matrix32x2x2_c const & b );
+
+	matrix32x2x2_c operator * ( matrix32x2x2_c const & a, matrix32x2x2_c const & b );
 
 	// single precision quaternion, used to rotate 3d points and vectors.
 	class quaternion32_c
@@ -661,19 +606,49 @@ namespace cheonsa
 		inline float32_c * as_array() { return reinterpret_cast< float32_c * >( this ); }
 		inline float32_c const * as_array() const { return reinterpret_cast< float32_c const * >( this ); }
 
-		boolean_c operator == ( quaternion32_c const & other ) const;
-		boolean_c operator != ( quaternion32_c const & other ) const;
-
-		quaternion32_c operator + ( quaternion32_c const & other ) const;
-
-		quaternion32_c operator * ( float32_c const other ) const;
-		quaternion32_c operator * ( quaternion32_c const & other ) const;
-
 		// used when saving quaternions to files, since quaternions are always unit length, we can save just the first three elements, and upon load we can calculate the fourth element.
 		float32_c const * get_abc() const { return reinterpret_cast< float32_c const * >( this ); }
 		// used when loading quaternions from files, since quaternions are always unit length, we can save just the first three elements, and upon load we can calculate the fourth element.
 		void_c set_abc_calculate_d( float32_c const * abc );
 		void_c calculate_d_from_abc();
+
+	};
+
+	boolean_c operator == ( quaternion32_c const & a, quaternion32_c const & b );
+	boolean_c operator != ( quaternion32_c const & a, quaternion32_c const & b );
+
+	quaternion32_c operator + ( quaternion32_c const & a, quaternion32_c const & b );
+
+	quaternion32_c operator * ( quaternion32_c const & a, float32_c const b );
+	quaternion32_c operator * ( quaternion32_c const & a, quaternion32_c const & b );
+
+	// single precision 2D line.
+	class line32_c
+	{
+	public:
+		float32_c a; // normal_a component. actually tangent to the line, but calling it a normal anyway. points top side.
+		float32_c b; // normal_b component. actually tangent to the line, but calling it a normal anyway. points top side.
+		float32_c c; // distance component.
+
+	public:
+		explicit line32_c();
+		explicit line32_c( float32_c a, float32_c b, float32_c c );
+		explicit line32_c( float32_c const * value );
+
+		inline float32_c * as_float32_array() { return reinterpret_cast< float32_c * >( this ); }
+		inline float32_c const * as_float32_array() const { return reinterpret_cast< float32_c const * >( this ); }
+
+		inline vector32x3_c & as_vector32x3() { return *reinterpret_cast< vector32x3_c * >( this ); }
+		inline vector32x3_c const & as_vector32x3() const { return *reinterpret_cast< vector32x3_c const * >( this ); }
+
+		inline vector32x2_c & get_normal() { return *reinterpret_cast< vector32x2_c * >( this ); }
+		inline vector32x2_c const & get_normal() const { return *reinterpret_cast< vector32x2_c const * >( this ); }
+
+		inline float32_c & get_distance() { return c; }
+		inline float32_c const & get_distance() const { return c; }
+
+		vector32x2_c get_point() const;
+		void_c set_point( vector32x2_c const & value );
 
 	};
 
@@ -708,40 +683,10 @@ namespace cheonsa
 		vector32x3_c get_point() const;
 		void_c set_point( vector32x3_c const & value );
 
-		boolean_c operator == ( plane32_c const & other ) const;
-		boolean_c operator != ( plane32_c const & other ) const;
-
 	};
 
-	// single precision 2D line.
-	class line32_c
-	{
-	public:
-		float32_c a; // normal_a component. actually tangent to the line, but calling it a normal anyway. points top side.
-		float32_c b; // normal_b component. actually tangent to the line, but calling it a normal anyway. points top side.
-		float32_c c; // distance component.
-
-	public:
-		explicit line32_c();
-		explicit line32_c( float32_c a, float32_c b, float32_c c );
-		explicit line32_c( float32_c const * value );
-
-		inline float32_c * as_float32_array() { return reinterpret_cast< float32_c * >( this ); }
-		inline float32_c const * as_float32_array() const { return reinterpret_cast< float32_c const * >( this ); }
-
-		inline vector32x3_c & as_vector32x3() { return *reinterpret_cast< vector32x3_c * >( this ); }
-		inline vector32x3_c const & as_vector32x3() const { return *reinterpret_cast< vector32x3_c const * >( this ); }
-
-		inline vector32x2_c & get_normal() { return *reinterpret_cast< vector32x2_c * >( this ); }
-		inline vector32x2_c const & get_normal() const { return *reinterpret_cast< vector32x2_c const * >( this ); }
-
-		inline float32_c & get_distance() { return c; }
-		inline float32_c const & get_distance() const { return c; }
-
-		vector32x2_c get_point() const;
-		void_c set_point( vector32x2_c const & value );
-
-	};
+	boolean_c operator == ( plane32_c const & a, plane32_c const & b );
+	boolean_c operator != ( plane32_c const & a, plane32_c const & b );
 
 	// double precision 3D plane.
 	// abc represents the plane normal, a unit length vector.
@@ -774,10 +719,10 @@ namespace cheonsa
 		vector64x3_c get_point() const;
 		void_c set_point( vector64x3_c const & value );
 
-		boolean_c operator == ( plane64_c const & other ) const;
-		boolean_c operator != ( plane64_c const & other ) const;
-
 	};
+
+	boolean_c operator == ( plane64_c const & a, plane64_c const & b );
+	boolean_c operator != ( plane64_c const & a, plane64_c const & b );
 
 	enum frustum_plane_index_e
 	{
@@ -801,6 +746,7 @@ namespace cheonsa
 		frustum_point_index_e_far_bottom_right,
 	};
 
+	// double precision frustum, for gathering of renderables.
 	class frustum64_c
 	{
 	public:
@@ -868,10 +814,10 @@ namespace cheonsa
 
 		void_c accumulate_bounds( box32x2_c const & other );
 
-		boolean_c operator == ( box32x2_c const & other ) const;
-		boolean_c operator != ( box32x2_c const & other ) const;
-
 	};
+
+	boolean_c operator == ( box32x2_c const & a, box32x2_c const & b );
+	boolean_c operator != ( box32x2_c const & a, box32x2_c const & b );
 
 	// a is conventionally x, width, negative is towards left, positive is towards right.
 	// b is conventionally y, height, negative is towards up, positive is towards down.
@@ -895,10 +841,10 @@ namespace cheonsa
 		inline float64_c get_width() const { return maximum.a - minimum.a; }
 		inline float64_c get_height() const { return maximum.b - minimum.b; }
 
-		boolean_c operator == ( box64x2_c const & other ) const;
-		boolean_c operator != ( box64x2_c const & other ) const;
-
 	};
+
+	boolean_c operator == ( box64x2_c const & a, box64x2_c const & b );
+	boolean_c operator != ( box64x2_c const & a, box64x2_c const & b );
 
 	// a is conventionally x, width, negative is towards left, positive is towards right.
 	// b is conventionally y, depth, negative is towards back, positive is towards front.
@@ -930,9 +876,10 @@ namespace cheonsa
 		void_c accumulate_bounds( vector32x3_c const & point );
 		void_c accumulate_bounds( vector32x3_c const & point, float32_c radius );
 
-		boolean_c operator == ( box32x3_c const & other ) const;
-		boolean_c operator != ( box32x3_c const & other ) const;
 	};
+
+	boolean_c operator == ( box32x3_c const & a, box32x3_c const & b );
+	boolean_c operator != ( box32x3_c const & a, box32x3_c const & b );
 
 	// a is conventionally x, width, negative is towards left, positive is towards right.
 	// b is conventionally y, depth, negative is towards back, positive is towards front.
@@ -961,10 +908,10 @@ namespace cheonsa
 		//float64_c get_longest_half_extent() const;
 		vector64x3_c get_point( sint32_c const index ) const;
 
-		boolean_c operator == ( box64x3_c const & other ) const;
-		boolean_c operator != ( box64x3_c const & other ) const;
-
 	};
+
+	boolean_c operator == ( box64x3_c const & a, box64x3_c const & b );
+	boolean_c operator != ( box64x3_c const & a, box64x3_c const & b );
 
 	class circle64_c
 	{
@@ -1140,13 +1087,13 @@ namespace cheonsa
 
 		space_transform_c & operator = ( space_transform_c const & other );
 
-		boolean_c operator == ( space_transform_c const & other ) const;
-		boolean_c operator != ( space_transform_c const & other ) const;
-
-		space_transform_c operator * ( space_transform_c const & other ) const; // multiplies this transform with other transform.
 		space_transform_c & operator *= ( space_transform_c const & other ); // multiplies this transform with other transform and assigns result to this transform.
 
 	};
+
+	boolean_c operator == ( space_transform_c const & a, space_transform_c const & b );
+	boolean_c operator != ( space_transform_c const & a, space_transform_c const & b );
+	space_transform_c operator * ( space_transform_c a, space_transform_c const & b ); // multiplies this transform with other transform.
 
 	// a kind of 4x3 matrix.
 	// multiplies like a 4x4 matrix, but with an imaginary 4th column of [0, 0, 0, 1].

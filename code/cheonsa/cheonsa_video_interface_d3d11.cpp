@@ -450,7 +450,7 @@ namespace cheonsa
 			HRESULT h_result = d3d11_device->CreateRasterizerState( &d3d11_rasterizer_description, ppRasterizerState );
 			if ( FAILED( h_result ) )
 			{
-				cheonsa_annoy( L"error", L"CreateRasterizerState failed." );
+				debug_annoy( L"error", L"CreateRasterizerState failed." );
 			}
 			return SUCCEEDED( h_result );
 		}
@@ -492,7 +492,7 @@ namespace cheonsa
 			HRESULT h_result = d3d11_device->CreateDepthStencilState( &descDepthStencil, d3d11_depth_stencil_state );
 			if ( FAILED( h_result ) )
 			{
-				cheonsa_annoy( L"error", L"CreateDepthStencilState failed." );
+				debug_annoy( L"error", L"CreateDepthStencilState failed." );
 			}
 			return SUCCEEDED( h_result );
 		}
@@ -584,7 +584,7 @@ namespace cheonsa
 			HRESULT h_result = d3d11_device->CreateBlendState( &d3d11_blend_description, d3d11_blend_state );
 			if ( FAILED( h_result ) )
 			{
-				cheonsa_annoy( L"error", L"CreateBlendState failed." );
+				debug_annoy( L"error", L"CreateBlendState failed." );
 			}
 			return SUCCEEDED( h_result );
 		}
@@ -614,7 +614,7 @@ namespace cheonsa
 			HRESULT h_result = d3d11_device->CreateSamplerState( &d3d11_sampler_description, d3d11_sampler_state );
 			if ( FAILED( h_result ) )
 			{
-				cheonsa_annoy( L"error", L"CreateSamplerState failed." );
+				debug_annoy( L"error", L"CreateSamplerState failed." );
 			}
 			return SUCCEEDED( h_result );
 		}
@@ -1812,7 +1812,7 @@ namespace cheonsa
 			if ( FAILED( h_result ) )
 			{
 				_error_messages = reinterpret_cast< char8_c * >( d3d11_error_messages->GetBufferPointer() );
-				cheonsa_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
+				debug_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
 				d3d11_error_messages->Release();
 				return;
 			}
@@ -1942,7 +1942,7 @@ namespace cheonsa
 			if ( FAILED( h_result ) )
 			{
 				_error_messages = reinterpret_cast< char8_c * >( d3d11_error_messages->GetBufferPointer() );
-				cheonsa_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
+				debug_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
 				d3d11_error_messages->Release();
 				return;
 			}
@@ -2034,7 +2034,7 @@ namespace cheonsa
 			if ( FAILED( h_result ) )
 			{
 				_error_messages = reinterpret_cast< char8_c * >( d3d11_error_messages->GetBufferPointer() );
-				cheonsa_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
+				debug_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
 				d3d11_error_messages->Release();
 				return;
 			}
@@ -2396,19 +2396,19 @@ namespace cheonsa
 		//
 		// load the d3dcompiler dll file and aquire the pointer to the D3DCompile function.
 		string16_c library_file_path;
-		library_file_path = global_engine_instance.interfaces.content_manager->get_engine_data_folder_path();
+		library_file_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		library_file_path += "d3dcompiler_47.dll";
 		HMODULE module_handle = LoadLibraryW( library_file_path.character_list.get_internal_array() );
 		if ( !module_handle )
 		{
-			cheonsa_annoy( L"error", L"d3dcompiler_47.dll not loaded." );
+			debug_annoy( L"error", L"d3dcompiler_47.dll not loaded." );
 			return false;
 		}
 
 		_D3DCompile = GetProcAddress( module_handle, "D3DCompile" );
 		if ( !_D3DCompile )
 		{
-			cheonsa_annoy( L"error", L"D3DCompile not found." );
+			debug_annoy( L"error", L"D3DCompile not found." );
 			return false;
 		}
 
@@ -2427,7 +2427,7 @@ namespace cheonsa
 		h_result = D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creation_flags, feature_levels, 3, D3D11_SDK_VERSION, &_members->d3d11_device, NULL, &_members->d3d11_device_context );
 		if ( FAILED( h_result ) )
 		{
-			cheonsa_annoy( L"error", L"D3D11CreateDevice failed." );
+			debug_annoy( L"error", L"D3D11CreateDevice failed." );
 			return false;
 		}
 
@@ -2436,19 +2436,19 @@ namespace cheonsa
 		h_result = _members->d3d11_device->QueryInterface( __uuidof( IDXGIDevice ), reinterpret_cast< void_c * * >( &_members->dxgi_device ) );
 		if ( FAILED( h_result ) )
 		{
-			cheonsa_annoy( L"error", L"IDXGIDevice could not be queried." );
+			debug_annoy( L"error", L"IDXGIDevice could not be queried." );
 			return false;
 		}
 		h_result = _members->dxgi_device->GetParent( __uuidof( IDXGIAdapter ), reinterpret_cast< void_c * * >( &_members->dxgi_adapter ) );
 		if ( FAILED( h_result ) )
 		{
-			cheonsa_annoy( L"error", L"IDXGIAdapter could not be queried." );
+			debug_annoy( L"error", L"IDXGIAdapter could not be queried." );
 			return false;
 		}
 		h_result = _members->dxgi_adapter->GetParent( __uuidof( IDXGIFactory ), reinterpret_cast< void_c * * >( &_members->dxgi_factory ) );
 		if ( FAILED( h_result ) )
 		{
-			cheonsa_annoy( L"error", L"IDXGIFactory could not be queried." );
+			debug_annoy( L"error", L"IDXGIFactory could not be queried." );
 			return false;
 		}
 
@@ -2456,7 +2456,7 @@ namespace cheonsa
 		h_result = _members->d3d11_device->QueryInterface( __uuidof( ID3D11Debug ), reinterpret_cast< void * * >( &_members->d3d11_debug ) );
 		if ( FAILED( h_result ) )
 		{
-			cheonsa_annoy( L"error", L"ID3D11Debug could not be queried." );
+			debug_annoy( L"error", L"ID3D11Debug could not be queried." );
 			return false;
 		}
 #endif

@@ -254,7 +254,8 @@ namespace cheonsa
 		while ( light_probe_list_node )
 		{
 			vector64x3_c light_probe_position = light_probe_list_node->get_value()->get_scene_object()->_world_space_transform.position;
-			box64x3_c light_probe_box = box64x3_c( light_probe_position - _light_probe_clip_far, light_probe_position + _light_probe_clip_far ); // light probes are shaped like axis aligned boxes, not spheres.
+			vector64x3_c extent = vector64x3_c( _light_probe_clip_far, _light_probe_clip_far, _light_probe_clip_far );
+			box64x3_c light_probe_box = box64x3_c( light_probe_position - extent, light_probe_position + extent ); // light probes are shaped like axis aligned boxes, not spheres.
 			if ( ops::intersect_box_vs_box( light_probe_box, space_transform_c(), bounding_box, bounding_box_transform ) )
 			{
 				light_probe_list_node->get_value()->_is_up_to_date = false;
@@ -269,7 +270,8 @@ namespace cheonsa
 		while ( light_probe_list_node )
 		{
 			vector64x3_c light_probe_position = light_probe_list_node->get_value()->get_scene_object()->get_world_space_transform().position;
-			box64x3_c light_probe_box = box64x3_c( light_probe_position - _light_probe_clip_far, light_probe_position + _light_probe_clip_far ); // light probes are shaped like axis aligned boxes, not spheres.
+			vector64x3_c extent = vector64x3_c( _light_probe_clip_far, _light_probe_clip_far, _light_probe_clip_far );
+			box64x3_c light_probe_box = box64x3_c( light_probe_position - extent, light_probe_position + extent ); // light probes are shaped like axis aligned boxes, not spheres.
 			if ( ops::intersect_box_vs_box( light_probe_box, space_transform_c(), bounding_box, before_bounding_box_transform ) || ops::intersect_box_vs_box( light_probe_box, space_transform_c(), bounding_box, after_bounding_box_transform ) )
 			{
 				light_probe_list_node->get_value()->_is_up_to_date = false;
@@ -284,7 +286,8 @@ namespace cheonsa
 		while ( light_probe_list_node )
 		{
 			vector64x3_c light_probe_position = light_probe_list_node->get_value()->get_scene_object()->get_world_space_transform().position;
-			box64x3_c light_probe_box = box64x3_c( light_probe_position - _light_probe_clip_far, light_probe_position + _light_probe_clip_far ); // light probes are shaped like axis aligned boxes, not spheres.
+			vector64x3_c extent = vector64x3_c( _light_probe_clip_far, _light_probe_clip_far, _light_probe_clip_far );
+			box64x3_c light_probe_box = box64x3_c( light_probe_position - extent, light_probe_position + extent ); // light probes are shaped like axis aligned boxes, not spheres.
 			if ( ops::intersect_box_vs_sphere( light_probe_box, sphere ) )
 			{
 				light_probe_list_node->get_value()->_is_up_to_date = false;
@@ -299,7 +302,8 @@ namespace cheonsa
 		while ( light_probe_list_node )
 		{
 			vector64x3_c light_probe_position = light_probe_list_node->get_value()->get_scene_object()->get_world_space_transform().position;
-			box64x3_c light_probe_box = box64x3_c( light_probe_position - _light_probe_clip_far, light_probe_position + _light_probe_clip_far ); // light probes are shaped like axis aligned boxes, not spheres.
+			vector64x3_c extent = vector64x3_c( _light_probe_clip_far, _light_probe_clip_far, _light_probe_clip_far );
+			box64x3_c light_probe_box = box64x3_c( light_probe_position - extent, light_probe_position + extent ); // light probes are shaped like axis aligned boxes, not spheres.
 			if ( ops::intersect_box_vs_sphere( light_probe_box, before_sphere ) || ops::intersect_box_vs_sphere( light_probe_box, after_sphere ) )
 			{
 				light_probe_list_node->get_value()->_is_up_to_date = false;

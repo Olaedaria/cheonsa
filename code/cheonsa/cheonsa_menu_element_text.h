@@ -207,8 +207,19 @@ namespace cheonsa
 
 		};
 
+		struct character_information_c
+		{
+			sint32_c character_index; // the character that we want information on.
+			sint32_c paragraph_index; // paragraph within the text element's paragraph list that character is in.
+			sint32_c span_index; // span within paragraph's span list that the character is in, or -1 if character is not in a span.
+			sint32_c line_index; // line within the paragraph's line list that the character is in.
+			boolean_c is_at_end_of_virtual_line; // will be true if the cursor index is at the end of a virtual line and at the start of another line. this means that the cursor could be on line_index or it could be on line_index - 1.
+		};
+
 	private:
 		friend class menu_render_procedure_c;
+
+		string16_c _plain_text; // plain text without markup. if set_rich_text() is called, markup is stripped and this is the resulting text.
 
 		core_linked_list_c< menu_element_text_c * >::node_c _global_instance_list_node;
 
@@ -226,14 +237,13 @@ namespace cheonsa
 		menu_text_filter_mode_e _filter_mode; // if set, determines how user input is selectively filtered.
 		string16_c _filter_string; // if filter mode is custom, determines which characters can be inputted.
 
-		string16_c _plain_text; // plain text without markup. if set_rich_text() is called, markup is stripped and this is the resulting text.
 		boolean_c _text_is_modified; // tracks if text was modified by the user to determine if it needs to be committed or not when the user presses enter or the element loses input focus.
 		boolean_c _multi_line; // if true, then pressing enter will insert a new line. if false, and if _text_is_modified is true, then pressing enter will invoke on_value_committed and _text_is_modified will be set to false.
 		boolean_c _word_wrap; // if true, then automatic word wrapping will be performed.
 		sint32_c _character_limit; // if > 0 then there will be a finite character limit enforced.
 		vector32x2_c _content_offset; // offset (usually from scroll bars)   this affects the position that text is rendered at within the element, and it affects hit detection too. this is basically what the text box control routes its scroll bar values into in order to scroll the text around.
 		sint32_c _cursor_index; // the index in _plain_text that the cursor is located at.
-		boolean_c _cursor_is_at_end_of_virtual_line; // if _cursor_index is at the start of a formatted line and if this is set to true, then this tells the renderer to render the cursor at the end of the previous line instead. this is needed because when the user clicks at the end of a virtual line, we want to place the cursor at the end of that line, but in this situation the cursor index will be set to the start of the next line.
+		boolean_c _cursor_is_at_end_of_virtual_line; // the _cursor_index is the same at the end of a virtual line and at the start of the next line, so when this value is true it tells the renderer to render the cursor at the end of the previous line rather than at the start of the current line.
 		menu_text_selection_mode_e _text_selection_mode; // determines how the selection updates as the mouse moves.
 		sint32_c _selection_anchor_index_start; // anchored selected range, inclusive.
 		sint32_c _selection_anchor_index_end; // anchored selected range, exclusive.
@@ -299,10 +309,8 @@ namespace cheonsa
 		void_c _update_cursor_sticky_x();
 
 		// inserts plain text at current _cursor_index, the style of the inserted text will be inherited from the span that the text is inserted into.
-		void_c _insert_plain_text_at_cursor( string16_c const & value );
-
-		// resizes affected paragraph(s), used when inserting or deleting text.
-		void_c _shift_character_offset( sint32_c at_character_index, sint32_c count );
+		void_c _insert_plain_text( string16_c const & value );
+		void_c __shift_character_offset( sint32_c at, sint32_c count );
 
 		// deletes a range of characters, and automatically handles deletion and merging of spans and blocks.
 		void_c _delete_character_range( sint32_c start, sint32_c end );
@@ -318,7 +326,7 @@ namespace cheonsa
 		// column, the index of the character within the line that the cursor lies before.
 		// position, the x offset from the left edge of the document to the left edge of the selected character, and the y offset from the top edge of the document to the base line of the selected line.
 		//void_c get_character_information( sint32_c character_index, sint32_c * paragraph_index, sint32_c * span_index, sint32_c * line_index, boolean_c * is_at_end_of_virtual_line, vector32x2_c * position );
-		void_c _get_character_information( sint32_c character_index, sint32_c * paragraph_index, sint32_c * span_index, sint32_c * line_index, boolean_c * is_at_end_of_virtual_line );
+		void_c _get_character_information( sint32_c character_index, character_information_c * result );
 
 		// we don't cache the formatted_left of each formatted_line because it's a bit of work to re-calculate it each time the content width changes.
 		//float32_c _get_formatted_line_formatted_left( text_paragraph_c * paragraph, text_line_c * formatted_line );

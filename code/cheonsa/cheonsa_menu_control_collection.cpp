@@ -393,27 +393,27 @@ namespace cheonsa
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_frame" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					column_frame_style = global_engine_instance.interfaces.menu_style_manager->find_style_for_frame( style_map_entry->style_key );
+					column_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_frame( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_text" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					column_text_style = global_engine_instance.interfaces.menu_style_manager->find_style_for_text( style_map_entry->style_key );
+					column_text_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_text( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_selected_frame" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					item_selected_frame_style = global_engine_instance.interfaces.menu_style_manager->find_style_for_frame( style_map_entry->style_key );
+					item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_frame( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_icon_frame" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					item_icon_frame_style = global_engine_instance.interfaces.menu_style_manager->find_style_for_frame( style_map_entry->style_key );
+					item_icon_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_frame( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_text" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					item_text_style = global_engine_instance.interfaces.menu_style_manager->find_style_for_text( style_map_entry->style_key );
+					item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_text( style_map_entry->style_key );
 				}
 			}
 

@@ -37,7 +37,7 @@ namespace cheonsa
 			attribute = sprite_tag->find_attribute( "texture" );
 			if ( attribute )
 			{
-				sprite->texture_resource = global_engine_instance.interfaces.resource_manager->load_texture( string16_c( attribute->get_value() ) );
+				sprite->texture_resource = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 			}
 
 			attribute = sprite_tag->find_attribute( "font_size" );

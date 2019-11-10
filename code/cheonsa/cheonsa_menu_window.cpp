@@ -197,25 +197,25 @@ namespace cheonsa
 		// constrain window title bar to fit in user interface.
 		if ( _user_interface != nullptr )
 		{
-			float32_c cap_bottom = _user_interface->get_local_box().maximum.b - global_engine_instance.environment.get_window_edge_thickness() - _local_title_bar_size;
+			float32_c cap_bottom = _user_interface->get_local_box().maximum.b - engine_c::get_instance()->get_window_manager()->get_window_edge_thickness() - _local_title_bar_size;
 			if ( _local_origin.b > cap_bottom )
 			{
 				_local_origin.b = cap_bottom;
 			}
 
-			float32_c cap_top = _user_interface->get_local_box().minimum.b + global_engine_instance.environment.get_window_edge_thickness() + global_engine_instance.environment.get_window_title_bar_thickness();
+			float32_c cap_top = _user_interface->get_local_box().minimum.b + engine_c::get_instance()->get_window_manager()->get_window_edge_thickness() + engine_c::get_instance()->get_window_manager()->get_window_edge_thickness();
 			if ( _local_origin.b < cap_top )
 			{
 				_local_origin.b = cap_top;
 			}
 
-			float32_c cap_left = _user_interface->get_local_box().minimum.a + global_engine_instance.environment.get_window_edge_thickness() - _local_box.maximum.a + 60.0f;
+			float32_c cap_left = _user_interface->get_local_box().minimum.a + engine_c::get_instance()->get_window_manager()->get_window_edge_thickness() - _local_box.maximum.a + 60.0f;
 			if ( _local_origin.a < cap_left )
 			{
 				_local_origin.a = cap_left;
 			}
 
-			float32_c cap_right = _user_interface->get_local_box().maximum.a - global_engine_instance.environment.get_window_edge_thickness() - 60.0f;
+			float32_c cap_right = _user_interface->get_local_box().maximum.a - engine_c::get_instance()->get_window_manager()->get_window_edge_thickness() - 60.0f;
 			if ( _local_origin.a > cap_right )
 			{
 				_local_origin.a = cap_right;

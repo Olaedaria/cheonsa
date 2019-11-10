@@ -275,7 +275,8 @@ namespace cheonsa
 		assert( stream->get_position() == 0 );
 
 		data_scribe_binary_c scribe;
-		scribe.open( stream, endianness_e_little );
+		scribe.set_stream( stream );
+		scribe.set_byte_order( byte_order_e_little );
 
 		// determine file type.
 		char8_c loaded_file_signature[ 4 ];
@@ -1574,7 +1575,7 @@ namespace cheonsa
 		MMRESULT result = waveOutOpen( &implementation->wave_out_handle, 0, &implementation->wave_out_format, (DWORD_PTR)&wave_out_implementation_c::waveOutProcImpl, (DWORD_PTR)this, CALLBACK_FUNCTION );
 		if ( result != MMSYSERR_NOERROR )
 		{
-			cheonsa_annoy( L"error", L"waveOutOpen failed." );
+			debug_annoy( L"error", L"waveOutOpen failed." );
 			return false;
 		}
 
@@ -1595,13 +1596,13 @@ namespace cheonsa
 			result = waveOutPrepareHeader( implementation->wave_out_handle, &implementation->wave_out_headers[ i ], sizeof( WAVEHDR ) );
 			if ( result != MMSYSERR_NOERROR )
 			{
-				cheonsa_annoy( L"error", L"waveOutPrepareHeader failed." );
+				debug_annoy( L"error", L"waveOutPrepareHeader failed." );
 				return false;
 			}
 			result = waveOutWrite( implementation->wave_out_handle, &implementation->wave_out_headers[ i ], sizeof( WAVEHDR ) ); // begin callback loop.
 			if ( result != MMSYSERR_NOERROR )
 			{
-				cheonsa_annoy( L"error", L"waveOutWrite failed." );
+				debug_annoy( L"error", L"waveOutWrite failed." );
 				return false;
 			}
 		}

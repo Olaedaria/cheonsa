@@ -72,51 +72,50 @@ namespace cheonsa
 
 		};
 
-	public:
-		video_vertex_shader_c * skin_mesh; // "skin_mesh.hlsl".
-
-		video_pixel_shader_c * menu_ps_debug; // "menu_ps_debug.hlsl".
-		video_pixel_shader_c * menu_ps_frame; // "menu_ps_frame.hlsl".
-		video_pixel_shader_c * menu_ps_solid_color; // "menu_ps_frame_solid_color.hlsl".
-		video_pixel_shader_c * menu_ps_text; // "menu_ps_text.hlsl".
-		video_vertex_shader_c * menu2_vs; // "menu2_vs.hlsl".
-		video_vertex_shader_c * menu2_vs_debug; // "menu2_vs_debug.hlsl".
-		video_vertex_shader_c * menu3_vs; // "menu3_vs.hlsl".
-		video_vertex_shader_c * menu3_vs_debug; // "menu3_vs_debug.hlsl".
-
-		video_pixel_shader_c * scene_camera_normal_and_depth_ps_mesh; // "scene_camera_normal_and_depth_ps.hlsl".
-		video_pixel_shader_c * scene_camera_normal_and_depth_ps_mesh_masked; // "scene_camera_normal_and_depth_ps.hlsl" with "#define masked".
-		video_vertex_shader_c * scene_camera_normal_and_depth_vs_mesh; // "scene_camera_normal_and_depth_vs_mesh.hlsl".
-		video_vertex_shader_c * scene_camera_normal_and_depth_vs_mesh_waved; // "scene_camera_normal_and_depth_vs_mesh.hlsl" with "#define waved".
-		video_vertex_shader_c * scene_camera_normal_and_depth_vs_mesh_clipped; // "scene_camera_normal_and_depth_vs_mesh.hlsl" with "#define clipped".
-		video_vertex_shader_c * scene_camera_normal_and_depth_vs_mesh_waved_clipped; // "scene_camera_normal_and_depth_vs_mesh.hlsl" with "#define waved" and "#define clipped".
-		
-		video_pixel_shader_c * scene_camera_outline_ps_mesh;
-		video_pixel_shader_c * scene_camera_outline_ps_mesh_masked;
-
-		video_pixel_shader_c * scene_camera_color_ps_debug; // "scene_camera_color_ps_debug.hlsl".
-		video_vertex_shader_c * scene_camera_color_vs_debug; // "scene_camera_color_vs_debug.hlsl".
-		video_vertex_shader_c * scene_camera_color_vs_mesh; // "scene_camera_color_vs_mesh.hlsl".
-		video_vertex_shader_c * scene_camera_color_vs_mesh_waved; // "scene_camera_color_vs_mesh.hlsl" with "#define waved".
-		video_vertex_shader_c * scene_camera_color_vs_mesh_clipped; // "scene_camera_color_vs_mesh.hlsl" with "#define clipped".
-		video_vertex_shader_c * scene_camera_color_vs_mesh_waved_clipped; // "scene_camera_color_vs_mesh.hlsl" with "#define waved" and "#define clipped".
-
-		video_pixel_shader_c * scene_shadow_ps_mesh; // "scene_shadow_ps_mesh.hlsl".
-		video_pixel_shader_c * scene_shadow_ps_mesh_masked; // "scene_shadow_ps_mesh.hlsl" with "#define masked".
-		video_vertex_shader_c * scene_shadow_vs_mesh; // "scene_shadow_vs_mesh.hlsl".
-		video_vertex_shader_c * scene_shadow_vs_mesh_waved; // "scene_shadow_vs_mesh.hlsl" with "#define waved".
-
-		video_pixel_shader_c * scene_post_ps_blur_x; // "scene_post_ps_blur_x.hlsl".
-		video_pixel_shader_c * scene_post_ps_blur_y; // "scene_post_ps_blur_y.hlsl".
-		video_pixel_shader_c * scene_post_ps_resolve_native; // "scene_post_ps_resolve.hlsl".
-		video_pixel_shader_c * scene_post_ps_resolve_scaled; // "scene_post_ps_resolve_scaled.hlsl".
-		video_pixel_shader_c * scene_post_ps_resolve_quarter; // "scene_post_ps_resolve_quarter.hlsl".
-		video_pixel_shader_c * scene_post_ps_process; // "scene_post_ps_process.hlsl".
-		video_vertex_shader_c * scene_post_vs; // "scene_post_vs.hlsl".
-
-		video_renderer_pixel_shader_c * scene_camera_color_ps_mesh;
-
 	private:
+		video_vertex_shader_c * _skin_mesh; // "skin_mesh.hlsl".
+
+		video_pixel_shader_c * _menu_ps_debug; // "menu_ps_debug.hlsl".
+		video_pixel_shader_c * _menu_ps_frame; // "menu_ps_frame.hlsl".
+		video_pixel_shader_c * _menu_ps_solid_color; // "menu_ps_frame_solid_color.hlsl".
+		video_pixel_shader_c * _menu_ps_text; // "menu_ps_text.hlsl".
+		video_vertex_shader_c * _menu2_vs; // "menu2_vs.hlsl".
+		video_vertex_shader_c * _menu2_vs_debug; // "menu2_vs_debug.hlsl".
+		video_vertex_shader_c * _menu3_vs; // "menu3_vs.hlsl".
+		video_vertex_shader_c * _menu3_vs_debug; // "menu3_vs_debug.hlsl".
+
+		video_pixel_shader_c * _scene_camera_normal_and_depth_ps_mesh; // "scene_camera_normal_and_depth_ps.hlsl".
+		video_pixel_shader_c * _scene_camera_normal_and_depth_ps_mesh_masked; // "scene_camera_normal_and_depth_ps.hlsl" with "#define masked".
+		video_vertex_shader_c * _scene_camera_normal_and_depth_vs_mesh; // "scene_camera_normal_and_depth_vs_mesh.hlsl".
+		video_vertex_shader_c * _scene_camera_normal_and_depth_vs_mesh_waved; // "scene_camera_normal_and_depth_vs_mesh.hlsl" with "#define waved".
+		video_vertex_shader_c * _scene_camera_normal_and_depth_vs_mesh_clipped; // "scene_camera_normal_and_depth_vs_mesh.hlsl" with "#define clipped".
+		video_vertex_shader_c * _scene_camera_normal_and_depth_vs_mesh_waved_clipped; // "scene_camera_normal_and_depth_vs_mesh.hlsl" with "#define waved" and "#define clipped".
+		
+		video_pixel_shader_c * _scene_camera_outline_ps_mesh;
+		video_pixel_shader_c * _scene_camera_outline_ps_mesh_masked;
+
+		video_pixel_shader_c * _scene_camera_color_ps_debug; // "scene_camera_color_ps_debug.hlsl".
+		video_vertex_shader_c * _scene_camera_color_vs_debug; // "scene_camera_color_vs_debug.hlsl".
+		video_vertex_shader_c * _scene_camera_color_vs_mesh; // "scene_camera_color_vs_mesh.hlsl".
+		video_vertex_shader_c * _scene_camera_color_vs_mesh_waved; // "scene_camera_color_vs_mesh.hlsl" with "#define waved".
+		video_vertex_shader_c * _scene_camera_color_vs_mesh_clipped; // "scene_camera_color_vs_mesh.hlsl" with "#define clipped".
+		video_vertex_shader_c * _scene_camera_color_vs_mesh_waved_clipped; // "scene_camera_color_vs_mesh.hlsl" with "#define waved" and "#define clipped".
+
+		video_pixel_shader_c * _scene_shadow_ps_mesh; // "scene_shadow_ps_mesh.hlsl".
+		video_pixel_shader_c * _scene_shadow_ps_mesh_masked; // "scene_shadow_ps_mesh.hlsl" with "#define masked".
+		video_vertex_shader_c * _scene_shadow_vs_mesh; // "scene_shadow_vs_mesh.hlsl".
+		video_vertex_shader_c * _scene_shadow_vs_mesh_waved; // "scene_shadow_vs_mesh.hlsl" with "#define waved".
+
+		video_pixel_shader_c * _scene_post_ps_blur_x; // "scene_post_ps_blur_x.hlsl".
+		video_pixel_shader_c * _scene_post_ps_blur_y; // "scene_post_ps_blur_y.hlsl".
+		video_pixel_shader_c * _scene_post_ps_resolve_native; // "scene_post_ps_resolve.hlsl".
+		video_pixel_shader_c * _scene_post_ps_resolve_scaled; // "scene_post_ps_resolve_scaled.hlsl".
+		video_pixel_shader_c * _scene_post_ps_resolve_quarter; // "scene_post_ps_resolve_quarter.hlsl".
+		video_pixel_shader_c * _scene_post_ps_process; // "scene_post_ps_process.hlsl".
+		video_vertex_shader_c * _scene_post_vs; // "scene_post_vs.hlsl".
+
+		video_renderer_pixel_shader_c * _scene_camera_color_ps_mesh;
+
 		core_list_c< shader_variations_c * > _shader_variations_list; // built-in shaders.
 		core_list_c< video_renderer_pixel_shader_c * > _material_pixel_shader_list; // material (data driven, run time) defined pixel shaders.
 
@@ -149,6 +148,42 @@ namespace cheonsa
 		video_renderer_pixel_shader_c * load_pixel_shader( string16_c const & file_name ); // loads a game defined pixel shader for use with custom materials.
 
 		static boolean_c resolve_file_path( string16_c const & file_path_relative, boolean_c is_internal, string16_c & file_path_absolute );
+
+		inline video_vertex_shader_c * get_skin_mesh() const { return _skin_mesh; }
+		inline video_pixel_shader_c * get_menu_ps_debug() const { return _menu_ps_debug; }
+		inline video_pixel_shader_c * get_menu_ps_frame() const { return _menu_ps_frame; }
+		inline video_pixel_shader_c * get_menu_ps_solid_color() const { return _menu_ps_solid_color; }
+		inline video_pixel_shader_c * get_menu_ps_text() const { return _menu_ps_text; }
+		inline video_vertex_shader_c * get_menu2_vs() const { return _menu2_vs; }
+		inline video_vertex_shader_c * get_menu2_vs_debug() const { return _menu2_vs_debug; }
+		inline video_vertex_shader_c * get_menu3_vs() const { return _menu3_vs; }
+		inline video_vertex_shader_c * get_menu3_vs_debug() const { return _menu3_vs_debug; }
+		inline video_pixel_shader_c * get_scene_camera_normal_and_depth_ps_mesh() const { return _scene_camera_normal_and_depth_ps_mesh; }
+		inline video_pixel_shader_c * get_scene_camera_normal_and_depth_ps_mesh_masked() const { return _scene_camera_normal_and_depth_ps_mesh_masked; }
+		inline video_vertex_shader_c * get_scene_camera_normal_and_depth_vs_mesh() const { return _scene_camera_normal_and_depth_vs_mesh; }
+		inline video_vertex_shader_c * get_scene_camera_normal_and_depth_vs_mesh_waved() const { return _scene_camera_normal_and_depth_vs_mesh_waved; }
+		inline video_vertex_shader_c * get_scene_camera_normal_and_depth_vs_mesh_clipped() const { return _scene_camera_normal_and_depth_vs_mesh_clipped; }
+		inline video_vertex_shader_c * get_scene_camera_normal_and_depth_vs_mesh_waved_clipped() const { return _scene_camera_normal_and_depth_vs_mesh_waved_clipped; }
+		inline video_pixel_shader_c * get_scene_camera_outline_ps_mesh() const { return _scene_camera_outline_ps_mesh; }
+		inline video_pixel_shader_c * get_scene_camera_outline_ps_mesh_masked() const { return _scene_camera_outline_ps_mesh_masked; }
+		inline video_pixel_shader_c * get_scene_camera_color_ps_debug() const { return _scene_camera_color_ps_debug; }
+		inline video_vertex_shader_c * get_scene_camera_color_vs_debug() const { return _scene_camera_color_vs_debug; }
+		inline video_vertex_shader_c * get_scene_camera_color_vs_mesh() const { return _scene_camera_color_vs_mesh; }
+		inline video_vertex_shader_c * get_scene_camera_color_vs_mesh_waved() const { return _scene_camera_color_vs_mesh_waved; }
+		inline video_vertex_shader_c * get_scene_camera_color_vs_mesh_clipped() const { return _scene_camera_color_vs_mesh_clipped; }
+		inline video_vertex_shader_c * get_scene_camera_color_vs_mesh_waved_clipped() const { return _scene_camera_color_vs_mesh_waved_clipped; }
+		inline video_pixel_shader_c * get_scene_shadow_ps_mesh() const { return _scene_shadow_ps_mesh; }
+		inline video_pixel_shader_c * get_scene_shadow_ps_mesh_masked() const { return _scene_shadow_ps_mesh_masked; }
+		inline video_vertex_shader_c * get_scene_shadow_vs_mesh() const { return _scene_shadow_vs_mesh; }
+		inline video_vertex_shader_c * get_scene_shadow_vs_mesh_waved() const { return _scene_shadow_vs_mesh_waved; }
+		inline video_pixel_shader_c * get_scene_post_ps_blur_x() const { return _scene_post_ps_blur_x; }
+		inline video_pixel_shader_c * get_scene_post_ps_blur_y() const { return _scene_post_ps_blur_y; }
+		inline video_pixel_shader_c * get_scene_post_ps_resolve_native() const { return _scene_post_ps_resolve_native; }
+		inline video_pixel_shader_c * get_scene_post_ps_resolve_scaled() const { return _scene_post_ps_resolve_scaled; }
+		inline video_pixel_shader_c * get_scene_post_ps_resolve_quarter() const { return _scene_post_ps_resolve_quarter; }
+		inline video_pixel_shader_c * get_scene_post_ps_process() const { return _scene_post_ps_process; }
+		inline video_vertex_shader_c * get_scene_post_vs() const { return _scene_post_vs; }
+		inline video_renderer_pixel_shader_c * get_scene_camera_color_ps_mesh() const { return _scene_camera_color_ps_mesh; }
 
 	};
 

@@ -86,7 +86,8 @@ namespace cheonsa
 		local_stream.open_static( _file_data.get_internal_array(), _file_data.get_internal_array_size_used() );
 
 		data_scribe_binary_c local_scribe;
-		local_scribe.open( &local_stream, endianness_e_big ); // PNGs are big endian.
+		local_scribe.set_stream( &local_stream );
+		local_scribe.set_byte_order( byte_order_e_big ); // pngs are big endian.
 		
 		local_stream.set_position( 8 ); // skip past png file signature.
 		while ( local_stream.get_position() < local_stream.get_size() )

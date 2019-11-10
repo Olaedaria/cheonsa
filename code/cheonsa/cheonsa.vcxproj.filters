@@ -88,7 +88,6 @@
     <ClInclude Include="cheonsa_menu_control_file_picker.h" />
     <ClInclude Include="cheonsa_menu_control_property_inspector.h" />
     <ClInclude Include="cheonsa_menu_window_dialog.h" />
-    <ClInclude Include="cheonsa_core_hasher.h" />
     <ClInclude Include="cheonsa_core_list.h" />
     <ClInclude Include="cheonsa_core_linked_list.h" />
     <ClInclude Include="cheonsa_core_dictionary.h" />
@@ -512,8 +511,10 @@
     <ClInclude Include="cheonsa_resource_file_texture.h" />
     <ClInclude Include="cheonsa_resource_file_sound.h" />
     <ClInclude Include="cheonsa__types.h" />
-    <ClInclude Include="cheonsa__debug.h" />
     <ClInclude Include="cheonsa__ops.h" />
+    <ClInclude Include="cheonsa_safe_reference_count.h" />
+    <ClInclude Include="cheonsa_debug_manager.h" />
+    <ClInclude Include="cheonsa_window_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -637,7 +638,9 @@
     <ClCompile Include="cheonsa_resource_file_texture.cpp" />
     <ClCompile Include="cheonsa_resource_file_sound.cpp" />
     <ClCompile Include="cheonsa__types.cpp" />
-    <ClCompile Include="cheonsa__debug.cpp" />
     <ClCompile Include="cheonsa__ops.cpp" />
+    <ClCompile Include="cheonsa_safe_reference_count.cpp" />
+    <ClCompile Include="cheonsa_debug_manager.cpp" />
+    <ClCompile Include="cheonsa_window_manager.cpp" />
   </ItemGroup>
 </Project>

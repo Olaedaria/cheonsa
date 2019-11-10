@@ -1867,6 +1867,22 @@ namespace cheonsa
 		//
 		//
 
+		void_c convert_rgba_to_rgba( vector32x4_c const & value, uint32_c & result )
+		{
+			result = static_cast< uint32_c >( ops::math_saturate( value.a ) * 255.0f ) << 24 |
+					 static_cast< uint32_c >( ops::math_saturate( value.b ) * 255.0f ) << 16 |
+					 static_cast< uint32_c >( ops::math_saturate( value.c ) * 255.0f ) << 8 |
+					 static_cast< uint32_c >( ops::math_saturate( value.d ) * 255.0f );
+		}
+
+		void_c convert_rgba_to_rgba( uint32_c const & value, vector32x4_c & result )
+		{
+			result.a = static_cast< float32_c >( ( value >> 24 ) & 0xFF ) / 255.0f;
+			result.b = static_cast< float32_c >( ( value >> 16 ) & 0xFF ) / 255.0f;
+			result.c = static_cast< float32_c >( ( value >> 8 ) & 0xFF ) / 255.0f;
+			result.d = static_cast< float32_c >( ( value ) & 0xFF ) / 255.0f;
+		}
+
 		boolean_c convert_rgb_to_hsv( vector64x3_c const & rgb, vector64x3_c & hsv )
 		{
 			// taken from http://wiki.beyondunreal.com/HSV-RGB_Conversion
@@ -4007,36 +4023,6 @@ namespace cheonsa
 
 		//
 		//
-		// hash operations.
-		//
-		//
-
-		template< typename uint_type_c >
-		uint_type_c _hash_jenkins_uint( void_c const * const data, sint32_c const data_size )
-		{
-			// jenkins hash function
-			uint_type_c result = 5381;
-			char const * bytes = reinterpret_cast< char const * >( data );
-			for ( sint32_c i = 0; i < data_size; i++ )
-			{
-				result = ( ( result << 5 ) + result ) + static_cast< uint_type_c >( bytes[ i ] );
-			}
-			return result;
-		}
-
-		uint32_c hash_jenkins_uint32( void_c const * const data, sint32_c const data_size )
-		{
-			return _hash_jenkins_uint< uint32_c >( data, data_size );
-		}
-
-		uint64_c hash_jenkins_uint64( void_c const * const data, sint32_c const data_size )
-		{
-			return _hash_jenkins_uint< uint64_c >( data, data_size );
-		}
-
-
-		//
-		//
 		// time operations.
 		//
 		//
@@ -4103,7 +4089,7 @@ namespace cheonsa
 		//
 		//
 
-		void_c random_initialize()
+		void_c random_start()
 		{
 			srand( static_cast< unsigned int >( time( nullptr ) ) );
 		}
@@ -5988,18 +5974,6 @@ namespace cheonsa
 			*/
 		}
 
-		void_c memory_flip_byte_order( void_c * buffer, sint32_c buffer_size )
-		{
-			assert( buffer_size > 0 && buffer_size < 16 );
-			uint8_c * data_bytes = reinterpret_cast< uint8_c * >( buffer );
-			for ( sint32_c i = 0; i < buffer_size; i++ )
-			{
-				uint8_c t = data_bytes[ i ];
-				data_bytes[ i ] = data_bytes[ buffer_size - i - 1 ];
-				data_bytes[ buffer_size - i - 1 ] = t;
-			}
-		}
-
 
 		//
 		//
@@ -6031,10 +6005,22 @@ namespace cheonsa
 			return 0;
 		}
 
-		endianness_e get_native_endianness()
+		byte_order_e get_native_byte_order()
 		{
 			const union { uint32_c u; uint8_c c[ 4 ]; } probe = { 1 };
-			return probe.c[ 0 ] != 0 ? endianness_e_little : endianness_e_big;
+			return probe.c[ 0 ] != 0 ? byte_order_e_little : byte_order_e_big;
+		}
+
+		void_c flip_byte_order( void_c * buffer, sint32_c buffer_size )
+		{
+			assert( buffer_size > 0 && buffer_size < 16 );
+			uint8_c * data_bytes = reinterpret_cast< uint8_c * >( buffer );
+			for ( sint32_c i = 0; i < buffer_size; i++ )
+			{
+				uint8_c t = data_bytes[ i ];
+				data_bytes[ i ] = data_bytes[ buffer_size - i - 1 ];
+				data_bytes[ buffer_size - i - 1 ] = t;
+			}
 		}
 
 
@@ -6052,15 +6038,6 @@ namespace cheonsa
 		uint64_c xxhash64( void_c const * data, uint_native_c data_size )
 		{
 			return XXH64( static_cast< const void_c * >( data ), static_cast< size_t >( data_size ), 0 );
-		}
-
-		uint_native_c xxhash_native( void_c const * data, uint_native_c data_size )
-		{
-#if defined( cheonsa_32_bit )
-			return XXH32( static_cast< const void_c * >( data ), static_cast< size_t >( data_size ), 0 );
-#elif defined( cheonsa_64_bit )
-			return XXH64( static_cast< const void_c * >( data ), static_cast< size_t >( data_size ), 0 );
-#endif
 		}
 
 	}

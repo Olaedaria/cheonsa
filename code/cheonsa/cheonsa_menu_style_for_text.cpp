@@ -13,18 +13,18 @@ namespace cheonsa
 
 	void_c menu_style_for_text_c::reference_c::refresh()
 	{
-		assert( global_engine_instance.interfaces.menu_style_manager != nullptr );
+		assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
 		if ( _key == "[none]" )
 		{
 			_value = nullptr;
 		}
 		else if ( _key == "[default]" )
 		{
-			_value = &global_engine_instance.interfaces.menu_style_manager->default_text_style;
+			_value = engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text();
 		}
 		else
 		{
-			_value = global_engine_instance.interfaces.menu_style_manager->find_style_for_text( _key );
+			_value = engine_c::get_instance()->get_menu_style_manager()->find_style_for_text( _key );
 		}
 		on_refreshed.invoke( this );
 	}
@@ -125,7 +125,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "font" );
 		if ( attribute )
 		{
-			font = global_engine_instance.interfaces.resource_manager->load_font( string16_c( attribute->get_value() ) );
+			font = engine_c::get_instance()->get_resource_manager()->load_font( string16_c( attribute->get_value() ) );
 			font_is_defined = font.is_reference_set_and_loaded();
 		}
 

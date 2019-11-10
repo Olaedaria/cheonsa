@@ -40,6 +40,12 @@ namespace cheonsa
 	private:
 		friend class engine_c;
 
+		// absolute file path where engine exe is running out of.
+		string16_c _executable_folder_path;
+
+		// file name with file extension.
+		string16_c _executable_file_name;
+
 		// absolute folder path of engine data folder on the local file system.
 		string16_c _engine_data_folder_path;
 
@@ -66,17 +72,25 @@ namespace cheonsa
 		// one string file is loaded for each data folder that contains a "strings.xml" file.
 		core_list_c< string_file_c * > _string_file_list;
 
+		data_scribe_ini_c _settings_file;
+
 	public:
 		// base_data_folder_path is by default the folder that the exe is running out of.
 		// but it can be overridden by -data="[base_data_folder_path]" command line argument.
 		content_manager_c();
 		~content_manager_c();
 
-		boolean_c start( string16_c const & engine_data_folder_path );
+		boolean_c start( string16_c const & engine_data_folder_path, string16_c const & executable_folder_path, string16_c const & executable_file_name );
 
 		// gets platform specific absolute folder path of where to save user data, which can be used to save the user's settings, saved games, screen shots, etc.
 		// on windows this is "%LocalAppData%\[game_name]\".
 		string16_c get_user_data_folder_path() const;
+
+		// gets the folder that the engine executable is running out of.
+		string16_c const & get_executable_folder_path() const;
+
+		// gets the file name with file extension of the executable.
+		string16_c const & get_executable_file_name() const;
 
 		// gets the engine data folder path.
 		// this is the folder path that contains files that are vital for the basic operation of the engine.
@@ -118,6 +132,13 @@ namespace cheonsa
 
 		// looks up a string for the current locale.
 		string_c const * find_string( string8_c const & key ) const; // looks up a string in this string file.
+
+		// loads the settings file state from the settings file on disk.
+		boolean_c load_settings_file();
+		// saves the settings file state to the settings file on disk.
+		boolean_c save_settings_file();
+		// other systems use this system file instance to read or write their settings.
+		data_scribe_ini_c & get_settings_file();
 
 	};
 

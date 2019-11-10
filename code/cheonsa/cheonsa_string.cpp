@@ -31,7 +31,7 @@ namespace cheonsa
 
 	void_c string_c::reference_c::refresh()
 	{
-		_value = global_engine_instance.interfaces.content_manager->find_string( _key );
+		_value = engine_c::get_instance()->get_content_manager()->find_string( _key );
 		on_refreshed.invoke( this );
 	}
 

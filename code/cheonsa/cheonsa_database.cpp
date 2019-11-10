@@ -10,7 +10,7 @@ namespace cheonsa
 	database_c::database_c( string16_c const & file_path )
 		: _database_stack( nullptr )
 		, _file_path( file_path )
-		, _endianness( ops::get_native_endianness() )
+		//, _endianness( ops::get_native_byte_order() )
 		, _name()
 		, _id( 0 )
 		, _flags( 0 )
@@ -34,15 +34,15 @@ namespace cheonsa
 		_file_path = value;
 	}
 
-	endianness_e database_c::get_endianness() const
-	{
-		return _endianness;
-	}
+	//byte_order_e database_c::get_byte_order() const
+	//{
+	//	return _byte_order;
+	//}
 
-	void_c database_c::set_endianness( endianness_e value )
-	{
-		_endianness = value;
-	}
+	//void_c database_c::set_byte_order( byte_order_e value )
+	//{
+	//	_byte_order = value;
+	//}
 
 	string8_c const & database_c::get_name() const
 	{
@@ -151,10 +151,10 @@ namespace cheonsa
 			return false;
 		}
 
-		// save signature and endianness.
+		// save signature.
 		data_scribe_binary_c scribe;
-		scribe.open( &stream, _endianness );
-		scribe.save_four_character_code( _endianness == endianness_e_little ? get_file_signature_static().get_flipped() : get_file_signature_static() ); // we encode endianness in the signature.
+		scribe.set_stream( &stream );
+		scribe.save_four_character_code( get_file_signature_static() );
 
 		// save rest of file.
 		scribe.save_string8( _name );
@@ -192,23 +192,14 @@ namespace cheonsa
 		}
 
 		data_scribe_binary_c scribe;
-		scribe.open( &stream, endianness_e_little );
+		scribe.set_stream( &stream );
 
 		// load signature and endianness.
-		four_character_code_c signature = scribe.load_four_character_code();
-		if ( signature == get_file_signature_static() )
-		{
-			_endianness = endianness_e_big;
-		}
-		else if ( signature == get_file_signature_static().get_flipped() )
-		{
-			_endianness = endianness_e_little;
-		}
-		else
+		uint32_c signature = scribe.load_four_character_code();
+		if ( signature != get_file_signature_static() )
 		{
 			return false;
 		}
-		scribe.set_endianness( _endianness );
 
 		// load rest of file.
 		_name = scribe.load_string8();

@@ -8,13 +8,19 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::_load_straight( void_c * const data, uint32_c size )
 	{
-		assert( size > 0 && size <= flip_buffer_size );
+		assert( _stream != nullptr && size > 0 && size <= flip_buffer_size );
 		_stream->load( data, size );
 	}
 
-	void_c data_scribe_binary_c::_load_switched( void_c * const data, uint32_c size )
+	void_c data_scribe_binary_c::_save_straight( void_c const * const data, uint32_c size )
 	{
-		assert( size > 0 && size <= flip_buffer_size );
+		assert( _stream != nullptr && size > 0 && size <= flip_buffer_size );
+		_stream->save( data, size );
+	}
+
+	void_c data_scribe_binary_c::_load_flipped( void_c * const data, uint32_c size )
+	{
+		assert( _stream != nullptr && size > 0 && size <= flip_buffer_size );
 		uint8_c * data_bytes = reinterpret_cast< uint8_c * >( data );
 		uint8_c data_bytes_copy[ flip_buffer_size ];
 		_stream->load( data_bytes_copy, size );
@@ -24,15 +30,9 @@ namespace cheonsa
 		}
 	}
 
-	void_c data_scribe_binary_c::_save_straight( void_c const * const data, uint32_c size )
+	void_c data_scribe_binary_c::_save_flipped( void_c const * const data, uint32_c size )
 	{
-		assert( size > 0 && size <= flip_buffer_size );
-		_stream->save( data, size );
-	}
-
-	void_c data_scribe_binary_c::_save_switched( void_c const * const data, uint32_c size )
-	{
-		assert( size > 0 && size <= flip_buffer_size );
+		assert( _stream != nullptr && size > 0 && size <= flip_buffer_size );
 		uint8_c const * const data_bytes = reinterpret_cast< uint8_c const * const >( data );
 		uint8_c data_bytes_copy[ flip_buffer_size ];
 		for ( uint32_c i = 0; i < size; i++ )
@@ -44,37 +44,11 @@ namespace cheonsa
 
 	data_scribe_binary_c::data_scribe_binary_c()
 		: _stream( nullptr )
-		, _endianness( ops::get_native_endianness() )
-		, _load_function( nullptr )
-		, _save_function( nullptr )
+		, _byte_order( ops::get_native_byte_order() )
+		, _load_function( &data_scribe_binary_c::_load_straight )
+		, _save_function( &data_scribe_binary_c::_save_straight )
 	{
 	}
-
-	void_c data_scribe_binary_c::open( data_stream_c * stream, endianness_e endianness )
-	{
-		assert( stream );
-		_stream = stream;
-		_endianness = endianness;
-		if ( endianness == ops::get_native_endianness() )
-		{
-			_load_function = & data_scribe_binary_c::_load_straight;
-			_save_function = & data_scribe_binary_c::_save_straight;
-		}
-		else
-		{
-			_load_function = & data_scribe_binary_c::_load_switched;
-			_save_function = & data_scribe_binary_c::_save_switched;
-		}
-	}
-
-	void_c data_scribe_binary_c::close()
-	{
-		assert( _stream );
-		_stream = nullptr;
-		_endianness = ops::get_native_endianness();
-
-	}
-
 
 	data_stream_c * data_scribe_binary_c::get_stream()
 	{
@@ -83,27 +57,38 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::set_stream( data_stream_c * stream )
 	{
-		assert( stream );
 		_stream = stream;
 	}
 
-	endianness_e data_scribe_binary_c::get_endianness()
+	byte_order_e data_scribe_binary_c::get_byte_order()
 	{
-		return _endianness;
+		return _byte_order;
 	}
 
-	void_c data_scribe_binary_c::set_endianness( endianness_e endianness )
+	void_c data_scribe_binary_c::set_byte_order( byte_order_e byte_order )
 	{
-		_endianness = endianness;
+		_byte_order = byte_order;
+		if ( _byte_order == ops::get_native_byte_order() )
+		{
+			_load_function = &data_scribe_binary_c::_load_straight;
+			_save_function = &data_scribe_binary_c::_save_straight;
+		}
+		else
+		{
+			_load_function = &data_scribe_binary_c::_load_flipped;
+			_save_function = &data_scribe_binary_c::_save_flipped;
+		}
 	}
 
 	void_c data_scribe_binary_c::load_generic( void_c * const value, sint32_c value_size )
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		( this->*_load_function )( value, value_size );
 	}
 
 	uint8_c data_scribe_binary_c::load_uint8()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		uint8_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -111,6 +96,7 @@ namespace cheonsa
 
 	sint8_c data_scribe_binary_c::load_sint8()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		sint8_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -118,6 +104,7 @@ namespace cheonsa
 
 	uint16_c data_scribe_binary_c::load_uint16()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		uint16_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -125,6 +112,7 @@ namespace cheonsa
 
 	sint16_c data_scribe_binary_c::load_sint16()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		sint16_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -132,6 +120,7 @@ namespace cheonsa
 
 	uint32_c data_scribe_binary_c::load_uint32()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		uint32_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -139,6 +128,7 @@ namespace cheonsa
 
 	sint32_c data_scribe_binary_c::load_sint32()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		sint32_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -146,6 +136,7 @@ namespace cheonsa
 
 	uint64_c data_scribe_binary_c::load_uint64()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		uint64_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -153,6 +144,7 @@ namespace cheonsa
 
 	sint64_c data_scribe_binary_c::load_sint64()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		sint64_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -160,6 +152,7 @@ namespace cheonsa
 
 	float32_c data_scribe_binary_c::load_float32()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		float32_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -167,6 +160,7 @@ namespace cheonsa
 
 	float64_c data_scribe_binary_c::load_float64()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		float64_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -174,6 +168,7 @@ namespace cheonsa
 
 	char8_c data_scribe_binary_c::load_char8()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		char8_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
@@ -181,23 +176,23 @@ namespace cheonsa
 
 	char16_c data_scribe_binary_c::load_char16()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		char16_c result;
 		( this->*_load_function )( & result, sizeof( result ) );
 		return result;
 	}
 
-	four_character_code_c data_scribe_binary_c::load_four_character_code()
+	uint32_c data_scribe_binary_c::load_four_character_code()
 	{
-		four_character_code_c result;
-		_stream->load( &result.characters[ 0 ], 1 );
-		_stream->load( &result.characters[ 1 ], 1 );
-		_stream->load( &result.characters[ 2 ], 1 );
-		_stream->load( &result.characters[ 3 ], 1 );
+		assert( _stream != nullptr );
+		uint32_c result = 0;
+		_stream->load( &result, 4 );
 		return result;
 	}
 
 	string8_c data_scribe_binary_c::load_string8()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		string8_c result;
 		uint16_c length = load_uint16();
 		result.character_list.construct_mode_dynamic( length + 1, length + 1 );
@@ -208,12 +203,13 @@ namespace cheonsa
 
 	string16_c data_scribe_binary_c::load_string16()
 	{
+		assert( _stream != nullptr && _load_function != nullptr );
 		string16_c result;
 		uint16_c length = load_uint16();
 		result.character_list.construct_mode_dynamic( length + 1, length + 1 );
 		result.character_list[ length ] = 0;
 		_stream->load( result.character_list.get_internal_array(), length * 2 );
-		if ( _endianness != ops::get_native_endianness() )
+		if ( _byte_order != ops::get_native_byte_order() )
 		{
 			uint8_c * bytes = reinterpret_cast< uint8_c * >( result.character_list.get_internal_array() );
 			for ( sint32_c i = 0; i < length; i++ )
@@ -228,79 +224,91 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::save_generic( uint8_c const * value, sint32_c value_size )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( value, value_size );
 	}
 
 	void_c data_scribe_binary_c::save_uint8( uint8_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_sint8( sint8_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_uint16( uint16_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_sint16( sint16_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_uint32( uint32_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_sint32( sint32_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_uint64( uint64_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_sint64( sint64_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_float32( float32_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_float64( float64_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_char8( char8_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
 	void_c data_scribe_binary_c::save_char16( char16_c value )
 	{
+		assert( _stream != nullptr && _save_function != nullptr );
 		( this->*_save_function )( &value, sizeof( value ) );
 	}
 
-	void_c data_scribe_binary_c::save_four_character_code( four_character_code_c value )
+	void_c data_scribe_binary_c::save_four_character_code( uint32_c value )
 	{
-		_stream->save( &value.characters[ 0 ], 1 );
-		_stream->save( &value.characters[ 1 ], 1 );
-		_stream->save( &value.characters[ 2 ], 1 );
-		_stream->save( &value.characters[ 3 ], 1 );
+		assert( _stream != nullptr );
+		_stream->save( &value, 4 );
 	}
 
 	void_c data_scribe_binary_c::save_string8( string8_c const & string )
 	{
+		assert( _stream != nullptr );
 		sint32_c count = string.character_list.get_length() - 1;
 		assert( count >= 0 && count < constants< uint16_c >::maximum() );
 		save_uint16( static_cast< uint16_c >( count ) );
@@ -309,11 +317,12 @@ namespace cheonsa
 
 	void_c data_scribe_binary_c::save_string16( string16_c const & string )
 	{
+		assert( _stream != nullptr );
 		sint32_c count = string.character_list.get_length() - 1;
 		assert( count >= 0 && count < constants< uint16_c >::maximum() );
 		save_uint16( static_cast< uint16_c >( count ) );
 		char16_c const * string_buffer = string.character_list.get_internal_array();
-		if ( _endianness == ops::get_native_endianness() )
+		if ( _byte_order == ops::get_native_byte_order() )
 		{
 			_stream->save( string_buffer, count * 2 );
 		}
@@ -324,7 +333,6 @@ namespace cheonsa
 				( this->*_save_function )( &string_buffer[ i ], 2 );
 			}
 		}
-		
 	}
 
 }

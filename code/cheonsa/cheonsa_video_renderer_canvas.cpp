@@ -29,7 +29,7 @@ namespace cheonsa
 		, _output( nullptr )
 		//, _reflections_canvas( nullptr )
 	{
-		assert( global_engine_instance.interfaces.video_interface != nullptr );
+		assert( engine_c::get_instance()->get_video_interface() != nullptr );
 
 		//if ( _primary_enable )
 		//{
@@ -38,7 +38,7 @@ namespace cheonsa
 
 		if ( window_handle )
 		{
-			_output = global_engine_instance.interfaces.video_interface->create_output( window_handle, _format_color_final );
+			_output = engine_c::get_instance()->get_video_interface()->create_output( window_handle, _format_color_final );
 		}
 	}
 
@@ -186,21 +186,21 @@ namespace cheonsa
 		{
 			_actual_width = desired_actual_width;
 			_actual_height = desired_actual_height;
-			_target_depth_stencil = global_engine_instance.interfaces.video_interface->create_depth_stencil( _format_depth_stencil, _actual_width, _actual_height, 1, 1 );
-			_target_outline = global_engine_instance.interfaces.video_interface->create_texture( _format_outline, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
-			_target_normal = global_engine_instance.interfaces.video_interface->create_texture( _format_normal, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
-			_target_depth = global_engine_instance.interfaces.video_interface->create_texture( _format_depth, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
-			_target_color = global_engine_instance.interfaces.video_interface->create_texture( _format_color, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
-			_target_color_copy = global_engine_instance.interfaces.video_interface->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
+			_target_depth_stencil = engine_c::get_instance()->get_video_interface()->create_depth_stencil( _format_depth_stencil, _actual_width, _actual_height, 1, 1 );
+			_target_outline = engine_c::get_instance()->get_video_interface()->create_texture( _format_outline, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
+			_target_normal = engine_c::get_instance()->get_video_interface()->create_texture( _format_normal, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
+			_target_depth = engine_c::get_instance()->get_video_interface()->create_texture( _format_depth, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
+			_target_color = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
+			_target_color_copy = engine_c::get_instance()->get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
 			if ( _post_process_enable )
 			{
-				_target_color_quarter = global_engine_instance.interfaces.video_interface->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
-				_target_color_quarter_blurred_x = global_engine_instance.interfaces.video_interface->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
-				_target_color_quarter_blurred_xy = global_engine_instance.interfaces.video_interface->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_quarter = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_quarter_blurred_x = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_quarter_blurred_xy = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
 			}
 			if ( _output == nullptr )
 			{
-				_target_color_final = global_engine_instance.interfaces.video_interface->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_final = engine_c::get_instance()->get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
 			}
 		}
 
@@ -210,13 +210,13 @@ namespace cheonsa
 	void_c video_renderer_canvas_c::clear()
 	{
 		// clear render targets.
-		global_engine_instance.interfaces.video_interface->clear_depth_stencil( _target_depth_stencil, 1.0f, 0 );
-		global_engine_instance.interfaces.video_interface->clear_texture( _target_normal, 0.0f, 0.0f, 0.0f, 0.0f );
-		global_engine_instance.interfaces.video_interface->clear_texture( _target_depth, constants< float32_c >::maximum(), 0.0f, 0.0f, 0.0f ); // float32_maximum or view->clip_far?
-		global_engine_instance.interfaces.video_interface->clear_texture( _target_color, 0.0f, 0.0f, 0.0f, 0.0f );
+		engine_c::get_instance()->get_video_interface()->clear_depth_stencil( _target_depth_stencil, 1.0f, 0 );
+		engine_c::get_instance()->get_video_interface()->clear_texture( _target_normal, 0.0f, 0.0f, 0.0f, 0.0f );
+		engine_c::get_instance()->get_video_interface()->clear_texture( _target_depth, constants< float32_c >::maximum(), 0.0f, 0.0f, 0.0f ); // float32_maximum or view->clip_far?
+		engine_c::get_instance()->get_video_interface()->clear_texture( _target_color, 0.0f, 0.0f, 0.0f, 0.0f );
 		if ( _output != nullptr )
 		{
-			global_engine_instance.interfaces.video_interface->clear_texture( _output, 0.0f, 0.0f, 0.0f, 0.0f );
+			engine_c::get_instance()->get_video_interface()->clear_texture( _output, 0.0f, 0.0f, 0.0f, 0.0f );
 		}
 	}
 
@@ -271,10 +271,10 @@ namespace cheonsa
 		assert( _target_color_final );
 		if ( _target_color_final_readable == nullptr )
 		{
-			_target_color_final_readable = global_engine_instance.interfaces.video_interface->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, true, false, false );
+			_target_color_final_readable = engine_c::get_instance()->get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, true, false, false );
 		}
 		assert( _target_color_final_readable != nullptr );
-		global_engine_instance.interfaces.video_interface->copy_sub_resource( _target_color_final_readable, 0, _target_color_final, 0 );
+		engine_c::get_instance()->get_video_interface()->copy_sub_resource( _target_color_final_readable, 0, _target_color_final, 0 );
 		return _target_color_final_readable;
 	}
 

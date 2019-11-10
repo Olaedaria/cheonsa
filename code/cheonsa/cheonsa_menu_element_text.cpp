@@ -349,8 +349,6 @@ namespace cheonsa
 		result.skew = get_style_skew();
 		result.softness = get_style_softness();
 		result.underline = get_style_underline();
-		result.quantized_size = glyph_manager_c::get_quantized_size( result.size );
-		result.sdf_range = glyph_manager_c::get_sdf_range( result.quantized_size );
 		return result;
 	}
 
@@ -418,7 +416,6 @@ namespace cheonsa
 		assert( _mother_element_text->_text_edit_mode == menu_text_edit_mode_e_editable );
 		assert( end >= start );
 		sint32_c count = end - start + 1;
-
 
 		for ( sint32_c j = 0; j < _span_list.get_length(); j++ )
 		{
@@ -624,8 +621,6 @@ namespace cheonsa
 		result.skew = get_style_skew();
 		result.softness = get_style_softness();
 		result.underline = get_style_underline();
-		result.quantized_size = glyph_manager_c::get_quantized_size( result.size );
-		result.sdf_range = glyph_manager_c::get_sdf_range( result.quantized_size );
 		return result;
 	}
 
@@ -863,7 +858,7 @@ namespace cheonsa
 					current_laid_out_glyph_spacing = current_paragraph->get_style_glyph_spacing() * current_text_glyph_style.size;
 				}
 				
-				current_scale_to_unquantize_size = current_text_glyph_style.size / static_cast< float32_c >( current_text_glyph_style.quantized_size );
+				current_scale_to_unquantize_size = current_text_glyph_style.size / static_cast< float32_c >( glyph_manager_c::get_quantized_size( current_text_glyph_style.size ) );
 				current_text_glyph_style.softness += 1.0f / current_scale_to_unquantize_size * 0.025f; // softness bias, so that edges are base-line level of soft by default.
 				current_laid_out_ascender = current_text_glyph_style.font->get_unquantized_ascender( current_text_glyph_style.size );
 				current_laid_out_descender = current_text_glyph_style.font->get_unquantized_descender( current_text_glyph_style.size );
@@ -887,7 +882,7 @@ namespace cheonsa
 			if ( current_code_point != '\n' && current_code_point != ' ' && current_code_point != '\t' && ( current_code_point & 0xF000 ) != 0xF000 )
 			{
 				// this character is displayable.
-				glyph_c const * glyph = global_engine_instance.interfaces.glyph_manager->load_quantized_glyph( current_text_glyph_style_in_cache->font, current_text_glyph_style_in_cache->size, current_code_point );
+				glyph_c const * glyph = engine_c::get_instance()->get_glyph_manager()->load_quantized_glyph( current_text_glyph_style_in_cache->font, current_text_glyph_style_in_cache->size, current_code_point );
 				if ( glyph == nullptr )
 				{
 					// the glyph cache filled up, the glyph cache will request the engine to reset it at the start of the next update, and then a reflow will be triggered for us again and we can try again.
@@ -1147,6 +1142,8 @@ namespace cheonsa
 
 	void_c menu_element_text_c::_place_cursor_at_local_point( vector32x2_c const & local_point, boolean_c shift )
 	{
+		vector32x2_c local_point_copy = local_point;
+
 		if ( _text_layout_is_dirty )
 		{
 			_reflow_glyphs_in_all_paragraphs_that_need_it();
@@ -1168,62 +1165,69 @@ namespace cheonsa
 		float32_c new_cursor_sticky_x = 0.0f;
 		boolean_c new_cursor_is_at_end_of_virtual_line = false;
 
+		float32_c paragraph_left;
+		float32_c paragraph_right;
+		float32_c paragraph_top;
+		float32_c paragraph_top_virtual;
+		float32_c paragraph_bottom;
+
 		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
 		{
 			text_paragraph_c * paragraph = _paragraph_list[ i ];
 
-			float32_c paragraph_left = _local_box.minimum.a + _content_offset.a;
-			float32_c paragraph_right = paragraph_left + _local_box.get_width();
-			float32_c paragraph_top = _local_box.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
-			float32_c paragraph_bottom = paragraph_top + paragraph->_content_height;
+			paragraph_left = _local_box.minimum.a + _content_offset.a;
+			paragraph_right = paragraph_left + _local_box.get_width();
+			paragraph_top = _local_box.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
+			paragraph_top_virtual = i == 0 ? paragraph_top : paragraph_bottom; // virtual top of all paragraphs after the frist, so that if the pick point falls within the padding between paragraphs then we can still pick characters.
+			paragraph_bottom = paragraph_top + paragraph->_content_height;
 
-			if ( local_point.b < paragraph_top )
+			// if point lies above first paragraph, then clamp point to top of first paragraph.
+			if ( i == 0 && local_point_copy.b < paragraph_top )
 			{
-				new_cursor_index = paragraph->_character_start;
-				new_cursor_sticky_x = paragraph_left;
-				goto finish;
+				local_point_copy.b = paragraph_top;
+			}
+			// if point lies below last paragraph, then clamp point to bottom of last paragraph.
+			else if ( i == _paragraph_list.get_length() - 1 && local_point_copy.b > paragraph_bottom )
+			{
+				local_point_copy.b = paragraph_bottom;
 			}
 
-			if ( local_point.b >= paragraph_top && local_point.b <= paragraph_bottom )
+			if ( local_point_copy.b >= paragraph_top_virtual && local_point_copy.b <= paragraph_bottom )
 			{
 				for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
 				{
 					text_line_c const * line = &paragraph->_line_list[ j ];
 
 					float32_c line_left = paragraph_left + line->_left; // baseline offset from left.
-					float32_c line_top = paragraph_top; // force top of hit box of first line to be flush with paragraph_top.
-					if ( j > 0 ) // tops of hit boxes of subsequent lines will be placed correctly.
+					float32_c line_top = paragraph_top + line->_top;
+					float32_c line_bottom = paragraph_top + line->_top + line->_ascender - line->_descender;
+
+					// if point lies above first line, then clamp point to top of first line.
+					if ( j == 0 && local_point_copy.b < line_top )
 					{
-						line_top += line->_top;
+						local_point_copy.b = line_top;
 					}
-					float32_c line_bottom = paragraph_top + line->_top + line->_ascender - line->_descender; // bottoms of hit boxes of lines will be placed correctly.
-					if ( j == paragraph->_line_list.get_length() - 1 ) // force bottom of hit box of last line to be flush with paragraph bottom.
+					// if point lies below last line, then clamp point to bottom of last line.
+					else if ( j == paragraph->_line_list.get_length() - 1 && local_point_copy.b > line_bottom )
 					{
-						line_bottom = paragraph_bottom;
+						local_point_copy.b = line_bottom;
 					}
 
-					if ( local_point.b < line_top )
-					{
-						new_cursor_index = line->_character_start;
-						new_cursor_sticky_x = line->_left;
-						goto finish;
-					}
-
-					if ( local_point.b >= line_top && local_point.b <= line_bottom )
+					if ( local_point_copy.b >= line_top && local_point_copy.b <= line_bottom )
 					{
 						new_cursor_index = line->_character_start;
 						new_cursor_is_at_end_of_virtual_line = false;
 						new_cursor_sticky_x = line->_left;
 
 						float32_c line_width_with_trailing_white_space = paragraph->_glyph_list[ line->_character_end - paragraph->_character_start - 1 ]._left; // because line->_width does not include traling white space.
-						if ( local_point.a < line_left )
+						if ( local_point_copy.a < line_left )
 						{
 							// point lies to the left of formatted line.
 							new_cursor_index = line->_character_start;
 							new_cursor_is_at_end_of_virtual_line = false;
 							new_cursor_sticky_x = line->_left;
 						}
-						else if ( local_point.a > line_left + line_width_with_trailing_white_space )
+						else if ( local_point_copy.a > line_left + line_width_with_trailing_white_space )
 						{
 							// point lies to the right of formatted line.
 							new_cursor_is_at_end_of_virtual_line = j < paragraph->_line_list.get_length() - 1;
@@ -1237,7 +1241,7 @@ namespace cheonsa
 							for ( ; new_cursor_index < line->_character_end; new_cursor_index++ )
 							{
 								text_glyph_c * glyph = &paragraph->_glyph_list[ new_cursor_index - paragraph->_character_start ];
-								if ( local_point.a < line_left + glyph->_left + ( glyph->_horizontal_advance * 0.5f ) )
+								if ( local_point_copy.a < line_left + glyph->_left + ( glyph->_horizontal_advance * 0.5f ) )
 								{
 									new_cursor_sticky_x = line->_left + glyph->_left;
 									goto finish;
@@ -1249,15 +1253,6 @@ namespace cheonsa
 				}
 			}
 		}
-
-		// point lies below everything.
-		// place cursor at last index.
-		text_paragraph_c const * last_paragraph = _paragraph_list[ _paragraph_list.get_length() - 1 ];
-		new_cursor_index = last_paragraph->_character_end - 1;
-		text_line_c const * last_line = &last_paragraph->_line_list[ last_paragraph->_line_list.get_length() - 1 ];
-		text_glyph_c const * last_glyph = &last_paragraph->_glyph_list[ last_line->_character_end - last_paragraph->_character_start - 1 ];
-		new_cursor_sticky_x = last_line->_left + last_glyph->_left + last_glyph->_horizontal_advance;
-		new_cursor_is_at_end_of_virtual_line = false;
 
 	finish:
 		if ( _text_selection_mode == menu_text_selection_mode_e_character )
@@ -1303,8 +1298,8 @@ namespace cheonsa
 			if ( shift == false )
 			{
 				_selection_anchor_index_start = paragraph->_character_start;
-				_selection_anchor_index_end = paragraph->_character_end;
-				_cursor_index = paragraph->_character_end + 1;
+				_selection_anchor_index_end = paragraph->_character_end - 1;
+				_cursor_index = paragraph->_character_end - 1;
 			}
 			else
 			{
@@ -1314,7 +1309,7 @@ namespace cheonsa
 				}
 				else
 				{
-					_cursor_index = paragraph->_character_end + 1;
+					_cursor_index = paragraph->_character_end - 1;
 				}
 			}
 			//_cursor_is_at_end_of_virtual_line = false;
@@ -1469,7 +1464,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_element_text_c::_insert_plain_text_at_cursor( string16_c const & value )
+	void_c menu_element_text_c::_insert_plain_text( string16_c const & value )
 	{
 		assert( _text_edit_mode == menu_text_edit_mode_e_editable );
 
@@ -1548,65 +1543,69 @@ namespace cheonsa
 				assert( _filter_mode == menu_text_filter_mode_e_numeric_integer || _filter_mode == menu_text_filter_mode_e_numeric_real );
 				if ( _plain_text.character_list[ 0 ] == '-' )
 				{
-					_plain_text.character_list.remove_at_index( 0 );
-					_shift_character_offset( _cursor_index, -1 );
+					_delete_character_range( 0, 1 );
 					_cursor_index--;
 				}
 				else
 				{
 					_plain_text.character_list.insert_at_index( 0, '-' );
-					_shift_character_offset( _cursor_index, 1 );
-					_cursor_index++;
+					__shift_character_offset( _cursor_index, 1 );
 				}
 			}
 
 			// insert filtered values.
 			_plain_text.character_list.insert_range_at_index( _cursor_index, value_filtered.get_length(), value_filtered.character_list.get_internal_array() );
-			_shift_character_offset( _cursor_index, value_filtered.get_length() );
+			__shift_character_offset( _cursor_index, value_filtered.get_length() );
 			_cursor_index += value_filtered.get_length();
 		}
 		else
 		{
 			// insert unfiltered values.
 			_plain_text.character_list.insert_range_at_index( _cursor_index, value.get_length(), value.character_list.get_internal_array() );
-			_shift_character_offset( _cursor_index, value.get_length() );
+			__shift_character_offset( _cursor_index, value.get_length() );
 			_cursor_index += value.get_length();
 		}
 
-		_selection_anchor_index_start = _cursor_index;
-		_selection_anchor_index_end = _cursor_index;
-
-		// assuming that we have only 1 paragraph.
 		_text_is_modified = true;
 		_text_layout_is_dirty = true;
 		_reflow_glyphs_in_paragraph( paragraph_index );
 		_text_layout_is_dirty = false;
 		_update_vertical_layout_of_all_paragraphs();
+		_cursor_is_at_end_of_virtual_line = false;
+		_update_cursor_sticky_x();
 
 		_selection_anchor_index_start = _cursor_index;
 		_selection_anchor_index_end = _cursor_index;
 
-		_cursor_is_at_end_of_virtual_line = false;
-		_update_cursor_sticky_x();
-
 		on_value_changed_preview.invoke( this );		
 	}
 
-	void_c menu_element_text_c::_shift_character_offset( sint32_c at_character_index, sint32_c count )
+	void_c menu_element_text_c::__shift_character_offset( sint32_c at, sint32_c count )
 	{
 		assert( _text_edit_mode == menu_text_edit_mode_e_editable );
 		assert( count > 0 );
 		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
 		{
 			text_paragraph_c * paragraph = _paragraph_list[ i ];
-			assert( paragraph->_span_list.get_length() == 0 );
-			if ( at_character_index < paragraph->_character_start )
+			if ( at < paragraph->_character_start )
 			{
 				paragraph->_character_start += count;
 			}
-			if ( at_character_index <= paragraph->_character_end )
+			if ( at <= paragraph->_character_end )
 			{
 				paragraph->_character_end += count;
+			}
+			for ( sint32_c j = 0; j < paragraph->_span_list.get_length(); j++ )
+			{
+				text_span_c * span = paragraph->_span_list[ j ];
+				if ( at < span->_character_start )
+				{
+					span->_character_start += count;
+				}
+				if ( at <= span->_character_end )
+				{
+					span->_character_end += count;
+				}
 			}
 		}
 	}
@@ -1616,10 +1615,10 @@ namespace cheonsa
 		assert( _text_edit_mode == menu_text_edit_mode_e_editable );
 
 		// ensure that we aren't trying to delete anything out of range, or the last new line character, or the terminating null character.
-		assert( start >= 0 && end >= start && end < _plain_text.character_list.get_length() - 2 );
+		assert( start >= 0 && end > start && end < _plain_text.character_list.get_length() - 1 );
 
 		// remove characters from plain text.
-		_plain_text.character_list.remove_range_at_index( start, end - start + 1 );
+		_plain_text.character_list.remove_range_at_index( start, end - start );
 
 		sint32_c paragraph_to_reflow = -1;
 		sint32_c paragraph_to_merge = -1;
@@ -1726,65 +1725,56 @@ namespace cheonsa
 		{
 			_reflow_glyphs_in_all_paragraphs_that_need_it();
 		}
-
-		sint32_c selection_index_start;
-		sint32_c selection_index_end;
-		get_selected_text_range( selection_index_start, selection_index_end );
-		if ( selection_index_start < selection_index_end )
+		sint32_c selection_start;
+		sint32_c selection_end;
+		get_selected_text_range( selection_start, selection_end );
+		if ( selection_start < selection_end )
 		{
-			_delete_character_range( selection_index_start, selection_index_end - 1 );
-			_cursor_index = selection_index_start;
-			_selection_anchor_index_start = selection_index_start;
-			_selection_anchor_index_end = selection_index_start;
+			_delete_character_range( selection_start, selection_end );
+			_cursor_index = selection_start;
+			_selection_anchor_index_start = selection_start;
+			_selection_anchor_index_end = selection_start;
 			_text_is_modified = true;
 			on_value_changed_preview.invoke( this );
 		}
 	}
 
-	void_c menu_element_text_c::_get_character_information( sint32_c character_index, sint32_c * paragraph_index, sint32_c * span_index, sint32_c * line_index, boolean_c * is_at_end_of_virtual_line )
+	void_c menu_element_text_c::_get_character_information( sint32_c character_index, character_information_c * result )
 	{
+		assert( result != nullptr );
 		assert( _text_format_mode == menu_text_format_mode_e_plain );
+		assert( character_index >= 0 && character_index < _plain_text.get_length() );
+
+		result->character_index = character_index;
+		result->paragraph_index = -1;
+		result->span_index = -1;
+		result->line_index = -1;
+		result->is_at_end_of_virtual_line = false;
 
 		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
 		{
 			text_paragraph_c * paragraph = _paragraph_list[ i ];
 			if ( _cursor_index >= paragraph->_character_start && _cursor_index <= paragraph->_character_end )
 			{
-				if ( paragraph_index != nullptr )
-				{
-					*paragraph_index = i;
-				}
+				result->paragraph_index = i;
 
-				if ( span_index != nullptr )
+				for ( sint32_c j = 0; j < paragraph->_span_list.get_length(); j++ )
 				{
-					for ( sint32_c j = 0; j < paragraph->_span_list.get_length(); j++ )
+					text_span_c * span = paragraph->_span_list[ j ];
+					if ( character_index >= span->_character_start && character_index <= span->_character_end )
 					{
-						text_span_c * span = paragraph->_span_list[ j ];
-						if ( character_index >= span->_character_start && character_index <= span->_character_end )
-						{
-							*span_index = j;
-							break;
-						}
+						result->span_index = j;
+						break;
 					}
 				}
 
-				if ( line_index != nullptr || is_at_end_of_virtual_line != nullptr )
+				for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
 				{
-					for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
+					text_line_c * line = &paragraph->_line_list[ j ];
+					if ( _cursor_index >= line->_character_start && _cursor_index <= line->_character_end )
 					{
-						text_line_c * line = &paragraph->_line_list[ j ];
-						if ( _cursor_index >= line->_character_start && _cursor_index <= line->_character_end )
-						{
-							if ( line_index != nullptr )
-							{
-								*line_index = paragraph->_line_index_base + j;
-							}
-							if ( is_at_end_of_virtual_line != nullptr )
-							{
-								*is_at_end_of_virtual_line = j - paragraph->_line_index_base < paragraph->_line_list.get_length() - 1;
-							}
-							break;
-						}
+						result->line_index = paragraph->_line_index_base + j;
+						result->is_at_end_of_virtual_line = _cursor_index == line->_character_end && _plain_text.character_list[ line->_character_end ] != '\n' && j < paragraph->_line_list.get_length() - 1;
 					}
 				}
 			}
@@ -1923,7 +1913,7 @@ namespace cheonsa
 
 		_draw_list.reset();
 
-		if ( _is_showing_from_style == false || _is_showing == false || _local_color.d <= 0.0f || _plain_text.get_length() <= 1 )
+		if ( _is_showing_from_style == false || _is_showing == false || _local_color.d <= 0.0f )
 		{
 			return;
 		}
@@ -1932,7 +1922,7 @@ namespace cheonsa
 		menu_style_for_text_c const * text_style = _style_reference.get_value();
 		if ( text_style == nullptr )
 		{
-			text_style = &global_engine_instance.interfaces.menu_style_manager->default_text_style;
+			text_style = engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text();
 		}
 
 		// last moment text reflow.
@@ -1963,9 +1953,9 @@ namespace cheonsa
 
 		core_list_c< laid_out_sprite_c > sprite_list;
 
-		sint32_c selection_index_start;
-		sint32_c selection_index_end;
-		get_selected_text_range( selection_index_start, selection_index_end );
+		sint32_c selection_start;
+		sint32_c selection_end;
+		get_selected_text_range( selection_start, selection_end );
 
 		float32_c vertically_algined_y = 0.0f;
 		menu_text_align_vertical_e text_align_vertical = get_style_text_align_vertical();
@@ -2003,17 +1993,17 @@ namespace cheonsa
 					if ( line_bottom >= _local_box.minimum.b && line_top <= _local_box.maximum.b )
 					{
 						// draw selection for current line.
-						if ( ( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable ) && selection_index_start != selection_index_end && selection_index_end > line->_character_start && selection_index_start < line->_character_end )
+						if ( ( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable ) && selection_start != selection_end && line->_character_start < selection_end && selection_start < line->_character_end )
 						{
-							menu_element_text_c::text_glyph_c const * glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selection_index_start, line->_character_start ) - paragraph->_character_start ];
+							menu_element_text_c::text_glyph_c const * glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selection_start, line->_character_start ) - paragraph->_character_start ];
 							float32_c selection_left = line_left + glyph_left->_left;
-							menu_element_text_c::text_glyph_c const * glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selection_index_end, line->_character_end ) - 1 - paragraph->_character_start ];
+							menu_element_text_c::text_glyph_c const * glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selection_end, line->_character_end ) - 1 - paragraph->_character_start ];
 							float32_c selection_right = line_left + glyph_right->_left + glyph_right->_horizontal_advance;
 							float32_c selection_top = line_top;
 							float32_c selection_bottom = line_bottom;
 
-							vector32x4_c selection_color = global_engine_instance.interfaces.menu_style_manager->shared_colors[ menu_shared_color_e_field_normal_accent ].value;
-							selection_color.d *= 0.5f;
+							vector32x4_c selection_color = engine_c::get_instance()->get_menu_style_manager()->get_shared_colors()[ menu_shared_color_e_field_normal_accent ].value;
+							selection_color.d *= 0.25f;
 
 							video_renderer_vertex_menu_c * vertex = vertex_list_for_selection.emplace_at_end();
 							vertex->position.a = selection_left;
@@ -2034,53 +2024,6 @@ namespace cheonsa
 							vertex->position.a = selection_right;
 							vertex->position.b = selection_bottom;
 							vertex->color = selection_color;
-						}
-
-						if ( _is_text_focused && _text_edit_mode != menu_text_edit_mode_e_static )
-						{
-							boolean_c do_cursor = false;
-							float32_c cursor_left;
-							vector32x4_c cursor_color = global_engine_instance.interfaces.menu_style_manager->shared_colors[ menu_shared_color_e_field_normal_accent ].value;
-							if ( _cursor_is_at_end_of_virtual_line == false && _cursor_index >= line->_character_start && _cursor_index < line->_character_end )
-							{
-								menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ _cursor_index - paragraph->_character_start ];
-								cursor_left = line_left + laid_out_glyph->_left;
-								do_cursor = true;
-							}
-							else if ( _cursor_is_at_end_of_virtual_line == true && _cursor_index == line->_character_end )
-							{
-								menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ _cursor_index - paragraph->_character_start - 1 ];
-								cursor_left = line_left + laid_out_glyph->_left + laid_out_glyph->_horizontal_advance;
-								do_cursor = true;
-							}
-							if ( do_cursor == true )
-							{
-								cursor_left -= _cursor_width * 0.5f;
-								float32_c cursor_right = cursor_left + _cursor_width;
-								float32_c cursor_top = line_top;
-								float32_c cursor_bottom = line_bottom;
-								cursor_color.d = ops::math_saturate( ops::math_sine( _cursor_time * 2.0f ) * 0.5f + 0.5f );
-
-								video_renderer_vertex_menu_c * vertex = vertex_list_for_cursor.emplace_at_end();
-								vertex->position.a = cursor_left;
-								vertex->position.b = cursor_top;
-								vertex->color = cursor_color;
-
-								vertex = vertex_list_for_cursor.emplace_at_end();
-								vertex->position.a = cursor_left;
-								vertex->position.b = cursor_bottom;
-								vertex->color = cursor_color;
-
-								vertex = vertex_list_for_cursor.emplace_at_end();
-								vertex->position.a = cursor_right;
-								vertex->position.b = cursor_top;
-								vertex->color = cursor_color;
-
-								vertex = vertex_list_for_cursor.emplace_at_end();
-								vertex->position.a = cursor_right;
-								vertex->position.b = cursor_bottom;
-								vertex->color = cursor_color;
-							}
 						}
 
 						sint32_c glyph_start = line->_character_start - paragraph->_character_start;
@@ -2197,26 +2140,89 @@ namespace cheonsa
 			}
 		}
 
+		// render the cursor.
+		// do this out-of-line with glyph rendering, because in the case that the text element has no text then we still want to be able to render the cursor.
+		if ( _is_text_focused && _text_edit_mode != menu_text_edit_mode_e_static )
+		{
+			character_information_c cursor_character_information;
+			_get_character_information( _cursor_index, &cursor_character_information );
+			text_paragraph_c * cursor_paragraph = _paragraph_list[ cursor_character_information.paragraph_index ];
+			text_span_c * cursor_span = cursor_character_information.span_index >= 0 ? cursor_paragraph->_span_list[ cursor_character_information.span_index ] : nullptr;
+			text_line_c * cursor_line = &cursor_paragraph->_line_list[ cursor_character_information.line_index ];
+
+			float32_c paragraph_left = _local_box.minimum.a + _content_offset.a;
+			float32_c paragraph_top = _local_box.minimum.b + _content_offset.b + cursor_paragraph->_top + vertically_algined_y;
+
+			boolean_c do_cursor = false;
+			float32_c cursor_left;
+			vector32x4_c cursor_color = engine_c::get_instance()->get_menu_style_manager()->get_shared_colors()[ menu_shared_color_e_field_normal_accent ].value;
+			if ( _cursor_is_at_end_of_virtual_line == false )
+			{
+				assert( _cursor_index >= cursor_line->_character_start && _cursor_index < cursor_line->_character_end );
+				menu_element_text_c::text_glyph_c const * laid_out_glyph = &cursor_paragraph->_glyph_list[ _cursor_index - cursor_paragraph->_character_start ];
+				cursor_left = paragraph_left + cursor_line->_left + laid_out_glyph->_left;
+				do_cursor = true;
+			}
+			else
+			{
+				assert( _cursor_index == cursor_line->_character_start );
+				assert( cursor_character_information.line_index > 0 );
+				menu_element_text_c::text_glyph_c const * laid_out_glyph = &cursor_paragraph->_glyph_list[ _cursor_index - cursor_paragraph->_character_start - 1 ];
+				cursor_line = &cursor_paragraph->_line_list[ cursor_character_information.line_index - 1 ]; // get previous line.
+				cursor_left = paragraph_left + cursor_line->_left + laid_out_glyph->_left + laid_out_glyph->_horizontal_advance;
+				do_cursor = true;
+			}
+			if ( do_cursor == true )
+			{
+				float32_c line_top = paragraph_top + cursor_line->_top;
+				float32_c line_top_baseline = line_top + cursor_line->_ascender; // baseline offset from top.
+				float32_c line_bottom = line_top_baseline - cursor_line->_descender;
+
+				cursor_left -= _cursor_width * 0.5f;
+				float32_c cursor_right = cursor_left + _cursor_width;
+				float32_c cursor_top = line_top;
+				float32_c cursor_bottom = line_bottom;
+				cursor_color.d = ops::math_saturate( ops::math_sine( _cursor_time * 2.0f ) * 0.5f + 0.5f );
+
+				video_renderer_vertex_menu_c * vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_left;
+				vertex->position.b = cursor_top;
+				vertex->color = cursor_color;
+
+				vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_left;
+				vertex->position.b = cursor_bottom;
+				vertex->color = cursor_color;
+
+				vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_right;
+				vertex->position.b = cursor_top;
+				vertex->color = cursor_color;
+
+				vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_right;
+				vertex->position.b = cursor_bottom;
+				vertex->color = cursor_color;
+			}
+		}
+
 	stitch:
+		// stitch the various draw lists together.
 		if ( vertex_list_for_selection.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_selection, global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_solid_color, nullptr );
+			_draw_list.append_rectangle_list( vertex_list_for_selection, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr );
 		}
-
 		if ( vertex_list_for_glyphs.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_glyphs, global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_text, nullptr );
+			_draw_list.append_rectangle_list( vertex_list_for_glyphs, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_text(), nullptr );
 		}
-
 		if ( vertex_list_for_cursor.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_cursor, global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_solid_color, nullptr );
+			_draw_list.append_rectangle_list( vertex_list_for_cursor, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr );
 		}
-
 		vertex_list_for_selection.remove_all();
 		vertex_list_for_glyphs.remove_all();
 		vertex_list_for_cursor.remove_all();
-
 		_draw_list_is_dirty = false;
 	}
 
@@ -2582,7 +2588,7 @@ namespace cheonsa
 									ops::string8_split_at_delimiter( attribute->get_value(), string8_c( mode_e_static, ":" ), splits );
 									if ( splits.get_length() == 2 )
 									{
-										entity_sprite->value.set_sprite_set_resource( global_engine_instance.interfaces.resource_manager->load_sprite_set( string16_c( splits[ 0 ] ) ) );
+										entity_sprite->value.set_sprite_set_resource( engine_c::get_instance()->get_resource_manager()->load_sprite_set( string16_c( splits[ 0 ] ) ) );
 										entity_sprite->value.set_sprite_name( splits[ 1 ] );
 									}
 								}
@@ -2595,7 +2601,7 @@ namespace cheonsa
 							attribute = node->find_attribute( "key" );
 							if ( attribute )
 							{
-								string_c const * string = global_engine_instance.interfaces.content_manager->find_string( attribute->get_value() );
+								string_c const * string = engine_c::get_instance()->get_content_manager()->find_string( attribute->get_value() );
 								if ( string )
 								{
 									_plain_text += string->get_value();
@@ -2825,8 +2831,8 @@ namespace cheonsa
 				return _style_reference.get_value()->text_align_vertical;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.text_align_vertical_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.text_align_vertical;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->text_align_vertical_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->text_align_vertical;
 	}
 
 	menu_text_align_horizontal_e menu_element_text_c::get_style_text_align_horizontal() const
@@ -2842,8 +2848,8 @@ namespace cheonsa
 				return _style_reference.get_value()->text_align_horizontal;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.text_align_horizontal_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.text_align_horizontal;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->text_align_horizontal_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->text_align_horizontal;
 	}
 
 	float32_c menu_element_text_c::get_style_paragraph_spacing() const
@@ -2855,8 +2861,8 @@ namespace cheonsa
 				return _style_reference.get_value()->paragraph_spacing;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.paragraph_spacing_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.paragraph_spacing;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->paragraph_spacing_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->paragraph_spacing;
 	}
 
 	float32_c menu_element_text_c::get_style_line_spacing() const
@@ -2868,8 +2874,8 @@ namespace cheonsa
 				return _style_reference.get_value()->line_spacing;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.line_spacing_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.line_spacing;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->line_spacing_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->line_spacing;
 	}
 
 	float32_c menu_element_text_c::get_style_glyph_spacing() const
@@ -2881,8 +2887,8 @@ namespace cheonsa
 				return _style_reference.get_value()->glyph_spacing;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.glyph_spacing_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.glyph_spacing;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->glyph_spacing_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->glyph_spacing;
 	}
 
 	resource_file_font_c * menu_element_text_c::get_style_font() const
@@ -2895,9 +2901,9 @@ namespace cheonsa
 				return _style_reference.get_value()->font;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.font_is_defined );
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.font.is_reference_set_and_loaded() );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.font;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->font_is_defined );
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->font.is_reference_set_and_loaded() );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->font;
 	}
 
 	vector32x4_c menu_element_text_c::get_style_color() const
@@ -2913,13 +2919,13 @@ namespace cheonsa
 				return _style_reference.get_value()->color;
 			}
 		}
-		if ( global_engine_instance.interfaces.menu_style_manager->default_text_style.shared_color_is_defined )
+		if ( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->shared_color_is_defined )
 		{
-			assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.shared_color.get_value() );
-			return global_engine_instance.interfaces.menu_style_manager->default_text_style.shared_color.get_value()->value;
+			assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->shared_color.get_value() );
+			return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->shared_color.get_value()->value;
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.color_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.color;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->color_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->color;
 	}
 
 	float32_c menu_element_text_c::get_style_size() const
@@ -2931,8 +2937,8 @@ namespace cheonsa
 				return _style_reference.get_value()->size;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.size_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.size;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->size_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->size;
 	}
 
 	float32_c menu_element_text_c::get_style_skew() const
@@ -2944,8 +2950,8 @@ namespace cheonsa
 				return _style_reference.get_value()->skew;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.skew_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.skew;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->skew_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->skew;
 	}
 
 	float32_c menu_element_text_c::get_style_weight() const
@@ -2957,8 +2963,8 @@ namespace cheonsa
 				return _style_reference.get_value()->weight;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.weight_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.weight;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->weight_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->weight;
 	}
 
 	float32_c menu_element_text_c::get_style_softness() const
@@ -2970,8 +2976,8 @@ namespace cheonsa
 				return _style_reference.get_value()->softness;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.softness_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.softness;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->softness_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->softness;
 	}
 
 	float32_c menu_element_text_c::get_style_underline() const
@@ -2983,8 +2989,8 @@ namespace cheonsa
 				return _style_reference.get_value()->underline;
 			}
 		}
-		assert( global_engine_instance.interfaces.menu_style_manager->default_text_style.underline_is_defined );
-		return global_engine_instance.interfaces.menu_style_manager->default_text_style.underline;
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->underline_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_text()->underline;
 	}
 
 	vector32x2_c const & menu_element_text_c::get_content_offset() const
@@ -3204,8 +3210,7 @@ namespace cheonsa
 
 		string16_c value_string;
 		value_string += character;
-
-		_insert_plain_text_at_cursor( value_string );
+		_insert_plain_text( value_string );
 	}
 
 	void_c menu_element_text_c::input_delete_fore()
@@ -3222,7 +3227,7 @@ namespace cheonsa
 			_selection_anchor_index_start = _cursor_index;
 			_selection_anchor_index_end = _cursor_index;
 
-			_delete_character_range( _cursor_index, _cursor_index );
+			_delete_character_range( _cursor_index, _cursor_index + 1 );
 
 			_text_is_modified = true;
 
@@ -3249,7 +3254,7 @@ namespace cheonsa
 			_cursor_index--;
 			_selection_anchor_index_start = _cursor_index;
 			_selection_anchor_index_end = _cursor_index;
-			_delete_character_range( _cursor_index, _cursor_index );
+			_delete_character_range( _cursor_index, _cursor_index + 1 );
 			_cursor_is_at_end_of_virtual_line = false;
 			_update_cursor_sticky_x();
 			_text_is_modified = true;
@@ -3465,55 +3470,47 @@ namespace cheonsa
 	void_c menu_element_text_c::input_up( boolean_c shift )
 	{
 		assert( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable );
-
 		if ( _text_layout_is_dirty )
 		{
 			_reflow_glyphs_in_all_paragraphs_that_need_it();
 		}
-
 		_cursor_time = 0.0f;
-
-		sint32_c line_index;
-		sint32_c selection_index_start;
-		sint32_c selection_index_end;
-		get_selected_text_range( selection_index_start, selection_index_end );
-		if ( shift == false && selection_index_end > selection_index_start ) // snap cursor to line above start of selection.
+		sint32_c selection_start;
+		sint32_c selection_end;
+		get_selected_text_range( selection_start, selection_end );
+		character_information_c character_information;
+		if ( shift == false && selection_start < selection_end ) // snap cursor to line above start of selection.
 		{
-			_get_character_information( selection_index_start, nullptr, nullptr, &line_index, nullptr );
+			_get_character_information( selection_start, &character_information );
 		}
 		else
 		{
-			_get_character_information( _cursor_index, nullptr, nullptr, &line_index, nullptr );
+			_get_character_information( _cursor_index, &character_information );
 		}
-		line_index--;
-		_place_cursor_at_line_index( line_index, shift );
+		_place_cursor_at_line_index( character_information.line_index - 1, shift );
 	}
 
 	void_c menu_element_text_c::input_down( boolean_c shift )
 	{
 		assert( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable );
-
 		if ( _text_layout_is_dirty )
 		{
 			_reflow_glyphs_in_all_paragraphs_that_need_it();
 		}
-
 		_cursor_time = 0.0f;
-
-		sint32_c line_index;
-		sint32_c selection_index_start;
-		sint32_c selection_index_end;
-		get_selected_text_range( selection_index_start, selection_index_end );
-		if ( shift == false && selection_index_end > selection_index_start ) // snap cursor to line below end of selection.
+		sint32_c selection_start;
+		sint32_c selection_end;
+		get_selected_text_range( selection_start, selection_end );
+		character_information_c character_information;
+		if ( shift == false && selection_start < selection_end ) // snap cursor to line below end of selection.
 		{
-			_get_character_information( selection_index_end, nullptr, nullptr, &line_index, nullptr );
+			_get_character_information( selection_end, &character_information );
 		}
 		else
 		{
-			_get_character_information( _cursor_index, nullptr, nullptr, &line_index, nullptr );
+			_get_character_information( _cursor_index, &character_information );
 		}
-		line_index++;
-		_place_cursor_at_line_index( line_index, shift );
+		_place_cursor_at_line_index( character_information.line_index + 1, shift );
 	}
 
 	void_c menu_element_text_c::input_home( boolean_c shift )
@@ -3527,16 +3524,15 @@ namespace cheonsa
 
 		_cursor_time = 0.0f;
 
-		sint32_c cursor_paragraph_index;
-		sint32_c cursor_line_index;
-		_get_character_information( _cursor_index, &cursor_paragraph_index, nullptr, &cursor_line_index, nullptr );
+		character_information_c character_information;
+		_get_character_information( _cursor_index, &character_information );
 		if ( _cursor_is_at_end_of_virtual_line )
 		{
-			cursor_line_index--;
+			character_information.line_index--;
 		}
 
-		text_paragraph_c * cursor_paragraph = _paragraph_list[ cursor_paragraph_index ];
-		text_line_c * cursor_line = &cursor_paragraph->_line_list[ cursor_line_index - cursor_paragraph->_line_index_base ];
+		text_paragraph_c * cursor_paragraph = _paragraph_list[ character_information.paragraph_index ];
+		text_line_c * cursor_line = &cursor_paragraph->_line_list[ character_information.line_index - cursor_paragraph->_line_index_base ];
 
 		// count how much white space is at start of line.
 		sint32_c space_count = 0;
@@ -3556,22 +3552,15 @@ namespace cheonsa
 		// toggle location of cursor to start of text content or start of line.
 		if ( space_count == 0 || _cursor_index - cursor_line->_character_start == space_count )
 		{
-			// move character to start of line.
+			// move cursor to start of line.
 			_cursor_index = cursor_line->_character_start;
 			_cursor_is_at_end_of_virtual_line = false;
 		}
-		else
+		else if ( cursor_line->_character_end - cursor_line->_character_start > space_count )
 		{
-			// move character to start of text content.
+			// move cursor past starting whitespace to start of actual text content.
 			_cursor_index = cursor_line->_character_start + space_count;
-			if ( cursor_line_index - cursor_paragraph->_line_index_base < cursor_paragraph->_line_list.get_length() - 1 )
-			{
-				_cursor_is_at_end_of_virtual_line = _cursor_index == cursor_line->_character_end;
-			}
-			else
-			{
-				_cursor_is_at_end_of_virtual_line = false;
-			}
+			_cursor_is_at_end_of_virtual_line = false;
 		}
 
 		_update_cursor_sticky_x();
@@ -3628,16 +3617,13 @@ namespace cheonsa
 	{
 		assert( _text_edit_mode == menu_text_edit_mode_e_static_selectable || _text_edit_mode == menu_text_edit_mode_e_editable );
 
-		sint32_c selection_index_start;
-		sint32_c selection_index_end;
-		get_selected_text_range( selection_index_start, selection_index_end );
-		if ( selection_index_start < selection_index_end )
+		sint32_c selection_start;
+		sint32_c selection_end;
+		get_selected_text_range( selection_start, selection_end );
+		if ( selection_start < selection_end )
 		{
-			sint32_c character_start;
-			sint32_c character_end;
-			get_selected_text_range( character_start, character_end );
-			string16_c clip = ops::string16_sub_string( _plain_text, character_start, character_end - character_start );
-			return global_engine_instance.interfaces.input_manager->clip_board_set_plain_text( clip );
+			string16_c clip = ops::string16_sub_string( _plain_text, selection_start, selection_end - selection_start );
+			return engine_c::get_instance()->get_input_manager()->clip_board_set_plain_text( clip );
 		}
 		return false;
 	}
@@ -3647,19 +3633,14 @@ namespace cheonsa
 		assert( _text_edit_mode == menu_text_edit_mode_e_editable );
 
 		string16_c clip;
-		if ( global_engine_instance.interfaces.input_manager->clip_board_get_plain_text( clip ) )
+		if ( engine_c::get_instance()->get_input_manager()->clip_board_get_plain_text( clip ) )
 		{
-			sint32_c selection_index_start;
-			sint32_c selection_index_end;
-			get_selected_text_range( selection_index_start, selection_index_end );
-			if ( selection_index_start < selection_index_end )
+			if ( has_selected_text() )
 			{
-				_delete_character_range( selection_index_start, selection_index_end - 1 );
-				_cursor_index = selection_index_start;
-				_selection_anchor_index_start = selection_index_start;
-				_selection_anchor_index_end = selection_index_start;
+				_delete_selected_text();
 			}
-			_insert_plain_text_at_cursor( clip );
+			_insert_plain_text( clip );
+			_cursor_index += clip.get_length();
 			return true;
 		}
 		return false;

@@ -156,7 +156,8 @@ namespace cheonsa
 		stream.open_static( png_file_data.get_internal_array(), png_file_data.get_internal_array_size_used() );
 
 		data_scribe_binary_c scribe;
-		scribe.open( &stream, endianness_e_big );
+		scribe.set_stream( &stream );
+		scribe.set_byte_order( byte_order_e_big );
 		
 		stream.set_position( 8 );
 		while ( stream.get_position() + 8 <= stream.get_size() );

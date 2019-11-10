@@ -70,7 +70,9 @@ namespace cheonsa
 	}
 
 	content_manager_c::content_manager_c()
-		: _engine_data_folder_path()
+		: _executable_folder_path()
+		, _executable_file_name()
+		, _engine_data_folder_path()
 		, _game_data_folder_path_list()
 		, _supported_locales()
 		, _preferred_locale_code()
@@ -82,10 +84,14 @@ namespace cheonsa
 	{
 	}
 
-	boolean_c content_manager_c::start( string16_c const & engine_data_folder_path )
+	boolean_c content_manager_c::start( string16_c const & engine_data_folder_path, string16_c const & executable_folder_path, string16_c const & executable_file_name )
 	{
+		_executable_folder_path = executable_folder_path;
+		_executable_file_name = executable_file_name;
 		_engine_data_folder_path = engine_data_folder_path;
 		return ops::data_does_folder_exist( _engine_data_folder_path );
+		load_settings_file();
+		_load_settings( _settings_file );
 	}
 
 	string16_c content_manager_c::get_user_data_folder_path() const
@@ -105,12 +111,22 @@ namespace cheonsa
 			}
 		}
 		result += '/';
-		result += global_engine_instance.get_game_name();
+		result += engine_c::get_instance()->get_game()->get_folder_name();
 		result += '/';
 #else
 	#error get_user_data_folder_path() is not implemented.
 #endif
 		return result;
+	}
+
+	string16_c const & content_manager_c::get_executable_folder_path() const
+	{
+		return _executable_folder_path;
+	}
+
+	string16_c const & content_manager_c::get_executable_file_name() const
+	{
+		return _executable_file_name;
 	}
 
 	string16_c const & content_manager_c::get_engine_data_folder_path() const
@@ -149,7 +165,7 @@ namespace cheonsa
 
 		assert( ops::path_is_formatted_for_cheonsa( file_path_relative, false ) );
 
-		locale_c const * locale = global_engine_instance.interfaces.content_manager->get_actual_locale();
+		locale_c const * locale = engine_c::get_instance()->get_content_manager()->get_actual_locale();
 
 		// search both paths by default, except if specified otherwise.
 		string16_c potential_result;
@@ -178,7 +194,7 @@ namespace cheonsa
 		// search game data folders.
 		if ( search_game_path )
 		{
-			core_list_c< string16_c > const & game_data_folder_path_list = global_engine_instance.interfaces.content_manager->get_game_data_folder_path_list();
+			core_list_c< string16_c > const & game_data_folder_path_list = engine_c::get_instance()->get_content_manager()->get_game_data_folder_path_list();
 			for ( sint32_c i = game_data_folder_path_list.get_length() - 1; i >= 0; i-- )
 			{
 				for ( sint32_c j = locale != nullptr ? 1 : 0; j >= 0; j-- )
@@ -209,7 +225,7 @@ namespace cheonsa
 		{
 			for ( sint32_c j = locale ? 1 : 0; j >= 0; j-- )
 			{
-				string16_c scan_path = global_engine_instance.interfaces.content_manager->get_engine_data_folder_path();
+				string16_c scan_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 				if ( j == 0 )
 				{
 					scan_path += "_common/";
@@ -254,7 +270,7 @@ namespace cheonsa
 
 	void_c content_manager_c::apply_changes()
 	{
-		assert( global_engine_instance.interfaces.resource_manager != nullptr );
+		assert( engine_c::get_instance()->get_resource_manager() != nullptr );
 
 		// detect supported locales.
 		// scan sub folders, each sub folder should be another supported locale.
@@ -371,9 +387,9 @@ namespace cheonsa
 		}
 		string_c::reference_c::_refresh_all_instances();
 
-		// 
-		global_engine_instance.interfaces.resource_manager->refresh();
-		global_engine_instance.interfaces.menu_style_manager->refresh();
+		// propagate changes.
+		engine_c::get_instance()->get_resource_manager()->refresh();
+		engine_c::get_instance()->get_menu_style_manager()->refresh();
 	}
 
 	string_c const * content_manager_c::find_string( string8_c const & key ) const
@@ -387,6 +403,47 @@ namespace cheonsa
 			}
 		}
 		return nullptr;
+	}
+
+#define cheonsa_settings_file_name "settings.ini"
+
+	boolean_c content_manager_c::load_settings_file()
+	{
+		string16_c file_path;
+		file_path += _engine_data_folder_path;
+		file_path += cheonsa_settings_file_name;
+		data_stream_file_c stream;
+		if ( !stream.open( file_path, data_stream_mode_e_read ) )
+		{
+			return false;
+		}
+		if ( !_settings_file.load( &stream ) )
+		{
+			return false;
+		}
+		return true;
+	}
+
+	boolean_c content_manager_c::save_settings_file()
+	{
+		string16_c file_path;
+		file_path += _engine_data_folder_path;
+		file_path += cheonsa_settings_file_name;
+		data_stream_file_c stream;
+		if ( !stream.open( file_path, data_stream_mode_e_write ) )
+		{
+			return false;
+		}
+		if ( !_settings_file.save( &stream ) )
+		{
+			return false;
+		}  
+		return true;
+	}
+
+	data_scribe_ini_c & content_manager_c::get_settings_file()
+	{
+		return _settings_file;
 	}
 
 }

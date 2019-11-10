@@ -157,7 +157,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cheonsa_audio2.h" />
-    <ClInclude Include="cheonsa__debug.h" />
+    <ClInclude Include="cheonsa_debug_manager.h" />
+    <ClInclude Include="cheonsa_safe_reference_count.h" />
+    <ClInclude Include="cheonsa_window_manager.h" />
     <ClInclude Include="cheonsa_content_manager.h" />
     <ClInclude Include="cheonsa_database.h" />
     <ClInclude Include="cheonsa_database_field_schema.h" />
@@ -188,7 +190,6 @@
     <ClInclude Include="cheonsa_menu_control_list_i.h" />
     <ClInclude Include="cheonsa_menu_control_scene.h" />
     <ClInclude Include="cheonsa_core_circle_buffer.h" />
-    <ClInclude Include="cheonsa_core_hasher.h" />
     <ClInclude Include="cheonsa_data_scribe_png.h" />
     <ClInclude Include="cheonsa_data_scribe_text.h" />
     <ClInclude Include="cheonsa_data_types.h" />
@@ -681,7 +682,9 @@
     <ClCompile Include="cheonsa_database_stack_record.cpp" />
     <ClCompile Include="cheonsa_database_table.cpp" />
     <ClCompile Include="cheonsa_database_types.cpp" />
-    <ClCompile Include="cheonsa__debug.cpp" />
+    <ClCompile Include="cheonsa_debug_manager.cpp" />
+    <ClCompile Include="cheonsa_safe_reference_count.cpp" />
+    <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_menu_style_file.cpp" />
     <ClCompile Include="cheonsa_menu_style_for_frame.cpp" />
     <ClCompile Include="cheonsa_menu_style_for_text.cpp" />

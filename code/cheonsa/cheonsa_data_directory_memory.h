@@ -32,11 +32,8 @@ namespace cheonsa
 		boolean_c delete_file( string16_c const & file_path ); // returns true if successfully deleted file at file_path within this file system.
 		void_c reset(); // deletes all files in this file system.
 
-		boolean_c save( data_stream_c * stream, endianness_e endianness ); // saves the state of this memory file system to a stream.
-		boolean_c load( data_stream_c * stream, endianness_e endianness ); // loads the state of this memory file system from a stream.
-
-		//boolean_c save( data_scribe_structure_c * structure ); // saves the state of this memory file system to a structure.
-		//boolean_c load( data_scribe_structure_c * structure ); // loads the state of this memory file system from a structure.
+		boolean_c save( data_stream_c * stream, byte_order_e byte_order ); // saves the state of this memory file system to a stream.
+		boolean_c load( data_stream_c * stream, byte_order_e byte_order ); // loads the state of this memory file system from a stream.
 
 	};
 

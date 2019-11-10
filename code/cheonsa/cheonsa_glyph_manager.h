@@ -100,7 +100,10 @@ namespace cheonsa
 
 		};
 
-	public:
+	private:
+		friend class resource_file_font_c;
+		friend class video_renderer_interface_c;
+
 		memory_allocator_pool_c _glyph_pool; // memory allocator used to allocate the glyph structs that describe glyphs in the atlas, should be faster than the heap for this purpose.
 		core_dictionary_c< glyph_key_c, glyph_c const * > _glyph_dictionary;
 		glyph_atlas_c * _glyph_atlas_array; // there are as many glyph atlases allocated here as there are texture array slices in the GPU texture. all glyphs from all fonts are rendered by the CPU and stored in this glyph cache. when text needs to be rendered on the GPU, all of the glyph cache textures are bound, and then a texture index in each vertex is used to & the appropriate texture.
@@ -124,10 +127,9 @@ namespace cheonsa
 		boolean_c load_from_disk(); // loads the state of this glyph cache from the disk.
 
 	public:
-		static sint32_c const glyph_atlas_array_slice_count = 8; // how many texture array slices to use. more slices means more glyphs can be cached at once, and reduces the probability and/or frequency that we will have to rebuild the cache.
+		static sint32_c const glyph_atlas_array_slice_count= 8; // how many texture array slices to use. more slices means more glyphs can be cached at once, and reduces the probability and/or frequency that we will have to rebuild the cache.
 		static sint32_c const glyph_atlas_width = 1024; // width of glyph atlas texture in pixels.
 		static sint32_c const glyph_atlas_height = 1024; // height of glyph atlas texture in pixels.
-
 		static sint32_c const quantized_count = 4;
 		static uint8_c const quantized_sizes[ quantized_count ];
 		static sint32_c get_quantized_index( float32_c size );

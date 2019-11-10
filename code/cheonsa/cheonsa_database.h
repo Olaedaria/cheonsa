@@ -16,14 +16,14 @@ namespace cheonsa
 	class database_c
 	{
 	public:
-		static inline four_character_code_c get_file_signature_static() { return four_character_code_c( "chdb" ); }
+		static inline uint32_c get_file_signature_static() { return fourcc( "chdb" ); }
 
 	private:
 		friend class database_stack_c;
 
 		database_stack_c * _database_stack; // if this database is in a stack, so that we can invoke on_modified events at the stack level.
 		string16_c _file_path; // absolute path to database file.
-		endianness_e _endianness; // endianness of file when it is saved or when it was loaded. when data is loaded it is always converted to native endianness.
+		//byte_order_e _byte_order; // endianness of file when it is saved or when it was loaded. when data is loaded it is always converted to native endianness.
 		string8_c _name; // just a name to describe this database. it's not used to reference this database.
 		uint16_c _id; // used to uniquely identify this database. for the master game database, may be set to something deliberate. for user-made mods, may be set to something randomly generated so that it avoids collision with other user-made mods.
 		uint8_c _flags; // interpret as database_flag_e.
@@ -38,8 +38,8 @@ namespace cheonsa
 		string16_c const & get_file_path() const; // gets absolute file path of where file was loaded from or saved to.
 		void_c set_file_path( string16_c const & value ); // sets absolute file path of where to load file from or save file to.
 
-		endianness_e get_endianness() const; // the endianness that was loaded from the file.
-		void_c set_endianness( endianness_e value ); // defines the endianness to save the file with.
+		//byte_order_e get_byte_order() const; // the endianness that was loaded from the file.
+		//void_c set_byte_order( byte_order_e value ); // defines the endianness to save the file with.
 
 		string8_c const & get_name() const;
 		void_c set_name( string8_c const & value );
