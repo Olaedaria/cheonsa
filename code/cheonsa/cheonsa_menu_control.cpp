@@ -12,7 +12,8 @@
 #include "cheonsa_menu_control_panel.h"
 #include "cheonsa_menu_control_property_inspector.h"
 #include "cheonsa_menu_control_scene.h"
-#include "cheonsa_menu_control_scroll.h"
+#include "cheonsa_menu_control_scroll_bar.h"
+#include "cheonsa_menu_control_scrub_bar.h"
 #include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_element.h"
 #include "cheonsa_user_interface.h"
@@ -74,9 +75,21 @@ namespace cheonsa
 		{
 			return new menu_control_scene_c();
 		}
-		else if ( type == menu_control_scroll_c::get_type_name_static() )
+		else if ( type == menu_control_scroll_bar_horizontal_c::get_type_name_static() )
 		{
-			return new menu_control_scroll_c();
+			return new menu_control_scroll_bar_horizontal_c();
+		}
+		else if ( type == menu_control_scroll_bar_vertical_c::get_type_name_static() )
+		{
+			return new menu_control_scroll_bar_vertical_c();
+		}
+		else if ( type == menu_control_scrub_bar_horizontal_c::get_type_name_static() )
+		{
+			return new menu_control_scrub_bar_horizontal_c();
+		}
+		else if ( type == menu_control_scrub_bar_vertical_c::get_type_name_static() )
+		{
+			return new menu_control_scrub_bar_vertical_c();
 		}
 		else if ( type == menu_control_text_c::get_type_name_static() )
 		{
@@ -511,6 +524,7 @@ namespace cheonsa
 		, _local_anchor( menu_anchor_e_none )
 		, _local_anchor_measures( 0.0f, 0.0f, 0.0f, 0.0f )
 		, _local_box( 0.0f, 0.0f, 100.0f, 100.0f )
+		, _old_local_box( _local_box )
 		, _local_angle( 0.0f )
 		, _local_scale( 1.0f )
 		, _local_basis()
@@ -527,7 +541,7 @@ namespace cheonsa
 		, _control_group_origin()
 		, _control_group_basis()
 		, _control_group_draw_list()
-		, _scene_component_menu_control( nullptr )
+		, _scene_component( nullptr )
 		, _non_client_type( menu_non_client_type_e_none )
 		, _user_pointer( nullptr )
 	{
@@ -1162,8 +1176,6 @@ namespace cheonsa
 			return;
 		}
 
-		box32x2_c old_local_box = _local_box;
-
 		// update _local_basis.
 		_local_basis = ops::make_matrix32x2x2_transform( _local_angle, _local_scale );
 
@@ -1256,12 +1268,6 @@ namespace cheonsa
 			}
 		}
 
-		// invalidate content box if needed.
-		if ( old_local_box != _local_box )
-		{
-			_content_box_is_dirty = true;
-		}
-
 		// update _global_origin and _global_basis and _global_basis_inverse.
 		if ( _mother_control != nullptr )
 		{
@@ -1276,6 +1282,15 @@ namespace cheonsa
 			_global_color = _local_color;
 		}
 		_global_basis_inverse = ops::make_matrix32x2x2_inverted( _global_basis );
+
+		// determine if local layout changed.
+		if ( _old_local_box != _local_box )
+		{
+			_old_local_box = _local_box;
+
+			// invalidate content box.
+			_content_box_is_dirty = true;
+		}
 
 		// layout daughters.
 		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
@@ -1372,12 +1387,12 @@ namespace cheonsa
 
 	scene_component_menu_control_c * menu_control_c::get_scene_component() const
 	{
-		return _scene_component_menu_control;
+		return _scene_component;
 	}
 
 	void_c menu_control_c::set_scene_component( scene_component_menu_control_c * value )
 	{
-		_scene_component_menu_control = value;
+		_scene_component = value;
 	}
 
 	menu_non_client_type_e menu_control_c::get_non_client_type() const
@@ -1528,31 +1543,19 @@ namespace cheonsa
 
 	matrix32x2x2_c menu_control_c::get_control_group_basis() const
 	{
-		//matrix32x2x2_c control_group_basis = matrix32x2x2_c( 1.0f, 0.0f, 0.0f, 1.0f ); //_global_basis;
-		//if ( _control_group_mother != nullptr )
-		//{
-		//	control_group_basis = _global_basis * _control_group_mother->_global_basis_inverse;
-		//}
-		//return control_group_basis;
 		return _control_group_basis;
 	}
 
 	vector32x2_c menu_control_c::get_control_group_origin() const
 	{
-		//vector32x2_c control_group_origin = vector32x2_c( 0.0f, 0.0f );
-		//if ( _control_group_mother && !_control_group_is_root )
-		//{
-		//	control_group_origin = ops::make_vector32x2_transformed_point( _global_origin, _control_group_mother->_global_basis_inverse ) - _control_group_mother->_global_origin;
-		//}
-		//return control_group_origin;
 		return _control_group_origin;
 	}
 
 	void_c menu_control_c::_compile_control_groups( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list )
 	{
-		if ( _scene_component_menu_control != nullptr )
+		if ( _scene_component != nullptr )
 		{
-			// todo: control is 3d, skip if it is not visible to the primary view.
+			// todo: control is 3d, we can return here if it is not visible to the primary (camera) view.
 		}
 
 		if ( _is_showing_weight <= 0.0f || _local_color.d <= 0.0f )

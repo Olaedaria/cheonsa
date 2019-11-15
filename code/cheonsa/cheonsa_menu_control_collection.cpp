@@ -137,7 +137,7 @@ namespace cheonsa
 	{
 	}
 
-	void_c menu_control_collection_c::_handle_on_value_changed( menu_control_scroll_c * scroll )
+	void_c menu_control_collection_c::_handle_on_value_changed( menu_control_scroll_i * scroll )
 	{
 		_item_layout_is_dirty = true;
 	}
@@ -196,7 +196,7 @@ namespace cheonsa
 	menu_control_collection_item_c * menu_control_collection_c::_pick_item_at_local_point( vector32x2_c const & local_point )
 	{
 		float32_c x = 0.0f;
-		float32_c y = static_cast< float32_c >( -_vertical_scroll->get_value() );
+		float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
 		sint32_c next_visible_item_index = 0;
 		if ( _display_mode == display_mode_e_icons )
 		{
@@ -270,7 +270,7 @@ namespace cheonsa
 		}
 
 		float32_c x = 0.0f;
-		float32_c y = static_cast< float32_c >( -_vertical_scroll->get_value() );
+		float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
 		_element_mouse_selected_frame.set_is_showing( false );
 		if ( _mouse_selected_item )
 		{
@@ -294,8 +294,8 @@ namespace cheonsa
 		, _element_mouse_selected_frame()
 		, _last_selected_item( nullptr )
 		, _element_last_selected_frame()
-		, _vertical_scroll_visibility( menu_visibility_mode_e_automatic )
-		, _vertical_scroll( nullptr )
+		, _vertical_scroll_bar_visibility( menu_visibility_mode_e_automatic )
+		, _vertical_scroll_bar( nullptr )
 		, _display_mode( display_mode_e_icons )
 		, _icons_item_width( 60 )
 		, _icons_item_height( 100 )
@@ -323,13 +323,12 @@ namespace cheonsa
 		_element_last_selected_frame.set_name( string8_c( mode_e_static, "last_selected_frame" ) );
 		_add_element( &_element_last_selected_frame );
 
-		_vertical_scroll = new menu_control_scroll_c();
-		_vertical_scroll->set_name( string8_c( mode_e_static, "vertical_scroll" ) );
-		_vertical_scroll->set_orientation( menu_control_scroll_c::orientation_e_vertical );
-		_vertical_scroll->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
-		_vertical_scroll->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_on_value_changed );
-		_add_control( _vertical_scroll );
-		_vertical_scroll->update_visibility( _vertical_scroll_visibility );
+		_vertical_scroll_bar = new menu_control_scroll_bar_vertical_c();
+		_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
+		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
+		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_on_value_changed );
+		_add_control( _vertical_scroll_bar );
+		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility );
 
 		set_style_map_key( string8_c( mode_e_static, "e_collection" ) );
 	}
@@ -469,14 +468,14 @@ namespace cheonsa
 		}
 
 		// resize vertical scroll bar.
-		_vertical_scroll->set_value_range_and_page_size( 0.0, static_cast< float64_c >( content_height ), static_cast< float64_c >( _local_box.get_height() ) );
+		_vertical_scroll_bar->set_value_range_and_page_size( 0.0, static_cast< float64_c >( content_height ), static_cast< float64_c >( _local_box.get_height() ) );
 
 		// layout and update visible item elements if needed.
 		if ( _item_layout_is_dirty )
 		{
 			_item_layout_is_dirty = false;
 			float32_c x = 0.0f;
-			float32_c y = static_cast< float32_c >( -_vertical_scroll->get_value() );
+			float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
 			if ( _display_mode == display_mode_e_icons )
 			{
 				sint32_c visible_column_count = ops::math_minimum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) );

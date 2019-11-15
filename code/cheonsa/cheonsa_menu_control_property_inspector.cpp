@@ -282,7 +282,7 @@ namespace cheonsa
 				}
 
 				// create scroll control if needed.
-				if ( property->_view == data_view_e_slider || property->_view == data_view_e_scrubber )
+				if ( property->_view == data_view_e_scroll_bar || property->_view == data_view_e_scrub_bar )
 				{
 					assert( property->_type == data_type_e_float32 || property->_type == data_type_e_float64 );
 					assert( property->_type_count == 1 );
@@ -298,14 +298,17 @@ namespace cheonsa
 						value_minimum = property->_defaults_and_limits._float64_minimum;
 						value_maximum = property->_defaults_and_limits._float64_maximum;
 					}
-					property_field->scroll = new menu_control_scroll_c();
+					assert( value_minimum < value_maximum );
+					if ( property->_view == data_view_e_scroll_bar )
+					{
+						property_field->scroll = new menu_control_scroll_bar_horizontal_c();
+					}
+					else
+					{
+						property_field->scroll = new menu_control_scrub_bar_horizontal_c();
+					}
 					property_field->scroll->set_user_pointer( property_field );
 					property_field->scroll->set_name( string8_c( mode_e_static, "property_value_scroll" ) );
-					property_field->scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-					if ( property->_view == data_view_e_scrubber )
-					{
-						property_field->scroll->set_mode( menu_control_scroll_c::mode_e_scrubber );
-					}
 					property_field->scroll->set_value_minimum( value_minimum );
 					property_field->scroll->set_value_maximum( value_maximum );
 					property_field->scroll->on_value_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_preview );
@@ -454,7 +457,7 @@ namespace cheonsa
 		// provide value to view editors.
 		if ( property_field->scroll )
 		{
-			assert( property->_view == data_view_e_slider || property->_view == data_view_e_scrubber );
+			assert( property->_view == data_view_e_scroll_bar || property->_view == data_view_e_scrub_bar );
 			assert( property->_type_count == 1 );
 			if ( property->_type == data_type_e_float32 )
 			{
@@ -687,7 +690,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_preview( menu_control_scroll_c * scroll )
+	void_c menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_preview( menu_control_scroll_i * scroll )
 	{
 		if ( !_mute )
 		{
@@ -695,7 +698,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_commit( menu_control_scroll_c * scroll )
+	void_c menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_commit( menu_control_scroll_i * scroll )
 	{
 		if ( !_mute )
 		{

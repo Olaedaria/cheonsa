@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa_menu_control.h"
-#include "cheonsa_menu_control_scroll.h"
+#include "cheonsa_menu_control_scroll_bar.h"
 #include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa_menu_element_frame.h"
@@ -170,9 +170,9 @@ namespace cheonsa
 		menu_control_collection_item_c * _mouse_selected_item; // is set to the item that the mouse is currently over. analogs: in modern windows this item would be highlighted with a light blue background, in legacy windows i don't think there was an analog.
 		menu_control_collection_item_c * _last_selected_item; // is set to the first item that was added to the collection, or the item that was last selected in the collection. this is the item that directional keyboard input will originate from. analogs: in modern windows this item would be outlined with a solid blue line, in legacy windows this item would be outlined with a dotted black line.
 
-		menu_visibility_mode_e _vertical_scroll_visibility; // how to show or hide the vertical scroll bar.
-		menu_control_scroll_c * _vertical_scroll; // name is "vertical_scroll".
-		void_c _handle_on_value_changed( menu_control_scroll_c * scroll );
+		menu_visibility_mode_e _vertical_scroll_bar_visibility; // how to show or hide the vertical scroll bar.
+		menu_control_scroll_bar_vertical_c * _vertical_scroll_bar; // name is "vertical_scroll_bar".
+		void_c _handle_on_value_changed( menu_control_scroll_i * scroll );
 
 		display_mode_e _display_mode; // how items are dispalyed and laid out in the container.
 

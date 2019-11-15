@@ -499,14 +499,15 @@ namespace cheonsa
 		boolean_c handle_input( input_event_c * input_event );
 
 	public:
-		// deletes the currently selected range of text and inserts a character (unless is_dead is true, then it replaces the character that is before the cursor).
+		// deletes the currently selected range of text and inserts a printable character (which may be a space or tab).
+		// don't use this to insert new lines or paragraphs, use input_return for that instead.
 		void_c input_character( char16_c character );
+		// deletes the currently selected range of text, if shift is false then inserts a new text paragraph else inserts a new line in the existing paragraph/span.
+		void_c input_return( boolean_c shift );
 		// deletes the currently selected range of text or character after the cursor, and merges text paragraphs if needed.
 		void_c input_delete_fore();
 		// deletes the currently selected range of text or deletes the character before the cursor, and merges text paragraphs if needed.
 		void_c input_delete_back();
-		// deletes the currently selected range of text and inserts a new text paragraph. if shift is held, then the new line is inserted in-line with the current span.
-		void_c input_return( boolean_c shift );
 		// moves the cursor to the left one character.
 		void_c input_left( boolean_c shift, boolean_c ctrl );
 		// moves the cursor to the right one character.

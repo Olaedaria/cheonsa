@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <chrono> // for random number generation.
 #include <cassert>
+#include <cctype> // for isprint
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX // silly windows, leave us alone.
@@ -4855,49 +4856,43 @@ namespace cheonsa
 			return false;
 		}
 
-		boolean_c char8_is_space( char8_c a )
+		boolean_c char16_is_printable( char16_c a )
 		{
-			return char16_is_space( a );
+			return isprint( a ) != 0;
 		}
 
 		boolean_c char16_is_space( char16_c a )
 		{
-			return ( a == ' ' ) || ( a == '\t' ) || ( a == '\n' ) || ( a == '\r' );
-		}
-
-		boolean_c char8_is_letter( char8_c a )
-		{
-			return char16_is_letter( a );
+			return ( a == ' ' ) || ( a == '\t' );
+			//return isspace( a ) != 0;
 		}
 
 		boolean_c char16_is_letter( char16_c a )
 		{
-			return ( ( a >= 'a' ) && ( a <= 'z' ) ) || ( ( a >= 'A' && a <= 'Z' ) );
-		}
-
-		boolean_c char8_is_number( char8_c a )
-		{
-			return char16_is_number( a );
+			//return ( ( a >= 'a' ) && ( a <= 'z' ) ) || ( ( a >= 'A' && a <= 'Z' ) );
+			return isalpha( a ) != 0;
 		}
 
 		boolean_c char16_is_number( char16_c a )
 		{
-			return ( a >= '0' ) && ( a <= '9' );
-		}
-
-		boolean_c char8_is_punctuation( char8_c a )
-		{
-			return char16_is_punctuation( a );
+			//return ( a >= '0' ) && ( a <= '9' );
+			return isdigit( a ) != 0;
 		}
 
 		boolean_c char16_is_punctuation( char16_c a )
 		{
-			return
-				( a >= 0x0021 && a <= 0x002F ) ||
-				( a >= 0x003A && a <= 0x0040 ) ||
-				( a >= 0x005B && a <= 0x0060 ) ||
-				( a >= 0x007B && a <= 0x007E ) ||
-				( a >= 0x3000 && a <= 0x303F ); // "CJK Symbols and Punctuation"
+			//return
+			//	( a >= 0x0021 && a <= 0x002F ) ||
+			//	( a >= 0x003A && a <= 0x0040 ) ||
+			//	( a >= 0x005B && a <= 0x0060 ) ||
+			//	( a >= 0x007B && a <= 0x007E ) ||
+			//	( a >= 0x3000 && a <= 0x303F ); // "CJK Symbols and Punctuation"
+			return ispunct( a ) != 0;
+		}
+
+		boolean_c char16_is_control( char16_c a )
+		{
+			return iscntrl( a ) != 0;
 		}
 
 		boolean_c char8_compare( char8_c a, char8_c b, boolean_c case_sensitive )

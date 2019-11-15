@@ -16,9 +16,9 @@ namespace cheonsa
 
 	void_c menu_control_color_picker_c::_sync_control_values()
 	{
-		if ( _h_scroll != nullptr )
+		if ( _h_scroll_bar != nullptr )
 		{
-			_h_scroll->set_value( _hsv.a );
+			_h_scroll_bar->set_value( _hsv.a );
 		}
 		if ( _h_text != nullptr )
 		{
@@ -26,9 +26,9 @@ namespace cheonsa
 			ops::convert_float64_to_string8( _hsv.a, value_string );
 			_h_text->set_plain_text( string16_c( value_string ) );
 		}
-		if ( _s_scroll != nullptr )
+		if ( _s_scroll_bar != nullptr )
 		{
-			_s_scroll->set_value( _hsv.b );
+			_s_scroll_bar->set_value( _hsv.b );
 		}
 		if ( _s_text != nullptr )
 		{
@@ -36,9 +36,9 @@ namespace cheonsa
 			ops::convert_float64_to_string8( _hsv.b, value_string );
 			_s_text->set_plain_text( string16_c( value_string ) );
 		}
-		if ( _v_scroll != nullptr )
+		if ( _v_scroll_bar != nullptr )
 		{
-			_v_scroll->set_value( _hsv.c );
+			_v_scroll_bar->set_value( _hsv.c );
 		}
 		if ( _v_text != nullptr )
 		{
@@ -47,9 +47,9 @@ namespace cheonsa
 			_v_text->set_plain_text( string16_c( value_string ) );
 		}
 
-		if ( _r_scroll != nullptr )
+		if ( _r_scroll_bar != nullptr )
 		{
-			_r_scroll->set_value( _rgb.a );
+			_r_scroll_bar->set_value( _rgb.a );
 		}
 		if ( _r_text != nullptr )
 		{
@@ -57,9 +57,9 @@ namespace cheonsa
 			ops::convert_float64_to_string8( _rgb.a, value_string );
 			_r_text->set_plain_text( string16_c( value_string ) );
 		}
-		if ( _g_scroll != nullptr )
+		if ( _g_scroll_bar != nullptr )
 		{
-			_g_scroll->set_value( _rgb.b );
+			_g_scroll_bar->set_value( _rgb.b );
 		}
 		if ( _g_text != nullptr )
 		{
@@ -67,9 +67,9 @@ namespace cheonsa
 			ops::convert_float64_to_string8( _rgb.b, value_string );
 			_g_text->set_plain_text( string16_c( value_string ) );
 		}
-		if ( _b_scroll != nullptr )
+		if ( _b_scroll_bar != nullptr )
 		{
-			_b_scroll->set_value( _rgb.c );
+			_b_scroll_bar->set_value( _rgb.c );
 		}
 		if ( _b_text != nullptr )
 		{
@@ -93,51 +93,51 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_color_picker_c::_handle_slider_on_value_changed( menu_control_scroll_c * slider )
+	void_c menu_control_color_picker_c::_handle_slider_on_value_changed( menu_control_scroll_i * slider )
 	{
-		if ( slider == _h_scroll )
+		if ( slider == _h_scroll_bar )
 		{
 			_hsv.a = slider->get_value();
 			_hsv.a = ops::math_clamp( _hsv.a, 0.0, 360.0 );
 			_update_rgb_from_hsv();
 			_sync_control_values();
 		}
-		else if ( slider == _s_scroll )
+		else if ( slider == _s_scroll_bar )
 		{
 			_hsv.b = slider->get_value();
 			_hsv.b = ops::math_saturate( _hsv.b );
 			_update_rgb_from_hsv();
 			_sync_control_values();
 		}
-		else if ( slider == _v_scroll )
+		else if ( slider == _v_scroll_bar )
 		{
 			_hsv.c = slider->get_value();
 			_hsv.c = ops::math_saturate( _hsv.c );
 			_update_rgb_from_hsv();
 			_sync_control_values();
 		}
-		else if ( slider == _r_scroll )
+		else if ( slider == _r_scroll_bar )
 		{
 			_rgb.a = slider->get_value();
 			_rgb.a = ops::math_saturate( _rgb.a );
 			_update_hsv_from_rgb();
 			_sync_control_values();
 		}
-		else if ( slider == _g_scroll )
+		else if ( slider == _g_scroll_bar )
 		{
 			_rgb.b = slider->get_value();
 			_rgb.b = ops::math_saturate( _rgb.b );
 			_update_hsv_from_rgb();
 			_sync_control_values();
 		}
-		else if ( slider == _b_scroll )
+		else if ( slider == _b_scroll_bar )
 		{
 			_rgb.c = slider->get_value();
 			_rgb.c = ops::math_saturate( _rgb.c );
 			_update_hsv_from_rgb();
 			_sync_control_values();
 		}
-		else if ( slider == _a_scroll )
+		else if ( slider == _a_scroll_bar )
 		{
 			_alpha = slider->get_value();
 			_alpha = ops::math_saturate( _alpha );
@@ -219,31 +219,30 @@ namespace cheonsa
 		, _hsv( 0.0, 0.0, 0.0 )
 		, _alpha( 1.0 )
 		, _alpha_enable( true )
-		, _h_scroll( nullptr )
+		, _h_scroll_bar( nullptr )
 		, _h_text( nullptr )
-		, _s_scroll( nullptr )
+		, _s_scroll_bar( nullptr )
 		, _s_text( nullptr )
-		, _v_scroll( nullptr )
+		, _v_scroll_bar( nullptr )
 		, _v_text( nullptr )
-		, _r_scroll( nullptr )
+		, _r_scroll_bar( nullptr )
 		, _r_text( nullptr )
-		, _g_scroll( nullptr )
+		, _g_scroll_bar( nullptr )
 		, _g_text( nullptr )
-		, _b_scroll( nullptr )
+		, _b_scroll_bar( nullptr )
 		, _b_text( nullptr )
-		, _a_scroll( nullptr )
+		, _a_scroll_bar( nullptr )
 		, _a_text( nullptr )
 		, _rgba_hex_text( nullptr )
 	{
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
 		_add_element( &_element_frame );
 
-		_h_scroll = new menu_control_scroll_c();
-		_h_scroll->set_name( string8_c( mode_e_static, "h_scroll" ) );
-		_h_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-		_h_scroll->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_h_scroll->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_add_control( _h_scroll );
+		_h_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_h_scroll_bar->set_name( string8_c( mode_e_static, "h_scroll" ) );
+		_h_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_h_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_add_control( _h_scroll_bar );
 
 		_h_text = new menu_control_text_c();
 		_h_text->set_name( string8_c( mode_e_static, "h_text" ) );
@@ -254,12 +253,11 @@ namespace cheonsa
 		_h_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_add_control( _h_text );
 
-		_s_scroll = new menu_control_scroll_c();
-		_s_scroll->set_name( string8_c( mode_e_static, "s_scroll" ) );
-		_s_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-		_s_scroll->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_s_scroll->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_add_control( _s_scroll );
+		_s_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_s_scroll_bar->set_name( string8_c( mode_e_static, "s_scroll_bar" ) );
+		_s_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_s_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_add_control( _s_scroll_bar );
 
 		_s_text = new menu_control_text_c();
 		_s_text->set_name( string8_c( mode_e_static, "s_text" ) );
@@ -271,12 +269,11 @@ namespace cheonsa
 		_s_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_add_control( _s_text );
 
-		_v_scroll = new menu_control_scroll_c();
-		_v_scroll->set_name( string8_c( mode_e_static, "v_scroll" ) );
-		_v_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-		_v_scroll->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_v_scroll->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_add_control( _v_scroll );
+		_v_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_v_scroll_bar->set_name( string8_c( mode_e_static, "v_scroll_bar" ) );
+		_v_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_v_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_add_control( _v_scroll_bar );
 
 		_v_text = new menu_control_text_c();
 		_v_text->set_name( string8_c( mode_e_static, "v_text" ) );
@@ -288,12 +285,11 @@ namespace cheonsa
 		_v_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_add_control( _v_text );
 
-		_r_scroll = new menu_control_scroll_c();
-		_r_scroll->set_name( string8_c( mode_e_static, "r_scroll" ) );
-		_r_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-		_r_scroll->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_r_scroll->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_add_control( _r_scroll );
+		_r_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_r_scroll_bar->set_name( string8_c( mode_e_static, "r_scroll" ) );
+		_r_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_r_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_add_control( _r_scroll_bar );
 
 		_r_text = new menu_control_text_c();
 		_r_text->set_name( string8_c( mode_e_static, "r_text" ) );
@@ -305,12 +301,11 @@ namespace cheonsa
 		_r_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_add_control( _r_text );
 
-		_g_scroll = new menu_control_scroll_c();
-		_g_scroll->set_name( string8_c( mode_e_static, "g_scroll" ) );
-		_g_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-		_g_scroll->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_g_scroll->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_add_control( _g_scroll );
+		_g_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_g_scroll_bar->set_name( string8_c( mode_e_static, "g_scroll" ) );
+		_g_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_g_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_add_control( _g_scroll_bar );
 
 		_g_text = new menu_control_text_c();
 		_g_text->set_name( string8_c( mode_e_static, "g_text" ) );
@@ -322,12 +317,11 @@ namespace cheonsa
 		_g_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_add_control( _g_text );
 
-		_b_scroll = new menu_control_scroll_c();
-		_b_scroll->set_name( string8_c( mode_e_static, "b_scroll" ) );
-		_b_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-		_b_scroll->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_b_scroll->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_add_control( _b_scroll );
+		_b_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_b_scroll_bar->set_name( string8_c( mode_e_static, "b_scroll" ) );
+		_b_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_b_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_add_control( _b_scroll_bar );
 
 		_b_text = new menu_control_text_c();
 		_b_text->set_name( string8_c( mode_e_static, "b_text" ) );
@@ -339,12 +333,11 @@ namespace cheonsa
 		_b_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_add_control( _b_text );
 
-		_a_scroll = new menu_control_scroll_c();
-		_a_scroll->set_name( string8_c( mode_e_static, "a_scroll" ) );
-		_a_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-		_a_scroll->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_a_scroll->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
-		_add_control( _a_scroll );
+		_a_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_a_scroll_bar->set_name( string8_c( mode_e_static, "a_scroll" ) );
+		_a_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_a_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
+		_add_control( _a_scroll_bar );
 
 		_a_text = new menu_control_text_c();
 		_a_text->set_name( string8_c( mode_e_static, "a_text" ) );

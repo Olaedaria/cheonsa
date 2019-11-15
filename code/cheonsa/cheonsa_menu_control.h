@@ -16,11 +16,10 @@ namespace cheonsa
 	class scene_component_menu_control_c;
 
 	// menu control base class.
-	// this class is extended to create everything from simple buttons to complex color pickers and property inspectors.
-	// cheonsa menus are 2D by nature.
-	// to put them in 3D space, a 3D scene object menu component links itself to the control's _scene_component_menu_control.
 	// a control is a rectangular thing made up of one or more rectangular elements that the user can interact with in a certain way.
 	// a control can be added to as a daughter to a menu context (a root level control), or can be added as a daughter to another control (a non-root level control).
+	// this class can be inherited from to create everything from simple buttons to complex color pickers and property inspectors.
+	// cheonsa menus are 2d by nature, but will be 3d when _scene_component is linked.
 	class menu_control_c
 	{
 	public:
@@ -96,6 +95,7 @@ namespace cheonsa
 		menu_anchor_e _local_anchor; // which sides to anchor to parent control.
 		box32x2_c _local_anchor_measures; // local rectangle anchor insets, which tells the layout logic how far to place this control's _local_box edges away from the mother control's _local_box edges, and also for anchors that are to just one horizontal or vertical edge, then the inset for the opposite edge tells the layout logic the fixed width or height of the _local_box.
 		box32x2_c _local_box; // rectangle extents around this control's origin. if _local_box_anchor is set then _local_box is calculated from _local_box_anchor_offsets. otherwise, it can be set directly by the program and is used as-is.
+		box32x2_c _old_local_box; // used to detect changes to _local_box so that daughters can update their layout.
 		float32_c _local_angle; // local angle around this control's origin.
 		float32_c _local_scale; // local scale around this control's origin.
 		matrix32x2x2_c _local_basis; // calculated from _local_angle and _local_scale.
@@ -121,7 +121,7 @@ namespace cheonsa
 		vector32x4_c _control_group_color; // is _local_color for root, is inherited for daughters.
 		menu_draw_list_c _control_group_draw_list; // used on root control of control groups. this contains the draw lists to copy the _control_group_texture to another control group, or to the canvas output.
 
-		scene_component_menu_control_c * _scene_component_menu_control; // if set then this menu control is in a 3d scene.
+		scene_component_menu_control_c * _scene_component; // if set then this menu control is in a 3d scene.
 
 		menu_non_client_type_e _non_client_type; // used by the engine for non-client hit detection, which lets our user interface system act like the window title bar, size handles, etc.
 

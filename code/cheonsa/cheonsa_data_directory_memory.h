@@ -2,8 +2,8 @@
 
 #include "cheonsa__types.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_data_stream.h"
 #include "cheonsa_data_stream_memory.h"
+#include "cheonsa_data_scribe_binary.h"
 
 namespace cheonsa
 {
@@ -32,8 +32,8 @@ namespace cheonsa
 		boolean_c delete_file( string16_c const & file_path ); // returns true if successfully deleted file at file_path within this file system.
 		void_c reset(); // deletes all files in this file system.
 
-		boolean_c save( data_stream_c * stream, byte_order_e byte_order ); // saves the state of this memory file system to a stream.
-		boolean_c load( data_stream_c * stream, byte_order_e byte_order ); // loads the state of this memory file system from a stream.
+		boolean_c save( data_scribe_binary_c & scribe ); // saves the state of this memory file system to a stream.
+		boolean_c load( data_scribe_binary_c & scribe ); // loads the state of this memory file system from a stream.
 
 	};
 

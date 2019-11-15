@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa_menu_control.h"
-#include "cheonsa_menu_control_scroll.h"
+#include "cheonsa_menu_control_scroll_bar.h"
 #include "cheonsa_menu_element_frame.h"
 #include "cheonsa_menu_element_text.h"
 
@@ -23,10 +23,10 @@ namespace cheonsa
 		string8_c _placeholder_style_key;
 		string8_c _placeholder_string_key;
 
-		menu_visibility_mode_e _horizontal_scroll_visibility_mode;
-		menu_control_scroll_c * _horizontal_scroll;
-		menu_visibility_mode_e _vertical_scroll_visibility_mode;
-		menu_control_scroll_c * _vertical_scroll;
+		menu_visibility_mode_e _horizontal_scroll_bar_visibility_mode;
+		menu_control_scroll_bar_horizontal_c * _horizontal_scroll_bar;
+		menu_visibility_mode_e _vertical_scroll_bar_visibility_mode;
+		menu_control_scroll_bar_vertical_c * _vertical_scroll_bar;
 
 		virtual void_c _on_text_focus_gained() override;
 		virtual void_c _on_text_focus_lost() override;

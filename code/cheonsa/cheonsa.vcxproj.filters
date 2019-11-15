@@ -50,7 +50,6 @@
     <ClInclude Include="cheonsa_resource_manager.h" />
     <ClInclude Include="cheonsa_menu_control_check.h" />
     <ClInclude Include="cheonsa_menu_control_list.h" />
-    <ClInclude Include="cheonsa_menu_control_scroll.h" />
     <ClInclude Include="cheonsa_menu_control_text.h" />
     <ClInclude Include="cheonsa_reflection_manager.h" />
     <ClInclude Include="cheonsa_script_manager.h" />
@@ -515,6 +514,9 @@
     <ClInclude Include="cheonsa_safe_reference_count.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_i.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_bar.h" />
+    <ClInclude Include="cheonsa_menu_control_scrub_bar.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -559,7 +561,6 @@
     <ClCompile Include="cheonsa_resource_manager.cpp" />
     <ClCompile Include="cheonsa_menu_control_check.cpp" />
     <ClCompile Include="cheonsa_menu_control_list.cpp" />
-    <ClCompile Include="cheonsa_menu_control_scroll.cpp" />
     <ClCompile Include="cheonsa_menu_control_text.cpp" />
     <ClCompile Include="cheonsa_reflection_manager.cpp" />
     <ClCompile Include="cheonsa_script_manager.cpp" />
@@ -642,5 +643,8 @@
     <ClCompile Include="cheonsa_safe_reference_count.cpp" />
     <ClCompile Include="cheonsa_debug_manager.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_i.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_bar.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scrub_bar.cpp" />
   </ItemGroup>
 </Project>

@@ -101,7 +101,7 @@ namespace cheonsa
 		_view = data_view_e_color;
 	}
 
-	void_c reflection_property_c::initialize_basic_view_slider()
+	void_c reflection_property_c::initialize_basic_view_scroll_bar()
 	{
 		assert( _view == data_view_e_default );
 		assert( ( _type == data_type_e_float32 || _type == data_type_e_float64 ) && ( _type_count == 1 ) );
@@ -113,13 +113,13 @@ namespace cheonsa
 		{
 			assert( _defaults_and_limits._float64_minimum < _defaults_and_limits._float64_maximum );
 		}
-		_view = data_view_e_slider;
+		_view = data_view_e_scroll_bar;
 	}
 
-	void_c reflection_property_c::initialize_basic_view_scrubber()
+	void_c reflection_property_c::initialize_basic_view_scrub_bar()
 	{
 		assert( _view == data_view_e_default );
-		_view = data_view_e_scrubber;
+		_view = data_view_e_scrub_bar;
 	}
 
 	void_c reflection_property_c::initialize_basic_view_text()

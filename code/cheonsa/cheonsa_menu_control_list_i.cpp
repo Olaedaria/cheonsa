@@ -170,9 +170,9 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_list_i::_vertical_scroll_handle_on_value_changed( menu_control_scroll_c * control )
+	void_c menu_control_list_i::_vertical_scroll_handle_on_value_changed( menu_control_scroll_i * control )
 	{
-		_list_item_holder->_content_offset.b = static_cast< float32_c >( -_vertical_scroll->get_value() );
+		_list_item_holder->_content_offset.b = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
 	}
 
 	void_c menu_control_list_i::_set_selected_item_limit( sint32_c selected_item_limit )
@@ -272,7 +272,7 @@ namespace cheonsa
 	{
 		if ( input_event->type == input_event_c::type_e_mouse_wheel )
 		{
-			_vertical_scroll->inject_mouse_wheel_input( input_event->mouse_wheel_delta );
+			_vertical_scroll_bar->inject_mouse_wheel_input( input_event->mouse_wheel_delta );
 		}
 	}
 
@@ -363,8 +363,8 @@ namespace cheonsa
 		_item_layout_is_dirty = false;
 
 		// this might cause one more recursion if the scroll bar value changes, but it should not be infinite.
-		mother->_vertical_scroll->set_value_range_and_page_size( 0.0f, content_height, _local_box.get_height() );
-		mother->_vertical_scroll->update_visibility( mother->_vertical_scroll_visibility );
+		mother->_vertical_scroll_bar->set_value_range_and_page_size( 0.0f, content_height, _local_box.get_height() );
+		mother->_vertical_scroll_bar->update_visibility( mother->_vertical_scroll_bar_visibility_mode );
 	}
 
 	void_c menu_control_list_item_holder_i::_add_control( menu_control_c * control, sint32_c index )
@@ -449,8 +449,8 @@ namespace cheonsa
 		, _list_item_holder( nullptr )
 		, _vertical_size_mode( menu_size_mode_e_fixed )
 		, _vertical_size_maximum( 0.0f )
-		, _vertical_scroll_visibility( menu_visibility_mode_e_automatic )
-		, _vertical_scroll( nullptr )
+		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic )
+		, _vertical_scroll_bar( nullptr )
 		, _selected_item_limit( 0 )
 		, _selected_item_list()
 	{
@@ -462,12 +462,11 @@ namespace cheonsa
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
-		_vertical_scroll = new menu_control_scroll_c();
-		_vertical_scroll->set_name( string8_c( mode_e_static, "vertical_scroll" ) );
-		_vertical_scroll->set_orientation( menu_control_scroll_c::orientation_e_vertical );
-		_vertical_scroll->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
-		_vertical_scroll->on_value_changed_preview.subscribe( this, &menu_control_list_i::_vertical_scroll_handle_on_value_changed );
-		_add_control( _vertical_scroll );
+		_vertical_scroll_bar = new menu_control_scroll_bar_vertical_c();
+		_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
+		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
+		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_list_i::_vertical_scroll_handle_on_value_changed );
+		_add_control( _vertical_scroll_bar );
 
 		_list_item_holder = new menu_control_list_item_holder_i();
 		_list_item_holder->set_name( string8_c( mode_e_static, "list_item_holder" ) );
@@ -555,18 +554,18 @@ namespace cheonsa
 
 	menu_visibility_mode_e menu_control_list_i::get_vertical_scroll_visibility_mode() const
 	{
-		return _vertical_scroll_visibility;
+		return _vertical_scroll_bar_visibility_mode;
 	}
 
 	void_c menu_control_list_i::set_vertical_scroll_visibility_mode( menu_visibility_mode_e value )
 	{
-		_vertical_scroll_visibility = value;
-		_vertical_scroll->update_visibility( value );
+		_vertical_scroll_bar_visibility_mode = value;
+		_vertical_scroll_bar->update_visibility( value );
 	}
 
-	menu_control_scroll_c * menu_control_list_i::get_vertical_scroll()
+	menu_control_scroll_i * menu_control_list_i::get_vertical_scroll()
 	{
-		return _vertical_scroll;
+		return _vertical_scroll_bar;
 	}
 
 }

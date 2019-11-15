@@ -42,15 +42,17 @@ namespace cheonsa
 		// only for uint8 type.
 		data_view_e_boolean,
 
-		// provides a slider in the range of minimum and maximum.
+		// provides a scroll bar with a value range of minimum to maximum.
 		// only for float32x1 and float64x1 types.
 		// asserts when used with other types.
-		data_view_e_slider,
+		// asserts when mininum and maximum are not set.
+		data_view_e_scroll_bar,
 
-		// provides a wheel that the user can use to scrub through values.
+		// provides a scrub bar with a value range of minimum to maximum.
 		// only for float32x1 and float64x1 types.
 		// asserts when used with other types.
-		data_view_e_scrubber,
+		// asserts when mininum and maximum are not set.
+		data_view_e_scrub_bar,
 
 		// provides a button that opens a color picker dialog.
 		// only for uint8x3 (rgb), uint8x4 (rgba), uint32x1 (rgba), float32x3 (rgb), float32x4 (rgba), float64x3 (rgb), float64x4 (rgba) types.

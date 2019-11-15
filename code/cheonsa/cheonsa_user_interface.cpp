@@ -21,7 +21,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 		{
 			menu_control_c * control = _control_list[ i ];
-			if ( control->_scene_component_menu_control == nullptr )
+			if ( control->_scene_component == nullptr )
 			{
 				menu_control_c * candidate_control = nullptr;
 				float64_c candidate_control_distance = 0.0;
@@ -44,7 +44,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 			{
 				menu_control_c * control = _control_list[ i ];
-				if ( control->_scene_component_menu_control != nullptr )
+				if ( control->_scene_component != nullptr )
 				{
 					menu_control_c * candidate_control = nullptr;
 					float64_c candidate_control_distance = 0.0;
@@ -87,7 +87,7 @@ namespace cheonsa
 		if ( window->_is_showing == true )
 		{
 			float64_c control_distance = 0.0; // for 3d menus, this is the distance from the camera to the point of intersection with the menu. for 2d menus this is unused and will always be 0.
-			if ( window->_scene_component_menu_control == nullptr )
+			if ( window->_scene_component == nullptr )
 			{
 				control_distance = 0.0f;
 				//input_event->menu_global_mouse_position = input_event->mouse_position; // - _canvas_size * 0.5f; // local 2D menu space mouse position is just the mouse position from the input manager.
@@ -304,7 +304,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 			{
 				menu_control_c * control = _control_list[ i ];
-				if ( control->_scene_component_menu_control == nullptr )
+				if ( control->_scene_component == nullptr )
 				{
 					control->update_transform_and_layout();
 				}

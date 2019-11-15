@@ -3195,6 +3195,7 @@ namespace cheonsa
 	void_c menu_element_text_c::input_character( char16_c character )
 	{
 		assert( _text_edit_mode == menu_text_edit_mode_e_editable );
+		assert( ops::char16_is_printable( character ) );
 
 		if ( _text_layout_is_dirty )
 		{
@@ -3211,6 +3212,27 @@ namespace cheonsa
 		string16_c value_string;
 		value_string += character;
 		_insert_plain_text( value_string );
+	}
+
+	void_c menu_element_text_c::input_return( boolean_c shift )
+	{
+		_cursor_time = 0.0f;
+
+		if ( _multi_line )
+		{
+			_delete_selected_text();
+			_insert_new_paragraph( _cursor_index, string16_c( mode_e_static, L"\n" ) );
+			_text_is_modified = true;
+			on_value_changed_preview.invoke( this );
+		}
+		else
+		{
+			if ( _text_is_modified )
+			{
+				_text_is_modified = false;
+				on_value_changed_commit.invoke( this );
+			}
+		}
 	}
 
 	void_c menu_element_text_c::input_delete_fore()
@@ -3259,27 +3281,6 @@ namespace cheonsa
 			_update_cursor_sticky_x();
 			_text_is_modified = true;
 			on_value_changed_preview.invoke( this );
-		}
-	}
-
-	void_c menu_element_text_c::input_return( boolean_c shift )
-	{
-		_cursor_time = 0.0f;
-
-		if ( _multi_line )
-		{
-			_delete_selected_text();
-			_insert_new_paragraph( _cursor_index, string16_c( mode_e_static, L"\n" ) );
-			_text_is_modified = true;
-			on_value_changed_preview.invoke( this );
-		}
-		else
-		{
-			if ( _text_is_modified )
-			{
-				_text_is_modified = false;
-				on_value_changed_commit.invoke( this );
-			}
 		}
 	}
 

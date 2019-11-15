@@ -36,10 +36,10 @@ namespace cheonsa
 	menu_control_text_c::menu_control_text_c()
 		: _element_frame()
 		, _element_text()
-		, _horizontal_scroll_visibility_mode( menu_visibility_mode_e_never )
-		, _horizontal_scroll( nullptr )
-		, _vertical_scroll_visibility_mode( menu_visibility_mode_e_never )
-		, _vertical_scroll( nullptr )
+		, _horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
+		, _horizontal_scroll_bar( nullptr )
+		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
+		, _vertical_scroll_bar( nullptr )
 	{
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
@@ -61,17 +61,17 @@ namespace cheonsa
 	{
 		menu_control_c::update_animations( time_step );
 		vector32x2_c content_offset = vector32x2_c( 0.0f, 0.0f );
-		if ( _horizontal_scroll )
+		if ( _horizontal_scroll_bar )
 		{
-			_horizontal_scroll->set_value_range_and_page_size( 0.0, _element_text .get_content_width(), _local_box.get_width() );
-			_horizontal_scroll->update_visibility( _horizontal_scroll_visibility_mode );
-			content_offset.a = static_cast< float32_c >( _horizontal_scroll->get_value() );
+			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_width(), _local_box.get_width() );
+			_horizontal_scroll_bar->update_visibility( _horizontal_scroll_bar_visibility_mode );
+			content_offset.a = static_cast< float32_c >( _horizontal_scroll_bar->get_value() );
 		}
-		if ( _vertical_scroll )
+		if ( _vertical_scroll_bar )
 		{
-			_vertical_scroll->set_value_range_and_page_size( 0.0, _element_text .get_content_height(), _local_box.get_height() );
-			_vertical_scroll->update_visibility( _vertical_scroll_visibility_mode );
-			content_offset.b = static_cast< float32_c >( _vertical_scroll->get_value() );
+			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_height(), _local_box.get_height() );
+			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+			content_offset.b = static_cast< float32_c >( _vertical_scroll_bar->get_value() );
 		}
 		_element_text.set_content_offset( content_offset );
 		_element_text.update_animations( time_step );
@@ -369,71 +369,69 @@ namespace cheonsa
 
 	menu_visibility_mode_e menu_control_text_c::get_horizontal_scroll_visibility_mode() const
 	{
-		return _horizontal_scroll_visibility_mode;
+		return _horizontal_scroll_bar_visibility_mode;
 	}
 
 	void_c menu_control_text_c::set_horizontal_scroll_visibility_mode( menu_visibility_mode_e value )
 	{
-		_horizontal_scroll_visibility_mode = value;
+		_horizontal_scroll_bar_visibility_mode = value;
 		if ( value == menu_visibility_mode_e_always || value == menu_visibility_mode_e_automatic )
 		{
-			if ( _horizontal_scroll == nullptr )
+			if ( _horizontal_scroll_bar == nullptr )
 			{
-				_horizontal_scroll = new menu_control_scroll_c();
-				_horizontal_scroll->set_name( string8_c( mode_e_static, "horizontal_scroll" ) );
-				_horizontal_scroll->set_orientation( menu_control_scroll_c::orientation_e_horizontal );
-				_horizontal_scroll->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 8.0f, 0.0f, 0.0f ) );
-				_add_control( _horizontal_scroll );
+				_horizontal_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+				_horizontal_scroll_bar->set_name( string8_c( mode_e_static, "horizontal_scroll_bar" ) );
+				_horizontal_scroll_bar->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 8.0f, 0.0f, 0.0f ) );
+				_add_control( _horizontal_scroll_bar );
 			}
 		}
 		else
 		{
-			if ( _horizontal_scroll != nullptr )
+			if ( _horizontal_scroll_bar != nullptr )
 			{
-				_remove_control( _horizontal_scroll->get_index() );
-				delete _horizontal_scroll;
-				_horizontal_scroll = nullptr;
+				_remove_control( _horizontal_scroll_bar->get_index() );
+				delete _horizontal_scroll_bar;
+				_horizontal_scroll_bar = nullptr;
 			}
 		}
-		if ( _horizontal_scroll != nullptr )
+		if ( _horizontal_scroll_bar != nullptr )
 		{
-			_horizontal_scroll->set_value_range_and_page_size( 0.0, _element_text.get_content_width(), _local_box.get_width() );
-			_horizontal_scroll->update_visibility( value );
+			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _element_text.get_content_width(), _local_box.get_width() );
+			_horizontal_scroll_bar->update_visibility( value );
 		}
 	}
 
 	menu_visibility_mode_e menu_control_text_c::get_vertical_scroll_visibility_mode() const
 	{
-		return _vertical_scroll_visibility_mode;
+		return _vertical_scroll_bar_visibility_mode;
 	}
 
 	void_c menu_control_text_c::set_vertical_scroll_visibility_mode( menu_visibility_mode_e value )
 	{
-		_vertical_scroll_visibility_mode = value;
+		_vertical_scroll_bar_visibility_mode = value;
 		if ( value == menu_visibility_mode_e_always || value == menu_visibility_mode_e_automatic )
 		{
-			if ( _vertical_scroll == nullptr )
+			if ( _vertical_scroll_bar == nullptr )
 			{
-				_vertical_scroll = new menu_control_scroll_c();
-				_vertical_scroll->set_name( string8_c( mode_e_static, "vertical_scroll" ) );
-				_vertical_scroll->set_orientation( menu_control_scroll_c::orientation_e_vertical );
-				_vertical_scroll->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
-				_add_control( _vertical_scroll );
+				_vertical_scroll_bar = new menu_control_scroll_bar_vertical_c();
+				_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
+				_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
+				_add_control( _vertical_scroll_bar );
 			}
 		}
 		else
 		{
-			if ( _vertical_scroll != nullptr )
+			if ( _vertical_scroll_bar != nullptr )
 			{
-				_remove_control( _vertical_scroll->get_index() );
-				delete _vertical_scroll;
-				_vertical_scroll = nullptr;
+				_remove_control( _vertical_scroll_bar->get_index() );
+				delete _vertical_scroll_bar;
+				_vertical_scroll_bar = nullptr;
 			}
 		}
-		if ( _vertical_scroll != nullptr )
+		if ( _vertical_scroll_bar != nullptr )
 		{
-			_vertical_scroll->set_value_range_and_page_size( 0.0, _element_text.get_content_height(), _local_box.get_height() );
-			_vertical_scroll->update_visibility( value );
+			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text.get_content_height(), _local_box.get_height() );
+			_vertical_scroll_bar->update_visibility( value );
 		}
 	}
 

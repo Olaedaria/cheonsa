@@ -4,6 +4,14 @@
 namespace cheonsa
 {
 
+	void_c menu_window_c::_on_deep_text_focus_gained()
+	{
+		if ( _user_interface != nullptr )
+		{
+			_user_interface->bring_control_to_front( this );
+		}
+	}
+
 	void_c menu_window_c::_on_mouse_focus_lost()
 	{
 		_grabbed_element = grabbed_element_e_none;
@@ -73,7 +81,7 @@ namespace cheonsa
 			if ( input_event->mouse_key == input_mouse_key_e_left )
 			{
 				_grabbed_element = grabbed_element_e_none;
-				constrain_transform();
+				update_transform_and_layout();
 			}
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_move && _grabbed_element != grabbed_element_e_none )
@@ -189,6 +197,10 @@ namespace cheonsa
 
 	void_c menu_window_c::update_transform_and_layout()
 	{
+		if ( _grabbed_element == grabbed_element_e_none )
+		{
+			constrain_transform();
+		}
 		menu_control_c::update_transform_and_layout();
 	}
 
@@ -220,7 +232,6 @@ namespace cheonsa
 			{
 				_local_origin.a = cap_right;
 			}
-			update_transform_and_layout();
 		}
 	}
 

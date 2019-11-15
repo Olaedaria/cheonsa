@@ -2,7 +2,7 @@
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_text.h"
-#include "cheonsa_menu_control_scroll.h"
+#include "cheonsa_menu_control_scroll_bar.h"
 
 namespace cheonsa
 {
@@ -28,25 +28,25 @@ namespace cheonsa
 		float64_c _alpha; // current alpha value. separate from _rgb so that we can use _rgb|_hsv conversion functions.
 		boolean_c _alpha_enable; // if true then alpha controls will be enabled.
 
-		menu_control_scroll_c * _h_scroll;
+		menu_control_scroll_bar_horizontal_c * _h_scroll_bar;
 		menu_control_text_c * _h_text;
 
-		menu_control_scroll_c * _s_scroll;
+		menu_control_scroll_bar_horizontal_c * _s_scroll_bar;
 		menu_control_text_c * _s_text;
 
-		menu_control_scroll_c * _v_scroll;
+		menu_control_scroll_bar_horizontal_c * _v_scroll_bar;
 		menu_control_text_c * _v_text;
 
-		menu_control_scroll_c * _r_scroll;
+		menu_control_scroll_bar_horizontal_c * _r_scroll_bar;
 		menu_control_text_c * _r_text;
 
-		menu_control_scroll_c * _g_scroll;
+		menu_control_scroll_bar_horizontal_c * _g_scroll_bar;
 		menu_control_text_c * _g_text;
 
-		menu_control_scroll_c * _b_scroll;
+		menu_control_scroll_bar_horizontal_c * _b_scroll_bar;
 		menu_control_text_c * _b_text;
 
-		menu_control_scroll_c * _a_scroll;
+		menu_control_scroll_bar_horizontal_c * _a_scroll_bar;
 		menu_control_text_c * _a_text;
 
 		menu_control_text_c * _rgba_hex_text; // rgba hex integer value.
@@ -56,7 +56,7 @@ namespace cheonsa
 		void_c _update_hsv_from_rgb(); // calculates _hsv from _rgb.
 		void_c _sync_control_values(); // updates controls to reflect internal state.
 
-		void_c _handle_slider_on_value_changed( menu_control_scroll_c * slider );
+		void_c _handle_slider_on_value_changed( menu_control_scroll_i * slider );
 		void_c _handle_text_on_value_changed( menu_control_text_c * text );
 
 	public:

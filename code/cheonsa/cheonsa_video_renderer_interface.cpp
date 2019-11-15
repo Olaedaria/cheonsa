@@ -3668,7 +3668,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < user_interface->_control_list.get_length(); i++ )
 		{
 			menu_control_c * control = user_interface->_control_list[ i ];
-			if ( control->_scene_component_menu_control == nullptr && control->_is_showing_weight > 0.0f && control->_local_color.d > 0.0f )
+			if ( control->_scene_component == nullptr && control->_is_showing_weight > 0.0f && control->_local_color.d > 0.0f )
 			{
 				assert( control->_control_group_draw_list.draw_list.get_length() == 1 );
 				_constant_buffers.menu_batch_block->menu_basis = control->_global_basis.as_vector32x4();

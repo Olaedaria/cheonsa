@@ -13,7 +13,9 @@ namespace cheonsa
 	class resource_manager_c;
 
 	// base class of resources.
-	// a resource object represents a file that is loaded from disk, which the game uses to instantiate content.
+	// a resource file represents a file that is loaded from disk, and which can be reloaded at run time if the source file is modified.
+	// through the resource manager, at most only one resource file is instanced per source file per resource type.
+	// the game can then instance any number of content kinds of objects using a single resource file instance.
 	class resource_file_c
 	{
 	public:

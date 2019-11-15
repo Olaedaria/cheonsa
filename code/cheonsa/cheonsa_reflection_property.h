@@ -168,8 +168,8 @@ namespace cheonsa
 		void_c initialize_basic_limits( void_c * minimum, void_c * maximum ); // minimum and maximum must point to a values of appropriate type.
 		void_c initialize_basic_view_boolean(); // type must be uint8.
 		void_c initialize_basic_view_color(); // type must be uint32x1 (rgba), or uint8x3 (rgb), or uint8x4 (rgba), or float32x3 (rgb), or float32x4 (rgba), or float64x3 (rgb), or float64x4 (rgba).
-		void_c initialize_basic_view_slider(); // type must be float32x1 or float64x1. limits must be set so that the slider has a range to slide around in.
-		void_c initialize_basic_view_scrubber(); // type must be float32x1 or float64x1.
+		void_c initialize_basic_view_scroll_bar(); // type must be float32x1 or float64x1. limits must be set so that the slider has a range to slide around in.
+		void_c initialize_basic_view_scrub_bar(); // type must be float32x1 or float64x1.
 		void_c initialize_basic_view_text(); // type must be string8x1 or string16x1.
 		void_c initialize_basic_view_euler_angles(); // type must be float32x3 (euler), float32x4 (quaternion), float64x3 (euler), or float64x4 (quaternion).
 		void_c initialize_basic_view_enumeration( reflection_enumeration_c const * enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1.

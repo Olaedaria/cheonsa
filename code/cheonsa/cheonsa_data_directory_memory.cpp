@@ -1,5 +1,4 @@
 #include "cheonsa_data_directory_memory.h"
-#include "cheonsa_data_scribe_binary.h"
 
 namespace cheonsa
 {
@@ -90,40 +89,34 @@ namespace cheonsa
 		_file_list.remove_all();
 	}
 
-	boolean_c data_directory_memory_c::save( data_stream_c * stream, byte_order_e byte_order )
+	boolean_c data_directory_memory_c::save( data_scribe_binary_c & scribe )
 	{
 		assert( _file_list.get_length() < constants< sint32_c >::maximum() );
-		data_scribe_binary_c scribe_binary;
-		scribe_binary.set_stream( stream );
-		scribe_binary.set_byte_order( byte_order );
-		scribe_binary.save_uint32( _file_list.get_length() );
+		scribe.save_uint32( _file_list.get_length() );
 		for ( sint32_c i = 0; i < _file_list.get_length(); i++ )
 		{
 			file_c * file = _file_list[ i ];
-			scribe_binary.save_string8( string8_c( file->path ) );
+			scribe.save_string8( string8_c( file->path ) );
 			assert( file->stream.get_size() < constants< sint32_c >::maximum() );
-			scribe_binary.save_uint32( static_cast< uint32_c >( file->stream.get_size() ) );
-			stream->save( file->stream.get_internal_buffer().get_internal_array(), file->stream.get_size() );
+			scribe.save_uint32( static_cast< uint32_c >( file->stream.get_size() ) );
+			scribe.get_stream()->save( file->stream.get_internal_buffer().get_internal_array(), file->stream.get_size() );
 		}
 		return true;
 	}
 
-	boolean_c data_directory_memory_c::load( data_stream_c * stream, byte_order_e byte_order )
+	boolean_c data_directory_memory_c::load( data_scribe_binary_c & scribe )
 	{
 		reset();
-		data_scribe_binary_c scribe_binary;
-		scribe_binary.set_stream( stream );
-		scribe_binary.set_byte_order( byte_order );
-		uint32_c file_count = scribe_binary.load_uint32();
+		uint32_c file_count = scribe.load_uint32();
 		for ( uint32_c i = 0; i < file_count; i++ )
 		{
 			file_c * file = new file_c();
-			file->path = scribe_binary.load_string8();
-			uint32_c file_size = scribe_binary.load_uint32();
+			file->path = scribe.load_string8();
+			uint32_c file_size = scribe.load_uint32();
 			file->stream.close();
 			file->stream.open();
 			file->stream.set_size( file_size );
-			stream->load( file->stream.get_internal_buffer().get_internal_array(), file_size );
+			scribe.get_stream()->load( file->stream.get_internal_buffer().get_internal_array(), file_size );
 		}
 		return true;
 	}

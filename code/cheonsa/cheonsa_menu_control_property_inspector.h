@@ -6,7 +6,8 @@
 #include "cheonsa_menu_control_button.h"
 #include "cheonsa_menu_control_combo.h"
 #include "cheonsa_menu_control_list.h"
-#include "cheonsa_menu_control_scroll.h"
+#include "cheonsa_menu_control_scroll_bar.h"
+#include "cheonsa_menu_control_scrub_bar.h"
 #include "cheonsa_menu_control_label.h"
 #include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_control_color_picker.h"
@@ -35,8 +36,8 @@ namespace cheonsa
 
 			menu_control_text_c * text; // text box for editing string values. also used with sliders to display and edit the value of the slider.
 			menu_control_combo_c * combo; // combo box for editing enumerated values.
-			menu_control_scroll_c * scroll; // slider for editing number values that are constrained to a certain range.
-			menu_control_button_c * button; // edit scroll that appears to the right of text box.
+			menu_control_scroll_i * scroll; // might be a horizontal scroll bar or a horizontal scrub bar, for editing number values that are constrained to a certain range.
+			menu_control_button_c * button; // optional edit button that appears to the right of text box, for values that can be edited by dialog windows.
 
 			menu_control_list_c * item_list;
 			menu_control_button_c * item_add;
@@ -118,8 +119,8 @@ namespace cheonsa
 		//void _handle_value_text_on_character_focus_lost( menu_control_c * control );
 		void_c _handle_value_text_on_value_changed_preview( menu_control_text_c * text );
 		void_c _handle_value_text_on_value_changed_commit( menu_control_text_c * text );
-		void_c _handle_value_scroll_on_value_changed_preview( menu_control_scroll_c * scroll );
-		void_c _handle_value_scroll_on_value_changed_commit( menu_control_scroll_c * scroll );
+		void_c _handle_value_scroll_on_value_changed_preview( menu_control_scroll_i * scroll );
+		void_c _handle_value_scroll_on_value_changed_commit( menu_control_scroll_i * scroll );
 		void_c _handle_value_combo_on_selection_changed_preview( menu_control_combo_list_c * combo_list ); // is called as user mouses over options in combo list.
 		void_c _handle_value_combo_on_selection_changed_commit( menu_control_combo_list_c * combo_list ); // is called when user clicks on an option in combo list.
 		void_c _handle_value_edit_on_click( menu_event_info_c event_info );

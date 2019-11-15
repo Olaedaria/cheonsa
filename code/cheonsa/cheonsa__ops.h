@@ -552,17 +552,12 @@ namespace cheonsa
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba );
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba ); // converts an input string formatted as a list of floats (separated by garbage (anything)) or formatted as hexadecimal string (must be prefixed with '#' or '0x') to an rgba color.
 
-		boolean_c char8_is_space( char8_c a );
+		boolean_c char16_is_printable( char16_c a );
 		boolean_c char16_is_space( char16_c a );
-
-		boolean_c char8_is_letter( char8_c a );
 		boolean_c char16_is_letter( char16_c a );
-
-		boolean_c char8_is_number( char8_c a );
 		boolean_c char16_is_number( char16_c a );
-
-		boolean_c char8_is_punctuation( char8_c a );
 		boolean_c char16_is_punctuation( char16_c a );
+		boolean_c char16_is_control( char16_c a );
 
 		boolean_c char8_compare( char8_c a, char8_c b, boolean_c case_sensitive );
 		boolean_c char16_compare( char16_c a, char16_c b, boolean_c case_sensitive );
