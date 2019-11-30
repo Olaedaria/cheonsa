@@ -235,14 +235,24 @@ namespace cheonsa
 		}
 	}
 
-	string16_c menu_window_c::get_plain_text() const
+	string16_c menu_window_c::get_plain_text_value() const
 	{
-		return _element_text.get_plain_text();
+		return _element_text.get_plain_text_value();
 	}
 
-	void_c menu_window_c::set_plain_text( string16_c const & value )
+	void_c menu_window_c::set_plain_text_value( string8_c const & plain_text )
 	{
-		_element_text.set_plain_text( value );
+		_element_text.set_plain_text_value( plain_text );
+	}
+
+	void_c menu_window_c::set_plain_text_value( string16_c const & plain_text )
+	{
+		_element_text.set_plain_text_value( plain_text );
+	}
+
+	void_c menu_window_c::clear_text_value()
+	{
+		_element_text.clear_text_value();
 	}
 
 	boolean_c menu_window_c::get_user_can_move() const

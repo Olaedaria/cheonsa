@@ -27,7 +27,7 @@ namespace cheonsa
 
 	private:
 		menu_element_frame_c _element_frame; // name is "frame".
-		menu_style_for_frame_c _element_frame_style;
+		menu_frame_style_c _element_frame_style;
 
 	public:
 		menu_control_image_c();

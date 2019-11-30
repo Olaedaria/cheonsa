@@ -194,7 +194,6 @@ namespace cheonsa
 		void_c remove( node_c * node )
 		{
 			assert( node != nullptr );
-			assert( node->_previous != nullptr || node->_next != nullptr );
 			if ( _first == node )
 			{
 				_first = node->_next;

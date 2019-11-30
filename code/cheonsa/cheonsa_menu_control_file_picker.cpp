@@ -16,7 +16,7 @@ namespace cheonsa
 	void_c menu_control_file_picker_c::_add_shortcut_path( string16_c const & absolute_path, string16_c const & friendly_name )
 	{
 		menu_control_list_item_c * list_item = new menu_control_list_item_c();
-		list_item->set_text_plain( friendly_name );
+		list_item->set_plain_text_value( friendly_name );
 		_control_shortcut_list->add_item( list_item );
 
 		_shortcut_path_list.insert_at_end( absolute_path );
@@ -108,24 +108,24 @@ namespace cheonsa
 
 	string16_c menu_control_file_picker_c::get_folder_path() const
 	{
-		return _control_folder_path_text->get_plain_text();
+		return _control_folder_path_text->get_plain_text_value();
 	}
 
 	void_c menu_control_file_picker_c::set_folder_path( string16_c const & value )
 	{
-		_control_folder_path_text->set_plain_text( value );
-		_control_file_name_text->set_plain_text( string16_c() );
+		_control_folder_path_text->set_plain_text_value( value );
+		_control_file_name_text->clear_text_value();
 		refresh_file_collection();
 	}
 
 	string16_c menu_control_file_picker_c::get_file_name() const
 	{
-		return _control_file_name_text->get_plain_text();
+		return _control_file_name_text->get_plain_text_value();
 	}
 
 	void_c menu_control_file_picker_c::set_file_name( string16_c const & value )
 	{
-		_control_file_name_text->set_plain_text( value );
+		_control_file_name_text->set_plain_text_value( value );
 	}
 
 	void_c menu_control_file_picker_c::refresh_shortcut_list()
@@ -141,7 +141,7 @@ namespace cheonsa
 		{
 			_shortcut_path_list.insert_at_end( string16_c( mode_e_static_volatile, ppszPath ) );
 			menu_control_list_item_c * list_item = new menu_control_list_item_c();
-			list_item->set_text_plain( string16_c( mode_e_static_volatile, L"desktop" ) );
+			list_item->set_plain_text_value( string16_c( mode_e_static_volatile, L"desktop" ) );
 			_control_shortcut_list->add_item( list_item );
 			CoTaskMemFree( ppszPath );
 		}

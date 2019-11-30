@@ -32,10 +32,6 @@ namespace cheonsa
 
 		sint32_c get_length() const; // gets the effective length of the string, not including the terminating null character.
 
-		//void_c construct_mode_static(); // resets this string value to "", makes the internal character list reference a static string "".
-		//void_c construct_mode_static_from_array( char16_c const * other ); // makes the internal character list reference the given static string.
-		//void_c construct_mode_dynamic(); // resets this string value to "", if needed converts the internal character list to a dynamic mode list.
-
 		string16_c & operator = ( char8_c const * other ); // makes this string a dynamic mode copy of other string. other string may be utf-8 encoded.
 		string16_c & operator = ( string8_c const & other ); // makes this string a dynamic mode ocpy of other string. other string may be utf-8 encoded.
 		string16_c & operator = ( char16_c const * other ); // makes this string a dynamic mode copy of other string.
@@ -57,9 +53,6 @@ namespace cheonsa
 		boolean_c operator != ( char16_c const * other ) const;
 		boolean_c operator != ( string8_c const & other ) const;
 		boolean_c operator != ( string16_c const & other ) const;
-
-	public:
-		//static void_c transfer_ownership( string16_c & in, string16_c & out );
 
 	};
 

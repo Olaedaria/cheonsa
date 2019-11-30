@@ -7,10 +7,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_window_normal_base"/>
-		<state shared_color_key="e_window_selected_base"/>
-		<state shared_color_key="e_window_pressed_base"/>
-		<state shared_color_key="e_window_disabled_base"/>
+		<state color_style="e_window_normal_base"/>
+		<state color_style="e_window_selected_base"/>
+		<state color_style="e_window_pressed_base"/>
+		<state color_style="e_window_disabled_base"/>
 	</frame>
 
 	<frame
@@ -21,10 +21,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 27"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_window_normal_base"/>
-		<state shared_color_key="e_window_selected_base"/>
-		<state shared_color_key="e_window_pressed_base"/>
-		<state shared_color_key="e_window_disabled_base"/>
+		<state color_style="e_window_normal_base"/>
+		<state color_style="e_window_selected_base"/>
+		<state color_style="e_window_pressed_base"/>
+		<state color_style="e_window_disabled_base"/>
 	</frame>
 
 	<frame
@@ -35,10 +35,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 79"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_base"/>
-		<state shared_color_key="e_field_selected_base"/>
-		<state shared_color_key="e_field_pressed_base"/>
-		<state shared_color_key="e_field_disabled_base"/>
+		<state color_style="e_field_normal_base"/>
+		<state color_style="e_field_selected_base"/>
+		<state color_style="e_field_pressed_base"/>
+		<state color_style="e_field_disabled_base"/>
 	</frame>
 
 	<text
@@ -55,10 +55,10 @@
 		glyph_spacing="0.0"
 		text_align_horizontal="left"
 		text_align_vertical="top">
-		<state shared_color_key="e_window_normal_accent"/>
-		<state shared_color_key="e_window_selected_accent"/>
-		<state shared_color_key="e_window_pressed_accent"/>
-		<state shared_color_key="e_window_disabled_accent"/>
+		<state color_style="e_window_normal_accent"/>
+		<state color_style="e_window_selected_accent"/>
+		<state color_style="e_window_pressed_accent"/>
+		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<text
@@ -74,10 +74,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="top">
-		<state shared_color_key="e_window_normal_accent"/>
-		<state shared_color_key="e_window_selected_accent"/>
-		<state shared_color_key="e_window_pressed_accent"/>
-		<state shared_color_key="e_window_disabled_accent"/>
+		<state color_style="e_window_normal_accent"/>
+		<state color_style="e_window_selected_accent"/>
+		<state color_style="e_window_pressed_accent"/>
+		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<text
@@ -93,10 +93,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="top">
-		<state shared_color_key="e_window_normal_accent"/>
-		<state shared_color_key="e_window_selected_accent"/>
-		<state shared_color_key="e_window_pressed_accent"/>
-		<state shared_color_key="e_window_disabled_accent"/>
+		<state color_style="e_window_normal_accent"/>
+		<state color_style="e_window_selected_accent"/>
+		<state color_style="e_window_pressed_accent"/>
+		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<text
@@ -113,10 +113,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="center">
-		<state shared_color_key="e_window_normal_accent"/>
-		<state shared_color_key="e_window_selected_accent"/>
-		<state shared_color_key="e_window_pressed_accent"/>
-		<state shared_color_key="e_window_disabled_accent"/>
+		<state color_style="e_window_normal_accent"/>
+		<state color_style="e_window_selected_accent"/>
+		<state color_style="e_window_pressed_accent"/>
+		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<frame
@@ -127,10 +127,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 53"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_button_normal_base"/>
-		<state shared_color_key="e_button_selected_base"/>
-		<state shared_color_key="e_button_pressed_base"/>
-		<state shared_color_key="e_button_disabled_base"/>
+		<state color_style="e_button_normal_base"/>
+		<state color_style="e_button_selected_base"/>
+		<state color_style="e_button_pressed_base"/>
+		<state color_style="e_button_disabled_base"/>
 	</frame>
 
 	<text
@@ -147,10 +147,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="center"
 		align_vertical="center">
-		<state shared_color_key="e_button_normal_accent"/>
-		<state shared_color_key="e_button_selected_accent"/>
-		<state shared_color_key="e_button_pressed_accent"/>
-		<state shared_color_key="e_button_disabled_accent"/>
+		<state color_style="e_button_normal_accent"/>
+		<state color_style="e_button_selected_accent"/>
+		<state color_style="e_button_pressed_accent"/>
+		<state color_style="e_button_disabled_accent"/>
 	</text>
 
 	<text
@@ -167,10 +167,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="center"
 		align_vertical="center">
-		<state shared_color_key="e_button_normal_accent"/>
-		<state shared_color_key="e_button_selected_accent"/>
-		<state shared_color_key="e_button_pressed_accent"/>
-		<state shared_color_key="e_button_disabled_accent"/>
+		<state color_style="e_button_normal_accent"/>
+		<state color_style="e_button_selected_accent"/>
+		<state color_style="e_button_pressed_accent"/>
+		<state color_style="e_button_disabled_accent"/>
 	</text>
 
 	<frame
@@ -181,10 +181,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 53"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_button_prime_normal_base"/>
-		<state shared_color_key="e_button_prime_selected_base"/>
-		<state shared_color_key="e_button_prime_pressed_base"/>
-		<state shared_color_key="e_button_prime_disabled_base"/>
+		<state color_style="e_button_prime_normal_base"/>
+		<state color_style="e_button_prime_selected_base"/>
+		<state color_style="e_button_prime_pressed_base"/>
+		<state color_style="e_button_prime_disabled_base"/>
 	</frame>
 
 	<text
@@ -201,10 +201,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="center"
 		align_vertical="center">
-		<state shared_color_key="e_button_prime_normal_accent"/>
-		<state shared_color_key="e_button_prime_selected_accent"/>
-		<state shared_color_key="e_button_prime_pressed_accent"/>
-		<state shared_color_key="e_button_prime_disabled_accent"/>
+		<state color_style="e_button_prime_normal_accent"/>
+		<state color_style="e_button_prime_selected_accent"/>
+		<state color_style="e_button_prime_pressed_accent"/>
+		<state color_style="e_button_prime_disabled_accent"/>
 	</text>
 
 	<text
@@ -221,10 +221,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="center">
-		<state shared_color_key="e_field_normal_accent"/>
-		<state shared_color_key="e_field_selected_accent"/>
-		<state shared_color_key="e_field_pressed_accent"/>
-		<state shared_color_key="e_field_disabled_accent"/>
+		<state color_style="e_field_normal_accent"/>
+		<state color_style="e_field_selected_accent"/>
+		<state color_style="e_field_pressed_accent"/>
+		<state color_style="e_field_disabled_accent"/>
 	</text>
 
 	<frame
@@ -235,10 +235,10 @@
 		texture_map_edges="8 8 8 8"
 		texture_map_origin="1 105"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_accent"/>
-		<state shared_color_key="e_field_selected_accent"/>
-		<state shared_color_key="e_field_pressed_accent"/>
-		<state shared_color_key="e_field_disabled_accent"/>
+		<state color_style="e_field_normal_accent"/>
+		<state color_style="e_field_selected_accent"/>
+		<state color_style="e_field_pressed_accent"/>
+		<state color_style="e_field_disabled_accent"/>
 	</frame>
 
 	<frame
@@ -249,10 +249,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_base" color="1.0 1.0 1.0 0.0"/>
-		<state shared_color_key="e_field_selected_base" color="1.0 1.0 1.0 0.25"/>
-		<state shared_color_key="e_field_pressed_base" color="1.0 1.0 1.0 0.25"/>
-		<state shared_color_key="e_field_disabled_base" color="1.0 1.0 1.0 0.25"/>
+		<state color_style="e_field_normal_base" color="1.0 1.0 1.0 0.0"/>
+		<state color_style="e_field_selected_base" color="1.0 1.0 1.0 0.25"/>
+		<state color_style="e_field_pressed_base" color="1.0 1.0 1.0 0.25"/>
+		<state color_style="e_field_disabled_base" color="1.0 1.0 1.0 0.25"/>
 	</frame>
 
 	<frame
@@ -263,10 +263,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
-		<state shared_color_key="e_field_selected_accent" color="1.0 1.0 1.0 1.0"/>
-		<state shared_color_key="e_field_pressed_accent" color="1.0 1.0 1.0 1.0"/>
-		<state shared_color_key="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_selected_accent" color="1.0 1.0 1.0 1.0"/>
+		<state color_style="e_field_pressed_accent" color="1.0 1.0 1.0 1.0"/>
+		<state color_style="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
 	</frame>
 
 	<frame
@@ -277,10 +277,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_base"/>
-		<state shared_color_key="e_field_selected_base"/>
-		<state shared_color_key="e_field_pressed_base"/>
-		<state shared_color_key="e_field_disabled_base"/>
+		<state color_style="e_field_normal_base"/>
+		<state color_style="e_field_selected_base"/>
+		<state color_style="e_field_pressed_base"/>
+		<state color_style="e_field_disabled_base"/>
 	</frame>
 
 	<frame
@@ -291,10 +291,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 1"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
-		<state shared_color_key="e_field_selected_accent" color="1.0 1.0 1.0 0.5"/>
-		<state shared_color_key="e_field_pressed_accent" color="1.0 1.0 1.0 0.5"/>
-		<state shared_color_key="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_selected_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_pressed_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
 	</frame>
 
 	<frame
@@ -305,10 +305,10 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 27"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
-		<state shared_color_key="e_field_selected_accent" color="1.0 1.0 1.0 0.5"/>
-		<state shared_color_key="e_field_pressed_accent" color="1.0 1.0 1.0 0.5"/>
-		<state shared_color_key="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_selected_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_pressed_accent" color="1.0 1.0 1.0 0.5"/>
+		<state color_style="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
 	</frame>
 
 	<text
@@ -325,10 +325,10 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="center">
-		<state shared_color_key="e_field_normal_accent"/>
-		<state shared_color_key="e_field_selected_accent"/>
-		<state shared_color_key="e_field_pressed_accent"/>
-		<state shared_color_key="e_field_disabled_accent"/>
+		<state color_style="e_field_normal_accent"/>
+		<state color_style="e_field_selected_accent"/>
+		<state color_style="e_field_pressed_accent"/>
+		<state color_style="e_field_disabled_accent"/>
 	</text>
 
 	<frame
@@ -339,10 +339,10 @@
 		texture_map_edges="4 4 25 4"
 		texture_map_origin="1 131"
 		texture_map_fill_middle="true">
-		<state shared_color_key="e_field_normal_base"/>
-		<state shared_color_key="e_field_selected_base"/>
-		<state shared_color_key="e_field_pressed_base"/>
-		<state shared_color_key="e_field_disabled_base"/>
+		<state color_style="e_field_normal_base"/>
+		<state color_style="e_field_selected_base"/>
+		<state color_style="e_field_pressed_base"/>
+		<state color_style="e_field_disabled_base"/>
 	</frame>
 
 	<map key="e_panel">

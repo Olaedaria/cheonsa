@@ -103,11 +103,11 @@ namespace cheonsa
 		menu_control_combo_list_item_c * combo_list_item = _combo_list->get_selected_item();
 		if ( combo_list_item != nullptr )
 		{
-			_element_text.set_plain_text( combo_list_item->get_text_plain() );
+			_element_text.set_plain_text_value( combo_list_item->get_plain_text_value() );
 		}
 		else
 		{
-			_element_text.clear_text();
+			_element_text.clear_text_value();
 		}
 	}
 

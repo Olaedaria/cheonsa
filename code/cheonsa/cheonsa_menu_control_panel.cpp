@@ -67,7 +67,7 @@ namespace cheonsa
 				_horizontal_scroll_bar = new menu_control_scroll_bar_horizontal_c();
 				_horizontal_scroll_bar->set_name( string8_c( mode_e_static, "horizontal_scroll_bar" ) );
 				_horizontal_scroll_bar->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 8.0f, 0.0f, 0.0f ) );
-				_horizontal_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_panel_c::_handle_scroll_on_value_changed );
+				_horizontal_scroll_bar->on_value_changed.subscribe( this, &menu_control_panel_c::_handle_scroll_on_value_changed );
 				_add_control( _horizontal_scroll_bar );
 			}
 		}
@@ -102,7 +102,7 @@ namespace cheonsa
 				_vertical_scroll_bar = new menu_control_scroll_bar_vertical_c();
 				_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
 				_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
-				_vertical_scroll_bar->on_value_changed_commit.subscribe( this, &menu_control_panel_c::_handle_scroll_on_value_changed );
+				_vertical_scroll_bar->on_value_changed.subscribe( this, &menu_control_panel_c::_handle_scroll_on_value_changed );
 				_add_control( _vertical_scroll_bar );
 			}
 		}

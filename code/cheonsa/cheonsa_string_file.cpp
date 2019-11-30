@@ -56,7 +56,7 @@ namespace cheonsa
 
 				// save key.
 				offsets.insert_at_end( _byte_heap.get_length() ); // record start of key.
-				_byte_heap.insert_range_at_end( key_attribute->get_value().character_list.get_internal_array(), key_attribute->get_value().character_list.get_length() ); // copy key to byte buffer.
+				_byte_heap.insert_at_end( key_attribute->get_value().character_list.get_internal_array(), key_attribute->get_value().character_list.get_length() ); // copy key to byte buffer.
 				offsets.insert_at_end( _byte_heap.get_length() ); // record end of key, which is also start of value.
 
 				// save value.
@@ -64,7 +64,7 @@ namespace cheonsa
 				if ( string_text && string_text->get_type() == data_scribe_markup_c::node_c::type_e_text )
 				{
 					// text node found.
-					_byte_heap.insert_range_at_end( string_text->get_value().character_list.get_internal_array(), string_text->get_value().character_list.get_length() );
+					_byte_heap.insert_at_end( string_text->get_value().character_list.get_internal_array(), string_text->get_value().character_list.get_length() );
 				}
 				else
 				{

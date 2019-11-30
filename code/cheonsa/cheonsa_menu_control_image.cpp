@@ -12,21 +12,21 @@ namespace cheonsa
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_element_frame.set_override_style( &_element_frame_style );
-		_element_frame_style.texture_map_mode = menu_style_for_frame_c::texture_map_mode_e_scale_to_fit;
+		_element_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
 		_add_element( &_element_frame );
 	}
 
 	menu_control_image_c::mode_e menu_control_image_c::get_mode() const
 	{
-		if ( _element_frame_style.texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_stretch )
+		if ( _element_frame_style.texture_map_mode == menu_frame_style_c::texture_map_mode_e_stretch )
 		{
 			return mode_e_stretch;
 		}
-		else if ( _element_frame_style.texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_scale_to_fit )
+		else if ( _element_frame_style.texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fit )
 		{
 			return mode_e_scale_to_fit;
 		}
-		else if ( _element_frame_style.texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_scale_to_fill )
+		else if ( _element_frame_style.texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fill )
 		{
 			return mode_e_scale_to_fill;
 		}
@@ -38,15 +38,15 @@ namespace cheonsa
 	{
 		if ( mode == mode_e_stretch )
 		{
-			_element_frame_style.texture_map_mode = menu_style_for_frame_c::texture_map_mode_e_stretch;
+			_element_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_stretch;
 		}
 		else if ( mode == mode_e_scale_to_fit )
 		{
-			_element_frame_style.texture_map_mode = menu_style_for_frame_c::texture_map_mode_e_scale_to_fit;
+			_element_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
 		}
 		else if ( mode == mode_e_scale_to_fill )
 		{
-			_element_frame_style.texture_map_mode = menu_style_for_frame_c::texture_map_mode_e_scale_to_fill;
+			_element_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fill;
 		}
 	}
 

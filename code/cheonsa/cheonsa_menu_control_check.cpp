@@ -35,66 +35,34 @@ namespace cheonsa
 		set_style_map_key( string8_c( mode_e_static, "e_check" ) );
 	}
 
-	void_c menu_control_check_c::update_animations( float32_c time_step )
+	string16_c menu_control_check_c::get_plain_text_value() const
 	{
-		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
-		_element_box.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_box.set_is_pressed( _is_pressed );
-		_element_mark.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_mark.set_is_pressed( _is_pressed );
-		_element_text.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_text.set_is_pressed( _is_pressed );
-		menu_control_c::update_animations( time_step );
+		return _element_text.get_plain_text_value();
 	}
 
-	void_c menu_control_check_c::load_properties( data_scribe_markup_c::node_c const * node )
+	void_c menu_control_check_c::set_plain_text_value( string8_c const & plain_text )
 	{
-		menu_control_c::load_properties( node );
-
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-		
-		_mode = mode_e_normal;
-		attribute = node->find_attribute( "mode" );
-		if ( attribute )
-		{
-			if ( attribute->get_value() == "normal" )
-			{
-				_mode = mode_e_normal;
-			}
-			else if ( attribute->get_value() == "single" )
-			{
-				_mode = mode_e_single;
-			}
-		}
-
-		_is_checked = false;
-		attribute = node->find_attribute( "checked" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_boolean( attribute->get_value(), _is_checked );
-		}
+		_element_text.set_plain_text_value( plain_text );
 	}
 
-	string_c::reference_c & menu_control_check_c::get_string_reference()
+	void_c menu_control_check_c::set_plain_text_value( string16_c const & plain_text )
 	{
-		return _element_text.get_string_reference();
+		_element_text.set_plain_text_value( plain_text );
 	}
 
-	string16_c menu_control_check_c::get_plain_text() const
+	void_c menu_control_check_c::set_rich_text_value( string8_c const & plain_text_with_mark_up )
 	{
-		return _element_text.get_plain_text();
+		_element_text.set_rich_text_value( plain_text_with_mark_up );
 	}
 
-	void_c menu_control_check_c::set_plain_text( string16_c const & plain_text )
+	void_c menu_control_check_c::set_rich_text_value( string16_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_text_format_mode( menu_text_format_mode_e_plain );
-		_element_text.set_plain_text( plain_text );
+		_element_text.set_rich_text_value( plain_text_with_mark_up );
 	}
 
-	void_c menu_control_check_c::set_rich_text( string8_c const & plain_text_with_markup )
+	void_c menu_control_check_c::clear_text_value()
 	{
-		_element_text.set_text_format_mode( menu_text_format_mode_e_rich );
-		_element_text.set_rich_text( plain_text_with_markup );
+		_element_text.clear_text_value();
 	}
 
 	menu_control_check_c::mode_e menu_control_check_c::get_mode() const
@@ -139,6 +107,46 @@ namespace cheonsa
 				_element_mark.set_is_showing( false );
 				on_checked_changed.invoke( this );
 			}
+		}
+	}
+
+	void_c menu_control_check_c::update_animations( float32_c time_step )
+	{
+		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
+		_element_box.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_box.set_is_pressed( _is_pressed );
+		_element_mark.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_mark.set_is_pressed( _is_pressed );
+		_element_text.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_text.set_is_pressed( _is_pressed );
+		menu_control_c::update_animations( time_step );
+	}
+
+	void_c menu_control_check_c::load_properties( data_scribe_markup_c::node_c const * node )
+	{
+		menu_control_c::load_properties( node );
+
+		data_scribe_markup_c::attribute_c const * attribute = nullptr;
+		
+		_mode = mode_e_normal;
+		attribute = node->find_attribute( "mode" );
+		if ( attribute )
+		{
+			if ( attribute->get_value() == "normal" )
+			{
+				_mode = mode_e_normal;
+			}
+			else if ( attribute->get_value() == "single" )
+			{
+				_mode = mode_e_single;
+			}
+		}
+
+		_is_checked = false;
+		attribute = node->find_attribute( "checked" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_boolean( attribute->get_value(), _is_checked );
 		}
 	}
 

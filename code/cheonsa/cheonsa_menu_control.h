@@ -31,7 +31,6 @@ namespace cheonsa
 	protected:
 		friend class user_interface_c;
 		friend class menu_style_manager_c; // to call _global_resolve_style_maps.
-		friend class menu_render_procedure_c;
 		friend class video_renderer_interface_c;
 		friend class menu_control_panel_c;
 

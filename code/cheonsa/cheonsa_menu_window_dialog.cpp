@@ -143,7 +143,7 @@ namespace cheonsa
 			if ( _control_button_a )
 			{
 				_control_button_a->set_layout_box_anchor( box_anchor, box_c );
-				_control_button_a->set_plain_text( string16_c( mode_e_static, L"okay" ) );
+				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
 				_control_button_a->show_immediately();
 			}
 			if ( _control_button_b )
@@ -174,13 +174,13 @@ namespace cheonsa
 			}
 			if ( _mode == mode_e_okay_cancel )
 			{
-				_control_button_a->set_plain_text( string16_c( mode_e_static, L"okay" ) );
-				_control_button_b->set_plain_text( string16_c( mode_e_static, L"cancel" ) );
+				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
+				_control_button_b->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
 			}
 			else if ( _mode == mode_e_yes_no )
 			{
-				_control_button_a->set_plain_text( string16_c( mode_e_static, L"yes" ) );
-				_control_button_b->set_plain_text( string16_c( mode_e_static, L"no" ) );
+				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"yes" ) );
+				_control_button_b->set_plain_text_value( string16_c( mode_e_static, L"no" ) );
 			}
 		}
 		else if ( _mode == mode_e_yes_no_cancel )
@@ -188,19 +188,19 @@ namespace cheonsa
 			if ( _control_button_a )
 			{
 				_control_button_a->set_layout_box_anchor( box_anchor, box_a );
-				_control_button_a->set_plain_text( string16_c( mode_e_static, L"yes" ) );
+				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"yes" ) );
 				_control_button_a->show_immediately();
 			}
 			if ( _control_button_b )
 			{
 				_control_button_b->set_layout_box_anchor( box_anchor, box_b );
-				_control_button_b->set_plain_text( string16_c( mode_e_static, L"no" ) );
+				_control_button_b->set_plain_text_value( string16_c( mode_e_static, L"no" ) );
 				_control_button_b->show_immediately();
 			}
 			if ( _control_button_c )
 			{
 				_control_button_c->set_layout_box_anchor( box_anchor, box_c );
-				_control_button_c->set_plain_text( string16_c( mode_e_static, L"cancel" ) );
+				_control_button_c->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
 				_control_button_c->show_immediately();
 			}
 		}

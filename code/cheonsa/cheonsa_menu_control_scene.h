@@ -25,7 +25,7 @@ namespace cheonsa
 
 	private:
 		menu_element_frame_c _element_frame; // does not have a name.
-		menu_style_for_frame_c _element_frame_style; // style override for frame element.
+		menu_frame_style_c _element_frame_style; // style override for frame element.
 
 		video_renderer_canvas_c * _canvas; // canvas, sized to be same as size of _local_box.
 		resource_file_texture_c _canvas_wrapper; // canvas wrapper, so that the contents of the canvas can be bound as a texture input and rendered like a menu frame. this has to be resized each time the canvas is resized.

@@ -59,22 +59,6 @@ namespace cheonsa
 		return character_list.get_length() - 1;
 	}
 
-	//void_c string16_c::construct_mode_static()
-	//{
-	//	character_list.construct_mode_static_from_array( L"", 1 );
-	//}
-
-	//void_c string16_c::construct_mode_static_from_array( char16_c const * other )
-	//{
-	//	character_list.construct_mode_static_from_array( other, ops::string16_find_length( other ) + 1 );
-	//}
-
-	//void_c string16_c::construct_mode_dynamic()
-	//{
-	//	character_list.construct_mode_dynamic( 1 ); // this will behave like character_list.construct_mode_dynamic_but_keep_allocated() if character_list is already allocated to allocation length >= 1, otherwise it will reallocate it.
-	//	character_list[ 0 ] = 0;
-	//}
-
 	string16_c & string16_c::operator = ( char8_c const * other )
 	{
 		character_list.remove_all();
@@ -145,7 +129,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove_at_end();
-		character_list.insert_range_at_end( other, ops::string16_find_length( other ) + 1 );
+		character_list.insert_at_end( other, ops::string16_find_length( other ) + 1 );
 		return *this;
 	}
 
@@ -167,7 +151,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove_at_end();
-		character_list.insert_range_at_end( other.character_list.get_internal_array(), other.character_list.get_length() );
+		character_list.insert_at_end( other.character_list.get_internal_array(), other.character_list.get_length() );
 		return *this;
 	}
 
@@ -214,10 +198,5 @@ namespace cheonsa
 	{
 		return ! operator == ( other );
 	}
-
-	//void_c string16_c::transfer_ownership( string16_c & in, string16_c & out )
-	//{
-	//	in.character_list.transfer_to( out.character_list );
-	//}
 
 }

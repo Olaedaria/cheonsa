@@ -42,7 +42,7 @@ namespace cheonsa
 						list_item->_is_selected = false;
 						list_item->_element_frame_selected.set_is_showing( false );
 					}
-					list_box->_selected_item_list.remove_range_at_index( deselect_count, 0 );
+					list_box->_selected_item_list.remove_at_index( 0, deselect_count );
 					list_box->_on_selection_changed();
 				}
 			}

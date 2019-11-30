@@ -248,13 +248,13 @@ namespace cheonsa
 			if ( property->_type == data_type_e_category_label )
 			{
 				property_field->label->set_name( string8_c( mode_e_static, "category_label" ) );
-				property_field->label->set_plain_text( string16_c( property->_name ) );
+				property_field->label->set_plain_text_value( string16_c( property->_name ) );
 				_add_control( property_field->label );
 			}
 			else
 			{
 				property_field->label->set_name( string8_c( mode_e_static, "property_label" ) );
-				property_field->label->set_plain_text( string16_c( property->_name ) );
+				property_field->label->set_plain_text_value( string16_c( property->_name ) );
 				_add_control( property_field->label );
 
 				// create text control if needed.
@@ -265,7 +265,7 @@ namespace cheonsa
 					property_field->text->set_name( string8_c( mode_e_static, "property_value_text" ) );
 					if ( property->_view == data_view_e_text )
 					{
-						property_field->text->set_text_edit_mode( menu_text_edit_mode_e_static );
+						property_field->text->set_text_interact_mode( menu_text_interact_mode_e_static );
 					}
 					_add_control( property_field->text );
 				}
@@ -276,7 +276,7 @@ namespace cheonsa
 					property_field->button = new menu_control_button_c();
 					property_field->button->set_user_pointer( property_field );
 					property_field->button->set_name( string8_c( mode_e_static, "property_value_button" ) );
-					property_field->button->set_plain_text( string16_c( mode_e_static, L"..." ) );
+					property_field->button->set_plain_text_value( string16_c( mode_e_static, L"..." ) );
 					property_field->button->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_value_edit_on_click );
 					_add_control( property_field->button );
 				}
@@ -312,7 +312,7 @@ namespace cheonsa
 					property_field->scroll->set_value_minimum( value_minimum );
 					property_field->scroll->set_value_maximum( value_maximum );
 					property_field->scroll->on_value_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_preview );
-					property_field->scroll->on_value_changed_commit.subscribe( this, &menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_commit );
+					property_field->scroll->on_value_changed.subscribe( this, &menu_control_property_inspector_c::_handle_value_scroll_on_value_changed );
 					_add_control( property_field->scroll );
 				}
 
@@ -324,11 +324,11 @@ namespace cheonsa
 					property_field->combo = new menu_control_combo_c();
 					property_field->combo->set_name( string8_c( mode_e_static, "property_value_combo" ) );
 					//property_field->combo->get_combo_list()->on_selection_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_combo_on_selection_changed_preview );
-					property_field->combo->get_combo_list()->on_selection_changed_commit.subscribe( this, &menu_control_property_inspector_c::_handle_value_combo_on_selection_changed_commit );
+					property_field->combo->get_combo_list()->on_selection_changed_commit.subscribe( this, &menu_control_property_inspector_c::_handle_value_combo_on_selection_changed );
 					for ( sint32_c j = 0; j < enumeration->get_value_count(); j++ ) // populate combo control.
 					{
 						menu_control_combo_list_item_c * combo_list_item = new menu_control_combo_list_item_c();
-						combo_list_item->set_text_plain( string16_c( enumeration->get_value( j )->get_name() ) );
+						combo_list_item->set_plain_text_value( string16_c( enumeration->get_value( j )->get_name() ) );
 						property_field->combo->get_combo_list()->add_item( combo_list_item );
 					}
 					_add_control( property_field->combo );
@@ -354,31 +354,31 @@ namespace cheonsa
 
 					property_field->item_add = new menu_control_button_c();
 					property_field->item_add->set_user_pointer( property_field );
-					property_field->item_add->set_plain_text( string16_c( mode_e_static, L"+" ) );
+					property_field->item_add->set_plain_text_value( string16_c( mode_e_static, L"+" ) );
 					property_field->item_add->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_add_on_click );
 					_add_control( property_field->item_add );
 
 					property_field->item_remove = new menu_control_button_c();
 					property_field->item_remove->set_user_pointer( property_field );
-					property_field->item_remove->set_plain_text( string16_c( mode_e_static, L"-" ) );
+					property_field->item_remove->set_plain_text_value( string16_c( mode_e_static, L"-" ) );
 					property_field->item_remove->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_remove_on_click );
 					_add_control( property_field->item_remove );
 
 					property_field->item_move_up = new menu_control_button_c();
 					property_field->item_move_up->set_user_pointer( property_field );
-					property_field->item_move_up->set_plain_text( string16_c( mode_e_static, L"u" ) );
+					property_field->item_move_up->set_plain_text_value( string16_c( mode_e_static, L"u" ) );
 					property_field->item_move_up->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_move_up_on_click );
 					_add_control( property_field->item_move_up );
 
 					property_field->item_move_down = new menu_control_button_c();
 					property_field->item_move_down->set_user_pointer( property_field );
-					property_field->item_move_down->set_plain_text( string16_c( mode_e_static, L"d" ) );
+					property_field->item_move_down->set_plain_text_value( string16_c( mode_e_static, L"d" ) );
 					property_field->item_move_down->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_move_down_on_click );
 					_add_control( property_field->item_move_down );
 
 					property_field->item_sort = new menu_control_button_c();
 					property_field->item_sort->set_user_pointer( property_field );
-					property_field->item_sort->set_plain_text( string16_c( mode_e_static, L"s" ) );
+					property_field->item_sort->set_plain_text_value( string16_c( mode_e_static, L"s" ) );
 					property_field->item_sort->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_sort_on_click );
 					_add_control( property_field->item_sort );
 				}
@@ -402,7 +402,7 @@ namespace cheonsa
 			if ( property_field->text )
 			{
 				property_field->text->disable();
-				property_field->text->set_plain_text( string16_c() );
+				property_field->text->clear_text_value();
 			}
 			if ( property_field->button )
 			{
@@ -451,7 +451,7 @@ namespace cheonsa
 		{
 			string16_c value_as_string16;
 			value_as_string16 = reflection_convert_value_to_string16( property, value );
-			property_field->text->set_plain_text( value_as_string16 );
+			property_field->text->set_plain_text_value( value_as_string16 );
 		}
 
 		// provide value to view editors.
@@ -515,7 +515,7 @@ namespace cheonsa
 			{
 				reflection_object_c * object = property->_accessors._object_list_item_getter( _bound_reflection_object, i );
 				menu_control_list_item_c * list_item = new menu_control_list_item_c();
-				list_item->set_text_plain( object->get_reflection_display_name() );
+				list_item->set_plain_text_value( object->get_reflection_display_name() );
 				property_field->item_list->add_item( list_item );
 			}
 
@@ -616,7 +616,7 @@ namespace cheonsa
 		}
 		else if ( property_field->text && control == property_field->text )
 		{
-			string16_c new_value_as_string16 = property_field->text->get_plain_text();
+			string16_c new_value_as_string16 = property_field->text->get_plain_text_value();
 			reflection_convert_string16_to_value( property_field->bound_reflection_property, new_value, new_value_as_string16 );
 		}
 		else if ( control == _color_picker )
@@ -635,7 +635,7 @@ namespace cheonsa
 		}
 		else if ( control == _text_editor )
 		{
-			new_value.string16 = _text_editor->get_plain_text();
+			new_value.string16 = _text_editor->get_plain_text_value();
 			if ( property_field->bound_reflection_property->_type == data_type_e_string8 )
 			{
 				new_value.string8 = new_value.string16;
@@ -682,7 +682,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_property_inspector_c::_handle_value_text_on_value_changed_commit( menu_control_text_c * text )
+	void_c menu_control_property_inspector_c::_handle_value_text_on_value_changed( menu_control_text_c * text )
 	{
 		if ( !_mute )
 		{
@@ -698,7 +698,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_commit( menu_control_scroll_i * scroll )
+	void_c menu_control_property_inspector_c::_handle_value_scroll_on_value_changed( menu_control_scroll_i * scroll )
 	{
 		if ( !_mute )
 		{
@@ -714,7 +714,7 @@ namespace cheonsa
 		}
 	}
 	
-	void_c menu_control_property_inspector_c::_handle_value_combo_on_selection_changed_commit( menu_control_combo_list_c * combo_list )
+	void_c menu_control_property_inspector_c::_handle_value_combo_on_selection_changed( menu_control_combo_list_c * combo_list )
 	{
 		if ( !_mute )
 		{
@@ -764,7 +764,7 @@ namespace cheonsa
 			{
 				_editing_property_field->bound_reflection_property->_accessors._value_getter( _bound_reflection_object, &value_as_string16 );
 			}
-			_text_editor->set_plain_text( value_as_string16 );
+			_text_editor->set_plain_text_value( value_as_string16 );
 			_text_editor_dialog->show();
 		}
 		else if ( _editing_property_field->bound_reflection_property->_view == data_view_e_file_path )
@@ -837,7 +837,7 @@ namespace cheonsa
 		reflection_object_c * new_reflection_object = property_field->bound_reflection_property->_accessors._object_list_item_adder( _bound_reflection_object, at_index );
 		menu_control_list_item_c * new_list_item = new menu_control_list_item_c();
 		new_list_item->set_user_pointer( new_reflection_object );
-		new_list_item->set_text_plain( new_reflection_object->get_reflection_display_name() );
+		new_list_item->set_plain_text_value( new_reflection_object->get_reflection_display_name() );
 		property_field->item_list->add_item( new_list_item, at_index );
 		property_field->item_list->set_selected_item_index( at_index );
 	}
@@ -855,7 +855,7 @@ namespace cheonsa
 		assert( _editing_property_field->item_list );
 		_pending_delete_list_item_index = _editing_property_field->item_list->get_selected_item_index();
 
-		_message->set_plain_text( string16_c( "are you sure you want to delete the selected item?" ) );
+		_message->set_plain_text_value( string16_c( "are you sure you want to delete the selected item?" ) );
 		_message_dialog->show();
 	}
 
@@ -943,7 +943,7 @@ namespace cheonsa
 		{
 			if ( dialog->get_result() == menu_window_dialog_c::result_e_okay )
 			{
-				new_value.string16 = _text_editor->get_plain_text();
+				new_value.string16 = _text_editor->get_plain_text_value();
 				if ( _editing_property_field->bound_reflection_property->_type == data_type_e_string8 )
 				{
 					new_value.string8 = new_value.string16;

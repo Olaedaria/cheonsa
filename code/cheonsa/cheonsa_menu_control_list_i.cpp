@@ -5,7 +5,7 @@
 namespace cheonsa
 {
 
-	void_c menu_control_list_item_i::_handle_element_text_on_value_changed_commit( menu_element_text_c * element )
+	void_c menu_control_list_item_i::_handle_element_text_on_value_changed( menu_element_text_c * element )
 	{
 		if ( _mother_control )
 		{
@@ -50,7 +50,7 @@ namespace cheonsa
 		_add_element( &_element_frame_selected );
 
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
-		_element_text.on_value_changed_commit.subscribe( this, &menu_control_list_item_i::_handle_element_text_on_value_changed_commit );
+		_element_text.on_text_value_changed.subscribe( this, &menu_control_list_item_i::_handle_element_text_on_value_changed );
 		_add_element( &_element_text );
 
 		set_style_map_key( string8_c( mode_e_static, "e_list_item" ) );
@@ -76,7 +76,6 @@ namespace cheonsa
 		new_local_box.minimum.b = 0.0f;
 		new_local_box.maximum.b = 100.0f;
 		set_layout_simple( new_local_box );
-		_element_text.update_text_layout();
 		float32_c content_height = _element_text.get_content_height();
 		if ( content_height < 8.0f )
 		{
@@ -121,7 +120,7 @@ namespace cheonsa
 								list_item->_is_selected = false;
 								list_item->_element_frame_selected.set_is_showing( false );
 							}
-							list->_selected_item_list.remove_range_at_index( deselect_count, 0 );
+							list->_selected_item_list.remove_at_index( 0, deselect_count );
 							list->_on_selection_changed();
 						}
 					}
@@ -138,36 +137,54 @@ namespace cheonsa
 		}
 	}
 
-	string_c::reference_c & menu_control_list_item_i::get_string_reference()
+	string16_c menu_control_list_item_i::get_plain_text_value() const
 	{
-		return _element_text.get_string_reference();
+		return _element_text.get_plain_text_value();
 	}
 
-	string16_c menu_control_list_item_i::get_text_plain() const
+	void_c menu_control_list_item_i::set_plain_text_value( string8_c const & plain_text )
 	{
-		return _element_text.get_plain_text();
-	}
-
-	void_c menu_control_list_item_i::set_text_plain( string16_c const & plain_text )
-	{
-		_element_text.set_plain_text( plain_text );
-		if ( _mother_control )
+		_element_text.set_plain_text_value( plain_text );
+		if ( _mother_control != nullptr )
 		{
-			update_transform_and_layout();
 			menu_control_list_i * list = static_cast< menu_control_list_i * >( _mother_control );
 			list->_list_item_holder->_item_layout_is_dirty = true;
 		}
 	}
 
-	void_c menu_control_list_item_i::set_text_rich( string8_c const & plain_text_with_markup )
+	void_c menu_control_list_item_i::set_plain_text_value( string16_c const & plain_text )
 	{
-		_element_text.set_rich_text( plain_text_with_markup );
-		if ( _mother_control )
+		_element_text.set_plain_text_value( plain_text );
+		if ( _mother_control != nullptr )
 		{
-			update_transform_and_layout();
 			menu_control_list_i * list = static_cast< menu_control_list_i * >( _mother_control );
 			list->_list_item_holder->_item_layout_is_dirty = true;
 		}
+	}
+
+	void_c menu_control_list_item_i::set_rich_text_value( string8_c const & plain_text_with_mark_up )
+	{
+		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		if ( _mother_control != nullptr )
+		{
+			menu_control_list_i * list = static_cast< menu_control_list_i * >( _mother_control );
+			list->_list_item_holder->_item_layout_is_dirty = true;
+		}
+	}
+
+	void_c menu_control_list_item_i::set_rich_text_value( string16_c const & plain_text_with_mark_up )
+	{
+		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		if ( _mother_control != nullptr )
+		{
+			menu_control_list_i * list = static_cast< menu_control_list_i * >( _mother_control );
+			list->_list_item_holder->_item_layout_is_dirty = true;
+		}
+	}
+
+	void_c menu_control_list_item_i::clear_text_value()
+	{
+		_element_text.clear_text_value();
 	}
 
 	void_c menu_control_list_i::_vertical_scroll_handle_on_value_changed( menu_control_scroll_i * control )
@@ -196,7 +213,7 @@ namespace cheonsa
 					list_item->_is_selected = false;
 					list_item->_element_frame_selected.set_is_showing( false );
 				}
-				_selected_item_list.remove_range_at_index( deselect_count, 0 );
+				_selected_item_list.remove_at_index( 0, deselect_count );
 				_on_selection_changed();
 			}
 		}
@@ -526,31 +543,6 @@ namespace cheonsa
 		}
 		set_vertical_scroll_visibility_mode( vertical_scroll_visibility_mode );
 	}
-
-	//void_c menu_control_list_i::set_mode( mode_e value, float32_c vertical_size_maximum )
-	//{
-	//	if ( value == menu_list_mode_e_list )
-	//	{
-	//		_layer = menu_layer_e_base;
-	//		set_vertical_size_mode( menu_size_mode_e_fixed, vertical_size_maximum );
-	//		set_scroll_bar_y_mode( menu_scroll_bar_mode_e_automatic );
-	//		set_list_item_select_mode( menu_list_item_select_mode_e_single );
-	//	}
-	//	else if ( value == menu_list_mode_e_popup_list )
-	//	{
-	//		_layer = menu_layer_e_popup;
-	//		set_vertical_size_mode( menu_size_mode_e_fit_to_content, vertical_size_maximum );
-	//		set_scroll_bar_y_mode( menu_scroll_bar_mode_e_automatic );
-	//		set_list_item_select_mode( menu_list_item_select_mode_e_single );
-	//	}
-	//	else if ( value == menu_list_mode_e_popup_menu )
-	//	{
-	//		_layer = menu_layer_e_popup;
-	//		set_vertical_size_mode( menu_size_mode_e_fit_to_content, vertical_size_maximum );
-	//		set_scroll_bar_y_mode( menu_scroll_bar_mode_e_automatic );
-	//		set_list_item_select_mode( menu_list_item_select_mode_e_none );
-	//	}
-	//}
 
 	menu_visibility_mode_e menu_control_list_i::get_vertical_scroll_visibility_mode() const
 	{

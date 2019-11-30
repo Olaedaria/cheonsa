@@ -43,9 +43,10 @@ namespace cheonsa
 	class menu_element_c;
 	class menu_element_frame_c;
 	class menu_element_text_c;
-	class menu_style_for_frame_c;
-	class menu_style_for_text_c;
-	class menu_style_for_text_glyph_c;
+	class menu_color_style_c;
+	class menu_frame_style_c;
+	class menu_text_style_c;
+	class menu_text_glyph_style_c;
 	class menu_style_map_c;
 	class menu_style_file_c;
 	class menu_style_manager_c;
@@ -159,7 +160,7 @@ namespace cheonsa
 
 	enum menu_text_align_horizontal_e
 	{
-		menu_text_align_horizontal_e_inherit_from_style, // can be set on the text element only, if it wants the horizontal text alignment to be inherited from the menu_style_for_text_c instead.
+		menu_text_align_horizontal_e_inherit_from_style, // can be set on the text element only, if it wants to inherit horizontal text alignment property from the text style that it has assigned to it.
 		menu_text_align_horizontal_e_left,
 		menu_text_align_horizontal_e_center,
 		menu_text_align_horizontal_e_right,
@@ -168,21 +169,49 @@ namespace cheonsa
 
 	enum menu_text_align_vertical_e
 	{
-		menu_text_align_vertical_e_inherit_from_style, // can be set on the text element only, if it wants the horizontal text alignment to be inherited from the menu_style_for_text_c instead.
+		menu_text_align_vertical_e_inherit_from_style, // can be set on the text element only, if it wants to inherit the vertical text alignment property from the text style that it has assigned to it.
 		menu_text_align_vertical_e_top,
 		menu_text_align_vertical_e_center,
 		menu_text_align_vertical_e_bottom,
 	};
 
-	enum menu_text_selection_mode_e
+	enum menu_text_select_mode_e
 	{
-		menu_text_selection_mode_e_character, // extends the selection around the character under the cursor. can be invoked via click and drag, or shift + directional input.
-		menu_text_selection_mode_e_word, // extends the selection around the word under the cursor. can be invoked via double-click and drag, or shift + ctrl + directional input.
-		//menu_text_selection_mode_e_line, // extends the selection around the line under the cursor. can be invoked via triple-click and drag.
-		menu_text_selection_mode_e_paragraph, // extends the selection around the paragraph under the cursor. can be invoked via triple-click and drag.
+		menu_text_select_mode_e_character, // extends the selection around the character under the cursor. can be invoked via click and drag, or shift + directional input.
+		menu_text_select_mode_e_word, // extends the selection around the word under the cursor. can be invoked via double-click and drag, or shift + ctrl + directional input.
+		menu_text_select_mode_e_paragraph, // extends the selection around the paragraph under the cursor. can be invoked via triple-click and drag.
 	};
 
-	// built in shared styles for color.
+	enum menu_text_interact_mode_e
+	{
+		menu_text_interact_mode_e_static, // text is static, can't be interacted with by the user.
+		menu_text_interact_mode_e_static_selectable, // text is static, but can be selected and copied by the user.
+		menu_text_interact_mode_e_editable, // text is editable by the user.
+	};
+
+	enum menu_text_format_mode_e
+	{
+		menu_text_format_mode_e_plain, // all text uses the same style, does not support rich formatting.
+		menu_text_format_mode_e_rich, // text supports rich formatting. currently, does not work with editable 
+	};
+
+	enum menu_text_filter_mode_e
+	{
+		menu_text_filter_mode_e_none,
+		menu_text_filter_mode_e_number_integer,
+		menu_text_filter_mode_e_number_real,
+		menu_text_filter_mode_e_string,
+	};
+
+	enum menu_text_flag_e
+	{
+		menu_text_flag_e_none = 0x00,
+		menu_text_flag_e_bold = 0x01,
+		menu_text_flag_e_italic = 0x02,
+		menu_text_flag_e_underline = 0x04,
+	};
+
+	// built in shared color styles.
 	// used by shared_colors in style manager.
 	// combines different types of controls with states and two colors.
 	// types of controls:
@@ -239,20 +268,23 @@ namespace cheonsa
 		menu_shared_color_e_count_
 	};
 
-	class menu_shared_color_c
+	// these define color values that can be shared and used by any number of elements.
+	// the menu style manager holds a built in fixed length collection of these, one for each enum menu_shared_color_e, these built in shared colors are intended to be controlled by the program at run time.
+	// the menu "styles.xml" files may define (in a data driven way) additional color styles.
+	class menu_color_style_c
 	{
 	public:
 		class reference_c
 		{
 		private:
 			string8_c _key;
-			menu_shared_color_c const * _value;
+			menu_color_style_c const * _value;
 
 		public:
 			string8_c const & get_key() const;
 			void_c set_key( string8_c const & value );
 
-			menu_shared_color_c const * get_value() const;
+			menu_color_style_c const * get_value() const;
 
 		};
 
@@ -260,6 +292,208 @@ namespace cheonsa
 		string8_c key;
 		sint32_c index;
 		vector32x4_c value;
+
+	public:
+		menu_color_style_c();
+
+		void_c reset();
+		void_c load( data_scribe_markup_c::node_c const * node );
+
+	};
+
+	// defines how to render a frame element.
+	// frame styles can be defined by "styles.xml".
+	class menu_frame_style_c
+	{
+	public:
+		class reference_c
+		{
+		private:
+			string8_c _key; // persistent key, remains the same between reloading of style files.
+			menu_frame_style_c const * _value; // volatile reference, changes between reloading of style files.
+
+		public:
+			reference_c();
+			reference_c( reference_c const & ) = delete;
+			reference_c & operator = ( reference_c const & ) = delete;
+
+			void_c refresh(); // looks up _value with _key, then invokes on_refreshed.
+
+			string8_c const & get_key() const;
+			void_c set_key( string8_c const & value );
+
+			menu_frame_style_c const * get_value() const;
+			void_c set_value( menu_frame_style_c const * value ); // a little more optimal than set_key() since it avoids doing a look up.
+
+			core_event_c< void_c, reference_c const * > on_refreshed; // is invoked whenever _value changes.
+
+		};
+
+		// used with frames to specify how to map the texture to the frame.
+		enum texture_map_mode_e : uint8_c
+		{
+			texture_map_mode_e_stretch, // stretches a texture over a rectangle, with the size of the edges defined by frame_texture_margins.
+			texture_map_mode_e_scale_to_fit, // scales a texture over a rectangle to fit completely within it, preserves aspect ratio of the texture. some of the rectangle might not be covered if its aspect ratio is different from the texture.
+			texture_map_mode_e_scale_to_fill, // scales a texture over a rectangle to completely cover it, preserves aspect ratio of the texture. some of the texture might be cut off if its aspect ratio is different from the rectangle.
+			texture_map_mode_e_nine_slice_stretch, // nine slice, with the texture stretched over the edges and the middle.
+			texture_map_mode_e_nine_slice_tile, // nine slice, with the texture tiled over the edges and the middle.
+		};
+
+		// element appearance properties that can be defined for each visual state.
+		class state_c
+		{
+		public:
+			menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
+			vector32x4_c color; // color tint, multiplied with texture.
+			float32_c saturation; // color saturation, applied to ( element_color.rgb * texture.rgb ).
+			float32_c apparent_scale; // when rendered, the frame is scaled by this factor around its center point. this is an apparent scale, meaning that it affects the visual representation only, and does not affect the actual scale of the control itself or hit detection.
+			sint16_c texture_map[ 4 ]; // left, top, right, and bottom coordinates in pixels of edges of texture map rectangle.
+			sint16_c texture_map_edges[ 4 ]; // left, top, right, and bottom insets in pixels of texture map rectangle.
+
+		public:
+			state_c();
+
+			void_c reset();
+			vector32x4_c get_expressed_color() const; // if style_for_color is resolved then returns the color defined by the color style, otherwise returns the fall back color.
+
+		};
+
+	public:
+		string8_c key; // unique key to identify this frame style by.
+		resource_file_texture_c::reference_c texture; // texture to map to the frame.
+		texture_map_mode_e texture_map_mode; // how we want to map the texture to the frame.
+		boolean_c texture_map_fill_middle; // for nine slice texture mapping modes, this says whether to draw the middle part or not.
+		video_renderer_pixel_shader_c::reference_c pixel_shader_reference; // pixel shader override, if not set then the built-in frame pixel shader will be used.
+		state_c state_list[ menu_state_e_count_ ];
+
+	public:
+		menu_frame_style_c();
+
+		void_c reset();
+		void_c load( data_scribe_markup_c::node_c const * node );
+
+	};
+
+	// defines how to format and render text in a text element.
+	// these style can be applied to the whole text element, or to sub-ranges of text in the text element.
+	// text styles can be defined by "styles.xml".
+	class menu_text_style_c
+	{
+	public:
+		class reference_c
+		{
+		private:
+			string8_c _key; // persistent key, remains the same between reloading of style files.
+			menu_text_style_c const * _value; // volatile reference, changes between reloading of style files.
+
+		public:
+			reference_c();
+			reference_c( reference_c const & ) = delete;
+			reference_c & operator = ( reference_c const & ) = delete;
+
+			void_c refresh();
+
+			string8_c const & get_key() const;
+			void_c set_key( string8_c const & value );
+
+			menu_text_style_c const * get_value() const;
+			void_c set_value( menu_text_style_c const * value ); // a little more optimal than set_key() since it avoids doing a look up.
+
+			core_event_c< void_c, reference_c const * > on_refreshed; // is invoked whenever _value changes. text elements that reference the style should invalidate their text layout.
+
+		};
+
+		// element appearance properties that can be defined for each visual state.
+		class state_c
+		{
+		public:
+			menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
+			vector32x4_c color; // color tint, multiplied with texture.
+			float32_c saturation; // multiplicative color saturation.
+			float32_c apparent_scale; // multiplicative apparent element scale.
+
+		public:
+			state_c();
+
+			void_c reset();
+			vector32x4_c get_expressed_color() const; // if element_color_style is resolved then returns that color, otherwise returns element_color.
+
+		};
+
+	public:
+		string8_c key; // unique key to identify this text style by.
+
+		boolean_c font_is_defined;
+		resource_file_font_c::reference_c font;
+
+		boolean_c size_is_defined;
+		float32_c size; // size of font in pixels.
+
+		boolean_c color_style_is_defined;
+		menu_color_style_c::reference_c color_style; // color style defined color of font.
+
+		boolean_c color_is_defined;
+		vector32x4_c color; // color of font.
+		
+		boolean_c skew_is_defined;
+		float32_c skew; // skew of font.
+		
+		boolean_c weight_is_defined;
+		float32_c weight; // weight of font.
+
+		boolean_c softness_is_defined;
+		float32_c softness;
+
+		boolean_c underline_is_defined;
+		float32_c underline; // thickness of underline in pixels.
+
+		boolean_c paragraph_spacing_is_defined;
+		float32_c paragraph_spacing; // extra vertical spacing in pixels to place between paragraphs.
+
+		boolean_c line_spacing_is_defined;
+		float32_c line_spacing; // extra vertical spacing in pixels to place between lines.
+
+		boolean_c glyph_spacing_is_defined;
+		float32_c glyph_spacing; // extra horizontal spacing in pixels to place between glyphs.
+
+		boolean_c text_align_horizontal_is_defined;
+		menu_text_align_horizontal_e text_align_horizontal; // how to align text in the block (it can only be applied to block types like headers and paragraphs).
+
+		boolean_c text_align_vertical_is_defined;
+		menu_text_align_vertical_e text_align_vertical;
+
+		state_c state_list[ menu_state_e_count_ ];
+
+	public:
+		menu_text_style_c();
+
+		void_c reset();
+		void_c load( data_scribe_markup_c::node_c const * node );
+
+		//vector32x4_c get_color() const; // evaluates color style reference if it is set.
+
+	};
+
+	// resolved text glyph sytle.
+	// resolved means that it has inherited all of the styles that are granularly defined by mother span(s), mother paragraph, mother text element, and built in (topmost).
+	// within the context of the text element, all of the values will be set to be set to something valid and usable (although maybe not ideal).
+	class menu_text_glyph_style_c
+	{
+	public:
+		resource_file_font_c::reference_c font;
+		vector32x4_c color;
+		float32_c size;
+		float32_c weight;
+		float32_c skew;
+		float32_c softness;
+
+	public:
+		menu_text_glyph_style_c();
+		menu_text_glyph_style_c( menu_text_glyph_style_c const & other );
+
+		menu_text_glyph_style_c & operator = ( menu_text_glyph_style_c const & other );
+
+		boolean_c operator == ( menu_text_glyph_style_c const & other ) const;
 
 	};
 

@@ -4845,10 +4845,7 @@ namespace cheonsa
 						rgba.a = result[ 0 ];
 						rgba.b = result[ 1 ];
 						rgba.c = result[ 2 ];
-						if ( result.get_length() >= 4 )
-						{
-							rgba.d = result[ 3 ];
-						}
+						rgba.d = result.get_length() >= 4 ? result[ 3 ] : 1.0;
 						return true;
 					}
 				}
@@ -5075,8 +5072,8 @@ namespace cheonsa
 				}
 			}
 			result = string;
-			result.character_list.remove_range_at_end( end - start );
-			result.character_list.remove_range_at_index( 0, start );
+			result.character_list.remove_at_end( end - start );
+			result.character_list.remove_at_index( 0, start );
 			return result;
 		}
 

@@ -262,10 +262,10 @@ namespace cheonsa
 		// a collection must contain at least one column in order to display items.
 		// when a collection is first created, it does not contain any columns so it won't display any items.
 		// key is the unique key of the column/property.
-		// display_value_key is a localized string reference key, which references the name of the column to display to the user.
+		// display_value is a localized string reference key, which references the name of the column to display to the user.
 		// is_editable is true then the user can press F2 or click on the same item twice to edit its value.
 		// don't forget to call refresh() after you are done changing columns and items.
-		void_c add_column( string8_c const & key, string8_c display_value_key, sint32_c width, sort_by_e sort_by, boolean_c is_editable );
+		void_c add_column( string8_c const & key, string16_c const & display_value, sint32_c width, sort_by_e sort_by, boolean_c is_editable );
 		// removes all columns.
 		// adding support for adding/removing columns during run time is not too difficult to do but i don't forsee a need for it at this time.
 		// don't forget to call refresh() after you are done changing columns and items.

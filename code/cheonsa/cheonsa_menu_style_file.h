@@ -16,8 +16,9 @@ namespace cheonsa
 		string16_c _file_path_relative; // this is the file path that the engine uses to reference the style file, which in turn resolves to an absolute file path.
 		string16_c _file_path_absolute;
 		sint64_c _file_modified_time; // keeps track of when the file was modified, so that changes can be deteced and the file can be reloaded if needed.
-		core_dictionary_c< string8_c, menu_style_for_frame_c * > _frame_style_dictionary; // frame styles are applied to frame elements.
-		core_dictionary_c< string8_c, menu_style_for_text_c * > _text_style_dictionary; // text styles are applied to text elements.
+		core_dictionary_c< string8_c, menu_color_style_c * > _color_style_dictionary;
+		core_dictionary_c< string8_c, menu_frame_style_c * > _frame_style_dictionary; // frame styles are applied to frame elements.
+		core_dictionary_c< string8_c, menu_text_style_c * > _text_style_dictionary; // text styles are applied to text elements.
 		core_dictionary_c< string8_c, menu_style_map_c * > _style_map_dictionary; // style maps are applied to controls.
 
 	public:

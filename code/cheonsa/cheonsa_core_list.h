@@ -367,7 +367,7 @@ namespace cheonsa
 		}
 
 		// inserts a number of values at the end of the list.
-		void_c insert_range_at_end( value_type_c const * values, sint32_c values_count )
+		void_c insert_at_end( value_type_c const * values, sint32_c values_count )
 		{
 			assert( _array_length_allocated >= 0 );
 			_reallocate_if_needed( _array_length_used + values_count );
@@ -393,18 +393,18 @@ namespace cheonsa
 		}
 
 		// inserts a number of values at index and returns the pointer to the first inserted value.
-		void_c insert_range_at_index( sint32_c index, sint32_c count, value_type_c const * values ) // inserts a range of values at index.
+		void_c insert_at_index( sint32_c index, value_type_c const * values, sint32_c values_count ) // inserts a range of values at index.
 		{
 			assert( _array_length_allocated >= 0 );
 			assert( index <= _array_length_used );
-			assert( count > 0 );
-			_reallocate_if_needed( _array_length_used + count );
-			_array_length_used += count; // set this before calling _shift().
+			assert( values_count > 0 );
+			_reallocate_if_needed( _array_length_used + values_count );
+			_array_length_used += values_count; // set this before calling _shift().
 			if ( index < _array_length_used )
 			{
-				_shift( index, count );
+				_shift( index, values_count );
 			}
-			for ( sint32_c i = 0; i < count; i++ )
+			for ( sint32_c i = 0; i < values_count; i++ )
 			{
 				_array[ index + i ] = values[ i ];
 			}
@@ -530,20 +530,20 @@ namespace cheonsa
 			_array_length_used--;
 		}
 
-		// removes the last values.
+		// removes count number of values from the end of the list.
 		// do not expect destructors of removed item object instances to be called.
-		void_c remove_range_at_end( sint32_c length )
+		void_c remove_at_end( sint32_c values_count )
 		{
 			assert( _array_length_allocated >= 0 );
-			assert( length >= 0 && length <= _array_length_used );
-			if ( length == 0 )
+			assert( values_count >= 0 && values_count <= _array_length_used );
+			if ( values_count == 0 )
 			{
 				return;
 			}
-			_array_length_used -= length;
+			_array_length_used -= values_count;
 		}
 
-		// removes the value at index.
+		// removes a single value at index.
 		// do not expect destructors of removed item object instances to be called.
 		void_c remove_at_index( sint32_c index )
 		{
@@ -558,20 +558,20 @@ namespace cheonsa
 
 		// removes a number of values starting at index.
 		// do not expect destructors of removed item object instances to be called.
-		void_c remove_range_at_index( sint32_c index, sint32_c length )
+		void_c remove_at_index( sint32_c index, sint32_c values_count )
 		{
 			assert( _array_length_allocated >= 0 );
-			assert( length >= 0 );
-			if ( length == 0 )
+			assert( values_count >= 0 );
+			if ( values_count == 0 )
 			{
 				return;
 			}
-			assert( index + length <= _array_length_used );
-			if ( index + length < _array_length_used )
+			assert( index + values_count <= _array_length_used );
+			if ( index + values_count < _array_length_used )
 			{
-				_shift( index + length, -length );
+				_shift( index + values_count, -values_count );
 			}
-			_array_length_used -= length;
+			_array_length_used -= values_count;
 		}
 
 		// gets the internal array used to store values.

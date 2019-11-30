@@ -440,7 +440,7 @@ namespace cheonsa
 		// type_e_keyword_else
 
 		core_list_c< token_c * > token_list_a;
-		token_list_a.insert_range_at_end( token_array, token_count );
+		token_list_a.insert_at_end( token_array, token_count );
 
 		// if there is only one token in the input and if it is a resolved value, then it is our final result and we are done
 		if ( token_list_a.get_length() == 1 )

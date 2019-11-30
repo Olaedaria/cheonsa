@@ -16,7 +16,7 @@ namespace cheonsa
 			resource_manager->_worker_thread_critical_section.enter();
 			if ( resource_manager->_load_queue.get_length() )
 			{
-				resource_manager->_worker_thread_load_queue.insert_range_at_end( resource_manager->_load_queue.get_internal_array(), resource_manager->_load_queue.get_length() );
+				resource_manager->_worker_thread_load_queue.insert_at_end( resource_manager->_load_queue.get_internal_array(), resource_manager->_load_queue.get_length() );
 				resource_manager->_worker_thread_load_queue.remove_all();
 			}
 			resource_manager->_worker_thread_critical_section.exit();

@@ -23,13 +23,13 @@ namespace cheonsa
 	public:
 		menu_control_label_c();
 
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
-
-		string_c::reference_c & get_string_reference();
-
-		string16_c get_plain_text() const; // can be called in rich text mode or plain text mode. when called in rich text mode, returns the text value without markup.
-		void_c set_plain_text( string16_c const & plain_text ); // sets the plain text value.
-		void_c set_rich_text( string8_c const & plain_text_with_markup ); // sets the rich text value. text format mode must already be set to rich.
+	public:
+		string16_c get_plain_text_value() const;
+		void_c set_plain_text_value( string8_c const & plain_text );
+		void_c set_plain_text_value( string16_c const & plain_text );
+		void_c set_rich_text_value( string8_c const & plain_text_with_mark_up );
+		void_c set_rich_text_value( string16_c const & plain_text_with_mark_up );
+		void_c clear_text_value();
 
 		menu_text_format_mode_e get_text_format_mode() const;
 		void_c set_text_format_mode( menu_text_format_mode_e value );
@@ -42,6 +42,9 @@ namespace cheonsa
 
 		menu_text_align_vertical_e get_text_align_vertical() const;
 		void_c set_text_align_vertical( menu_text_align_vertical_e value );
+
+	public:
+		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

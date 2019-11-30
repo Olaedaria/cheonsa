@@ -68,7 +68,7 @@ namespace cheonsa
 				_grip_element.set_is_pressed( false );
 				if ( _value_original != _value )
 				{
-					on_value_changed_commit.invoke( this );
+					on_value_changed.invoke( this );
 					_value_original = 0.0;
 				}
 			}
@@ -379,7 +379,7 @@ namespace cheonsa
 			{
 				_value_smoothed = _value;
 			}
-			on_value_smoothed_changed.invoke( this );
+			on_smooth_value_changed.invoke( this );
 		}
 
 		menu_control_c::update_animations( time_step );
@@ -578,7 +578,7 @@ namespace cheonsa
 		if ( _value != value )
 		{
 			_value = value;
-			on_value_changed_commit.invoke( this );
+			on_value_changed.invoke( this );
 		}
 	}
 

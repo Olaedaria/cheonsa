@@ -38,6 +38,8 @@ namespace cheonsa
 		}
 	};
 
+	// dictionary, stores values mapped by keys, so that values can be looked up by their keys.
+	// imlemented like an unordered map, uses buckets, hashes keys to find bucket indices.
 	// if key_type_c is a class type then it needs to implement operator = and operator ==.
 	// if value_type_c is a class type then it may need to implement operator =.
 	template < typename key_type_c, typename value_type_c >
@@ -301,7 +303,7 @@ namespace cheonsa
 		}
 
 		// returns a pointer to the value if key exists or nullptr if it doesn't.
-		// treat the pointer as volatile, use it for what you need and then discard it, when the dictionary resizes then that pointer will be invalid.
+		// treat the returned pointer as volatile, because if/when the dictionary resizes then that pointer will become invalid.
 		// intended for use if value_type_c is a value type (rather than a pointer type).
 		value_type_c * find_value_pointer( key_type_c const & key ) const
 		{

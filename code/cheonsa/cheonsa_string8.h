@@ -55,9 +55,6 @@ namespace cheonsa
 		boolean_c operator != ( char16_c const * other ) const;
 		boolean_c operator != ( string16_c const & other ) const;
 
-	public:
-		//static void_c transfer_ownership( string8_c & in, string8_c & out );
-
 	};
 
 }

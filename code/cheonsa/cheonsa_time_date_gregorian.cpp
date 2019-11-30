@@ -341,7 +341,7 @@ namespace cheonsa
 						}
 						else if ( temp.get_length() > 2 )
 						{
-							temp.character_list.remove_range_at_index( 0, temp.character_list.get_length() - 3 );
+							temp.character_list.remove_at_index( 0, temp.character_list.get_length() - 3 );
 						}
 						break;
 					case time_date_code_e_MM:

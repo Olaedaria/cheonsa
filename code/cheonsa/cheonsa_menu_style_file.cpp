@@ -1,6 +1,4 @@
 #include "cheonsa_menu_style_file.h"
-#include "cheonsa_menu_style_for_frame.h"
-#include "cheonsa_menu_style_for_text.h"
 #include "cheonsa_menu_style_map.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_data_stream_file.h"
@@ -21,13 +19,13 @@ namespace cheonsa
 
 	menu_style_file_c::~menu_style_file_c()
 	{
-		core_dictionary_c< string8_c, menu_style_for_frame_c * >::iterator_c frame_style_iterator = _frame_style_dictionary.get_iterator();
+		core_dictionary_c< string8_c, menu_frame_style_c * >::iterator_c frame_style_iterator = _frame_style_dictionary.get_iterator();
 		while ( frame_style_iterator.next() )
 		{
 			delete frame_style_iterator.get_value();
 		}
 
-		core_dictionary_c< string8_c, menu_style_for_text_c * >::iterator_c text_style_iterator = _text_style_dictionary.get_iterator();
+		core_dictionary_c< string8_c, menu_text_style_c * >::iterator_c text_style_iterator = _text_style_dictionary.get_iterator();
 		while ( text_style_iterator.next() )
 		{
 			delete text_style_iterator.get_value();
@@ -73,6 +71,7 @@ namespace cheonsa
 		}
 
 		// unload current data.
+		_color_style_dictionary.remove_and_delete_all();
 		_frame_style_dictionary.remove_and_delete_all();
 		_text_style_dictionary.remove_and_delete_all();
 		_style_map_dictionary.remove_and_delete_all();
@@ -87,9 +86,22 @@ namespace cheonsa
 				data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
 				while ( sub_node )
 				{
-					if ( sub_node->get_value() == "frame" )
+					if ( sub_node->get_value() == "color" )
 					{
-						menu_style_for_frame_c * frame_style = new menu_style_for_frame_c();
+						menu_color_style_c * color_style = new menu_color_style_c();
+						color_style->load( sub_node );
+						if ( color_style->key.get_length() > 0 )
+						{
+							if ( _color_style_dictionary.contains( color_style->key ) )
+							{
+								delete _color_style_dictionary.find_value( color_style->key );
+							}
+							_color_style_dictionary.insert( color_style->key, color_style );
+						}
+					}
+					else if ( sub_node->get_value() == "frame" )
+					{
+						menu_frame_style_c * frame_style = new menu_frame_style_c();
 						frame_style->load( sub_node );
 						if ( frame_style->key.get_length() > 0 )
 						{
@@ -106,7 +118,7 @@ namespace cheonsa
 					}
 					else if ( sub_node->get_value() == "text" )
 					{
-						menu_style_for_text_c * text_style = new menu_style_for_text_c();
+						menu_text_style_c * text_style = new menu_text_style_c();
 						text_style->load( sub_node );
 						if ( text_style->key.get_length() > 0 )
 						{

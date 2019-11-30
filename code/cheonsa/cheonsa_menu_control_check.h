@@ -36,15 +36,13 @@ namespace cheonsa
 	public:
 		menu_control_check_c();
 
-		virtual void_c update_animations( float32_c time_step ) override;
-
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
-
-		string_c::reference_c & get_string_reference();
-
-		string16_c get_plain_text() const; // can be called in rich text mode or plain text mode. when called in rich text mode, returns the text value without markup.
-		void_c set_plain_text( string16_c const & plain_text ); // converts the text element to plain text mode and sets the plain text value.
-		void_c set_rich_text( string8_c const & plain_text_with_markup ); // converts the text element to rich text mode and sets the rich text value.
+	public:
+		string16_c get_plain_text_value() const;
+		void_c set_plain_text_value( string8_c const & plain_text );
+		void_c set_plain_text_value( string16_c const & plain_text );
+		void_c set_rich_text_value( string8_c const & plain_text_with_mark_up );
+		void_c set_rich_text_value( string16_c const & plain_text_with_mark_up );
+		void_c clear_text_value();
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );
@@ -53,6 +51,10 @@ namespace cheonsa
 		void_c set_is_checked( boolean_c value );
 
 		core_event_c< void_c, menu_control_c * > on_checked_changed; // occurs after _checked value is changed.
+
+	public:
+		virtual void_c update_animations( float32_c time_step ) override;
+		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

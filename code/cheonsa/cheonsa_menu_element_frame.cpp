@@ -16,10 +16,10 @@ namespace cheonsa
 			return;
 		}
 
-		menu_style_for_frame_c const * frame_style = _override_style != nullptr ? _override_style : _style_reference.get_value();
+		menu_frame_style_c const * frame_style = _override_style != nullptr ? _override_style : _style_reference.get_value();
 		if ( frame_style == nullptr )
 		{
-			frame_style = engine_c::get_instance()->get_menu_style_manager()->get_default_style_for_frame();
+			frame_style = engine_c::get_instance()->get_menu_style_manager()->get_default_frame_style();
 		}
 
 		resource_file_texture_c * texture = frame_style->texture;
@@ -30,7 +30,7 @@ namespace cheonsa
 
 		// state color and saturation.
 		menu_state_e state = get_state();
-		menu_style_for_frame_c::state_c const & frame_style_state = frame_style->state_list[ state ];
+		menu_frame_style_c::state_c const & frame_style_state = frame_style->state_list[ state ];
 		vector32x4_c element_color = frame_style_state.get_expressed_color() * _local_color;
 		float32_c element_saturation = frame_style_state.saturation;
 
@@ -100,13 +100,13 @@ namespace cheonsa
 		v[ 2 ] *= texture_height_inverse;
 		v[ 3 ] *= texture_height_inverse;
 
-		if ( frame_style->texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_stretch )
+		if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_stretch )
 		{
 			box32x2_c box( x[ 0 ], y[ 0 ], x[ 3 ], y[ 3 ] );
 			box32x2_c map( u[ 0 ], v[ 0 ], u[ 3 ], v[ 3 ] );
 			_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color );
 		}
-		else if ( frame_style->texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_scale_to_fit )
+		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fit )
 		{
 			float32_c texture_aspect_ratio = texture_width / texture_height;
 			float32_c frame_width = _local_box.get_width();
@@ -130,7 +130,7 @@ namespace cheonsa
 			box32x2_c map( 0.0f, 0.0f, 1.0f, 1.0f );
 			_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color );
 		}
-		else if ( frame_style->texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_scale_to_fill )
+		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fill )
 		{
 			float32_c texture_aspect_ratio = texture_width / texture_height;
 			float32_c frame_width = _local_box.get_width();
@@ -153,7 +153,7 @@ namespace cheonsa
 			box32x2_c map( -texture_width_scale * 0.5f + 0.5f, -texture_height_scale * 0.5f + 0.5f, texture_width_scale * 0.5f + 0.5f, texture_height_scale * 0.5f + 0.5f );
 			_draw_list.append_rectangle( _local_box, map, pixel_shader, texture, element_color );
 		}
-		else if ( frame_style->texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_nine_slice_stretch )
+		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_nine_slice_stretch )
 		{
 			for ( sint32_c row = 0; row < 3; row++ )
 			{
@@ -175,7 +175,7 @@ namespace cheonsa
 				}
 			}
 		}
-		else if ( frame_style->texture_map_mode == menu_style_for_frame_c::texture_map_mode_e_nine_slice_tile )
+		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_nine_slice_tile )
 		{
 			float32_c fill_size[ 2 ];
 			fill_size[ 0 ] = x[ 2 ] - x[ 1 ];
@@ -343,12 +343,12 @@ namespace cheonsa
 		_style_reference.set_key( value );
 	}
 
-	menu_style_for_frame_c::reference_c const & menu_element_frame_c::get_style_reference() const
+	menu_frame_style_c::reference_c const & menu_element_frame_c::get_style_reference() const
 	{
 		return _style_reference;
 	}
 
-	menu_style_for_frame_c::reference_c & menu_element_frame_c::get_style_reference()
+	menu_frame_style_c::reference_c & menu_element_frame_c::get_style_reference()
 	{
 		return _style_reference;
 	}
@@ -363,17 +363,17 @@ namespace cheonsa
 	//	_style_reference.set_key( value );
 	//}
 
-	//void_c menu_element_frame_c::set_style( menu_style_for_frame_c const * style )
+	//void_c menu_element_frame_c::set_style( menu_frame_style_c const * style )
 	//{
 	//	_style_reference.set_value( style );
 	//}
 
-	menu_style_for_frame_c * menu_element_frame_c::get_override_style() const
+	menu_frame_style_c * menu_element_frame_c::get_override_style() const
 	{
 		return _override_style;
 	}
 
-	void_c menu_element_frame_c::set_override_style( menu_style_for_frame_c * value )
+	void_c menu_element_frame_c::set_override_style( menu_frame_style_c * value )
 	{
 		_override_style = value;
 	}

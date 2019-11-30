@@ -381,38 +381,38 @@ namespace cheonsa
 			_element_list.set_length( 3 );
 
 			// look up styles for application later.
-			menu_style_for_frame_c const * column_frame_style = nullptr;
-			menu_style_for_text_c const * column_text_style = nullptr;
-			menu_style_for_frame_c const * item_selected_frame_style = nullptr;
-			menu_style_for_frame_c const * item_icon_frame_style = nullptr;
-			menu_style_for_text_c const * item_text_style = nullptr;
+			menu_frame_style_c const * column_frame_style = nullptr;
+			menu_text_style_c const * column_text_style = nullptr;
+			menu_frame_style_c const * item_selected_frame_style = nullptr;
+			menu_frame_style_c const * item_icon_frame_style = nullptr;
+			menu_text_style_c const * item_text_style = nullptr;
 			if ( _style_map_reference.get_value() )
 			{
 				menu_style_map_c::entry_c const * style_map_entry = nullptr;
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_frame" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					column_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_frame( style_map_entry->style_key );
+					column_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_text" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					column_text_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_text( style_map_entry->style_key );
+					column_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_selected_frame" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_frame( style_map_entry->style_key );
+					item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_icon_frame" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					item_icon_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_frame( style_map_entry->style_key );
+					item_icon_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
 				}
 				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_text" ) );
 				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
 				{
-					item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_style_for_text( style_map_entry->style_key );
+					item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->style_key );
 				}
 			}
 
@@ -613,7 +613,7 @@ namespace cheonsa
 				data_scribe_markup_c::node_c const * sub_tag = sub_tags[ i ];
 
 				string8_c column_key;
-				string8_c column_display_value_key;
+				string16_c column_display_value;
 				sint32_c column_width = 0;
 				sort_by_e column_sort_by = sort_by_e_display_value;
 				boolean_c column_is_editable = false;
@@ -624,10 +624,10 @@ namespace cheonsa
 					column_key = attribute->get_value();
 				}
 
-				attribute = sub_tag->find_attribute( "display_value_key" );
+				attribute = sub_tag->find_attribute( "display_value" );
 				if ( attribute )
 				{
-					column_display_value_key = attribute->get_value();
+					column_display_value = attribute->get_value();
 				}
 
 				attribute = sub_tag->find_attribute( "width" );
@@ -655,7 +655,7 @@ namespace cheonsa
 					ops::convert_string8_to_boolean( attribute->get_value(), column_is_editable );
 				}
 
-				add_column( column_key, column_display_value_key, column_width, column_sort_by, column_is_editable );
+				add_column( column_key, column_display_value, column_width, column_sort_by, column_is_editable );
 			}
 		}
 	}
@@ -723,7 +723,7 @@ namespace cheonsa
 		_item_layout_is_dirty = true;
 	}
 
-	void_c menu_control_collection_c::add_column( string8_c const & key, string8_c display_value_key, sint32_c width, sort_by_e sort_by, boolean_c is_editable )
+	void_c menu_control_collection_c::add_column( string8_c const & key, string16_c const & display_value, sint32_c width, sort_by_e sort_by, boolean_c is_editable )
 	{
 		for ( sint32_c i = 0; i < _column_list.get_length(); i++ )
 		{
@@ -747,7 +747,7 @@ namespace cheonsa
 		_add_element( &column->_element_frame );
 		column->_element_text.set_name( string8_c( mode_e_static, "column_text" ) );
 		_add_element( &column->_element_text );
-		column->_element_text.get_string_reference().set_key( display_value_key );
+		column->_element_text.set_plain_text_value( display_value );
 		_column_list.insert_at_end( column );
 
 		if ( _sort_index == -1 && _sort_key == key )

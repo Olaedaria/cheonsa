@@ -35,7 +35,7 @@ namespace cheonsa
 	{
 		_canvas = new video_renderer_canvas_c( true, true, nullptr );
 		_canvas_wrapper.set_video_texture( _canvas->get_target_color_final() );
-		_element_frame_style.texture_map_mode = menu_style_for_frame_c::texture_map_mode_e_stretch;
+		_element_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_stretch;
 		_element_frame_style.texture = &_canvas_wrapper;
 		_element_frame.set_override_style( &_element_frame_style );
 		_add_element( &_element_frame );

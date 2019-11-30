@@ -118,11 +118,11 @@ namespace cheonsa
 		//void _handle_value_text_on_character_focus_gained( menu_control_c * control );
 		//void _handle_value_text_on_character_focus_lost( menu_control_c * control );
 		void_c _handle_value_text_on_value_changed_preview( menu_control_text_c * text );
-		void_c _handle_value_text_on_value_changed_commit( menu_control_text_c * text );
+		void_c _handle_value_text_on_value_changed( menu_control_text_c * text );
 		void_c _handle_value_scroll_on_value_changed_preview( menu_control_scroll_i * scroll );
-		void_c _handle_value_scroll_on_value_changed_commit( menu_control_scroll_i * scroll );
+		void_c _handle_value_scroll_on_value_changed( menu_control_scroll_i * scroll );
 		void_c _handle_value_combo_on_selection_changed_preview( menu_control_combo_list_c * combo_list ); // is called as user mouses over options in combo list.
-		void_c _handle_value_combo_on_selection_changed_commit( menu_control_combo_list_c * combo_list ); // is called when user clicks on an option in combo list.
+		void_c _handle_value_combo_on_selection_changed( menu_control_combo_list_c * combo_list ); // is called when user clicks on an option in combo list.
 		void_c _handle_value_edit_on_click( menu_event_info_c event_info );
 		void_c _handle_color_picker_on_value_changed( menu_control_color_picker_c * color_picker_panel );
 		void_c _handle_item_selected_index_changed( menu_control_list_c * list_box );

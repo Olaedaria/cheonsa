@@ -549,8 +549,8 @@ namespace cheonsa
 		boolean_c convert_rgb_to_hexadecimal_string8( vector64x3_c const & rgb, string8_c & string ); // converts an rgb color to a string of hexadecimal digits.
 		boolean_c convert_rgba_to_hexadecimal_string8( vector64x4_c const & rgba, string8_c & string ); // converts an rgba color to a string of hexadecimal digits.
 
-		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba );
-		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba ); // converts an input string formatted as a list of floats (separated by garbage (anything)) or formatted as hexadecimal string (must be prefixed with '#' or '0x') to an rgba color.
+		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
+		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
 
 		boolean_c char16_is_printable( char16_c a );
 		boolean_c char16_is_space( char16_c a );

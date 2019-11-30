@@ -112,7 +112,7 @@ namespace cheonsa
 		char8_c * buffer_pointer = buffer;
 		sint8_c bytes = ops::convert_char16_to_utf8( other, buffer_pointer );
 		buffer[ bytes ] = 0;
-		character_list.insert_range_at_end( buffer, bytes + 1 );
+		character_list.insert_at_end( buffer, bytes + 1 );
 		return *this;
 	}
 
@@ -124,7 +124,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove_at_end();
-		character_list.insert_range_at_end( other, ops::string8_find_length( other ) + 1 );
+		character_list.insert_at_end( other, ops::string8_find_length( other ) + 1 );
 		return *this;
 	}
 
@@ -147,7 +147,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove_at_end();
-		character_list.insert_range_at_end( other.character_list.get_internal_array(), other.character_list.get_length() );
+		character_list.insert_at_end( other.character_list.get_internal_array(), other.character_list.get_length() );
 		return *this;
 	}
 
@@ -205,10 +205,5 @@ namespace cheonsa
 	{
 		return ! operator == ( other );
 	}
-
-	//void_c string8_c::transfer_ownership( string8_c & in, string8_c & out )
-	//{
-	//	in.character_list.transfer_to( out.character_list );
-	//}
 
 }

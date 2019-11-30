@@ -24,13 +24,17 @@ namespace cheonsa
 	public:
 		menu_control_button_c();
 
+	public:
+		string16_c get_plain_text_value() const;
+		void_c set_plain_text_value( string8_c const & plain_text );
+		void_c set_plain_text_value( string16_c const & plain_text );
+		void_c set_rich_text_value( string8_c const & plain_text_with_mark_up );
+		void_c set_rich_text_value( string16_c const & plain_text_with_mark_up );
+		void_c clear_text_value();
+
+	public:
 		virtual void_c update_animations( float32_c time_step ) override;
-
 		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
-
-		string16_c get_plain_text() const;
-		void_c set_plain_text( string16_c const & plain_text );
-		void_c set_rich_text( string8_c const & plain_text_with_markup );
 
 	};
 

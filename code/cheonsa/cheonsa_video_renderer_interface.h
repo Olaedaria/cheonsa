@@ -11,8 +11,6 @@
 namespace cheonsa
 {
 
-	class menu_render_procedure_c;
-	
 	// interacts with video_interface_c to render scenes and menus.
 	// in the context of 3d objects, if you see the term "real" it means actual real world coordinates, and if you see the term "virtual" then it means a space relative to the primary camera view.
 	// "real" will usually always use 64-bit double precision floating point values.

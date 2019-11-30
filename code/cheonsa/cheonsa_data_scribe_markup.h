@@ -203,20 +203,18 @@ namespace cheonsa
 
 		// gets a node in the internal node heap at index.
 		// returns nullptr if index is out of bounds of internal node heap.
-		// the node at index 0 is the virtual root node, created to encapsulate any number of document level root nodes.
-		// the node at index 1 is the first document level root node (if the document contained any).
-		// the node heap is a flat list, so it doesn't exactly reflect the structure of the parsed document.
+		// the node at index 0 is the virtual root node, created to contain any number of document level root nodes.
+		// the node at index 1 is the first document level root node, if the document contained any. note that strict xml requires that there is always only ever one of these, but this markup parser doesn't impose that restriction. also note that any <? ?> tag at the top of the document would have been skipped by this markup parser, and so would not be stored here or anywhere.
+		// the node heap is a flat list, so it doesn't exactly reflect the nested structure of the parsed document.
 		node_c const * get_node( sint32_c index ) const;
 
 		void_c get_error_message( string16_c & message, sint32_c & line, sint32_c & column, sint32_c & character ) const; // if parse returned false, then this can be used to get more details about the error.
 
 	public:
 		// this function is specifically designed to parse only the first tag in a stream.
-		// this is useful when the format is designed to put meta data in the first tag, which may be the only thing that the program is interested in before it decides if it wants to parse the whole file.
-		// reads up to 512 bytes at a time from stream until a matching pair of '<' and '>' are found, then it parses it like a tag.
-		// on success, result will point to a new data_scribe_markup_c that contains only one tag node at index 0.
-		// access the tag node with result->get_node( 0 ).
-		// you will have to delete the result when you are done with it otherwise it will leak.
+		// this is useful when the file format is designed to put meta data in the first tag, which may be the only thing that the program is interested in scanning before it decides if it wants to load and parse the whole file.
+		// if no open bracket is found in the first x bytes, then it assumes that the file is incorrect format and gives up the search early and returns false.
+		// returns true if a tag was found, then the result result tag node can be accessed with get_node( 0 ).
 		boolean_c parse_first_tag( data_stream_c * stream );
 
 	};

@@ -8,19 +8,19 @@ namespace cheonsa
 
 	void_c menu_control_text_c::_on_text_focus_gained()
 	{
-		_element_text.handle_on_character_focus_gain();
+		_element_text.handle_on_character_focus_gained();
 		on_text_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
 	}
 
 	void_c menu_control_text_c::_on_text_focus_lost()
 	{
-		_element_text.handle_on_character_focus_lose();
+		_element_text.handle_on_character_focus_lost();
 		on_text_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
 	}
 
 	void_c menu_control_text_c::_on_input( input_event_c * input_event )
 	{
-		_element_text.handle_input( input_event );
+		_element_text.handle_on_input( input_event );
 	}
 
 	void_c menu_control_text_c::_handle_on_value_changed_preview( menu_element_text_c * text )
@@ -28,7 +28,7 @@ namespace cheonsa
 		on_value_changed_preview.invoke( this );
 	}
 
-	void_c menu_control_text_c::_handle_on_value_changed_commit( menu_element_text_c * text )
+	void_c menu_control_text_c::_handle_on_value_changed( menu_element_text_c * text )
 	{
 		on_value_changed_commit.invoke( this );
 	}
@@ -36,6 +36,7 @@ namespace cheonsa
 	menu_control_text_c::menu_control_text_c()
 		: _element_frame()
 		, _element_text()
+		, _element_place_holder_text( nullptr )
 		, _horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
 		, _horizontal_scroll_bar( nullptr )
 		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
@@ -48,243 +49,116 @@ namespace cheonsa
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
 		_element_text.set_multi_line( false );
 		_element_text.set_text_format_mode( menu_text_format_mode_e_plain );
-		_element_text.set_text_edit_mode( menu_text_edit_mode_e_editable );
+		_element_text.set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
-		_element_text.on_value_changed_preview.subscribe( this, &menu_control_text_c::_handle_on_value_changed_preview );
-		_element_text.on_value_changed_commit.subscribe( this, &menu_control_text_c::_handle_on_value_changed_commit );
+		_element_text.on_text_value_changed_preview.subscribe( this, &menu_control_text_c::_handle_on_value_changed_preview );
+		_element_text.on_text_value_changed.subscribe( this, &menu_control_text_c::_handle_on_value_changed );
 		_add_element( &_element_text );
 
 		set_style_map_key( string8_c( mode_e_static, "e_text" ) );
 	}
 
-	void_c menu_control_text_c::update_animations( float32_c time_step )
+	menu_control_text_c::~menu_control_text_c()
 	{
-		menu_control_c::update_animations( time_step );
-		vector32x2_c content_offset = vector32x2_c( 0.0f, 0.0f );
-		if ( _horizontal_scroll_bar )
+		if ( _element_place_holder_text != nullptr )
 		{
-			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_width(), _local_box.get_width() );
-			_horizontal_scroll_bar->update_visibility( _horizontal_scroll_bar_visibility_mode );
-			content_offset.a = static_cast< float32_c >( _horizontal_scroll_bar->get_value() );
-		}
-		if ( _vertical_scroll_bar )
-		{
-			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_height(), _local_box.get_height() );
-			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
-			content_offset.b = static_cast< float32_c >( _vertical_scroll_bar->get_value() );
-		}
-		_element_text.set_content_offset( content_offset );
-		_element_text.update_animations( time_step );
-	}
-
-	void_c menu_control_text_c::load_properties( data_scribe_markup_c::node_c const * node )
-	{
-		menu_control_c::load_properties( node );
-
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-
-		attribute = node->find_attribute( "horizontal_scroll_visibility_mode" );
-		if ( attribute )
-		{
-			menu_visibility_mode_e horizontal_scroll_visibility_mode = menu_visibility_mode_e_never;
-			if ( attribute->get_value() == "automatic" )
-			{
-				horizontal_scroll_visibility_mode = menu_visibility_mode_e_automatic;
-			}
-			else if ( attribute->get_value() == "always" )
-			{
-				horizontal_scroll_visibility_mode = menu_visibility_mode_e_always;
-			}
-			set_horizontal_scroll_visibility_mode( horizontal_scroll_visibility_mode );
-		}
-
-		attribute = node->find_attribute( "vertical_scroll_bar_mode" );
-		if ( attribute )
-		{
-			menu_visibility_mode_e vertical_scroll_visibility_mode = menu_visibility_mode_e_never;
-			if ( attribute->get_value() == "automatic" )
-			{
-				vertical_scroll_visibility_mode = menu_visibility_mode_e_automatic;
-			}
-			else if ( attribute->get_value() == "always" )
-			{
-				vertical_scroll_visibility_mode = menu_visibility_mode_e_always;
-			}
-			set_vertical_scroll_visibility_mode( vertical_scroll_visibility_mode );
-		}
-
-		//menu_text_format_mode_e text_format_mode = menu_text_format_mode_e_plain;
-		//attribute = node->find_attribute( "text_format_mode" );
-		//if ( attribute )
-		//{
-		//	if ( attribute->value == "rich" )
-		//	{
-		//		text_format_mode = menu_text_format_mode_e_rich;
-		//	}
-		//}
-		//set_text_format_mode( text_format_mode);
-
-		attribute = node->find_attribute( "text_edit_mode" );
-		if ( attribute )
-		{
-			menu_text_edit_mode_e text_edit_mode = menu_text_edit_mode_e_editable;
-			if ( attribute->get_value() == "static_selectable" )
-			{
-				text_edit_mode = menu_text_edit_mode_e_static_selectable;
-			}
-			else if ( attribute->get_value() == "editable" )
-			{
-				text_edit_mode = menu_text_edit_mode_e_editable;
-			}
-			set_text_edit_mode( text_edit_mode );
-		}
-
-		attribute = node->find_attribute( "multi_line" );
-		if ( attribute )
-		{
-			boolean_c multi_line = true;
-			if ( ops::convert_string8_to_boolean( attribute->get_value(), multi_line ) )
-			{
-				set_multi_line( multi_line );
-			}
-		}
-
-		attribute = node->find_attribute( "word_wrap" );
-		if ( attribute )
-		{
-			boolean_c word_wrap = true;
-			if ( ops::convert_string8_to_boolean( attribute->get_value(), word_wrap ) )
-			{
-				set_word_wrap( word_wrap );
-			}
-		}
-
-		attribute = node->find_attribute( "character_limit" );
-		if ( attribute )
-		{
-			sint32_c character_limit = 1000;
-			if ( ops::convert_string8_to_sint32( attribute->get_value(), character_limit ) )
-			{
-				character_limit = ops::math_clamp( character_limit, 0, 1000000 );
-				set_character_limit( character_limit );
-			}
-		}
-
-		attribute = node->find_attribute( "placeholder_text_style_key" );
-		if ( attribute )
-		{
-			set_placeholder_text_style_key( attribute->get_value() );
-		}
-
-		attribute = node->find_attribute( "placeholder_text_plain_text" );
-		if ( attribute )
-		{
-			set_placeholder_text_plain_text( string16_c( attribute->get_value() ) );
-		}
-
-		attribute = node->find_attribute( "placeholder_text_string_key" );
-		if ( attribute )
-		{
-			set_placeholder_text_string_key( attribute->get_value() );
-		}
-
-		attribute = node->find_attribute( "text_style_key" );
-		if ( attribute )
-		{
-			set_text_style_key( attribute->get_value() );
-		}
-
-		attribute = node->find_attribute( "plain_text" );
-		if ( attribute )
-		{
-			set_plain_text( string16_c( attribute->get_value() ) );
-		}
-
-		attribute = node->find_attribute( "text_string_key" );
-		if ( attribute )
-		{
-			set_text_string_key( attribute->get_value() );
+			_remove_element( _element_place_holder_text );
+			delete _element_place_holder_text;
+			_element_place_holder_text = nullptr;
 		}
 	}
 
-	string16_c menu_control_text_c::get_placeholder_text_plain_text() const
+	string16_c menu_control_text_c::get_place_holder_text_value() const
 	{
-		if ( _element_text_placeholder )
+		if ( _element_place_holder_text != nullptr )
 		{
-			return _element_text_placeholder->get_plain_text();
+			return _element_place_holder_text->get_plain_text_value();
 		}
 		return string16_c();
 	}
 
-	void_c menu_control_text_c::set_placeholder_text_style_key( string8_c const & style_key )
+	void_c menu_control_text_c::set_place_holder_plain_text_value( string8_c const & plain_text )
 	{
-		_placeholder_style_key = style_key;
-		if ( _element_text_placeholder )
+		if ( _element_place_holder_text == nullptr )
 		{
-			_element_text_placeholder->set_style_key( _placeholder_style_key );
+			_element_place_holder_text = new menu_element_text_c();
+			_element_place_holder_text->set_name( string8_c( mode_e_static, "place_holder_text" ) );
+			_element_place_holder_text->set_style_key( _place_holder_text_style_key );
+			_add_element( _element_place_holder_text );
+		}
+		_element_place_holder_text->set_plain_text_value( plain_text );
+	}
+
+	void_c menu_control_text_c::set_place_holder_plain_text_value( string16_c const & plain_text )
+	{
+		if ( _element_place_holder_text == nullptr )
+		{
+			_element_place_holder_text = new menu_element_text_c();
+			_element_place_holder_text->set_name( string8_c( mode_e_static, "place_holder_text" ) );
+			_element_place_holder_text->set_style_key( _place_holder_text_style_key );
+			_add_element( _element_place_holder_text );
+		}
+		_element_place_holder_text->set_plain_text_value( plain_text );
+	}
+
+	void_c menu_control_text_c::clear_place_holder_text_value()
+	{
+		if ( _element_place_holder_text != nullptr )
+		{
+			_remove_element( _element_place_holder_text );
+			delete _element_place_holder_text;
+			_element_place_holder_text = nullptr;
 		}
 	}
 
-	void_c menu_control_text_c::set_placeholder_text_plain_text( string16_c const & plain_text )
+	string16_c menu_control_text_c::get_plain_text_value() const
 	{
-		_placeholder_string_key = string8_c();
-		if ( _element_text_placeholder == nullptr )
-		{
-			_element_text_placeholder = new menu_element_text_c();
-			_element_text_placeholder->set_name( string8_c( mode_e_static, "text_placeholder" ) );
-			_element_text_placeholder->set_style_key( _placeholder_style_key );
-			_add_element( _element_text_placeholder );
-		}
-		_element_text_placeholder->get_string_reference().clear();
-		_element_text_placeholder->set_plain_text( plain_text );
+		return _element_text.get_plain_text_value();
 	}
 
-	void_c menu_control_text_c::set_placeholder_text_string_key( string8_c const & string_key )
+	void_c menu_control_text_c::set_plain_text_value( string8_c const & plain_text )
 	{
-		_placeholder_string_key = string_key;
-		if ( _element_text_placeholder == nullptr )
-		{
-			_element_text_placeholder = new menu_element_text_c();
-			_element_text_placeholder->set_name( string8_c( mode_e_static, "text_placeholder" ) );
-			_element_text_placeholder->set_style_key( _placeholder_style_key );
-			_add_element( _element_text_placeholder );
-		}
-		_element_text_placeholder->get_string_reference().set_key( _placeholder_string_key );
+		_element_text.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_control_text_c::clear_placeholder_text()
+	void_c menu_control_text_c::set_plain_text_value( string16_c const & plain_text )
 	{
-		if ( _element_text_placeholder != nullptr )
-		{
-			_remove_element( _element_text_placeholder );
-			delete _element_text_placeholder;
-			_element_text_placeholder = nullptr;
-		}
+		_element_text.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_control_text_c::set_text_style_key( string8_c const & style_key )
+	void_c menu_control_text_c::set_rich_text_value( string8_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_style_key( style_key );
+		_element_text.set_rich_text_value( plain_text_with_mark_up );
 	}
 
-	string16_c menu_control_text_c::get_plain_text() const
+	void_c menu_control_text_c::set_rich_text_value( string16_c const & plain_text_with_mark_up )
 	{
-		return _element_text.get_plain_text();
+		_element_text.set_rich_text_value( plain_text_with_mark_up );
 	}
 
-	void_c menu_control_text_c::set_plain_text( string16_c const & plain_text )
+	void_c menu_control_text_c::clear_text_value()
 	{
-		_element_text.set_plain_text( plain_text );
+		_element_text.clear_text_value();
 	}
 
-	void_c menu_control_text_c::set_text_string_key( string8_c const & string_key )
+	menu_text_format_mode_e menu_control_text_c::get_text_format_mode() const
 	{
-		_element_text.get_string_reference().set_key( string_key );
+		return _element_text.get_text_format_mode();
 	}
 
-	void_c menu_control_text_c::clear_text()
+	void_c menu_control_text_c::set_text_format_mode( menu_text_format_mode_e value )
 	{
-		_element_text.clear_text();
+		_element_text.set_text_format_mode( value );
+	}
+
+	menu_text_interact_mode_e menu_control_text_c::get_text_interact_mode() const
+	{
+		return _element_text.get_text_interact_mode();
+	}
+
+	void_c menu_control_text_c::set_text_interact_mode( menu_text_interact_mode_e value )
+	{
+		_element_text.set_text_interact_mode( value );
 	}
 
 	menu_text_filter_mode_e menu_control_text_c::get_text_filter_mode() const
@@ -292,19 +166,24 @@ namespace cheonsa
 		return _element_text.get_text_filter_mode();
 	}
 
-	void_c menu_control_text_c::set_text_filter_mode( menu_text_filter_mode_e filter_mode, string16_c const & filter_string )
+	void_c menu_control_text_c::set_text_filter_mode( menu_text_filter_mode_e value )
 	{
-		_element_text.set_text_filter_mode( filter_mode, filter_string );
+		_element_text.set_text_filter_mode( value );
 	}
 
-	menu_text_edit_mode_e menu_control_text_c::get_text_edit_mode() const
+	void_c menu_control_text_c::set_text_filter_string( string16_c const & value )
 	{
-		return _element_text.get_text_edit_mode();
+		_element_text.set_text_filter_string( value );
 	}
 
-	void_c menu_control_text_c::set_text_edit_mode( menu_text_edit_mode_e value )
+	sint32_c menu_control_text_c::get_text_value_length_limit() const
 	{
-		_element_text.set_text_edit_mode( value );
+		return _element_text.get_text_value_length_limit();
+	}
+
+	void_c menu_control_text_c::set_text_value_length_limit( sint32_c value )
+	{
+		_element_text.set_text_value_length_limit( value );
 	}
 
 	boolean_c menu_control_text_c::get_multi_line() const
@@ -325,16 +204,6 @@ namespace cheonsa
 	void_c menu_control_text_c::set_word_wrap( boolean_c value )
 	{
 		_element_text.set_word_wrap( value );
-	}
-
-	sint32_c menu_control_text_c::get_character_limit() const
-	{
-		return _element_text.get_character_limit();
-	}
-
-	void_c menu_control_text_c::set_character_limit( sint32_c value )
-	{
-		_element_text.set_character_limit( value );
 	}
 
 	sint32_c menu_control_text_c::get_cursor_index() const
@@ -432,6 +301,81 @@ namespace cheonsa
 		{
 			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text.get_content_height(), _local_box.get_height() );
 			_vertical_scroll_bar->update_visibility( value );
+		}
+	}
+
+	void_c menu_control_text_c::update_animations( float32_c time_step )
+	{
+		menu_control_c::update_animations( time_step );
+		vector32x2_c content_offset = vector32x2_c( 0.0f, 0.0f );
+		if ( _horizontal_scroll_bar )
+		{
+			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_width(), _local_box.get_width() );
+			_horizontal_scroll_bar->update_visibility( _horizontal_scroll_bar_visibility_mode );
+			content_offset.a = static_cast< float32_c >( _horizontal_scroll_bar->get_value() );
+		}
+		if ( _vertical_scroll_bar )
+		{
+			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_height(), _local_box.get_height() );
+			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+			content_offset.b = static_cast< float32_c >( _vertical_scroll_bar->get_value() );
+		}
+		_element_text.set_content_offset( content_offset );
+		_element_text.update_animations( time_step );
+	}
+
+	void_c menu_control_text_c::load_properties( data_scribe_markup_c::node_c const * node )
+	{
+		menu_control_c::load_properties( node );
+
+		data_scribe_markup_c::attribute_c const * attribute = nullptr;
+
+		attribute = node->find_attribute( "horizontal_scroll_visibility_mode" );
+		if ( attribute )
+		{
+			menu_visibility_mode_e horizontal_scroll_visibility_mode = menu_visibility_mode_e_never;
+			if ( attribute->get_value() == "automatic" )
+			{
+				horizontal_scroll_visibility_mode = menu_visibility_mode_e_automatic;
+			}
+			else if ( attribute->get_value() == "always" )
+			{
+				horizontal_scroll_visibility_mode = menu_visibility_mode_e_always;
+			}
+			set_horizontal_scroll_visibility_mode( horizontal_scroll_visibility_mode );
+		}
+
+		attribute = node->find_attribute( "vertical_scroll_bar_mode" );
+		if ( attribute )
+		{
+			menu_visibility_mode_e vertical_scroll_visibility_mode = menu_visibility_mode_e_never;
+			if ( attribute->get_value() == "automatic" )
+			{
+				vertical_scroll_visibility_mode = menu_visibility_mode_e_automatic;
+			}
+			else if ( attribute->get_value() == "always" )
+			{
+				vertical_scroll_visibility_mode = menu_visibility_mode_e_always;
+			}
+			set_vertical_scroll_visibility_mode( vertical_scroll_visibility_mode );
+		}
+
+		attribute = node->find_attribute( "place_holder_plain_text_value" );
+		if ( attribute )
+		{
+			set_place_holder_plain_text_value( attribute->get_value() );
+		}
+
+		attribute = node->find_attribute( "plain_text_value" );
+		if ( attribute )
+		{
+			set_plain_text_value( attribute->get_value() );
+		}
+
+		attribute = node->find_attribute( "rich_text_value" );
+		if ( attribute )
+		{
+			set_rich_text_value( attribute->get_value() );
 		}
 	}
 

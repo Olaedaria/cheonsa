@@ -852,8 +852,8 @@ namespace cheonsa
 	boolean_c data_scribe_markup_c::parse( string8_c const & document_string )
 	{
 		reset();
-		_text_with_mark_up.insert_range_at_end( document_string.character_list.get_internal_array(), document_string.character_list.get_length() );
-		_text_with_mark_up.insert_at_end( 0 ); // we add a bunch of terminating zeros so that the parser can scan ahead by up to 4 characters without needing to check if it will go out of bounds.
+		_text_with_mark_up.insert_at_end( document_string.character_list.get_internal_array(), document_string.character_list.get_length() );
+		_text_with_mark_up.insert_at_end( 0 ); // we add a bunch of terminating zeros so that the parser can scan without needing to check if it will go out of bounds.
 		_text_with_mark_up.insert_at_end( 0 );
 		_text_with_mark_up.insert_at_end( 0 );
 		_text_with_mark_up.insert_at_end( 0 );
@@ -867,10 +867,10 @@ namespace cheonsa
 		assert( document_stream->get_position() == 0 );
 		reset();
 		sint32_c size = document_stream->get_size();
-		sint32_c padding = 5; // add a bunch of terminating zeros so that the parser can scan ahead a few bytes without needing to check if it will go out of bounds.
+		sint32_c padding = 5; // allocate some padding so that the parser can scan ahead without needing to check if it will go out of bounds.
 		_text_with_mark_up.construct_mode_dynamic( size + padding, size + padding );
 		document_stream->load( _text_with_mark_up.get_internal_array(), size );
-		for ( sint32_c i = size; i < size + padding; i++ )
+		for ( sint32_c i = size; i < size + padding; i++ ) // zero the padding.
 		{
 			_text_with_mark_up[ i ] = 0;
 		}
@@ -895,12 +895,13 @@ namespace cheonsa
 
 	boolean_c data_scribe_markup_c::parse_first_tag( data_stream_c * stream )
 	{
-		assert( _current == nullptr );
+		reset();
 
-		// read 512 bytes at a time from the stream until we find a tag.
-		// 0 is scanning for '<'.
-		// 1 is scanning for '>'.
+		// read at most 64 bytes at a time from the stream until we find a tag.
+		// 0 is scanning for open bracket.
+		// 1 is scanning for close bracket.
 		// 2 is done.
+		sint32_c iteration = 0;
 		sint32_c state = 0;
 		sint32_c stream_size = stream->get_size();
 		sint32_c line_start = -1;
@@ -908,9 +909,9 @@ namespace cheonsa
 		while ( state < 2 )
 		{
 			sint32_c bytes_to_read = stream_size - stream->get_position();
-			if ( bytes_to_read > 512 )
+			if ( bytes_to_read > 64 )
 			{
-				bytes_to_read = 512;
+				bytes_to_read = 64;
 			}
 			else if ( bytes_to_read == 0 )
 			{
@@ -947,18 +948,21 @@ namespace cheonsa
 					}
 				}
 			}
+
+			if ( iteration == 0 && state == 0 )
+			{
+				// no tag found in the first bytes, we'll assume that this file is not relevant or correct format, give up early.
+				return false;
+			}
+
+			iteration++;
 		}
 
 		assert( line_start != -1 && line_end != -1 );
 
-		_current = _text_with_mark_up.get_internal_array();
+		_current = &_text_with_mark_up.get_internal_array()[ line_start ];
 
-		_skip_space();
-
-		if ( _current[ 0 ] != _bracket_open )
-		{
-			return false;
-		}
+		assert( _current[ 0 ] == _bracket_open );
 
 		node_c * new_node = _node_heap.emplace_at_end();
 		new_node->reset( this );
