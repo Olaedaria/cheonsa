@@ -2,6 +2,7 @@
 
 #include "cheonsa_database_types.h"
 #include "cheonsa_database_field_schema.h"
+#include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_string8.h"
 
@@ -31,6 +32,9 @@ namespace cheonsa
 		database_field_schema_c const * get_field( string8_c const & name ) const; // returns the field that matches name, otherwise returns nullptr.
 		database_field_schema_c const * get_field( string8_c const & name, data_type_e type, uint8_c type_count ) const; // returns the field that matches name, type, and type_count, otherwise returns nullptr.
 		uint16_c get_size() const; // gets the size in bytes of a record that is in the format defined by this schema.
+
+		boolean_c save_record_buffer( data_scribe_binary_c & scribe, core_list_c< uint8_c > const & record_buffer, sint32_c record_count ); // saves a records buffer that is formatted with this schema, does byte order flipping as needed.
+		boolean_c load_record_buffer( data_scribe_binary_c & scribe, core_list_c< uint8_c > & record_buffer, sint32_c record_count ); // loads a records buffer that is formatted with this schema, does byte order flipping as needed.
 
 		database_record_schema_c & operator = ( database_record_schema_c const & other );
 

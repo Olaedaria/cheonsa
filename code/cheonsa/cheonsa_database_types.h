@@ -39,7 +39,7 @@ namespace cheonsa
 	};
 
 #pragma pack( push, 1 )
-	// used to address|reference records of a specific known origin.
+	// 8 bytes, used to address|reference records of a specific known origin.
 	struct database_record_address_c
 	{
 		uint16_c database_id;
@@ -60,20 +60,17 @@ namespace cheonsa
 			return ( database_id == other.database_id ) && ( table_id == other.table_id ) && ( record_id == other.record_id );
 		}
 	};
+	static_assert( sizeof( database_record_address_c ) == 8, "size of database_record_address_c is wrong." );
 
-	// each record is prefixed by 13 bytes that has this structure:
+	// 16 bytes, each record value entry is prefixed by this structure.
 	struct database_record_header_c
 	{
 		uint32_c id;
 		database_record_address_c mod_record_address;
 		uint8_c flags;
+		uint8_c padding[ 3 ];
 	};
-
-	//// each field value is prefixed by 1 byte that has this structure.
-	//struct database_field_header_c
-	//{
-	//	uint8_c flags;
-	//};
+	static_assert( sizeof( database_record_header_c ) == 16, "size of database_record_header_c is wrong." );
 #pragma pack( pop )
 
 	enum database_operation_e

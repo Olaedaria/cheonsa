@@ -140,7 +140,7 @@ namespace cheonsa
 		}
 
 		// scale to multiples of 4.
-		// this is so that the targets play well with our down-sampling shader.
+		// this is so that the targets play well with our down sampling shader.
 		sint32_c desired_actual_width = _apparent_width + ( 4 - _apparent_width % 4 );
 		sint32_c desired_actual_height = _apparent_height + ( 4 - _apparent_height % 4 );
 		if ( desired_actual_width <= 0 || desired_actual_height <= 0 )

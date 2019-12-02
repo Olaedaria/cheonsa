@@ -1715,7 +1715,7 @@ namespace cheonsa
 							delete _debug_line_list_vertex_buffer;
 							_debug_line_list_vertex_buffer = nullptr;
 						}
-						_debug_line_list_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_debug, _debug_line_list.get_internal_array_length_allocated(), 0, 0, true, false, false );
+						_debug_line_list_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_debug, _debug_line_list.get_length_allocated(), 0, 0, true, false, false );
 					}
 					_debug_line_list_vertex_buffer->set_data( _debug_line_list.get_internal_array(), _debug_line_list.get_internal_array_size_used() );
 					_debug_line_list.remove_all();
@@ -2454,7 +2454,7 @@ namespace cheonsa
 					delete _sprite_vertex_buffer;
 					_sprite_vertex_buffer = nullptr;
 				}
-				_sprite_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _sprite_vertex_list.get_internal_array_length_allocated(), nullptr, 0, true, false, false );
+				_sprite_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _sprite_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
 			}
 			_sprite_vertex_buffer->set_data( _sprite_vertex_list.get_internal_array(), _sprite_vertex_list.get_internal_array_size_used() );
 			_sprite_vertex_list.remove_all();
@@ -3484,9 +3484,9 @@ namespace cheonsa
 		{
 			menu_draw_list_c * draw_list = _menu_draw_list_list[ i ];
 			draw_list->vertex_base = _menu_vertex_list.get_length();
-			_menu_vertex_list.insert_range_at_end( draw_list->vertex_list.get_internal_array(), draw_list->vertex_list.get_length() );
+			_menu_vertex_list.insert_at_end( draw_list->vertex_list.get_internal_array(), draw_list->vertex_list.get_length() );
 			draw_list->index_base = _menu_index_list.get_length();
-			_menu_index_list.insert_range_at_end( draw_list->index_list.get_internal_array(), draw_list->index_list.get_length() );
+			_menu_index_list.insert_at_end( draw_list->index_list.get_internal_array(), draw_list->index_list.get_length() );
 		}
 
 		// if there's nothing going on then we can return now.
@@ -3503,7 +3503,7 @@ namespace cheonsa
 				delete _menu_vertex_buffer;
 				_menu_vertex_buffer = nullptr;
 			}
-			_menu_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, _menu_vertex_list.get_internal_array_length_allocated(), nullptr, 0, true, false, false );
+			_menu_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, _menu_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
 		}
 		_menu_vertex_buffer->set_data( _menu_vertex_list.get_internal_array(), _menu_vertex_list.get_internal_array_size_used() );
 
@@ -3515,7 +3515,7 @@ namespace cheonsa
 				delete _menu_index_buffer;
 				_menu_index_buffer = nullptr;
 			}
-			_menu_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, _menu_index_list.get_internal_array_length_allocated(), nullptr, 0, true, false );
+			_menu_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, _menu_index_list.get_length_allocated(), nullptr, 0, true, false );
 		}
 		_menu_index_buffer->set_data( _menu_index_list.get_internal_array(), _menu_index_list.get_internal_array_size_used() );
 

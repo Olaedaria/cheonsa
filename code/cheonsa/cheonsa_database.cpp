@@ -34,16 +34,6 @@ namespace cheonsa
 		_file_path = value;
 	}
 
-	//byte_order_e database_c::get_byte_order() const
-	//{
-	//	return _byte_order;
-	//}
-
-	//void_c database_c::set_byte_order( byte_order_e value )
-	//{
-	//	_byte_order = value;
-	//}
-
 	string8_c const & database_c::get_name() const
 	{
 		return _name;
@@ -140,7 +130,7 @@ namespace cheonsa
 		}
 	}
 
-	boolean_c database_c::save()
+	boolean_c database_c::save( byte_order_e byte_order )
 	{
 		assert( _flags != 0 ); // make sure at least master or mod flag is set.
 		assert( ( ( _flags & database_flag_e_master ) != 0 ) != ( ( _flags & database_flag_e_mod ) != 0 ) ); // make sure only one flag is set.
@@ -152,27 +142,51 @@ namespace cheonsa
 		}
 
 		// save signature.
-		data_scribe_binary_c scribe;
-		scribe.set_stream( &stream );
-		scribe.save_four_character_code( get_file_signature_static() );
+		stream.save( byte_order == byte_order_e_little ? "chdb" : "CHDB", 4 );
 
 		// save rest of file.
-		scribe.save_string8( _name );
-		scribe.save_uint16( _id );
-		scribe.save_uint8( _flags );
+		data_scribe_binary_c scribe;
+		scribe.set_stream( &stream );
+		scribe.set_byte_order( byte_order );
+
+		if ( !scribe.save_string8( _name ) )
+		{
+			return false;
+		}
+		if ( !scribe.save_uint16( _id ) )
+		{
+			return false;
+		}
+		if ( !scribe.save_uint8( _flags ) )
+		{
+			return false;
+		}
+
 		assert( _dependency_ids.get_length() < constants< uint16_c >::maximum() );
-		scribe.save_uint16( static_cast< uint16_c >( _dependency_ids.get_length() ) );
+		if ( !scribe.save_uint16( static_cast< uint16_c >( _dependency_ids.get_length() ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < _dependency_ids.get_length(); i++ )
 		{
-			scribe.save_uint16( _dependency_ids[ i ] );
+			if ( !scribe.save_uint16( _dependency_ids[ i ] ) )
+			{
+				return false;
+			}
 		}
 		assert( _tables.get_length() < constants< uint16_c >::maximum() );
-		scribe.save_uint16( static_cast< uint16_c >( _tables.get_length() ) );
+		if ( !scribe.save_uint16( static_cast< uint16_c >( _tables.get_length() ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < _tables.get_length(); i++ )
 		{
 			database_table_c * table = _tables[ i ];
 			table->rebuild(); // clean garbage, compact, remove dead data.
-			table->save( scribe );
+			if ( !table->_save( scribe ) )
+			{
+				return false;
+			}
 		}
 
 		return true;
@@ -182,6 +196,7 @@ namespace cheonsa
 	{
 		_name = string8_c();
 		_id = 0;
+		_flags = 0;
 		_dependency_ids.remove_all();
 		_tables.remove_and_delete_all();
 
@@ -191,35 +206,79 @@ namespace cheonsa
 			return false;
 		}
 
+		// load signature and endianness.
+		char8_c signature[ 4 ] = {};
+		if ( !stream.load( signature, 4 ) )
+		{
+			return false;
+		}
 		data_scribe_binary_c scribe;
 		scribe.set_stream( &stream );
-
-		// load signature and endianness.
-		uint32_c signature = scribe.load_four_character_code();
-		if ( signature != get_file_signature_static() )
+		if ( ops::memory_compare( signature, "chdb", 4 ) )
+		{
+			scribe.set_byte_order( byte_order_e_little );
+		}
+		else if ( ops::memory_compare( signature, "CHDB", 4 ) )
+		{
+			scribe.set_byte_order( byte_order_e_big );
+		}
+		else
 		{
 			return false;
 		}
 
 		// load rest of file.
-		_name = scribe.load_string8();
-		_id = scribe.load_uint16();
-		_flags = scribe.load_uint8();
-		uint16_c dependency_ids_length = scribe.load_uint16();
+		if ( !scribe.load_string8( _name ) )
+		{
+			goto cancel;
+		}
+		if ( !scribe.load_uint16( _id ) )
+		{
+			goto cancel;
+		}
+		if ( !scribe.load_uint8( _flags ) )
+		{
+			goto cancel;
+		}
+		uint16_c dependency_ids_length = 0;
+		if ( !scribe.load_uint16( dependency_ids_length ) )
+		{
+			goto cancel;
+		}
 		for ( uint16_c i = 0; i < dependency_ids_length; i++ )
 		{
-			_dependency_ids.insert_at_end( scribe.load_uint16() );
+			uint16_c dependency_id = 0;
+			if ( !scribe.load_uint16( dependency_id ) )
+			{
+				goto cancel;
+			}
+			_dependency_ids.insert_at_end( dependency_id );
 		}
-		uint16_c tables_length = scribe.load_uint16();
+		uint16_c tables_length = 0;
+		if ( !scribe.load_uint16( tables_length ) )
+		{
+			goto cancel;
+		}
 		for ( uint16_c i = 0; i < tables_length; i++ )
 		{
 			database_table_c * table = new database_table_c();
 			table->_database = this;
 			_tables.insert_at_end( table );
-			table->load( scribe );
+			if ( !table->_load( scribe ) )
+			{
+				goto cancel;
+			}
 		}
 
 		return true;
+
+	cancel:
+		_name = string8_c();
+		_id = 0;
+		_flags = 0;
+		_dependency_ids.remove_all();
+		_tables.remove_and_delete_all();
+		return false;
 	}
 
 }

@@ -346,15 +346,34 @@ namespace cheonsa
 		data_scribe_binary_c scribe_binary;
 		scribe_binary.set_stream( &stream );
 
-		scribe_binary.load_uint32(); // skip the value that defines the position of where the compiled code begins.
-		file_modified_time = scribe_binary.load_sint64();
-		sint32_c dependency_count = scribe_binary.load_uint8();
-		file_dependency_list.construct_mode_dynamic( dependency_count, dependency_count );
+		sint32_c compiled_code_position = 0;
+		if ( !scribe_binary.load_sint32( compiled_code_position ) ) // skip the value that defines the position of where the compiled code begins.
+		{
+			return false;
+		}
+		if ( !scribe_binary.load_sint64( file_modified_time ) )
+		{
+			return false;
+		}
+		uint8_c dependency_count = 0;
+		if ( !scribe_binary.load_uint8( dependency_count ) )
+		{
+			return false;
+		}
+		file_dependency_list.set_length_absolute( dependency_count );
 		for ( sint32_c i = 0; i < file_dependency_list.get_length(); i++ )
 		{
 			video_renderer_shader_manager_c::file_dependency_c & file_dependency = file_dependency_list[ i ];
-			file_dependency.file_name = scribe_binary.load_string8();
-			file_dependency.file_modified_time = scribe_binary.load_sint64();
+			string8_c file_dependency_file_name_string8;
+			if ( !scribe_binary.load_string8( file_dependency_file_name_string8 ) )
+			{
+				return false;
+			}
+			file_dependency.file_name = file_dependency_file_name_string8;
+			if ( !scribe_binary.load_sint64( file_dependency.file_modified_time ) )
+			{
+				return false;
+			}
 		}
 		stream.close();
 
@@ -596,12 +615,26 @@ namespace cheonsa
 			data_scribe_binary_c scribe_binary;
 			scribe_binary.set_stream( &stream );
 
-			sint32_c compiled_code_position = scribe_binary.load_sint32();
-			stream.set_position( compiled_code_position );
-			sint32_c compiled_code_size = scribe_binary.load_sint32();
+			sint32_c compiled_code_position = 0;
+			if ( !scribe_binary.load_sint32( compiled_code_position ) )
+			{
+				return false;
+			}
+			if ( !stream.set_position( compiled_code_position ) )
+			{
+				return false;
+			}
+			sint32_c compiled_code_size = 0;
+			if ( !scribe_binary.load_sint32( compiled_code_size ) )
+			{
+				return false;
+			}
 			core_list_c< char8_c > compiled_code;
 			compiled_code.construct_mode_dynamic( compiled_code_size, compiled_code_size );
-			stream.load( compiled_code.get_internal_array(), compiled_code_size );
+			if ( !stream.load( compiled_code.get_internal_array(), compiled_code_size ) )
+			{
+				return false;
+			}
 			stream.close();
 
 			video_vertex_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size, vertex_layout );
@@ -628,12 +661,23 @@ namespace cheonsa
 			data_scribe_binary_c scribe_binary;
 			scribe_binary.set_stream( &stream );
 
-			sint32_c compiled_code_position = scribe_binary.load_sint32();
+			sint32_c compiled_code_position = 0;
+			if ( !scribe_binary.load_sint32( compiled_code_position ) )
+			{
+				return false;
+			}
 			stream.set_position( compiled_code_position );
-			sint32_c compiled_code_size = scribe_binary.load_sint32();
+			sint32_c compiled_code_size = 0;
+			if ( !scribe_binary.load_sint32( compiled_code_size ) )
+			{
+				return false;
+			}
 			core_list_c< char8_c > compiled_code;
-			compiled_code.construct_mode_dynamic( compiled_code_size, compiled_code_size );
-			stream.load( compiled_code.get_internal_array(), compiled_code_size );
+			compiled_code.set_length_absolute( compiled_code_size );
+			if ( !stream.load( compiled_code.get_internal_array(), compiled_code_size ) )
+			{
+				return false;
+			}
 			stream.close();
 
 			video_pixel_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size );

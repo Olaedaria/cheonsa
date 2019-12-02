@@ -25,17 +25,12 @@ namespace cheonsa
 		menu_element_frame_c();
 		~menu_element_frame_c();
 
-		// updates visual state animations.
 		virtual void_c update_animations( float32_c time_step ) override;
 
 		virtual void_c set_style_key( string8_c const & value ) override;
 
 		menu_frame_style_c::reference_c const & get_style_reference() const;
 		menu_frame_style_c::reference_c & get_style_reference();
-
-		//virtual string8_c const & get_style_key() const override;
-		//virtual void_c set_style_key( string8_c const & value ) override;
-		//void_c set_style( menu_frame_style_c const * style ); // situational, cheaper than setting the key and doing a lookup.
 
 		menu_frame_style_c * get_override_style() const;
 		void_c set_override_style( menu_frame_style_c * value );

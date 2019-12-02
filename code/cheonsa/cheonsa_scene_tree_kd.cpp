@@ -53,9 +53,9 @@ namespace cheonsa
 		if ( depth < depth_limit )
 		{
 			_positive_value_list = &positive_value_list;
-			positive_value_list.construct_mode_dynamic( 0, value_list.get_internal_array_length_allocated() / 2 );
+			positive_value_list.construct_mode_dynamic( 0, value_list.get_length_allocated() / 2 );
 			_negative_value_list = &negative_value_list;
-			negative_value_list.construct_mode_dynamic( 0, value_list.get_internal_array_length_allocated() / 2 );
+			negative_value_list.construct_mode_dynamic( 0, value_list.get_length_allocated() / 2 );
 		}
 		else
 		{

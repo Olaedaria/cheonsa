@@ -31,28 +31,25 @@ namespace cheonsa
 		return _position != -1;
 	}
 
-	boolean_c data_stream_memory_c::open()
+	void_c data_stream_memory_c::open()
 	{
 		assert( _position == -1 );
 		_buffer.remove_all();
 		_position = 0;
-		return true;
 	}
 
-	boolean_c data_stream_memory_c::open_static( void_c const * data, sint32_c data_size )
+	void_c data_stream_memory_c::open_static( void_c const * data, sint32_c data_size )
 	{
 		assert( _position == -1 );
 		_buffer.construct_mode_static_from_array( reinterpret_cast< uint8_c const * >( data ), data_size );
 		_position = 0;
-		return true;
 	}
 
-	boolean_c data_stream_memory_c::close()
+	void_c data_stream_memory_c::close()
 	{
 		assert( _position >= 0 );
 		_buffer.remove_all();
 		_position = -1;
-		return true;
 	}
 
 	core_list_c< uint8_c > & data_stream_memory_c::get_internal_buffer()
@@ -76,11 +73,16 @@ namespace cheonsa
 		return _position;
 	}
 
-	void_c data_stream_memory_c::set_position( sint32_c const position )
+	boolean_c data_stream_memory_c::set_position( sint32_c const position )
 	{
 		assert( _position >= 0 );
 		assert( _position <= get_size() );
-		_position = position;
+		if ( _position >= 0 && _position <= get_size() )
+		{
+			_position = position;
+			return true;
+		}
+		return false;
 	}
 
 	boolean_c data_stream_memory_c::load( void_c * const data, sint32_c const size )

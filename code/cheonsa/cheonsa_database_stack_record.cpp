@@ -45,11 +45,11 @@ namespace cheonsa
 			// value was defined.
 			if ( expected_type == data_type_e_string8 )
 			{
-				*reinterpret_cast< string8_c * >( field_value ) = last_record->get_table()->get_string8( *reinterpret_cast< sint32_c * >( last_field_data_pointer ) );
+				*reinterpret_cast< string8_c * >( field_value ) = last_record->get_table()->_get_string8( *reinterpret_cast< sint32_c * >( last_field_data_pointer ) );
 			}
 			else if ( expected_type == data_type_e_string16 )
 			{
-				*reinterpret_cast< string16_c * >( field_value ) = last_record->get_table()->get_string16( *reinterpret_cast< sint32_c * >( last_field_data_pointer ) );
+				*reinterpret_cast< string16_c * >( field_value ) = last_record->get_table()->_get_string16( *reinterpret_cast< sint32_c * >( last_field_data_pointer ) );
 			}
 			else
 			{

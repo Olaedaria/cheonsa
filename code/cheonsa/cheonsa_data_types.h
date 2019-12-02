@@ -14,8 +14,8 @@ namespace cheonsa
 		data_type_e_none = 0,
 
 		data_type_e_list = 1, // only used with binary property scribe.
-		data_type_e_string8 = 2,
-		data_type_e_string16 = 3,
+		data_type_e_string8 = 2, // for database system, type is sint32_c offset into string table.
+		data_type_e_string16 = 3, // for database system, type is sint32_c offset into string table.
 		data_type_e_uint8 = 4,
 		data_type_e_sint8 = 5,
 		data_type_e_uint16 = 6,

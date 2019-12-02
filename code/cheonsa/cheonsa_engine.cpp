@@ -147,7 +147,7 @@ namespace cheonsa
 		if ( !_debug_manager->start( executable_file_path ) )
 		{
 			debug_annoy( L"error", L"debug_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 2. start window manager.
@@ -155,7 +155,7 @@ namespace cheonsa
 		if ( !_window_manager->open_client_window() )
 		{
 			debug_annoy( L"error", L"window_manager_c::open_client_window() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 3. start content manager.
@@ -163,7 +163,7 @@ namespace cheonsa
 		if ( !_content_manager->start( engine_data_folder_path, executable_folder_path, executable_file_name ) )
 		{
 			debug_annoy( L"error", L"content_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 4. start resource manager.
@@ -171,7 +171,7 @@ namespace cheonsa
 		if ( !_resource_manager->start() )
 		{
 			debug_annoy( L"error", L"resource_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 6. start audio interface.
@@ -179,7 +179,7 @@ namespace cheonsa
 		if ( !_audio_interface->start() )
 		{
 			debug_annoy( L"error", L"audio2_interface_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 7. start the video interface.
@@ -188,7 +188,7 @@ namespace cheonsa
 		if ( !_video_interface->start() )
 		{
 			debug_annoy( L"error", L"video_interface_d3d11_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 		#endif
 
@@ -197,7 +197,7 @@ namespace cheonsa
 		if ( !_video_renderer_shader_manager->start() )
 		{
 			debug_annoy( L"error", L"video_renderer_shader_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 9. start the video renderer manager.
@@ -205,7 +205,7 @@ namespace cheonsa
 		if ( !_video_renderer_interface->start() )
 		{
 			debug_annoy( L"error", L"video_renderer_interface_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 10. start the glyph manager.
@@ -213,7 +213,7 @@ namespace cheonsa
 		if ( !_glyph_manager->start() )
 		{
 			debug_annoy( L"error", L"glyph_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 11. start menu style manager.
@@ -221,7 +221,7 @@ namespace cheonsa
 		if ( !_menu_style_manager->start() )
 		{
 			debug_annoy( L"error", L"menu_style_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 12. start input manager.
@@ -229,7 +229,7 @@ namespace cheonsa
 		if ( !_input_manager->start() )
 		{
 			debug_annoy( L"error", L"input_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 13. start script manager.
@@ -237,7 +237,7 @@ namespace cheonsa
 		if ( !_script_manager->start() )
 		{
 			debug_annoy( L"error", L"script_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 14. start reflection manager.
@@ -245,7 +245,7 @@ namespace cheonsa
 		if ( !_reflection_manager->start() )
 		{
 			debug_annoy( L"error", L"reflection_manager_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// 15. start user interface.
@@ -253,7 +253,7 @@ namespace cheonsa
 		if ( !_user_interface->start( _window_manager->get_window_handle() ) )
 		{
 			debug_annoy( L"error", L"user_interface_c::start() failed." );
-			goto clean_up;
+			goto cancel;
 		}
 
 		// situate.
@@ -324,7 +324,7 @@ namespace cheonsa
 		// save glyph cache.
 		_glyph_manager->save_to_disk();
 
-	clean_up:
+	cancel:
 		// stop and delete sub-systems.
 		if ( _user_interface != nullptr )
 		{

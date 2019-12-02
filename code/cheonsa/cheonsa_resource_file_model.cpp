@@ -1,108 +1,10 @@
 #include "cheonsa_resource_file_model.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
+#include "cheonsa_debug_manager.h"
 
 namespace cheonsa
 {
-
-	video_primitive_type_e resource_file_model_c::mesh_draw_c::get_video_primitive_type() const
-	{
-		switch ( static_cast< primitive_type_e >( primitive_type_ ) )
-		{
-			case primitive_type_e::triangle_list:
-				return video_primitive_type_e_triangle_list;
-			case primitive_type_e::triangle_strip:
-				return video_primitive_type_e_triangle_strip;
-			case primitive_type_e::line_list:
-				return video_primitive_type_e_line_list;
-			case primitive_type_e::line_strip:
-				return video_primitive_type_e_line_strip;
-			case primitive_type_e::point_list:
-				return video_primitive_type_e_point_list;
-		}
-		return video_primitive_type_e_point_list;
-	}
-
-	uint16_c resource_file_model_c::physics_body_c::get_physics_layer() const
-	{
-		switch ( static_cast< layer_e >( layer_ ) )
-		{
-		case layer_e::static_:
-			return physics_layer_e_static;
-		case layer_e::static_no_clip:
-			return physics_layer_e_static_no_clip;
-		case layer_e::dynamic:
-			return physics_layer_e_dynamic;
-		case layer_e::dynamic_no_clip:
-			return physics_layer_e_dynamic_no_clip;
-		case layer_e::character:
-			return physics_layer_e_character;
-		case layer_e::character_no_clip:
-			return physics_layer_e_character_no_clip;
-		case layer_e::camera:
-			return physics_layer_e_camera;
-		}
-		return 0;
-	}
-
-	uint16_c resource_file_model_c::physics_body_c::get_physics_layer_mask() const
-	{
-		return physics_get_layer_mask_for_layer( get_physics_layer() );
-	}
-
-	physics_shape_type_e resource_file_model_c::physics_shape_c::get_physics_shape_type() const
-	{
-		switch ( static_cast< type_e >( type_ ) )
-		{
-		case type_e::sphere:
-			return physics_shape_type_e_sphere;
-		case type_e::box:
-			return physics_shape_type_e_box;
-		case type_e::capsule:
-			return physics_shape_type_e_capsule;
-		case type_e::cylinder:
-			return physics_shape_type_e_cylinder;
-		case type_e::cone:
-			return physics_shape_type_e_cone;
-		case type_e::convex_hull:
-			return physics_shape_type_e_convex_hull;
-		case type_e::triangle_mesh:
-			return physics_shape_type_e_triangle_mesh;
-		}
-		return physics_shape_type_e_none;
-	}
-
-	physics_constraint_type_e resource_file_model_c::physics_constraint_c::get_physics_constraint_type() const
-	{
-		switch ( static_cast< type_e >( type_ ) )
-		{
-		case type_e::fixed:
-			return physics_constraint_type_e_fixed;
-		case type_e::point:
-			return physics_constraint_type_e_point;
-		case type_e::hinge:
-			return physics_constraint_type_e_hinge;
-		case type_e::cone:
-			return physics_constraint_type_e_cone;
-		case type_e::generic:
-			return physics_constraint_type_e_generic;
-		}
-		return physics_constraint_type_e_none;
-	}
-
-	scene_light_type_e resource_file_model_c::light_c::get_scene_light_type() const
-	{
-		switch ( static_cast< type_e >( type_ ) )
-		{
-		case type_e::direction:
-			return scene_light_type_e_direction;
-		case type_e::point:
-			return scene_light_type_e_point;
-		case type_e::cone:
-			return scene_light_type_e_cone;
-		}
-		return scene_light_type_e_point;
-	}
 
 	void_c resource_file_model_c::data_c::reset()
 	{
@@ -126,6 +28,7 @@ namespace cheonsa
 		physics_vertex_list.remove_all();
 		physics_index_list.remove_all();
 		physics_constraint_list.remove_all();
+		physics_parameter_list.remove_all();
 		light_list.remove_all();
 		property_list.remove_all();
 		string_table.remove_all();
@@ -243,180 +146,936 @@ namespace cheonsa
 		assert( stream != nullptr );
 		assert( _is_loaded == false );
 
+		sint32_c stream_size = stream->get_size();
+
+		data_scribe_binary_c scribe;
+		scribe.set_stream( stream );
+
 		// check signature and version.
-		char8_c signature[ 4 ];
-		if ( !stream->load( signature, 4 ) )
+		char8_c signature_and_version[ 4 ];
+		if ( !stream->load( signature_and_version, 4 ) )
 		{
-			goto clean_up;
+			goto cancel;
 		}
-		if ( signature[ 0 ] != 'c' || signature[ 1 ] != 'h' || signature[ 2 ] != 'm' )
+		if ( ops::memory_compare( "chm", signature_and_version, 3 ) )
 		{
-			goto clean_up;
-		}
-		if ( signature[ 3 ] != 1 )
-		{
-			goto clean_up;
-		}
-		stream->set_position( 0 );
-
-		// load the whole file into memory.
-		sint32_c _raw_data_size = stream->get_size();
-		_raw_data = new uint8_c[ _raw_data_size ];
-		if ( !stream->load( _raw_data, _raw_data_size ) )
-		{
-			goto clean_up;
-		}
-
-		// extract data from header.
-		if ( signature[ 3 ] >= 1 )
-		{
-			header_v1_c const * header = reinterpret_cast< header_v1_c const * >( _raw_data );
-
-			sint32_c data_offset = align_data_offset( sizeof( header_v1_c ) );
-
-			sint32_c data_end = data_offset + ( header->mesh_bone_name_count * sizeof( uint16_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.mesh_bone_name_list.construct_mode_static_from_array( reinterpret_cast< uint16_c * >( &_raw_data[ data_offset ] ), header->mesh_bone_name_count );
-			data_offset = align_data_offset( data_end );
-
-			data_end = data_offset + ( header->mesh_count * sizeof( mesh_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.mesh_list.construct_mode_static_from_array( reinterpret_cast< mesh_c * >( &_raw_data[ data_offset ] ), header->mesh_count );
-			data_offset = align_data_offset( data_end );
-
-			data_end = data_offset + ( header->mesh_count * sizeof( mesh_draw_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.mesh_draw_list.construct_mode_static_from_array( reinterpret_cast< mesh_draw_c * >( &_raw_data[ data_offset ] ), header->mesh_draw_count );
-			data_offset = align_data_offset( data_end );
-
-			if ( header->mesh_vertex_count > 0 )
+			if ( ops::get_native_byte_order() != byte_order_e_little )
 			{
-				data_end = data_offset + ( header->mesh_vertex_count * sizeof( mesh_vertex_base_c ) );
-				if ( data_end > _raw_data_size ) { goto clean_up; }
-				_data.mesh_vertex_list_base.construct_mode_static_from_array( reinterpret_cast< mesh_vertex_base_c * >( &_raw_data[ data_offset ] ), header->mesh_vertex_count );
-				data_offset = align_data_offset( data_end );
-				_data.mesh_vertex_buffer_base = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_base.get_length(), _data.mesh_vertex_list_base.get_internal_array(), _data.mesh_vertex_list_base.get_internal_array_size_used(), false, false, false );
+				debug_log( log_type_e_warning, L"resource_file_model_c::_load() : loading file where byte order is little endian but this environment's native byte order is big endian." );
+			}
+			scribe.set_byte_order( byte_order_e::byte_order_e_little );
+		}
+		else if ( ops::memory_compare( "CHM", signature_and_version, 3 ) )
+		{
+			if ( ops::get_native_byte_order() != byte_order_e_big )
+			{
+				debug_log( log_type_e_warning, L"resource_file_model_c::_load() : loading file where byte order is big endian but this environment's native byte order is little endian." );
+			}
+			scribe.set_byte_order( byte_order_e::byte_order_e_big );
+		}
+		else
+		{
+			goto cancel;
+		}
 
-				if ( header->mesh_bone_name_count > 0 )
-				{
-					data_end = data_offset + ( header->mesh_vertex_count * sizeof( mesh_vertex_bone_weight_c ) );
-					if ( data_end > _raw_data_size ) { goto clean_up; }
-					_data.mesh_vertex_list_bone_weight.construct_mode_static_from_array( reinterpret_cast< mesh_vertex_bone_weight_c * >( &_raw_data[ data_offset ] ), header->mesh_vertex_count );
-					data_offset = align_data_offset( data_end );
-					_data.mesh_vertex_buffer_bone_weight = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_bone_weight.get_length(), _data.mesh_vertex_list_bone_weight.get_internal_array(), _data.mesh_vertex_list_bone_weight.get_internal_array_size_used(), false, false, false );
-				}
+		if ( signature_and_version[ 3 ] != 1 )
+		{
+			goto cancel;
+		}
+
+		if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+		{
+			_raw_data_size = stream->get_size();
+			_raw_data = new uint8_c[ _raw_data_size ];
+			if ( !stream->set_position( 0 ) )
+			{
+				goto cancel;
+			}
+			if ( !stream->load( _raw_data, _raw_data_size ) )
+			{
+				goto cancel;
+			}
+			if ( !stream->set_position( 4 ) )
+			{
+				goto cancel;
+			}
+		}
+
+		// load chunks.
+		sint32_c chunk_count = 0;
+		if ( !scribe.load_sint32( chunk_count ) )
+		{
+			goto cancel;
+		}
+
+		for ( sint32_c i = 0; i < chunk_count; i++ )
+		{
+			chunk_header_c chunk_header;
+			if ( !chunk_header.load( scribe ) )
+			{
+				goto cancel;
 			}
 
-			if ( header->mesh_index_count > 0 )
+			//
+			//
+			// mesh_bone_name_list
+			if ( ops::memory_compare( chunk_header.signature, mesh_bone_name_c::get_signature(), 4 ) )
 			{
-				if ( header->mesh_vertex_count <= 65535 )
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
-					data_end = data_offset + ( header->mesh_index_count * sizeof( uint16_c ) );
-					if ( data_end > _raw_data_size ) { goto clean_up; }
-					_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c * >( &_raw_data[ data_offset ] ), header->mesh_index_count );
-					data_offset = align_data_offset( data_end );
-					_data.mesh_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, header->mesh_index_count, _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
+					_data.mesh_bone_name_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
 				}
 				else
 				{
-					data_end = data_offset + ( header->mesh_index_count * sizeof( uint32_c ) );
-					if ( data_end > _raw_data_size ) { goto clean_up; }
-					_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c * >( &_raw_data[ data_offset ] ), header->mesh_index_count * 2 ); // * 2 to account for actual type of uint32_c.
-					data_offset = align_data_offset( data_end );
-					_data.mesh_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint32, header->mesh_index_count, _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
+					_data.mesh_bone_name_list.set_length_absolute( chunk_header.count );
+					if ( _data.mesh_bone_name_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !scribe.load_uint16( _data.mesh_bone_name_list[ j ] ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
 				}
 			}
 
-			data_end = data_offset + ( header->bone_count * sizeof( bone_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.bone_list.construct_mode_static_from_array( reinterpret_cast< bone_c * >( &_raw_data[ data_offset ] ), header->bone_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// mesh_list
+			else if ( ops::memory_compare( chunk_header.signature, mesh_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.mesh_list.construct_mode_static_from_array( reinterpret_cast< mesh_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.mesh_list.set_length_absolute( chunk_header.count );
+					if ( _data.mesh_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.mesh_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->bone_logic_count * sizeof( bone_logic_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.bone_logic_list.construct_mode_static_from_array( reinterpret_cast< bone_logic_c * >( &_raw_data[ data_offset ] ), header->bone_logic_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// mesh_draw_list
+			else if ( ops::memory_compare( chunk_header.signature, mesh_draw_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.mesh_draw_list.construct_mode_static_from_array( reinterpret_cast< mesh_draw_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.mesh_draw_list.set_length_absolute( chunk_header.count );
+					if ( _data.mesh_draw_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.mesh_draw_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->bone_logic_property_count * sizeof( bone_logic_property_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.bone_logic_property_list.construct_mode_static_from_array( reinterpret_cast< bone_logic_property_c * >( &_raw_data[ data_offset ] ), header->bone_logic_property_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// mesh_vertex_list_base
+			else if ( ops::memory_compare( chunk_header.signature, mesh_vertex_base_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.mesh_vertex_list_base.construct_mode_static_from_array( reinterpret_cast< mesh_vertex_base_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.mesh_vertex_list_base.set_length_absolute( chunk_header.count );
+					if ( _data.mesh_vertex_list_base.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.mesh_vertex_list_base[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->bone_attachment_count * sizeof( bone_attachment_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.bone_attachment_list.construct_mode_static_from_array( reinterpret_cast< bone_attachment_c * >( &_raw_data[ data_offset ] ), header->bone_attachment_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// mesh_vertex_list_bone_weight
+			else if ( ops::memory_compare( chunk_header.signature, mesh_vertex_bone_weight_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.mesh_vertex_list_bone_weight.construct_mode_static_from_array( reinterpret_cast< mesh_vertex_bone_weight_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.mesh_vertex_list_bone_weight.set_length_absolute( chunk_header.count );
+					if ( _data.mesh_vertex_list_bone_weight.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.mesh_vertex_list_bone_weight[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_count + sizeof( animation_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.animation_list.construct_mode_static_from_array( reinterpret_cast< animation_c * >( &_raw_data[ data_offset ] ), header->animation_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// mesh_index_list
+			else if ( ops::memory_compare( chunk_header.signature, mesh_index_c::get_signature(), 4 ) )
+			{
+				if ( chunk_header.count <= 65535 )
+				{
+					// 16 bit indices safety check.
+					if ( sizeof( uint16_c ) * chunk_header.count != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+				}
+				else
+				{
+					// 32 bit indices safety check.
+					if ( sizeof( uint32_c ) * chunk_header.count != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+				}
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					if ( chunk_header.count <= 65535 )
+					{
+						// 16 bit indices.
+						_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+					}
+					else
+					{
+						// 32 bit indices.
+						_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count * 2 );
+					}
+				}
+				else
+				{
+					if ( chunk_header.count <= 65535 )
+					{
+						// 16 bit indices.
+						_data.mesh_index_list.set_length_absolute( chunk_header.count );
+						if ( _data.mesh_index_list.get_internal_array_size_used() != chunk_header.data_size )
+						{
+							goto cancel;
+						}
+						sint32_c return_stream_position = stream->get_position();
+						if ( !stream->set_position( chunk_header.data_offset ) )
+						{
+							goto cancel;
+						}
+						for ( sint32_c j = 0; j < chunk_header.count; j++ )
+						{
+							if ( !scribe.load_uint16( _data.mesh_index_list[ j ] ) )
+							{
+								goto cancel;
+							}
+						}
+						if ( !stream->set_position( return_stream_position ) )
+						{
+							goto cancel;
+						}
+					}
+					else
+					{
+						// 32 bit indices.
+						_data.mesh_index_list.set_length_absolute( chunk_header.count * 2 );
+						if ( _data.mesh_index_list.get_internal_array_size_used() != chunk_header.data_size )
+						{
+							goto cancel;
+						}
+						sint32_c return_stream_position = stream->get_position();
+						if ( !stream->set_position( chunk_header.data_offset ) )
+						{
+							goto cancel;
+						}
+						uint32_c * mesh_index_array = reinterpret_cast< uint32_c * >( _data.mesh_index_list.get_internal_array() );
+						for ( sint32_c j = 0; j < chunk_header.count; j++ )
+						{
+							if ( !scribe.load_uint32( mesh_index_array[ j ] ) )
+							{
+								goto cancel;
+							}
+						}
+						if ( !stream->set_position( return_stream_position ) )
+						{
+							goto cancel;
+						}
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_object_count * sizeof( animation_object_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.animation_object_list.construct_mode_static_from_array( reinterpret_cast< animation_object_c * >( &_raw_data[ data_offset ] ), header->animation_object_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// bone_list
+			else if ( ops::memory_compare( chunk_header.signature, bone_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.bone_list.construct_mode_static_from_array( reinterpret_cast< bone_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.bone_list.set_length_absolute( chunk_header.count );
+					if ( _data.bone_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.bone_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_property_count * sizeof( animation_property_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.animation_property_list.construct_mode_static_from_array( reinterpret_cast< animation_property_c * >( &_raw_data[ data_offset ] ), header->animation_property_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// bone_logic_list
+			else if ( ops::memory_compare( chunk_header.signature, bone_logic_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.bone_logic_list.construct_mode_static_from_array( reinterpret_cast< bone_logic_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.bone_logic_list.set_length_absolute( chunk_header.count );
+					if ( _data.bone_logic_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.bone_logic_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_key_count * sizeof( animation_key_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.animation_key_list.construct_mode_static_from_array( reinterpret_cast< animation_key_c * >( &_raw_data[ data_offset ] ), header->animation_key_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// bone_logic_property_list
+			else if ( ops::memory_compare( chunk_header.signature, bone_logic_property_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.bone_logic_property_list.construct_mode_static_from_array( reinterpret_cast< bone_logic_property_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.bone_logic_property_list.set_length_absolute( chunk_header.count );
+					if ( _data.bone_logic_property_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.bone_logic_property_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_event_count * sizeof( animation_event_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.animation_event_list.construct_mode_static_from_array( reinterpret_cast< animation_event_c * >( &_raw_data[ data_offset ] ), header->animation_event_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// bone_attachment_list
+			else if ( ops::memory_compare( chunk_header.signature, bone_attachment_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.bone_attachment_list.construct_mode_static_from_array( reinterpret_cast< bone_attachment_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.bone_attachment_list.set_length_absolute( chunk_header.count );
+					if ( _data.bone_attachment_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.bone_attachment_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_event_count * sizeof( physics_body_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.physics_body_list.construct_mode_static_from_array( reinterpret_cast< physics_body_c * >( &_raw_data[ data_offset ] ), header->physics_body_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// animation_list
+			else if ( ops::memory_compare( chunk_header.signature, animation_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.animation_list.construct_mode_static_from_array( reinterpret_cast< animation_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.animation_list.set_length_absolute( chunk_header.count );
+					if ( _data.animation_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.animation_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_event_count * sizeof( physics_shape_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.physics_shape_list.construct_mode_static_from_array( reinterpret_cast< physics_shape_c * >( &_raw_data[ data_offset ] ), header->physics_body_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// animation_object_list
+			else if ( ops::memory_compare( chunk_header.signature, animation_object_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.animation_object_list.construct_mode_static_from_array( reinterpret_cast< animation_object_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.animation_object_list.set_length_absolute( chunk_header.count );
+					if ( _data.animation_object_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.animation_object_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_event_count * sizeof( physics_vertex_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.physics_vertex_list.construct_mode_static_from_array( reinterpret_cast< physics_vertex_c * >( &_raw_data[ data_offset ] ), header->physics_body_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// animation_property_list
+			else if ( ops::memory_compare( chunk_header.signature, animation_property_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.animation_property_list.construct_mode_static_from_array( reinterpret_cast< animation_property_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.animation_property_list.set_length_absolute( chunk_header.count );
+					if ( _data.animation_property_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.animation_property_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_event_count * sizeof( uint16_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.physics_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c * >( &_raw_data[ data_offset ] ), header->physics_body_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// animation_event_list
+			else if ( ops::memory_compare( chunk_header.signature, animation_event_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.animation_event_list.construct_mode_static_from_array( reinterpret_cast< animation_event_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.animation_event_list.set_length_absolute( chunk_header.count );
+					if ( _data.animation_event_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.animation_event_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->animation_event_count * sizeof( physics_constraint_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.physics_constraint_list.construct_mode_static_from_array( reinterpret_cast< physics_constraint_c * >( &_raw_data[ data_offset ] ), header->physics_body_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// physics_body_list
+			else if ( ops::memory_compare( chunk_header.signature, physics_body_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.physics_body_list.construct_mode_static_from_array( reinterpret_cast< physics_body_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.physics_body_list.set_length_absolute( chunk_header.count );
+					if ( _data.physics_body_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.physics_body_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->physics_parameter_count * sizeof( float32_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.physics_parameters_list.construct_mode_static_from_array( reinterpret_cast< float32_c * >( &_raw_data[ data_offset ] ), header->physics_parameter_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// physics_shape_list
+			else if ( ops::memory_compare( chunk_header.signature, physics_shape_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.physics_shape_list.construct_mode_static_from_array( reinterpret_cast< physics_shape_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.physics_shape_list.set_length_absolute( chunk_header.count );
+					if ( _data.physics_shape_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.physics_shape_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->light_count * sizeof( light_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.light_list.construct_mode_static_from_array( reinterpret_cast< light_c * >( &_raw_data[ data_offset ] ), header->light_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// physics_vertex_list
+			else if ( ops::memory_compare( chunk_header.signature, physics_vertex_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.physics_vertex_list.construct_mode_static_from_array( reinterpret_cast< physics_vertex_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.physics_vertex_list.set_length_absolute( chunk_header.count );
+					if ( _data.physics_vertex_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.physics_vertex_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->light_count * sizeof( property_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.property_list.construct_mode_static_from_array( reinterpret_cast< property_c * >( &_raw_data[ data_offset ] ), header->property_count );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// physics_index_list
+			else if ( ops::memory_compare( chunk_header.signature, physics_index_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.physics_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.physics_index_list.set_length_absolute( chunk_header.count );
+					if ( _data.physics_index_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !scribe.load_uint16( _data.physics_index_list[ j ] ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 
-			data_end = data_offset + ( header->light_count * sizeof( char8_c ) );
-			if ( data_end > _raw_data_size ) { goto clean_up; }
-			_data.string_table.construct_mode_static_from_array( reinterpret_cast< char8_c * >( &_raw_data[ data_offset ] ), header->string_table_length );
-			data_offset = align_data_offset( data_end );
+			//
+			//
+			// physics_constraint_list
+			else if ( ops::memory_compare( chunk_header.signature, physics_constraint_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.physics_constraint_list.construct_mode_static_from_array( reinterpret_cast< physics_constraint_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.physics_constraint_list.set_length_absolute( chunk_header.count );
+					if ( _data.physics_constraint_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.physics_constraint_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
+
+			//
+			//
+			// physics_parameter_list
+			else if ( ops::memory_compare( chunk_header.signature, physics_parameter_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.physics_parameter_list.construct_mode_static_from_array( reinterpret_cast< float32_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.physics_parameter_list.set_length_absolute( chunk_header.count );
+					if ( _data.physics_parameter_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !scribe.load_float32( _data.physics_parameter_list[ j ] ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
+
+			//
+			//
+			// light_list
+			else if ( ops::memory_compare( chunk_header.signature, light_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.light_list.construct_mode_static_from_array( reinterpret_cast< light_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.light_list.set_length_absolute( chunk_header.count );
+					if ( _data.light_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.light_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
+
+			//
+			//
+			// property_list
+			else if ( ops::memory_compare( chunk_header.signature, property_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.property_list.construct_mode_static_from_array( reinterpret_cast< property_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.property_list.set_length_absolute( chunk_header.count );
+					if ( _data.property_list.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.property_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
+
+			//
+			//
+			// string_table
+			else if ( ops::memory_compare( chunk_header.signature, string_table_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.string_table.construct_mode_static_from_array( reinterpret_cast< char8_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.data_size );
+				}
+				else
+				{
+					_data.string_table.set_length_absolute( chunk_header.data_size );
+					if ( _data.string_table.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					if ( !stream->load( _data.string_table.get_internal_array(), chunk_header.data_size ) )
+					{
+						goto cancel;
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
 		}
+
+		// we could do some safety checks here.
+		// ...
 
 		// calculate post-load extras for bones.
 		_data.bone_extras_list.construct_mode_dynamic( _data.bone_list.get_length(), _data.bone_list.get_length() );
@@ -453,25 +1112,46 @@ namespace cheonsa
 			_data.mesh_box.accumulate_bounds( vector32x3_c( _data.mesh_vertex_list_base[ i ].position ) );
 		}
 
+		// create gpu resources.
+		// gpus are always little endian as far as i know, we may need to swap endianness.
+		if ( _data.mesh_vertex_list_base.get_length() > 0 )
+		{
+			_data.mesh_vertex_buffer_base = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_base.get_length(), _data.mesh_vertex_list_base.get_internal_array(), _data.mesh_vertex_list_base.get_internal_array_size_used(), false, false, false );
+		}
+		if ( _data.mesh_vertex_list_bone_weight.get_length() > 0 )
+		{
+			_data.mesh_vertex_buffer_bone_weight = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_bone_weight.get_length(), _data.mesh_vertex_list_bone_weight.get_internal_array(), _data.mesh_vertex_list_bone_weight.get_internal_array_size_used(), false, false, false );
+		}
+		if ( _data.mesh_index_list.get_length() > 0 )
+		{
+			_data.mesh_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, _data.mesh_index_list.get_length(), _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
+		}
+
 		// done.
 		_is_loaded = true;
 		return true;
 
-	clean_up:
+	cancel:
+		if ( _raw_data_size > 0 )
+		{
+			delete[] _raw_data;
+			_raw_data = nullptr;
+			_raw_data_size = 0;
+		}
 		_data.reset();
-		delete[] _raw_data;
-		_raw_data = nullptr;
 		return false;
 	}
 
 	void_c resource_file_model_c::_unload()
 	{
 		assert( _is_loaded == true );
-		assert( _raw_data_size > 0 && _raw_data != nullptr );
 		_data.reset();
-		delete[] _raw_data;
-		_raw_data = nullptr;
-		_raw_data_size = 0;
+		if ( _raw_data_size > 0 )
+		{
+			delete[] _raw_data;
+			_raw_data = nullptr;
+			_raw_data_size = 0;
+		}
 		_is_loaded = false;
 	}
 

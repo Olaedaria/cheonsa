@@ -101,7 +101,7 @@ namespace cheonsa
 			sint32_c _data_buffer_size;
 
 		public:
-			state_c( data_stream_c * stream );
+			state_c( data_stream_c * stream ); // no return value, if the load fails then it does so silently, and this state will not have its _format set.
 			~state_c();
 
 			sint32_c add_reference();

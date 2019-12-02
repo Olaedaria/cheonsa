@@ -81,7 +81,7 @@ namespace cheonsa
 		friend class database_stack_record_c;
 
 		uint16_c _index; // this field's index within the record schema.
-		uint16_c _data_offset; // offset in bytes relative record _data_offset to where this field's data begins.
+		uint16_c _data_offset; // offset in bytes relative to record's data offset to where this field's data begins. this points to the one byte field header, which is followed by the field value.
 		uint16_c _data_size; // size in bytes of this field's data in records buffer, this includes the field header and the field value.
 
 	public:

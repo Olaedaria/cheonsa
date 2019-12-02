@@ -77,7 +77,7 @@ namespace cheonsa
 			sint32_c get_buffer_data_size(); // gets the size of the buffer data in bytes.
 			void_c * get_buffer_data(); // gets a pointer to the raw buffer.
 
-			string8_c & get_string8();
+			string8_c & get_string8(); // gets a reference to the string8_c value, which can be set because it is a reference.
 			string16_c & get_string16(); // gets a reference to the string16_c value, which can be set because it is a reference.
 
 			data_scribe_structure_c * get_structure(); // gets a pointer to the sub-structure.
@@ -118,8 +118,8 @@ namespace cheonsa
 		core_list_c< property_c * > _property_list;
 
 	public:
-		void_c save( data_scribe_binary_c * scribe_binary );
-		void_c load( data_scribe_binary_c * scribe_binary );
+		boolean_c save( data_scribe_binary_c & scribe );
+		boolean_c load( data_scribe_binary_c & scribe );
 
 		property_c * find_property( string16_c const & name, property_c::type_e type = property_c::type_e_none, uint8_c type_count = 0 ); // finds and returns the property with name and type, or returns nullptr.
 

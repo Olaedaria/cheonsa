@@ -78,11 +78,11 @@ namespace cheonsa
 				{
 					// object being bound to is a bone.
 					animation_object_player->property_player_list.construct_mode_dynamic( 3, 3 );
-					animation_object_player->property_player_list[ 0 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e::position );
+					animation_object_player->property_player_list[ 0 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e_position );
 					//animation_object_player->property_player_list[ 0 ].property_index = 0;
-					animation_object_player->property_player_list[ 1 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e::rotation );
+					animation_object_player->property_player_list[ 1 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e_rotation );
 					//animation_object_player->property_player_list[ 1 ].property_index = 1;
-					animation_object_player->property_player_list[ 2 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e::scale );
+					animation_object_player->property_player_list[ 2 ].property_type = static_cast< uint32_c >( resource_file_model_c::animation_property_c::type_e_scale );
 					//animation_object_player->property_player_list[ 2 ].property_index = 2;
 					uint32_c animation_property_count = source_animation_object->property_end - source_animation_object->property_start;
 					for ( uint32_c j = 0; j < animation_property_count; j++ )
@@ -924,8 +924,8 @@ namespace cheonsa
 				light->_scene_light.set_color( vector32x3_c( light->_source_light->color ) );
 				light->_scene_light.set_brightness( light->_source_light->brightness );
 				light->_scene_light.set_cone_angle( light->_source_light->cone_angle );
-				light->_scene_light.set_render_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e::render_enable ) ) != 0 );
-				light->_scene_light.set_shadow_cast_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e::shadow_cast_enable ) ) != 0 );
+				light->_scene_light.set_render_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e_render_enable ) ) != 0 );
+				light->_scene_light.set_shadow_cast_enable( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e_shadow_cast_enable ) ) != 0 );
 				if ( _scene_object != nullptr && _scene_object->get_scene() != nullptr )
 				{
 					_scene_object->get_scene()->add_light( &light->_scene_light );
@@ -1571,7 +1571,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < _bone_list.get_length(); i++ )
 			{
 				bone_c * bone = &_bone_list[ i ];
-				if ( ( bone->_source_bone->flags & static_cast< uint8_c >( resource_file_model_c::bone_c::flags_e::do_not_rebound ) ) != 0 )
+				if ( ( bone->_source_bone->flags & static_cast< uint8_c >( resource_file_model_c::bone_c::flags_e_do_not_rebound ) ) != 0 )
 				{
 					continue;
 				}

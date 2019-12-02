@@ -65,17 +65,17 @@ namespace cheonsa
 		FT_Error free_type_error = FT_New_Size( reinterpret_cast< FT_Face >( free_type_face_handle ), reinterpret_cast< FT_Size * >( &free_type_size_handle ) );
 		if ( free_type_error != 0 )
 		{
-			goto clean_up;
+			goto cancel;
 		}
 		free_type_error = FT_Activate_Size( reinterpret_cast< FT_Size >( free_type_size_handle ) );
 		if ( free_type_error != 0 )
 		{
-			goto clean_up;
+			goto cancel;
 		}
 		free_type_error = FT_Set_Pixel_Sizes( reinterpret_cast< FT_Face >( free_type_face_handle ), 0, quantized_size );
 		if ( free_type_error != 0 )
 		{
-			goto clean_up;
+			goto cancel;
 		}
 		ascender = static_cast< float32_c >( reinterpret_cast< FT_Face >( free_type_face_handle )->size->metrics.ascender ) / 64.0f;
 		descender = static_cast< float32_c >( reinterpret_cast< FT_Face >( free_type_face_handle )->size->metrics.descender ) / 64.0f;
@@ -83,13 +83,13 @@ namespace cheonsa
 		free_type_error = FT_Load_Char( reinterpret_cast< FT_Face >( free_type_face_handle ), ' ', FT_LOAD_DEFAULT );
 		if ( free_type_error != 0 )
 		{
-			goto clean_up;
+			goto cancel;
 		}
 		space_horizontal_advance = static_cast< float32_c >( reinterpret_cast< FT_Face >( free_type_face_handle )->glyph->advance.x ) / 64.0f;
 
 		return true;
 
-	clean_up:
+	cancel:
 		_unload();
 		return false;
 	}
@@ -119,14 +119,14 @@ namespace cheonsa
 		FT_Error free_type_error = FT_New_Memory_Face( reinterpret_cast< FT_Library >( engine_c::get_instance()->get_glyph_manager()->_free_type_library_handle ), reinterpret_cast< FT_Byte * >( _file ), static_cast< FT_Long >( _file_size ), 0, reinterpret_cast< FT_Face * >( &_free_type_face_handle ) );
 		if ( free_type_error )
 		{
-			goto clean_up;
+			goto cancel;
 		}
 
 		for ( sint32_c i = 0; i < glyph_manager_c::quantized_count; i++ )
 		{
 			if ( !_quantized_size_metrics[ i ]._load( _free_type_face_handle, static_cast< uint8_c >( glyph_manager_c::quantized_sizes[ i ] ) ) )
 			{
-				goto clean_up;
+				goto cancel;
 			}
 		}
 
@@ -137,7 +137,7 @@ namespace cheonsa
 
 		return true;
 
-	clean_up:
+	cancel:
 		if ( _free_type_face_handle != nullptr )
 		{
 			for ( sint32_c i = 0; i < glyph_manager_c::quantized_count; i++ )

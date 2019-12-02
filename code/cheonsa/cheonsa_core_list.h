@@ -581,26 +581,28 @@ namespace cheonsa
 		}
 
 		// gets size in bytes of the used portion of the internal array, which is sizeof( value_type_c ) * _array_length_used.
-		// this is not the size in bytes of the total array allocation which may be larger.
+		// this should only be called on dynamic mode lists.
 		inline sint32_c get_internal_array_size_used() const
 		{
 			return sizeof( value_type_c ) * _array_length_used;
 		}
 
+		// gets the size in bytes of the total allocation for the internal array, which is sizeof( value_type_c ) * _array_length_allocated.
+		// this should only be called on dynamic mode lists.
+		inline sint32_c get_internal_array_size_allocated() const
+		{
+			assert( _array_length_allocated >= 0 );
+			return sizeof( value_type_c ) * _array_length_allocated;
+		}
+
 		// gets the number of elements allocated by the internal array.
-		// this can only be called on dynamic mode lists.
+		// this should only be called on dynamic mode lists.
 		// this may be greater than or equal to the number of values in the array.
-		inline sint32_c get_internal_array_length_allocated() const
+		inline sint32_c get_length_allocated() const
 		{
 			assert( _array_length_allocated >= 0 );
 			return _array_length_allocated;
 		}
-
-		//inline sint32_c get_internal_array_size_allocated() const
-		//{
-		//	assert( _array_length_allocated >= 0 );
-		//	return sizeof( value_type_c ) * _array_length_allocated;
-		//}
 
 		// gets the number of values currently stored.
 		inline sint32_c get_length() const
@@ -621,6 +623,7 @@ namespace cheonsa
 		}
 
 		// sets the length of the internal array to length, and sets length to length.
+		// if list is static mode then this converts it to dynamic mode.
 		inline void_c set_length_absolute( sint32_c length )
 		{
 			assert( length >= 0 );

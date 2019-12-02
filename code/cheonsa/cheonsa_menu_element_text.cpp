@@ -124,10 +124,6 @@ namespace cheonsa
 	{
 	}
 
-	menu_element_text_c::text_span_c::~text_span_c()
-	{
-	}
-
 	void_c menu_element_text_c::text_span_c::_handle_insert_character_range( sint32_c character_start, sint32_c character_count )
 	{
 		// process this.
@@ -217,7 +213,7 @@ namespace cheonsa
 		}
 	}
 
-	resource_file_font_c * menu_element_text_c::text_span_c::get_style_font() const
+	resource_file_font_c * menu_element_text_c::text_span_c::_get_style_font() const
 	{
 		text_span_c const * span = this;
 		//while ( true )
@@ -237,154 +233,106 @@ namespace cheonsa
 			//span = span->_mother_span;
 		}
 		assert( span->_mother_paragraph );
-		return span->_mother_paragraph->get_style_font();
+		return span->_mother_paragraph->_get_style_font();
 	}
 
-	vector32x4_c menu_element_text_c::text_span_c::get_style_color() const
+	vector32x4_c menu_element_text_c::text_span_c::_get_style_color() const
 	{
 		text_span_c const * span = this;
-		//while ( true )
+		if ( span->_text_style_reference.get_value() )
 		{
-			if ( span->_text_style_reference.get_value() )
+			if ( span->_text_style_reference.get_value()->color_style_is_defined && span->_text_style_reference.get_value()->color_style.get_value() )
 			{
-				if ( span->_text_style_reference.get_value()->color_style_is_defined && span->_text_style_reference.get_value()->color_style.get_value() )
-				{
-					return span->_text_style_reference.get_value()->color_style.get_value()->value;
-				}
-				else if ( span->_text_style_reference.get_value()->color_is_defined )
-				{
-					return span->_text_style_reference.get_value()->color;
-				}
+				return span->_text_style_reference.get_value()->color_style.get_value()->value;
 			}
-			//if ( span->_mother_span == nullptr )
-			//{
-			//	break;
-			//}
-			//span = span->_mother_span;
+			else if ( span->_text_style_reference.get_value()->color_is_defined )
+			{
+				return span->_text_style_reference.get_value()->color;
+			}
 		}
 		assert( span->_mother_paragraph );
-		return span->_mother_paragraph->get_style_color();
+		return span->_mother_paragraph->_get_style_color();
 	}
 
-	float32_c menu_element_text_c::text_span_c::get_style_size() const
+	float32_c menu_element_text_c::text_span_c::_get_style_size() const
 	{
 		text_span_c const * span = this;
-		//while ( true )
+		if ( span->_text_style_reference.get_value() )
 		{
-			if ( span->_text_style_reference.get_value() )
+			if ( span->_text_style_reference.get_value()->size_is_defined )
 			{
-				if ( span->_text_style_reference.get_value()->size_is_defined )
-				{
-					return span->_text_style_reference.get_value()->size;
-				}
+				return span->_text_style_reference.get_value()->size;
 			}
-			//if ( span->_mother_span == nullptr )
-			//{
-			//	break;
-			//}
-			//span = span->_mother_span;
 		}
 		assert( span->_mother_paragraph );
-		return span->_mother_paragraph->get_style_size();
+		return span->_mother_paragraph->_get_style_size();
 	}
 
-	float32_c menu_element_text_c::text_span_c::get_style_skew() const
+	float32_c menu_element_text_c::text_span_c::_get_style_skew() const
 	{
 		text_span_c const * span = this;
-		//while ( true )
+		if ( span->_text_style_reference.get_value() )
 		{
-			if ( span->_text_style_reference.get_value() )
+			if ( span->_text_style_reference.get_value()->skew_is_defined )
 			{
-				if ( span->_text_style_reference.get_value()->skew_is_defined )
-				{
-					return span->_text_style_reference.get_value()->skew;
-				}
+				return span->_text_style_reference.get_value()->skew;
 			}
-			//if ( span->_mother_span == nullptr )
-			//{
-			//	break;
-			//}
-			//span = span->_mother_span;
 		}
 		assert( span->_mother_paragraph );
-		return span->_mother_paragraph->get_style_skew();
+		return span->_mother_paragraph->_get_style_skew();
 	}
 
-	float32_c menu_element_text_c::text_span_c::get_style_weight() const
+	float32_c menu_element_text_c::text_span_c::_get_style_weight() const
 	{
 		text_span_c const * span = this;
-		//while ( true )
+		if ( span->_text_style_reference.get_value() )
 		{
-			if ( span->_text_style_reference.get_value() )
+			if ( span->_text_style_reference.get_value()->weight_is_defined )
 			{
-				if ( span->_text_style_reference.get_value()->weight_is_defined )
-				{
-					return span->_text_style_reference.get_value()->weight;
-				}
+				return span->_text_style_reference.get_value()->weight;
 			}
-			//if ( span->_mother_span == nullptr )
-			//{
-			//	break;
-			//}
-			//span = span->_mother_span;
 		}
 		assert( span->_mother_paragraph );
-		return span->_mother_paragraph->get_style_weight();
+		return span->_mother_paragraph->_get_style_weight();
 	}
 
-	float32_c menu_element_text_c::text_span_c::get_style_softness() const
+	float32_c menu_element_text_c::text_span_c::_get_style_softness() const
 	{
 		text_span_c const * span = this;
-		//while ( true )
+		if ( span->_text_style_reference.get_value() )
 		{
-			if ( span->_text_style_reference.get_value() )
+			if ( span->_text_style_reference.get_value()->softness_is_defined )
 			{
-				if ( span->_text_style_reference.get_value()->softness_is_defined )
-				{
-					return span->_text_style_reference.get_value()->softness;
-				}
+				return span->_text_style_reference.get_value()->softness;
 			}
-			//if ( span->_mother_span == nullptr )
-			//{
-			//	break;
-			//}
-			//span = span->_mother_span;
 		}
 		assert( span->_mother_paragraph );
-		return span->_mother_paragraph->get_style_softness();
+		return span->_mother_paragraph->_get_style_softness();
 	}
 
-	float32_c menu_element_text_c::text_span_c::get_style_glyph_spacing() const
+	float32_c menu_element_text_c::text_span_c::_get_style_glyph_spacing() const
 	{
 		text_span_c const * span = this;
-		//while ( true )
+		if ( span->_text_style_reference.get_value() )
 		{
-			if ( span->_text_style_reference.get_value() )
+			if ( span->_text_style_reference.get_value()->glyph_spacing_is_defined )
 			{
-				if ( span->_text_style_reference.get_value()->glyph_spacing_is_defined )
-				{
-					return span->_text_style_reference.get_value()->glyph_spacing;
-				}
+				return span->_text_style_reference.get_value()->glyph_spacing;
 			}
-			//if ( span->_mother_span == nullptr )
-			//{
-			//	break;
-			//}
-			//span = span->_mother_span;
 		}
 		assert( span->_mother_paragraph );
-		return span->_mother_paragraph->get_style_glyph_spacing();
+		return span->_mother_paragraph->_get_style_glyph_spacing();
 	}
 
-	menu_text_glyph_style_c menu_element_text_c::text_span_c::get_style() const
+	menu_text_glyph_style_c menu_element_text_c::text_span_c::_get_style() const
 	{
 		menu_text_glyph_style_c result;
-		result.font = get_style_font();
-		result.color = get_style_color();
-		result.size = get_style_size();
-		result.weight = get_style_weight();
-		result.skew = get_style_skew();
-		result.softness = get_style_softness();
+		result.font = _get_style_font();
+		result.color = _get_style_color();
+		result.size = _get_style_size();
+		result.weight = _get_style_weight();
+		result.skew = _get_style_skew();
+		result.softness = _get_style_softness();
 		return result;
 	}
 
@@ -441,14 +389,8 @@ namespace cheonsa
 
 	menu_element_text_c::text_paragraph_c::~text_paragraph_c()
 	{
-		for ( sint32_c i = 0; i < _entity_list.get_length(); i++ )
-		{
-			delete _entity_list[ i ];
-		}
-		for ( sint32_c i = 0; i < _span_list.get_length(); i++ )
-		{
-			delete _span_list[ i ];
-		}
+		_entity_list.remove_and_delete_all();
+		_span_list.remove_and_delete_all();
 	}
 
 	void_c menu_element_text_c::text_paragraph_c::_do_glyph_layout()
@@ -469,7 +411,7 @@ namespace cheonsa
 		float32_c current_space_width = 0.0f; // current accumulated width of consecutive spaces. space width does not contribute to the width of the line until it is followed up by a word.
 		float32_c current_line_top = 0.0f; // current offset of top of line from top of paragraph.
 		float32_c current_line_width = 0.0f; // current accumulated width of line.
-		float32_c current_line_spacing = get_style_line_spacing(); // extra space to place between lines is defined by the paragraph.
+		float32_c current_line_spacing = _get_style_line_spacing(); // extra space to place between lines is defined by the paragraph.
 		float32_c current_laid_out_ascender; // current unquantized ascender for the current style of the current character.
 		float32_c current_laid_out_descender; // current unquantized descender for the current style of the current character.
 		float32_c current_laid_out_glyph_spacing; // current unquantized glyph spacing (extra horizontal advance) for the current style of the current character.
@@ -511,13 +453,13 @@ namespace cheonsa
 			{
 				if ( current_span != nullptr )
 				{
-					current_text_glyph_style = current_span->get_style();
-					current_laid_out_glyph_spacing = current_span->get_style_glyph_spacing() * current_text_glyph_style.size;
+					current_text_glyph_style = current_span->_get_style();
+					current_laid_out_glyph_spacing = current_span->_get_style_glyph_spacing() * current_text_glyph_style.size;
 				}
 				else
 				{
-					current_text_glyph_style = get_style();
-					current_laid_out_glyph_spacing = get_style_glyph_spacing() * current_text_glyph_style.size;
+					current_text_glyph_style = _get_style();
+					current_laid_out_glyph_spacing = _get_style_glyph_spacing() * current_text_glyph_style.size;
 				}
 				current_scale_to_unquantize_size = current_text_glyph_style.size / static_cast< float32_c >( glyph_manager_c::get_quantized_size( current_text_glyph_style.size ) );
 				current_text_glyph_style.softness += 1.0f / current_scale_to_unquantize_size * 0.025f; // softness bias, so that edges are base-line level of soft by default.
@@ -703,7 +645,7 @@ namespace cheonsa
 		// advance by extra line spacing if needed.
 		if ( _line_list.get_length() > 0 )
 		{
-			laid_out_top += get_style_line_spacing();
+			laid_out_top += _get_style_line_spacing();
 		}
 
 		// create new laid out line.
@@ -717,7 +659,7 @@ namespace cheonsa
 		}
 
 		// take into account horizontal text alignment.
-		line->_update_horizontal_layout( get_style_text_align_horizontal(), _mother_element_text->_local_box.get_width() );
+		line->_update_horizontal_layout( _get_style_text_align_horizontal(), _mother_element_text->_local_box.get_width() );
 
 		// this is straight forward because it's relative to the paragraph's top, so we don't need to take into account vertical text alignment here, that is done in the paragraph.
 		line->_top = laid_out_top;
@@ -917,7 +859,7 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	menu_text_align_horizontal_e menu_element_text_c::text_paragraph_c::get_style_text_align_horizontal() const
+	menu_text_align_horizontal_e menu_element_text_c::text_paragraph_c::_get_style_text_align_horizontal() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value())
@@ -927,10 +869,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->text_align_horizontal;
 			}
 		}
-		return _mother_element_text->get_style_text_align_horizontal();
+		return _mother_element_text->_get_style_text_align_horizontal();
 	}
 
-	float32_c menu_element_text_c::text_paragraph_c::get_style_paragraph_spacing() const
+	float32_c menu_element_text_c::text_paragraph_c::_get_style_paragraph_spacing() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -940,10 +882,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->paragraph_spacing;
 			}
 		}
-		return _mother_element_text->get_style_paragraph_spacing();
+		return _mother_element_text->_get_style_paragraph_spacing();
 	}
 
-	float32_c menu_element_text_c::text_paragraph_c::get_style_line_spacing() const
+	float32_c menu_element_text_c::text_paragraph_c::_get_style_line_spacing() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -953,10 +895,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->line_spacing;
 			}
 		}
-		return _mother_element_text->get_style_line_spacing();
+		return _mother_element_text->_get_style_line_spacing();
 	}
 
-	float32_c menu_element_text_c::text_paragraph_c::get_style_glyph_spacing() const
+	float32_c menu_element_text_c::text_paragraph_c::_get_style_glyph_spacing() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -966,10 +908,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->glyph_spacing;
 			}
 		}
-		return _mother_element_text->get_style_glyph_spacing();
+		return _mother_element_text->_get_style_glyph_spacing();
 	}
 
-	resource_file_font_c * menu_element_text_c::text_paragraph_c::get_style_font() const
+	resource_file_font_c * menu_element_text_c::text_paragraph_c::_get_style_font() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -980,10 +922,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->font;
 			}
 		}
-		return _mother_element_text->get_style_font();
+		return _mother_element_text->_get_style_font();
 	}
 
-	vector32x4_c menu_element_text_c::text_paragraph_c::get_style_color() const
+	vector32x4_c menu_element_text_c::text_paragraph_c::_get_style_color() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -997,10 +939,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->color;
 			}
 		}
-		return _mother_element_text->get_style_color();
+		return _mother_element_text->_get_style_color();
 	}
 
-	float32_c menu_element_text_c::text_paragraph_c::get_style_size() const
+	float32_c menu_element_text_c::text_paragraph_c::_get_style_size() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -1010,10 +952,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->size;
 			}
 		}
-		return _mother_element_text->get_style_size();
+		return _mother_element_text->_get_style_size();
 	}
 
-	float32_c menu_element_text_c::text_paragraph_c::get_style_skew() const
+	float32_c menu_element_text_c::text_paragraph_c::_get_style_skew() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -1023,10 +965,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->skew;
 			}
 		}
-		return _mother_element_text->get_style_skew();
+		return _mother_element_text->_get_style_skew();
 	}
 
-	float32_c menu_element_text_c::text_paragraph_c::get_style_weight() const
+	float32_c menu_element_text_c::text_paragraph_c::_get_style_weight() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -1036,10 +978,10 @@ namespace cheonsa
 				return _text_style_reference.get_value()->weight;
 			}
 		}
-		return _mother_element_text->get_style_weight();
+		return _mother_element_text->_get_style_weight();
 	}
 
-	float32_c menu_element_text_c::text_paragraph_c::get_style_softness() const
+	float32_c menu_element_text_c::text_paragraph_c::_get_style_softness() const
 	{
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
@@ -1049,18 +991,18 @@ namespace cheonsa
 				return _text_style_reference.get_value()->softness;
 			}
 		}
-		return _mother_element_text->get_style_softness();
+		return _mother_element_text->_get_style_softness();
 	}
 
-	menu_text_glyph_style_c menu_element_text_c::text_paragraph_c::get_style() const
+	menu_text_glyph_style_c menu_element_text_c::text_paragraph_c::_get_style() const
 	{
 		menu_text_glyph_style_c result;
-		result.font = get_style_font();
-		result.color = get_style_color();
-		result.size = get_style_size();
-		result.weight = get_style_weight();
-		result.skew = get_style_skew();
-		result.softness = get_style_softness();
+		result.font = _get_style_font();
+		result.color = _get_style_color();
+		result.size = _get_style_size();
+		result.weight = _get_style_weight();
+		result.skew = _get_style_skew();
+		result.softness = _get_style_softness();
 		return result;
 	}
 
@@ -1119,7 +1061,7 @@ namespace cheonsa
 		for ( sint32_c paragraph_index = 0; paragraph_index < _paragraph_list.get_length(); paragraph_index++ )
 		{
 			text_paragraph_c * paragraph = _paragraph_list[ paragraph_index ];
-			if ( paragraph->get_style_font() == font )
+			if ( paragraph->_get_style_font() == font )
 			{
 				paragraph->_is_glyph_layout_dirty = true;
 			}
@@ -1128,7 +1070,7 @@ namespace cheonsa
 				for ( sint32_c span_index = 0; span_index < paragraph->_span_list.get_length(); span_index++ )
 				{
 					text_span_c * span = paragraph->_span_list[ span_index ];
-					if ( span->get_style_font() == font )
+					if ( span->_get_style_font() == font )
 					{
 						_is_glyph_layout_dirty = true;
 						paragraph->_is_glyph_layout_dirty = true;
@@ -1165,7 +1107,7 @@ namespace cheonsa
 			for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
 			{
 				text_line_c * line = &paragraph->_line_list[ j ];
-				line->_update_horizontal_layout( paragraph->get_style_text_align_horizontal(), _local_box.get_width() );
+				line->_update_horizontal_layout( paragraph->_get_style_text_align_horizontal(), _local_box.get_width() );
 			}
 		}
 	}
@@ -1174,7 +1116,7 @@ namespace cheonsa
 	{
 		_content_width = 0.0f;
 		_content_height = 0.0f;
-		float32_c paragraph_spacing = get_style_paragraph_spacing();
+		float32_c paragraph_spacing = _get_style_paragraph_spacing();
 		float32_c paragraph_top = 0.0f;
 		sint32_c paragraph_line_index_base = 0;
 		text_paragraph_c * paragraph = nullptr;
@@ -1852,7 +1794,7 @@ namespace cheonsa
 		}
 
 		float32_c vertically_algined_y = 0.0f;
-		menu_text_align_vertical_e text_align_vertical = get_style_text_align_vertical();
+		menu_text_align_vertical_e text_align_vertical = _get_style_text_align_vertical();
 		if ( text_align_vertical == menu_text_align_vertical_e_center )
 		{
 			vertically_algined_y = ( _local_box.get_height() * 0.5f ) - ( get_content_height() * 0.5f );
@@ -2235,6 +2177,168 @@ namespace cheonsa
 		_is_glyph_layout_dirty = true;
 
 		return true;
+	}
+
+	menu_text_align_vertical_e menu_element_text_c::_get_style_text_align_vertical() const
+	{
+		if ( _text_align_vertical != menu_text_align_vertical_e_inherit_from_style )
+		{
+			return _text_align_vertical;
+		}
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->text_align_vertical_is_defined )
+			{
+				return _text_style_reference.get_value()->text_align_vertical;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_vertical_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_vertical;
+	}
+
+	menu_text_align_horizontal_e menu_element_text_c::_get_style_text_align_horizontal() const
+	{
+		if ( _text_align_horizontal != menu_text_align_horizontal_e_inherit_from_style )
+		{
+			return _text_align_horizontal;
+		}
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->text_align_horizontal_is_defined )
+			{
+				return _text_style_reference.get_value()->text_align_horizontal;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_horizontal_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_horizontal;
+	}
+
+	float32_c menu_element_text_c::_get_style_paragraph_spacing() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->paragraph_spacing_is_defined )
+			{
+				return _text_style_reference.get_value()->paragraph_spacing;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->paragraph_spacing_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->paragraph_spacing;
+	}
+
+	float32_c menu_element_text_c::_get_style_line_spacing() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->line_spacing_is_defined )
+			{
+				return _text_style_reference.get_value()->line_spacing;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->line_spacing_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->line_spacing;
+	}
+
+	float32_c menu_element_text_c::_get_style_glyph_spacing() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->glyph_spacing_is_defined )
+			{
+				return _text_style_reference.get_value()->glyph_spacing;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->glyph_spacing_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->glyph_spacing;
+	}
+
+	resource_file_font_c * menu_element_text_c::_get_style_font() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->font_is_defined )
+			{
+				assert( _text_style_reference.get_value()->font.is_reference_set_and_loaded() );
+				return _text_style_reference.get_value()->font;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font_is_defined );
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font.is_reference_set_and_loaded() );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font;
+	}
+
+	vector32x4_c menu_element_text_c::_get_style_color() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->color_style_is_defined && _text_style_reference.get_value()->color_style.get_value() )
+			{
+				return _text_style_reference.get_value()->color_style.get_value()->value;
+			}
+			else if ( _text_style_reference.get_value()->color_is_defined )
+			{
+				return _text_style_reference.get_value()->color;
+			}
+		}
+		if ( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style_is_defined )
+		{
+			assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value() );
+			return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value()->value;
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color;
+	}
+
+	float32_c menu_element_text_c::_get_style_size() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->size_is_defined )
+			{
+				return _text_style_reference.get_value()->size;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->size_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->size;
+	}
+
+	float32_c menu_element_text_c::_get_style_skew() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->skew_is_defined )
+			{
+				return _text_style_reference.get_value()->skew;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->skew_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->skew;
+	}
+
+	float32_c menu_element_text_c::_get_style_weight() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->weight_is_defined )
+			{
+				return _text_style_reference.get_value()->weight;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->weight_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->weight;
+	}
+
+	float32_c menu_element_text_c::_get_style_softness() const
+	{
+		if ( _text_style_reference.get_value() )
+		{
+			if ( _text_style_reference.get_value()->softness_is_defined )
+			{
+				return _text_style_reference.get_value()->softness;
+			}
+		}
+		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->softness_is_defined );
+		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->softness;
 	}
 
 	menu_element_text_c::menu_element_text_c()
@@ -3060,168 +3164,6 @@ namespace cheonsa
 		return false;
 	}
 
-	menu_text_align_vertical_e menu_element_text_c::get_style_text_align_vertical() const
-	{
-		if ( _text_align_vertical != menu_text_align_vertical_e_inherit_from_style )
-		{
-			return _text_align_vertical;
-		}
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->text_align_vertical_is_defined )
-			{
-				return _text_style_reference.get_value()->text_align_vertical;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_vertical_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_vertical;
-	}
-
-	menu_text_align_horizontal_e menu_element_text_c::get_style_text_align_horizontal() const
-	{
-		if ( _text_align_horizontal != menu_text_align_horizontal_e_inherit_from_style )
-		{
-			return _text_align_horizontal;
-		}
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->text_align_horizontal_is_defined )
-			{
-				return _text_style_reference.get_value()->text_align_horizontal;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_horizontal_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_horizontal;
-	}
-
-	float32_c menu_element_text_c::get_style_paragraph_spacing() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->paragraph_spacing_is_defined )
-			{
-				return _text_style_reference.get_value()->paragraph_spacing;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->paragraph_spacing_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->paragraph_spacing;
-	}
-
-	float32_c menu_element_text_c::get_style_line_spacing() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->line_spacing_is_defined )
-			{
-				return _text_style_reference.get_value()->line_spacing;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->line_spacing_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->line_spacing;
-	}
-
-	float32_c menu_element_text_c::get_style_glyph_spacing() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->glyph_spacing_is_defined )
-			{
-				return _text_style_reference.get_value()->glyph_spacing;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->glyph_spacing_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->glyph_spacing;
-	}
-
-	resource_file_font_c * menu_element_text_c::get_style_font() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->font_is_defined )
-			{
-				assert( _text_style_reference.get_value()->font.is_reference_set_and_loaded() );
-				return _text_style_reference.get_value()->font;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font_is_defined );
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font.is_reference_set_and_loaded() );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font;
-	}
-
-	vector32x4_c menu_element_text_c::get_style_color() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->color_style_is_defined && _text_style_reference.get_value()->color_style.get_value() )
-			{
-				return _text_style_reference.get_value()->color_style.get_value()->value;
-			}
-			else if ( _text_style_reference.get_value()->color_is_defined )
-			{
-				return _text_style_reference.get_value()->color;
-			}
-		}
-		if ( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style_is_defined )
-		{
-			assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value() );
-			return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value()->value;
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color;
-	}
-
-	float32_c menu_element_text_c::get_style_size() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->size_is_defined )
-			{
-				return _text_style_reference.get_value()->size;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->size_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->size;
-	}
-
-	float32_c menu_element_text_c::get_style_skew() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->skew_is_defined )
-			{
-				return _text_style_reference.get_value()->skew;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->skew_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->skew;
-	}
-
-	float32_c menu_element_text_c::get_style_weight() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->weight_is_defined )
-			{
-				return _text_style_reference.get_value()->weight;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->weight_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->weight;
-	}
-
-	float32_c menu_element_text_c::get_style_softness() const
-	{
-		if ( _text_style_reference.get_value() )
-		{
-			if ( _text_style_reference.get_value()->softness_is_defined )
-			{
-				return _text_style_reference.get_value()->softness;
-			}
-		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->softness_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->softness;
-	}
-
 	void_c menu_element_text_c::_on_local_box_modified()
 	{
 		vector32x2_c size = _local_box.get_size();
@@ -3288,7 +3230,7 @@ namespace cheonsa
 		sint32_c selected_character_end = selected_character_start + selected_character_count;
 
 		float32_c vertically_algined_y = 0.0f;
-		menu_text_align_vertical_e text_align_vertical = get_style_text_align_vertical();
+		menu_text_align_vertical_e text_align_vertical = _get_style_text_align_vertical();
 		if ( text_align_vertical == menu_text_align_vertical_e_center )
 		{
 			vertically_algined_y = ( _local_box.get_height() * 0.5f ) - ( get_content_height() * 0.5f );
@@ -3563,8 +3505,6 @@ namespace cheonsa
 
 	void_c menu_element_text_c::update_animations( float32_c time_step )
 	{
-		menu_element_c::update_animations( time_step );
-
 		if ( _is_glyph_layout_dirty )
 		{
 			_do_glyph_layout();

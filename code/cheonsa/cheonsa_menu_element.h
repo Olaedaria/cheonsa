@@ -39,18 +39,10 @@ namespace cheonsa
 		box32x2_c _local_box;
 
 		boolean_c _is_showing_from_style; // style map assignment may set this to false to hide this element. the element will still be laid out, but it just won't be rendered.
-
 		boolean_c _is_showing; // if _control->_is_showing is false then it overrides this value.
-		//float32_c _is_showing_weight; // _control->_is_showing is false, then the renderer takes _control->_global_is_showing_weight * _is_showing_weight to use as the element's actual opacity.
-
 		boolean_c _is_enabled; // if _control->_is_enabled is false then it overrides this value.
-		//float32_c _is_enabled_weight; // for now this does not animate, it will only flip between 0 and 1 based on the state of _control->_is_enabled && _is_enabled.
-
 		boolean_c _is_selected;
-		//float32_c _is_selected_weight;
-
 		boolean_c _is_pressed;
-		//float32_c _is_pressed_weight;
 
 		menu_draw_list_c _draw_list; // used to build render procedure for this element.
 		boolean_c _draw_list_is_dirty; // if true then _draw_unit needs to be rebuilt.
@@ -61,7 +53,7 @@ namespace cheonsa
 	public:
 		menu_element_c();
 
-		virtual void_c update_animations( float32_c time_step );
+		virtual void_c update_animations( float32_c time_step ) = 0;
 
 		virtual void_c set_style_key( string8_c const & value ) = 0;
 
@@ -72,7 +64,6 @@ namespace cheonsa
 		box32x2_c const & get_local_box() const;
 
 		menu_control_c * get_mother_control() const;
-		//void_c set_mother_control( menu_control_c * value );
 
 		string8_c const & get_name() const;
 		void_c set_name( string8_c const & value );
@@ -83,35 +74,20 @@ namespace cheonsa
 		boolean_c get_is_showing() const;
 		void_c set_is_showing( boolean_c value );
 
-		//float32_c get_is_showing_weight() const;
-		//void_c set_is_showing_weight( float32_c value );
-
 		boolean_c get_is_enabled() const;
 		void_c set_is_enabled( boolean_c value );
-
-		//float32_c get_is_enabled_weight() const;
-		//void_c set_is_enabled_weight( float32_c value );
 
 		boolean_c get_is_selected() const;
 		void_c set_is_selected( boolean_c value );
 
-		//float32_c get_is_selected_weight() const;
-		//void_c set_is_selected_weight( float32_c value );
-
 		boolean_c get_is_pressed() const;
 		void_c set_is_pressed( boolean_c value );
-
-		//float32_c get_is_pressed_weight() const;
-		//void_c set_is_pressed_weight( float32_c value );
 
 		menu_draw_list_c & get_draw_list() const;
 
 		menu_state_e get_state() const; // evaluates the boolean states of this element to arrive at an enumerated menu state.
 
 	public:
-		//virtual void_c save_element_properties( data_scribe_structure_c * structure );
-		//virtual void_c load_element_properties( data_scribe_structure_c * structure );
-
 		virtual void_c load_properties( data_scribe_markup_c::node_c const * node );
 
 	};

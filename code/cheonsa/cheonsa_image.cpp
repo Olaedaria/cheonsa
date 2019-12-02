@@ -2,7 +2,6 @@
 #include "cheonsa__ops.h"
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
-#include "cheonsa_data_scribe_png.h"
 #include "third_party/jpgd.h"
 #include "third_party/jpge.h"
 #include "third_party/lodepng.h"
@@ -11,22 +10,46 @@
 namespace cheonsa
 {
 
-	uint8_c image_png_file_signature[ 8 ] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+	uint8_c const image_png_signature[ 8 ] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
 	image_png_chunk_c::image_png_chunk_c()
 		: type{}
 		, data_size( 0 )
 		, data( nullptr )
 		, data_is_ours( false )
+		, crc( 0 )
 	{
 	}
 
 	image_png_chunk_c::~image_png_chunk_c()
 	{
-		if ( data_is_ours )
+		if ( data_is_ours && data != nullptr )
 		{
 			delete[] data;
+			data = nullptr;
+			data_is_ours = false;
 		}
+	}
+
+	image_png_chunk_c & image_png_chunk_c::operator = ( image_png_chunk_c & other )
+	{
+		type[ 0 ] = other.type[ 0 ];
+		type[ 1 ] = other.type[ 1 ];
+		type[ 2 ] = other.type[ 2 ];
+		type[ 3 ] = other.type[ 3 ];
+		data_size = other.data_size;
+		data = other.data;
+		data_is_ours = other.data_is_ours;
+
+		other.type[ 0 ] = 0;
+		other.type[ 1 ] = 0;
+		other.type[ 2 ] = 0;
+		other.type[ 3 ] = 0;
+		other.data_size = 0;
+		other.data = nullptr;
+		other.data_is_ours = false;
+
+		return *this;
 	}
 
 	image_c::image_c()
@@ -131,48 +154,55 @@ namespace cheonsa
 
 
 	boolean_c image_load_from_png_just_the_extra_chunks(
-		core_list_c< uint8_c > const & png_file_data,
-		core_list_c< image_png_chunk_c > & chunks
-	)
+		data_stream_c * png_file_stream,
+		core_list_c< image_png_chunk_c > & extra_chunk_list )
 	{
-		chunks.remove_all();
+		assert( png_file_stream != nullptr );
 
-		uint8_c const * p = png_file_data.get_internal_array();
-		
-		if (
-			p[ 0 ] != image_png_file_signature[ 0 ] ||
-			p[ 1 ] != image_png_file_signature[ 1 ] ||
-			p[ 2 ] != image_png_file_signature[ 2 ] ||
-			p[ 3 ] != image_png_file_signature[ 3 ] ||
-			p[ 4 ] != image_png_file_signature[ 4 ] ||
-			p[ 5 ] != image_png_file_signature[ 5 ] ||
-			p[ 6 ] != image_png_file_signature[ 6 ] ||
-			p[ 7 ] != image_png_file_signature[ 7 ] )
+		data_stream_c * & stream = png_file_stream;
+
+		extra_chunk_list.remove_all();
+
+		uint8_c signature[ 8 ];
+		if ( !stream->load( signature, 8 ) )
+		{
+			return false;
+		}
+		if ( !ops::memory_compare( signature, image_png_signature, 8 ) )
 		{
 			return false;
 		}
 
-		data_stream_memory_c stream;
-		stream.open_static( png_file_data.get_internal_array(), png_file_data.get_internal_array_size_used() );
-
 		data_scribe_binary_c scribe;
-		scribe.set_stream( &stream );
+		scribe.set_stream( stream );
 		scribe.set_byte_order( byte_order_e_big );
 		
-		stream.set_position( 8 );
-		while ( stream.get_position() + 8 <= stream.get_size() );
+		sint32_c stream_size = stream->get_size();
+		while ( stream->get_position() + 8 <= stream_size );
 		{
-			image_png_chunk_c * chunk = chunks.emplace_at_end();
-			chunk->data_size = scribe.load_uint32();
-			assert( stream.get_position() + 4 + chunk->data_size + 4 <= stream.get_size() );
-			chunk->type[ 0 ] = scribe.load_uint8();
-			chunk->type[ 1 ] = scribe.load_uint8();
-			chunk->type[ 2 ] = scribe.load_uint8();
-			chunk->type[ 3 ] = scribe.load_uint8();
-			chunk->data = &stream.get_internal_buffer()[ stream.get_position() ];
-			chunk->data_is_ours = false;
-			stream.set_position( stream.get_position() + chunk->data_size + 4 );
-			// we ignore the crc.
+			image_png_chunk_c * chunk = extra_chunk_list.emplace_at_end();
+			if ( !scribe.load_uint32( chunk->data_size ) )
+			{
+				return false;
+			}
+			if ( !scribe.get_stream()->load( chunk->type, 4 ) )
+			{
+				return false;
+			}
+			if ( chunk->data_size > 0 )
+			{
+				chunk->data = new uint8_c[ chunk->data_size ];
+				chunk->data_is_ours = true;
+				if ( !stream->load( chunk->data, chunk->data_size ) )
+				{
+					return false;
+				}
+			}
+			if ( !scribe.load_uint32( chunk->crc ) )
+			{
+				return false;
+			}
+			// we won't check the crc.
 		}
 
 		return true;
@@ -181,8 +211,7 @@ namespace cheonsa
 	boolean_c image_load_from_png(
 		core_list_c< uint8_c > const & png_file_data,
 		image_c & image,
-		core_list_c< image_png_chunk_c > * extra_chunks
-	)
+		core_list_c< image_png_chunk_c > * extra_chunk_list )
 	{
 		// validate inputs.
 		if ( image.channel_count == 0 || image.channel_bit_depth == 0 )
@@ -195,9 +224,9 @@ namespace cheonsa
 			assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
 		}
 
-		if ( extra_chunks != nullptr )
+		if ( extra_chunk_list != nullptr )
 		{
-			extra_chunks->remove_all();
+			extra_chunk_list->remove_all();
 		}
 
 		// decode png into pixels.
@@ -214,7 +243,7 @@ namespace cheonsa
 		}
 
 		// copy extra chunks.
-		if ( extra_chunks && decoded_lode_png_state.info_png.unknown_chunks_data[ 2 ] )
+		if ( extra_chunk_list && decoded_lode_png_state.info_png.unknown_chunks_data[ 2 ] )
 		{
 			unsigned char * extra_chunks_data = decoded_lode_png_state.info_png.unknown_chunks_data[ 2 ];
 			uint32_c p = 0;
@@ -224,21 +253,18 @@ namespace cheonsa
 				{
 					extra_chunks_data = lodepng::lodepng_chunk_next( extra_chunks_data );
 				}
-				image_png_chunk_c * png_chunk = extra_chunks->emplace_at_end();
-				png_chunk->data_size = lodepng::lodepng_chunk_length( extra_chunks_data );
-				png_chunk->type[ 0 ] = extra_chunks_data[ 4 ];
-				png_chunk->type[ 1 ] = extra_chunks_data[ 4 + 1 ];
-				png_chunk->type[ 2 ] = extra_chunks_data[ 4 + 2 ];
-				png_chunk->type[ 3 ] = extra_chunks_data[ 4 + 3 ];
-				png_chunk->data_is_ours = false;
-				png_chunk->data = nullptr;
-				if ( png_chunk->data_size > 0 )
+				image_png_chunk_c * chunk = extra_chunk_list->emplace_at_end();
+				chunk->data_size = lodepng::lodepng_chunk_length( extra_chunks_data );
+				ops::memory_copy( &extra_chunks_data[ 4 ], chunk->type, 4 );
+				chunk->data_is_ours = false;
+				chunk->data = nullptr;
+				if ( chunk->data_size > 0 )
 				{
-					png_chunk->data_is_ours = true;
-					png_chunk->data = new uint8_c[ png_chunk->data_size ];
-					ops::memory_copy( lodepng::lodepng_chunk_data( extra_chunks_data ), png_chunk->data, png_chunk->data_size );
+					chunk->data_is_ours = true;
+					chunk->data = new uint8_c[ chunk->data_size ];
+					ops::memory_copy( lodepng::lodepng_chunk_data( extra_chunks_data ), chunk->data, chunk->data_size );
 				}
-				p += 4 + 4 + png_chunk->data_size + 4;
+				p += 4 + 4 + chunk->data_size + 4;
 			}
 		}
 
@@ -293,9 +319,8 @@ namespace cheonsa
 
 	boolean_c image_save_to_png(
 		image_c const & image,
-		core_list_c< image_png_chunk_c > const * extra_chunks,
-		core_list_c< uint8_c > & png_file_data
-	)
+		core_list_c< image_png_chunk_c > const * extra_chunk_list,
+		core_list_c< uint8_c > & png_file_data )
 	{
 		// validate inputs.
 		assert( image.width >= 1 && image.width <= 4096 );
@@ -327,11 +352,11 @@ namespace cheonsa
 		}
 		
 		// add custom chunks to state.
-		if ( extra_chunks != nullptr )
+		if ( extra_chunk_list != nullptr )
 		{
-			for ( sint32_c i = 0; i < extra_chunks->get_length(); i++ )
+			for ( sint32_c i = 0; i < extra_chunk_list->get_length(); i++ )
 			{
-				image_png_chunk_c const & chunk = ( *extra_chunks )[ i ];
+				image_png_chunk_c const & chunk = (*extra_chunk_list)[ i ];
 				lodepng::lodepng_chunk_create( &lodepng_state.info_png.unknown_chunks_data[ 2 ], &lodepng_state.info_png.unknown_chunks_size[ 2 ], chunk.data_size, reinterpret_cast< char const * >( chunk.type ), chunk.data );
 			}
 		}
@@ -344,7 +369,7 @@ namespace cheonsa
 			return false;
 		}
 
-		// redundant, copying from std vector to our own container type, but it's okay.
+		// redundant, copying from std vector to our own container type, this is fine.
 		assert( png_file_data_std.size() < constants< sint32_c >::maximum() );
 		png_file_data.construct_mode_dynamic_from_array( &png_file_data_std[ 0 ], static_cast< sint32_c >( png_file_data_std.size() ) );
 

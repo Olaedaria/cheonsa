@@ -679,6 +679,7 @@ namespace cheonsa
 		void_c memory_copy( void_c const * buffer_source, void_c * buffer_destination, sint32_c buffer_size );
 		void_c memory_zero( void_c * buffer, sint32_c buffer_size );
 		boolean_c memory_is_zero( void_c const * buffer, sint32_c buffer_size );
+		boolean_c memory_compare( void_c const * buffer_a, void_c const * buffer_b, sint32_c byte_count );
 
 
 		//

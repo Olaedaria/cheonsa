@@ -83,31 +83,31 @@ namespace cheonsa
 		float32_c const * loaded_float32_buffer() const;
 		float64_c const * loaded_float64_buffer() const;
 
-		void_c save_list_begin( char8_c const * key ); // begins saving of a list type of property. the caller can save any type of data to the stream in between a matched pair of calls to save_list_begin() and save_list_end().
-		void_c save_list_end( sint32_c length ); // finalizes saving the list type property, which involves writing the item length and the size of the list data in bytes. we supply the length (number of items in the list) here in save_list_end() because some times we don't know how many items are going to be written to the list when save_list_begin() is called.
-		void_c save_string8( char8_c const * key, string8_c const & value );
-		void_c save_string16( char8_c const * key, string16_c const & value );
-		void_c save_uint8( char8_c const * key, uint8_c value ); // equivalent to calling save_uint8_buffer() with length of 1.
-		void_c save_sint8( char8_c const * key, sint8_c value ); // equivalent to calling save_sint8_buffer() with length of 1.
-		void_c save_uint16( char8_c const * key, uint16_c value ); // equivalent to calling save_uint16_buffer() with length of 1.
-		void_c save_sint16( char8_c const * key, sint16_c value ); // equivalent to calling save_sint16_buffer() with length of 1.
-		void_c save_uint32( char8_c const * key, uint32_c value ); // equivalent to calling save_uint32_buffer() with length of 1.
-		void_c save_sint32( char8_c const * key, sint32_c value ); // equivalent to calling save_sint32_buffer() with length of 1.
-		void_c save_uint64( char8_c const * key, uint64_c value ); // equivalent to calling save_uint64_buffer() with length of 1.
-		void_c save_sint64( char8_c const * key, sint64_c value ); // equivalent to calling save_sint64_buffer() with length of 1.
-		void_c save_float32( char8_c const * key, float32_c value ); // equivalent to calling save_float32_buffer() with length of 1.
-		void_c save_float64( char8_c const * key, float64_c value ); // equivalent to calling save_float64_buffer() with length of 1.
-		void_c save_uint8_buffer( char8_c const * key, uint8_c const * value, sint32_c length );
-		void_c save_sint8_buffer( char8_c const * key, sint8_c const * value, sint32_c length );
-		void_c save_uint16_buffer( char8_c const * key, uint16_c const * value, sint32_c length );
-		void_c save_sint16_buffer( char8_c const * key, sint16_c const * value, sint32_c length );
-		void_c save_uint32_buffer( char8_c const * key, uint32_c const * value, sint32_c length );
-		void_c save_sint32_buffer( char8_c const * key, sint32_c const * value, sint32_c length );
-		void_c save_uint64_buffer( char8_c const * key, uint64_c const * value, sint32_c length );
-		void_c save_sint64_buffer( char8_c const * key, sint64_c const * value, sint32_c length );
-		void_c save_float32_buffer( char8_c const * key, float32_c const * value, sint32_c length );
-		void_c save_float64_buffer( char8_c const * key, float64_c const * value, sint32_c length );
-		void_c save_end(); // call to mark the end of the property stream.
+		boolean_c save_list_begin( char8_c const * key ); // begins saving of a list type of property. the caller can save any type of data to the stream in between a matched pair of calls to save_list_begin() and save_list_end().
+		boolean_c save_list_end( sint32_c length ); // finalizes saving the list type property, which involves writing the item length and the size of the list data in bytes. we supply the length (number of items in the list) here in save_list_end() because some times we don't know how many items are going to be written to the list when save_list_begin() is called.
+		boolean_c save_string8( char8_c const * key, string8_c const & value );
+		boolean_c save_string16( char8_c const * key, string16_c const & value );
+		boolean_c save_uint8( char8_c const * key, uint8_c value ); // equivalent to calling save_uint8_buffer() with length of 1.
+		boolean_c save_sint8( char8_c const * key, sint8_c value ); // equivalent to calling save_sint8_buffer() with length of 1.
+		boolean_c save_uint16( char8_c const * key, uint16_c value ); // equivalent to calling save_uint16_buffer() with length of 1.
+		boolean_c save_sint16( char8_c const * key, sint16_c value ); // equivalent to calling save_sint16_buffer() with length of 1.
+		boolean_c save_uint32( char8_c const * key, uint32_c value ); // equivalent to calling save_uint32_buffer() with length of 1.
+		boolean_c save_sint32( char8_c const * key, sint32_c value ); // equivalent to calling save_sint32_buffer() with length of 1.
+		boolean_c save_uint64( char8_c const * key, uint64_c value ); // equivalent to calling save_uint64_buffer() with length of 1.
+		boolean_c save_sint64( char8_c const * key, sint64_c value ); // equivalent to calling save_sint64_buffer() with length of 1.
+		boolean_c save_float32( char8_c const * key, float32_c value ); // equivalent to calling save_float32_buffer() with length of 1.
+		boolean_c save_float64( char8_c const * key, float64_c value ); // equivalent to calling save_float64_buffer() with length of 1.
+		boolean_c save_uint8_buffer( char8_c const * key, uint8_c const * value, sint32_c length );
+		boolean_c save_sint8_buffer( char8_c const * key, sint8_c const * value, sint32_c length );
+		boolean_c save_uint16_buffer( char8_c const * key, uint16_c const * value, sint32_c length );
+		boolean_c save_sint16_buffer( char8_c const * key, sint16_c const * value, sint32_c length );
+		boolean_c save_uint32_buffer( char8_c const * key, uint32_c const * value, sint32_c length );
+		boolean_c save_sint32_buffer( char8_c const * key, sint32_c const * value, sint32_c length );
+		boolean_c save_uint64_buffer( char8_c const * key, uint64_c const * value, sint32_c length );
+		boolean_c save_sint64_buffer( char8_c const * key, sint64_c const * value, sint32_c length );
+		boolean_c save_float32_buffer( char8_c const * key, float32_c const * value, sint32_c length );
+		boolean_c save_float64_buffer( char8_c const * key, float64_c const * value, sint32_c length );
+		boolean_c save_end(); // call to mark the end of the property stream.
 
 	};
 

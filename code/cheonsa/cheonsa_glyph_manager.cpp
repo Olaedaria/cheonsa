@@ -1269,7 +1269,7 @@ namespace cheonsa
 
 	void_c glyph_manager_c::reset()
 	{
-		//if ( needs_reset == true )
+		//if ( _glyph_dictionary.get_length() > 0 )
 		{
 			_glyph_dictionary.remove_all();
 			_glyph_pool.reset();
@@ -1278,7 +1278,7 @@ namespace cheonsa
 				_glyph_atlas_array[ i ].reset();
 			}
 			needs_reset = false;
-			menu_element_text_c::invalidate_glyph_layout_of_all_instances(); // reflow text elements, which re-builds the glyph cache.
+			menu_element_text_c::invalidate_glyph_layout_of_all_instances(); // this will have the effect of re-building the glyph cache. hopefully the text elements aren't needing too much, as this could over flow the glyph cache and create a kind of dead lock loop.
 		}
 	}
 
@@ -1296,8 +1296,8 @@ namespace cheonsa
 		}
 	}
 
-	uint8_c png_chunk_signature_a[ 4 ] = { 'g', 'l', 'Y', 'a' }; // glyph list.
-	uint8_c png_chunk_signature_b[ 4 ] = { 'g', 'l', 'Y', 'b' }; // glyph atlas row list.
+	char8_c const * const glyph_list_signature = "glYa";
+	char8_c const * const row_list_signature = "glYb";
 	char8_c const * const font_cache_folder = "_common/fonts/cache/";
 
 	boolean_c glyph_manager_c::save_to_disk()
@@ -1342,29 +1342,75 @@ namespace cheonsa
 			{
 				glyph_stream.open();
 				glyph_scribe.set_stream( &glyph_stream );
-				glyph_scribe.set_byte_order( byte_order_e_little );
-				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_width );
-				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_height );
-				glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_array_slice_count );
-				glyph_scribe.save_uint32( _glyph_dictionary.get_length() );
+				if ( !glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_width ) )
+				{
+					return false;
+				}
+				if ( !glyph_scribe.save_uint32( glyph_manager_c::glyph_atlas_height ) )
+				{
+					return false;
+				}
+				if ( !glyph_scribe.save_uint32( _glyph_dictionary.get_length() ) )
+				{
+					return false;
+				}
 				sint32_c glyphs_saved = 0;
 				core_dictionary_c< glyph_key_c, glyph_c const * >::iterator_c iterator = _glyph_dictionary.get_iterator();
 				while ( iterator.next() )
 				{
 					glyph_c const * glyph = iterator.get_value();
-					glyph_scribe.save_uint32( glyph->key.font_file_hash );
-					glyph_scribe.save_uint16( glyph->key.code_point );
-					glyph_scribe.save_uint8( glyph->key.quantized_size );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.minimum.a ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.minimum.b ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.maximum.a ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.maximum.b ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.a * glyph_manager_c::glyph_atlas_width ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.b * glyph_manager_c::glyph_atlas_height ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.a * glyph_manager_c::glyph_atlas_width ) );
-					glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.b * glyph_manager_c::glyph_atlas_height ) );
-					glyph_scribe.save_float32( glyph->horizontal_advance );
-					glyph_scribe.save_uint8( glyph->atlas_index );
+					if ( !glyph_scribe.save_uint32( glyph->key.font_file_hash ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_uint16( glyph->key.code_point ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_uint8( glyph->key.quantized_size ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.minimum.a ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.minimum.b ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.maximum.a ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->box.maximum.b ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.a * glyph_manager_c::glyph_atlas_width ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.minimum.b * glyph_manager_c::glyph_atlas_height ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.a * glyph_manager_c::glyph_atlas_width ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_sint16( static_cast< sint16_c >( glyph->map.maximum.b * glyph_manager_c::glyph_atlas_height ) ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_float32( glyph->horizontal_advance ) )
+					{
+						return false;
+					}
+					if ( !glyph_scribe.save_uint8( glyph->atlas_index ) )
+					{
+						return false;
+					}
 					glyphs_saved++;
 				}
 				assert( glyphs_saved == _glyph_dictionary.get_length() );
@@ -1372,17 +1418,13 @@ namespace cheonsa
 				chunk->data_is_ours = false;
 				chunk->data = glyph_stream.get_internal_buffer().get_internal_array();
 				chunk->data_size = glyph_stream.get_size();
-				chunk->type[ 0 ] = png_chunk_signature_a[ 0 ];
-				chunk->type[ 1 ] = png_chunk_signature_a[ 1 ];
-				chunk->type[ 2 ] = png_chunk_signature_a[ 2 ];
-				chunk->type[ 3 ] = png_chunk_signature_a[ 3 ];
+				ops::memory_copy( glyph_list_signature, chunk->type, 4 );
 				chunk = nullptr;
 			}
 
 			// build row list data.
 			row_stream.open();
 			row_scribe.set_stream( &row_stream );
-			row_scribe.set_byte_order( byte_order_e_little );
 			row_scribe.save_sint32( glyph_atlas->_row_list.get_length() );
 			for ( sint32_c j = 0; j < glyph_atlas->_row_list.get_length(); j++ )
 			{
@@ -1396,10 +1438,7 @@ namespace cheonsa
 			chunk->data_is_ours = false;
 			chunk->data = row_stream.get_internal_buffer().get_internal_array();
 			chunk->data_size = row_stream.get_size();
-			chunk->type[ 0 ] = png_chunk_signature_b[ 0 ];
-			chunk->type[ 1 ] = png_chunk_signature_b[ 1 ];
-			chunk->type[ 2 ] = png_chunk_signature_b[ 2 ];
-			chunk->type[ 3 ] = png_chunk_signature_b[ 3 ];
+			ops::memory_copy( row_list_signature, chunk->type, 4 );
 			chunk = nullptr;
 
 			// create png file data.
@@ -1442,6 +1481,8 @@ namespace cheonsa
 
 	boolean_c glyph_manager_c::load_from_disk()
 	{
+		assert( _glyph_dictionary.get_length() == 0 );
+
 		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		folder_path += font_cache_folder;
 
@@ -1484,12 +1525,12 @@ namespace cheonsa
 			}
 			if ( !file_stream.open( file_path, data_stream_mode_e_read ) )
 			{
-				goto karens_house;
+				goto cancel;
 			}
 			file_data.construct_mode_dynamic( file_stream.get_size() );
 			if ( !file_stream.load( file_data.get_internal_array(), file_data.get_length() ) )
 			{
-				goto karens_house;
+				goto cancel;
 			}
 			file_stream.close();
 
@@ -1501,87 +1542,152 @@ namespace cheonsa
 			image.data.remove_all();
 			if ( !image_load_from_png( file_data, image, &chunk_list ) )
 			{
-				goto karens_house;
+				goto cancel;
 			}
 			if ( image.width != glyph_manager_c::glyph_atlas_width || image.height != glyph_manager_c::glyph_atlas_height || image.channel_count != 1 || image.channel_bit_depth != 8 || image.data.get_length() != glyph_atlas->_texture_data_size )
 			{
-				goto karens_house;
+				goto cancel;
 			}
 			ops::memory_copy( image.data.get_internal_array(), glyph_atlas->_texture_data, image.data.get_length() );
 
 			// process chunks.
-			image_png_chunk_c * chunk_giRl = nullptr;
-			image_png_chunk_c * chunk_gaRl = nullptr;
+			image_png_chunk_c * glyph_list_chunk = nullptr;
+			image_png_chunk_c * row_list_chunk = nullptr;
 			for ( sint32_c j = 0; j < chunk_list.get_length(); j++ )
 			{
 				image_png_chunk_c * chunk = &chunk_list[ j ];
-				if (
-					chunk->type[ 0 ] == png_chunk_signature_a[ 0 ] &&
-					chunk->type[ 1 ] == png_chunk_signature_a[ 1 ] &&
-					chunk->type[ 2 ] == png_chunk_signature_a[ 2 ] &&
-					chunk->type[ 3 ] == png_chunk_signature_a[ 3 ] )
+				if ( ops::memory_compare( chunk->type, glyph_list_signature, 4 ) )
 				{
-					if ( i != 0 || chunk_giRl != nullptr )
+					if ( i != 0 || glyph_list_chunk != nullptr )
 					{
-						goto karens_house;
+						goto cancel;
 					}
 
-					chunk_giRl = chunk;
+					glyph_list_chunk = chunk;
 					chunk_stream.open_static( chunk->data, chunk->data_size );
 					chunk_scribe.set_stream( &chunk_stream );
-					chunk_scribe.set_byte_order( byte_order_e_little );
-					uint32_c texture_width = chunk_scribe.load_uint32();
-					uint32_c texture_height = chunk_scribe.load_uint32();
-					uint32_c texture_array_slice_count = chunk_scribe.load_uint32();
-					if ( texture_width != glyph_manager_c::glyph_atlas_width || texture_height != glyph_manager_c::glyph_atlas_height || texture_array_slice_count != glyph_manager_c::glyph_atlas_array_slice_count )
+					uint32_c texture_width = 0;
+					if ( !chunk_scribe.load_uint32( texture_width ) )
 					{
-						goto karens_house;
+						goto cancel;;
 					}
-					uint32_c glyph_count = chunk_scribe.load_uint32();
+					uint32_c texture_height = 0;
+					if ( !chunk_scribe.load_uint32( texture_height ) )
+					{
+						goto cancel;
+					}
+					if ( texture_width != glyph_manager_c::glyph_atlas_width || texture_height != glyph_manager_c::glyph_atlas_height )
+					{
+						goto cancel;
+					}
+					uint32_c glyph_count = 0;
+					if ( !chunk_scribe.load_uint32( glyph_count ) )
+					{
+						goto cancel;
+					}
 					for ( uint32_c i = 0; i < glyph_count; i++ )
 					{
 						glyph_c * glyph = reinterpret_cast< glyph_c * >( _glyph_pool.allocate() );
-						glyph->key.font_file_hash = chunk_scribe.load_uint32();
-						glyph->key.code_point = chunk_scribe.load_uint16();
-						glyph->key.quantized_size = chunk_scribe.load_uint8();
-						glyph->box.minimum.a = chunk_scribe.load_sint16();
-						glyph->box.minimum.b = chunk_scribe.load_sint16();
-						glyph->box.maximum.a = chunk_scribe.load_sint16();
-						glyph->box.maximum.b = chunk_scribe.load_sint16();
-						glyph->map.minimum.a = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_width;
-						glyph->map.minimum.b = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_height;
-						glyph->map.maximum.a = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_width;
-						glyph->map.maximum.b = static_cast< float32_c >( chunk_scribe.load_sint16() ) / glyph_manager_c::glyph_atlas_height;
-						glyph->horizontal_advance = chunk_scribe.load_float32();
-						glyph->atlas_index = chunk_scribe.load_uint8();
+						if ( !chunk_scribe.load_uint32( glyph->key.font_file_hash ) )
+						{
+							return false;
+						}
+						if ( !chunk_scribe.load_char16( glyph->key.code_point ) )
+						{
+							return false;
+						}
+						if ( !chunk_scribe.load_uint8( glyph->key.quantized_size ) )
+						{
+							return false;
+						}
+						sint16_c temp_sint16;
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->box.minimum.a = static_cast< float32_c >( temp_sint16 );
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->box.minimum.b = static_cast< float32_c >( temp_sint16 );
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->box.maximum.a = static_cast< float32_c >( temp_sint16 );
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->box.maximum.b = static_cast< float32_c >( temp_sint16 );
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->map.minimum.a = static_cast< float32_c >( temp_sint16 ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_width );
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->map.minimum.b = static_cast< float32_c >( temp_sint16 ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_height );
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->map.maximum.a = static_cast< float32_c >( temp_sint16 ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_width );
+						if ( !chunk_scribe.load_sint16( temp_sint16 ) )
+						{
+							return false;
+						}
+						glyph->map.maximum.b = static_cast< float32_c >( temp_sint16 ) / static_cast< float32_c >( glyph_manager_c::glyph_atlas_height );
+						if ( !chunk_scribe.load_float32( glyph->horizontal_advance ) )
+						{
+							return false;
+						}
+						if ( !chunk_scribe.load_uint8( glyph->atlas_index ) )
+						{
+							return false;
+						}
 						_glyph_dictionary.insert( glyph->key, glyph );
 					}
 					chunk_scribe.set_stream( nullptr );
 					chunk_stream.close();
 				}
-				else if (
-					chunk->type[ 0 ] == png_chunk_signature_b[ 0 ] &&
-					chunk->type[ 1 ] == png_chunk_signature_b[ 1 ] && 
-					chunk->type[ 2 ] == png_chunk_signature_b[ 2 ] && 
-					chunk->type[ 3 ] == png_chunk_signature_b[ 3 ] )
+				else if ( ops::memory_compare( chunk->type, row_list_signature, 4 ) )
 				{
-					if ( chunk_gaRl != nullptr )
+					if ( row_list_chunk != nullptr )
 					{
-						goto karens_house;
+						goto cancel;
 					}
 
-					chunk_gaRl = chunk;
-					chunk_stream.open_static( chunk_gaRl->data, chunk_gaRl->data_size );
+					row_list_chunk = chunk;
+					chunk_stream.open_static( row_list_chunk->data, row_list_chunk->data_size );
 					chunk_scribe.set_stream( &chunk_stream );
-					chunk_scribe.set_byte_order( byte_order_e_little );
-					sint32_c row_count = chunk_scribe.load_sint32();
+					sint32_c row_count = 0;
+					if ( !chunk_scribe.load_sint32( row_count ) )
+					{
+						return false;
+					}
 					for ( sint32_c j = 0; j < row_count; j++ )
 					{
 						glyph_atlas_c::row_c * row = glyph_atlas->_row_list.emplace_at_end();
-						row->quantized_size = chunk_scribe.load_uint8();
-						row->top = chunk_scribe.load_sint32();
-						row->width = chunk_scribe.load_sint32();
-						row->height = chunk_scribe.load_sint32();
+						if ( !chunk_scribe.load_uint8( row->quantized_size ) )
+						{
+							return false;
+						}
+						if ( !chunk_scribe.load_sint32( row->top ) )
+						{
+							return false;
+						}
+						if ( !chunk_scribe.load_sint32( row->width ) )
+						{
+							return false;
+						}
+						if ( !chunk_scribe.load_sint32( row->height ) )
+						{
+							return false;
+						}
 					}
 					chunk_scribe.set_stream( nullptr );
 					chunk_stream.close();
@@ -1590,7 +1696,9 @@ namespace cheonsa
 			chunk_list.remove_all();
 		}
 
-	karens_house:
+		assert( false ); // this should be unreachable.
+
+	cancel:
 		reset();
 		return false;
 	}

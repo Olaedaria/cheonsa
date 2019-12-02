@@ -5966,6 +5966,11 @@ namespace cheonsa
 			*/
 		}
 
+		boolean_c memory_compare( void_c const * buffer_a, void_c const * buffer_b, sint32_c byte_count )
+		{
+			return memcmp( buffer_a, buffer_b, byte_count ) == 0;
+		}
+
 
 		//
 		//
@@ -5985,12 +5990,10 @@ namespace cheonsa
 				return 2;
 			case data_type_e_uint32:
 			case data_type_e_sint32:
+			case data_type_e_float32:
 				return 4;
 			case data_type_e_uint64:
 			case data_type_e_sint64:
-				return 8;
-			case data_type_e_float32:
-				return 4;
 			case data_type_e_float64:
 				return 8;
 			}

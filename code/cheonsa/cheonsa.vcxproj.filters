@@ -75,7 +75,6 @@
     <ClInclude Include="cheonsa_data_types.h" />
     <ClInclude Include="cheonsa_video_types.h" />
     <ClInclude Include="cheonsa_memory_allocator_pool.h" />
-    <ClInclude Include="cheonsa_data_scribe_png.h" />
     <ClInclude Include="cheonsa_image.h" />
     <ClInclude Include="cheonsa_menu_style_manager.h" />
     <ClInclude Include="cheonsa_input_manager.h" />
@@ -578,7 +577,6 @@
     <ClCompile Include="cheonsa_video_types.cpp" />
     <ClCompile Include="cheonsa_memory_allocator_pool.cpp" />
     <ClCompile Include="cheonsa_image.cpp" />
-    <ClCompile Include="cheonsa_data_scribe_png.cpp" />
     <ClCompile Include="cheonsa_menu_style_manager.cpp" />
     <ClCompile Include="cheonsa_input_manager.cpp" />
     <ClCompile Include="cheonsa_glyph_manager.cpp" />

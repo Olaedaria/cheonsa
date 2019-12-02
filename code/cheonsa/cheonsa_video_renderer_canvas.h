@@ -82,8 +82,8 @@ namespace cheonsa
 		sint32_c get_actual_width() const; // the actual internal width of the canvas in pixels.
 		sint32_c get_actual_height() const; // the actual internal height of the canvas in pixels.
 
-		sint32_c get_apparent_width() const; // the apparent width of the canvas in pixels. the actual canvas may be larger than this, in order to accommodate down sampling (blur) effects.
-		sint32_c get_apparent_height() const; // the apparent height of the canvas in pixels. the actual canvas may be larger than this, in order to accommodate down sampling (blur) effects.
+		sint32_c get_apparent_width() const; // the apparent width of the canvas in pixels. the actual canvas may be larger than this, in order to accommodate multiple-of-four dimensions needed for down sampling (blur) effects.
+		sint32_c get_apparent_height() const; // the apparent height of the canvas in pixels. the actual canvas may be larger than this, in order to accommodate multiple-of-four dimensions needed for down sampling (blur) effects.
 		void_c set_apparent_size( sint32_c width, sint32_c height ); // render target textures will be resized if needed on next call to update().
 
 		video_texture_c * get_readable_copy(); // returns a copy of the final color render target that can be read by the CPU (which basically means that get_data can be called on the returned texture to get a copy of the the pixels of the canvas).

@@ -332,99 +332,193 @@ namespace cheonsa
 		return result;
 	}
 
-	void_c data_scribe_structure_c::save( data_scribe_binary_c * scribe_binary )
+	boolean_c data_scribe_structure_c::save( data_scribe_binary_c & scribe )
 	{
-		scribe_binary->save_uint32( _property_list.get_length() );
+		if ( !scribe.save_sint32( _property_list.get_length() ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < _property_list.get_length(); i++ )
 		{
 			property_c * property = _property_list[ i ];
-			scribe_binary->save_string8( string8_c( property->_name ) );
-			scribe_binary->save_uint8( property->_type );
+			if ( !scribe.save_string8( string8_c( property->_name ) ) )
+			{
+				return false;
+			}
+			if ( !scribe.save_uint8( property->_type ) )
+			{
+				return false;
+			}
 			if ( property->_type == property_c::type_e_buffer )
 			{
 				if ( property->_value == nullptr )
 				{
-					scribe_binary->save_sint32( 0 );
-					scribe_binary->save_sint32( 0 );
+					if ( !scribe.save_sint32( 0 ) )
+					{
+						return false;
+					}
+					if ( !scribe.save_sint32( 0 ) )
+					{
+						return false;
+					}
 				}
 				else
 				{
-					scribe_binary->save_sint32( property->get_buffer_array_count() );
-					scribe_binary->save_sint32( property->get_buffer_data_size() );
-					scribe_binary->get_stream()->save( property->get_buffer_data(), property->get_buffer_data_size() );
+					if ( !scribe.save_sint32( property->get_buffer_array_count() ) )
+					{
+						return false;
+					}
+					if ( !scribe.save_sint32( property->get_buffer_data_size() ) )
+					{
+						return false;
+					}
+					if ( !scribe.get_stream()->save( property->get_buffer_data(), property->get_buffer_data_size() ) )
+					{
+						return false;
+					}
 				}
 			}
 			else if ( property->_type == property_c::type_e_string8 )
 			{
-				scribe_binary->save_string8( property->get_string8() );
+				if ( !scribe.save_string8( property->get_string8() ) )
+				{
+					return false;
+				}
 			}
 			else if ( property->_type == property_c::type_e_string16 )
 			{
-				scribe_binary->save_string16( property->get_string16() );
+				if ( !scribe.save_string16( property->get_string16() ) )
+				{
+					return false;
+				}
 			}
 			else if ( property->_type == property_c::type_e_structure )
 			{
-				property->get_structure()->save( scribe_binary );
+				if ( !property->get_structure()->save( scribe ) )
+				{
+					return false;
+				}
 			}
 			else if ( property->_type == property_c::type_e_structure_list )
 			{
-				scribe_binary->save_sint32( property->get_structure_list_count() );
+				if ( !scribe.save_sint32( property->get_structure_list_count() ) )
+				{
+					return false;
+				}
 				for ( sint32_c j = 0; j < property->get_structure_list_count(); j++ )
 				{
-					property->get_structure_in_structure_list_at_index( j )->save( scribe_binary );
+					if ( !property->get_structure_in_structure_list_at_index( j )->save( scribe ) )
+					{
+						return false;
+					}
 				}
 			}
 			else
 			{
 				assert( property->_type_count > 0 );
-				scribe_binary->save_uint8( property->_type_count );
+				if ( !scribe.save_uint8( property->_type_count ) )
+				{
+					return false;
+				}
 				sint32_c property_type_base_size = property_c::get_type_base_size( property->_type );
 				assert( property_type_base_size > 0 );
 				uint8_c const * value = reinterpret_cast< uint8_c const * >( property->_value );
 				for ( sint32_c j = 0; j < property->_type_count; j++ )
 				{
-					scribe_binary->save_generic( value, property_type_base_size );
+					if ( !scribe.save_generic( value, property_type_base_size ) )
+					{
+						return false;
+					}
 					value += property_type_base_size;
 				}
 			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_structure_c::load( data_scribe_binary_c * scribe_binary )
+	boolean_c data_scribe_structure_c::load( data_scribe_binary_c & scribe )
 	{
-		_property_list.construct_mode_dynamic( scribe_binary->load_sint32() );
+		sint32_c property_count = 0;
+		if ( !scribe.load_sint32( property_count ) )
+		{
+			return false;
+		}
+		_property_list.construct_mode_dynamic( property_count );
 		for ( sint32_c i = 0; i < _property_list.get_length(); i++ )
 		{
-			string16_c property_name = string16_c( scribe_binary->load_string8() );
-			property_c::type_e property_type = static_cast< property_c::type_e >( scribe_binary->load_uint8() );
-			uint32_c property_type_base_size = property_c::get_type_base_size( property_type );
-			uint8_c property_type_count = property_type_base_size > 0 ? scribe_binary->load_uint8() : 0;
-			property_c * property = new property_c( property_name, property_type, property_type_count );
+			string8_c property_name_string8;
+			if ( !scribe.load_string8( property_name_string8 ) )
+			{
+				return false;
+			}
+			uint8_c property_type_uint8;
+			if ( !scribe.load_uint8( property_type_uint8 ) )
+			{
+				return false;
+			}
+			uint32_c property_type_base_size = property_c::get_type_base_size( static_cast< property_c::type_e >( property_type_uint8 ) );
+			uint8_c property_type_count = 0;
+			if ( property_type_base_size > 0 )
+			{
+				if ( !scribe.load_uint8( property_type_count ) )
+				{
+					return false;
+				}
+			}
+			property_c * property = new property_c( string16_c( property_name_string8 ), static_cast< property_c::type_e >( property_type_uint8 ), property_type_count );
 			_property_list[ i ] = property;
 			if ( property->_type == property_c::type_e_buffer )
 			{
-				sint32_c array_count = scribe_binary->load_sint32();
-				sint32_c data_size = scribe_binary->load_sint32();
-				property->set_buffer( array_count, scribe_binary->get_stream(), data_size );
-			}
-			else if ( property_type == property_c::type_e_string8 )
-			{
-				property->get_string8() = scribe_binary->load_string8();
-			}
-			else if ( property_type == property_c::type_e_string16 )
-			{
-				property->get_string16() = scribe_binary->load_string16();
-			}
-			else if ( property_type == property_c::type_e_structure )
-			{
-				property->get_structure()->load( scribe_binary );
-			}
-			else if ( property_type == property_c::type_e_structure_list )
-			{
-				sint32_c count = scribe_binary->load_sint32();
-				for ( sint32_c j = 0; j < count; j++ )
+				sint32_c array_count = 0;
+				if ( !scribe.load_sint32( array_count ) )
 				{
-					property->add_structure_to_structure_list()->load( scribe_binary );
+					return false;
+				}
+				sint32_c data_size = 0;
+				if ( !scribe.load_sint32( data_size ) )
+				{
+					return false;
+				}
+				property->set_buffer( array_count, scribe.get_stream(), data_size );
+			}
+			else if ( property_type_uint8 == property_c::type_e_string8 )
+			{
+				string8_c property_value_string8;
+				if ( !scribe.load_string8( property_value_string8 ) )
+				{
+					return false;
+				}
+				property->get_string8() = property_value_string8;
+			}
+			else if ( property_type_uint8 == property_c::type_e_string16 )
+			{
+				string16_c property_value_string16;
+				if ( !scribe.load_string16( property_value_string16 ) )
+				{
+					return false;
+				}
+				property->get_string16() = property_value_string16;
+			}
+			else if ( property_type_uint8 == property_c::type_e_structure )
+			{
+				if ( !property->get_structure()->load( scribe ) )
+				{
+					return false;
+				}
+			}
+			else if ( property_type_uint8 == property_c::type_e_structure_list )
+			{
+				sint32_c length = 0;
+				if ( !scribe.load_sint32( length ) )
+				{
+					return false;
+				}
+				for ( sint32_c j = 0; j < length; j++ )
+				{
+					if ( !property->add_structure_to_structure_list()->load( scribe ) )
+					{
+						return false;
+					}
 				}
 			}
 			else
@@ -434,11 +528,15 @@ namespace cheonsa
 				uint8_c * value = reinterpret_cast< uint8_c * >( property->_value );
 				for ( uint32_c i = 0; i < property_type_count; i++ )
 				{
-					scribe_binary->load_generic( value, property_type_base_size );
+					if ( !scribe.load_generic( value, property_type_base_size ) )
+					{
+						return false;
+					}
 					value += property_type_base_size;
 				}
 			}
 		}
+		return true;
 	}
 
 	data_scribe_structure_c::data_scribe_structure_c()

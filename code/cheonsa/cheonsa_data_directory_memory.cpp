@@ -107,12 +107,25 @@ namespace cheonsa
 	boolean_c data_directory_memory_c::load( data_scribe_binary_c & scribe )
 	{
 		reset();
-		uint32_c file_count = scribe.load_uint32();
+		uint32_c file_count = 0;
+		if ( !scribe.load_uint32( file_count ) )
+		{
+			return false;
+		}
 		for ( uint32_c i = 0; i < file_count; i++ )
 		{
 			file_c * file = new file_c();
-			file->path = scribe.load_string8();
-			uint32_c file_size = scribe.load_uint32();
+			string8_c file_path;
+			if ( !scribe.load_string8( file_path ) )
+			{
+				return false;
+			}
+			file->path = file_path;
+			uint32_c file_size = 0;
+			if ( !scribe.load_uint32( file_size ) )
+			{
+				return false;
+			}
 			file->stream.close();
 			file->stream.open();
 			file->stream.set_size( file_size );

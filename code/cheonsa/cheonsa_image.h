@@ -2,20 +2,30 @@
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
+#include "cheonsa_data_stream.h"
 
 namespace cheonsa
 {
+
+	//char8_c const * image_png_signature() { return "\211PNG\r\n\032\n"; }
+	extern uint8_c const image_png_signature[ 8 ];
 
 	// lets us define extra custom chunks to save with the png file that are not image related.
 	// these chunks will probably be ignored by image viewers, but it lets us do cool things like save the game state with the png file.
 	struct image_png_chunk_c
 	{
-		uint8_c type[ 4 ]; // png chunk type signature. this needs to follow special rules in order for png decoders to ignore it.
-		sint32_c data_size; // native endian size of data.
-		uint8_c * data; // heap allocated instance of chunk data.
-		boolean_c data_is_ours; // if true then data is deleted by destructor, otherwise it's not.
+		char8_c type[ 5 ]; // actual type code is only 4 bytes, but extra chararcter is for null terminator, so it can be safely treated like a string.
+		uint32_c data_size;
+		uint8_c * data;
+		boolean_c data_is_ours;
+		uint32_c crc;
+
 		image_png_chunk_c();
 		~image_png_chunk_c();
+
+		// transfers ownership. zeros out other.
+		image_png_chunk_c & operator = ( image_png_chunk_c & other );
+
 	};
 
 	// 2d image, bitmap, texture, etc.
@@ -41,21 +51,21 @@ namespace cheonsa
 
 	// loads from a png file just the chunks that are not related to the image.
 	boolean_c image_load_from_png_just_the_extra_chunks(
-		core_list_c< uint8_c > const & png_file_data,
-		core_list_c< image_png_chunk_c > & chunks
+		data_stream_c * png_file_stream,
+		core_list_c< image_png_chunk_c > & extra_chunk_list
 	);
 
 	// decodes an image from png file format.
 	boolean_c image_load_from_png(
 		core_list_c< uint8_c > const & png_file_data, // the png file data to decode.
 		image_c & image, // the resulting decoded image. to get the original format then set channel_count and channel_bit_depth to 0. to request a specific format then set channel_count and channel_bit_depth, then the result will be converted to fit this format.
-		core_list_c< image_png_chunk_c > * extra_chunks // optional, if provided then will hold extra chunks that were found. these are chunks that are placed after IDAT and before IEND.
+		core_list_c< image_png_chunk_c > * extra_chunk_list // optional, if provided then will hold extra chunks that were found. these are chunks that are placed after IDAT and before IEND.
 	);
 
 	// encodes an image to png file format.
 	boolean_c image_save_to_png(
 		image_c const & image, // the image to encode.
-		core_list_c< image_png_chunk_c > const * extra_chunks, // optional, if provided then will define extra chunks to save. these are chunks that are placed after IDAT and before IEND.
+		core_list_c< image_png_chunk_c > const * extra_chunk_list, // optional, if provided then will define extra chunks to save. these are chunks that are placed after IDAT and before IEND.
 		core_list_c< uint8_c > & png_file_data // the resulting png file data.
 	);
 

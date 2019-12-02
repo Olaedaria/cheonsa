@@ -39,30 +39,32 @@ namespace cheonsa
 		boolean_c get_is_deleted() const; // gets the state of the is deleted flag.
 		void_c set_is_deleted( boolean_c value ); // sets the state of the is deleted flag. when a record is deleted it means that it will be purged the next time the database is rebuilt or saved, but in the mean time the record will still exist, but from the game's point of view the record won't exist.
 
-		// gets a pointer to field data for direct memory access, the data includes one byte of flags followed by the data itself.
+		// returns false or asserts if field of expeted name, type, and type count does not exist.
+		// gets a pointer to field data for direct memory access, the data includes the one byte field flags followed by the field data itself.
 		// for data_type_e_string8 and data_type_e_string16 types, the data is an sint32_c offset into the table's string buffer.
 		// for every other type the data is what you would think.
 		// treat the pointer as volatile, it may become invalid if new records are added or garbage is cleaned.
-		// asserts if the field does not exist.
-		void_c get_field_data_pointer( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, uint8_c * & field_data_pointer ) const;
+		boolean_c get_field_data_pointer( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, uint8_c * & field_data_pointer ) const;
 
-		// returns true if value was defined, false if not.
+		// returns false or asserts if field of expeted name, type, and type count does not exist.
 		// the result is copied to field_value.
 		// if expected_type is data_type_e_string8, then expected_type_count must be 1 and field_value must point to a string8_c instance to receive the result.
 		// else if expected_type is data_type_e_string16, then expected_type_count must be 1 and field_value must point to a string16_c instance to receive the result.
-		// else field_value must point to a buffer of appropriate size to hold the result
-		// asserts if the field does not exist.
-		boolean_c get_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, void_c * field_value, boolean_c if_not_defined_then_get_default ) const;
+		// else field_value must point to a buffer of appropriate size to hold the result.
+		// got_default will be set to false upon return if the field value was defined.
+		// got_default will be set to true upon return if the field value was not defined, and so the default value was retreived instead.
+		boolean_c get_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, void_c * field_value, boolean_c & got_default ) const;
 
+		// returns false or asserts if field of expeted name, type, and type count does not exist.
 		// sets a field value and sets its is defined flag to true.
 		// if expected_type is data_type_e_string8, then expected_type_count must be 1 and field_value must point to a string8_c instance.
 		// else if expected_type is data_type_e_string16, then expected_type_count must be 1 and field_value must point to a string16_c instance.
 		// else field_value must point to a buffer of appropriate size.
-		// asserts if the field does not exist.
-		void_c set_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, void_c const * field_value ) const;
+		boolean_c set_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count, void_c const * field_value ) const;
 
 		// sets a field value's is defined flag to false and zeros out its value.
-		void_c undefine_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count ) const; // undefines the defined by name and type.
+		// asserts if field of expeted name, type, and type count does not exist.
+		boolean_c undefine_field_value( string8_c const & expected_name, data_type_e expected_type, uint8_c expected_type_count ) const; // undefines the defined by name and type.
 
 	};
 

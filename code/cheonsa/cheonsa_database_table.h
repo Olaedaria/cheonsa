@@ -20,6 +20,7 @@ namespace cheonsa
 	private:
 		friend class database_c;
 		friend class database_record_c;
+		friend class database_stack_record_c;
 
 		database_c * _database;
 
@@ -28,16 +29,22 @@ namespace cheonsa
 		uint8_c _flags; // not used for anything at the moment.
 		uint32_c _next_record_id; // next id to try to use as id for next new record that is added, which is likely to be unallocated.
 
-		core_list_c< char8_c > _strings_buffer; // all of the strings utf-8 encoded and null terminated one after the other.
-		core_dictionary_c< string8_c, sint32_c > _strings_map; // maps a string value to a byte offset within the string table so that duplicate strings can be reused.
+		core_list_c< char8_c > _string_table; // all of the strings utf-8 encoded and null terminated one after the other.
+		core_dictionary_c< string8_c, sint32_c > _string_table_map; // maps a string value to a byte offset within the string table so that duplicate strings can be reused.
 
-		database_record_schema_c _records_schema; // defines the format of records in this table.
-		core_list_c< uint8_c > _records_buffer; // holds all of the records in this table.
-		core_dictionary_c< uint32_c, database_record_c * > _records_map; // maps a record id to a record instance. it could be more efficient if we instead map to the record offset, and then defer the newing of the record instance to when the game asks for the record.
-		core_dictionary_c< database_record_address_c, database_record_c * > _records_mod_map; // maps a mod record address to a record instance.
+		database_record_schema_c _record_schema; // defines the format of records in this table.
+		core_list_c< uint8_c > _record_buffer; // holds all of the records in this table.
+		core_dictionary_c< uint32_c, database_record_c * > _record_map; // maps a record id to a record instance. it could be more efficient if we instead map to the record offset, and then defer the newing of the record instance to when the game asks for the record.
+		core_dictionary_c< database_record_address_c, database_record_c * > _record_mod_map; // maps a mod record address to a record instance.
 
-		void_c save( data_scribe_binary_c & scribe );
-		void_c load( data_scribe_binary_c & scribe );
+		boolean_c _save( data_scribe_binary_c & scribe );
+		boolean_c _load( data_scribe_binary_c & scribe );
+
+		sint32_c _add_string8( string8_c const & value ); // if the string is not yet in the buffer then adds it, then returns its offset.
+		string8_c _get_string8( sint32_c offset ) const; // returns a static volatile reference of string at offset.
+
+		sint32_c _add_string16( string16_c const & value ); // utf-8 encodes the string, if the string is not yet in the buffer then adds it, then returns its offset.
+		string16_c _get_string16( sint32_c offset ) const; // returns a new dynamic copy of string at offset.
 
 	public:
 		database_table_c();
@@ -49,12 +56,6 @@ namespace cheonsa
 		void_c set_id( uint16_c value ); // don't change this while the game is already dependent on it. just change it during initial set up.
 
 		void_c reset(); // removes all strings and records, but keeps name and id.
-
-		sint32_c add_string8( string8_c const & value ); // if the string is not yet in the buffer then adds it, then returns its offset.
-		string8_c get_string8( sint32_c offset ) const; // returns a static volatile reference of string at offset.
-
-		sint32_c add_string16( string16_c const & value ); // utf-8 encodes the string, if the string is not yet in the buffer then adds it, then returns its offset.
-		string16_c get_string16( sint32_c offset ) const; // returns a new dynamic copy of string at offset.
 
 		database_record_schema_c const & get_records_schema() const;
 

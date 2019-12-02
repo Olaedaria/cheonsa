@@ -331,11 +331,6 @@ namespace cheonsa
 
 	void_c menu_element_frame_c::update_animations( float32_c time_step )
 	{
-		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
-		//_is_showing_weight = ops::math_saturate( _is_showing_weight + ( _is_showing ? transition_step : -transition_step ) );
-		//_is_selected_weight = ops::math_saturate( _is_selected_weight + ( _is_selected ? transition_step : -transition_step ) );
-		//_is_pressed_weight = ops::math_saturate( _is_pressed_weight + ( _is_pressed ? transition_step : -transition_step ) );
-		//_is_enabled_weight = ops::math_saturate( _is_enabled_weight + ( _is_enabled ? transition_step : -transition_step ) );
 	}
 
 	void_c menu_element_frame_c::set_style_key( string8_c const & value )
@@ -352,21 +347,6 @@ namespace cheonsa
 	{
 		return _style_reference;
 	}
-
-	//string8_c const & menu_element_frame_c::get_style_key() const
-	//{
-	//	return _style_reference.get_key();
-	//}
-
-	//void_c menu_element_frame_c::set_style_key( string8_c const & value )
-	//{
-	//	_style_reference.set_key( value );
-	//}
-
-	//void_c menu_element_frame_c::set_style( menu_frame_style_c const * style )
-	//{
-	//	_style_reference.set_value( style );
-	//}
 
 	menu_frame_style_c * menu_element_frame_c::get_override_style() const
 	{

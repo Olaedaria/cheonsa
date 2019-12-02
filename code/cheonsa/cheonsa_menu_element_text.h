@@ -21,8 +21,8 @@ namespace cheonsa
 	// rich text uses the data_scribe_markup_c class to parse markup, so it's xml-like.
 	// rich text markup uses square brackets instead of angled brackets, so that rich text values can be saved in xml files without breaking the xml.
 	//
-	// [paragraph text_style="h1"]header style[/]
-	// [paragraph text_style="p"]paragraph style. [b]bold[/] text, [i]italic[/] text, [u]underline[/] text. [s text_style=""]span[/] text. [s uri=""]hyperlink text[/].[/]
+	// [paragraph key="h1"]header style[/]
+	// [paragraph key="p"]paragraph style. [style key=""]span[/] text.[/]
 	// 
 	// [paragraph key=""][/] tag is paragraph, all text that you want to display must be contained in these, any number can be contained at root, they can not be nested. they may contain "s" tags.
 	//   "key" attribute is a text style key that references a text style in the menu style manager.
@@ -106,7 +106,10 @@ namespace cheonsa
 		// spans are generally not responsible for togglable bold, italic, and underline states.
 		class text_span_c
 		{
-		public:
+		private:
+			friend class menu_element_text_c;
+			friend class core_list_c< text_span_c >;
+
 			text_paragraph_c * _mother_paragraph; // will be set if the immediate mother of this span is a paragraph, otherwise it will be nullptr.
 
 			sint32_c _character_start; // index of first character within _plain_text that is formatted by this span.
@@ -115,25 +118,21 @@ namespace cheonsa
 			menu_text_style_c::reference_c _text_style_reference; // the format to apply to the range of characters defined by this span. can be left unset, which means that the style for this span will fall back to using the _style_reference defined in the text element.
 			void_c _handle_text_style_reference_on_refreshed( menu_text_style_c * text_style );
 
-		public:
+		private:
 			text_span_c();
-			~text_span_c();
-
-			text_span_c & operator = ( text_span_c const & other ) = delete;
 
 			// called in response to insertion of text in _plain_text.
 			// this will extend spans that intersect with the given character range.
 			void_c _handle_insert_character_range( sint32_c character_start, sint32_c character_count );
 
-		public:
-			resource_file_font_c * get_style_font() const; // goes up the inheritance tree to find the font for this span.
-			vector32x4_c get_style_color() const; // goes up the inheritance tree to find the color for this span.
-			float32_c get_style_size() const; // goes up the inheritance tree to find the size for this span.
-			float32_c get_style_skew() const; // goes up the inheritance tree to find the skew for this span.
-			float32_c get_style_weight() const; // goes up the inheritance tree to find the weight for this span.
-			float32_c get_style_softness() const; // goes up the inheritance tree to find the softness for this span.
-			float32_c get_style_glyph_spacing() const; // goes up the inheritance tree to find the glyph spacing for this span.
-			menu_text_glyph_style_c get_style() const;
+			resource_file_font_c * _get_style_font() const; // goes up the inheritance tree to find the font for this span.
+			vector32x4_c _get_style_color() const; // goes up the inheritance tree to find the color for this span.
+			float32_c _get_style_size() const; // goes up the inheritance tree to find the size for this span.
+			float32_c _get_style_skew() const; // goes up the inheritance tree to find the skew for this span.
+			float32_c _get_style_weight() const; // goes up the inheritance tree to find the weight for this span.
+			float32_c _get_style_softness() const; // goes up the inheritance tree to find the softness for this span.
+			float32_c _get_style_glyph_spacing() const; // goes up the inheritance tree to find the glyph spacing for this span.
+			menu_text_glyph_style_c _get_style() const;
 
 		};
 
@@ -145,7 +144,9 @@ namespace cheonsa
 		// the last span in the paragraph should not enclose the paragraph's terminating new line character.
 		class text_paragraph_c
 		{
-		public:
+		private:
+			friend class menu_element_text_c;
+
 			menu_element_text_c * _mother_element_text; // the mother text element that owns this paragraph.
 
 			sint32_c _character_start; // index of first character within _plain_text that belongs to this paragraph.
@@ -167,10 +168,13 @@ namespace cheonsa
 
 			boolean_c _is_glyph_layout_dirty; // will be set to true if the glyphs in this paragraph needs to be reflowed.
 
-		public:
+		private:
 			text_paragraph_c();
+
+		public:
 			~text_paragraph_c();
 
+		private:
 			// reflows all the glyphs in this paragraph.
 			void_c _do_glyph_layout();
 
@@ -202,18 +206,17 @@ namespace cheonsa
 			text_line_c const * _get_line_at_character_index( sint32_c character_index, sint32_c * result_line_index ) const;
 			text_line_c * _get_line_at_character_index( sint32_c character_index, sint32_c * result_line_index );
 
-		public:
-			menu_text_align_horizontal_e get_style_text_align_horizontal() const; // goes up the inheritance tree to find the horizontal text align for this paragraph.
-			float32_c get_style_paragraph_spacing() const;
-			float32_c get_style_line_spacing() const;
-			float32_c get_style_glyph_spacing() const;
-			resource_file_font_c * get_style_font() const; // goes up the inheritance tree to find the font for this paragraph.
-			vector32x4_c get_style_color() const; // goes up the inheritance tree to find the color for this paragraph.
-			float32_c get_style_size() const; // goes up the inheritance tree to find the size for this paragraph.
-			float32_c get_style_skew() const; // goes up the inheritance tree to find the skew for this paragraph.
-			float32_c get_style_weight() const; // goes up the inheritance tree to find the weight for this paragraph.
-			float32_c get_style_softness() const; // goes up the inheritance tree to find the softness for this paragraph.
-			menu_text_glyph_style_c get_style() const;
+			menu_text_align_horizontal_e _get_style_text_align_horizontal() const; // goes up the inheritance tree to find the horizontal text align for this paragraph.
+			float32_c _get_style_paragraph_spacing() const;
+			float32_c _get_style_line_spacing() const;
+			float32_c _get_style_glyph_spacing() const;
+			resource_file_font_c * _get_style_font() const; // goes up the inheritance tree to find the font for this paragraph.
+			vector32x4_c _get_style_color() const; // goes up the inheritance tree to find the color for this paragraph.
+			float32_c _get_style_size() const; // goes up the inheritance tree to find the size for this paragraph.
+			float32_c _get_style_skew() const; // goes up the inheritance tree to find the skew for this paragraph.
+			float32_c _get_style_weight() const; // goes up the inheritance tree to find the weight for this paragraph.
+			float32_c _get_style_softness() const; // goes up the inheritance tree to find the softness for this paragraph.
+			menu_text_glyph_style_c _get_style() const;
 
 		};
 
@@ -309,15 +312,23 @@ namespace cheonsa
 		void_c _set_plain_text_value( string16_c const & value ); // value should be plain text without mark up.
 		boolean_c _set_rich_text_value( string8_c const & value ); // value should be plain text with mark up.
 
+		menu_text_align_vertical_e _get_style_text_align_vertical() const;
+		menu_text_align_horizontal_e _get_style_text_align_horizontal() const;
+		float32_c _get_style_paragraph_spacing() const;
+		float32_c _get_style_line_spacing() const;
+		float32_c _get_style_glyph_spacing() const;
+		resource_file_font_c * _get_style_font() const;
+		vector32x4_c _get_style_color() const;
+		float32_c _get_style_size() const;
+		float32_c _get_style_skew() const;
+		float32_c _get_style_weight() const;
+		float32_c _get_style_softness() const;
+
 	public:
 		menu_element_text_c();
 		virtual ~menu_element_text_c();
 
 	public:
-		//
-		// text value.
-		//
-
 		string16_c get_plain_text_value() const; // returns a copy of the plain text contents of this text element (with the very last internal use terminating new line character omitted).
 		void_c set_plain_text_value( string8_c const & value );
 		void_c set_plain_text_value( string16_c const & value );
@@ -326,10 +337,6 @@ namespace cheonsa
 		void_c clear_text_value();
 
 	public:
-		//
-		// settings.
-		//
-
 		menu_text_format_mode_e get_text_format_mode() const;
 		void_c set_text_format_mode( menu_text_format_mode_e value ); // this also has the side effect of clearing the text value.
 
@@ -403,27 +410,6 @@ namespace cheonsa
 		// if the operating system clip board contains plain text, then deletes currently selected text and pastes plain text at current cursor index.
 		boolean_c paste_text_from_clip_board();
 
-	public:
-		menu_text_align_vertical_e get_style_text_align_vertical() const;
-		menu_text_align_horizontal_e get_style_text_align_horizontal() const;
-		float32_c get_style_paragraph_spacing() const;
-		float32_c get_style_line_spacing() const;
-		float32_c get_style_glyph_spacing() const;
-		resource_file_font_c * get_style_font() const;
-		vector32x4_c get_style_color() const;
-		float32_c get_style_size() const;
-		float32_c get_style_skew() const;
-		float32_c get_style_weight() const;
-		float32_c get_style_softness() const;
-
-	public:
-		//
-		// events.
-		//
-
-		core_event_c< void_c, menu_element_text_c * > on_text_value_changed_preview; // occurs whenever the text value changes as the user types.
-		core_event_c< void_c, menu_element_text_c * > on_text_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
-
 	private:
 		// handles invalidation of text layout when size of local rectangle changes.
 		// is more expensive if the width changes, is not as expensive if the height changes.
@@ -454,6 +440,10 @@ namespace cheonsa
 		// should be called by text box control when it receives an input event.
 		// returns true if input event is handled (consumed), false if otherwise.
 		boolean_c handle_on_input( input_event_c * input_event );
+
+	public:
+		core_event_c< void_c, menu_element_text_c * > on_text_value_changed_preview; // occurs whenever the text value changes as the user types.
+		core_event_c< void_c, menu_element_text_c * > on_text_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
 
 	};
 

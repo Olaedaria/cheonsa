@@ -86,13 +86,12 @@ namespace cheonsa
 		#endif
 	}
 
-	boolean_c data_stream_file_c::close()
+	void_c data_stream_file_c::close()
 	{
 		#if defined( cheonsa_platform_windows )
 		assert( _file != INVALID_HANDLE_VALUE );
 		CloseHandle( _file );
 		_file = INVALID_HANDLE_VALUE;
-		return true;
 		#endif
 	}
 
@@ -119,13 +118,13 @@ namespace cheonsa
 		#endif
 	}
 
-	void_c data_stream_file_c::set_position( sint32_c position )
+	boolean_c data_stream_file_c::set_position( sint32_c position )
 	{
 		#if defined( cheonsa_platform_windows )
 		assert( _file != INVALID_HANDLE_VALUE );
 		LARGE_INTEGER liDistanceToMove = {};
 		liDistanceToMove.QuadPart = position;
-		assert( SetFilePointerEx( _file, liDistanceToMove, NULL, FILE_BEGIN ) );
+		return SetFilePointerEx( _file, liDistanceToMove, NULL, FILE_BEGIN );
 		#endif
 	}
 

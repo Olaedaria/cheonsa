@@ -282,16 +282,20 @@ namespace cheonsa
 		char8_c loaded_file_signature[ 4 ];
 		stream->load( loaded_file_signature, 4 ); // endian agnostic.
 
-		if ( loaded_file_signature[ 0 ] == 'R' && loaded_file_signature[ 1 ] == 'I' && loaded_file_signature[ 2 ] == 'F' && loaded_file_signature[ 3 ] == 'F' )
+		if ( ops::memory_compare( loaded_file_signature, "RIFF", 4 ) )
 		{
 			// this is hard to read =.= but idc.
 			// load the riff wave file.
 
 			// RIFF header.
-			uint32_c file_size = scribe.load_uint32(); // little endian.
+			uint32_c file_size;
+			if ( !scribe.load_uint32( file_size ) ) // little endian.
+			{
+				return;
+			}
 			char8_c file_format[ 4 ];
 			stream->load( file_format, 4 ); // endian agnostic.
-			if ( !( file_format[ 0 ] == 'W' && file_format[ 1 ] == 'a' && file_format[ 2 ] == 'v' && file_format[ 3 ] == 'E' ) )
+			if ( !ops::memory_compare( file_format, "WavE", 4 ) )
 			{
 				return;
 			}
@@ -313,26 +317,48 @@ namespace cheonsa
 				// load chunk header.
 				char8_c chunk_id[ 4 ];
 				stream->load( chunk_id, 4 ); // endianness agnostic.
-				uint32_c chunk_size = scribe.load_uint32(); // little endian.
+				uint32_c chunk_size;
+				if ( !scribe.load_uint32( chunk_size ) ) // little endian.
+				{
+					return;
+				}
 				uint32_c next_chunk = stream->get_position() + chunk_size;
 
 				// process chunks that we recognize.
-				if ( chunk_id[ 0 ] == 'f' && chunk_id[ 1 ] == 'm' && chunk_id[ 2 ] == 't' && chunk_id[ 3 ] == ' ' )
+				if ( ops::memory_compare( chunk_id, "fmt ", 4 ) )
 				{
 					// load format chunk
 					assert( has_format == false );
 					if ( has_format == false )
 					{
 						has_format = true;
-						audio_format = scribe.load_uint16();
-						channel_count = scribe.load_uint16();
-						sample_rate = scribe.load_uint32();
-						byte_rate = scribe.load_uint32();
-						block_align = scribe.load_uint16();
-						bits_per_sample = scribe.load_uint16();
+						if ( !scribe.load_uint16( audio_format ) )
+						{
+							return;
+						}
+						if ( !scribe.load_uint16( channel_count ) )
+						{
+							return;
+						}
+						if ( !scribe.load_uint32( sample_rate ) )
+						{
+							return;
+						}
+						if ( !scribe.load_uint32( byte_rate ) )
+						{
+							return;
+						}
+						if ( !scribe.load_uint16( block_align ) )
+						{
+							return;
+						}
+						if ( !scribe.load_uint16( bits_per_sample ) )
+						{
+							return;
+						}
 					}
 				}
-				else if ( chunk_id[ 0 ] == 'd' && chunk_id[ 1 ] == 'a' && chunk_id[ 2 ] == 't' && chunk_id[ 3 ] == 'a' )
+				else if ( ops::memory_compare( chunk_id, "data", 4 ) )
 				{
 					// load data chunk.
 					assert( has_data == false );
@@ -341,12 +367,21 @@ namespace cheonsa
 						has_data = true;
 						_data_buffer_size = chunk_size;
 						_data_buffer = new uint8_c[ _data_buffer_size ];
-						stream->load( _data_buffer, _data_buffer_size );
+						if ( !stream->load( _data_buffer, _data_buffer_size ) )
+						{
+							delete[] _data_buffer;
+							_data_buffer = nullptr;
+							_data_buffer_size = 0;
+							return;
+						}
 					}
 				}
 
 				// go to next chunk.
-				stream->set_position( next_chunk );
+				if ( !stream->set_position( next_chunk ) )
+				{
+					return;
+				}
 			} while ( stream->get_position() < stream->get_size() );
 
 			if ( !has_format || !has_data )
@@ -382,13 +417,22 @@ namespace cheonsa
 			// done.
 			_format = audio2_wave_buffer_format_e_raw;
 		}
-		else if ( loaded_file_signature[ 0 ] == 'O' && loaded_file_signature[ 1 ] == 'g' && loaded_file_signature[ 2 ] == 'g' && loaded_file_signature[ 3 ] == 'S' )
+		else if ( ops::memory_compare( loaded_file_signature, "OggS", 4 ) )
 		{
-			stream->set_position( 0 );
+			if ( !stream->set_position( 0 ) )
+			{
+				return;
+			}
 
 			_data_buffer_size = stream->get_size();
 			_data_buffer = new uint8_c[ _data_buffer_size ];
-			stream->load( _data_buffer, _data_buffer_size );
+			if ( !stream->load( _data_buffer, _data_buffer_size ) )
+			{
+				delete[] _data_buffer;
+				_data_buffer = nullptr;
+				_data_buffer_size = 0;
+				return;
+			}
 
 			// load info about the ogg.
 			int error = 0;

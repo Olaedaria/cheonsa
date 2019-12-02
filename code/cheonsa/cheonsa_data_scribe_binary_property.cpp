@@ -51,7 +51,10 @@ namespace cheonsa
 		if ( _list_instance_stack.get_length() && !_list_instance_stack[ _list_instance_stack.get_length() - 1 ].handled )
 		{
 			// skip to end of core_list_c to get to next property.
-			_scribe_binary->get_stream()->set_position( _list_instance_stack[ _list_instance_stack.get_length() - 1 ].offset );
+			if ( !_scribe_binary->get_stream()->set_position( _list_instance_stack[ _list_instance_stack.get_length() - 1 ].offset ) )
+			{
+				return false;
+			}
 			_list_instance_stack.remove_at_end();
 		}
 
@@ -62,19 +65,31 @@ namespace cheonsa
 		}
 
 		// load type.
-		_loaded_type = _scribe_binary->load_uint8();
+		_loaded_type;
+		if ( !_scribe_binary->load_uint8( _loaded_type ) )
+		{
+			return false;
+		}
 		assert( _loaded_type >= data_type_e_list && _loaded_type <= data_type_e_float64 );
 
 		// load type count.
 		_loaded_type_count = 1;
 		if ( _loaded_type >= data_type_e_uint8 && _loaded_type <= data_type_e_float64 )
 		{
-			_loaded_type_count = _scribe_binary->load_uint8();
+			if ( !_scribe_binary->load_uint8( _loaded_type_count ) )
+			{
+				return false;
+			}
 			assert( _loaded_type_count >= 1 && _loaded_type_count <= maximum_atomic_length );
 		}
 
 		// load key.
-		_loaded_key = _scribe_binary->load_string8();
+		string8_c loaded_key;
+		if ( !_scribe_binary->load_string8( loaded_key ) )
+		{
+			_loaded_key = loaded_key;
+			return false;
+		}
 
 		// load value.
 		if ( _loaded_type >= data_type_e_uint8 && _loaded_type <= data_type_e_float64 )
@@ -83,23 +98,38 @@ namespace cheonsa
 			uint8_c * element_buffer = reinterpret_cast< uint8_c * >( _loaded_value_buffer );
 			for ( sint32_c i = 0; i < _loaded_type_count; i++ )
 			{
-				_scribe_binary->load_generic( element_buffer, element_size );
+				if ( !_scribe_binary->load_generic( element_buffer, element_size ) )
+				{
+					return false;
+				}
 				element_buffer += element_size;
 			}
 		}
 		else if ( _loaded_type == data_type_e_list )
 		{
-			_loaded_value_list_length = _scribe_binary->load_sint32();
-			_loaded_value_list_size = _scribe_binary->load_sint32();
+			if ( !_scribe_binary->load_sint32( _loaded_value_list_length ) )
+			{
+				return false;
+			}
+			if ( !_scribe_binary->load_sint32( _loaded_value_list_size ) )
+			{
+				return false;
+			}
 			_list_instance_stack.insert_at_end( list_instance_c( false, _scribe_binary->get_stream()->get_position() + _loaded_value_list_size ) );
 		}
 		else if ( _loaded_type == data_type_e_string8 )
 		{
-			_loaded_value_string8 = _scribe_binary->load_string8();
+			if ( !_scribe_binary->load_string8( _loaded_value_string8 ) )
+			{
+				return false;
+			}
 		}
 		else if ( _loaded_type == data_type_e_string16 )
 		{
-			_loaded_value_string16 = _scribe_binary->load_string16();
+			if ( !_scribe_binary->load_string16( _loaded_value_string16 ) )
+			{
+				return false;
+			}
 		}
 
 		return true;
@@ -279,268 +309,574 @@ namespace cheonsa
 		return reinterpret_cast< float64_c const * >( _loaded_value_buffer );
 	}
 
-	void_c data_scribe_binary_property_c::save_list_begin( char8_c const * key )
+	boolean_c data_scribe_binary_property_c::save_list_begin( char8_c const * key )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_list ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_uint32( 0 ); // number of items in the list, we will write the final value when save_list_end() is called.
-		_scribe_binary->save_uint32( 0 ); // size in bytes of the list, we will write the final value when save_list_end() is called.
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_list ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint32( 0 ) ) // number of items in the list, we will write the final value when save_list_end() is called.
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint32( 0 ) ) // size in bytes of the list, we will write the final value when save_list_end() is called.
+		{
+			return false;
+		}
 		_list_instance_stack.insert_at_end( list_instance_c( true, _scribe_binary->get_stream()->get_position() ) );
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_list_end( sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_list_end( sint32_c length )
 	{
 		assert( _scribe_binary );
 		uint32_c list_offset = _list_instance_stack[ _list_instance_stack.get_length() - 1 ].offset;
 		_list_instance_stack.remove_at_end();
 		uint32_c current_offset = _scribe_binary->get_stream()->get_position();
-		_scribe_binary->get_stream()->set_position( list_offset - 8 );
-		_scribe_binary->save_sint32( length );
-		_scribe_binary->save_sint32( current_offset - list_offset );
-		_scribe_binary->get_stream()->set_position( current_offset );
+		if ( !_scribe_binary->get_stream()->set_position( list_offset - 8 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_sint32( length ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_sint32( current_offset - list_offset ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->get_stream()->set_position( current_offset ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_string8( char8_c const * key, string8_c const & value )
+	boolean_c data_scribe_binary_property_c::save_string8( char8_c const * key, string8_c const & value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( data_type_e_string8 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_string8( value );
+		if ( !_scribe_binary->save_uint8( data_type_e_string8 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_string16( char8_c const * key, string16_c const & value )
+	boolean_c data_scribe_binary_property_c::save_string16( char8_c const * key, string16_c const & value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( data_type_e_string16 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_string16( value );
+		if ( !_scribe_binary->save_uint8( data_type_e_string16 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string16( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint8( char8_c const * key, uint8_c value )
+	boolean_c data_scribe_binary_property_c::save_uint8( char8_c const * key, uint8_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint8 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_uint8( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint8 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint8( char8_c const * key, sint8_c value )
+	boolean_c data_scribe_binary_property_c::save_sint8( char8_c const * key, sint8_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint8 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_sint8( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint8 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_sint8( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint16( char8_c const * key, uint16_c value )
+	boolean_c data_scribe_binary_property_c::save_uint16( char8_c const * key, uint16_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint16 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_uint16( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint16 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint16( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint16( char8_c const * key, sint16_c value )
+	boolean_c data_scribe_binary_property_c::save_sint16( char8_c const * key, sint16_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint16 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_sint16( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint16 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_sint16( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint32( char8_c const * key, uint32_c value )
+	boolean_c data_scribe_binary_property_c::save_uint32( char8_c const * key, uint32_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint32 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_uint32( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint32 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint32( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint32( char8_c const * key, sint32_c value )
+	boolean_c data_scribe_binary_property_c::save_sint32( char8_c const * key, sint32_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint32 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_sint32( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint32 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_sint32( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint64( char8_c const * key, uint64_c value )
+	boolean_c data_scribe_binary_property_c::save_uint64( char8_c const * key, uint64_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_uint64( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint64( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint64( char8_c const * key, sint64_c value )
+	boolean_c data_scribe_binary_property_c::save_sint64( char8_c const * key, sint64_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_sint64( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_sint64( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_float32( char8_c const * key, float32_c value )
+	boolean_c data_scribe_binary_property_c::save_float32( char8_c const * key, float32_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float32 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_float32( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float32 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_float32( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_float64( char8_c const * key, float64_c value )
+	boolean_c data_scribe_binary_property_c::save_float64( char8_c const * key, float64_c value )
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float64 ) );
-		_scribe_binary->save_uint8( 1 );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
-		_scribe_binary->save_float64( value );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float64 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( 1 ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_float64( value ) )
+		{
+			return false;
+		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint8_buffer( char8_c const * key, uint8_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_uint8_buffer( char8_c const * key, uint8_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint8 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint8 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_uint8( value[ i ] );
+			if ( !_scribe_binary->save_uint8( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint8_buffer( char8_c const * key, sint8_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_sint8_buffer( char8_c const * key, sint8_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint8 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint8 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_sint8( value[ i ] );
+			if ( !_scribe_binary->save_sint8( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint16_buffer( char8_c const * key, uint16_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_uint16_buffer( char8_c const * key, uint16_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint16 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint16 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_uint16( value[ i ] );
+			if ( !_scribe_binary->save_uint16( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint16_buffer( char8_c const * key, sint16_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_sint16_buffer( char8_c const * key, sint16_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint16 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint16 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_sint16( value[ i ] );
+			if ( !_scribe_binary->save_sint16( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint32_buffer( char8_c const * key, uint32_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_uint32_buffer( char8_c const * key, uint32_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint32 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint32 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_uint32( value[ i ] );
+			if ( !_scribe_binary->save_uint32( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint32_buffer( char8_c const * key, sint32_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_sint32_buffer( char8_c const * key, sint32_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint32 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint32 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_sint32( value[i] );
+			if ( !_scribe_binary->save_sint32( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_uint64_buffer( char8_c const * key, uint64_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_uint64_buffer( char8_c const * key, uint64_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_uint64 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_uint64( value[ i ] );
+			if ( !_scribe_binary->save_uint64( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_sint64_buffer( char8_c const * key, sint64_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_sint64_buffer( char8_c const * key, sint64_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint64 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_sint64 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_sint64( value[ i ] );
+			if ( !_scribe_binary->save_sint64( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_float32_buffer( char8_c const * key, float32_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_float32_buffer( char8_c const * key, float32_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float32 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float32 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_float32( value[ i ] );
+			if ( !_scribe_binary->save_float32( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_float64_buffer( char8_c const * key, float64_c const * value, sint32_c length )
+	boolean_c data_scribe_binary_property_c::save_float64_buffer( char8_c const * key, float64_c const * value, sint32_c length )
 	{
 		assert( _scribe_binary );
 		assert( length > 0 && length < maximum_atomic_length );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float64 ) );
-		_scribe_binary->save_uint8( static_cast< uint8_c >( length ) );
-		_scribe_binary->save_string8( string8_c( mode_e_static, key ) );
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( data_type_e_float64 ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_uint8( static_cast< uint8_c >( length ) ) )
+		{
+			return false;
+		}
+		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		{
+			return false;
+		}
 		for ( sint32_c i = 0; i < length; i++ )
 		{
-			_scribe_binary->save_float64( value[ i ] );
+			if ( !_scribe_binary->save_float64( value[ i ] ) )
+			{
+				return false;
+			}
 		}
+		return true;
 	}
 
-	void_c data_scribe_binary_property_c::save_end()
+	boolean_c data_scribe_binary_property_c::save_end()
 	{
 		assert( _scribe_binary );
-		_scribe_binary->save_uint8( 0 );
+		return _scribe_binary->save_uint8( 0 );
 	}
 
 }
