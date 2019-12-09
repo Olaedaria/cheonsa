@@ -13,19 +13,25 @@ namespace cheonsa
 	{
 	private:
 		friend class menu_style_manager_c;
-		string16_c _file_path_relative; // this is the file path that the engine uses to reference the style file, which in turn resolves to an absolute file path.
-		string16_c _file_path_absolute;
+
+		string16_c _relative_file_path; // this is the file path that the engine uses to reference the style file, which in turn resolves to an absolute file path.
+		string16_c _absolute_file_path; // _relative_file_path expanded to an absolute file path using the content manager's resolve_file_path() method.
 		sint64_c _file_modified_time; // keeps track of when the file was modified, so that changes can be deteced and the file can be reloaded if needed.
 		core_dictionary_c< string8_c, menu_color_style_c * > _color_style_dictionary;
-		core_dictionary_c< string8_c, menu_frame_style_c * > _frame_style_dictionary; // frame styles are applied to frame elements.
-		core_dictionary_c< string8_c, menu_text_style_c * > _text_style_dictionary; // text styles are applied to text elements.
-		core_dictionary_c< string8_c, menu_style_map_c * > _style_map_dictionary; // style maps are applied to controls.
+		core_dictionary_c< string8_c, menu_frame_style_c * > _frame_style_dictionary;
+		core_dictionary_c< string8_c, menu_text_style_c * > _text_style_dictionary;
+		core_dictionary_c< string8_c, menu_style_map_c * > _style_map_dictionary;
+
+		boolean_c _refresh(); // reloads the style file referenced by _relative_file_path.
 
 	public:
-		menu_style_file_c( string16_c const & file_path_relative );
+		menu_style_file_c( string16_c const & relative_file_path );
 		~menu_style_file_c();
 
-		boolean_c refresh(); // reloads the style file referenced by _file_path_relative.
+		menu_color_style_c const * find_color_style( string8_c const & key ) const;
+		menu_frame_style_c const * find_frame_style( string8_c const & key ) const;
+		menu_text_style_c const * find_text_style( string8_c const & key ) const;
+		menu_style_map_c const * find_style_map( string8_c const & key ) const;
 
 	};
 

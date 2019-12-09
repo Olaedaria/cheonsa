@@ -354,22 +354,22 @@ namespace cheonsa
 	{
 	}
 
-	boolean_c video_shader_includer_c::open( char8_c const * const file_path_relative, void_c * * source_code_out, sint32_c * source_code_size_out )
+	boolean_c video_shader_includer_c::open( char8_c const * const relative_file_path, void_c * * source_code_out, sint32_c * source_code_size_out )
 	{
-		assert( file_path_relative );
+		assert( relative_file_path );
 		assert( source_code_out );
 		assert( source_code_size_out );
 
 		*source_code_out = nullptr;
 		*source_code_size_out = 0;
 
-		included_file_paths.insert_at_end( string16_c( file_path_relative ) );
+		included_file_paths.insert_at_end( string16_c( relative_file_path ) );
 
-		string16_c file_path_absolute;
-		video_renderer_shader_manager_c::resolve_file_path( string16_c( file_path_relative ), false, file_path_absolute );
+		string16_c absolute_file_path;
+		video_renderer_shader_manager_c::resolve_file_path( string16_c( relative_file_path ), false, absolute_file_path );
 
 		data_stream_file_c stream;
-		if ( stream.open( file_path_absolute, data_stream_mode_e_read ) )
+		if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 		{
 			sint32_c source_code_size = stream.get_size();
 			source_code.construct_mode_dynamic( source_code_size + 1 );

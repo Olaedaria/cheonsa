@@ -14,7 +14,7 @@ namespace cheonsa
 	public:
 		platform_icon_c();
 		~platform_icon_c();
-		boolean_c load( string16_c const & file_path_relative );
+		boolean_c load( string16_c const & relative_file_path );
 		void_c un_load();
 
 	};

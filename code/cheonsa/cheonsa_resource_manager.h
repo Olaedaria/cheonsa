@@ -45,7 +45,7 @@ namespace cheonsa
 
 		// called by async load thread, is here for friend access benefit (since the async load thread does not have access).
 		// also called by templated _load method, since friend benefits don't apply in there.
-		static void_c _load_internal( resource_file_c * resource, data_stream_c * stream, string16_c const & file_path_absolute, boolean_c for_async_load_thread );
+		static void_c _load_internal( resource_file_c * resource, data_stream_c * stream, string16_c const & absolute_file_path, boolean_c for_async_load_thread );
 
 	public:
 		resource_manager_c(); // spins up the background resource loading thread.
@@ -60,12 +60,12 @@ namespace cheonsa
 		// scans all resource source files for modifications, and reloads those resources from their source files if needed.
 		void_c refresh();
 
-		resource_file_font_c * load_font( string16_c const & file_path_relative, boolean_c load_now = true );
-		resource_file_material_map_c * load_material_map( string16_c const & file_path_relative, boolean_c load_now = true );
-		resource_file_menu_layout_c * load_menu_layout( string16_c const & file_path_relative, boolean_c load_now = true );
-		resource_file_model_c * load_model( string16_c const & file_path_relative, boolean_c load_now = true );
-		resource_file_sprite_set_c * load_sprite_set( string16_c const & file_path_relative, boolean_c load_now = true );
-		resource_file_texture_c * load_texture( string16_c const & file_path_relative, boolean_c load_now = true );
+		resource_file_font_c * load_font( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_material_map_c * load_material_map( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_menu_layout_c * load_menu_layout( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_model_c * load_model( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_sprite_set_c * load_sprite_set( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_texture_c * load_texture( string16_c const & relative_file_path, boolean_c load_now = true );
 
 	};
 

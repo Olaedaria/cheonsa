@@ -14,13 +14,13 @@ namespace cheonsa
 	{
 	}
 
-	boolean_c string_file_c::load_from_xml( string16_c const & file_path_absolute )
+	boolean_c string_file_c::load_from_xml( string16_c const & absolute_file_path )
 	{
 		unload();
 
 		// try to open the file.
 		data_stream_file_c stream; // we don't need to close it because its destructor will close it when it goes out of scope.
-		if ( !stream.open( file_path_absolute, data_stream_mode_e_read ) )
+		if ( !stream.open( absolute_file_path, data_stream_mode_e_read ) )
 		{
 			// this usually means that the file doesn't exist.
 			// this isn't a big deal though, it could be by design.

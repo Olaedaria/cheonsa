@@ -206,15 +206,56 @@ namespace cheonsa
 		_default_text_style.text_align_horizontal = menu_text_align_horizontal_e_center;
 		_default_text_style.text_align_vertical_is_defined = true;
 		_default_text_style.text_align_vertical = menu_text_align_vertical_e_center;
+		_default_text_style.margin_is_defined = true;
+		_default_text_style.margin = box32x2_c( 4.0f, 4.0f, 4.0f, 4.0f );
 
 		return true;
 	}
 
 	void_c menu_style_manager_c::refresh()
 	{
-		_engine_styles.refresh();
-		_game_styles.refresh();
-		menu_control_c::_global_resolve_style_maps();
+		core_linked_list_c< menu_color_style_c::reference_c * >::node_c * color_style_list_node = menu_color_style_c::reference_c::_global_list.get_first();
+		while ( color_style_list_node )
+		{
+			color_style_list_node->get_value()->release_value();
+			color_style_list_node = color_style_list_node->get_next();
+		}
+		core_linked_list_c< menu_frame_style_c::reference_c * >::node_c * frame_style_list_node = menu_frame_style_c::reference_c::_global_list.get_first();
+		while ( frame_style_list_node )
+		{
+			frame_style_list_node->get_value()->release_value();
+			frame_style_list_node = frame_style_list_node->get_next();
+		}
+		core_linked_list_c< menu_text_style_c::reference_c * >::node_c * text_style_list_node = menu_text_style_c::reference_c::_global_list.get_first();
+		while ( text_style_list_node )
+		{
+			text_style_list_node->get_value()->release_value();
+			text_style_list_node = text_style_list_node->get_next();
+		}
+
+		_engine_styles._refresh();
+		_game_styles._refresh();
+
+		//menu_control_c::_global_resolve_style_maps();
+
+		color_style_list_node = menu_color_style_c::reference_c::_global_list.get_first();
+		while ( color_style_list_node )
+		{
+			color_style_list_node->get_value()->resolve_value();
+			color_style_list_node = color_style_list_node->get_next();
+		}
+		frame_style_list_node = menu_frame_style_c::reference_c::_global_list.get_first();
+		while ( frame_style_list_node )
+		{
+			frame_style_list_node->get_value()->resolve_value();
+			frame_style_list_node = frame_style_list_node->get_next();
+		}
+		text_style_list_node = menu_text_style_c::reference_c::_global_list.get_first();
+		while ( text_style_list_node )
+		{
+			text_style_list_node->get_value()->resolve_value();
+			text_style_list_node = text_style_list_node->get_next();
+		}
 	}
 
 	menu_color_style_c * menu_style_manager_c::find_shared_color_style( menu_shared_color_e index )
@@ -235,7 +276,7 @@ namespace cheonsa
 			menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
 			for ( sint32_c i = 0; i < 2; i++ )
 			{
-				menu_color_style_c const * result = style_file_list[ i ]->_color_style_dictionary.find_value_else_nullptr( key );
+				menu_color_style_c const * result = style_file_list[ i ]->find_color_style( key );
 				if ( result )
 				{
 					return result;
@@ -261,7 +302,7 @@ namespace cheonsa
 			menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
 			for ( sint32_c i = 0; i < 2; i++ )
 			{
-				menu_frame_style_c const * result = style_file_list[ i ]->_frame_style_dictionary.find_value_else_nullptr( key );
+				menu_frame_style_c const * result = style_file_list[ i ]->find_frame_style( key );
 				if ( result )
 				{
 					return result;
@@ -288,7 +329,7 @@ namespace cheonsa
 				menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
 				for ( sint32_c i = 0; i < 2; i++ )
 				{
-					menu_text_style_c const * result = style_file_list[ i ]->_text_style_dictionary.find_value_else_nullptr( key );
+					menu_text_style_c const * result = style_file_list[ i ]->find_text_style( key );
 					if ( result )
 					{
 						return result;
@@ -306,7 +347,7 @@ namespace cheonsa
 			menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
 			for ( sint32_c i = 0; i < 2; i++ )
 			{
-				menu_style_map_c const * result = style_file_list[ i ]->_style_map_dictionary.find_value_else_nullptr( key );
+				menu_style_map_c const * result = style_file_list[ i ]->find_style_map( key );
 				if ( result )
 				{
 					return result;

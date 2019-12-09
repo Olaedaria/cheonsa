@@ -99,7 +99,7 @@ namespace cheonsa
 
 	video_renderer_shader_manager_c::file_dependency_c::file_dependency_c()
 		: file_name()
-		, file_path_absolute()
+		, absolute_file_path()
 		, file_modified_time( 0 )
 	{
 	}
@@ -107,7 +107,7 @@ namespace cheonsa
 	video_renderer_shader_manager_c::file_dependency_c & video_renderer_shader_manager_c::file_dependency_c::operator = ( file_dependency_c const & other )
 	{
 		file_name = other.file_name;
-		file_path_absolute = other.file_path_absolute;
+		absolute_file_path = other.absolute_file_path;
 		file_modified_time = other.file_modified_time;
 		return *this;
 	}
@@ -124,7 +124,7 @@ namespace cheonsa
 
 	void_c video_renderer_shader_manager_c::_resolve_cache_file_path_absolute( file_dependency_c const & source_file_dependency, variation_e variation, string16_c & result )
 	{
-		result = ops::path_get_mother( source_file_dependency.file_path_absolute );
+		result = ops::path_get_mother( source_file_dependency.absolute_file_path );
 		result += "cache/";
 		result += ops::path_get_file_name_without_extension( source_file_dependency.file_name );
 		result += get_variation_suffix( variation );
@@ -173,7 +173,7 @@ namespace cheonsa
 		, ps_masked( nullptr )
 	{
 		source_file.file_name = file_name;
-		resolve_file_path( source_file.file_name, is_internal, source_file.file_path_absolute );
+		resolve_file_path( source_file.file_name, is_internal, source_file.absolute_file_path );
 	}
 
 	video_renderer_shader_manager_c::shader_variations_c::~shader_variations_c()
@@ -233,7 +233,7 @@ namespace cheonsa
 	boolean_c video_renderer_shader_manager_c::_load_source_dependency_information( shader_variations_c * shader_variations )
 	{
 		shader_variations->source_file_dependency_list.remove_all();
-		if ( !ops::data_get_file_or_folder_modified_time( shader_variations->source_file.file_path_absolute, shader_variations->source_file.file_modified_time ) )
+		if ( !ops::data_get_file_or_folder_modified_time( shader_variations->source_file.absolute_file_path, shader_variations->source_file.file_modified_time ) )
 		{
 			return false;
 		}
@@ -246,7 +246,7 @@ namespace cheonsa
 	{
 		// load the whole file into memory.
 		data_stream_file_c stream;
-		if ( !stream.open( source_file_dependency.file_path_absolute, data_stream_mode_e_read ) )
+		if ( !stream.open( source_file_dependency.absolute_file_path, data_stream_mode_e_read ) )
 		{
 			return false;
 		}
@@ -317,8 +317,8 @@ namespace cheonsa
 				{
 					video_renderer_shader_manager_c::file_dependency_c & sub_file_dependency = *result.emplace_at_end();
 					sub_file_dependency.file_name = file_name;
-					resolve_file_path( sub_file_dependency.file_name, is_internal, sub_file_dependency.file_path_absolute );
-					ops::data_get_file_or_folder_modified_time( sub_file_dependency.file_path_absolute, sub_file_dependency.file_modified_time );
+					resolve_file_path( sub_file_dependency.file_name, is_internal, sub_file_dependency.absolute_file_path );
+					ops::data_get_file_or_folder_modified_time( sub_file_dependency.absolute_file_path, sub_file_dependency.file_modified_time );
 					__load_source_dependency_list_recursive( sub_file_dependency, is_internal, result ); // recurse.
 				}
 			}
@@ -327,18 +327,18 @@ namespace cheonsa
 		return true;
 	}
 
-	boolean_c video_renderer_shader_manager_c::_load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & file_path_absolute, sint64_c & file_modified_time, core_list_c< file_dependency_c > & file_dependency_list )
+	boolean_c video_renderer_shader_manager_c::_load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & absolute_file_path, sint64_c & file_modified_time, core_list_c< file_dependency_c > & file_dependency_list )
 	{
 		file_modified_time = 0;
 		file_dependency_list.remove_all();
-		file_path_absolute = ops::path_get_mother( shader_variations->source_file.file_path_absolute );
-		file_path_absolute += "cache/";
-		file_path_absolute += ops::path_get_file_name_without_extension( shader_variations->source_file.file_name );
-		file_path_absolute += get_variation_suffix( variation );
-		file_path_absolute += ".so";
+		absolute_file_path = ops::path_get_mother( shader_variations->source_file.absolute_file_path );
+		absolute_file_path += "cache/";
+		absolute_file_path += ops::path_get_file_name_without_extension( shader_variations->source_file.file_name );
+		absolute_file_path += get_variation_suffix( variation );
+		absolute_file_path += ".so";
 
 		data_stream_file_c stream;
-		if ( !stream.open( file_path_absolute, data_stream_mode_e_read ) )
+		if ( !stream.open( absolute_file_path, data_stream_mode_e_read ) )
 		{
 			return false;
 		}
@@ -383,7 +383,7 @@ namespace cheonsa
 	void_c video_renderer_shader_manager_c::_refresh_shader_variations( shader_variations_c * shader_variations )
 	{
 		assert( shader_variations->source_file.file_name.get_length() > 0 );
-		assert( shader_variations->source_file.file_path_absolute.get_length() > 0 );
+		assert( shader_variations->source_file.absolute_file_path.get_length() > 0 );
 
 		// parse source file for "#include"s and build an up to date source_file_dependency_list.
 		_load_source_dependency_information( shader_variations );
@@ -424,7 +424,7 @@ namespace cheonsa
 		data_stream_file_c stream;
 
 		string16_c cache_folder_path;
-		cache_folder_path = ops::path_get_mother( shader_variations->source_file.file_path_absolute );
+		cache_folder_path = ops::path_get_mother( shader_variations->source_file.absolute_file_path );
 		cache_folder_path += "cache/";
 
 		if ( !ops::data_does_folder_exist( cache_folder_path ) )
@@ -432,7 +432,7 @@ namespace cheonsa
 			ops::data_create_folder( cache_folder_path );
 		}
 
-		if ( !stream.open( shader_variations->source_file.file_path_absolute, data_stream_mode_e_read ) )
+		if ( !stream.open( shader_variations->source_file.absolute_file_path, data_stream_mode_e_read ) )
 		{
 			return false;
 		}
@@ -483,7 +483,7 @@ namespace cheonsa
 		_resolve_cache_file_path_absolute( shader_variations->source_file, variation, cache_file_path_absolute );
 		string16_c cache_file_name = ops::path_get_file_name( cache_file_path_absolute );
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
-		ops::convert_string16_to_string8( shader_variations->source_file.file_path_absolute.character_list, source_file_path_absolute );
+		ops::convert_string16_to_string8( shader_variations->source_file.absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
 		video_vertex_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->input_vertex_layout );
 		if ( shader )
@@ -512,7 +512,7 @@ namespace cheonsa
 		_resolve_cache_file_path_absolute( shader_variations->source_file, variation, cache_file_path_absolute );
 		string16_c cache_file_name = ops::path_get_file_name( cache_file_path_absolute );
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
-		ops::convert_string16_to_string8( shader_variations->source_file.file_path_absolute.character_list, source_file_path_absolute );
+		ops::convert_string16_to_string8( shader_variations->source_file.absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
 		video_pixel_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ) );
 		if ( shader )
@@ -726,7 +726,7 @@ namespace cheonsa
 		, _scene_post_ps_blur_y( nullptr )
 		, _scene_post_ps_resolve_native( nullptr )
 		, _scene_post_ps_resolve_scaled( nullptr )
-		, _scene_post_ps_resolve_quarter( nullptr )
+		//, _scene_post_ps_resolve_quarter( nullptr )
 		, _scene_post_ps_process( nullptr )
 		, _scene_post_vs( nullptr )
 		, _scene_camera_color_ps_mesh( nullptr )
@@ -739,7 +739,11 @@ namespace cheonsa
 	{
 		_shader_variations_list.remove_and_delete_all();
 
-		_scene_camera_color_ps_mesh->_reference_count--; // remove the fake user.
+		if ( _scene_camera_color_ps_mesh != nullptr )
+		{
+			_scene_camera_color_ps_mesh->_reference_count--; // remove the fake user.
+		}
+
 		_material_pixel_shader_list.remove_and_delete_all();
 	}
 
@@ -851,9 +855,9 @@ namespace cheonsa
 		shader_variations->ps = &_scene_post_ps_resolve_scaled;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_quarter.hlsl" ), true );
-		shader_variations->ps = &_scene_post_ps_resolve_quarter;
-		_shader_variations_list.insert_at_end( shader_variations );
+		//shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_quarter.hlsl" ), true );
+		//shader_variations->ps = &_scene_post_ps_resolve_quarter;
+		//_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_process.hlsl" ), true );
 		shader_variations->ps = &_scene_post_ps_process;
@@ -1025,7 +1029,7 @@ namespace cheonsa
 		return renderer_pixel_shader;
 	}
 
-	boolean_c video_renderer_shader_manager_c::resolve_file_path( string16_c const & file_path_relative, boolean_c is_internal, string16_c & file_path_absolute )
+	boolean_c video_renderer_shader_manager_c::resolve_file_path( string16_c const & relative_file_path, boolean_c is_internal, string16_c & absolute_file_path )
 	{
 		string16_c result;
 
@@ -1037,10 +1041,10 @@ namespace cheonsa
 			{
 				result = game_data_folder_path_list[ i ];
 				result += shader_folder_path;
-				result += file_path_relative;
+				result += relative_file_path;
 				if ( ops::data_does_file_exist( result ) )
 				{
-					file_path_absolute = result;
+					absolute_file_path = result;
 					return true;
 				}
 			}
@@ -1049,10 +1053,10 @@ namespace cheonsa
 		// scan engine data folder.
 		result = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		result += shader_folder_path;
-		result += file_path_relative;
+		result += relative_file_path;
 		if ( ops::data_does_file_exist( result ) )
 		{
-			file_path_absolute = result;
+			absolute_file_path = result;
 			return true;
 		}
 

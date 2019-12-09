@@ -53,9 +53,12 @@ namespace cheonsa
 		video_texture_c * _target_color; // full size.
 		video_texture_c * _target_color_copy; // full size. used as input for overlay material passes (to do things like refractions) so that _target_color can "read"/"sample" itself while it is being rendered to.
 
-		video_texture_c * _target_color_quarter; // quarter size (half width, half height), used as input for horizontal blur pass.
-		video_texture_c * _target_color_quarter_blurred_x; // three fourths size (half width, full height), used by scene renderer, holds horizontal blur result, used as input for vertical blur pass.
-		video_texture_c * _target_color_quarter_blurred_xy; // quarter size (half width, half height), used by scene renderer, holds horizontal blur + vertical blur result.
+		video_texture_c * _target_color_half_blurred_x; // half width, full height.
+		video_texture_c * _target_color_half_blurred_xy; // half width, half height.
+		video_texture_c * _target_color_quarter_blurred_x; // quarter width, half height.
+		video_texture_c * _target_color_quarter_blurred_xy; // quarter width, quarter height.
+		video_texture_c * _target_color_eighth_blurred_x; // eighth width, quarter height.
+		video_texture_c * _target_color_eighth_blurred_xy; // eighth width, eighth height.
 
 		video_texture_c * _target_color_final; // full size. only initialized and used if _output is not set. this is the target for the scene post process or resolve, so it holds the final image after post processing is applied. is also the target for 2d menu rendering.
 		video_texture_c * _target_color_final_readable; // full size. only used if _output is not set. only used if _read_enable is true. this is a staging texture of which the contents of _target_color_final can be copied to, and of which can then be read by the cpu, and usually be saved as a screen shot.

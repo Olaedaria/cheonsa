@@ -35,10 +35,10 @@ namespace cheonsa
 
 
 		data_stream_file_c stream;
-		string16_c file_path_absolute;
-		if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( file_path, file_path_absolute ) )
+		string16_c absolute_file_path;
+		if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( file_path, absolute_file_path ) )
 		{
-			if ( stream.open( file_path_absolute, data_stream_mode_e_read ) )
+			if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 			{
 				script_instance_c * result = new script_instance_c( this );
 				if ( result->load( file_path, &stream ) )

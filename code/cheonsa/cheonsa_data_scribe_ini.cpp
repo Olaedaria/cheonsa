@@ -149,7 +149,7 @@ namespace cheonsa
 		return true;
 	}
 
-	boolean_c data_scribe_ini_c::find_property_value( string8_c & section_name, string8_c const & property_name, string8_c & result )
+	boolean_c data_scribe_ini_c::find_property_value( string8_c const & section_name, string8_c const & property_name, string8_c & result )
 	{
 		sint32_c phase = 1; // 1 is scan for property, 0 is scan for section.
 		for ( sint32_c i = 0; i < _item_list.get_length(); i++ )

@@ -7,8 +7,8 @@ namespace cheonsa
 
 	resource_file_c::resource_file_c()
 		: _is_loaded( false )
-		, _file_path_relative()
-		, _file_path_absolute()
+		, _relative_file_path()
+		, _absolute_file_path()
 		, _file_modified_time( 0 )
 		, _reference_count( 0 )
 	{
@@ -23,14 +23,14 @@ namespace cheonsa
 		return _is_loaded;
 	}
 
-	string16_c const & resource_file_c::get_file_path_relative() const
+	string16_c const & resource_file_c::get_relative_file_path() const
 	{
-		return _file_path_relative;
+		return _relative_file_path;
 	}
 
-	string16_c const & resource_file_c::get_file_path_absolute() const
+	string16_c const & resource_file_c::get_absolute_file_path() const
 	{
-		return _file_path_absolute;
+		return _absolute_file_path;
 	}
 
 	sint64_c resource_file_c::get_file_modified_time() const

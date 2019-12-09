@@ -9,7 +9,7 @@ namespace cheonsa
 	// list (and by extension strings) have a layer of complexity called modes.
 	// this is used to avoid allocating memory on the heap, in cases where the block of memory can be referenced from somewhere else (be it the stack or heap).
 	// when copying a mode_e_static mode list, we copy the array reference, which is cheap.
-	// when copying mode_e_static_volatile and mode_e_dynamic, we have to allocate a new array on the heap and then copy the values from the original to it.
+	// when copying mode_e_static_volatile and mode_e_dynamic, we have to allocate a new array on the heap and then copy the values from the original to it, which is not as cheap.
 	enum mode_e
 	{
 		mode_e_static_volatile = -2, // this list instance is constructed around a reference to a stack|heap allocated string|array that we can not rely on to remain in scope for the life time of any copies made, so any copies that are made via assignment operator will create their copy on the heap.
@@ -31,12 +31,8 @@ namespace cheonsa
 		sint32_c _array_length_allocated; // this is the number of value slots allocated in the array. if >= 0 then indicates that this list is dynamic mode. if set to -1 (mode_e_static) or -2 (mode_e_static_volatile) then indicates that this is a static mode list.
 
 		// if this function is defined, then it will be used instead of the type's assignment operator, during internal array resizes/reallocations.
-		// this function is needed if your value_type_c is a class type (non-pointer), and object instances of that class in turn allocate stuff on the heap (for example if that class contains string8_c or string16_c).
-		// this function lets you define a function that transfers heap pointer ownership from the old instance to the new instance.
-		// this is more optimal than allocating new heap space each time a string is copied.
-		// this mode of operation can be more desirable because:
-		//		* your value_type_c is a class type (non-pointer), all list item instances are newed/deleted when _array_length_allocated is changed.
-		//		  this can be more optimal than if value_type_c is a class pointer type, because you would not have to new/delete each item instance on the heap one by one.
+		// this function is useful if your value_type_c is a class value type (non-pointer), and object instances of that class in turn allocate stuff on the heap (for example if that class contains core_list_c, string8_c, or string16_c instances).
+		// this function lets you define a function that transfers heap ownerships from the old instance to the new instance (which is cheap), which avoids allocating more memory from the heap and doing copies (which is not as cheap).
 		void_c (*_move_list_item_function)( value_type_c & from, value_type_c & to );
 
 	private:

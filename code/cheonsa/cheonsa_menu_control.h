@@ -4,7 +4,6 @@
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_menu_types.h"
-#include "cheonsa_menu_style_map.h"
 #include "cheonsa_data_scribe_structure.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_input_manager.h"
@@ -41,7 +40,7 @@ namespace cheonsa
 		// this lets us reload layout files during run time and force controls to reload their properties and layouts.
 		static core_linked_list_c< menu_control_c * > _global_list;
 		// resolves style maps of each control in the _global_list.
-		static void_c _global_resolve_style_maps();
+		//static void_c _global_resolve_style_maps();
 
 		core_linked_list_c< menu_control_c * >::node_c _global_list_node;
 
@@ -70,6 +69,8 @@ namespace cheonsa
 		void_c _find_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result ); // searches private daughter elements for all elements that match the given name.
 
 		menu_style_map_c::reference_c _style_map_reference; // the style map that is currently applied to this control.
+		void_c _release_style_references();
+		void_c _resolve_style_references();
 		virtual void_c _handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value ); // resolves style map key to a style map reference, and applies the style map to daughter elements and controls.
 
 		menu_layer_e _layer; // determines priority for hit detection and render ordering. lets control heirarchies mix layers, for example so that a pop up layer control can be a daughter to a base layer control.

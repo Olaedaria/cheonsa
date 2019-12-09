@@ -172,7 +172,6 @@
     <ClInclude Include="cheonsa_database_table.h" />
     <ClInclude Include="cheonsa_database_types.h" />
     <ClInclude Include="cheonsa_menu_style_file.h" />
-    <ClInclude Include="cheonsa_menu_style_map.h" />
     <ClInclude Include="cheonsa_menu_thing.h" />
     <ClInclude Include="cheonsa_platform_critical_section.h" />
     <ClInclude Include="cheonsa_reflection_class.h" />
@@ -686,7 +685,6 @@
     <ClCompile Include="cheonsa_safe_reference_count.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_menu_style_file.cpp" />
-    <ClCompile Include="cheonsa_menu_style_map.cpp" />
     <ClCompile Include="cheonsa_platform_critical_section.cpp" />
     <ClCompile Include="cheonsa_reflection_class.cpp" />
     <ClCompile Include="cheonsa_reflection_enumeration.cpp" />

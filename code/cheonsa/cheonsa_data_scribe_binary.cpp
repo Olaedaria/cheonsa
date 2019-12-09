@@ -572,7 +572,7 @@ namespace cheonsa
 		}
 		if ( _byte_order == ops::get_native_byte_order() )
 		{
-			_stream->save( value.character_list.get_internal_array(), length * 2 );
+			return _stream->save( value.character_list.get_internal_array(), length * 2 );
 		}
 		else
 		{
@@ -584,7 +584,7 @@ namespace cheonsa
 				bytes[ i * 2 ] = bytes[ i * 2 + 1 ];
 				bytes[ i * 2 + 1 ] = temp;
 			}
-			_stream->save( bytes, length * 2 );
+			return _stream->save( bytes, length * 2 );
 		}
 	}
 

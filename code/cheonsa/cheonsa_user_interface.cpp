@@ -352,6 +352,14 @@ namespace cheonsa
 			engine_c::get_instance()->get_game()->process_input_event( &input_event );
 		}
 
+		// reload resources.
+		if ( wants_to_refresh_resources )
+		{
+			engine_c::get_instance()->get_video_renderer_shader_manager()->refresh();
+			engine_c::get_instance()->get_resource_manager()->refresh();
+			engine_c::get_instance()->get_menu_style_manager()->refresh();
+		}
+
 		// update animations of controls, and delete any that want to be deleted.
 		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 		{
@@ -364,14 +372,6 @@ namespace cheonsa
 				delete control;
 				i--;
 			}
-		}
-
-		// reload resources.
-		if ( wants_to_refresh_resources )
-		{
-			engine_c::get_instance()->get_video_renderer_shader_manager()->refresh();
-			engine_c::get_instance()->get_resource_manager()->refresh();
-			engine_c::get_instance()->get_menu_style_manager()->refresh();
 		}
 	}
 

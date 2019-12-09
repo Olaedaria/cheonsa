@@ -15,11 +15,9 @@ namespace cheonsa
 	// in the context of 3d objects, if you see the term "real" it means actual real world coordinates, and if you see the term "virtual" then it means a space relative to the primary camera view.
 	// "real" will usually always use 64-bit double precision floating point values.
 	// "virtual" will usually use 32-bit single precision floating point values, since these will be uploaded to the gpu at some point.
-	// scene representation on the cpu uses 64-bit double precision floating point.
-	// but the gpu works with 32-bit single precision floating point.
-	// so in order to take advantage of the range of 64-bit double precision floating point on the gpu, we render objects as though they are relative to the primary carera view instead.
-	// this means that the most precision is concentrated near the primary camera view, and so in theory and in practice, users should not be able to detect error artifacts due to loss of precision.
-	// at a later point, i believe that fixed point precision on the cpu is the way to go, so that's something to try later.
+	// scene representation on the cpu uses 64-bit double precision floating point (which is enough for open worlds), but the gpu works with 32-bit single precision floating point.
+	// in order to render objects with the gpu that have 64-bit double precision floating point coordinates, we get the delta position of each object relative to the primary camera (that is being rendered from), and we cast those delta coordinates to 32-bit single precision floats and we upload those to the gpu for consumption by the shaders.
+	// at a later point, i believe that fixed point precision on the cpu is the way to go, but that's something to try later.
 	class video_renderer_interface_c
 	{
 	public:
@@ -555,10 +553,10 @@ namespace cheonsa
 		// if input and output are not of the same dimensions, then a linear texture sampler will be used.
 		void_c _resolve_texture_full( video_texture_c * input, video_texture_c * output );
 
-		// uses shaders to down-sample an input texture to an output texture that is 1/4th the size (1/2 width and 1/2 height) of the input texture.
-		// for each output pixel, uses a linear texture sampler to sample and blend neighborhoods of 4 pixels at a time from the input texture.
-		// input texture should have x and y dimensions that are multiples of 4 in order to avoid artifacts.
-		void_c _resolve_texture_quarter( video_texture_c * input, video_texture_c * output );
+		//// uses shaders to down-sample an input texture to an output texture that is 1/4th width and height of the input texture (which is 1/16th the number of pixels).
+		//// for each output pixel, uses a linear texture sampler to sample and blend neighborhoods of 4 pixels at a time from the input texture.
+		//// input texture should have x and y dimensions that are multiples of 4 in order to avoid artifacts.
+		//void_c _resolve_texture_quarter( video_texture_c * input, video_texture_c * output );
 
 	};
 

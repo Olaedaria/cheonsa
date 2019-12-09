@@ -21,7 +21,7 @@ namespace cheonsa
 		string_file_c();
 		~string_file_c();
 
-		boolean_c load_from_xml( string16_c const & file_path_absolute );
+		boolean_c load_from_xml( string16_c const & absolute_file_path );
 		void_c unload();
 
 		string_c const * find_string( string8_c const & key ) const; // looks up a string in this string file.

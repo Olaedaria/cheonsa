@@ -42,7 +42,7 @@ namespace cheonsa
 		// this will load the next size bytes from the stream into an internal string and parse it.
 		boolean_c load( data_stream_c * stream );
 		// finds the first property within section that matches key.
-		boolean_c find_property_value( string8_c & section_name, string8_c const & property_name, string8_c & result );
+		boolean_c find_property_value( string8_c const & section_name, string8_c const & property_name, string8_c & result );
 
 		// adds a category label to the end of the document.
 		void_c add_section( string8_c const & section_name );

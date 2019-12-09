@@ -40,6 +40,9 @@ namespace cheonsa
 	// might just brute force it for now, a delta snapshot system will be complicated.
 	// to store delta snapshots for plain text changes is easy enough.
 	// to store delta snahshots for paragraph state changes is more difficult.
+	//
+	// todo:
+	// add clickable links (uri).
 	class menu_element_text_c
 		: public menu_element_c
 	{
@@ -182,7 +185,7 @@ namespace cheonsa
 			// takes into account horizontal text alignment and translates horizontal position of glyphs that were already added to the paragraph's _glyph_list.
 			// inserts a new laid out line at the end of the paragraph, after word wrapping algorithm has determined the start and end characters of the line.
 			// calculates the width, height, layout, etc. of the line.
-			void_c _do_glyph_layout_final( sint32_c character_start, sint32_c character_end, float32_c laid_out_width, float32_c & laid_out_top );
+			void_c _do_glyph_layout_finish_line( sint32_c character_start, sint32_c character_end, float32_c laid_out_width, float32_c & laid_out_top );
 
 			// called in response to deletion of text from _plain_text.
 			// this will clip/resize this paragraph, and clip/resize/delete daughter spans.
@@ -278,14 +281,14 @@ namespace cheonsa
 		float32_c _laid_out_width; // used to detect changes to _local_box width in order to set _is_glyph_layout_dirty to true.
 		float32_c _content_width; // widest width of text glyph contents after glyph reflow layout. is dirty when _is_glyph_layout_dirty is true.
 		float32_c _content_height; // height of text glyph contents after glyph reflow layout. is dirty when _is_glyph_layout_dirty is true.
-		core_linked_list_c< menu_element_text_c * >::node_c _global_instance_list_node;
+		core_linked_list_c< menu_element_text_c * >::node_c _global_list_node;
 		core_list_c< menu_text_glyph_style_c const * > _text_glyph_style_cache; // text glyph styles are cached in here, so that they can be referenced by any number of glyphs in the text element.
 
 	private:
-		void_c _clear_cache(); // clears the text glyph style cache and the uri cache.
+		void_c _clear_cached_data(); // resets the glyph style cache. frees data that's no longer in use but cache will have to be rebuilt with the data that is in use.
 		void_c _cache_text_glyph_style( menu_text_glyph_style_c const & value, menu_text_glyph_style_c const * & result_pointer, uint16_c & result_index ); // caches a text glyph style in the text glyph style cache, or gets the equivalent one that was already cached.
 		void_c _handle_text_style_reference_on_refreshed( menu_text_style_c::reference_c const * value ); // is invoked by _style_reference when it refreshes(), just sets _is_glyph_layout_dirty to true.
-		void_c _invalidate_glyph_layout(); // sets _is_glyph_layout_dirty to true on this text element and on all paragraphs.
+		void_c _invalidate_glyph_layout_in_all_paragraphs(); // sets _is_glyph_layout_dirty to true on this text element and on all paragraphs.
 		void_c _invalidate_glyph_layout_in_paragraphs_with_font( resource_file_font_c * font ); // sets _is_glyph_layout_dirty to true on any paragraphs that reference the given font. this is called in response to a font being reloaded.
 		void_c _do_glyph_layout(); // does glyph reflow layout, sets _is_glyph_layout_dirty is false.
 		void_c _update_horizontal_layout_of_all_lines(); // needs to be called when horizontal text alignment is changed.
@@ -323,6 +326,7 @@ namespace cheonsa
 		float32_c _get_style_skew() const;
 		float32_c _get_style_weight() const;
 		float32_c _get_style_softness() const;
+		box32x2_c _get_style_margin() const;
 
 	public:
 		menu_element_text_c();
@@ -380,8 +384,8 @@ namespace cheonsa
 		void_c get_cursor_information( sint32_c & result_paragraph_index, sint32_c & result_line_index ) const;
 
 	public:
-		void_c append_line( string16_c const & plain_text ); // appends a line of plain text to the end of the last paragraph. is computationally expensive if the last paragraph has a lot of text in it.
-		void_c append_paragraph( string16_c const & plain_text ); // appends a line of plain text as a new paragraph. is not computationally expensive but costs a little more memory than append_line.
+		void_c append_line( string16_c const & plain_text ); // appends a line of plain text to the end of the last paragraph. costs more computation time if the last paragraph has a lot of text in it, since all of the text in that paragraph will need to be reflowed.
+		void_c append_paragraph( string16_c const & plain_text ); // appends a line of plain text as a new paragraph. should cost less comptation time than append_line(), but might cost a little more memory than append_line().
 		void_c input_character( char16_c character ); // deletes the currently selected range of text and inserts a printable character (which may be a space or tab). don't use this to insert new lines or paragraphs, use input_return for that instead.
 		void_c input_return( boolean_c shift ); // deletes the currently selected range of text, if shift is false then inserts a new text paragraph else inserts a new line in the existing paragraph/span.
 		void_c input_delete_fore(); // deletes the currently selected range of text or character after the cursor, and merges text paragraphs if needed.

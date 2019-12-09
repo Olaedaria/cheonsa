@@ -27,13 +27,13 @@ namespace cheonsa
 				resource_file_c * resource = resource_manager->_worker_thread_load_queue[ 0 ];
 				resource_manager->_worker_thread_load_queue.remove_at_index( 0 );
 					
-				string16_c file_path_absolute;
-				if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( resource->get_file_path_relative(), file_path_absolute ) )
+				string16_c absolute_file_path;
+				if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource->get_relative_file_path(), absolute_file_path ) )
 				{
 					data_stream_file_c stream;
-					if ( stream.open( file_path_absolute, data_stream_mode_e_read ) )
+					if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 					{
-						resource_manager->_load_internal( resource, &stream, file_path_absolute, true );
+						resource_manager->_load_internal( resource, &stream, absolute_file_path, true );
 						stream.close();
 					}
 				}
@@ -47,15 +47,15 @@ namespace cheonsa
 		return 0;
 	}
 
-	void_c resource_manager_c::_load_internal( resource_file_c * resource, data_stream_c * stream, string16_c const & file_path_absolute, boolean_c for_async_load_thread )
+	void_c resource_manager_c::_load_internal( resource_file_c * resource, data_stream_c * stream, string16_c const & absolute_file_path, boolean_c for_async_load_thread )
 	{
 		if ( resource->_load( stream ) )
 		{
-			resource->_file_path_absolute = file_path_absolute;
-			ops::data_get_file_or_folder_modified_time( file_path_absolute, resource->_file_modified_time );
+			resource->_absolute_file_path = absolute_file_path;
+			ops::data_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
 			if ( for_async_load_thread )
 			{
-				ops::data_get_file_or_folder_modified_time( file_path_absolute, resource->_file_modified_time );
+				ops::data_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
 				assert( resource->_reference_count > 0 ); // there should be at least one fake user count added when the resource was put into the _async_load_queue.
 				resource->_reference_count--; // remove the fake user.
 			}
@@ -64,23 +64,23 @@ namespace cheonsa
 
 	void_c resource_manager_c::_refresh_resource( resource_file_c * resource )
 	{
-		string16_c file_path_absolute = resource->_file_path_absolute;
+		string16_c absolute_file_path = resource->_absolute_file_path;
 		sint64_c file_modified_time = resource->_file_modified_time;
 
-		if ( !engine_c::get_instance()->get_content_manager()->resolve_file_path( resource->_file_path_relative, file_path_absolute ) )
+		if ( !engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource->_relative_file_path, absolute_file_path ) )
 		{
 			return;
 		}
 
-		if ( !ops::data_get_file_or_folder_modified_time( file_path_absolute, file_modified_time ) )
+		if ( !ops::data_get_file_or_folder_modified_time( absolute_file_path, file_modified_time ) )
 		{
 			return;
 		}
 
-		if ( resource->_file_path_absolute != file_path_absolute || resource->_file_modified_time != file_modified_time )
+		if ( resource->_absolute_file_path != absolute_file_path || resource->_file_modified_time != file_modified_time )
 		{
 			data_stream_file_c file_stream;
-			if ( file_stream.open( file_path_absolute, data_stream_mode_e_read ) )
+			if ( file_stream.open( absolute_file_path, data_stream_mode_e_read ) )
 			{
 				if ( resource->get_is_loaded() )
 				{
@@ -89,7 +89,7 @@ namespace cheonsa
 				resource->_file_modified_time = 0;
 				if ( resource->_load( &file_stream ) )
 				{
-					resource->_file_path_absolute = file_path_absolute;
+					resource->_absolute_file_path = absolute_file_path;
 					resource->_file_modified_time = file_modified_time;
 				}
 			}
@@ -152,9 +152,9 @@ namespace cheonsa
 	}
 
 	template< typename resource_type_c >
-	resource_type_c * resource_manager_c::_load( string16_c const & file_path_relative, boolean_c load_now )
+	resource_type_c * resource_manager_c::_load( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		if ( file_path_relative == "" )
+		if ( relative_file_path == "" )
 		{
 			return nullptr;
 		}
@@ -163,7 +163,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _resource_list.get_length(); i++ )
 		{
 			resource_file_c * resource = _resource_list[ i ];
-			if ( resource->get_type() == resource_type_c::get_type_static() && resource->_file_path_relative == file_path_relative )
+			if ( resource->get_type() == resource_type_c::get_type_static() && resource->_relative_file_path == relative_file_path )
 			{
 				return dynamic_cast< resource_type_c * >( resource );
 			}
@@ -171,19 +171,19 @@ namespace cheonsa
 
 		// create new resource instance.
 		resource_type_c * new_resource = new resource_type_c();
-		new_resource->_file_path_relative = file_path_relative;
+		new_resource->_relative_file_path = relative_file_path;
 		_resource_list.insert_at_end( new_resource );
 
 		if ( load_now )
 		{
 			// load the resource data now on this main thread.
-			string16_c file_path_absolute;
-			if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( file_path_relative, file_path_absolute ) )
+			string16_c absolute_file_path;
+			if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( relative_file_path, absolute_file_path ) )
 			{
 				data_stream_file_c stream;
-				if ( stream.open( file_path_absolute, data_stream_mode_e_read ) )
+				if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 				{
-					_load_internal( new_resource, &stream, file_path_absolute, false );
+					_load_internal( new_resource, &stream, absolute_file_path, false );
 					stream.close();
 				}
 			}
@@ -201,34 +201,34 @@ namespace cheonsa
 		return new_resource;
 	}
 
-	resource_file_font_c * resource_manager_c::load_font( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_font_c * resource_manager_c::load_font( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_font_c >( file_path_relative, load_now );
+		return _load< resource_file_font_c >( relative_file_path, load_now );
 	}
 
-	resource_file_material_map_c * resource_manager_c::load_material_map( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_material_map_c * resource_manager_c::load_material_map( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_material_map_c >( file_path_relative, load_now );
+		return _load< resource_file_material_map_c >( relative_file_path, load_now );
 	}
 
-	resource_file_menu_layout_c * resource_manager_c::load_menu_layout( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_menu_layout_c * resource_manager_c::load_menu_layout( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_menu_layout_c >( file_path_relative, load_now );
+		return _load< resource_file_menu_layout_c >( relative_file_path, load_now );
 	}
 
-	resource_file_model_c * resource_manager_c::load_model( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_model_c * resource_manager_c::load_model( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_model_c >( file_path_relative, load_now );
+		return _load< resource_file_model_c >( relative_file_path, load_now );
 	}
 	
-	resource_file_sprite_set_c * resource_manager_c::load_sprite_set( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_sprite_set_c * resource_manager_c::load_sprite_set( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_sprite_set_c >( file_path_relative, load_now );
+		return _load< resource_file_sprite_set_c >( relative_file_path, load_now );
 	}
 
-	resource_file_texture_c * resource_manager_c::load_texture( string16_c const & file_path_relative, boolean_c load_now )
+	resource_file_texture_c * resource_manager_c::load_texture( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_texture_c >( file_path_relative, load_now );
+		return _load< resource_file_texture_c >( relative_file_path, load_now );
 	}
 
 }

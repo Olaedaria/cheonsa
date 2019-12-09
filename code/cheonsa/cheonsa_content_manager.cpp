@@ -149,21 +149,21 @@ namespace cheonsa
 		_game_data_folder_path_list.insert_at_end( game_data_folder_path );
 	}
 
-	boolean_c content_manager_c::resolve_file_path( string16_c const & file_path_relative, string16_c & file_path_absolute ) const
+	boolean_c content_manager_c::resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path ) const
 	{
 		static char8_c const * const engine_data_key = "[e]";
 		static sint32_c const engine_data_key_length = ops::string8_find_length( engine_data_key );
 		static char8_c const * const game_data_key = "[g]";
 		static sint32_c const game_data_key_length = ops::string8_find_length( game_data_key );
 
-		file_path_absolute = string16_c();
+		absolute_file_path = string16_c();
 
-		if ( file_path_relative.get_length() == 0 )
+		if ( relative_file_path.get_length() == 0 )
 		{
 			return false;
 		}
 
-		assert( ops::path_is_formatted_for_cheonsa( file_path_relative, false ) );
+		assert( ops::path_is_formatted_for_cheonsa( relative_file_path, false ) );
 
 		locale_c const * locale = engine_c::get_instance()->get_content_manager()->get_actual_locale();
 
@@ -172,23 +172,23 @@ namespace cheonsa
 		boolean_c search_engine_path = true;
 		boolean_c search_game_path = true;
 		string16_c file_path_relative_b;
-		if ( ops::string16_starts_with( file_path_relative.character_list.get_internal_array(), engine_data_key ) )
+		if ( ops::string16_starts_with( relative_file_path.character_list.get_internal_array(), engine_data_key ) )
 		{
 			// search only the engine path.
 			search_engine_path = true;
 			search_game_path = false;
-			file_path_relative_b = ops::string16_sub_string( file_path_relative, engine_data_key_length, file_path_relative.get_length() - engine_data_key_length );
+			file_path_relative_b = ops::string16_sub_string( relative_file_path, engine_data_key_length, relative_file_path.get_length() - engine_data_key_length );
 		}
-		else if ( ops::string16_starts_with( file_path_relative.character_list.get_internal_array(), game_data_key ) )
+		else if ( ops::string16_starts_with( relative_file_path.character_list.get_internal_array(), game_data_key ) )
 		{
 			// search only the game path.
 			search_engine_path = false;
 			search_game_path = true;
-			file_path_relative_b = ops::string16_sub_string( file_path_relative, game_data_key_length, file_path_relative.get_length() - game_data_key_length );
+			file_path_relative_b = ops::string16_sub_string( relative_file_path, game_data_key_length, relative_file_path.get_length() - game_data_key_length );
 		}
 		else
 		{
-			file_path_relative_b.character_list.construct_mode_static_volatile_from_array( file_path_relative.character_list.get_internal_array(), file_path_relative.character_list.get_length() );
+			file_path_relative_b.character_list.construct_mode_static_volatile_from_array( relative_file_path.character_list.get_internal_array(), relative_file_path.character_list.get_length() );
 		}
 
 		// search game data folders.
@@ -213,7 +213,7 @@ namespace cheonsa
 					scan_path += file_path_relative_b;
 					if ( ops::data_does_file_exist( scan_path ) )
 					{
-						file_path_absolute = scan_path;
+						absolute_file_path = scan_path;
 						return true;
 					}
 				}
@@ -239,7 +239,7 @@ namespace cheonsa
 				scan_path += file_path_relative_b;
 				if ( ops::data_does_file_exist( scan_path ) )
 				{
-					file_path_absolute = scan_path;
+					absolute_file_path = scan_path;
 					return true;
 				}
 			}

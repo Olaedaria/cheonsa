@@ -1254,7 +1254,7 @@ namespace cheonsa
 
 					// mix scene sources.
 					core_linked_list_c< audio2_scene_source_c * >::node_c const * scene_source_list_node = scene->_scene_source_list.get_first();
-					while ( scene_source_list_node != nullptr );
+					while ( scene_source_list_node != nullptr )
 					{
 						audio2_scene_source_c * scene_source = scene_source_list_node->get_value();
 						scene_source_list_node = scene_source_list_node->get_next();

@@ -94,9 +94,10 @@ float4 fxaa( float2 lookup )
 
 void ps_main( in vertex_point_view_c input, out float4 output : SV_Target0 )
 {
-	float2 lookup = input.position.xy * canvas_apparent_to_actual_ratio * float2( 0.5, -0.5 ) + float2( 0.5, 0.5 );
+	float2 lookup = ( input.position.xy * float2( 0.5, -0.5 ) + float2( 0.5, 0.5 ) ) * canvas_apparent_to_actual_ratio;
 	//output = fxaa( lookup );
 	output = target_color.Sample( sample_point_clamp, lookup );
-	output.rgb += target_color_quarter_blurred.Sample( sample_linear_clamp, lookup ).rgb;
-	output.r += 0.1;
+	//output.rgb += target_color_half_blurred.Sample( sample_linear_clamp, lookup ).rgb;
+	//output.rgb += target_color_quarter_blurred.Sample( sample_linear_clamp, lookup ).rgb;
+	output.rgb += target_color_eighth_blurred.Sample( sample_linear_clamp, lookup ).rgb;
 }

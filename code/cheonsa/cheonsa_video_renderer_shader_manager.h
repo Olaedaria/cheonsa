@@ -23,7 +23,7 @@ namespace cheonsa
 		{
 		public:
 			string16_c file_name; // file name, if referencing hlsl then includes file extension, otherwise if referencing cached shader object then excludes file extension (just to make it easier to search for shader object variants, since more than one shader object may be generated from a single compiled hlsl file).
-			string16_c file_path_absolute; // resolved file_name to an absolute file path using resolve_shader_file_path_absolute().
+			string16_c absolute_file_path; // resolved file_name to an absolute file path using resolve_shader_file_path_absolute().
 			sint64_c file_modified_time; // milliseconds since epoch that tells us when the file was last modified.
 			file_dependency_c();
 			file_dependency_c & operator = ( file_dependency_c const & other );
@@ -51,7 +51,7 @@ namespace cheonsa
 		public:
 			boolean_c is_internal; // if true then this variation won't be deleted even if it has no references.
 
-			file_dependency_c source_file; // uses file_name (with file extension) and file_path_absolute.
+			file_dependency_c source_file; // uses file_name (with file extension) and absolute_file_path.
 			core_list_c< file_dependency_c > source_file_dependency_list; // uses relative path.
 
 			video_vertex_layout_c const * input_vertex_layout; // input vertex layout expected by vertex shader.
@@ -108,9 +108,9 @@ namespace cheonsa
 
 		video_pixel_shader_c * _scene_post_ps_blur_x; // "scene_post_ps_blur_x.hlsl".
 		video_pixel_shader_c * _scene_post_ps_blur_y; // "scene_post_ps_blur_y.hlsl".
-		video_pixel_shader_c * _scene_post_ps_resolve_native; // "scene_post_ps_resolve.hlsl".
+		video_pixel_shader_c * _scene_post_ps_resolve_native; // "scene_post_ps_resolve_native.hlsl". can be used to convert between texture formats i guess?
 		video_pixel_shader_c * _scene_post_ps_resolve_scaled; // "scene_post_ps_resolve_scaled.hlsl".
-		video_pixel_shader_c * _scene_post_ps_resolve_quarter; // "scene_post_ps_resolve_quarter.hlsl".
+		//video_pixel_shader_c * _scene_post_ps_resolve_quarter; // "scene_post_ps_resolve_quarter.hlsl".
 		video_pixel_shader_c * _scene_post_ps_process; // "scene_post_ps_process.hlsl".
 		video_vertex_shader_c * _scene_post_vs; // "scene_post_vs.hlsl".
 
@@ -125,7 +125,7 @@ namespace cheonsa
 
 		static boolean_c _load_source_dependency_information( shader_variations_c * shader_variations ); // scans source code files for all dependencies and times modified.
 		static boolean_c __load_source_dependency_list_recursive( file_dependency_c const & source_file_dependency, boolean_c is_internal, core_list_c< file_dependency_c > & result );
-		static boolean_c _load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & file_path_absolute, sint64_c & file_modified_time, core_list_c< file_dependency_c > & file_dependency_list ); // scans cache file for all file dependencies (included file names and times modified at the time of compilation).
+		static boolean_c _load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & absolute_file_path, sint64_c & file_modified_time, core_list_c< file_dependency_c > & file_dependency_list ); // scans cache file for all file dependencies (included file names and times modified at the time of compilation).
 
 		void_c _refresh_shader_variations( shader_variations_c * shader_variations );
 		boolean_c _compile_and_save_to_cache( shader_variations_c * shader_variations, variation_e variation );
@@ -147,7 +147,7 @@ namespace cheonsa
 
 		video_renderer_pixel_shader_c * load_pixel_shader( string16_c const & file_name ); // loads a game defined pixel shader for use with custom materials.
 
-		static boolean_c resolve_file_path( string16_c const & file_path_relative, boolean_c is_internal, string16_c & file_path_absolute );
+		static boolean_c resolve_file_path( string16_c const & relative_file_path, boolean_c is_internal, string16_c & absolute_file_path );
 
 		inline video_vertex_shader_c * get_skin_mesh() const { return _skin_mesh; }
 		inline video_pixel_shader_c * get_menu_ps_debug() const { return _menu_ps_debug; }
@@ -180,7 +180,7 @@ namespace cheonsa
 		inline video_pixel_shader_c * get_scene_post_ps_blur_y() const { return _scene_post_ps_blur_y; }
 		inline video_pixel_shader_c * get_scene_post_ps_resolve_native() const { return _scene_post_ps_resolve_native; }
 		inline video_pixel_shader_c * get_scene_post_ps_resolve_scaled() const { return _scene_post_ps_resolve_scaled; }
-		inline video_pixel_shader_c * get_scene_post_ps_resolve_quarter() const { return _scene_post_ps_resolve_quarter; }
+		//inline video_pixel_shader_c * get_scene_post_ps_resolve_quarter() const { return _scene_post_ps_resolve_quarter; }
 		inline video_pixel_shader_c * get_scene_post_ps_process() const { return _scene_post_ps_process; }
 		inline video_vertex_shader_c * get_scene_post_vs() const { return _scene_post_vs; }
 		inline video_renderer_pixel_shader_c * get_scene_camera_color_ps_mesh() const { return _scene_camera_color_ps_mesh; }

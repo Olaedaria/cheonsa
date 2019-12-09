@@ -10,10 +10,8 @@ void ps_main( in vertex_point_view_c input, out float4 output : SV_Target0 )
 {
 	output = 0.0;
 	float2 lookup = ( input.position.xy * float2( 0.5, -0.5 ) + float2( 0.5, 0.5 ) );
-	int sample_count = 31;
-	int sample_count_half = sample_count / 2;
-	for ( int i = 0; i < sample_count; i++ )
+	for ( int i = -15; i <= 15; i++ )
 	{
-		output += material_texture_0.SampleLevel( sample_point_clamp, float2( lookup.x, lookup.y + ( ( i - sample_count_half ) * canvas_actual_size_inverse.y ) ), 0 ) * blur_sample_weights[ i ];
+		output += material_texture_0.SampleLevel( sample_linear_clamp, float2( lookup.x, lookup.y + ( i * canvas_actual_size_inverse.y ) ), 0 ) * blur_sample_weights[ i + 15 ];
 	}
 }

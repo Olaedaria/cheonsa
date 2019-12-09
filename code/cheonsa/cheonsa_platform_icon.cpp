@@ -20,14 +20,14 @@ namespace cheonsa
 		un_load();
 	}
 
-	boolean_c platform_icon_c::load( string16_c const & file_path_relative )
+	boolean_c platform_icon_c::load( string16_c const & relative_file_path )
 	{
 		un_load();
 #if defined( cheonsa_platform_windows )
-		string16_c file_path_absolute;
-		if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( file_path_relative, file_path_absolute ) )
+		string16_c absolute_file_path;
+		if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( relative_file_path, absolute_file_path ) )
 		{
-			icon_handle = static_cast< void_c * >( LoadImageW( NULL, file_path_absolute.character_list.get_internal_array(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE ) );
+			icon_handle = static_cast< void_c * >( LoadImageW( NULL, absolute_file_path.character_list.get_internal_array(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE ) );
 		}
 #endif
 		return icon_handle != nullptr;

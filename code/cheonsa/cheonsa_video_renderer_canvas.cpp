@@ -21,9 +21,12 @@ namespace cheonsa
 		, _target_depth( nullptr )
 		, _target_color( nullptr )
 		, _target_color_copy( nullptr )
-		, _target_color_quarter( nullptr )
+		, _target_color_half_blurred_x( nullptr )
+		, _target_color_half_blurred_xy( nullptr )
 		, _target_color_quarter_blurred_x( nullptr )
 		, _target_color_quarter_blurred_xy( nullptr )
+		, _target_color_eighth_blurred_x( nullptr )
+		, _target_color_eighth_blurred_xy( nullptr )
 		, _target_color_final( nullptr )
 		, _target_color_final_readable( nullptr )
 		, _output( nullptr )
@@ -80,10 +83,28 @@ namespace cheonsa
 			_target_color_copy = nullptr;
 		}
 
-		if ( _target_color_quarter )
+		if ( _target_color_half_blurred_x )
 		{
-			delete _target_color_quarter;
-			_target_color_quarter = nullptr;
+			delete _target_color_half_blurred_x;
+			_target_color_half_blurred_x = nullptr;
+		}
+
+		if ( _target_color_half_blurred_xy )
+		{
+			delete _target_color_half_blurred_xy;
+			_target_color_half_blurred_xy = nullptr;
+		}
+
+		if ( _target_color_eighth_blurred_x )
+		{
+			delete _target_color_eighth_blurred_x;
+			_target_color_eighth_blurred_x = nullptr;
+		}
+
+		if ( _target_color_eighth_blurred_xy )
+		{
+			delete _target_color_eighth_blurred_xy;
+			_target_color_eighth_blurred_xy = nullptr;
 		}
 
 		if ( _target_color_quarter_blurred_x )
@@ -169,12 +190,18 @@ namespace cheonsa
 			_target_color = nullptr;
 			delete _target_color_copy;
 			_target_color_copy = nullptr;
-			delete _target_color_quarter;
-			_target_color_quarter = nullptr;
+			delete _target_color_half_blurred_x;
+			_target_color_half_blurred_x = nullptr;
+			delete _target_color_half_blurred_xy;
+			_target_color_half_blurred_xy = nullptr;
 			delete _target_color_quarter_blurred_x;
 			_target_color_quarter_blurred_x = nullptr;
 			delete _target_color_quarter_blurred_xy;
 			_target_color_quarter_blurred_xy = nullptr;
+			delete _target_color_eighth_blurred_x;
+			_target_color_eighth_blurred_x = nullptr;
+			delete _target_color_eighth_blurred_xy;
+			_target_color_eighth_blurred_xy = nullptr;
 			delete _target_color_final;
 			_target_color_final = nullptr;
 			delete _target_color_final_readable;
@@ -194,9 +221,12 @@ namespace cheonsa
 			_target_color_copy = engine_c::get_instance()->get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
 			if ( _post_process_enable )
 			{
-				_target_color_quarter = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
-				_target_color_quarter_blurred_x = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_half_blurred_x = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 2, _actual_height, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_half_blurred_xy = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 2, _actual_height / 2, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_quarter_blurred_x = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 4, _actual_height / 2, 1, 1, nullptr, 0, false, false, true, false );
 				_target_color_quarter_blurred_xy = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 4, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_eighth_blurred_x = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 8, _actual_height / 4, 1, 1, nullptr, 0, false, false, true, false );
+				_target_color_eighth_blurred_xy = engine_c::get_instance()->get_video_interface()->create_texture( _format_color, _actual_width / 8, _actual_height / 8, 1, 1, nullptr, 0, false, false, true, false );
 			}
 			if ( _output == nullptr )
 			{

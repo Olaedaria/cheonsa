@@ -99,15 +99,15 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	void_c menu_control_c::_global_resolve_style_maps()
-	{
-		core_linked_list_c< menu_control_c * >::node_c const * menu_control_list_node = _global_list.get_first();
-		while ( menu_control_list_node != nullptr )
-		{
-			menu_control_list_node->get_value()->_style_map_reference.refresh();
-			menu_control_list_node = menu_control_list_node->get_next();
-		}
-	}
+	//void_c menu_control_c::_global_resolve_style_maps()
+	//{
+	//	core_linked_list_c< menu_control_c * >::node_c const * menu_control_list_node = _global_list.get_first();
+	//	while ( menu_control_list_node != nullptr )
+	//	{
+	//		menu_control_list_node->get_value()->_style_map_reference.refresh();
+	//		menu_control_list_node = menu_control_list_node->get_next();
+	//	}
+	//}
 
 	void_c menu_control_c::_handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value )
 	{
@@ -659,7 +659,7 @@ namespace cheonsa
 					//}
 					if ( element != nullptr )
 					{
-						element->load_properties( sub_node );
+						element->_load_properties( sub_node );
 					}
 				}
 			}

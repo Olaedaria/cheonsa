@@ -1023,9 +1023,12 @@ namespace cheonsa
 				// update camera constants.
 				_constant_buffers.camera_block->camera_view_projection_transform = cube_face_view_list_base[ cube_face_view_index ].view_transform * cube_face_projection_transform;
 				_constant_buffers.camera_block->camera_clip_plane = vector32x4_c( 0.0f, 0.0f, 0.0f, 0.0f );
-				_constant_buffers.camera_block->canvas_actual_size = vector32x2_c( static_cast< float32_c >( light_probe_resolution ), static_cast< float32_c >( light_probe_resolution ) );
-				_constant_buffers.camera_block->canvas_actual_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( light_probe_resolution ), 1.0f / static_cast< float32_c >( light_probe_resolution ) );
-				_constant_buffers.camera_block->canvas_apparent_to_actual_ratio = vector32x2_c( 1.0f, 1.0f );
+				_constant_buffers.camera_block->canvas_actual_size.a = static_cast< float32_c >( light_probe_resolution );
+				_constant_buffers.camera_block->canvas_actual_size.b = static_cast< float32_c >( light_probe_resolution );
+				_constant_buffers.camera_block->canvas_actual_size_inverse.a = 1.0f / static_cast< float32_c >( light_probe_resolution );
+				_constant_buffers.camera_block->canvas_actual_size_inverse.b = 1.0f / static_cast< float32_c >( light_probe_resolution );
+				_constant_buffers.camera_block->canvas_apparent_to_actual_ratio.a = 1.0f;
+				_constant_buffers.camera_block->canvas_apparent_to_actual_ratio.b = 1.0f;
 				_constant_buffers.camera_block->camera_clip_near = _scene->_light_probe_clip_near;
 				_constant_buffers.camera_block->camera_clip_far = _scene->_light_probe_clip_far;
 				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
@@ -1340,9 +1343,12 @@ namespace cheonsa
 			// update camera constants.
 			_constant_buffers.camera_block->camera_view_projection_transform = view.camera_view_projection_transform;
 			_constant_buffers.camera_block->camera_clip_plane = view.clip_plane.as_vector32x4();
-			_constant_buffers.camera_block->canvas_actual_size = vector32x2_c( static_cast< float32_c >( view.canvas->get_actual_width() ), static_cast< float32_c >( view.canvas->get_actual_height() ) );
-			_constant_buffers.camera_block->canvas_actual_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( view.canvas->get_actual_width() ), 1.0f / static_cast< float32_c >( view.canvas->get_actual_height() ) );
-			_constant_buffers.camera_block->canvas_apparent_to_actual_ratio = vector32x2_c( static_cast< float32_c >( view.canvas->get_apparent_width() ) / static_cast< float32_c >( view.canvas->get_actual_width() ), static_cast< float32_c >( view.canvas->get_apparent_height() ) / static_cast< float32_c >( view.canvas->get_actual_height() ) ); 
+			_constant_buffers.camera_block->canvas_actual_size.a = static_cast< float32_c >( view.canvas->get_actual_width() );
+			_constant_buffers.camera_block->canvas_actual_size.b = static_cast< float32_c >( view.canvas->get_actual_height() );
+			_constant_buffers.camera_block->canvas_actual_size_inverse.a = 1.0f / static_cast< float32_c >( view.canvas->get_actual_width() );
+			_constant_buffers.camera_block->canvas_actual_size_inverse.b = 1.0f / static_cast< float32_c >( view.canvas->get_actual_height() );
+			_constant_buffers.camera_block->canvas_apparent_to_actual_ratio.a = static_cast< float32_c >( view.canvas->get_apparent_width() ) / static_cast< float32_c >( view.canvas->get_actual_width() );
+			_constant_buffers.camera_block->canvas_apparent_to_actual_ratio.b = static_cast< float32_c >( view.canvas->get_apparent_height() ) / static_cast< float32_c >( view.canvas->get_actual_height() );
 			_constant_buffers.camera_block->camera_clip_near = view.camera_clip_near;
 			_constant_buffers.camera_block->camera_clip_far = view.camera_clip_far;
 			_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
@@ -1739,17 +1745,57 @@ namespace cheonsa
 
 				// down scale/sample the _target_color to _target_color_half.
 				// this also has the side effect of binding the state needed for doing post process.
-				_resolve_texture_quarter( view.canvas->_target_color, view.canvas->_target_color_quarter );
+				//_resolve_texture_quarter( view.canvas->_target_color, view.canvas->_target_color_quarter );
 
+				// half blur.
+				// prepare render states.
+				engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+				engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+				engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
+				engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_vs() );
+				vertex_buffers_to_bind[ 0 ] = _quad_vertex_buffer;
+				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+				textures_to_bind[ 0 ] = view.canvas->_target_color;
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				// prepare constants.
+				_constant_buffers.camera_block->canvas_actual_size.a = static_cast< float32_c >( view.canvas->get_actual_width() / 2 );
+				_constant_buffers.camera_block->canvas_actual_size.b = static_cast< float32_c >( view.canvas->get_actual_height() / 2 );
+				_constant_buffers.camera_block->canvas_actual_size_inverse.a = 1.0f / _constant_buffers.camera_block->canvas_actual_size.a;
+				_constant_buffers.camera_block->canvas_actual_size_inverse.b = 1.0f / _constant_buffers.camera_block->canvas_actual_size.b;
+				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 				// render blur x.
-				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_x;
+				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_x;
 				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
 				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
-				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter;
+				textures_to_bind[ 0 ] = view.canvas->_target_color;
+				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				// render blur xy.
+				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_xy;
+				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
+				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_x;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
 
+				// quarter blur.
+				// prepare constants.
+				_constant_buffers.camera_block->canvas_actual_size.a = static_cast< float32_c >( view.canvas->get_actual_width() / 4 );
+				_constant_buffers.camera_block->canvas_actual_size.b = static_cast< float32_c >( view.canvas->get_actual_height() / 4 );
+				_constant_buffers.camera_block->canvas_actual_size_inverse.a = 1.0f / _constant_buffers.camera_block->canvas_actual_size.a;
+				_constant_buffers.camera_block->canvas_actual_size_inverse.b = 1.0f / _constant_buffers.camera_block->canvas_actual_size.b;
+				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
+				// render blur x.
+				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_x;
+				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
+				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_xy;
+				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
 				// render blur xy.
 				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_xy;
 				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
@@ -1758,6 +1804,32 @@ namespace cheonsa
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+
+				// eighth blur.
+				// prepare constants.
+				_constant_buffers.camera_block->canvas_actual_size.a = static_cast< float32_c >( view.canvas->get_actual_width() / 8 );
+				_constant_buffers.camera_block->canvas_actual_size.b = static_cast< float32_c >( view.canvas->get_actual_height() / 8 );
+				_constant_buffers.camera_block->canvas_actual_size_inverse.a = 1.0f / _constant_buffers.camera_block->canvas_actual_size.a;
+				_constant_buffers.camera_block->canvas_actual_size_inverse.b = 1.0f / _constant_buffers.camera_block->canvas_actual_size.b;
+				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
+				// render blur x.
+				textures_to_bind[ 0 ] = view.canvas->_target_color_eighth_blurred_x;
+				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
+				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_xy;
+				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				// render blur xy.
+				textures_to_bind[ 0 ] = view.canvas->_target_color_eighth_blurred_xy;
+				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
+				textures_to_bind[ 0 ] = view.canvas->_target_color_eighth_blurred_x;
+				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+
+				// unbind.
 				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr );
 				engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 
@@ -1772,11 +1844,13 @@ namespace cheonsa
 				textures_to_bind_types[ 2 ] = video_texture_type_e_texture2d;
 				textures_to_bind[ 3 ] = view.canvas->_target_color;
 				textures_to_bind_types[ 3 ] = video_texture_type_e_texture2d;
-				textures_to_bind[ 4 ] = view.canvas->_target_color_quarter;
+				textures_to_bind[ 4 ] = view.canvas->_target_color_half_blurred_xy;
 				textures_to_bind_types[ 4 ] = video_texture_type_e_texture2d;
 				textures_to_bind[ 5 ] = view.canvas->_target_color_quarter_blurred_xy;
 				textures_to_bind_types[ 5 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures, 6, textures_to_bind, textures_to_bind_types );
+				textures_to_bind[ 6 ] = view.canvas->_target_color_eighth_blurred_xy;
+				textures_to_bind_types[ 6 ] = video_texture_type_e_texture2d;
+				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures, 7, textures_to_bind, textures_to_bind_types );
 				textures_to_bind[ 0 ] = output_target;
 				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
 				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_process() );
@@ -3278,6 +3352,7 @@ namespace cheonsa
 		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 	}
 
+	/*
 	void_c video_renderer_interface_c::_resolve_texture_quarter( video_texture_c * input, video_texture_c * output )
 	{
 		assert( input );
@@ -3307,6 +3382,7 @@ namespace cheonsa
 		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr );
 		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 	}
+	*/
 
 	void_c video_renderer_interface_c::add_debug_garbage( sint32_c count )
 	{

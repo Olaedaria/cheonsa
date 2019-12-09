@@ -41,9 +41,10 @@ Texture2D< uint > target_outline: register( ps, t11 );
 Texture2D< float2 > target_normal : register( ps, t12 ); // overlay/post texture, contains the normal and depth of the scene from the opaque passes.
 Texture2D< float > target_depth : register( ps, t13 );
 Texture2D< float4 > target_color : register( ps, t14 ); // overlay/post texture, contains the color of the scene from the opaque and transparent passes.
-Texture2D< float4 > target_color_quarter : register( ps, t15 ); // half size copy of target_color_half.
-Texture2D< float4 > target_color_quarter_blurred : register( ps, t16 ); // blurred version of target_color_quarter.
-Texture2D< float4 > target_color_reflections : register( ps, t17 ); // planar reflections in target space.
+Texture2D< float4 > target_color_half_blurred : register( ps, t15 ); // half size blurred version of target_color.
+Texture2D< float4 > target_color_quarter_blurred : register( ps, t16 ); // quarter size even more blurred version of target_color.
+Texture2D< float4 > target_color_eighth_blurred : register( ps, t17 ); // quarter size even more blurred version of target_color.
+Texture2D< float4 > target_color_reflections : register( ps, t18 ); // planar reflections in target space.
 Buffer< float4 > bones_texture_buffer : register( vs, t30 ); // an array of all the bones needed to apply skinning to the current draw call. the transformed mesh will be stored in another vertex buffer using the stream output feature.
 Buffer< float4 > lights_texture_buffer : register( ps, t31 ); // an array of all of the lights that affect the current camera view. model pixel shaders use  to reference specific lights in this list that affect the model being rendered.
 Buffer< float4 > shadow_views_texture_buffer : register( ps, t32 ); // formatted as "cheonsa::video_renderer_shadow_view_c" in "cheonsa_video_renderer_types.h", but we don't define an equivalent struct here in the shader since it's so simple that it's probably better if we don't.

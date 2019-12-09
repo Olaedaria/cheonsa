@@ -511,7 +511,7 @@ namespace cheonsa
 
 	public:
 		video_shader_includer_c();
-		boolean_c open( char8_c const * const file_path_relative, void_c * * source_code_out, sint32_c * source_code_size_out );
+		boolean_c open( char8_c const * const relative_file_path, void_c * * source_code_out, sint32_c * source_code_size_out );
 		boolean_c close();
 
 	};

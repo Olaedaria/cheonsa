@@ -24,6 +24,60 @@ namespace cheonsa
 	{
 	}
 
+	void_c menu_element_c::_load_properties( data_scribe_markup_c::node_c const * node )
+	{
+		data_scribe_markup_c::attribute_c const * attribute = nullptr;
+		sint32_c new_local_box_anchor = menu_anchor_e_none;
+		box32x2_c new_local_box_anchor_measures;
+		box32x2_c new_local_box;
+		string8_c new_style_key;
+
+		// load layout.
+		attribute = node->find_attribute( "local_box_anchor" );
+		if ( attribute )
+		{
+			sint32_c temp = 0;
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "left" ), temp ) )
+			{
+				new_local_box_anchor |= menu_anchor_e_left;
+			}
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "top" ), temp ) )
+			{
+				new_local_box_anchor |= menu_anchor_e_top;
+			}
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "right" ), temp ) )
+			{
+				new_local_box_anchor |= menu_anchor_e_right;
+			}
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "bottom" ), temp ) )
+			{
+				new_local_box_anchor |= menu_anchor_e_bottom;
+			}
+		}
+		attribute = node->find_attribute( "local_box_anchor_measures" );
+		if ( attribute )
+		{
+			if ( ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, new_local_box_anchor_measures.as_array(), 4 ) ) )
+			{
+				set_layout_box_anchor( static_cast< menu_anchor_e >( new_local_box_anchor ), new_local_box_anchor_measures );
+			}
+		}
+		attribute = node->find_attribute( "local_box" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, new_local_box.as_array(), 4 ) );
+			set_layout_simple( new_local_box );
+		}
+
+		// load style.
+		attribute = node->find_attribute( "style_key" );
+		if ( attribute )
+		{
+			new_style_key = attribute->get_value();
+		}
+		set_style_key( new_style_key );
+	}
+
 	menu_element_c::menu_element_c()
 		: _mother_control( nullptr )
 		, _name()
@@ -46,14 +100,22 @@ namespace cheonsa
 		if ( _local_box != local_box )
 		{
 			_local_box = local_box;
+			if ( _local_box.maximum.a < _local_box.minimum.a )
+			{
+				_local_box.maximum.a = _local_box.minimum.a;
+			}
+			if ( _local_box.maximum.b < _local_box.minimum.b )
+			{
+				_local_box.maximum.b = _local_box.minimum.b;
+			}
 			_on_local_box_modified();
 		}
 	}
 
-	void_c menu_element_c::set_layout_box_anchor( menu_anchor_e local_box_anchor, box32x2_c local_box_anchor_insets )
+	void_c menu_element_c::set_layout_box_anchor( menu_anchor_e local_box_anchor, box32x2_c local_box_anchor_measures )
 	{
 		_local_box_anchor = local_box_anchor;
-		_local_box_anchor_measures = local_box_anchor_insets;
+		_local_box_anchor_measures = local_box_anchor_measures;
 	}
 
 	void_c menu_element_c::update_layout( box32x2_c const & mother_local_box )
@@ -195,54 +257,6 @@ namespace cheonsa
 			return menu_state_e_selected;
 		}
 		return menu_state_e_normal;
-	}
-
-	void_c menu_element_c::load_properties( data_scribe_markup_c::node_c const * node )
-	{
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-
-		sint32_c dummy = 0;
-		_local_box_anchor = menu_anchor_e_none;
-		attribute = node->find_attribute( "local_box_anchor" );
-		if ( attribute )
-		{
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "left" ), dummy ) )
-			{
-				_local_box_anchor = static_cast< menu_anchor_e >( _local_box_anchor | menu_anchor_e_left );
-			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "top" ), dummy ) )
-			{
-				_local_box_anchor = static_cast< menu_anchor_e >( _local_box_anchor | menu_anchor_e_top );
-			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "right" ), dummy ) )
-			{
-				_local_box_anchor = static_cast< menu_anchor_e >( _local_box_anchor | menu_anchor_e_right );
-			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "bottom" ), dummy ) )
-			{
-				_local_box_anchor = static_cast< menu_anchor_e >( _local_box_anchor | menu_anchor_e_bottom );
-			}
-		}
-
-		attribute = node->find_attribute( "local_box_anchor_measures" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_box_anchor_measures.as_array(), 4 ) );
-		}
-
-		attribute = node->find_attribute( "local_box" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_box.as_array(), 4 ) );
-		}
-
-		string8_c style_key;
-		attribute = node->find_attribute( "style_key" );
-		if ( attribute )
-		{
-			style_key = attribute->get_value();
-		}
-		set_style_key( style_key );
 	}
 
 }

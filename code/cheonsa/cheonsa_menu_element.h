@@ -50,6 +50,8 @@ namespace cheonsa
 
 		virtual void_c _on_local_box_modified(); // override in sub-classes to be notified about local_box value changing and enable response.
 
+		virtual void_c _load_properties( data_scribe_markup_c::node_c const * node );
+
 	public:
 		menu_element_c();
 
@@ -86,9 +88,6 @@ namespace cheonsa
 		menu_draw_list_c & get_draw_list() const;
 
 		menu_state_e get_state() const; // evaluates the boolean states of this element to arrive at an enumerated menu state.
-
-	public:
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node );
 
 	};
 

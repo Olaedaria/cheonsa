@@ -1,5 +1,7 @@
 #include "base.hlsl"
 
+// not used at this time but keeping around for reference in case i decide to add msaa support again in the future.
+// it's just annoying to support msaa because it creates a lot of situations that need special handling.
 void ps_main( in vertex_point_view_c input, out float4 output : SV_Target0 )
 {
 	int2 lookup = ( int2 )( ( input.position.xy * float2( 0.5, -0.5 ) + float2( 0.5, 0.5 ) ) * canvas_actual_size );

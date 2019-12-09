@@ -1,5 +1,4 @@
 #include "cheonsa_menu_style_file.h"
-#include "cheonsa_menu_style_map.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_engine.h"
@@ -7,48 +6,17 @@
 namespace cheonsa
 {
 
-	menu_style_file_c::menu_style_file_c( string16_c const & file_path_relative )
-		: _file_path_relative( file_path_relative )
-		, _file_path_absolute()
-		, _file_modified_time( 0 )
-		, _frame_style_dictionary()
-		, _text_style_dictionary()
-		, _style_map_dictionary()
-	{
-	}
-
-	menu_style_file_c::~menu_style_file_c()
-	{
-		core_dictionary_c< string8_c, menu_frame_style_c * >::iterator_c frame_style_iterator = _frame_style_dictionary.get_iterator();
-		while ( frame_style_iterator.next() )
-		{
-			delete frame_style_iterator.get_value();
-		}
-
-		core_dictionary_c< string8_c, menu_text_style_c * >::iterator_c text_style_iterator = _text_style_dictionary.get_iterator();
-		while ( text_style_iterator.next() )
-		{
-			delete text_style_iterator.get_value();
-		}
-
-		core_dictionary_c< string8_c, menu_style_map_c * >::iterator_c style_map_iterator = _style_map_dictionary.get_iterator();
-		while ( style_map_iterator.next() )
-		{
-			delete style_map_iterator.get_value();
-		}
-	}
-
-	boolean_c menu_style_file_c::refresh()
+	boolean_c menu_style_file_c::_refresh()
 	{
 		// try to open new data.
 		assert( engine_c::get_instance()->get_content_manager() != nullptr );
-		if ( !engine_c::get_instance()->get_content_manager()->resolve_file_path( _file_path_relative, _file_path_absolute ) )
+		if ( !engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( _relative_file_path, _absolute_file_path ) )
 		{
 			return false;
 		}
 
 		sint64_c file_modified_time = 0;
-		if ( !ops::data_get_file_or_folder_modified_time( _file_path_absolute, file_modified_time ) )
+		if ( !ops::data_get_file_or_folder_modified_time( _absolute_file_path, file_modified_time ) )
 		{
 			return false;
 		}
@@ -59,7 +27,7 @@ namespace cheonsa
 		}
 
 		data_stream_file_c stream;
-		if ( !stream.open( _file_path_absolute, data_stream_mode_e_read ) )
+		if ( !stream.open( _absolute_file_path, data_stream_mode_e_read ) )
 		{
 			return false;
 		}
@@ -157,6 +125,45 @@ namespace cheonsa
 		}
 
 		return true;
+	}
+
+	menu_style_file_c::menu_style_file_c( string16_c const & relative_file_path )
+		: _relative_file_path( relative_file_path )
+		, _absolute_file_path()
+		, _file_modified_time( 0 )
+		, _color_style_dictionary()
+		, _frame_style_dictionary()
+		, _text_style_dictionary()
+		, _style_map_dictionary()
+	{
+	}
+
+	menu_style_file_c::~menu_style_file_c()
+	{
+		_color_style_dictionary.remove_and_delete_all();
+		_frame_style_dictionary.remove_and_delete_all();
+		_text_style_dictionary.remove_and_delete_all();
+		_style_map_dictionary.remove_and_delete_all();
+	}
+
+	menu_color_style_c const * menu_style_file_c::find_color_style( string8_c const & key ) const
+	{
+		return _color_style_dictionary.find_value_else_nullptr( key );
+	}
+
+	menu_frame_style_c const * menu_style_file_c::find_frame_style( string8_c const & key ) const
+	{
+		return _frame_style_dictionary.find_value_else_nullptr( key );
+	}
+
+	menu_text_style_c const * menu_style_file_c::find_text_style( string8_c const & key ) const
+	{
+		return _text_style_dictionary.find_value_else_nullptr( key );
+	}
+
+	menu_style_map_c const * menu_style_file_c::find_style_map( string8_c const & key ) const
+	{
+		return _style_map_dictionary.find_value_else_nullptr( key );
 	}
 
 }

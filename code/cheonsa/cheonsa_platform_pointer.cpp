@@ -29,7 +29,7 @@ namespace cheonsa
 		unload();
 #if defined( cheonsa_platform_windows )
 		string16_c full_file_path;
-		if ( engine_c::get_instance()->get_content_manager()->resolve_file_path( file_path, full_file_path ) )
+		if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( file_path, full_file_path ) )
 		{
 			pointer_handle = LoadCursorFromFileW( full_file_path.character_list.get_internal_array() );
 			if ( pointer_handle != nullptr )

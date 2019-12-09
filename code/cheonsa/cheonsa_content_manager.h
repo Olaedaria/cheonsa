@@ -107,14 +107,14 @@ namespace cheonsa
 		// you will need to call apply_changes() when you are done making all your updates.
 		void_c add_game_data_folder_path( string16_c const & game_data_folder_path );
 
-		// takes relative file path, scans data folders for the first file that matches, then sets the result in file_path_absolute.
+		// takes relative file path, scans data folders for the first file that matches, then sets the result in absolute_file_path.
 		// returns true if resolution was successful, or false if not.
 		// if relative_file_path starts with "[e]" then it will search only within global_engine_instance.interfaces.content_manager->get_engine_data_folder_path().
 		// if relative_file_paht starts with "[g]" then it will search only within global_engine_instance.interfaces.content_manager->get_game_data_folder_path().
 		// otherwise, it will search both the game data folder and the engine data folder (in that order).
 		// game mod data folders are taken into account for game data.
 		// for each folder, locale code is taken into account, the locale code first then the "_common/" folder next.
-		boolean_c resolve_file_path( string16_c const & file_path_relative, string16_c & file_path_absolute ) const; 
+		boolean_c resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path ) const; 
 
 		// gets the list of detected supported locales.
 		// this can be used to show a locale selection list to the user.

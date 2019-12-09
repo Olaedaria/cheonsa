@@ -16,12 +16,13 @@ namespace cheonsa
 
 	// the user interfaces is the highest level interface between the user and the game.
 	//
-	// it is associated with the client window, and it manages a canvas (collection of texture render targets) which is associated with the client window.
+	// it manages a canvas (collection of texture render targets) which is associated with the client window.
 	//
-	// it contains a pointer to at most one 3d scene.
-	// the 3d scene may contain any number of 2d menu controls (positioned in 3d space, so effectively 3d).
+	// it contains at most one 3d scene.
+	// it may contain any number of 3d objects and 3d menu controls (2d menu controls positioned in 3d space).
 	//
 	// it contains any number of root level 2d menu controls.
+	// these 2d menu controls may in turn contain other 2d menu controls and 3d scenes.
 	//
 	// it user interface delegates:
 	//		routing user input events to 2d and 3d menu controls and to the game.

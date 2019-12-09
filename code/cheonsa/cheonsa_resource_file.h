@@ -28,8 +28,8 @@ namespace cheonsa
 		friend class resource_manager_c;
 
 		boolean_c _is_loaded; // tracks if this resource is loaded and ready to be used or not.
-		string16_c _file_path_relative; // file path that the game uses to identify this resource.
-		string16_c _file_path_absolute; // relative file path resolved to a full file path that identifies where this resource was actually loaded from.
+		string16_c _relative_file_path; // file path that the game uses to identify this resource.
+		string16_c _absolute_file_path; // relative file path resolved to a full file path that identifies where this resource was actually loaded from.
 		sint64_c _file_modified_time; // tracks source file modified time, so we can detect if the source file is modified during run time and re load it.
 		sint32_c _reference_count; // number of users using this resource, so we can automatically un load it when it has no more users.
 
@@ -44,8 +44,8 @@ namespace cheonsa
 
 		boolean_c get_is_loaded() const;
 
-		string16_c const & get_file_path_relative() const;
-		string16_c const & get_file_path_absolute() const;
+		string16_c const & get_relative_file_path() const;
+		string16_c const & get_absolute_file_path() const;
 
 		sint64_c get_file_modified_time() const;
 

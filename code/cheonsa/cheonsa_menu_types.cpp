@@ -8,9 +8,34 @@ namespace cheonsa
 
 	//
 	//
-	// menu_color_style_c
+	// menu_color_style_c::reference_c
 	//
 	//
+
+	core_linked_list_c< menu_color_style_c::reference_c * > menu_color_style_c::reference_c::_global_list;
+
+	menu_color_style_c::reference_c::reference_c()
+		: _global_list_node( this )
+		, _key()
+		, _value( nullptr )
+	{
+		_global_list.insert_at_end( &_global_list_node );
+	}
+
+	menu_color_style_c::reference_c::~reference_c()
+	{
+		_global_list.remove( &_global_list_node );
+	}
+
+	void_c menu_color_style_c::reference_c::release_value()
+	{
+		_value = nullptr;
+	}
+
+	void_c menu_color_style_c::reference_c::resolve_value()
+	{
+		_value = engine_c::get_instance()->get_menu_style_manager()->find_color_style( _key );
+	}
 
 	string8_c const & menu_color_style_c::reference_c::get_key() const
 	{
@@ -20,21 +45,22 @@ namespace cheonsa
 	void_c menu_color_style_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
-		if ( _key.get_length() > 0 )
-		{
-			assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
-			_value = engine_c::get_instance()->get_menu_style_manager()->find_color_style( _key );
-		}
-		else
-		{
-			_value = nullptr;
-		}
+		resolve_value();
 	}
 
 	menu_color_style_c const * menu_color_style_c::reference_c::get_value() const
 	{
 		return _value;
 	}
+
+
+
+
+	//
+	//
+	// menu_color_style_c
+	//
+	//
 
 	menu_color_style_c::menu_color_style_c()
 		: key()
@@ -67,6 +93,120 @@ namespace cheonsa
 		{
 			ops::convert_string8_to_rgba( attribute->get_value(), value );
 		}
+	}
+
+
+
+
+	//
+	//
+	// menu_frame_style_c::state_c
+	//
+	//
+
+	menu_frame_style_c::state_c::state_c()
+		: color_style()
+		, color( 1.0f, 1.0f, 1.0f, 1.0f )
+		, saturation( 1.0f )
+		, apparent_scale( 1.0f )
+		, texture_map()
+		, texture_map_edges()
+	{
+	}
+
+	void_c menu_frame_style_c::state_c::reset()
+	{
+		color_style.set_key( string8_c() );
+		color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+		saturation = 1.0f;
+		apparent_scale = 1.0f;
+		texture_map[ 0 ] = 0;
+		texture_map[ 1 ] = 0;
+		texture_map[ 2 ] = 0;
+		texture_map[ 3 ] = 0;
+		texture_map_edges[ 0 ] = 0;
+		texture_map_edges[ 1 ] = 0;
+		texture_map_edges[ 2 ] = 0;
+		texture_map_edges[ 3 ] = 0;
+	}
+
+	vector32x4_c menu_frame_style_c::state_c::get_expressed_color() const
+	{
+		return color_style.get_value() ? color_style.get_value()->value * color : color;
+	}
+
+
+
+
+	//
+	//
+	// menu_frame_style_c::reference_c
+	//
+	//
+
+	core_linked_list_c< menu_frame_style_c::reference_c * > menu_frame_style_c::reference_c::_global_list;
+
+	menu_frame_style_c::reference_c::reference_c()
+		: _global_list_node( this )
+		, _key( mode_e_static, "" )
+		, _value( nullptr )
+	{
+		_global_list.insert_at_end( &_global_list_node );
+	}
+
+	menu_frame_style_c::reference_c::~reference_c()
+	{
+		_global_list.remove( &_global_list_node );
+	}
+
+	void_c menu_frame_style_c::reference_c::release_value()
+	{
+		if ( _value )
+		{
+			_value = nullptr;
+			//on_refreshed.invoke( this );
+		}
+	}
+
+	void_c menu_frame_style_c::reference_c::resolve_value()
+	{
+		assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
+		if ( _key == "[none]" )
+		{
+			_value = nullptr;
+		}
+		else if ( _key == "[default]" )
+		{
+			_value = engine_c::get_instance()->get_menu_style_manager()->get_default_frame_style();
+		}
+		else
+		{
+			_value = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( _key );
+		}
+		//on_refreshed.invoke( this );
+	}
+
+	string8_c const & menu_frame_style_c::reference_c::get_key() const
+	{
+		return _key;
+	}
+
+	void_c menu_frame_style_c::reference_c::set_key( string8_c const & value )
+	{
+		_key = value;
+		resolve_value();
+	}
+
+	menu_frame_style_c const * menu_frame_style_c::reference_c::get_value() const
+	{
+		return _value;
+	}
+
+	void_c menu_frame_style_c::reference_c::set_value( menu_frame_style_c const * value )
+	{
+		_key = value ? value->key : string8_c();
+		_value = value;
+		//on_refreshed.invoke( this );
 	}
 
 
@@ -273,83 +413,6 @@ namespace cheonsa
 		}
 	}
 
-	menu_frame_style_c::state_c::state_c()
-		: color_style()
-		, color( 1.0f, 1.0f, 1.0f, 1.0f )
-		, saturation( 1.0f )
-		, apparent_scale( 1.0f )
-		, texture_map()
-		, texture_map_edges()
-	{
-	}
-
-	void_c menu_frame_style_c::state_c::reset()
-	{
-		color_style.set_key( string8_c() );
-		color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		saturation = 1.0f;
-		apparent_scale = 1.0f;
-		texture_map[ 0 ] = 0;
-		texture_map[ 1 ] = 0;
-		texture_map[ 2 ] = 0;
-		texture_map[ 3 ] = 0;
-		texture_map_edges[ 0 ] = 0;
-		texture_map_edges[ 1 ] = 0;
-		texture_map_edges[ 2 ] = 0;
-		texture_map_edges[ 3 ] = 0;
-	}
-
-	vector32x4_c menu_frame_style_c::state_c::get_expressed_color() const
-	{
-		return color_style.get_value() ? color_style.get_value()->value * color : color;
-	}
-
-	menu_frame_style_c::reference_c::reference_c()
-		: _key( mode_e_static, "" )
-		, _value( nullptr )
-	{
-	}
-
-	void_c menu_frame_style_c::reference_c::refresh()
-	{
-		assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
-		if ( _key == "[none]" )
-		{
-			_value = nullptr;
-		}
-		else if ( _key == "[default]" )
-		{
-			_value = engine_c::get_instance()->get_menu_style_manager()->get_default_frame_style();
-		}
-		else
-		{
-			_value = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( _key );
-		}
-		on_refreshed.invoke( this );
-	}
-
-	void_c menu_frame_style_c::reference_c::set_value( menu_frame_style_c const * value )
-	{
-		_key = value ? value->key : string8_c();
-		_value = value;
-		on_refreshed.invoke( this );
-	}
-
-	string8_c const & menu_frame_style_c::reference_c::get_key() const
-	{
-		return _key;
-	}
-
-	void_c menu_frame_style_c::reference_c::set_key( string8_c const & value )
-	{
-		_key = value;
-		refresh();
-	}
-
-	menu_frame_style_c const * menu_frame_style_c::reference_c::get_value() const
-	{
-		return _value;
-	}
 
 
 
@@ -359,13 +422,31 @@ namespace cheonsa
 	//
 	//
 
+	core_linked_list_c< menu_text_style_c::reference_c * > menu_text_style_c::reference_c::_global_list;
+
 	menu_text_style_c::reference_c::reference_c()
-		: _key( mode_e_static, "" )
+		: _global_list_node( this )
+		, _key( mode_e_static, "" )
 		, _value( nullptr )
 	{
+		_global_list.insert_at_end( &_global_list_node );
 	}
 
-	void_c menu_text_style_c::reference_c::refresh()
+	menu_text_style_c::reference_c::~reference_c()
+	{
+		_global_list.remove( &_global_list_node );
+	}
+
+	void_c menu_text_style_c::reference_c::release_value()
+	{
+		if ( _value )
+		{
+			_value = nullptr;
+			on_refreshed.invoke( this );
+		}
+	}
+
+	void_c menu_text_style_c::reference_c::resolve_value()
 	{
 		assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
 		if ( _key == "[none]" )
@@ -378,6 +459,10 @@ namespace cheonsa
 		}
 		else
 		{
+			if ( _key == "e_window_text_p" )
+			{
+				int halt = 1;
+			}
 			_value = engine_c::get_instance()->get_menu_style_manager()->find_text_style( _key );
 		}
 		on_refreshed.invoke( this );
@@ -391,7 +476,7 @@ namespace cheonsa
 	void_c menu_text_style_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
-		refresh();
+		resolve_value();
 	}
 
 	menu_text_style_c const * menu_text_style_c::reference_c::get_value() const
@@ -458,6 +543,8 @@ namespace cheonsa
 		text_align_horizontal = menu_text_align_horizontal_e_left;
 		text_align_vertical_is_defined = false;
 		text_align_vertical = menu_text_align_vertical_e_center;
+		margin_is_defined = false;
+		margin = box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f );
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 		{
 			state_list[ i ].reset();
@@ -535,8 +622,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "line_spacing" );
 		if ( attribute )
 		{
-			line_spacing_is_defined = true;
-			ops::convert_string8_to_float32( attribute->get_value(), line_spacing );
+			line_spacing_is_defined = ops::convert_string8_to_float32( attribute->get_value(), line_spacing );
 		}
 
 		attribute = node->find_attribute( "glyph_spacing" );
@@ -583,6 +669,12 @@ namespace cheonsa
 			{
 				text_align_vertical = menu_text_align_vertical_e_bottom;
 			}
+		}
+
+		attribute = node->find_attribute( "margin" );
+		if ( attribute )
+		{
+			margin_is_defined = ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, margin.as_array(), 4 ) );
 		}
 
 		sint32_c state_index = 0;
@@ -645,6 +737,277 @@ namespace cheonsa
 			}
 			sub_node = sub_node->get_next_sister();
 		}
+	}
+
+
+
+
+	//
+	//
+	// menu_style_map_c::reference_c
+	//
+	//
+
+	core_linked_list_c< menu_style_map_c::reference_c * > menu_style_map_c::reference_c::_global_list;
+
+	menu_style_map_c::reference_c::reference_c()
+		: _global_list_node( this )
+		, _key()
+		, _value( nullptr )
+	{
+		_global_list.insert_at_end( &_global_list_node );
+	}
+
+	menu_style_map_c::reference_c::~reference_c()
+	{
+		_global_list.remove( &_global_list_node );
+	}
+
+	void_c menu_style_map_c::reference_c::release_value()
+	{
+		if ( _value )
+		{
+			_value = nullptr;
+			on_refreshed.invoke( this );
+		}
+	}
+
+	void_c menu_style_map_c::reference_c::resolve_value()
+	{
+		menu_style_map_c const * new_value = engine_c::get_instance()->get_menu_style_manager()->find_style_map( _key );
+		if ( _value != new_value )
+		{
+			_value = new_value;
+			on_refreshed.invoke( this );
+		}
+	}
+
+	void_c menu_style_map_c::reference_c::clear()
+	{
+		_key = string8_c();
+		_value = nullptr;
+		on_refreshed.invoke( this );
+	}
+
+	string8_c const & menu_style_map_c::reference_c::get_key() const
+	{
+		return _key;
+	}
+
+	void_c menu_style_map_c::reference_c::set_key( string8_c const & value )
+	{
+		_key = value;
+		resolve_value();
+	}
+
+	menu_style_map_c const * menu_style_map_c::reference_c::get_value() const
+	{
+		return _value;
+	}
+
+	void_c menu_style_map_c::reference_c::set_value( menu_style_map_c const * value )
+	{
+		_key = value ? value->key : string8_c();
+		_value = value;
+		on_refreshed.invoke( this );
+	}
+
+
+
+
+	//
+	//
+	// menu_style_map_c::entry_c
+	//
+	//
+
+	menu_style_map_c::entry_c::entry_c()
+		//: target_type( target_type_e_none )
+		//, target_name()
+		: target()
+		, style_key()
+		, anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom ) // anchor to all sides by default, so that element takes up full area of mother.
+		, anchor_measures() // default all measures to 0, so that element takes up full area of mother.
+	{
+	}
+
+	string8_c menu_style_map_c::entry_c::get_target_type() const
+	{
+		string8_c result;
+		sint32_c index = 0;
+		if ( ops::string8_find_index_of( target, string8_c( mode_e_static, ":" ), index ) )
+		{
+			result = ops::string8_sub_string( target, 0, index );
+		}
+		return result;
+	}
+
+	string8_c menu_style_map_c::entry_c::get_target_name() const
+	{
+		string8_c result;
+		sint32_c index = 0;
+		if ( ops::string8_find_index_of( target, string8_c( mode_e_static, ":" ), index ) )
+		{
+			result = ops::string8_sub_string( target, index + 1, target.get_length() - ( index + 1 ) );
+		}
+		return result;
+	}
+
+
+
+
+	//
+	//
+	// menu_style_map_c::property_c
+	//
+	//
+
+	menu_style_map_c::property_c::property_c()
+		: name()
+		, value()
+	{
+	}
+
+
+
+
+	//
+	//
+	// menu_style_map_c
+	//
+	//
+
+	menu_style_map_c::menu_style_map_c()
+		: key()
+		, entry_list()
+		, property_list()
+	{
+	}
+
+	menu_style_map_c::~menu_style_map_c()
+	{
+		for ( sint32_c i = 0; i < entry_list.get_length(); i++ )
+		{
+			delete entry_list[ i ];
+		}
+		for ( sint32_c i = 0; i < property_list.get_length(); i++ )
+		{
+			delete property_list[ i ];
+		}
+	}
+
+	void_c menu_style_map_c::load( data_scribe_markup_c::node_c const * node )
+	{
+		data_scribe_markup_c::attribute_c const * attribute;
+
+		attribute = node->find_attribute( "key" );
+		if ( attribute )
+		{
+			key = attribute->get_value();
+		}
+
+		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
+		while ( sub_node != nullptr )
+		{
+			if ( sub_node->get_value() == "entry" )
+			{
+				entry_c * entry = new entry_c();
+				entry_list.insert_at_end( entry );
+
+				attribute = sub_node->find_attribute( "target" );
+				if ( attribute )
+				{
+					entry->target = attribute->get_value();
+				}
+
+				attribute = sub_node->find_attribute( "style_key" );
+				if ( attribute )
+				{
+					entry->style_key = attribute->get_value();
+				}
+
+				attribute = sub_node->find_attribute( "anchor" );
+				if ( attribute )
+				{
+					entry->anchor = menu_anchor_e_none;
+					sint32_c index_of = 0;
+					if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "left" ), index_of ) )
+					{
+						entry->anchor |= menu_anchor_e_left;
+					}
+					if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "top" ), index_of ) )
+					{
+						entry->anchor |= menu_anchor_e_top;
+					}
+					if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "right" ), index_of ) )
+					{
+						entry->anchor |= menu_anchor_e_right;
+					}
+					if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "bottom" ), index_of ) )
+					{
+						entry->anchor |= menu_anchor_e_bottom;
+					}
+				}
+
+				attribute = sub_node->find_attribute( "anchor_measures" );
+				if ( attribute )
+				{
+					ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, entry->anchor_measures.as_array(), 4 ) );
+				}
+			}
+			else if ( sub_node->get_value() == "property" )
+			{
+				property_c * property = new property_c();
+				property_list.insert_at_end( property );
+
+				attribute = sub_node->find_attribute( "name" );
+				if ( attribute )
+				{
+					property->name = attribute->get_value();
+				}
+
+				attribute = sub_node->find_attribute( "value" );
+				if ( attribute )
+				{
+					property->value = attribute->get_value();
+				}
+			}
+			sub_node = sub_node->get_next_sister();
+		}
+	}
+
+	menu_style_map_c::entry_c const * menu_style_map_c::find_entry( string8_c const & target ) const
+	{
+		for ( sint32_c i = 0; i < entry_list.get_length(); i++ )
+		{
+			if ( entry_list[ i ]->target == target )
+			{
+				return entry_list[ i ];
+			}
+		}
+		return nullptr;
+	}
+
+	menu_style_map_c::property_c const * menu_style_map_c::find_property( string8_c const & name ) const
+	{
+		for ( sint32_c i = 0; i < property_list.get_length(); i++ )
+		{
+			if ( property_list[ i ]->name == name )
+			{
+				return property_list[ i ];
+			}
+		}
+		return nullptr;
+	}
+
+	boolean_c menu_style_map_c::find_property_as_float32( string8_c const & name, float32_c & property_value_as_float32 ) const
+	{
+		property_c const * property = find_property( name );
+		if ( property )
+		{
+			return ops::convert_string8_to_float32( property->value, property_value_as_float32 );
+		}
+		return false;
 	}
 
 
