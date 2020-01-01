@@ -10,6 +10,23 @@
 namespace cheonsa
 {
 
+	class menu_control_file_picker_item_c : public menu_control_collection_item_c
+	{
+	private:
+		string16_c _path; // absolute path of file or folder.
+		uint64_c _creation_time;
+		uint64_c _last_access_time;
+		uint64_c _last_write_time;
+		boolean_c _is_folder;
+
+	public:
+		menu_control_file_picker_item_c( ops::file_system_file_information_c const & file_information );
+
+		virtual resource_file_texture_c * get_icon_texture() const override;
+		virtual boolean_c get_value( string8_c const & key, string16_c & display_value, sint64_c & absolute_value ) const override;
+
+	};
+
 	class menu_control_file_picker_c : public menu_control_c
 	{
 	public:
@@ -17,6 +34,12 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
+		enum result_e
+		{
+			result_e_cancel,
+			result_e_okay,
+		};
+
 		enum mode_e
 		{
 			mode_e_load, // select a file or folder to load.
@@ -26,7 +49,7 @@ namespace cheonsa
 		typedef boolean_c( *can_load_call_back_f )( string16_c const & folder_or_file_path );
 
 	private:
-		menu_element_frame_c _element_frame; // name is "frame", makes the background of this control.
+		//menu_element_frame_c _element_frame; // name is "frame", makes the background of this control.
 
 		menu_control_button_c * _control_back_button; // name is "back_button", back button at top, left of address bar.
 		menu_control_button_c * _control_forward_button; // name is "forward_button", forward button at top, left of address bar.
@@ -47,6 +70,10 @@ namespace cheonsa
 
 		can_load_call_back_f _can_load_call_back; // if this call back is set, then this file dialog will call this function each time a file is selected in order to determine if that file can be chosen.
 
+		result_e _result;
+
+		void_c _handle_on_clicked( menu_event_information_c event_information );
+
 	public:
 		menu_control_file_picker_c();
 
@@ -66,7 +93,11 @@ namespace cheonsa
 
 		void_c refresh_shortcut_list(); // refreshes shortcut list, may need to be called when drives are added or removed.
 
-		void_c refresh_file_collection(); // refreshes file collection view.
+		void_c refresh_files_collection(); // refreshes file collection view.
+
+		result_e get_result() const;
+
+		core_event_c< void_c, menu_control_file_picker_c * > on_result; 
 
 	};
 

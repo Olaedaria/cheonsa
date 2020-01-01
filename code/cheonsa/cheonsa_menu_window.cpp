@@ -175,17 +175,19 @@ namespace cheonsa
 		//_select_mode = menu_select_mode_e_mouse;
 
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
+		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _local_edge_size, _local_edge_size, _local_edge_size, _local_title_bar_size ) );
 		_add_element( &_element_text );
 
 		_client_panel = new menu_control_panel_c();
 		_client_panel->set_name( string8_c( mode_e_static, "client_panel" ) );
 		_client_panel->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( _local_edge_size, _local_edge_size + _local_title_bar_size, _local_edge_size, _local_edge_size ) );
-		_add_control( _client_panel );
+		_give_control( _client_panel );
 
 		//_close_button = new menu_control_button_c();
 		//_close_button->set_name( string8_c( mode_e_static, "close_button" ) );
@@ -193,6 +195,16 @@ namespace cheonsa
 		//_add_control( _close_button );
 
 		set_style_map_key( string8_c( mode_e_static, "e_window" ) );
+	}
+
+	void_c menu_window_c::update_animations( float32_c time_step )
+	{
+		menu_control_c::update_animations( time_step );
+		boolean_c is_deep_text_focused = get_is_deep_text_focused();
+		_element_frame.set_is_selected( is_deep_text_focused );
+		_element_frame.set_is_pressed( _grabbed_element != grabbed_element_e_none );
+		_element_text.set_is_selected( is_deep_text_focused );
+		_element_text.set_is_pressed( _grabbed_element != grabbed_element_e_none );
 	}
 
 	void_c menu_window_c::update_transform_and_layout()
@@ -324,7 +336,8 @@ namespace cheonsa
 
 	void_c menu_window_c::set_position( vector32x2_c const & value )
 	{
-		_local_origin = value;
+		_local_origin.a = ops::math_round_down( value.a );
+		_local_origin.b = ops::math_round_down( value.b );
 		update_transform_and_layout();
 	}
 
@@ -335,18 +348,19 @@ namespace cheonsa
 
 	void_c menu_window_c::set_size( vector32x2_c const & value )
 	{
-		_local_box.maximum = value;
+		_local_box.maximum.a = ops::math_round_down( value.a );
+		_local_box.maximum.b = ops::math_round_down( value.b );
 		update_transform_and_layout();
 	}
 
-	void_c menu_window_c::add_control( menu_control_c * control )
+	void_c menu_window_c::give_control( menu_control_c * control )
 	{
-		_client_panel->add_control( control );
+		_client_panel->give_control( control );
 	}
 
-	void_c menu_window_c::remove_control( menu_control_c * control )
+	menu_control_c * menu_window_c::take_control( menu_control_c * control )
 	{
-		_client_panel->remove_control( control );
+		return _client_panel->take_control( control );
 	}
 
 }

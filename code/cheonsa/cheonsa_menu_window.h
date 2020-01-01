@@ -56,6 +56,7 @@ namespace cheonsa
 	public:
 		menu_window_c();
 
+		virtual void_c update_animations( float32_c time_step ) override;
 		virtual void_c update_transform_and_layout() override;
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
 
@@ -88,8 +89,8 @@ namespace cheonsa
 		vector32x2_c get_size() const;
 		void_c set_size( vector32x2_c const & value );
 
-		void_c add_control( menu_control_c * control );
-		void_c remove_control( menu_control_c * control );
+		void_c give_control( menu_control_c * control );
+		menu_control_c * take_control( menu_control_c * control );
 
 	};
 

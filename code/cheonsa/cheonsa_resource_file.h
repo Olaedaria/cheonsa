@@ -81,8 +81,8 @@ namespace cheonsa
 			}
 		}
 
-		resource_file_reference_c( resource_file_type_c * other_value )
-			: _reference( other_value )
+		resource_file_reference_c( resource_file_type_c * other )
+			: _reference( other )
 		{
 			if ( _reference )
 			{
@@ -99,27 +99,32 @@ namespace cheonsa
 			}
 		}
 
-		resource_file_reference_c & operator = ( resource_file_type_c * other_reference )
+		resource_file_reference_c & operator = ( resource_file_type_c * other )
 		{
-			if ( _reference != other_reference )
+			if ( other )
 			{
-				if ( _reference != nullptr )
-				{
-					assert( _reference->_reference_count > 0 );
-					_reference->_reference_count--;
-				}
-				_reference = other_reference;
-				if ( _reference != nullptr )
-				{
-					_reference->_reference_count++;
-				}
+				other->_reference_count++;
 			}
+			if ( _reference )
+			{
+				_reference->_reference_count--;
+			}
+			_reference = other;
 			return *this;
 		}
 
 		resource_file_reference_c & operator = ( resource_file_reference_c & other )
 		{
-			return operator = ( other._reference );
+			if ( other._reference )
+			{
+				other._reference->_reference_count++;
+			}
+			if ( _reference )
+			{
+				_reference->_reference_count--;
+			}
+			_reference = other._reference;
+			return *this;
 		}
 
 		resource_file_type_c * operator -> () const

@@ -211,62 +211,28 @@ namespace cheonsa
 		menu_text_flag_e_underline = 0x04,
 	};
 
-	// built in shared color styles.
-	// used by shared_colors in style manager.
-	// combines different types of controls with states and two colors.
-	// types of controls:
-	// "window" is intended for windows, panels, labels.
-	// "button" is intended for most buttons, scroll bars.
-	// "button_prime" is for buttons that you want to draw the user's attention to, the default choice in a multiple-choice dialog, the close button on a window, etc. they should pop out more than the other buttons that use the normal "button" colors.
-	// "field" is for text boxes, combo boxes, list boxes, check boxes, etc.
-	// types of visual states:
-	// "normal"
-	// "selected"
-	// "pressed"
-	// "disabled"
-	// types of colors:
-	// "base" is intended for backgrounds.
-	// "accent" is intended for borders, title bars, and text.
-	enum menu_shared_color_e
+	enum menu_shared_color_class_e
 	{
-		menu_shared_color_e_window_normal_base,
-		menu_shared_color_e_window_normal_accent,
-		menu_shared_color_e_window_selected_base,
-		menu_shared_color_e_window_selected_accent,
-		menu_shared_color_e_window_pressed_base,
-		menu_shared_color_e_window_pressed_accent,
-		menu_shared_color_e_window_disabled_base,
-		menu_shared_color_e_window_disabled_accent,
-
-		menu_shared_color_e_button_normal_base,
-		menu_shared_color_e_button_normal_accent,
-		menu_shared_color_e_button_selected_base,
-		menu_shared_color_e_button_selected_accent,
-		menu_shared_color_e_button_pressed_base,
-		menu_shared_color_e_button_pressed_accent,
-		menu_shared_color_e_button_disabled_base,
-		menu_shared_color_e_button_disabled_accent,
-
-		menu_shared_color_e_button_prime_normal_base,
-		menu_shared_color_e_button_prime_normal_accent,
-		menu_shared_color_e_button_prime_selected_base,
-		menu_shared_color_e_button_prime_selected_accent,
-		menu_shared_color_e_button_prime_pressed_base,
-		menu_shared_color_e_button_prime_pressed_accent,
-		menu_shared_color_e_button_prime_disabled_base,
-		menu_shared_color_e_button_prime_disabled_accent,
-
-		menu_shared_color_e_field_normal_base,
-		menu_shared_color_e_field_normal_accent,
-		menu_shared_color_e_field_selected_base,
-		menu_shared_color_e_field_selected_accent,
-		menu_shared_color_e_field_pressed_base,
-		menu_shared_color_e_field_pressed_accent,
-		menu_shared_color_e_field_disabled_base,
-		menu_shared_color_e_field_disabled_accent,
-
-		menu_shared_color_e_count_
+		menu_shared_color_class_e_window,
+		menu_shared_color_class_e_button,
+		menu_shared_color_class_e_field,
+		menu_shared_color_class_e_count_,
 	};
+
+	// frames can use all three, via rgb channels of texture.
+	// texts will only use secondary.
+	enum menu_shared_color_slot_e
+	{
+		menu_shared_color_slot_e_primary, // used for frames.
+		menu_shared_color_slot_e_secondary, // used for texts.
+		menu_shared_color_slot_e_accent, // used for frames (accents).
+		menu_shared_color_slot_e_count_
+	};
+
+	inline sint32_c get_shared_color_index( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot )
+	{
+		return ( color_class * menu_state_e_count_ * menu_shared_color_slot_e_count_ ) + ( color_state * menu_shared_color_slot_e_count_ ) + color_slot;
+	}
 
 	// these define color values that can be shared and used by any number of elements.
 	// the menu style manager holds a built in fixed length collection of these, one for each enum menu_shared_color_e, these built in shared colors are intended to be controlled by the program at run time.
@@ -300,8 +266,8 @@ namespace cheonsa
 		};
 
 	public:
-		string8_c key;
 		sint32_c index;
+		string8_c key;
 		vector32x4_c value;
 
 	public:
@@ -309,6 +275,7 @@ namespace cheonsa
 
 		void_c reset();
 		void_c load( data_scribe_markup_c::node_c const * node );
+		void_c initialize( sint32_c index, string8_c const & key, vector32x4_c const & value );
 
 	};
 
@@ -357,7 +324,7 @@ namespace cheonsa
 		class state_c
 		{
 		public:
-			menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
+			//menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
 			vector32x4_c color; // color tint, multiplied with texture.
 			float32_c saturation; // color saturation, applied to ( element_color.rgb * texture.rgb ).
 			float32_c apparent_scale; // when rendered, the frame is scaled by this factor around its center point. this is an apparent scale, meaning that it affects the visual representation only, and does not affect the actual scale of the control itself or hit detection.
@@ -426,7 +393,7 @@ namespace cheonsa
 		class state_c
 		{
 		public:
-			menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
+			//menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
 			vector32x4_c color; // color tint, multiplied with texture.
 			float32_c saturation; // multiplicative color saturation.
 			float32_c apparent_scale; // multiplicative apparent element scale.
@@ -448,8 +415,8 @@ namespace cheonsa
 		boolean_c size_is_defined;
 		float32_c size; // size of font in pixels.
 
-		boolean_c color_style_is_defined;
-		menu_color_style_c::reference_c color_style; // color style defined color of font.
+		//boolean_c color_style_is_defined;
+		//menu_color_style_c::reference_c color_style; // color style defined color of font.
 
 		boolean_c color_is_defined;
 		vector32x4_c color; // color of font.
@@ -534,15 +501,7 @@ namespace cheonsa
 		class entry_c
 		{
 		public:
-			//enum target_type_e
-			//{
-			//	target_type_e_none,
-			//	target_type_e_element, // maps an element style to a sub-element in this control.
-			//	target_type_e_control, // maps a control style map to a sub-control in this control.
-			//};
-			string8_c target;
-			//target_type_e target_type;
-			//string8_c target_name; // the name of the element or control to apply the style or style map to.
+			string8_c target; // prefixed with "element:" if this maps to an element, prefixed with "control:" if this maps to a control.
 			string8_c style_key; // the key of the element style or control style map to apply to the target element or control. if the target is a frame element then this will be a frame style key, if the target is a text element then this will be a text style key, if the target is a control then this will be a style map key.
 			menu_anchor_e anchor; // used to adjust the insets of the element rectangle relative to the control rectangle.
 			box32x2_c anchor_measures;
@@ -648,15 +607,15 @@ namespace cheonsa
 
 
 	// used to pass additional info about input events to event handlers.
-	struct menu_event_info_c
+	struct menu_event_information_c
 	{
 	public:
 		menu_control_c * control; // the control that is receiving the event.
 		input_event_c * event; // the input event that caused the menu control event to trigger. currently only set for on_clicked and on_double_clicked events. otherwise always nullptr.
 
 	public:
-		menu_event_info_c();
-		menu_event_info_c( menu_control_c * control, input_event_c * event );
+		menu_event_information_c();
+		menu_event_information_c( menu_control_c * control, input_event_c * event );
 
 	};
 
@@ -669,6 +628,8 @@ namespace cheonsa
 		public:
 			video_pixel_shader_c * pixel_shader; // optional pixel shader to use. if it's nullptr then the renderer will pick a default given the type of the mother_element.
 			resource_file_texture_c * texture; // optional texture to use. if it's nullptr then the renderer will pick a default given the type of the mother_element. (only used by frame type elements though).
+			vector32x4_c color;
+			vector32x4_c shared_colors[ 3 ]; // maps to menu_shared_color_slot_e.
 			uint32_c vertex_start;
 			uint32_c vertex_count;
 			uint32_c index_start;
@@ -693,10 +654,10 @@ namespace cheonsa
 		void_c reset();
 
 		// interprets the input_vertex_list as a list of quads to build the index_list.
-		void_c append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture );
+		void_c append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] );
 
 		// generates vertices and indices for a box.
-		void_c append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color );
+		void_c append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] );
 
 	};
 

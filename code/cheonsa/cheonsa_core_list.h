@@ -688,24 +688,19 @@ namespace cheonsa
 		// sorts the values in this list using an insertion sort algorithm.
 		// insertion sort uses relative valuations of list item values (compares list item values to each other) to sort.
 		// relative_value_function is a function that returns -1 if a < b, 0 if a == b, and 1 if a > b.
-		void_c insertion_sort( sint32_c (*relative_value_function)( value_type_c const & a, value_type_c const & b ), boolean_c invert ) // insertion sort is good for sorting strings since they don't have an absolute numeric value that we can sort by, instead they are sorted by comparing for relative inequality against each other.
+		// insertion sort is good for sorting strings since they don't have an absolute numeric value that we can sort by, instead they are sorted by comparing for relative inequality against each other.
+		void_c insertion_sort( sint32_c (*relative_value_function)( value_type_c const & a, value_type_c const & b ), boolean_c invert )
 		{
 			for ( sint32_c i = 1; i < _array_length_used; i++ )
 			{
-				value_type_c value_to_insert = _array[ i ];
-				sint32_c hole_index = i;
-				sint32_c t = relative_value_function( value_to_insert, _array[ hole_index - 1 ] );
-				assert( t >= -1 && t <= 1 );
-				if ( invert )
+				value_type_c value = _array[ i ];
+				sint32_c j = i - 1;
+				while ( j >= 0 && ( relative_value_function( _array[ j ], _array[ i ] ) * ( invert ? -1 : 1 ) ) > 0 )
 				{
-					t = -t;
+					_array[ j + 1 ] = _array[ j ];
+					j--;
 				}
-				while ( ( hole_index > 0 ) && ( t < 0 ) )
-				{
-					_array[ hole_index ] = _array[ hole_index - 1 ];
-					hole_index--;
-				}
-				_array[ hole_index ] = value_to_insert;
+				_array[ j + 1 ] = value;
 			}
 		}
 

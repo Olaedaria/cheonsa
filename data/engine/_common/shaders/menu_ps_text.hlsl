@@ -11,6 +11,6 @@ void ps_main( in vertex_menu_view_c input, out float4 output : SV_Target0 )
 	float weight = input.parameters.y;
 	float softness = input.parameters.z;
 	a = smoothstep( 0.5 - softness - weight, 0.5 + softness - weight, a );
-	output = float4( 1.0, 1.0, 1.0, a ) * input.color * menu_color;
+	output = float4( menu_draw_shared_colors[ 1 ].rgb, a ) * input.color * menu_draw_color * menu_color;
 	//output.rgb = adjust_color_saturation( output.rgb, menu_saturation );
 }

@@ -118,6 +118,12 @@ cbuffer menu_batch_block : register( b7 )
 	float4 menu_clip_plane_stack[ menu_clip_plane_stack_count ]; // these work as long as each set of planes defines an enclosed convex shape, then we can have shapes within shapes.
 };
 
+cbuffer menu_draw_block : register( b8 )
+{
+	float4 menu_draw_color;
+	float4 menu_draw_shared_colors[ 3 ];
+};
+
 struct vertex_mesh_c // should match "cheonsa::video_renderer_vertex_mesh_base_c" in "cheonsa_video_renderer_types.h"
 {
 	float3 position : POSITION0;

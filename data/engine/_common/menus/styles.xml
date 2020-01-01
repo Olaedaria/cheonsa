@@ -1,44 +1,35 @@
 <styles>
 	<frame
 		key="e_panel_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state color_style="e_window_normal_base"/>
-		<state color_style="e_window_selected_base"/>
-		<state color_style="e_window_pressed_base"/>
-		<state color_style="e_window_disabled_base"/>
 	</frame>
 
 	<frame
 		key="e_window_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 27"
 		texture_map_fill_middle="true">
-		<state color_style="e_window_normal_base"/>
-		<state color_style="e_window_selected_base"/>
-		<state color_style="e_window_pressed_base"/>
-		<state color_style="e_window_disabled_base"/>
 	</frame>
 
 	<frame
 		key="e_field_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
-		texture_map_origin="1 79"
+		texture_map_origin="1 105"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_base"/>
-		<state color_style="e_field_selected_base"/>
-		<state color_style="e_field_pressed_base"/>
-		<state color_style="e_field_disabled_base"/>
 	</frame>
 
 	<text
@@ -55,10 +46,6 @@
 		glyph_spacing="0.0"
 		text_align_horizontal="left"
 		text_align_vertical="top">
-		<state color_style="e_window_normal_accent"/>
-		<state color_style="e_window_selected_accent"/>
-		<state color_style="e_window_pressed_accent"/>
-		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<text
@@ -74,10 +61,6 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="top">
-		<state color_style="e_window_normal_accent"/>
-		<state color_style="e_window_selected_accent"/>
-		<state color_style="e_window_pressed_accent"/>
-		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<text
@@ -93,10 +76,6 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="top">
-		<state color_style="e_window_normal_accent"/>
-		<state color_style="e_window_selected_accent"/>
-		<state color_style="e_window_pressed_accent"/>
-		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<text
@@ -106,31 +85,24 @@
 		color="1.0 1.0 1.0 1.0"
 		offset="0.0 0.0"
 		skew="0.0"
-		weight="0.0125"
+		weight="0.0"
 		softness="0.0"
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="center">
-		<state color_style="e_window_normal_accent"/>
-		<state color_style="e_window_selected_accent"/>
-		<state color_style="e_window_pressed_accent"/>
-		<state color_style="e_window_disabled_accent"/>
 	</text>
 
 	<frame
 		key="e_button_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 53"
 		texture_map_fill_middle="true">
-		<state color_style="e_button_normal_base"/>
-		<state color_style="e_button_selected_base"/>
-		<state color_style="e_button_pressed_base"/>
-		<state color_style="e_button_disabled_base"/>
 	</frame>
 
 	<text
@@ -140,17 +112,13 @@
 		color="1.0 1.0 1.0 1.0"
 		offset="0.0 0.0"
 		skew="0.0"
-		weight="0.0125"
+		weight="0.0"
 		softness="0.0"
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
 		glyph_spacing="0.0"
 		align_horizontal="center"
 		align_vertical="center">
-		<state color_style="e_button_normal_accent"/>
-		<state color_style="e_button_selected_accent"/>
-		<state color_style="e_button_pressed_accent"/>
-		<state color_style="e_button_disabled_accent"/>
 	</text>
 
 	<text
@@ -160,31 +128,24 @@
 		color="1.0 1.0 1.0 1.0"
 		offset="0.0 0.0"
 		skew="0.0"
-		weight="0.0125"
+		weight="0.0"
 		softness="0.0"
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
 		glyph_spacing="0.0"
 		align_horizontal="center"
 		align_vertical="center">
-		<state color_style="e_button_normal_accent"/>
-		<state color_style="e_button_selected_accent"/>
-		<state color_style="e_button_pressed_accent"/>
-		<state color_style="e_button_disabled_accent"/>
 	</text>
 
 	<frame
 		key="e_button_prime_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
-		texture_map_origin="1 53"
+		texture_map_origin="1 79"
 		texture_map_fill_middle="true">
-		<state color_style="e_button_prime_normal_base"/>
-		<state color_style="e_button_prime_selected_base"/>
-		<state color_style="e_button_prime_pressed_base"/>
-		<state color_style="e_button_prime_disabled_base"/>
 	</frame>
 
 	<text
@@ -201,10 +162,6 @@
 		glyph_spacing="0.0"
 		align_horizontal="center"
 		align_vertical="center">
-		<state color_style="e_button_prime_normal_accent"/>
-		<state color_style="e_button_prime_selected_accent"/>
-		<state color_style="e_button_prime_pressed_accent"/>
-		<state color_style="e_button_prime_disabled_accent"/>
 	</text>
 
 	<text
@@ -221,10 +178,6 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="center">
-		<state color_style="e_field_normal_accent"/>
-		<state color_style="e_field_selected_accent"/>
-		<state color_style="e_field_pressed_accent"/>
-		<state color_style="e_field_disabled_accent"/>
 	</text>
 
 	<frame
@@ -235,10 +188,6 @@
 		texture_map_edges="8 8 8 8"
 		texture_map_origin="1 105"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_accent"/>
-		<state color_style="e_field_selected_accent"/>
-		<state color_style="e_field_pressed_accent"/>
-		<state color_style="e_field_disabled_accent"/>
 	</frame>
 
 	<frame
@@ -249,10 +198,6 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_base" color="1.0 1.0 1.0 0.0"/>
-		<state color_style="e_field_selected_base" color="1.0 1.0 1.0 0.25"/>
-		<state color_style="e_field_pressed_base" color="1.0 1.0 1.0 0.25"/>
-		<state color_style="e_field_disabled_base" color="1.0 1.0 1.0 0.25"/>
 	</frame>
 
 	<frame
@@ -263,38 +208,28 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
-		<state color_style="e_field_selected_accent" color="1.0 1.0 1.0 1.0"/>
-		<state color_style="e_field_pressed_accent" color="1.0 1.0 1.0 1.0"/>
-		<state color_style="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
 	</frame>
 
 	<frame
 		key="e_list_item_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_base"/>
-		<state color_style="e_field_selected_base"/>
-		<state color_style="e_field_pressed_base"/>
-		<state color_style="e_field_disabled_base"/>
 	</frame>
 
 	<frame
 		key="e_list_item_outlined_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 1"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
-		<state color_style="e_field_selected_accent" color="1.0 1.0 1.0 0.5"/>
-		<state color_style="e_field_pressed_accent" color="1.0 1.0 1.0 0.5"/>
-		<state color_style="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
 	</frame>
 
 	<frame
@@ -305,10 +240,6 @@
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 27"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_accent" color="1.0 1.0 1.0 0.5"/>
-		<state color_style="e_field_selected_accent" color="1.0 1.0 1.0 0.5"/>
-		<state color_style="e_field_pressed_accent" color="1.0 1.0 1.0 0.5"/>
-		<state color_style="e_field_disabled_accent" color="1.0 1.0 1.0 0.5"/>
 	</frame>
 
 	<text
@@ -325,24 +256,17 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="center">
-		<state color_style="e_field_normal_accent"/>
-		<state color_style="e_field_selected_accent"/>
-		<state color_style="e_field_pressed_accent"/>
-		<state color_style="e_field_disabled_accent"/>
 	</text>
 
 	<frame
 		key="e_combo_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="50 24"
 		texture_map_edges="4 4 25 4"
-		texture_map_origin="1 131"
+		texture_map_origin="1 157"
 		texture_map_fill_middle="true">
-		<state color_style="e_field_normal_base"/>
-		<state color_style="e_field_selected_base"/>
-		<state color_style="e_field_pressed_base"/>
-		<state color_style="e_field_disabled_base"/>
 	</frame>
 
 	<map key="e_panel">
@@ -411,7 +335,7 @@
 	</map>
 
 	<map key="e_list_item">
-		<entry target="element:frame" style_key="e_field_frame"/>
+		<entry target="element:frame" style_key="e_window_frame"/>
 		<entry target="element:selected_frame" style_key="e_list_item_selected_frame"/>
 		<entry target="element:text" style_key="e_list_item_text_p"/>
 	</map>
@@ -440,7 +364,7 @@
 
 	<map key="e_menu_list_item">
 		<entry target="element:frame" style_key="e_list_item_frame"/>
-		<entry target="element:selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry target="element:selected_frame" style_key="[invisible]"/>
 		<entry target="element:text" style_key="e_list_item_text_p" anchor_measures="10 0 10 0"/>
 	</map>
 
@@ -449,15 +373,77 @@
 		<entry target="element:grip_frame" style_key="e_scroll_grip_frame"/>
 	</map>
 
+	<frame
+		key="e_collection_column_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="79 53"
+		texture_map_fill_middle="true">
+	</frame>
+
+	<text
+		key="e_collection_column_text"
+		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
+		size="10.0"
+		color="0.0 0.0 0.0 1.0"
+		offset="0.0 0.0"
+		skew="0.0"
+		weight="0.0"
+		softness="0.0"
+		paragraph_spacing="5.0"
+		line_spacing="0.0"
+		glyph_spacing="0.0"
+		align_horizontal="left"
+		align_vertical="center">
+	</text>
+
+	<frame
+		key="e_collection_item_selected_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="79 28"
+		texture_map_fill_middle="true">
+	</frame>
+
+	<frame
+		key="e_collection_item_icon_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="scale_to_fit"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="79 28"
+		texture_map_fill_middle="true">
+	</frame>
+
+	<text
+		key="e_collection_item_text"
+		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
+		size="12.0"
+		offset="0.0 0.0"
+		skew="0.0"
+		weight="0.0"
+		softness="0.0"
+		paragraph_spacing="5.0"
+		line_spacing="0.0"
+		glyph_spacing="0.0">
+	</text>
+
 	<map key="e_collection">
 		<entry target="element:frame" style_key="e_field_frame"/>
 		<entry target="element:mouse_selected_frame" style_key="e_list_item_selected_frame"/>
 		<entry target="element:last_selected_frame" style_key="e_list_item_outlined_frame"/>
-		<entry target="element:column_frame" style_key="e_button_frame"/>
-		<entry target="element:column_text" style_key="e_button_text_p"/>
-		<entry target="element:item_selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry target="element:item_icon_frame" style_key=""/>
-		<entry target="element:item_text" style_key="e_field_text_p"/>
+		<entry target="element:column_frame" style_key="e_collection_column_frame"/>
+		<entry target="element:column_text" style_key="e_collection_column_text"/>
+		<entry target="element:item_selected_frame" style_key="e_collection_item_selected_frame"/>
+		<entry target="element:item_icon_frame" style_key="e_collection_item_icon_frame"/>
+		<entry target="element:item_text" style_key="e_collection_item_text"/>
 		<entry target="control:vertical_scroll" style_key="e_scroll"/>
 	</map>
 

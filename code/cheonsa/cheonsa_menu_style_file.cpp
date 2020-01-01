@@ -16,7 +16,7 @@ namespace cheonsa
 		}
 
 		sint64_c file_modified_time = 0;
-		if ( !ops::data_get_file_or_folder_modified_time( _absolute_file_path, file_modified_time ) )
+		if ( !ops::file_system_get_file_or_folder_modified_time( _absolute_file_path, file_modified_time ) )
 		{
 			return false;
 		}

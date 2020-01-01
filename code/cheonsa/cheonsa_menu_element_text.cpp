@@ -6,6 +6,354 @@
 namespace cheonsa
 {
 
+	void_c menu_element_text_c::_build_draw_list()
+	{
+		assert( _mother_control );
+
+		_draw_list.reset();
+
+		if ( !_is_showing_from_style || !_is_showing || _local_color.d <= 0.0f )
+		{
+			return;
+		}
+
+		// get text style, the text element must have one in order to be rendered.
+		menu_text_style_c const * text_style = _text_style_reference.get_value();
+		if ( !text_style )
+		{
+			text_style = engine_c::get_instance()->get_menu_style_manager()->get_default_text_style();
+		}
+
+		// last moment text reflow.
+		if ( _is_glyph_layout_dirty )
+		{
+			_do_glyph_layout();
+		}
+
+		// state color and saturation.
+		menu_state_e state = get_state();
+		menu_text_style_c::state_c const & text_style_state = text_style->state_list[ state ];
+		//vector32x4_c element_color = text_style->state_list[ state ].get_expressed_color() * _local_color;
+		//float32_c element_saturation = text_style->state_list[ state ].saturation;
+
+		vector32x4_c element_color = text_style_state.get_expressed_color() * _local_color;
+		vector32x4_c element_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
+		menu_color_style_c * shared_color = nullptr;
+		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
+		assert( shared_color );
+		element_shared_colors[ 0 ] = shared_color->value;
+		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
+		assert( shared_color );
+		element_shared_colors[ 1 ] = shared_color->value;
+		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
+		assert( shared_color );
+		element_shared_colors[ 2 ] = shared_color->value;
+
+		// these lists will be used to simultaniously build geometry for different layers.
+		// at the end, they will be appened to the draw batch so that the layers are drawn in the correct order.
+		// static, so not thread safe.
+		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_selection;
+		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_glyphs;
+		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_cursor;
+
+		struct laid_out_sprite_c
+		{
+			resource_file_texture_c * texture_resource;
+			vector32x4_c color;
+			box32x2_c box;
+			box32x2_c map;
+		};
+
+		core_list_c< laid_out_sprite_c > sprite_list;
+
+		sint32_c selected_character_start;
+		sint32_c selected_character_count;
+		get_selected_text_range( selected_character_start, selected_character_count );
+		sint32_c selected_character_end = selected_character_start + selected_character_count;
+
+		box32x2_c margin = _get_style_margin();
+
+		float32_c vertically_algined_y = margin.minimum.b;
+		menu_text_align_vertical_e text_align_vertical = _get_style_text_align_vertical();
+		if ( text_align_vertical == menu_text_align_vertical_e_center )
+		{
+			float32_c effective_height = _local_box.get_height() - margin.minimum.b - margin.maximum.b;
+			if ( effective_height < 0.0f )
+			{
+				effective_height = 0.0f;
+			}
+			vertically_algined_y = ( effective_height * 0.5f ) - ( get_content_height() * 0.5f );
+		}
+		else if ( text_align_vertical == menu_text_align_vertical_e_bottom )
+		{
+			vertically_algined_y = _local_box.get_height() - margin.maximum.b - get_content_height();
+		}
+
+		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
+		{
+			menu_element_text_c::text_paragraph_c const * paragraph = _paragraph_list[ i ];
+
+			float32_c paragraph_left = _local_box.minimum.a + margin.minimum.a + _content_offset.a;
+			float32_c paragraph_right = paragraph_left + _local_box.get_width() - ( margin.maximum.a * 2 );
+			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
+			float32_c paragraph_bottom = paragraph_top + paragraph->_content_height;
+
+			// render this paragraph if it is visible.
+			if ( paragraph_bottom >= _local_box.minimum.b && paragraph_top <= _local_box.maximum.b )
+			{
+				for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
+				{
+					text_line_c const * line = &paragraph->_line_list[ j ];
+
+					float32_c line_left = paragraph_left + line->_left; // baseline offset from left.
+					float32_c line_top = paragraph_top + line->_top;
+					float32_c line_top_baseline = line_top + line->_ascender; // baseline offset from top.
+					float32_c line_bottom = line_top_baseline - line->_descender;
+
+					// render this line if it is visible.
+					if ( line_bottom >= _local_box.minimum.b && line_top <= _local_box.maximum.b )
+					{
+						// draw selection for current line.
+						if ( ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) && selected_character_start != selected_character_end && line->_character_start < selected_character_end && selected_character_start < line->_character_end )
+						{
+							menu_element_text_c::text_glyph_c const * glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selected_character_start, line->_character_start ) - paragraph->_character_start ];
+							float32_c selection_left = line_left + glyph_left->_left;
+							menu_element_text_c::text_glyph_c const * glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selected_character_end, line->_character_end ) - 1 - paragraph->_character_start ];
+							float32_c selection_right = line_left + glyph_right->_left + glyph_right->_horizontal_advance;
+							float32_c selection_top = line_top;
+							float32_c selection_bottom = line_bottom;
+
+							menu_color_style_c const * selection_color_style = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
+							assert( selection_color_style );
+							vector32x4_c selection_color = selection_color_style->value;
+							selection_color.d *= 0.25f;
+
+							video_renderer_vertex_menu_c * vertex = vertex_list_for_selection.emplace_at_end();
+							vertex->position.a = ( selection_left );
+							vertex->position.b = ( selection_top );
+							vertex->color = selection_color;
+
+							vertex = vertex_list_for_selection.emplace_at_end();
+							vertex->position.a = ( selection_left );
+							vertex->position.b = ( selection_bottom );
+							vertex->color = selection_color;
+
+							vertex = vertex_list_for_selection.emplace_at_end();
+							vertex->position.a = ( selection_right );
+							vertex->position.b = ( selection_top );
+							vertex->color = selection_color;
+
+							vertex = vertex_list_for_selection.emplace_at_end();
+							vertex->position.a = ( selection_right );
+							vertex->position.b = ( selection_bottom );
+							vertex->color = selection_color;
+						}
+
+						sint32_c glyph_start = line->_character_start - paragraph->_character_start;
+						sint32_c glyph_end = line->_character_end - paragraph->_character_start;
+						for ( sint32_c k = glyph_start; k < glyph_end; k++ )
+						{
+							char16_c character = _plain_text.character_list[ paragraph->_character_start + k ];
+							menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ k ];
+							assert( laid_out_glyph->_style_index != -1 );
+							menu_text_glyph_style_c const * text_glyph_style = _text_glyph_style_cache[ laid_out_glyph->_style_index ];
+							vector32x4_c laid_out_glyph_color = text_glyph_style->color;// * element_color;
+							if ( laid_out_glyph_color.d != 0.0f )
+							{
+								if ( ( character & 0xF000 ) != 0xF000 )
+								{
+									if ( laid_out_glyph->_glyph )
+									{
+										assert( laid_out_glyph->_glyph->key.code_point == character );
+
+										// this glyph is displayable.
+										float32_c glyph_left = line_left + laid_out_glyph->_left + laid_out_glyph->_box.minimum.a;
+										float32_c glyph_top = line_top_baseline + laid_out_glyph->_box.minimum.b;
+										float32_c glyph_right = line_left + laid_out_glyph->_left + laid_out_glyph->_box.maximum.a;
+										float32_c glyph_bottom = line_top_baseline + laid_out_glyph->_box.maximum.b;
+										float32_c glyph_map_texture_slice_index = static_cast< float32_c >( laid_out_glyph->_glyph->atlas_index );
+
+										if ( glyph_right >= _local_box.minimum.a && glyph_left <= _local_box.maximum.a && glyph_bottom >= _local_box.minimum.b && glyph_top <= _local_box.maximum.b )
+										{
+											float32_c skew = text_glyph_style->skew;
+											float32_c softness_bias = 0.5f / text_glyph_style->size; // softness bias, so that edges are base-line level of soft (anti-aliased) by default.
+											vector32x4_c parameters = vector32x4_c( text_glyph_style->skew, text_glyph_style->weight, text_glyph_style->softness + softness_bias, static_cast< float32_c >( k + paragraph->_character_start ) );
+
+											video_renderer_vertex_menu_c * vertex = vertex_list_for_glyphs.emplace_at_end(); // top left.
+											vertex->position.a = ( glyph_left - ( laid_out_glyph->_box.minimum.b * skew ) ); // rounding coordinates isn't neccessary but it keeps all text looking consistently sharp even when positioned at sub-pixel coordinates.
+											vertex->position.b = ( glyph_top );
+											vertex->position.c = 0.0f;
+											vertex->texture.a = laid_out_glyph->_glyph->map.minimum.a;
+											vertex->texture.b = laid_out_glyph->_glyph->map.minimum.b;
+											vertex->texture.c = glyph_map_texture_slice_index;
+											vertex->color = laid_out_glyph_color;
+											vertex->parameters = parameters;
+
+											vertex = vertex_list_for_glyphs.emplace_at_end(); // bottom left.
+											vertex->position.a = ( glyph_left + ( laid_out_glyph->_box.maximum.b * skew ) );
+											vertex->position.b = ( glyph_bottom );
+											vertex->position.c = 0.0f;
+											vertex->texture.a = laid_out_glyph->_glyph->map.minimum.a;
+											vertex->texture.b = laid_out_glyph->_glyph->map.maximum.b;
+											vertex->texture.c = glyph_map_texture_slice_index;
+											vertex->color = laid_out_glyph_color;
+											vertex->parameters = parameters;
+
+											vertex = vertex_list_for_glyphs.emplace_at_end(); // top right.
+											vertex->position.a = ( glyph_right - ( laid_out_glyph->_box.minimum.b * skew ) );
+											vertex->position.b = ( glyph_top );
+											vertex->position.c = 0.0f;
+											vertex->texture.a = laid_out_glyph->_glyph->map.maximum.a;
+											vertex->texture.b = laid_out_glyph->_glyph->map.minimum.b;
+											vertex->texture.c = glyph_map_texture_slice_index;
+											vertex->color = laid_out_glyph_color;
+											vertex->parameters = parameters;
+
+											vertex = vertex_list_for_glyphs.emplace_at_end(); // bottom right.
+											vertex->position.a = ( glyph_right + ( laid_out_glyph->_box.maximum.b * skew ) );
+											vertex->position.b = ( glyph_bottom );
+											vertex->position.c = 0.0f;
+											vertex->texture.a = laid_out_glyph->_glyph->map.maximum.a;
+											vertex->texture.b = laid_out_glyph->_glyph->map.maximum.b;
+											vertex->texture.c = glyph_map_texture_slice_index;
+											vertex->color = laid_out_glyph_color;
+											vertex->parameters = parameters;
+										}
+									}
+								}
+								else
+								{
+									// this is an entity.
+									menu_text_entity_c * entity = paragraph->_entity_list[ character & 0x0FFF ];
+									if ( entity->type_code == menu_text_entity_sprite_c::type_code_static() )
+									{
+										// this is a sprite entity.
+										menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
+										if ( entity_sprite->value.get_is_ready() )
+										{
+											resource_file_sprite_set_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
+											resource_file_sprite_set_c::frame_c const * current_frame = entity_sprite->value.get_frame();
+
+											float32_c scale_to_size = text_glyph_style->size / entity_sprite->value.get_sprite()->font_size;
+
+											float32_c origin_a = line_left + laid_out_glyph->_left;
+											float32_c origin_b = line_top_baseline;
+
+											laid_out_sprite_c * laid_out_sprite = sprite_list.emplace_at_end();
+											laid_out_sprite->texture_resource = entity_sprite->value.get_sprite()->texture_resource;
+											laid_out_sprite->color = laid_out_glyph_color;
+											laid_out_sprite->box.minimum.a = origin_a + ( current_frame->box.minimum.a * scale_to_size );
+											laid_out_sprite->box.minimum.b = origin_b + ( current_frame->box.minimum.b * scale_to_size );
+											laid_out_sprite->box.maximum.a = origin_a + ( current_frame->box.maximum.a * scale_to_size );
+											laid_out_sprite->box.maximum.b = origin_b + ( current_frame->box.maximum.b * scale_to_size );
+											laid_out_sprite->map = current_frame->map;
+										}
+									}
+								}
+							}
+						}
+					}
+					else if ( line_top > _local_box.maximum.b )
+					{
+						goto stitch;
+					}
+				}
+			}
+			else if ( paragraph_top > _local_box.maximum.b )
+			{
+				goto stitch;
+			}
+		}
+
+		// render the cursor.
+		// do this out-of-line with glyph rendering, because in the case that the text element has no text then we still want to be able to render the cursor.
+		if ( _is_text_focused && _text_interact_mode != menu_text_interact_mode_e_static )
+		{
+			glyph_information_c cursor_glyph_information = _get_glyph_information( _cursor_index );
+			text_paragraph_c * cursor_paragraph = _paragraph_list[ cursor_glyph_information.paragraph_index ];
+			text_span_c * cursor_span = cursor_glyph_information.paragraph_span_index >= 0 ? cursor_paragraph->_span_list[ cursor_glyph_information.paragraph_span_index ] : nullptr;
+			text_line_c * cursor_line = &cursor_paragraph->_line_list[ cursor_glyph_information.paragraph_line_index - cursor_paragraph->_line_index_base ];
+
+			float32_c paragraph_left = _local_box.minimum.a + margin.minimum.a + _content_offset.a;
+			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + cursor_paragraph->_top + vertically_algined_y;
+
+			boolean_c do_cursor = false;
+			float32_c cursor_left;
+
+			menu_color_style_c const * cursor_color_style =  engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
+			assert( cursor_color_style );
+			vector32x4_c cursor_color = cursor_color_style->value;
+			if ( !_cursor_is_on_previous_line )
+			{
+				assert( _cursor_index >= cursor_line->_character_start && _cursor_index <= cursor_line->_character_end );
+				menu_element_text_c::text_glyph_c const * laid_out_glyph = &cursor_paragraph->_glyph_list[ _cursor_index - cursor_paragraph->_character_start ];
+				cursor_left = paragraph_left + cursor_line->_left + laid_out_glyph->_left;
+				do_cursor = true;
+			}
+			else
+			{
+				assert( _cursor_index == cursor_line->_character_start );
+				assert( cursor_glyph_information.paragraph_line_index > 0 );
+				menu_element_text_c::text_glyph_c const * laid_out_glyph = &cursor_paragraph->_glyph_list[ _cursor_index - cursor_paragraph->_character_start - 1 ];
+				cursor_line = &cursor_paragraph->_line_list[ cursor_glyph_information.paragraph_line_index - 1 ]; // get previous line.
+				cursor_left = paragraph_left + cursor_line->_left + laid_out_glyph->_left + laid_out_glyph->_horizontal_advance;
+				do_cursor = true;
+			}
+			if ( do_cursor )
+			{
+				float32_c line_top = paragraph_top + cursor_line->_top;
+				float32_c line_top_baseline = line_top + cursor_line->_ascender; // baseline offset from top.
+				float32_c line_bottom = line_top_baseline - cursor_line->_descender;
+
+				float32_c cursor_width = 2.0f;
+				cursor_left -= cursor_width * 0.5f;
+				float32_c cursor_right = cursor_left + cursor_width;
+				float32_c cursor_top = line_top;
+				float32_c cursor_bottom = line_bottom;
+				cursor_color.d = ops::math_saturate( ops::math_sine( _cursor_time * 2.0f ) * 0.5f + 0.5f );
+
+				video_renderer_vertex_menu_c * vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_left;
+				vertex->position.b = cursor_top;
+				vertex->color = cursor_color;
+
+				vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_left;
+				vertex->position.b = cursor_bottom;
+				vertex->color = cursor_color;
+
+				vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_right;
+				vertex->position.b = cursor_top;
+				vertex->color = cursor_color;
+
+				vertex = vertex_list_for_cursor.emplace_at_end();
+				vertex->position.a = cursor_right;
+				vertex->position.b = cursor_bottom;
+				vertex->color = cursor_color;
+			}
+		}
+
+	stitch:
+		// stitch the various draw lists together.
+		if ( vertex_list_for_selection.get_length() > 0 )
+		{
+			_draw_list.append_rectangle_list( vertex_list_for_selection, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, element_color, element_shared_colors );
+		}
+		if ( vertex_list_for_glyphs.get_length() > 0 )
+		{
+			_draw_list.append_rectangle_list( vertex_list_for_glyphs, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_text(), nullptr, element_color, element_shared_colors );
+		}
+		if ( vertex_list_for_cursor.get_length() > 0 )
+		{
+			_draw_list.append_rectangle_list( vertex_list_for_cursor, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, element_color, element_shared_colors );
+		}
+		vertex_list_for_selection.remove_all();
+		vertex_list_for_glyphs.remove_all();
+		vertex_list_for_cursor.remove_all();
+		_draw_list_is_dirty = false;
+	}
+
 	core_linked_list_c< menu_element_text_c * > menu_element_text_c::_global_list;
 
 	void_c menu_element_text_c::invalidate_glyph_layout_of_all_instances()
@@ -210,11 +558,11 @@ namespace cheonsa
 		text_span_c const * span = this;
 		if ( span->_text_style_reference.get_value() )
 		{
-			if ( span->_text_style_reference.get_value()->color_style_is_defined && span->_text_style_reference.get_value()->color_style.get_value() )
+			/*if ( span->_text_style_reference.get_value()->color_style_is_defined && span->_text_style_reference.get_value()->color_style.get_value() )
 			{
 				return span->_text_style_reference.get_value()->color_style.get_value()->value;
 			}
-			else if ( span->_text_style_reference.get_value()->color_is_defined )
+			else */if ( span->_text_style_reference.get_value()->color_is_defined )
 			{
 				return span->_text_style_reference.get_value()->color;
 			}
@@ -437,7 +785,6 @@ namespace cheonsa
 					current_laid_out_glyph_spacing = _get_style_glyph_spacing() * current_text_glyph_style.size;
 				}
 				current_scale_to_unquantize_size = current_text_glyph_style.size / static_cast< float32_c >( glyph_manager_c::get_quantized_size( current_text_glyph_style.size ) );
-				current_text_glyph_style.softness += 1.0f / current_scale_to_unquantize_size * 0.025f; // softness bias, so that edges are base-line level of soft by default.
 				current_laid_out_ascender = current_text_glyph_style.font->get_unquantized_ascender( current_text_glyph_style.size );
 				current_laid_out_descender = current_text_glyph_style.font->get_unquantized_descender( current_text_glyph_style.size );
 				current_space_width = current_text_glyph_style.font->get_unquantized_horizontal_advance_for_space( current_text_glyph_style.size );
@@ -716,7 +1063,6 @@ namespace cheonsa
 	{
 		assert( _mother_element_text );
 		assert( _mother_element_text->_text_interact_mode == menu_text_interact_mode_e_editable );
-		assert( character_start + character_count < _mother_element_text->_plain_text.character_list.get_length() );
 
 		sint32_c result = menu_element_text_c::_handle_delete_character_range( character_start, character_count, _character_start, _character_end );
 		if ( result >= 0 )
@@ -907,11 +1253,11 @@ namespace cheonsa
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
 		{
-			if ( _text_style_reference.get_value()->color_style_is_defined && _text_style_reference.get_value()->color_style.get_value() )
+			/*if ( _text_style_reference.get_value()->color_style_is_defined && _text_style_reference.get_value()->color_style.get_value() )
 			{
 				return _text_style_reference.get_value()->color_style.get_value()->value;
 			}
-			else if ( _text_style_reference.get_value()->color_is_defined )
+			else */if ( _text_style_reference.get_value()->color_is_defined )
 			{
 				return _text_style_reference.get_value()->color;
 			}
@@ -2079,6 +2425,9 @@ namespace cheonsa
 		_clear_cached_data();
 		_paragraph_list.remove_and_delete_all();
 		_plain_text = "\n";
+		_cursor_index = 0;
+		_text_select_anchor_index_start = 0;
+		_text_select_anchor_index_end = 0;
 
 		// create and add paragraph to wrap plain text.
 		text_paragraph_c * paragraph = new text_paragraph_c();
@@ -2256,20 +2605,20 @@ namespace cheonsa
 	{
 		if ( _text_style_reference.get_value() )
 		{
-			if ( _text_style_reference.get_value()->color_style_is_defined && _text_style_reference.get_value()->color_style.get_value() )
+			/*if ( _text_style_reference.get_value()->color_style_is_defined && _text_style_reference.get_value()->color_style.get_value() )
 			{
 				return _text_style_reference.get_value()->color_style.get_value()->value;
 			}
-			else if ( _text_style_reference.get_value()->color_is_defined )
+			else */if ( _text_style_reference.get_value()->color_is_defined )
 			{
 				return _text_style_reference.get_value()->color;
 			}
 		}
-		if ( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style_is_defined )
+		/*if ( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style_is_defined )
 		{
 			assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value() );
 			return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value()->value;
-		}
+		}*/
 		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_is_defined );
 		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color;
 	}
@@ -3174,338 +3523,6 @@ namespace cheonsa
 		{
 			_update_vertical_layout_of_all_paragraphs();
 		}
-	}
-
-	void_c menu_element_text_c::_build_draw_list()
-	{
-		assert( _mother_control );
-
-		_draw_list.reset();
-
-		if ( !_is_showing_from_style || !_is_showing || _local_color.d <= 0.0f )
-		{
-			return;
-		}
-
-		// get text style, the text element must have one in order to be rendered.
-		menu_text_style_c const * text_style = _text_style_reference.get_value();
-		if ( !text_style )
-		{
-			text_style = engine_c::get_instance()->get_menu_style_manager()->get_default_text_style();
-		}
-
-		// last moment text reflow.
-		if ( _is_glyph_layout_dirty )
-		{
-			_do_glyph_layout();
-		}
-
-		// state color and saturation.
-		menu_state_e state = get_state();
-		vector32x4_c element_color = text_style->state_list[ state ].get_expressed_color() * _local_color;
-		float32_c element_saturation = text_style->state_list[ state ].saturation;
-
-		// these lists will be used to simultaniously build geometry for different layers.
-		// at the end, they will be appened to the draw batch so that the layers are drawn in the correct order.
-		// static, so not thread safe.
-		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_selection;
-		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_glyphs;
-		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_cursor;
-
-		struct laid_out_sprite_c
-		{
-			resource_file_texture_c * texture_resource;
-			vector32x4_c color;
-			box32x2_c box;
-			box32x2_c map;
-		};
-
-		core_list_c< laid_out_sprite_c > sprite_list;
-
-		sint32_c selected_character_start;
-		sint32_c selected_character_count;
-		get_selected_text_range( selected_character_start, selected_character_count );
-		sint32_c selected_character_end = selected_character_start + selected_character_count;
-
-		box32x2_c margin = _get_style_margin();
-
-		float32_c vertically_algined_y = margin.minimum.b;
-		menu_text_align_vertical_e text_align_vertical = _get_style_text_align_vertical();
-		if ( text_align_vertical == menu_text_align_vertical_e_center )
-		{
-			float32_c effective_height = _local_box.get_height() - margin.minimum.b - margin.maximum.b;
-			if ( effective_height < 0.0f )
-			{
-				effective_height = 0.0f;
-			}
-			vertically_algined_y = ( effective_height * 0.5f ) - ( get_content_height() * 0.5f );
-		}
-		else if ( text_align_vertical == menu_text_align_vertical_e_bottom )
-		{
-			vertically_algined_y = _local_box.get_height() - margin.maximum.b - get_content_height();
-		}
-
-		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
-		{
-			menu_element_text_c::text_paragraph_c const * paragraph = _paragraph_list[ i ];
-
-			float32_c paragraph_left = _local_box.minimum.a + margin.minimum.a + _content_offset.a;
-			float32_c paragraph_right = paragraph_left + _local_box.get_width() - ( margin.maximum.a * 2 );
-			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
-			float32_c paragraph_bottom = paragraph_top + paragraph->_content_height;
-
-			// render this paragraph if it is visible.
-			if ( paragraph_bottom >= _local_box.minimum.b && paragraph_top <= _local_box.maximum.b )
-			{
-				for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
-				{
-					text_line_c const * line = &paragraph->_line_list[ j ];
-
-					float32_c line_left = paragraph_left + line->_left; // baseline offset from left.
-					float32_c line_top = paragraph_top + line->_top;
-					float32_c line_top_baseline = line_top + line->_ascender; // baseline offset from top.
-					float32_c line_bottom = line_top_baseline - line->_descender;
-
-					// render this line if it is visible.
-					if ( line_bottom >= _local_box.minimum.b && line_top <= _local_box.maximum.b )
-					{
-						// draw selection for current line.
-						if ( ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) && selected_character_start != selected_character_end && line->_character_start < selected_character_end && selected_character_start < line->_character_end )
-						{
-							menu_element_text_c::text_glyph_c const * glyph_left = &paragraph->_glyph_list[ ops::math_maximum( selected_character_start, line->_character_start ) - paragraph->_character_start ];
-							float32_c selection_left = line_left + glyph_left->_left;
-							menu_element_text_c::text_glyph_c const * glyph_right = &paragraph->_glyph_list[ ops::math_minimum( selected_character_end, line->_character_end ) - 1 - paragraph->_character_start ];
-							float32_c selection_right = line_left + glyph_right->_left + glyph_right->_horizontal_advance;
-							float32_c selection_top = line_top;
-							float32_c selection_bottom = line_bottom;
-
-							menu_color_style_c const * selection_color_style = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( menu_shared_color_e_field_normal_accent );
-							assert( selection_color_style );
-							vector32x4_c selection_color = selection_color_style->value;
-							selection_color.d *= 0.25f;
-
-							video_renderer_vertex_menu_c * vertex = vertex_list_for_selection.emplace_at_end();
-							vertex->position.a = selection_left;
-							vertex->position.b = selection_top;
-							vertex->color = selection_color;
-
-							vertex = vertex_list_for_selection.emplace_at_end();
-							vertex->position.a = selection_left;
-							vertex->position.b = selection_bottom;
-							vertex->color = selection_color;
-
-							vertex = vertex_list_for_selection.emplace_at_end();
-							vertex->position.a = selection_right;
-							vertex->position.b = selection_top;
-							vertex->color = selection_color;
-
-							vertex = vertex_list_for_selection.emplace_at_end();
-							vertex->position.a = selection_right;
-							vertex->position.b = selection_bottom;
-							vertex->color = selection_color;
-						}
-
-						sint32_c glyph_start = line->_character_start - paragraph->_character_start;
-						sint32_c glyph_end = line->_character_end - paragraph->_character_start;
-						for ( sint32_c k = glyph_start; k < glyph_end; k++ )
-						{
-							char16_c character = _plain_text.character_list[ paragraph->_character_start + k ];
-							menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ k ];
-							assert( laid_out_glyph->_style_index != -1 );
-							menu_text_glyph_style_c const * text_glyph_style = _text_glyph_style_cache[ laid_out_glyph->_style_index ];
-							vector32x4_c laid_out_glyph_color = text_glyph_style->color * element_color;
-							if ( laid_out_glyph_color.d != 0.0f )
-							{
-								if ( ( character & 0xF000 ) != 0xF000 )
-								{
-									if ( laid_out_glyph->_glyph )
-									{
-										assert( laid_out_glyph->_glyph->key.code_point == character );
-
-										// this glyph is displayable.
-										float32_c glyph_left = line_left + laid_out_glyph->_left + laid_out_glyph->_box.minimum.a;
-										float32_c glyph_top = line_top_baseline + laid_out_glyph->_box.minimum.b;
-										float32_c glyph_right = line_left + laid_out_glyph->_left + laid_out_glyph->_box.maximum.a;
-										float32_c glyph_bottom = line_top_baseline + laid_out_glyph->_box.maximum.b;
-										float32_c glyph_map_texture_slice_index = static_cast< float32_c >( laid_out_glyph->_glyph->atlas_index );
-
-										if ( glyph_right >= _local_box.minimum.a && glyph_left <= _local_box.maximum.a && glyph_bottom >= _local_box.minimum.b && glyph_top <= _local_box.maximum.b )
-										{
-											float32_c skew = text_glyph_style->skew;
-											vector32x4_c parameters = vector32x4_c( text_glyph_style->skew, text_glyph_style->weight, text_glyph_style->softness, static_cast< float32_c >( k + paragraph->_character_start ) );
-
-											video_renderer_vertex_menu_c * vertex = vertex_list_for_glyphs.emplace_at_end(); // top left.
-											vertex->position.a = glyph_left - ( laid_out_glyph->_box.minimum.b * skew );
-											vertex->position.b = glyph_top;
-											vertex->position.c = 0.0f;
-											vertex->texture.a = laid_out_glyph->_glyph->map.minimum.a;
-											vertex->texture.b = laid_out_glyph->_glyph->map.minimum.b;
-											vertex->texture.c = glyph_map_texture_slice_index;
-											vertex->color = laid_out_glyph_color;
-											vertex->parameters = parameters;
-
-											vertex = vertex_list_for_glyphs.emplace_at_end(); // bottom left.
-											vertex->position.a = glyph_left + ( laid_out_glyph->_box.maximum.b * skew );
-											vertex->position.b = glyph_bottom;
-											vertex->position.c = 0.0f;
-											vertex->texture.a = laid_out_glyph->_glyph->map.minimum.a;
-											vertex->texture.b = laid_out_glyph->_glyph->map.maximum.b;
-											vertex->texture.c = glyph_map_texture_slice_index;
-											vertex->color = laid_out_glyph_color;
-											vertex->parameters = parameters;
-
-											vertex = vertex_list_for_glyphs.emplace_at_end(); // top right.
-											vertex->position.a = glyph_right - ( laid_out_glyph->_box.minimum.b * skew );
-											vertex->position.b = glyph_top;
-											vertex->position.c = 0.0f;
-											vertex->texture.a = laid_out_glyph->_glyph->map.maximum.a;
-											vertex->texture.b = laid_out_glyph->_glyph->map.minimum.b;
-											vertex->texture.c = glyph_map_texture_slice_index;
-											vertex->color = laid_out_glyph_color;
-											vertex->parameters = parameters;
-
-											vertex = vertex_list_for_glyphs.emplace_at_end(); // bottom right.
-											vertex->position.a = glyph_right + ( laid_out_glyph->_box.maximum.b * skew );
-											vertex->position.b = glyph_bottom;
-											vertex->position.c = 0.0f;
-											vertex->texture.a = laid_out_glyph->_glyph->map.maximum.a;
-											vertex->texture.b = laid_out_glyph->_glyph->map.maximum.b;
-											vertex->texture.c = glyph_map_texture_slice_index;
-											vertex->color = laid_out_glyph_color;
-											vertex->parameters = parameters;
-										}
-									}
-								}
-								else
-								{
-									// this is an entity.
-									menu_text_entity_c * entity = paragraph->_entity_list[ character & 0x0FFF ];
-									if ( entity->type_code == menu_text_entity_sprite_c::type_code_static() )
-									{
-										// this is a sprite entity.
-										menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
-										if ( entity_sprite->value.get_is_ready() )
-										{
-											resource_file_sprite_set_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
-											resource_file_sprite_set_c::frame_c const * current_frame = entity_sprite->value.get_frame();
-
-											float32_c scale_to_size = text_glyph_style->size / entity_sprite->value.get_sprite()->font_size;
-
-											float32_c origin_a = line_left + laid_out_glyph->_left;
-											float32_c origin_b = line_top_baseline;
-
-											laid_out_sprite_c * laid_out_sprite = sprite_list.emplace_at_end();
-											laid_out_sprite->texture_resource = entity_sprite->value.get_sprite()->texture_resource;
-											laid_out_sprite->color = laid_out_glyph_color;
-											laid_out_sprite->box.minimum.a = origin_a + ( current_frame->box.minimum.a * scale_to_size );
-											laid_out_sprite->box.minimum.b = origin_b + ( current_frame->box.minimum.b * scale_to_size );
-											laid_out_sprite->box.maximum.a = origin_a + ( current_frame->box.maximum.a * scale_to_size );
-											laid_out_sprite->box.maximum.b = origin_b + ( current_frame->box.maximum.b * scale_to_size );
-											laid_out_sprite->map = current_frame->map;
-										}
-									}
-								}
-							}
-						}
-					}
-					else if ( line_top > _local_box.maximum.b )
-					{
-						goto stitch;
-					}
-				}
-			}
-			else if ( paragraph_top > _local_box.maximum.b )
-			{
-				goto stitch;
-			}
-		}
-
-		// render the cursor.
-		// do this out-of-line with glyph rendering, because in the case that the text element has no text then we still want to be able to render the cursor.
-		if ( _is_text_focused && _text_interact_mode != menu_text_interact_mode_e_static )
-		{
-			glyph_information_c cursor_glyph_information = _get_glyph_information( _cursor_index );
-			text_paragraph_c * cursor_paragraph = _paragraph_list[ cursor_glyph_information.paragraph_index ];
-			text_span_c * cursor_span = cursor_glyph_information.paragraph_span_index >= 0 ? cursor_paragraph->_span_list[ cursor_glyph_information.paragraph_span_index ] : nullptr;
-			text_line_c * cursor_line = &cursor_paragraph->_line_list[ cursor_glyph_information.paragraph_line_index - cursor_paragraph->_line_index_base ];
-
-			float32_c paragraph_left = _local_box.minimum.a + margin.minimum.a + _content_offset.a;
-			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + cursor_paragraph->_top + vertically_algined_y;
-
-			boolean_c do_cursor = false;
-			float32_c cursor_left;
-			menu_color_style_c const * cursor_color_style = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( menu_shared_color_e_field_normal_accent );
-			assert( cursor_color_style );
-			vector32x4_c cursor_color = cursor_color_style->value;
-			if ( !_cursor_is_on_previous_line )
-			{
-				assert( _cursor_index >= cursor_line->_character_start && _cursor_index <= cursor_line->_character_end );
-				menu_element_text_c::text_glyph_c const * laid_out_glyph = &cursor_paragraph->_glyph_list[ _cursor_index - cursor_paragraph->_character_start ];
-				cursor_left = paragraph_left + cursor_line->_left + laid_out_glyph->_left;
-				do_cursor = true;
-			}
-			else
-			{
-				assert( _cursor_index == cursor_line->_character_start );
-				assert( cursor_glyph_information.paragraph_line_index > 0 );
-				menu_element_text_c::text_glyph_c const * laid_out_glyph = &cursor_paragraph->_glyph_list[ _cursor_index - cursor_paragraph->_character_start - 1 ];
-				cursor_line = &cursor_paragraph->_line_list[ cursor_glyph_information.paragraph_line_index - 1 ]; // get previous line.
-				cursor_left = paragraph_left + cursor_line->_left + laid_out_glyph->_left + laid_out_glyph->_horizontal_advance;
-				do_cursor = true;
-			}
-			if ( do_cursor )
-			{
-				float32_c line_top = paragraph_top + cursor_line->_top;
-				float32_c line_top_baseline = line_top + cursor_line->_ascender; // baseline offset from top.
-				float32_c line_bottom = line_top_baseline - cursor_line->_descender;
-
-				float32_c cursor_width = 2.0f;
-				cursor_left -= cursor_width * 0.5f;
-				float32_c cursor_right = cursor_left + cursor_width;
-				float32_c cursor_top = line_top;
-				float32_c cursor_bottom = line_bottom;
-				cursor_color.d = ops::math_saturate( ops::math_sine( _cursor_time * 2.0f ) * 0.5f + 0.5f );
-
-				video_renderer_vertex_menu_c * vertex = vertex_list_for_cursor.emplace_at_end();
-				vertex->position.a = cursor_left;
-				vertex->position.b = cursor_top;
-				vertex->color = cursor_color;
-
-				vertex = vertex_list_for_cursor.emplace_at_end();
-				vertex->position.a = cursor_left;
-				vertex->position.b = cursor_bottom;
-				vertex->color = cursor_color;
-
-				vertex = vertex_list_for_cursor.emplace_at_end();
-				vertex->position.a = cursor_right;
-				vertex->position.b = cursor_top;
-				vertex->color = cursor_color;
-
-				vertex = vertex_list_for_cursor.emplace_at_end();
-				vertex->position.a = cursor_right;
-				vertex->position.b = cursor_bottom;
-				vertex->color = cursor_color;
-			}
-		}
-
-	stitch:
-		// stitch the various draw lists together.
-		if ( vertex_list_for_selection.get_length() > 0 )
-		{
-			_draw_list.append_rectangle_list( vertex_list_for_selection, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr );
-		}
-		if ( vertex_list_for_glyphs.get_length() > 0 )
-		{
-			_draw_list.append_rectangle_list( vertex_list_for_glyphs, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_text(), nullptr );
-		}
-		if ( vertex_list_for_cursor.get_length() > 0 )
-		{
-			_draw_list.append_rectangle_list( vertex_list_for_cursor, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr );
-		}
-		vertex_list_for_selection.remove_all();
-		vertex_list_for_glyphs.remove_all();
-		vertex_list_for_cursor.remove_all();
-		_draw_list_is_dirty = false;
 	}
 
 	void_c menu_element_text_c::update_animations( float32_c time_step )

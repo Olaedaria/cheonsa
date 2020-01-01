@@ -9,13 +9,13 @@ namespace cheonsa
 	void_c menu_control_text_c::_on_text_focus_gained()
 	{
 		_element_text.handle_on_character_focus_gained();
-		on_text_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
+		on_text_focus_gained.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_text_c::_on_text_focus_lost()
 	{
 		_element_text.handle_on_character_focus_lost();
-		on_text_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
+		on_text_focus_lost.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_text_c::_on_input( input_event_c * input_event )
@@ -43,10 +43,12 @@ namespace cheonsa
 		, _vertical_scroll_bar( nullptr )
 	{
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
+		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_text.set_multi_line( false );
 		_element_text.set_text_format_mode( menu_text_format_mode_e_plain );
 		_element_text.set_text_interact_mode( menu_text_interact_mode_e_editable );
@@ -251,14 +253,14 @@ namespace cheonsa
 				_horizontal_scroll_bar = new menu_control_scroll_bar_horizontal_c();
 				_horizontal_scroll_bar->set_name( string8_c( mode_e_static, "horizontal_scroll_bar" ) );
 				_horizontal_scroll_bar->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 8.0f, 0.0f, 0.0f ) );
-				_add_control( _horizontal_scroll_bar );
+				_give_control( _horizontal_scroll_bar );
 			}
 		}
 		else
 		{
 			if ( _horizontal_scroll_bar != nullptr )
 			{
-				_remove_control( _horizontal_scroll_bar->get_index() );
+				_take_control( _horizontal_scroll_bar->get_index() );
 				delete _horizontal_scroll_bar;
 				_horizontal_scroll_bar = nullptr;
 			}
@@ -285,14 +287,14 @@ namespace cheonsa
 				_vertical_scroll_bar = new menu_control_scroll_bar_vertical_c();
 				_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
 				_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
-				_add_control( _vertical_scroll_bar );
+				_give_control( _vertical_scroll_bar );
 			}
 		}
 		else
 		{
 			if ( _vertical_scroll_bar != nullptr )
 			{
-				_remove_control( _vertical_scroll_bar->get_index() );
+				_take_control( _vertical_scroll_bar->get_index() );
 				delete _vertical_scroll_bar;
 				_vertical_scroll_bar = nullptr;
 			}
@@ -307,6 +309,7 @@ namespace cheonsa
 	void_c menu_control_text_c::update_animations( float32_c time_step )
 	{
 		menu_control_c::update_animations( time_step );
+
 		vector32x2_c content_offset = vector32x2_c( 0.0f, 0.0f );
 		if ( _horizontal_scroll_bar )
 		{
@@ -322,6 +325,14 @@ namespace cheonsa
 		}
 		_element_text.set_content_offset( content_offset );
 		_element_text.update_animations( time_step );
+
+		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
+
+		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_frame.set_is_pressed( _is_pressed );
+
+		_element_text.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_text.set_is_pressed( _is_pressed );
 	}
 
 	void_c menu_control_text_c::load_properties( data_scribe_markup_c::node_c const * node )

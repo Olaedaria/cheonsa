@@ -112,6 +112,7 @@ namespace cheonsa
 			sint32_c _attribute_start; // the index of the first attribute within the _attribute_heap.
 			sint32_c _attribute_count; // the number of concurrent entries in the _attribute_heap that are attributes of this node.
 
+			sint32_c _index; // this node's index in the node heap.
 			sint32_c _depth;
 
 			sint32_c _mother; // the index of the mother node of this node within _node_heap. the mother node will always be a tag type of node.
@@ -121,7 +122,7 @@ namespace cheonsa
 
 			data_scribe_markup_c * _markup; // a little bloat but it lets us implement find_attribute(), find_tag(), and find_tags() on this instance.
 
-			boolean_c _is_open; // is set to true on opening tags (they don't end with "/>") which tells the parser to append new nodes as daughters to this node, otherwise new nodes will be appended as sisters.
+			boolean_c _is_open; // while parsing: when true then new tags will be added as daughters, otherwise they will be added as sisters.
 
 		public:
 			node_c();

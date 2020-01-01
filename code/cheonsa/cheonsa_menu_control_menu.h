@@ -32,7 +32,8 @@ namespace cheonsa
 		menu_control_menu_list_item_c();
 
 		menu_control_menu_list_c * get_sub_menu() const;
-		void_c set_sub_menu( menu_control_menu_list_c * menu );
+		void_c give_sub_menu( menu_control_menu_list_c * menu );
+		menu_control_menu_list_c * take_sub_menu();
 
 	};
 
@@ -54,10 +55,10 @@ namespace cheonsa
 		sint32_c get_item_count() const;
 		menu_control_menu_list_item_c * get_item_at_index( sint32_c index );
 
-		void_c insert_item_at_end( menu_control_menu_list_item_c * item );
-		void_c insert_item_at_index( menu_control_menu_list_item_c * item, sint32_c index );
-		void_c remove_item( menu_control_menu_list_item_c * item );
-		void_c remove_item_at_index( sint32_c index );
+		void_c give_item_at_end( menu_control_menu_list_item_c * item );
+		void_c give_item_at_index( menu_control_menu_list_item_c * item, sint32_c index );
+		menu_control_menu_list_item_c * take_item( menu_control_menu_list_item_c * item );
+		menu_control_menu_list_item_c * take_item_at_index( sint32_c index );
 		void_c remove_and_delete_all_items();
 
 	};

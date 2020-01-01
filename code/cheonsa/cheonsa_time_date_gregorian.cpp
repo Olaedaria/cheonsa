@@ -1,9 +1,13 @@
 #include "cheonsa_time_date_gregorian.h"
-#include "cheonsa_time_types.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
 {
+
+	sint64_c const milliseconds_per_day = 86400000;
+	sint64_c const milliseconds_per_hour = 3600000;
+	sint64_c const milliseconds_per_minute = 60000;
+	sint64_c const milliseconds_per_second = 1000;
 
 	time_date_gregorian_c::time_date_gregorian_c()
 		: time( 0 )
@@ -21,15 +25,15 @@ namespace cheonsa
 
 	void_c time_date_gregorian_c::from_miliseconds_since_epoch( sint64_c value )
 	{
-		sint64_c days_since_epoch = value / miliseconds_per_day;
+		sint64_c days_since_epoch = value / milliseconds_per_day;
 		convert_days_since_epoch_to_date( days_since_epoch, year, month_of_year, day_of_month, day_of_year );
 		convert_days_since_epoch_to_day_of_week( days_since_epoch, day_of_week );
-		sint32_c miliseconds_left_over = static_cast<sint32_c>( value - ( days_since_epoch * miliseconds_per_day ) );
-		hour_of_day = miliseconds_left_over / miliseconds_per_hour;
-		miliseconds_left_over -= hour_of_day * miliseconds_per_hour;
-		minute_of_hour = miliseconds_left_over / miliseconds_per_minute;
-		miliseconds_left_over -= minute_of_hour * miliseconds_per_minute;
-		second_of_minute = miliseconds_left_over / miliseconds_per_second;
+		sint32_c miliseconds_left_over = static_cast<sint32_c>( value - ( days_since_epoch * milliseconds_per_day ) );
+		hour_of_day = miliseconds_left_over / milliseconds_per_hour;
+		miliseconds_left_over -= hour_of_day * milliseconds_per_hour;
+		minute_of_hour = miliseconds_left_over / milliseconds_per_minute;
+		miliseconds_left_over -= minute_of_hour * milliseconds_per_minute;
+		second_of_minute = miliseconds_left_over / milliseconds_per_second;
 		miliseconds_of_second = miliseconds_left_over - ( second_of_minute * miliseconds_of_second );
 	}
 
@@ -37,7 +41,7 @@ namespace cheonsa
 	{
 		sint64_c days_since_epoch;
 		convert_date_to_days_since_epoch( days_since_epoch, year, month_of_year, day_of_month );
-		return ( days_since_epoch * miliseconds_per_day ) + ( hour_of_day * miliseconds_per_hour ) + ( minute_of_hour * miliseconds_per_minute ) + ( second_of_minute * miliseconds_per_second ) + ( miliseconds_of_second );
+		return ( days_since_epoch * milliseconds_per_day ) + ( hour_of_day * milliseconds_per_hour ) + ( minute_of_hour * milliseconds_per_minute ) + ( second_of_minute * milliseconds_per_second ) + ( miliseconds_of_second );
 	}
 
 	enum time_date_code_e

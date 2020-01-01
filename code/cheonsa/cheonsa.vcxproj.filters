@@ -71,7 +71,6 @@
     <ClInclude Include="cheonsa_scene_component_model.h" />
     <ClInclude Include="cheonsa_input_types.h" />
     <ClInclude Include="cheonsa___build.h" />
-    <ClInclude Include="cheonsa_time_types.h" />
     <ClInclude Include="cheonsa_data_types.h" />
     <ClInclude Include="cheonsa_video_types.h" />
     <ClInclude Include="cheonsa_memory_allocator_pool.h" />
@@ -122,7 +121,6 @@
     <ClInclude Include="cheonsa_database_record.h" />
     <ClInclude Include="cheonsa_menu_style_file.h" />
     <ClInclude Include="cheonsa_platform_critical_section.h" />
-    <ClInclude Include="cheonsa_menu_thing.h" />
     <ClInclude Include="third_party\freetype\config\ftconfig.h" />
     <ClInclude Include="third_party\freetype\config\ftheader.h" />
     <ClInclude Include="third_party\freetype\config\ftmodule.h" />
@@ -506,12 +504,13 @@
     <ClInclude Include="cheonsa_resource_file_sound.h" />
     <ClInclude Include="cheonsa__types.h" />
     <ClInclude Include="cheonsa__ops.h" />
-    <ClInclude Include="cheonsa_safe_reference_count.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
     <ClInclude Include="cheonsa_menu_control_scroll_i.h" />
     <ClInclude Include="cheonsa_menu_control_scroll_bar.h" />
     <ClInclude Include="cheonsa_menu_control_scrub_bar.h" />
+    <ClInclude Include="cheonsa_core_safe_reference_counter.h" />
+    <ClInclude Include="cheonsa_core_shared_pointer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -630,11 +629,11 @@
     <ClCompile Include="cheonsa_resource_file_sound.cpp" />
     <ClCompile Include="cheonsa__types.cpp" />
     <ClCompile Include="cheonsa__ops.cpp" />
-    <ClCompile Include="cheonsa_safe_reference_count.cpp" />
     <ClCompile Include="cheonsa_debug_manager.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_menu_control_scroll_i.cpp" />
     <ClCompile Include="cheonsa_menu_control_scroll_bar.cpp" />
     <ClCompile Include="cheonsa_menu_control_scrub_bar.cpp" />
+    <ClCompile Include="cheonsa_core_safe_reference_counter.cpp" />
   </ItemGroup>
 </Project>

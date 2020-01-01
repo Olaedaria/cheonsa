@@ -40,7 +40,7 @@ namespace cheonsa
 		mode_e _mode;
 		result_e _result;
 
-		void_c _handle_button_on_click( menu_event_info_c event_info );
+		void_c _handle_button_on_click( menu_event_information_c event_information );
 
 		virtual void_c _on_input( input_event_c * input_event ) override;
 

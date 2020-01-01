@@ -6,6 +6,7 @@
 namespace cheonsa
 {
 
+
 	//
 	//
 	// menu_color_style_c::reference_c
@@ -63,8 +64,8 @@ namespace cheonsa
 	//
 
 	menu_color_style_c::menu_color_style_c()
-		: key()
-		, index( -1 )
+		: index( -1 )
+		, key()
 		, value( 1.0f, 1.0f, 1.0f, 1.0f )
 	{
 	}
@@ -95,7 +96,12 @@ namespace cheonsa
 		}
 	}
 
-
+	void_c menu_color_style_c::initialize( sint32_c index, string8_c const & key, vector32x4_c const & value )
+	{
+		this->index = index;
+		this->key = key;
+		this->value = value;
+	}
 
 
 	//
@@ -105,8 +111,8 @@ namespace cheonsa
 	//
 
 	menu_frame_style_c::state_c::state_c()
-		: color_style()
-		, color( 1.0f, 1.0f, 1.0f, 1.0f )
+		//: color_style()
+		: color( 1.0f, 1.0f, 1.0f, 1.0f )
 		, saturation( 1.0f )
 		, apparent_scale( 1.0f )
 		, texture_map()
@@ -116,7 +122,7 @@ namespace cheonsa
 
 	void_c menu_frame_style_c::state_c::reset()
 	{
-		color_style.set_key( string8_c() );
+		//color_style.set_key( string8_c() );
 		color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		saturation = 1.0f;
 		apparent_scale = 1.0f;
@@ -132,7 +138,8 @@ namespace cheonsa
 
 	vector32x4_c menu_frame_style_c::state_c::get_expressed_color() const
 	{
-		return color_style.get_value() ? color_style.get_value()->value * color : color;
+		//return color_style.get_value() ? color_style.get_value()->value * color : color;
+		return color;
 	}
 
 
@@ -223,6 +230,8 @@ namespace cheonsa
 		, texture( nullptr )
 		, texture_map_mode( texture_map_mode_e_stretch )
 		, texture_map_fill_middle( false )
+		, pixel_shader_reference()
+		, state_list()
 	{
 	}
 
@@ -317,42 +326,62 @@ namespace cheonsa
 			pixel_shader_reference = engine_c::get_instance()->get_video_renderer_shader_manager()->load_pixel_shader( string16_c( attribute->get_value() ) );
 		}
 
+		// apply defaults if they were defined.
+		if ( texture_map_origin_is_defined && texture_map_size_is_defined && texture_map_edges_is_defined )
+		{
+			for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
+			{
+				state_c & state = state_list[ i ];
+				state.texture_map[ 0 ] = texture_map_origin[ 0 ];
+				state.texture_map[ 1 ] = texture_map_origin[ 1 ];
+				state.texture_map[ 2 ] = texture_map_origin[ 0 ] + texture_map_size[ 0 ];
+				state.texture_map[ 3 ] = texture_map_origin[ 1 ] + texture_map_size[ 1 ];
+				state.texture_map_edges[ 0 ] = texture_map_edges[ 0 ];
+				state.texture_map_edges[ 1 ] = texture_map_edges[ 1 ];
+				state.texture_map_edges[ 2 ] = texture_map_edges[ 2 ];
+				state.texture_map_edges[ 3 ] = texture_map_edges[ 3 ];
+			}
+		}
+
 		sint32_c state_index = 0;
 		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
 		while ( sub_node )
 		{
 			if ( sub_node->get_value() == "state" )
 			{
+				// optionally, state tags may define their key (index).
+				// otherwise state index starts at 0.
 				attribute = sub_node->find_attribute( "key" );
 				if ( attribute )
 				{
 					if ( attribute->get_value() == "normal" )
 					{
-						state_index = 0;
+						state_index = menu_state_e_normal;
 					}
 					else if ( attribute->get_value() == "selected" )
 					{
-						state_index = 1;
+						state_index = menu_state_e_selected;
 					}
 					else if ( attribute->get_value() == "pressed" )
 					{
-						state_index = 2;
+						state_index = menu_state_e_pressed;
 					}
 					else if ( attribute->get_value() == "disabled" )
 					{
-						state_index = 3;
+						state_index = menu_state_e_disabled;
 					}
 				}
 
-				if ( state_index < menu_state_e_count_ )
+				// if state index is valid, then continue.
+				if ( state_index >= 0 && state_index < menu_state_e_count_ )
 				{
 					state_c & state = state_list[ state_index ];
 
-					attribute = sub_node->find_attribute( "color_style" );
-					if ( attribute )
-					{
-						state.color_style.set_key( attribute->get_value() );
-					}
+					//attribute = sub_node->find_attribute( "color_style" );
+					//if ( attribute )
+					//{
+					//	state.color_style.set_key( attribute->get_value() );
+					//}
 
 					attribute = sub_node->find_attribute( "color" );
 					if ( attribute )
@@ -385,27 +414,17 @@ namespace cheonsa
 					}
 
 					attribute = sub_node->find_attribute( "texture_map_origin" );
-					if ( texture_map_size_is_defined && texture_map_edges_is_defined )
+					if ( attribute )
 					{
-						if ( attribute )
+						sint16_c state_texture_map_origin[ 2 ] = {};
+						if ( ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, state_texture_map_origin, 2 ) ) )
 						{
-							sint16_c state_texture_map_origin[ 2 ] = {};
-							if ( ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, state_texture_map_origin, 2 ) ) )
-							{
-								texture_map_origin[ 0 ] = state_texture_map_origin[ 0 ];
-								texture_map_origin[ 1 ] = state_texture_map_origin[ 1 ];
-							}
+							texture_map_origin[ 0 ] = state_texture_map_origin[ 0 ];
+							texture_map_origin[ 1 ] = state_texture_map_origin[ 1 ];
 						}
-						state.texture_map[ 0 ] = texture_map_origin[ 0 ];
-						state.texture_map[ 1 ] = texture_map_origin[ 1 ];
-						state.texture_map[ 2 ] = texture_map_origin[ 0 ] + texture_map_size[ 0 ];
-						state.texture_map[ 3 ] = texture_map_origin[ 1 ] + texture_map_size[ 1 ];
-						state.texture_map_edges[ 0 ] = texture_map_edges[ 0 ];
-						state.texture_map_edges[ 1 ] = texture_map_edges[ 1 ];
-						state.texture_map_edges[ 2 ] = texture_map_edges[ 2 ];
-						state.texture_map_edges[ 3 ] = texture_map_edges[ 3 ];
 					}
 
+					// advance to next state index by default.
 					state_index++;
 				}
 			}
@@ -498,7 +517,7 @@ namespace cheonsa
 
 	void_c menu_text_style_c::state_c::reset()
 	{
-		color_style.set_key( string8_c() );
+		//color_style.set_key( string8_c() );
 		color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		saturation = 1.0f;
 		apparent_scale = 1.0f;
@@ -506,7 +525,8 @@ namespace cheonsa
 
 	vector32x4_c menu_text_style_c::state_c::get_expressed_color() const
 	{
-		return color_style.get_value() ? color_style.get_value()->value * color : color;
+		//return color_style.get_value() ? color_style.get_value()->value * color : color;
+		return color;
 	}
 
 	menu_text_style_c::menu_text_style_c()
@@ -521,8 +541,8 @@ namespace cheonsa
 		font = nullptr;
 		size_is_defined = false;
 		size = 0;
-		color_style_is_defined = false;
-		color_style.set_key( string8_c() );
+		//color_style_is_defined = false;
+		//color_style.set_key( string8_c() );
 		color_is_defined = false;
 		color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		skew_is_defined = false;
@@ -576,12 +596,12 @@ namespace cheonsa
 			size_is_defined = ops::convert_string8_to_float32( attribute->get_value(), size );
 		}
 
-		attribute = node->find_attribute( "color_style" );
-		if ( attribute )
-		{
-			color_style_is_defined = true;
-			color_style.set_key( attribute->get_value() );
-		}
+		//attribute = node->find_attribute( "color_style" );
+		//if ( attribute )
+		//{
+		//	color_style_is_defined = true;
+		//	color_style.set_key( attribute->get_value() );
+		//}
 
 		attribute = node->find_attribute( "color" );
 		if ( attribute )
@@ -714,11 +734,11 @@ namespace cheonsa
 						ops::convert_string8_to_rgba( attribute->get_value(), state.color );
 					}
 
-					attribute = sub_node->find_attribute( "color_style" );
-					if ( attribute )
-					{
-						state.color_style.set_key( attribute->get_value() );
-					}
+					//attribute = sub_node->find_attribute( "color_style" );
+					//if ( attribute )
+					//{
+					//	state.color_style.set_key( attribute->get_value() );
+					//}
 
 					attribute = sub_node->find_attribute( "saturation" );
 					if ( attribute )
@@ -1075,17 +1095,17 @@ namespace cheonsa
 
 	//
 	//
-	// menu_event_info_c
+	// menu_event_information_c
 	//
 	//
 
-	menu_event_info_c::menu_event_info_c()
+	menu_event_information_c::menu_event_information_c()
 		: control( nullptr )
 		, event( nullptr )
 	{
 	}
 
-	menu_event_info_c::menu_event_info_c( menu_control_c * control, input_event_c * event )
+	menu_event_information_c::menu_event_information_c( menu_control_c * control, input_event_c * event )
 		: control( control )
 		, event( event )
 	{
@@ -1103,6 +1123,8 @@ namespace cheonsa
 	menu_draw_list_c::draw_c::draw_c()
 		: pixel_shader( nullptr )
 		, texture( nullptr )
+		, color( 1.0f, 1.0f, 1.0f, 1.0f )
+		, shared_colors{ vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ) }
 		, vertex_start( 0 )
 		, vertex_count( 0 )
 		, index_start( 0 )
@@ -1128,12 +1150,19 @@ namespace cheonsa
 		index_base = 0;
 	}
 
-	void_c menu_draw_list_c::append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture )
+	void_c menu_draw_list_c::append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] )
 	{
 		// add draw.
 		draw_c * draw = draw_list.emplace_at_end();
 		draw->pixel_shader = pixel_shader;
 		draw->texture = texture;
+		draw->color = color;
+		if ( shared_colors != nullptr )
+		{
+			draw->shared_colors[ 0 ] = shared_colors[ 0 ];
+			draw->shared_colors[ 1 ] = shared_colors[ 1 ];
+			draw->shared_colors[ 2 ] = shared_colors[ 2 ];
+		}
 		draw->vertex_start = vertex_list.get_length();
 		draw->vertex_count = input_vertex_list.get_length();
 		draw->index_start = index_list.get_length();
@@ -1158,12 +1187,19 @@ namespace cheonsa
 		vertex_list.insert_at_end( input_vertex_list.get_internal_array(), input_vertex_list.get_length() );
 	}
 
-	void_c menu_draw_list_c::append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color )
+	void_c menu_draw_list_c::append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] )
 	{
 		// add draw.
 		draw_c * draw = draw_list.emplace_at_end();
 		draw->pixel_shader = pixel_shader;
 		draw->texture = texture;
+		draw->color = color;
+		if ( shared_colors != nullptr )
+		{
+			draw->shared_colors[ 0 ] = shared_colors[ 0 ];
+			draw->shared_colors[ 1 ] = shared_colors[ 1 ];
+			draw->shared_colors[ 2 ] = shared_colors[ 2 ];
+		}
 		draw->vertex_start = vertex_list.get_length();
 		draw->vertex_count = 4; // 4 vertices which make up 1 quad.
 		draw->index_start = index_list.get_length();
@@ -1183,19 +1219,19 @@ namespace cheonsa
 		video_renderer_vertex_menu_c * vertex = vertex_list.emplace_at_end(); // top left
 		vertex->position = vector32x3_c( box.minimum.a, box.minimum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.minimum.a, map.minimum.b, 0.0f );
-		vertex->color = color;
+		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		vertex = vertex_list.emplace_at_end(); // bottom left
 		vertex->position = vector32x3_c( box.minimum.a, box.maximum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.minimum.a, map.maximum.b, 0.0f );
-		vertex->color = color;
+		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		vertex = vertex_list.emplace_at_end(); // top right
 		vertex->position = vector32x3_c( box.maximum.a, box.minimum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.maximum.a, map.minimum.b, 0.0f );
-		vertex->color = color;
+		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		vertex = vertex_list.emplace_at_end(); // bottom right
 		vertex->position = vector32x3_c( box.maximum.a, box.maximum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.maximum.a, map.maximum.b, 0.0f );
-		vertex->color = color;
+		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 	}
 
 }

@@ -21,11 +21,9 @@ namespace cheonsa
 		private:
 			friend class content_manager_c;
 
-			static core_linked_list_c< reference_c * > _global_instance_list; // all string_c::reference_c instances in existence.
-			static void_c _refresh_all_instances(); // forces all string_c::reference_c instances to reacquire their string values.
+			static core_linked_list_c< reference_c * > _global_list; // all string_c::reference_c instances in existence.
+			core_linked_list_c< reference_c * >::node_c _global_list_node; // this instance's list node in _global_instance_list.
 
-		private:
-			core_linked_list_c< reference_c * >::node_c _global_instance_list_node; // this instance's list node in _global_instance_list.
 			string8_c _key;
 			string_c const * _value;
 
@@ -33,7 +31,8 @@ namespace cheonsa
 			reference_c();
 			~reference_c();
 
-			void_c refresh(); // tries to resolve _value with _key and invokes on_refreshed.
+			void_c release_value();
+			void_c resolve_value();
 
 			void_c clear(); // unsets _key and sets _value to nullptr and invokes on_refreshed.
 

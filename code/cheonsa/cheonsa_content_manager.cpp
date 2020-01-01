@@ -89,7 +89,7 @@ namespace cheonsa
 		_executable_folder_path = executable_folder_path;
 		_executable_file_name = executable_file_name;
 		_engine_data_folder_path = engine_data_folder_path;
-		return ops::data_does_folder_exist( _engine_data_folder_path );
+		return ops::file_system_does_folder_exist( _engine_data_folder_path );
 		load_settings_file();
 		_load_settings( _settings_file );
 	}
@@ -211,7 +211,7 @@ namespace cheonsa
 						scan_path += "/";
 					}
 					scan_path += file_path_relative_b;
-					if ( ops::data_does_file_exist( scan_path ) )
+					if ( ops::file_system_does_file_exist( scan_path ) )
 					{
 						absolute_file_path = scan_path;
 						return true;
@@ -237,7 +237,7 @@ namespace cheonsa
 					scan_path += "/";
 				}
 				scan_path += file_path_relative_b;
-				if ( ops::data_does_file_exist( scan_path ) )
+				if ( ops::file_system_does_file_exist( scan_path ) )
 				{
 					absolute_file_path = scan_path;
 					return true;
@@ -278,11 +278,11 @@ namespace cheonsa
 		core_list_c< string16_c > sub_folder_path_list;
 		if ( _engine_data_folder_path.get_length() > 0 )
 		{
-			ops::data_get_folder_path_list( sub_folder_path_list, _engine_data_folder_path, false );
+			ops::file_system_get_folder_path_list( sub_folder_path_list, _engine_data_folder_path, false );
 		}
 		for ( sint32_c i = 0; i < _game_data_folder_path_list.get_length(); i++ )
 		{
-			ops::data_get_folder_path_list( sub_folder_path_list, _game_data_folder_path_list[ i ], false );
+			ops::file_system_get_folder_path_list( sub_folder_path_list, _game_data_folder_path_list[ i ], false );
 		}
 		for ( sint32_c j = 0; j < sub_folder_path_list.get_length(); j++ )
 		{
@@ -354,7 +354,7 @@ namespace cheonsa
 			string16_c strings_file_path = _engine_data_folder_path;
 			strings_file_path += _actual_locale->get_code();
 			strings_file_path += "/strings.xml";
-			if ( ops::data_does_file_exist( strings_file_path ) )
+			if ( ops::file_system_does_file_exist( strings_file_path ) )
 			{
 				string_file_c * string_file = new string_file_c();
 				if ( string_file->load_from_xml( strings_file_path ) )
@@ -371,7 +371,7 @@ namespace cheonsa
 				strings_file_path = _game_data_folder_path_list[ i ];
 				strings_file_path += _actual_locale->get_code();
 				strings_file_path += "/strings.xml";
-				if ( ops::data_does_file_exist( strings_file_path ) )
+				if ( ops::file_system_does_file_exist( strings_file_path ) )
 				{
 					string_file_c * string_file = new string_file_c();
 					if ( string_file->load_from_xml( strings_file_path ) )
@@ -385,7 +385,13 @@ namespace cheonsa
 				}
 			}
 		}
-		string_c::reference_c::_refresh_all_instances();
+
+		core_linked_list_c< string_c::reference_c * >::node_c const * string_list_node = string_c::reference_c::_global_list.get_first();
+		while ( string_list_node )
+		{
+			string_list_node->get_value()->resolve_value();
+			string_list_node = string_list_node->get_next();
+		}
 
 		// propagate changes.
 		engine_c::get_instance()->get_resource_manager()->refresh();

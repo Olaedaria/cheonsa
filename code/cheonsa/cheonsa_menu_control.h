@@ -55,9 +55,9 @@ namespace cheonsa
 		boolean_c _content_box_is_dirty; // if true then _content_box is out of date and needs to be recalculated.
 
 		core_list_c< menu_control_c * > _control_list; // daughter controls.
-		virtual void_c _add_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end.
-		virtual void_c _remove_control( sint32_c index );
-		virtual void_c _remove_all_controls();
+		virtual void_c _give_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end.
+		virtual menu_control_c * _take_control( sint32_c index );
+		//virtual void_c _remove_all_controls();
 		virtual void_c _remove_and_delete_all_controls();
 		menu_control_c * _find_control( string8_c const & name, string8_c const & type );
 		void_c _find_controls_with_name( string8_c const & name, core_list_c< menu_control_c * > & result ); // searches private and public daughter controls for all controls that match the given name.
@@ -69,9 +69,7 @@ namespace cheonsa
 		void_c _find_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result ); // searches private daughter elements for all elements that match the given name.
 
 		menu_style_map_c::reference_c _style_map_reference; // the style map that is currently applied to this control.
-		void_c _release_style_references();
-		void_c _resolve_style_references();
-		virtual void_c _handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value ); // resolves style map key to a style map reference, and applies the style map to daughter elements and controls.
+		void_c _handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value ); // resolves style map key to a style map reference, and applies the style map to daughter elements and controls.
 
 		menu_layer_e _layer; // determines priority for hit detection and render ordering. lets control heirarchies mix layers, for example so that a pop up layer control can be a daughter to a base layer control.
 
@@ -200,7 +198,7 @@ namespace cheonsa
 		virtual void_c load_properties( data_scribe_markup_c::node_c const * node );
 
 		// gets the menu layout of this control system.
-		// this should only be set on the root control of a control system.
+		// this should only be set on the root control of a system (for example, the window control of a file picker dialog).
 		resource_file_menu_layout_c * get_menu_layout_resource() const;
 		// sets the menu layout of this control system.
 		// this should only be set on the root control of a control system.
@@ -322,20 +320,20 @@ namespace cheonsa
 	public:
 		core_event_c< void_c, user_interface_c * > on_added_to_user_interface; // public event hook for secondary responder(s), occurs after the control is added to the context. is only called on the top most (window) control.
 		core_event_c< void_c, user_interface_c * > on_removed_from_user_interface; // public event hook for secondary responder(s), occurs after the control is removed from the context. is only called on the top most (window) control.
-		core_event_c< void_c, menu_event_info_c > on_show; // public event for hook secondary responder(s), occurs after show() and show_immediately().
-		core_event_c< void_c, menu_event_info_c > on_hide; // public event for hook secondary responder(s), occurs after hide(), hide_immediately(), and hide_and_delete().
-		core_event_c< void_c, menu_event_info_c > on_enable; // public event hook for secondary responder(s), occurs after enable().
-		core_event_c< void_c, menu_event_info_c > on_disable; // public event hook for secondary responder(s), occurs after disable().
-		core_event_c< void_c, menu_event_info_c > on_clicked; // public event hook for secondary responder(s), occurs when the control is clicked on with the left mouse button. click handlers for other mouse buttons are not implemented yet, but it might be something i'll need later.
-		core_event_c< void_c, menu_event_info_c > on_multi_clicked; // public event hook for secondary responder(s), occurs when the control is double clicked on with the left mouse button.
-		core_event_c< void_c, menu_event_info_c > on_deep_text_focus_gained; // public event hook for secondary responder(s), occurs when the control or any of her daughters gains text input focus.
-		core_event_c< void_c, menu_event_info_c > on_deep_text_focus_lost; // public event hook for secondary responder(s), occurs when the control and all of her daughters lose text input focus.
-		core_event_c< void_c, menu_event_info_c > on_text_focus_gained; // public event for secondary responder(s), occurs when the control gains character input focus which happens when the control is clicked on. the argument will be set to the control that text focus was taken from.
-		core_event_c< void_c, menu_event_info_c > on_text_focus_lost; // public event for secondary responder(s), occurs when the control loses character input focus. input_event might be nullptr if the control was removed from the context while it had character focus. the argument will be set to the control that text focus will be given to.
-		core_event_c< void_c, menu_event_info_c > on_mouse_over_gained;
-		core_event_c< void_c, menu_event_info_c > on_mouse_over_lost;
-		core_event_c< void_c, menu_event_info_c > on_mouse_focus_gained; // public event for secondary responder(s), occurs when the mouse enters this control's area. the argument will be set to the control that mouse focus was taken from.
-		core_event_c< void_c, menu_event_info_c > on_mouse_focus_lost; // public event for secondary responder(s), occurs when the mouse leaves this control's area. input_event might be nullptr if the control was removed from the context while it had mouse focus. the argument will be set to the control that mouse focus will be given to.
+		core_event_c< void_c, menu_event_information_c > on_show; // public event for hook secondary responder(s), occurs after show() and show_immediately().
+		core_event_c< void_c, menu_event_information_c > on_hide; // public event for hook secondary responder(s), occurs after hide(), hide_immediately(), and hide_and_delete().
+		core_event_c< void_c, menu_event_information_c > on_enable; // public event hook for secondary responder(s), occurs after enable().
+		core_event_c< void_c, menu_event_information_c > on_disable; // public event hook for secondary responder(s), occurs after disable().
+		core_event_c< void_c, menu_event_information_c > on_clicked; // public event hook for secondary responder(s), occurs when the control is clicked on with the left mouse button. click handlers for other mouse buttons are not implemented yet, but it might be something i'll need later.
+		core_event_c< void_c, menu_event_information_c > on_multi_clicked; // public event hook for secondary responder(s), occurs when the control is double clicked on with the left mouse button.
+		core_event_c< void_c, menu_event_information_c > on_deep_text_focus_gained; // public event hook for secondary responder(s), occurs when the control or any of her daughters gains text input focus.
+		core_event_c< void_c, menu_event_information_c > on_deep_text_focus_lost; // public event hook for secondary responder(s), occurs when the control and all of her daughters lose text input focus.
+		core_event_c< void_c, menu_event_information_c > on_text_focus_gained; // public event for secondary responder(s), occurs when the control gains character input focus which happens when the control is clicked on. the argument will be set to the control that text focus was taken from.
+		core_event_c< void_c, menu_event_information_c > on_text_focus_lost; // public event for secondary responder(s), occurs when the control loses character input focus. input_event might be nullptr if the control was removed from the context while it had character focus. the argument will be set to the control that text focus will be given to.
+		core_event_c< void_c, menu_event_information_c > on_mouse_over_gained;
+		core_event_c< void_c, menu_event_information_c > on_mouse_over_lost;
+		core_event_c< void_c, menu_event_information_c > on_mouse_focus_gained; // public event for secondary responder(s), occurs when the mouse enters this control's area. the argument will be set to the control that mouse focus was taken from.
+		core_event_c< void_c, menu_event_information_c > on_mouse_focus_lost; // public event for secondary responder(s), occurs when the mouse leaves this control's area. input_event might be nullptr if the control was removed from the context while it had mouse focus. the argument will be set to the control that mouse focus will be given to.
 
 	};
 

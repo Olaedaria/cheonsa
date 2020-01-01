@@ -23,6 +23,10 @@ namespace cheonsa
 		}
 
 		resource_file_texture_c * texture = frame_style->texture;
+		if ( _override_texture.is_reference_set_and_loaded() )
+		{
+			texture = _override_texture;
+		}
 		if ( texture == nullptr || texture->get_video_texture() == nullptr )
 		{
 			return;
@@ -31,8 +35,21 @@ namespace cheonsa
 		// state color and saturation.
 		menu_state_e state = get_state();
 		menu_frame_style_c::state_c const & frame_style_state = frame_style->state_list[ state ];
+		//vector32x4_c element_color = frame_style_state.get_expressed_color() * _local_color;
+		//float32_c element_saturation = frame_style_state.saturation;
+		
 		vector32x4_c element_color = frame_style_state.get_expressed_color() * _local_color;
-		float32_c element_saturation = frame_style_state.saturation;
+		vector32x4_c element_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
+		menu_color_style_c * shared_color = nullptr;
+		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
+		assert( shared_color );
+		element_shared_colors[ 0 ] = shared_color->value;
+		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
+		assert( shared_color );
+		element_shared_colors[ 1 ] = shared_color->value;
+		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
+		assert( shared_color );
+		element_shared_colors[ 2 ] = shared_color->value;
 
 		float32_c texture_width = static_cast< float32_c >( texture->get_video_texture()->get_width() );
 		float32_c texture_width_inverse = 1.0f / texture_width;
@@ -104,7 +121,7 @@ namespace cheonsa
 		{
 			box32x2_c box( x[ 0 ], y[ 0 ], x[ 3 ], y[ 3 ] );
 			box32x2_c map( u[ 0 ], v[ 0 ], u[ 3 ], v[ 3 ] );
-			_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color );
+			_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color, element_shared_colors );
 		}
 		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fit )
 		{
@@ -128,7 +145,7 @@ namespace cheonsa
 
 			box32x2_c box( frame_center.a - frame_width_scale * frame_width, frame_center.b - frame_height_scale * frame_height, frame_center.a + frame_width_scale * frame_width, frame_center.b + frame_height_scale * frame_height );
 			box32x2_c map( 0.0f, 0.0f, 1.0f, 1.0f );
-			_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color );
+			_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color, element_shared_colors );
 		}
 		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fill )
 		{
@@ -151,7 +168,7 @@ namespace cheonsa
 			}
 
 			box32x2_c map( -texture_width_scale * 0.5f + 0.5f, -texture_height_scale * 0.5f + 0.5f, texture_width_scale * 0.5f + 0.5f, texture_height_scale * 0.5f + 0.5f );
-			_draw_list.append_rectangle( _local_box, map, pixel_shader, texture, element_color );
+			_draw_list.append_rectangle( _local_box, map, pixel_shader, texture, element_color, element_shared_colors );
 		}
 		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_nine_slice_stretch )
 		{
@@ -169,7 +186,7 @@ namespace cheonsa
 						{
 							box32x2_c box( x[ column ], y[ row ], x[ column + 1 ], y[ row + 1 ] );
 							box32x2_c map( u[ column ], v[ row ], u[ column + 1 ], v[ row + 1 ] );
-							_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color );
+							_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color, element_shared_colors );
 						}
 					}
 				}
@@ -310,7 +327,7 @@ namespace cheonsa
 					interval_c interval_x = interval_list_x[ xi ];
 					box32x2_c box( interval_x.minimum_pos, interval_y.minimum_pos, interval_x.maximum_pos, interval_y.maximum_pos );
 					box32x2_c map( interval_x.minimum_tex, interval_y.minimum_tex, interval_x.maximum_tex, interval_y.maximum_tex );
-					_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color );
+					_draw_list.append_rectangle( box, map, pixel_shader, texture, element_color, element_shared_colors );
 				}
 			}
 		}
@@ -356,6 +373,16 @@ namespace cheonsa
 	void_c menu_element_frame_c::set_override_style( menu_frame_style_c * value )
 	{
 		_override_style = value;
+	}
+
+	resource_file_texture_c * menu_element_frame_c::get_override_texture() const
+	{
+		return _override_texture;
+	}
+
+	void_c menu_element_frame_c::set_override_texture( resource_file_texture_c * value )
+	{
+		_override_texture = value;
 	}
 
 }

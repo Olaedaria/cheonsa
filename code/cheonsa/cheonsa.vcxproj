@@ -157,10 +157,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cheonsa_audio2.h" />
+    <ClInclude Include="cheonsa_core_shared_pointer.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
     <ClInclude Include="cheonsa_menu_control_scroll_bar.h" />
     <ClInclude Include="cheonsa_menu_control_scrub_bar.h" />
-    <ClInclude Include="cheonsa_safe_reference_count.h" />
+    <ClInclude Include="cheonsa_core_safe_reference_counter.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
     <ClInclude Include="cheonsa_content_manager.h" />
     <ClInclude Include="cheonsa_database.h" />
@@ -172,7 +173,6 @@
     <ClInclude Include="cheonsa_database_table.h" />
     <ClInclude Include="cheonsa_database_types.h" />
     <ClInclude Include="cheonsa_menu_style_file.h" />
-    <ClInclude Include="cheonsa_menu_thing.h" />
     <ClInclude Include="cheonsa_platform_critical_section.h" />
     <ClInclude Include="cheonsa_reflection_class.h" />
     <ClInclude Include="cheonsa_reflection_enumeration.h" />
@@ -212,7 +212,6 @@
     <ClInclude Include="cheonsa_scene_tree_kd.h" />
     <ClInclude Include="cheonsa_resource_file_sprite_set.h" />
     <ClInclude Include="cheonsa_string8.h" />
-    <ClInclude Include="cheonsa_time_types.h" />
     <ClInclude Include="cheonsa_video_types.h" />
     <ClInclude Include="cheonsa_data_scribe_ini.h" />
     <ClInclude Include="cheonsa_data_scribe_structure.h" />
@@ -682,7 +681,7 @@
     <ClCompile Include="cheonsa_debug_manager.cpp" />
     <ClCompile Include="cheonsa_menu_control_scroll_bar.cpp" />
     <ClCompile Include="cheonsa_menu_control_scrub_bar.cpp" />
-    <ClCompile Include="cheonsa_safe_reference_count.cpp" />
+    <ClCompile Include="cheonsa_core_safe_reference_counter.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_menu_style_file.cpp" />
     <ClCompile Include="cheonsa_platform_critical_section.cpp" />

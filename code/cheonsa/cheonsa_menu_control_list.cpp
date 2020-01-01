@@ -25,7 +25,7 @@ namespace cheonsa
 			assert( list_box->_selected_item_limit >= -1 );
 
 			_is_selected = value;
-			_element_frame_selected.set_is_showing( value );
+			_element_selected_frame.set_is_showing( value );
 
 			if ( value )
 			{
@@ -40,7 +40,7 @@ namespace cheonsa
 					{
 						menu_control_list_item_i * list_item = list_box->_selected_item_list[ i ];
 						list_item->_is_selected = false;
-						list_item->_element_frame_selected.set_is_showing( false );
+						list_item->_element_selected_frame.set_is_showing( false );
 					}
 					list_box->_selected_item_list.remove_at_index( 0, deselect_count );
 					list_box->_on_selection_changed();
@@ -135,17 +135,17 @@ namespace cheonsa
 
 	void_c menu_control_list_c::add_item( menu_control_list_item_c * item, sint32_c index )
 	{
-		_list_item_holder->_add_control( item, index );
+		_list_item_holder->_give_control( item, index );
 	}
 
 	void_c menu_control_list_c::remove_item( menu_control_list_item_c * item )
 	{
-		_list_item_holder->_remove_control( item->get_index() );
+		_list_item_holder->_take_control( item->get_index() );
 	}
 
 	void_c menu_control_list_c::remove_item( sint32_c index )
 	{
-		_list_item_holder->_remove_control( index );
+		_list_item_holder->_take_control( index );
 	}
 
 	void_c menu_control_list_c::remove_and_delete_all_items()

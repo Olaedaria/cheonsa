@@ -6,30 +6,30 @@
 namespace cheonsa
 {
 
-	void_c scene_component_menu_control_c::_add_control_to_user_interface()
+	void_c scene_component_menu_control_c::_give_control_to_user_interface()
 	{
 		if ( _control && _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
 		{
-			_scene_object->get_scene()->get_user_interface()->add_control( _control );
+			_scene_object->get_scene()->get_user_interface()->give_control( _control );
 		}
 	}
 
-	void_c scene_component_menu_control_c::_remove_control_from_user_interface()
+	void_c scene_component_menu_control_c::_take_control_from_user_interface()
 	{
 		if ( _control && _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
 		{
-			_scene_object->get_scene()->get_user_interface()->remove_control( _control );
+			_scene_object->get_scene()->get_user_interface()->take_control( _control );
 		}
 	}
 
 	void_c scene_component_menu_control_c::_handle_after_added_to_scene()
 	{
-		_add_control_to_user_interface();
+		_give_control_to_user_interface();
 	}
 
 	void_c scene_component_menu_control_c::_handle_before_removed_from_scene()
 	{
-		_remove_control_from_user_interface();
+		_take_control_from_user_interface();
 	}
 
 	scene_component_menu_control_c::scene_component_menu_control_c()
@@ -42,7 +42,7 @@ namespace cheonsa
 
 	scene_component_menu_control_c::~scene_component_menu_control_c()
 	{
-		_remove_control_from_user_interface();
+		_take_control_from_user_interface();
 		if ( _control && _control_is_ours )
 		{
 			delete _control;
@@ -56,7 +56,7 @@ namespace cheonsa
 		if ( _control )
 		{
 			assert( _control->get_scene_component() == this );
-			_remove_control_from_user_interface();
+			_take_control_from_user_interface();
 			_control->set_scene_component( nullptr );
 			if ( _control_is_ours )
 			{
@@ -71,7 +71,7 @@ namespace cheonsa
 		{
 			assert( _control->get_scene_component() == nullptr );
 			_control->set_scene_component( this );
-			_add_control_to_user_interface();
+			_give_control_to_user_interface();
 		}
 	}
 

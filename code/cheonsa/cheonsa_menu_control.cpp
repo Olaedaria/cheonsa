@@ -158,7 +158,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_c::_add_control( menu_control_c * control, sint32_c index )
+	void_c menu_control_c::_give_control( menu_control_c * control, sint32_c index )
 	{
 		assert( control );
 		assert( control->_user_interface == nullptr );
@@ -200,7 +200,7 @@ namespace cheonsa
 		control->update_transform_and_layout();
 	}
 
-	void_c menu_control_c::_remove_control( sint32_c index )
+	menu_control_c * menu_control_c::_take_control( sint32_c index )
 	{
 		assert( index >= 0 && index < _control_list.get_length() );
 		user_interface_c * user_interface = get_user_interface();
@@ -220,22 +220,23 @@ namespace cheonsa
 			_control_list[ i ]->_index = i;
 		}
 		_content_box_is_dirty = true;
+		return control;
 	}
 
-	void_c menu_control_c::_remove_all_controls()
-	{
-		user_interface_c * user_interface = get_user_interface();
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-		{
-			menu_control_c * daughter_control = _control_list[ i ];
-			if ( user_interface )
-			{
-				user_interface->_suspend_control( daughter_control );
-			}
-		}
-		_control_list.remove_all();
-		_content_box_is_dirty = true;
-	}
+	//void_c menu_control_c::_remove_all_controls()
+	//{
+	//	user_interface_c * user_interface = get_user_interface();
+	//	for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+	//	{
+	//		menu_control_c * daughter_control = _control_list[ i ];
+	//		if ( user_interface )
+	//		{
+	//			user_interface->_suspend_control( daughter_control );
+	//		}
+	//	}
+	//	_control_list.remove_all();
+	//	_content_box_is_dirty = true;
+	//}
 
 	void_c menu_control_c::_remove_and_delete_all_controls()
 	{
@@ -406,72 +407,72 @@ namespace cheonsa
 
 	void_c menu_control_c::_on_show()
 	{
-		on_show.invoke( menu_event_info_c( this, nullptr ) );
+		on_show.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_hide()
 	{
-		on_hide.invoke( menu_event_info_c( this, nullptr ) );
+		on_hide.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_enable()
 	{
-		on_enable.invoke( menu_event_info_c( this, nullptr ) );
+		on_enable.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_disable()
 	{
-		on_disable.invoke( menu_event_info_c( this, nullptr ) );
+		on_disable.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_clicked( input_event_c * input_event )
 	{
-		on_clicked.invoke( menu_event_info_c( this, input_event ) );
+		on_clicked.invoke( menu_event_information_c( this, input_event ) );
 	}
 
 	void_c menu_control_c::_on_multi_clicked( input_event_c * input_event )
 	{
-		on_multi_clicked.invoke( menu_event_info_c( this, input_event ) );
+		on_multi_clicked.invoke( menu_event_information_c( this, input_event ) );
 	}
 
 	void_c menu_control_c::_on_deep_text_focus_gained()
 	{
-		on_deep_text_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
+		on_deep_text_focus_gained.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_deep_text_focus_lost()
 	{
-		on_deep_text_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
+		on_deep_text_focus_lost.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_text_focus_gained()
 	{
-		on_text_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
+		on_text_focus_gained.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_text_focus_lost()
 	{
-		on_text_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
+		on_text_focus_lost.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_mouse_over_gained()
 	{
-		on_mouse_over_gained.invoke( menu_event_info_c( this, nullptr ) );
+		on_mouse_over_gained.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_mouse_over_lost()
 	{
-		on_mouse_over_lost.invoke( menu_event_info_c( this, nullptr ) );
+		on_mouse_over_lost.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_mouse_focus_gained()
 	{
-		on_mouse_focus_gained.invoke( menu_event_info_c( this, nullptr ) );
+		on_mouse_focus_gained.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_mouse_focus_lost()
 	{
-		on_mouse_focus_lost.invoke( menu_event_info_c( this, nullptr ) );
+		on_mouse_focus_lost.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_input( input_event_c * input_event )
@@ -555,15 +556,14 @@ namespace cheonsa
 
 		if ( _control_group_texture != nullptr )
 		{
+			_control_group_texture_wrapper.set_video_texture( nullptr );
 			delete _control_group_texture;
 			_control_group_texture = nullptr;
 		}
 
-		assert( get_user_interface() == nullptr );
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-		{
-			delete _control_list[ i ];
-		}
+		//assert( get_user_interface() == nullptr );
+
+		_control_list.remove_and_delete_all();
 	}
 
 	void_c menu_control_c::update_animations( float32_c time_step )
@@ -578,6 +578,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
 		{
 			menu_element_c * element = _element_list[ i ];
+			element->_is_enabled = _is_enabled;
 			element->_is_pressed = _is_pressed && _is_mouse_overed;
 			element->update_animations( time_step );
 		}
@@ -588,7 +589,7 @@ namespace cheonsa
 			control->update_animations( time_step );
 			if ( control->_wants_to_be_deleted && control->_is_showing_weight <= 0.0f )
 			{
-				_remove_control( i );
+				_take_control( i );
 				delete control;
 				i--;
 			}
@@ -608,7 +609,7 @@ namespace cheonsa
 			}
 			else if ( thing.type == thing_added_by_xml_c::type_e_control )
 			{
-				_remove_control( thing.control->_index );
+				_take_control( thing.control->_index );
 				delete thing.control;
 			}
 		}
@@ -630,7 +631,7 @@ namespace cheonsa
 		// daughter elements.
 		// will use existing ones when possible otherwise will instantiate new ones.
 		core_list_c< data_scribe_markup_c::node_c const * > sub_nodes;
-		node->find_tags( "elements", sub_nodes );
+		node->find_tags( "element", sub_nodes );
 		for ( sint32_c i = 0; i < sub_nodes.get_length(); i++ )
 		{
 			data_scribe_markup_c::node_c const * sub_node = sub_nodes[ i ];
@@ -883,12 +884,12 @@ namespace cheonsa
 	boolean_c menu_control_c::contains_global_point( vector32x2_c const & global_point ) const
 	{
 		vector32x2_c local_point = transform_global_point_to_local_point( global_point );
-		return ops::intersect_rectangle_vs_point( _local_box, local_point );
+		return ops::intersect_box_vs_point( _local_box, local_point );
 	}
 
 	boolean_c menu_control_c::contains_local_point( vector32x2_c const & local_point ) const
 	{
-		return ops::intersect_rectangle_vs_point( _local_box, local_point );
+		return ops::intersect_box_vs_point( _local_box, local_point );
 	}
 
 	string8_c const & menu_control_c::get_style_map_key() const
@@ -1613,7 +1614,7 @@ namespace cheonsa
 			map.maximum.a = static_cast< float32_c >( _local_box.get_width() ) / static_cast< float32_c >( _control_group_texture->get_width() );
 			map.maximum.b = static_cast< float32_c >( _local_box.get_height() ) / static_cast< float32_c >( _control_group_texture->get_height() );
 			box32x2_c box = _local_box;
-			_control_group_draw_list.append_rectangle( box, map, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_frame(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ) );
+			_control_group_draw_list.append_rectangle( box, map, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_frame(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), nullptr );
 			draw_list_list.insert_at_end( &_control_group_draw_list );
 		}
 		else

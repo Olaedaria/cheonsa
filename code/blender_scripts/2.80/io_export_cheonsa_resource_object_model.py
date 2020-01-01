@@ -1,9 +1,8 @@
 """
-during export, the script scans for vertices that are assigned to certain vertex groups, designated by the following names:
+during export, the script scans for vertices that are assigned to vertex groups with the following names:
   "_smooth_seam"
-    this vertex group is used to average normals (and not tangents) of duplicate vertices (vertices that share the same position) across different meshes.
-    for example, if your character model has a head mesh that is separate from the body, you will need to smooth the seam where the head meets the body.
-    so assign the loop of vertices at the edge of the head mesh and the loop of vertices at the edge of the body mesh to this vertex group.
+    this vertex group is used to average normals and orthogonalize tangents of duplicate vertices (vertices that share the same position) across different meshes.
+    for example, if your character model has a head mesh that is separate from the body, you will need to smooth the seam where the head meets the body, so assign the loop of vertices at the edge of the head mesh and the loop of vertices at the edge of the body mesh to this vertex group.
   "_wave_frequency"
     this value gets assigned to exported vertex.texture.c.
     used with waved displaced vertex shaders, of which wind direction and speed variables are fed into.
@@ -19,7 +18,7 @@ during export, the script scans for vertices that are assigned to certain vertex
 """
 
 bl_info = {
-	"name": "Export: Cheonsa Model (.chm)",
+	"name": "Export Cheonsa Model (.chm)",
 	"author": "",
 	"version": (1, 0, 0),
 	"blender": (2, 80, 0),
@@ -37,9 +36,7 @@ import math
 import struct
 import xml.dom.minidom
 
-file_format_signature = b"chm"	# private option, first three bytes of file.
 file_format_version = 1			# private option, fourth byte of file.
-byte_alignment = 16				# private option, arrays are aligned to start at byte addresses of this alignment when they are saved, because of potential CPU caching benefits (or penalty avoidance) when accessing the data in the arrays during run time.
 
 """
 same endianness codes used by python's struct pack and unpack, just conveninently listed in an "enum".
@@ -67,7 +64,7 @@ class memory_stream_c:
 		return len( this._bytes )
 	def get_bytes( this ):
 		return this._bytes
-	def load( this, size ):
+	def load( this, size ): # load bytes straight, does not change byte order.
 		result = this._value[this._position:this._position+size]
 		this._position += size
 		return result
@@ -129,20 +126,20 @@ class memory_stream_c:
 		return result
 	def load_string8( this ):
 		count = this.load_uint16()
-		bytes = this.load( count )
-		return bytes.decode( "utf-8" )
+		_bytes = this.load( count )
+		return _bytes.decode( "utf-8" )
 	def load_string16( this ):
 		count = this.load_uint16();
 		result = ""
 		for i in range( 0, count ):
 			result += chr( struct.unpack( this.endianness + "H", this.load( 2 ) )[0] )
 		return result
-	def save( this, bytes ):
+	def save( this, _bytes ): # save bytes straight, does not change byte order.
 		if this._position == len( this._bytes ):
-			this._bytes.extend( bytes )
+			this._bytes.extend( _bytes )
 			this._position = len( this._bytes )
 		else:
-			for byte in bytes:
+			for byte in _bytes:
 				if this._position < len( this._bytes ):
 					this._bytes[ this._position ] = byte
 				else:
@@ -197,15 +194,15 @@ class memory_stream_c:
 		for i in value:
 			this.save( struct.pack( this.endianness + "d", i ) )
 	def save_string8( this, value ):
-		bytes = value.encode( "utf-8" )
-		this.save_uint16( len( bytes ) )
-		this.save( bytes )
+		_bytes = value.encode( "utf-8" )
+		this.save_uint16( len( _bytes ) )
+		this.save( _bytes )
 	def save_string16( this, value ):
 		this.save_uint16( len( value ) )
 		for c in value:
 			this.save( struct.pack( this.endianness + "H", ord( c ) ) )
-	def save_padding( this, alignment_multiple ): # writes padding to stream so that its length is evenly divisble by alignment_multiple. only use this when position is equal to length.
-		count = multiple - ( len( this._bytes ) % alignment_multiple )
+	def save_padding( this, alignment ): # writes padding to stream so that its length is evenly divisble by alignment_multiple. only use this when position is equal to length.
+		count = alignment - ( len( this._bytes ) % alignment )
 		if count > 0:
 			this.save( bytearray( count ) )
 
@@ -213,6 +210,13 @@ class memory_stream_c:
 used to compile model data to save.
 """
 class model_c:
+	class chunk_c:
+		def __init__( this ):
+			this.signature = b"\0\0\0\0"
+			this.count = 0
+			this.data_offset = 0
+			this.data_size = 0
+			this.memory_stream = None # should be a memory_stream_c instance. may be longer than data_size if padding is present at end.
 	class mesh_c:
 		def __init__( this ):
 			this.name = ""
@@ -494,16 +498,14 @@ class model_c:
 			this.value = ""
 	class string_table_c:
 		def __init__( this ):
-			this.bytes = b""
-			this._string_list = [] # holds the strings in the order that they are added, which is the order that they will be saved.
+			this._bytes = b""
 			this._string_dict = {} # maps the string values to byte offsets.
 			this.add_string( "" ) # add empty string at offset 0.
 		def add_string( this, string ): # adds a new string and returns its offset, or returns the offset of an existing equivalent string.
 			if string in this._string_dict:
 				return this._string_dict[ string ]
-			this.string_list.append( string )
-			this.string_dict[ string ] = size
-			this.bytes += string.encode( "utf-8" )
+			this._string_dict[ string ] = size
+			this._bytes += string.encode( "utf-8" )
 	def __init__( this ):
 		this.mesh_bone_name_list = []		# list of String.
 		this.mesh_list = []
@@ -640,309 +642,469 @@ class model_c:
 				this.physics_parameters_list.append( physics_constraint.angular_lower_c )
 				this.physics_parameters_list.append( physics_constraint.angular_upper_c )
 				physics_constraint.parameters_end = len( this.physics_parameters_list )
-		# save contents.
+		# build chunks.
 		# this will also build the string table which is saved last.
-		cs = memory_stream_c( endianness_e.little ) # contents stream.
+		data_endianness = endianness_e.little
+		data_list_byte_alignment = 16
+		chunk_list = []
 		# mesh_bone_name_list
-		for mesh_bone_name in this.mesh_bone_name_list:
-			cs.save_uint16( this.string_table.add_string( mesh_bone_name ) )
-		cs.save_padding( byte_alignment )
+		if len( this.mesh_bone_name_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"mbn_"
+			chunk.count = len( this.mesh_bone_name_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for mesh_bone_name in this.mesh_bone_name_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( mesh_bone_name ) )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# mesh_list
-		for mesh in this.mesh_list:
-			cs.save_uint16( this.string_table.add_string( mesh.name ) )
-			cs.save_uint16( 0 )
-			cs.save_uint16( mesh.draw_start )
-			cs.save_uint16( mesh.draw_end )
-		cs.save_padding( byte_alignment )
+		if len( this.mesh_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"m___"
+			chunk.count = len( this.mesh_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for mesh in this.mesh_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( mesh.name ) )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_uint16( mesh.draw_start )
+				chunk.memory_stream.save_uint16( mesh.draw_end )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# mesh_draw_list
-		for mesh_draw in this.mesh_draw_list:
-			cs.save_uint8( mesh_draw.lod_index )
-			cs.save_uint8( mesh_draw.primitive_type )
-			cs.save_uint16( 0 )
-			cs.save_uint32( mesh_draw.vertex_start )
-			cs.save_uint32( mesh_draw.vertex_end )
-			cs.save_uint32( mesh_draw.index_start )
-			cs.save_uint32( mesh_draw.index_end )
-		cs.save_padding( byte_alignment )
+		if len( this.mesh_draw_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"md__"
+			chunk.count = len( this.mesh_draw_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for mesh_draw in this.mesh_draw_list:
+				chunk.memory_stream.save_uint8( mesh_draw.lod_index )
+				chunk.memory_stream.save_uint8( mesh_draw.primitive_type )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_uint32( mesh_draw.vertex_start )
+				chunk.memory_stream.save_uint32( mesh_draw.vertex_end )
+				chunk.memory_stream.save_uint32( mesh_draw.index_start )
+				chunk.memory_stream.save_uint32( mesh_draw.index_end )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# mesh_vertex_list_base
-		for mesh_vertex in this.mesh_vertex_list:
-			cs.save_float32( mesh_vertex.position[ 0 ] )
-			cs.save_float32( mesh_vertex.position[ 1 ] )
-			cs.save_float32( mesh_vertex.position[ 2 ] )
-			cs.save_float32( mesh_vertex.normal[ 0 ] )
-			cs.save_float32( mesh_vertex.normal[ 1 ] )
-			cs.save_float32( mesh_vertex.normal[ 2 ] )
-			cs.save_float32( mesh_vertex.normal_u[ 0 ] )
-			cs.save_float32( mesh_vertex.normal_u[ 1 ] )
-			cs.save_float32( mesh_vertex.normal_u[ 2 ] )
-			cs.save_float32( mesh_vertex.normal_v[ 0 ] )
-			cs.save_float32( mesh_vertex.normal_v[ 1 ] )
-			cs.save_float32( mesh_vertex.normal_v[ 2 ] )
-			cs.save_float32( mesh_vertex.texture[ 0 ] )
-			cs.save_float32( mesh_vertex.texture[ 1 ] )
-			cs.save_float32( mesh_vertex.texture[ 2 ] )
-			cs.save_float32( mesh_vertex.texture[ 3 ] )
-		cs.save_padding( byte_alignment )
+		if len( this.mesh_vertex_list_base ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"mvb_"
+			chunk.count = len( this.mesh_vertex_list_base )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for mesh_vertex in this.mesh_vertex_list:
+				chunk.memory_stream.save_float32( mesh_vertex.position[ 0 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.position[ 1 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.position[ 2 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal[ 0 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal[ 1 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal[ 2 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal_u[ 0 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal_u[ 1 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal_u[ 2 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal_v[ 0 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal_v[ 1 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.normal_v[ 2 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.texture[ 0 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.texture[ 1 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.texture[ 2 ] )
+				chunk.memory_stream.save_float32( mesh_vertex.texture[ 3 ] )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# mesh_vertex_list_bone_weight
 		if len( this.mesh_bone_name_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"mvbw"
+			chunk.count = len( this.mesh_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
 			for mesh_vertex in this.mesh_vertex_list:
-				cs.save_uint16( int( mesh_vertex.bone_weights[ 0 ] * 65535.0 ) )
-				cs.save_uint16( int( mesh_vertex.bone_weights[ 1 ] * 65535.0 ) )
-				cs.save_uint16( int( mesh_vertex.bone_weights[ 2 ] * 65535.0 ) )
-				cs.save_uint16( int( mesh_vertex.bone_weights[ 3 ] * 65535.0 ) )
-				cs.save_uint16( mesh_vertex.bone_indices[ 0 ] )
-				cs.save_uint16( mesh_vertex.bone_indices[ 1 ] )
-				cs.save_uint16( mesh_vertex.bone_indices[ 2 ] )
-				cs.save_uint16( mesh_vertex.bone_indices[ 3 ] )
-			cs.save_padding( byte_alignment )
+				chunk.memory_stream.save_uint16( int( mesh_vertex.bone_weights[ 0 ] * 65535.0 ) )
+				chunk.memory_stream.save_uint16( int( mesh_vertex.bone_weights[ 1 ] * 65535.0 ) )
+				chunk.memory_stream.save_uint16( int( mesh_vertex.bone_weights[ 2 ] * 65535.0 ) )
+				chunk.memory_stream.save_uint16( int( mesh_vertex.bone_weights[ 3 ] * 65535.0 ) )
+				chunk.memory_stream.save_uint16( mesh_vertex.bone_indices[ 0 ] )
+				chunk.memory_stream.save_uint16( mesh_vertex.bone_indices[ 1 ] )
+				chunk.memory_stream.save_uint16( mesh_vertex.bone_indices[ 2 ] )
+				chunk.memory_stream.save_uint16( mesh_vertex.bone_indices[ 3 ] )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# mesh_index_list
-		if len( this.mesh_index_list ) <= 65535:
-			for mesh_index in this.mesh_index_list:
-				cs.save_uint16( mesh_index )
-		else:
-			for mesh_index in this.mesh_index_list:
-				cs.save_uint32( mesh_index )
-		cs.save_padding( byte_alignment )
+		if len( this.mesh_index_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"mi__"
+			chunk.count = len( this.mesh_index_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			if len( this.mesh_index_list ) <= 65535:
+				for mesh_index in this.mesh_index_list:
+					chunk.memory_stream.save_uint16( mesh_index )
+			else:
+				for mesh_index in this.mesh_index_list:
+					chunk.memory_stream.save_uint32( mesh_index )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# bone_list
-		for bone in this.bone_list:
-			cs.save_uint16( this.string_table.add_string( bone.name ) )
-			cs.save_sint16( this.string_table.add_string( bone.mother_bone_name ) )
-			cs.save_uint8( bone.flags )
-			cs.save_uint8( 0 )
-			cs.save_uint8( 0 )
-			cs.save_uint8( 0 )
-			cs.save_float32( bone.roll )
-			cs.save_float32( bone.head_position[ 0 ] )
-			cs.save_float32( bone.head_position[ 1 ] )
-			cs.save_float32( bone.head_position[ 2 ] )
-			cs.save_float32( bone.head_radius )
-			cs.save_float32( bone.tail_position[ 0 ] )
-			cs.save_float32( bone.tail_position[ 1 ] )
-			cs.save_float32( bone.tail_position[ 2 ] )
-			cs.save_float32( bone.tail_radius )
-		cs.save_padding( byte_alignment )
+		if len( this.bone_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"b___"
+			chunk.count = len( this.bone_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for bone in this.bone_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( bone.name ) )
+				chunk.memory_stream.save_sint16( this.string_table.add_string( bone.mother_bone_name ) )
+				chunk.memory_stream.save_uint8( bone.flags )
+				chunk.memory_stream.save_uint8( 0 )
+				chunk.memory_stream.save_uint8( 0 )
+				chunk.memory_stream.save_uint8( 0 )
+				chunk.memory_stream.save_float32( bone.roll )
+				chunk.memory_stream.save_float32( bone.head_position[ 0 ] )
+				chunk.memory_stream.save_float32( bone.head_position[ 1 ] )
+				chunk.memory_stream.save_float32( bone.head_position[ 2 ] )
+				chunk.memory_stream.save_float32( bone.head_radius )
+				chunk.memory_stream.save_float32( bone.tail_position[ 0 ] )
+				chunk.memory_stream.save_float32( bone.tail_position[ 1 ] )
+				chunk.memory_stream.save_float32( bone.tail_position[ 2 ] )
+				chunk.memory_stream.save_float32( bone.tail_radius )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# bone_logic_list
-		for bone_logic in this.bone_logic_list:
-			cs.save_uint16( bone_logic.type )
-			cs.save_uint16( 0 )
-			cs.save_uint16( bone_logic.property_start )
-			cs.save_uint16( bone_logic.property_end )
-		cs.save_padding( byte_alignment )
+		if len( this.bone_logic_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"bl__"
+			chunk.count = len( this.bone_logic_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for bone_logic in this.bone_logic_list:
+				chunk.memory_stream.save_uint16( bone_logic.type )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_uint16( bone_logic.property_start )
+				chunk.memory_stream.save_uint16( bone_logic.property_end )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# bone_logic_property_list
-		for bone_logic_property in this.bone_logic_property_list:
-			cs.save_uint16( this.string_table.add_string( bone_logic_property.key ) )
-			cs.save_uint16( this.string_table.add_string( bone_logic_property.value ) )
-		cs.save_padding( byte_alignment )
+		if len( this.bone_logic_property_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"blp_"
+			chunk.count = len( this.bone_logic_property_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for bone_logic_property in this.bone_logic_property_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( bone_logic_property.key ) )
+				chunk.memory_stream.save_uint16( this.string_table.add_string( bone_logic_property.value ) )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# bone_attachment_list
-		for bone_attachment in this.bone_attachment_list:
-			cs.save_uint16( this.string_table.add_string( bone_attachment.name ) )
-			cs.save_uint16( this.string_table.add_string( bone_attachment.mother_bone_name ) )
-			cs.save_float32( bone_attachment.position[ 0 ] )
-			cs.save_float32( bone_attachment.position[ 1 ] )
-			cs.save_float32( bone_attachment.position[ 2 ] )
-			cs.save_float32( bone_attachment.rotation[ 0 ] )
-			cs.save_float32( bone_attachment.rotation[ 1 ] )
-			cs.save_float32( bone_attachment.rotation[ 2 ] )
-			cs.save_float32( bone_attachment.rotation[ 3 ] )
-			cs.save_float32( bone_attachment.rotation )
-		cs.save_padding( byte_alignment )
+		if len( this.bone_attachment_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"ba__"
+			chunk.count = len( this.bone_attachment_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for bone_attachment in this.bone_attachment_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( bone_attachment.name ) )
+				chunk.memory_stream.save_uint16( this.string_table.add_string( bone_attachment.mother_bone_name ) )
+				chunk.memory_stream.save_float32( bone_attachment.position[ 0 ] )
+				chunk.memory_stream.save_float32( bone_attachment.position[ 1 ] )
+				chunk.memory_stream.save_float32( bone_attachment.position[ 2 ] )
+				chunk.memory_stream.save_float32( bone_attachment.rotation[ 0 ] )
+				chunk.memory_stream.save_float32( bone_attachment.rotation[ 1 ] )
+				chunk.memory_stream.save_float32( bone_attachment.rotation[ 2 ] )
+				chunk.memory_stream.save_float32( bone_attachment.rotation[ 3 ] )
+				chunk.memory_stream.save_float32( bone_attachment.rotation )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# animation_list
-		for animation in this.animation_list:
-			cs.save_uint16( this.string_table.add_string( animation.name ) )
-			cs.save_uint16( 0 )
-			cs.save_float32( animation.move_speed )
-			cs.save_float32( animation.time_in )
-			cs.save_float32( animation.time_out )
-			cs.save_uint32( animation.object_start )
-			cs.save_uint32( animation.object_end )
-			cs.save_uint32( animation.event_start )
-			cs.save_uint32( animation.event_end )
-		cs.save_padding( byte_alignment )
+		if len( this.animation_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"a___"
+			chunk.count = len( this.animation_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for animation in this.animation_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( animation.name ) )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_float32( animation.move_speed )
+				chunk.memory_stream.save_float32( animation.time_in )
+				chunk.memory_stream.save_float32( animation.time_out )
+				chunk.memory_stream.save_uint32( animation.object_start )
+				chunk.memory_stream.save_uint32( animation.object_end )
+				chunk.memory_stream.save_uint32( animation.event_start )
+				chunk.memory_stream.save_uint32( animation.event_end )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# animation_object_list
-		for animation_object in this.animation_object_list:
-			cs.save_uint16( this.string_table.add_string( animation_object.name ) )
-			cs.save_uint16( 0 )
-			cs.save_uint32( animation_object.property_start )
-			cs.save_uint32( animation_object.property_end )
-		cs.save_padding( byte_alignment )
+		if len( this.animation_object_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"ao__"
+			chunk.count = len( this.animation_object_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for animation_object in this.animation_object_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( animation_object.name ) )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_uint32( animation_object.property_start )
+				chunk.memory_stream.save_uint32( animation_object.property_end )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# animation_property_list
-		for animation_property in this.animation_property_list:
-			cs.save_uint16( this.string_table.add_string( animation_property.name ) )
-			cs.save_uint16( 0 )
-			cs.save_uint32( animation_property.key_start )
-			cs.save_uint32( animation_property.key_end )
-		cs.save_padding( byte_alignment )
+		if len( this.animation_property_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"ap__"
+			chunk.count = len( this.animation_property_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for animation_property in this.animation_property_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( animation_property.name ) )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_uint32( animation_property.key_start )
+				chunk.memory_stream.save_uint32( animation_property.key_end )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.appen( chunk )
 		# animation_key_list
-		for animation_key in this.animation_key_list:
-			cs.save_float32( animation_key.time )
-			cs.save_float32( animation_key.value[ 0 ] )
-			cs.save_float32( animation_key.value[ 1 ] )
-			cs.save_float32( animation_key.value[ 2 ] )
-			cs.save_float32( animation_key.value[ 3 ] )
-		cs.save_padding( byte_alignment )
+		if len( this.animation_key_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"ak__"
+			chunk.count = len( this.animation_key_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for animation_key in this.animation_key_list:
+				chunk.memory_stream.save_float32( animation_key.time )
+				chunk.memory_stream.save_float32( animation_key.value[ 0 ] )
+				chunk.memory_stream.save_float32( animation_key.value[ 1 ] )
+				chunk.memory_stream.save_float32( animation_key.value[ 2 ] )
+				chunk.memory_stream.save_float32( animation_key.value[ 3 ] )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# animation_event_list
-		for animation_event in this.animation_event_list:
-			cs.save_float32( animation_event.time )
-			cs.save_uint16( animation_event.type )
-			cs.save_uint16( animation_event.value )
-		cs.save_padding( byte_alignment )
+		if len( this.animation_event_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"ae__"
+			chunk.count = len( this.animation_event_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for animation_event in this.animation_event_list:
+				chunk.memory_stream.save_float32( animation_event.time )
+				chunk.memory_stream.save_uint16( animation_event.type )
+				chunk.memory_stream.save_uint16( animation_event.value )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# physics_body_list
-		for physics_body in this.physics_body_list:
-			cs.save_uint16( this.string_table.add_string( physics_body.name ) )
-			cs.save_sint16( this.string_table.add_string( physics_body.mother_bone_name ) )
-			cs.save_float32( physics_body.position[ 0 ] )
-			cs.save_float32( physics_body.position[ 1 ] )
-			cs.save_float32( physics_body.position[ 2 ] )
-			cs.save_float32( physics_body.rotation[ 0 ] )
-			cs.save_float32( physics_body.rotation[ 1 ] )
-			cs.save_float32( physics_body.rotation[ 2 ] )
-			cs.save_float32( physics_body.rotation[ 3 ] )
-			cs.save_float32( physics_body.scale )
-			cs.save_float32( physics_body.mass )
-			cs.save_float32( physics_body.friction )
-			cs.save_float32( physics_body.restitution )
-			cs.save_float32( physics_body.linear_damping )
-			cs.save_float32( physics_body.angular_damping )
-			cs.save_uint16( physics_body.flags )
-			cs.save_uint16( 0 )
-			cs.save_uint16( physics_body.layer )
-			cs.save_uint16( physics_body.layer_mask )
-			cs.save_uint16( physics_body.shape_start )
-			cs.save_uint16( physics_body.shape_end )
-		cs.save_padding( byte_alignment )
+		if len( this.physics_body_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"pb__"
+			chunk.count = len( this.physics_body_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for physics_body in this.physics_body_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( physics_body.name ) )
+				chunk.memory_stream.save_sint16( this.string_table.add_string( physics_body.mother_bone_name ) )
+				chunk.memory_stream.save_float32( physics_body.position[ 0 ] )
+				chunk.memory_stream.save_float32( physics_body.position[ 1 ] )
+				chunk.memory_stream.save_float32( physics_body.position[ 2 ] )
+				chunk.memory_stream.save_float32( physics_body.rotation[ 0 ] )
+				chunk.memory_stream.save_float32( physics_body.rotation[ 1 ] )
+				chunk.memory_stream.save_float32( physics_body.rotation[ 2 ] )
+				chunk.memory_stream.save_float32( physics_body.rotation[ 3 ] )
+				chunk.memory_stream.save_float32( physics_body.scale )
+				chunk.memory_stream.save_float32( physics_body.mass )
+				chunk.memory_stream.save_float32( physics_body.friction )
+				chunk.memory_stream.save_float32( physics_body.restitution )
+				chunk.memory_stream.save_float32( physics_body.linear_damping )
+				chunk.memory_stream.save_float32( physics_body.angular_damping )
+				chunk.memory_stream.save_uint16( physics_body.flags )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_uint16( physics_body.layer )
+				chunk.memory_stream.save_uint16( physics_body.layer_mask )
+				chunk.memory_stream.save_uint16( physics_body.shape_start )
+				chunk.memory_stream.save_uint16( physics_body.shape_end )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# physics_shape_list
-		for physics_shape in this.physics_shape_list:
-			cs.save_uint16( physics_shape.type )
-			cs.save_uint16( 0 )
-			if physics_shape.type == physics_shape_type_e.sphere:
-				cs.save_float32( physics_shape.sphere_radius )
-				cs.save_uint32( 0 )
-				cs.save_uint32( 0 )
-			elif physics_shape.type == physics_shape_type_e.box:
-				cs.save_float32( physics_shape.box_width )
-				cs.save_float32( physics_shape.box_depth )
-				cs.save_float32( physics_shape.box_height )
-			elif physics_shape.type == physics_shape_type_e.capsule:
-				cs.save_float32( physics_shape.capsule_radius )
-				cs.save_float32( physics_shape.capsule_height )
-				cs.save_uint32( 0 )
-			elif physics_shape.type == physics_shape_type_e.cylinder:
-				cs.save_float32( physics_shape.cylinder_radius )
-				cs.save_float32( physics_shape.cylinder_height )
-				cs.save_uint32( 0 )
-			elif physics_shape.type == physics_shape_type_e.cone:
-				cs.save_float32( physics_shape.cone_radius )
-				cs.save_float32( physics_shape.cone_height )
-				cs.save_uint32( 0 )
-			elif physics_shape.type == physics_shape_type_e.convex_hull:
-				cs.save_uint16( physics_shape.vertex_start )
-				cs.save_uint16( physics_shape.vertex_end )
-				cs.save_uint32( 0 )
-				cs.save_uint32( 0 )
-			elif physics_shape.type == physics_shape_type_e.triangle_mesh:
-				cs.save_uint16( physics_shape.vertex_start )
-				cs.save_uint16( physics_shape.vertex_end )
-				cs.save_uint16( physics_shape.index_start )
-				cs.save_uint16( physics_shape.index_end )
-				cs.save_uint32( 0 )
-			cs.save_float32( physics_shape.position[ 0 ] )
-			cs.save_float32( physics_shape.position[ 1 ] )
-			cs.save_float32( physics_shape.position[ 2 ] )
-			cs.save_float32( physics_shape.rotation[ 0 ] )
-			cs.save_float32( physics_shape.rotation[ 1 ] )
-			cs.save_float32( physics_shape.rotation[ 2 ] )
-			cs.save_float32( physics_shape.rotation[ 3 ] )
-			cs.save_float32( physics_shape.margin )
-		cs.save_padding( byte_alignment )
+		if len( this.physics_shape_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"ps__"
+			chunk.count = len( this.physics_shape_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for physics_shape in this.physics_shape_list:
+				chunk.memory_stream.save_uint16( physics_shape.type )
+				chunk.memory_stream.save_uint16( 0 )
+				if physics_shape.type == physics_shape_type_e.sphere:
+					chunk.memory_stream.save_float32( physics_shape.sphere_radius )
+					chunk.memory_stream.save_uint32( 0 )
+					chunk.memory_stream.save_uint32( 0 )
+				elif physics_shape.type == physics_shape_type_e.box:
+					chunk.memory_stream.save_float32( physics_shape.box_width )
+					chunk.memory_stream.save_float32( physics_shape.box_depth )
+					chunk.memory_stream.save_float32( physics_shape.box_height )
+				elif physics_shape.type == physics_shape_type_e.capsule:
+					chunk.memory_stream.save_float32( physics_shape.capsule_radius )
+					chunk.memory_stream.save_float32( physics_shape.capsule_height )
+					chunk.memory_stream.save_uint32( 0 )
+				elif physics_shape.type == physics_shape_type_e.cylinder:
+					chunk.memory_stream.save_float32( physics_shape.cylinder_radius )
+					chunk.memory_stream.save_float32( physics_shape.cylinder_height )
+					chunk.memory_stream.save_uint32( 0 )
+				elif physics_shape.type == physics_shape_type_e.cone:
+					chunk.memory_stream.save_float32( physics_shape.cone_radius )
+					chunk.memory_stream.save_float32( physics_shape.cone_height )
+					chunk.memory_stream.save_uint32( 0 )
+				elif physics_shape.type == physics_shape_type_e.convex_hull:
+					chunk.memory_stream.save_uint16( physics_shape.vertex_start )
+					chunk.memory_stream.save_uint16( physics_shape.vertex_end )
+					chunk.memory_stream.save_uint32( 0 )
+					chunk.memory_stream.save_uint32( 0 )
+				elif physics_shape.type == physics_shape_type_e.triangle_mesh:
+					chunk.memory_stream.save_uint16( physics_shape.vertex_start )
+					chunk.memory_stream.save_uint16( physics_shape.vertex_end )
+					chunk.memory_stream.save_uint16( physics_shape.index_start )
+					chunk.memory_stream.save_uint16( physics_shape.index_end )
+					chunk.memory_stream.save_uint32( 0 )
+				chunk.memory_stream.save_float32( physics_shape.position[ 0 ] )
+				chunk.memory_stream.save_float32( physics_shape.position[ 1 ] )
+				chunk.memory_stream.save_float32( physics_shape.position[ 2 ] )
+				chunk.memory_stream.save_float32( physics_shape.rotation[ 0 ] )
+				chunk.memory_stream.save_float32( physics_shape.rotation[ 1 ] )
+				chunk.memory_stream.save_float32( physics_shape.rotation[ 2 ] )
+				chunk.memory_stream.save_float32( physics_shape.rotation[ 3 ] )
+				chunk.memory_stream.save_float32( physics_shape.margin )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# physics_vertex_list
-		for physics_vertex in this.physics_vertex_list:
-			cs.save_float32( physics_vertex.position[ 0 ] )
-			cs.save_float32( physics_vertex.position[ 1 ] )
-			cs.save_float32( physics_vertex.position[ 2 ] )
-		cs.save_padding( byte_alignment )
+		if len( this.physics_vertex_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"pv__"
+			chunk.count = len( this.physics_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for physics_vertex in this.physics_vertex_list:
+				chunk.memory_stream.save_float32( physics_vertex.position[ 0 ] )
+				chunk.memory_stream.save_float32( physics_vertex.position[ 1 ] )
+				chunk.memory_stream.save_float32( physics_vertex.position[ 2 ] )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# physics_index_list
-		for physics_index in this.physics_index_list:
-			cs.save_uint16( physics_index )
-		cs.save_padding( byte_alignment )
+		if len( this.physics_index_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"pi__"
+			chunk.count = len( this.physics_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for physics_index in this.physics_index_list:
+				chunk.memory_stream.save_uint16( physics_index )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# physics_constraint_list
-		for physics_constraint in this.physics_constraint_list:
-			cs.save_uint16( physics_constraint.type )
-			cs.save_uint16( physics_constraint.flags )
-			cs.save_uint16( physics_constraint.parameters_start )
-			cs.save_uint16( physics_constraint.parameters_end )
-			cs.save_uint16( physics_constraint.body_a_index )
-			cs.save_uint16( physics_constraint.body_b_index )
-			cs.save_float32( physics_constraint.frame_position[ 0 ] )
-			cs.save_float32( physics_constraint.frame_position[ 1 ] )
-			cs.save_float32( physics_constraint.frame_position[ 2 ] )
-			cs.save_float32( physics_constraint.frame_rotation[ 0 ] )
-			cs.save_float32( physics_constraint.frame_rotation[ 1 ] )
-			cs.save_float32( physics_constraint.frame_rotation[ 2 ] )
-			cs.save_float32( physics_constraint.frame_rotation[ 3 ] )
-		cs.save_padding( byte_alignment )
+		if len( this.physics_constraint_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"pc__"
+			chunk.count = len( this.physics_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for physics_constraint in this.physics_constraint_list:
+				chunk.memory_stream.save_uint16( physics_constraint.type )
+				chunk.memory_stream.save_uint16( physics_constraint.flags )
+				chunk.memory_stream.save_uint16( physics_constraint.parameters_start )
+				chunk.memory_stream.save_uint16( physics_constraint.parameters_end )
+				chunk.memory_stream.save_uint16( physics_constraint.body_a_index )
+				chunk.memory_stream.save_uint16( physics_constraint.body_b_index )
+				chunk.memory_stream.save_float32( physics_constraint.frame_position[ 0 ] )
+				chunk.memory_stream.save_float32( physics_constraint.frame_position[ 1 ] )
+				chunk.memory_stream.save_float32( physics_constraint.frame_position[ 2 ] )
+				chunk.memory_stream.save_float32( physics_constraint.frame_rotation[ 0 ] )
+				chunk.memory_stream.save_float32( physics_constraint.frame_rotation[ 1 ] )
+				chunk.memory_stream.save_float32( physics_constraint.frame_rotation[ 2 ] )
+				chunk.memory_stream.save_float32( physics_constraint.frame_rotation[ 3 ] )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# physics_parameter_list
-		for physics_parameters in physics_parameters_list:
-			cs.save_float32( physics_parameters )
-		cs.save_padding( byte_alignment )
+		if len( this.physics_parameters_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"pp__"
+			chunk.count = len( this.physics_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for physics_parameters in this.physics_parameters_list:
+				chunk.memory_stream.save_float32( physics_parameters )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# light_list
-		for light in this.light_list:
-			cs.save_uint16( light.string_table.add_string( light.name ) )
-			cs.save_uint16( light.string_table.add_string( light.mother_bone_name ) )
-			cs.save_uint16( light.type )
-			cs.save_uint16( 0 )
-			cs.save_float32( light.position[ 0 ] )
-			cs.save_float32( light.position[ 1 ] )
-			cs.save_float32( light.position[ 2 ] )
-			cs.save_float32( light.rotation[ 0 ] )
-			cs.save_float32( light.rotation[ 1 ] )
-			cs.save_float32( light.rotation[ 2 ] )
-			cs.save_float32( light.rotation[ 3 ] )
-			cs.save_float32( light.color[ 0 ] )
-			cs.save_float32( light.color[ 1 ] )
-			cs.save_float32( light.color[ 2 ] )
-			cs.save_float32( light.brightness )
-			cs.save_float32( light.range )
-			cs.save_float32( light.cone_angle )
-		cs.save_padding( byte_alignment )
+		if len( this.light_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"l___"
+			chunk.count = len( this.physics_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for light in this.light_list:
+				chunk.memory_stream.save_uint16( light.string_table.add_string( light.name ) )
+				chunk.memory_stream.save_uint16( light.string_table.add_string( light.mother_bone_name ) )
+				chunk.memory_stream.save_uint16( light.type )
+				chunk.memory_stream.save_uint16( 0 )
+				chunk.memory_stream.save_float32( light.position[ 0 ] )
+				chunk.memory_stream.save_float32( light.position[ 1 ] )
+				chunk.memory_stream.save_float32( light.position[ 2 ] )
+				chunk.memory_stream.save_float32( light.rotation[ 0 ] )
+				chunk.memory_stream.save_float32( light.rotation[ 1 ] )
+				chunk.memory_stream.save_float32( light.rotation[ 2 ] )
+				chunk.memory_stream.save_float32( light.rotation[ 3 ] )
+				chunk.memory_stream.save_float32( light.color[ 0 ] )
+				chunk.memory_stream.save_float32( light.color[ 1 ] )
+				chunk.memory_stream.save_float32( light.color[ 2 ] )
+				chunk.memory_stream.save_float32( light.brightness )
+				chunk.memory_stream.save_float32( light.range )
+				chunk.memory_stream.save_float32( light.cone_angle )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# property_list
-		for thing in this.property_list:
-			cs.save_uint16( this.string_table.add_string( thing.name ) )
-			cs.save_uint16( this.string_table.add_string( thing.value ) )
-		cs.save_padding( byte_alignment )
+		if len( this.property_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"prop"
+			chunk.count = len( this.physics_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for thing in this.property_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( thing.name ) )
+				chunk.memory_stream.save_uint16( this.string_table.add_string( thing.value ) )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
 		# string_table
-		cs.save( this.string_table.bytes )
-		cs.save_padding( byte_alignment )
+		if True:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"st__"
+			chunk.count = 0
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			chunk.memory_stream.save( this.string_table._bytes )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.insert( 0, chunk )
+
 		# save header.
-		hs = memory_stream_c( endianness_e.little ) # header stream.
-		hs.write( file_format_signature )						# signature
-		hs.save_uint8( file_format_version )					# version
-		hs.save_sint32( len( this.mesh_bone_name_list ) )		# mesh_bone_name_count
-		hs.save_sint32( len( this.mesh_list ) )					# mesh_count
-		hs.save_sint32( len( this.mesh_draw_list ) )			# mesh_draw_count
-		hs.save_sint32( len( this.mesh_vertex_list ) )			# mesh_vertex_count
-		hs.save_sint32( len( this.mesh_index_list ) )			# mesh_index_count
-		hs.save_sint32( len( this.bone_list ) )					# bone_count
-		hs.save_sint32( len( this.bone_logic_list ) )			# bone_logic_count
-		hs.save_sint32( len( this.bone_logic_property_list ) )	# bone_logic_property_count
-		hs.save_sint32( len( this.bone_attachment_list ) )		# bone_attachment_count
-		hs.save_sint32( len( this.animation_list ) )			# animation_count
-		hs.save_sint32( len( this.animation_object_list ) )		# animation_object_count
-		hs.save_sint32( len( this.animation_property_list ) )	# animation_property_count
-		hs.save_sint32( len( this.animation_key_list ) )		# animation_key_count
-		hs.save_sint32( len( this.animation_event_list ) )		# animation_event_count
-		hs.save_sint32( len( this.physics_body_list ) )			# physics_body_count
-		hs.save_sint32( len( this.physics_shape_list ) )		# physics_shape_count
-		hs.save_sint32( len( this.physics_vertex_list ) )		# physics_vertex_count
-		hs.save_sint32( len( this.physics_index_list ) )		# physics_index_count
-		hs.save_sint32( len( this.physics_constraint_list ) )	# physics_constraint_count
-		hs.save_sint32( len( this.physics_parameters_list ) )	# physics_parameters_count
-		hs.save_sint32( len( this.light_list ) )				# light_count
-		hs.save_sint32( len( this.property_list ) )				# property_count
-		hs.save_sint32( len( this.string_table.bytes ) )		# string_table_length
-		hs.save_padding( byte_alignment )
-		# flush header and contents to file stream.
-		file_stream.write( hs._bytes )
-		file_stream.write( cs._bytes )
+		chunk_data_offset = ( 8 ) + ( len( chunk_list ) * 16 ) + ( data_list_byte_alignment - ( chunk_data_offset % data_list_byte_alignment ) )
+		header_memory_stream = memory_stream_c( data_endianness )
+		header_memory_stream.save( b"cm" if data_endianness == endianness_e.little else b"CM" )
+		header_memory_stream.save( b"01" )
+		header_memory_stream.save_sint32( len( chunk_list ) )
+		for chunk in chunk_list:
+			assert( len( chunk.signature ) == 4 )
+			header_memory_stream.save( chunk.signature )
+			header_memory_stream.save_sint32( chunk.count )
+			header_memory_stream.save_sint32( chunk_data_offset )
+			header_memory_stream.save_sint32( chunk.data_size )
+			chunk_data_offset += chunk.memory_stream.get_size()
+		header_memory_stream.save_padding( data_list_byte_alignment )
+
+		# save to disk file.
+		file_stream.save( header_memory_stream._bytes )
+		for chunk in chunk_list:
+			file_stream.save( chunk.memory_stream._bytes )
+
+
 """
 performs the export with the blender context's currently selected object(s).
 finds the root (most parent) object of the primary selected object.

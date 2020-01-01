@@ -96,7 +96,7 @@ namespace cheonsa
 
 		// if data folder is not in executable folder, then assume that running out of "x64/Debug/", so go up a few folders and dig down again.
 #if defined( _DEBUG )
-		if ( !ops::data_does_folder_exist( engine_data_folder_path ) )
+		if ( !ops::file_system_does_folder_exist( engine_data_folder_path ) )
 		{
 			engine_data_folder_path = executable_folder_path;
 			engine_data_folder_path = ops::path_get_mother( engine_data_folder_path );
@@ -128,7 +128,7 @@ namespace cheonsa
 #endif
 
 		// determine if engine data folder path is valid.
-		if ( !ops::data_does_folder_exist( engine_data_folder_path ) )
+		if ( !ops::file_system_does_folder_exist( engine_data_folder_path ) )
 		{
 			string16_c message;
 			message += "engine_data_folder_path does not exist:\n";
@@ -338,6 +338,12 @@ namespace cheonsa
 			_glyph_manager = nullptr;
 		}
 
+		if ( _menu_style_manager != nullptr )
+		{
+			delete _menu_style_manager;
+			_menu_style_manager = nullptr;
+		}
+
 		if ( _video_renderer_interface != nullptr )
 		{
 			delete _video_renderer_interface;
@@ -354,12 +360,6 @@ namespace cheonsa
 		{
 			delete _input_manager;
 			_input_manager = nullptr;
-		}
-
-		if ( _menu_style_manager != nullptr )
-		{
-			delete _menu_style_manager;
-			_menu_style_manager = nullptr;
 		}
 
 		if ( _resource_manager != nullptr )

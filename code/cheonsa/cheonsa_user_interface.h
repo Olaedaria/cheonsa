@@ -93,9 +93,9 @@ namespace cheonsa
 		scene_c * get_scene() const; // gets the scene that is associated with this user interface.
 		void_c set_scene( scene_c * scene ); // sets the scene to associate with this user interface. if the current scene has any 3d menu controls, then they will be removed from this user interface. if the new scene has any 3d menu controls, then they will be added to this user interface. you can set it to nullptr to disassociate.
 
-		void_c add_control( menu_control_c * control, sint32_c index = -1 );
-		void_c remove_control( menu_control_c * control );
-		void_c bring_control_to_front( menu_control_c * control );
+		void_c give_control( menu_control_c * control, sint32_c index = -1 ); // adds a control to this user interface, also transfers ownership of a menu control to this user interface (which means that you aren't responsible for deleting it).
+		void_c take_control( menu_control_c * control ); // removes a control from this user interface, also takes ownership of a control away from this user interface (which means that you are now responsible for deleting it.
+		void_c bring_control_to_front( menu_control_c * control ); // moves the given control (which is already in the user interface) to front (layered above all other controls in the user interface).
 		core_list_c< menu_control_c * > const & get_control_list() const;
 
 		//boolean_c is_mouse_inside(); // returns true if the mouse intersects with any normal or modal control in this context, false if otherwise.

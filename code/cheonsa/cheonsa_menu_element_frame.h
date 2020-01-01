@@ -17,7 +17,8 @@ namespace cheonsa
 
 	private:
 		menu_frame_style_c::reference_c _style_reference;
-		menu_frame_style_c * _override_style; // if set, then this style will be used instead of the one defined by the _style_reference.
+		menu_frame_style_c * _override_style; // if set, then this style will be used instead of the one defined by _style_reference. this lets the program define a style, rather than the data.
+		resource_file_texture_c::reference_c _override_texture; // if set, then this texture will be used instead of the one defined by _override_style or _style_reference. this lets the program define a texture, rather than the data.
 
 		virtual void_c _build_draw_list() override;
 
@@ -34,6 +35,9 @@ namespace cheonsa
 
 		menu_frame_style_c * get_override_style() const;
 		void_c set_override_style( menu_frame_style_c * value );
+
+		resource_file_texture_c * get_override_texture() const;
+		void_c set_override_texture( resource_file_texture_c * value );
 
 	};
 

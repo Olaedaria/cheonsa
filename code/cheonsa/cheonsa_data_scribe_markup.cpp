@@ -84,7 +84,6 @@ namespace cheonsa
 		_daughter_count = 0;
 		_next_sister = -1;
 		_markup = markup;
-		_is_open = false;
 	}
 
 	data_scribe_markup_c::node_c const * data_scribe_markup_c::node_c::get_node( sint32_c index ) const
@@ -271,13 +270,17 @@ namespace cheonsa
 
 	boolean_c data_scribe_markup_c::_parse()
 	{
+		assert( _node_heap.get_length() == 0 );
+
 		// open virtual root tag.
 		node_c * virtual_root_tag = _node_heap.emplace_at_end();
-		virtual_root_tag->_is_open = true;
-		virtual_root_tag->_markup = this;
-		virtual_root_tag->_depth = 0;
+		virtual_root_tag->reset( this );
 		virtual_root_tag->_type = node_c::type_e_tag;
 		virtual_root_tag->_tag_type = node_c::tag_type_e_open;
+		virtual_root_tag->_value = "[virtual_root]";
+		virtual_root_tag->_index = 0;
+		virtual_root_tag->_depth = 0;
+		virtual_root_tag->_is_open = true;
 
 		// parse nodes until end of document.
 		core_list_c< sint32_c > node_stack; // tracks our stack state with indices to nodes in the _node_heap.
@@ -316,6 +319,7 @@ namespace cheonsa
 
 			node_c * new_node = _node_heap.emplace_at_end();
 			new_node->reset( this );
+			new_node->_index = _node_heap.get_length() - 1;
 			new_node->_depth = node_stack.get_length();
 
 			if ( _current[ 0 ] == _bracket_open )
@@ -343,15 +347,6 @@ namespace cheonsa
 				{
 					return false;
 				}
-				//if ( new_node->_value.get_length() == 0 )
-				//{
-				//	_node_heap.remove_at_end();
-				//}
-			}
-
-			if ( new_node->_tag_type == node_c::tag_type_e_open )
-			{
-				new_node->_is_open = true;
 			}
 
 			sint32_c top_node_index = node_stack[ node_stack.get_length() - 1 ];
@@ -360,17 +355,20 @@ namespace cheonsa
 			{
 				if ( top_node->_is_open )
 				{
-					// push node on top of node stack.
-					top_node->_is_open = false;
+					// new_node is daughter of top_node.
+					assert( top_node->_first_daughter == -1 );
 					top_node->_first_daughter = new_node_index;
 					top_node->_daughter_count = 1;
 					new_node->_mother = top_node_index;
 					node_stack.insert_at_end( new_node_index );
+					top_node->_is_open = false;
 				}
 				else
 				{
+					// new_node is sister of top_node.
 					// replace node on top of node stack.
 					top_node->_next_sister = new_node_index;
+					assert( top_node->_mother >= 0 );
 					new_node->_mother = top_node->_mother;
 					node_c * node_mother = &_node_heap[ top_node->_mother ];
 					node_mother->_daughter_count++;
@@ -379,14 +377,25 @@ namespace cheonsa
 			}
 			else
 			{
-				// walk up node stack one level.
-				// notice that we don't validate that the close tag has the same name as its matching open tag.
-				if ( node_stack.get_length() == 1 )
+				assert( new_node->_tag_type == node_c::tag_type_e_close );
+
+				if ( top_node->_is_open )
 				{
-					// encountered too many close tags.
-					return false;
+					// keep current top node, just close it.
+					top_node->_is_open = false;
 				}
-				node_stack.remove_at_end();
+				else
+				{
+					// pop current top node.
+					// we could validate that the name of the closing tag matches the name of the tag that it is closing, but we won't.
+					if ( node_stack.get_length() == 1 )
+					{
+						// encountered too many close tags.
+						return false;
+					}
+					node_stack.remove_at_end();
+					_node_heap.remove_at_end(); // recycle, reuse.
+				}
 			}
 
 			_skip_space();

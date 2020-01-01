@@ -1305,9 +1305,9 @@ namespace cheonsa
 		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		folder_path += font_cache_folder;
 
-		if ( !ops::data_does_folder_exist( folder_path ) )
+		if ( !ops::file_system_does_folder_exist( folder_path ) )
 		{
-			ops::data_create_folder( folder_path );
+			ops::file_system_create_folder( folder_path );
 		}
 
 		// save glyph atlas texture array slices that were modified during run time.
@@ -1486,7 +1486,7 @@ namespace cheonsa
 		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		folder_path += font_cache_folder;
 
-		if ( !ops::data_does_folder_exist( folder_path ) )
+		if ( !ops::file_system_does_folder_exist( folder_path ) )
 		{
 			return false;
 		}
@@ -1515,7 +1515,7 @@ namespace cheonsa
 			file_path += "page";
 			file_path += index_string;
 			file_path += ".png";
-			if ( !ops::data_does_file_exist( file_path ) )
+			if ( !ops::file_system_does_file_exist( file_path ) )
 			{
 				if ( i == 0 )
 				{

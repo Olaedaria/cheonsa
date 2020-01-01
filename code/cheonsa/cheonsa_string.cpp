@@ -4,32 +4,31 @@
 namespace cheonsa
 {
 
-	core_linked_list_c< string_c::reference_c * > string_c::reference_c::_global_instance_list;
-
-	void_c string_c::reference_c::_refresh_all_instances()
-	{
-		core_linked_list_c< string_c::reference_c * >::node_c const * list_node = string_c::reference_c::_global_instance_list.get_first();
-		while ( list_node )
-		{
-			list_node->get_value()->refresh();
-			list_node = list_node->get_next();
-		}
-	}
+	core_linked_list_c< string_c::reference_c * > string_c::reference_c::_global_list;
 
 	string_c::reference_c::reference_c()
-		: _global_instance_list_node( this )
+		: _global_list_node( this )
 		, _key()
 		, _value( nullptr )
 	{
-		_global_instance_list.insert_at_end( &_global_instance_list_node );
+		_global_list.insert_at_end( &_global_list_node );
 	}
 
 	string_c::reference_c::~reference_c()
 	{
-		_global_instance_list.remove( &_global_instance_list_node );
+		_global_list.remove( &_global_list_node );
 	}
 
-	void_c string_c::reference_c::refresh()
+	void_c string_c::reference_c::release_value()
+	{
+		if ( _value )
+		{
+			_value = nullptr;
+			on_refreshed.invoke( this );
+		}
+	}
+
+	void_c string_c::reference_c::resolve_value()
 	{
 		_value = engine_c::get_instance()->get_content_manager()->find_string( _key );
 		on_refreshed.invoke( this );
@@ -59,7 +58,7 @@ namespace cheonsa
 		if ( _key != value )
 		{
 			_key = value;
-			refresh();
+			resolve_value();
 		}
 	}
 

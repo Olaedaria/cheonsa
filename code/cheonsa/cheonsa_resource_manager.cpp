@@ -52,10 +52,10 @@ namespace cheonsa
 		if ( resource->_load( stream ) )
 		{
 			resource->_absolute_file_path = absolute_file_path;
-			ops::data_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
+			ops::file_system_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
 			if ( for_async_load_thread )
 			{
-				ops::data_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
+				ops::file_system_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
 				assert( resource->_reference_count > 0 ); // there should be at least one fake user count added when the resource was put into the _async_load_queue.
 				resource->_reference_count--; // remove the fake user.
 			}
@@ -72,7 +72,7 @@ namespace cheonsa
 			return;
 		}
 
-		if ( !ops::data_get_file_or_folder_modified_time( absolute_file_path, file_modified_time ) )
+		if ( !ops::file_system_get_file_or_folder_modified_time( absolute_file_path, file_modified_time ) )
 		{
 			return;
 		}

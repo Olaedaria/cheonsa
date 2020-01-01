@@ -29,8 +29,8 @@ namespace cheonsa
 
 		virtual void_c update_animations( float32_c time_step ) override;
 
-		void_c add_control( menu_control_c * control );
-		void_c remove_control( menu_control_c * control );
+		void_c give_control( menu_control_c * control );
+		menu_control_c * take_control( menu_control_c * control );
 
 		menu_visibility_mode_e get_horizontal_scroll_visibitly_mode() const;
 		void_c set_horizontal_scroll_visibility_mode( menu_visibility_mode_e value );

@@ -47,9 +47,9 @@ namespace cheonsa
 		sint32_c get_item_count() const;
 		menu_control_combo_list_item_c * get_item_at_index( sint32_c index );
 
-		void_c add_item( menu_control_combo_list_item_c * item, sint32_c index = -1 );
-		void_c remove_item( menu_control_combo_list_item_c * item );
-		void_c remove_item( sint32_c index );
+		void_c give_item( menu_control_combo_list_item_c * item, sint32_c index = -1 );
+		void_c take_item( menu_control_combo_list_item_c * item );
+		void_c take_item( sint32_c index );
 		void_c remove_and_delete_all_items();
 
 	};

@@ -234,8 +234,8 @@ namespace cheonsa
 		line32_c make_line32_from_segment( vector32x2_c const & point_a, vector32x2_c const & point_b ); // normal/tangent of result points to right of vector point_b - point_a.
 		line32_c make_line32_normalized( line32_c const & line );
 
-		//vector32x2_c get_rectangle_point( box32x2_c const & rectangle, matrix32x2x2_c const & rectangle_basis, vector32x2_c const & rectangle_origin, sint32_c rectangle_point_index ); // rectangle_point_index, 0 is top left, 1 is top right, 2 is bottom left, 3 is bottom right.
-		//line32_c get_rectangle_line( box32x2_c const & rectangle, matrix32x2x2_c const & rectangle_basis, vector32x2_c const & rectangle_origin, sint32_c rectangle_edge_index ); // rectangle_edge_index, 0 is left, 1 is top, 2 is right, 3 is bottom. normal of lines point towards the outside of the rectangle.
+		//vector32x2_c get_box_point( box32x2_c const & box, matrix32x2x2_c const & box_basis, vector32x2_c const & box_origin, sint32_c box_point_index ); // box_point_index, 0 is top left, 1 is top right, 2 is bottom left, 3 is bottom right.
+		//line32_c get_box_line( box32x2_c const & box, matrix32x2x2_c const & box_basis, vector32x2_c const & box_origin, sint32_c box_edge_index ); // box_edge_index, 0 is left, 1 is top, 2 is right, 3 is bottom. normal of lines point towards the outside of the box.
 
 		//
 		//
@@ -275,6 +275,9 @@ namespace cheonsa
 		boolean_c convert_rgb_to_husl( float64_c const * rgb, float64_c * husl );
 		boolean_c convert_husl_to_rgb( float64_c const * husl, float64_c * rgb );
 
+		vector32x4_c adjust_color_brightness( vector32x4_c const & color, float32_c amount ); // adds each color channel by amount, clamps each color channel of result to range 0 to 1.
+		vector32x4_c adjust_color_contrast( vector32x4_c const & color, float32_c amount ); // multiplies each color channel by amount, clamps each color channel of result to range 0 to 1.
+		vector32x4_c adjust_color_saturation( vector32x4_c const & color, float32_c amount );
 
 		//
 		//
@@ -283,8 +286,8 @@ namespace cheonsa
 		//
 
 		// sets the points and points_count of polygon_out, leaves everything else alone.
-		// result is a counter clock wise wind order polygon, starting with the top left vertex of the rectangle.
-		void_c make_polygon32x2_from_rectangle32( box32x2_c const & rectangle_in, polygon32x2_c & polygon_out );
+		// result is a counter clock wise wind order polygon, starting with the top left vertex of the box.
+		void_c make_polygon32x2_from_box32x2( box32x2_c const & box_in, polygon32x2_c & polygon_out );
 
 		//ray64_c make_transformed_ray( ray64_c const & ray, matrix64x3x4_c const & transform );
 		vector64x3_c make_vector64x3_normal_from_triangle( vector64x3_c a, vector64x3_c b, vector64x3_c c );
@@ -348,7 +351,7 @@ namespace cheonsa
 		vector64x3_c nearest_point_on_plane( vector64x3_c const & point, plane64_c const & plane );
 		vector64x3_c nearest_point_on_ray( vector64x3_c const & point, ray64_c const & ray );
 		vector64x3_c nearest_point_on_segment( vector64x3_c const & point, segment64_c const & segment );
-		vector64x2_c nearest_point_on_rectangle( vector64x2_c const & point, box64x2_c const & rectangle );
+		vector64x2_c nearest_point_on_box( vector64x2_c const & point, box64x2_c const & box );
 
 
 		//
@@ -368,11 +371,11 @@ namespace cheonsa
 		boolean_c intersect_box_vs_box( box64x3_c const & box_a, space_transform_c const & box_a_transform, box64x3_c const & box_b, space_transform_c const & box_b_transform );
 		boolean_c intersect_box_vs_sphere( box64x3_c const & box, sphere64_c const & sphere );
 		boolean_c intersect_box_vs_sphere( box64x3_c const & box, space_transform_c const & box_transform, sphere64_c const & b );
-		boolean_c intersect_rectangle_vs_point( box32x2_c const & rectangle, vector32x2_c const & point );
-		boolean_c intersect_rectangle_vs_point( box64x2_c const & rectangle, vector64x2_c const & point );
-		boolean_c intersect_rectangle_vs_rectangle( box32x2_c const & rectangle_a, box32x2_c const & rectangle_b );
-		boolean_c intersect_rectangle_vs_rectangle( box64x2_c const & rectangle_a, box64x2_c const & rectangle_b );
-		boolean_c intersect_rectangle_vs_circle( box64x2_c const & rectangle, circle64_c const & circle );
+		boolean_c intersect_box_vs_point( box32x2_c const & box, vector32x2_c const & point );
+		boolean_c intersect_box_vs_point( box64x2_c const & box, vector64x2_c const & point );
+		boolean_c intersect_box_vs_box( box32x2_c const & box_a, box32x2_c const & box_b );
+		boolean_c intersect_box_vs_box( box64x2_c const & box_a, box64x2_c const & box_b );
+		boolean_c intersect_box_vs_circle( box64x2_c const & box, circle64_c const & circle );
 		boolean_c intersect_plane_vs_plane_vs_plane( plane64_c const & a, plane64_c const & b, plane64_c const & c, vector64x3_c * intersection_point );
 		//boolean_c intersect_ray_vs_plane( ray64_c const & ray, plane64_c const & plane, float64_c & t );
 		//boolean_c intersect_ray_vs_box( ray64_c const & ray, box64x3_c const & box );
@@ -418,12 +421,12 @@ namespace cheonsa
 		boolean_c path_is_formatted_for_cheonsa( string16_c const & path, boolean_c has_trailing_slash ); // checks that path only contains valid file path characters. path may contain forward slashes, but not back slashes (this is cheonsa's file path convention).
 		void_c path_format_for_cheonsa( string16_c const & windows_file_path_in, string16_c & cheonsa_file_path_out, boolean_c add_trailing_slash ); // replaces back slashes with forward slashes, and if add_trailing_slash is true then adds a forward slash at the end if there isn't one there already. cheonsa should save all file paths in this format so that they can be ported to other formats as needed.
 
-		#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 		// given a file path that was formatted with path_format_for_cheonsa(), converts it to a file path for windows.
 		// gets around 260 character MAX_PATH limit by prepending "\\?\" to a file path.
 		// converts all forward slashes to back slashes.
 		void_c path_format_for_windows( string16_c const & cheonsa_file_path_in, string16_c & windows_file_path_out );
-		#endif
+#endif
 
 		string16_c path_get_mother( string16_c const & path ); // returns the mother path which will always end with '/'.
 		string16_c path_get_file_extension( string16_c const & path ); // gets the file extension pointed to by the file path. returns the first dot in the file name and everything after it. supports multi-dot file extensions.
@@ -433,24 +436,57 @@ namespace cheonsa
 
 		//
 		//
-		// file operations.
+		// file system operations.
 		//
 		//
 
-		boolean_c data_get_file_or_folder_modified_time( string16_c const & file_path, sint64_c & miliseconds_since_epoch );
-		boolean_c data_set_file_or_folder_time_modified( string16_c const & file_path, sint64_c miliseconds_since_epoch );
+		boolean_c file_system_get_file_or_folder_modified_time( string16_c const & file_path, sint64_c & miliseconds_since_epoch );
+		boolean_c file_system_set_file_or_folder_time_modified( string16_c const & file_path, sint64_c miliseconds_since_epoch );
 
-		boolean_c data_does_file_exist( string16_c const & file_path );
-		boolean_c data_create_file( string16_c const & file_path );
+		boolean_c file_system_does_file_exist( string16_c const & file_path );
+		boolean_c file_system_create_file( string16_c const & file_path );
 
-		boolean_c data_does_folder_exist( string16_c const & file_path );
-		boolean_c data_create_folder( string16_c const & file_path );
+		boolean_c file_system_does_folder_exist( string16_c const & file_path );
+		boolean_c file_system_create_folder( string16_c const & file_path );
 
-		boolean_c data_move_file_or_folder( string16_c const & from_file_path, string16_c const & to_file_path );
-		boolean_c data_delete_file_or_folder( string16_c const & file_path );
+		boolean_c file_system_move_file_or_folder( string16_c const & from_file_path, string16_c const & to_file_path );
+		boolean_c file_system_delete_file_or_folder( string16_c const & file_path );
 
-		void_c data_get_file_path_list( core_list_c< string16_c > & result_absolute_file_paths, string16_c const & absolute_folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter ); // extension filter is an optional file extension (without asterisk, with the dot) like ".txt".
-		void_c data_get_folder_path_list( core_list_c< string16_c > & result_absolute_folder_paths, string16_c const & absolute_folder_path, boolean_c const search_sub_folders );
+		class file_system_file_information_c
+		{
+		public:
+			string16_c path;
+			sint64_c creation_time;
+			sint64_c last_access_time;
+			sint64_c last_write_time;
+			boolean_c is_folder; // if true, then the thing is a folder, other wise it is a file.
+
+			file_system_file_information_c()
+				: path()
+				, creation_time( 0 )
+				, last_access_time( 0 )
+				, last_write_time( 0 )
+				, is_folder( false )
+			{
+			}
+
+			file_system_file_information_c & operator = ( file_system_file_information_c & other )
+			{
+				other.path.character_list.transfer_to( path.character_list );
+				creation_time = other.creation_time;
+				last_access_time = other.last_access_time;
+				last_write_time = other.last_write_time;
+				is_folder = other.is_folder;
+				return *this;
+			}
+
+		};
+
+		// extension filter is optional, can define the files to return, can be like ".txt" or like ".jpg|.png".
+		void_c file_system_get_list( core_list_c< file_system_file_information_c > & result, string16_c const & path, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter = nullptr );
+
+		void_c file_system_get_file_path_list( core_list_c< string16_c > & result_absolute_file_paths, string16_c const & absolute_folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter ); // extension filter is an optional file extension (without asterisk, with the dot) like ".txt".
+		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result_absolute_folder_paths, string16_c const & absolute_folder_path, boolean_c const search_sub_folders );
 
 
 		//
@@ -459,11 +495,15 @@ namespace cheonsa
 		//
 		//
 
-		sint64_c time_get_high_resolution_timer_frequency(); // returns how fast this system's high resolution timer ticks at, in hertz (ticks per second).
-		sint64_c time_get_high_resolution_timer_count(); // returns the current number of ticks of this system's high resolution timer.
-		sint64_c time_get_milliseconds_since_epoch(); // gets the number of the earth human's time measurement unit called "milliseconds" passed since the earth human's gregorian calendar date of January 1, 2000, 12:00:00 GMT.
+		sint64_c time_get_high_resolution_timer_frequency(); // returns the frequency of the operating system's high resolution timer.
+		sint64_c time_get_high_resolution_timer_count(); // returns the current count of the operating system's high resolution timer.
+		sint64_c time_get_milliseconds_since_epoch(); // gets the number of the earth human's time measurement unit called "milliseconds" passed since the earth human's gregorian calendar date of January 1, 2000, 12:00:00 GMT (designation J2000). all galaxies in this universe rotate at the same rate, this forms the basis of a universal time keeping system used by interstellar cultures. waiting for earth humans to grow up.
 		sint64_c time_get_local_time_zone_offset(); // gets the time zone and daylight savings delta that can be applied to the value returned by time_get_milliseconds_since_epoch() in order to produce a localized time_date_*_c instance.
 
+#if defined( cheonsa_platform_windows )
+		sint64_c time_format_for_cheonsa( sint64_c windows_time );
+		sint64_c time_format_for_windows( sint64_c cheonsa_time );
+#endif
 
 		//
 		//

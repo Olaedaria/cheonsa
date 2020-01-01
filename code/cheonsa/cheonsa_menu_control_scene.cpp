@@ -6,7 +6,7 @@ namespace cheonsa
 
 	void_c menu_control_scene_c::_on_input( input_event_c * input_event )
 	{
-		on_input.invoke( menu_event_info_c( this, input_event ) );
+		on_input.invoke( menu_event_information_c( this, input_event ) );
 	}
 
 	void_c menu_control_scene_c::update_transform_and_layout()
@@ -63,14 +63,14 @@ namespace cheonsa
 		return _canvas;
 	}
 
-	void_c menu_control_scene_c::add_control( menu_control_c * control )
+	void_c menu_control_scene_c::give_control( menu_control_c * control )
 	{
-		_add_control( control );
+		_give_control( control );
 	}
 
-	void_c menu_control_scene_c::remove_control( menu_control_c * control )
+	menu_control_c * menu_control_scene_c::take_control( menu_control_c * control )
 	{
-		_remove_control( control->get_index() );
+		return _take_control( control->get_index() );
 	}
 
 }

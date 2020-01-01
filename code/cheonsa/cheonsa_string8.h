@@ -11,9 +11,6 @@ namespace cheonsa
 	// narrow string, 8-bit characters, ascii, utf-8, null terminated.
 	// 8-bit strings are used to hold keys (unique identifiers).
 	// 8-bit strings are used to convert between string values and numeric value types (in the ops namespace).
-	// this string can operate in two modes:
-	// static: the string16_c instance is a light weight wrapper around a string literal value. a benefit to this is that copying by value is very low overhead. a draw back to this is that the string value can not be manipulated.
-	// dynamic: the string16_c instance manages its own heap memory dynamically to hold the string value. a benefit to this is that the string value can be manipulated. a draw back to this is that copying by value will mean creating a new copy on the heap.
 	class string8_c
 	{
 	public:

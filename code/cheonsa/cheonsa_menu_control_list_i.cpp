@@ -35,7 +35,7 @@ namespace cheonsa
 		: menu_control_c()
 		, _is_selected( false )
 		, _element_frame()
-		, _element_frame_selected()
+		, _element_selected_frame()
 		, _element_text()
 	{
 		_layout_mode = menu_layout_mode_e_simple;
@@ -44,12 +44,15 @@ namespace cheonsa
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_add_element( &_element_frame );
 
-		_element_frame_selected.set_name( string8_c( mode_e_static, "frame_selected" ) );
-		_add_element( &_element_frame_selected );
+		_element_selected_frame.set_name( string8_c( mode_e_static, "selected_frame" ) );
+		_element_selected_frame.set_shared_color_class( menu_shared_color_class_e_field );
+		//_add_element( &_element_selected_frame );
 
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
+		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_text.on_text_value_changed.subscribe( this, &menu_control_list_item_i::_handle_element_text_on_value_changed );
 		_add_element( &_element_text );
 
@@ -102,7 +105,7 @@ namespace cheonsa
 		if ( _is_selected != value )
 		{
 			_is_selected = value;
-			_element_frame_selected.set_is_showing( value );
+			_element_selected_frame.set_is_showing( value );
 			if ( value )
 			{
 				if ( list != nullptr )
@@ -118,7 +121,7 @@ namespace cheonsa
 							{
 								menu_control_list_item_i * list_item = list->_selected_item_list[ i ];
 								list_item->_is_selected = false;
-								list_item->_element_frame_selected.set_is_showing( false );
+								list_item->_element_selected_frame.set_is_showing( false );
 							}
 							list->_selected_item_list.remove_at_index( 0, deselect_count );
 							list->_on_selection_changed();
@@ -211,7 +214,7 @@ namespace cheonsa
 				{
 					menu_control_list_item_i * list_item = _selected_item_list[ i ];
 					list_item->_is_selected = false;
-					list_item->_element_frame_selected.set_is_showing( false );
+					list_item->_element_selected_frame.set_is_showing( false );
 				}
 				_selected_item_list.remove_at_index( 0, deselect_count );
 				_on_selection_changed();
@@ -240,7 +243,7 @@ namespace cheonsa
 			{
 				menu_control_list_item_i * list_item = _selected_item_list[ i ];
 				list_item->_is_selected = false;
-				list_item->_element_frame_selected.set_is_showing( false );
+				list_item->_element_selected_frame.set_is_showing( false );
 			}
 			_selected_item_list.remove_all();
 			selection_changed = true;
@@ -253,7 +256,7 @@ namespace cheonsa
 			assert( list_item->_index == item_index );
 			assert( list_item->_is_selected == false );
 			list_item->_is_selected = true;
-			list_item->_element_frame_selected.set_is_showing( true );
+			list_item->_element_selected_frame.set_is_showing( true );
 			_selected_item_list.insert_at_end( list_item );
 			selection_changed = true;
 		}
@@ -384,12 +387,12 @@ namespace cheonsa
 		mother->_vertical_scroll_bar->update_visibility( mother->_vertical_scroll_bar_visibility_mode );
 	}
 
-	void_c menu_control_list_item_holder_i::_add_control( menu_control_c * control, sint32_c index )
+	void_c menu_control_list_item_holder_i::_give_control( menu_control_c * control, sint32_c index )
 	{
 		menu_control_list_i * mother = static_cast< menu_control_list_i * >( _mother_control );
 		menu_control_list_item_i * list_item = dynamic_cast< menu_control_list_item_i * >( control );
 		assert( list_item != nullptr );
-		menu_control_c::_add_control( control, index );
+		menu_control_c::_give_control( control, index );
 		if ( list_item->_is_selected )
 		{
 			mother->_selected_item_list.insert_at_end( list_item );
@@ -398,18 +401,19 @@ namespace cheonsa
 		_item_layout_is_dirty = true;
 	}
 
-	void_c menu_control_list_item_holder_i::_remove_control( sint32_c index )
+	menu_control_c * menu_control_list_item_holder_i::_take_control( sint32_c index )
 	{
 		menu_control_list_i * mother = static_cast< menu_control_list_i * >( _mother_control );
 		menu_control_list_item_i * list_item = dynamic_cast< menu_control_list_item_i * >( _control_list[ index ] );
 		assert( list_item != nullptr );
-		menu_control_c::_remove_control( index );
+		menu_control_c * result = menu_control_c::_take_control( index );
 		if ( list_item->_is_selected )
 		{
 			assert( mother->_selected_item_list.remove( list_item ) );
 			mother->_on_selection_changed();
 		}
 		_item_layout_is_dirty = true;
+		return result;
 	}
 
 	void_c menu_control_list_item_holder_i::_remove_and_delete_all_controls()
@@ -476,6 +480,7 @@ namespace cheonsa
 		_vertical_size_maximum = 0.0f;
 
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
@@ -483,11 +488,11 @@ namespace cheonsa
 		_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
 		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_list_i::_vertical_scroll_handle_on_value_changed );
-		_add_control( _vertical_scroll_bar );
+		_give_control( _vertical_scroll_bar );
 
 		_list_item_holder = new menu_control_list_item_holder_i();
 		_list_item_holder->set_name( string8_c( mode_e_static, "list_item_holder" ) );
-		_add_control( _list_item_holder );
+		_give_control( _list_item_holder );
 
 		set_style_map_key( string8_c( mode_e_static, "e_list" ) );
 	}

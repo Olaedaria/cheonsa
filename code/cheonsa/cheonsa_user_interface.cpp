@@ -165,6 +165,7 @@ namespace cheonsa
 		}
 
 		// update mouse overed and mouse focused.
+		menu_control_c * original_mouse_focused = _mouse_focused;
 		_pick_control( input_event, _mouse_overed );
 		boolean_c mouse_keys_are_up = ( input_event->mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) == 0 && ( input_event->mouse_keys_state[ input_mouse_key_e_right ] & input_key_state_bit_e_on ) == 0 && ( input_event->mouse_keys_state[ input_mouse_key_e_middle ] & input_key_state_bit_e_on ) == 0;
 		if ( mouse_keys_are_up )
@@ -223,9 +224,9 @@ namespace cheonsa
 			}
 			if ( input_event->mouse_key == input_mouse_key_e_left || input_event->mouse_key == input_mouse_key_e_right || input_event->mouse_key == input_mouse_key_e_middle )
 			{
-				if ( _mouse_focused && _mouse_focused == _mouse_overed && input_event->mouse_key == input_mouse_key_e_left )
+				if ( original_mouse_focused && original_mouse_focused == _mouse_overed && input_event->mouse_key == input_mouse_key_e_left )
 				{
-					_mouse_focused->_on_clicked( input_event );
+					original_mouse_focused->_on_clicked( input_event );
 				}
 			}
 		}
@@ -261,6 +262,13 @@ namespace cheonsa
 	{
 		delete _canvas_and_output;
 		_canvas_and_output = nullptr;
+		_scene = nullptr;
+		_mouse_overed = nullptr;
+		_mouse_focused = nullptr;
+		_text_focused = nullptr;
+		_is_mouse_inside = false;
+		_is_set_text_focus = false;
+		_control_list.remove_and_delete_all();
 	}
 
 	boolean_c user_interface_c::start( void_c * window_handle )
@@ -467,7 +475,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c user_interface_c::add_control( menu_control_c * control, sint32_c index )
+	void_c user_interface_c::give_control( menu_control_c * control, sint32_c index )
 	{
 		assert( control != nullptr );
 		assert( control->_user_interface == nullptr );
@@ -490,7 +498,7 @@ namespace cheonsa
 		control->_on_added_to_user_interface();
 	}
 
-	void_c user_interface_c::remove_control( menu_control_c * control )
+	void_c user_interface_c::take_control( menu_control_c * control )
 	{
 		assert( control != nullptr );
 		assert( control->_user_interface == this );

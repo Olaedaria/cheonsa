@@ -151,25 +151,25 @@ namespace cheonsa
 		data_scribe_binary_c scribe;
 		scribe.set_stream( stream );
 
-		// check signature and version.
+		// check signature.
 		char8_c signature_and_version[ 4 ];
 		if ( !stream->load( signature_and_version, 4 ) )
 		{
 			goto cancel;
 		}
-		if ( ops::memory_compare( "chm", signature_and_version, 3 ) )
+		if ( ops::memory_compare( "cm", signature_and_version, 2 ) )
 		{
 			if ( ops::get_native_byte_order() != byte_order_e_little )
 			{
-				debug_log( log_type_e_warning, L"resource_file_model_c::_load() : loading file where byte order is little endian but this environment's native byte order is big endian." );
+				debug_log( log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is little endian but this environment's native byte order is big endian." );
 			}
 			scribe.set_byte_order( byte_order_e::byte_order_e_little );
 		}
-		else if ( ops::memory_compare( "CHM", signature_and_version, 3 ) )
+		else if ( ops::memory_compare( "CM", signature_and_version, 2 ) )
 		{
 			if ( ops::get_native_byte_order() != byte_order_e_big )
 			{
-				debug_log( log_type_e_warning, L"resource_file_model_c::_load() : loading file where byte order is big endian but this environment's native byte order is little endian." );
+				debug_log( log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is big endian but this environment's native byte order is little endian." );
 			}
 			scribe.set_byte_order( byte_order_e::byte_order_e_big );
 		}
@@ -178,11 +178,13 @@ namespace cheonsa
 			goto cancel;
 		}
 
-		if ( signature_and_version[ 3 ] != 1 )
+		// check version.
+		if ( !ops::memory_compare( &signature_and_version[ 2 ], "01", 2 ) )
 		{
 			goto cancel;
 		}
 
+		// if the file's byte order is the same as the environment's then load the whole file into memory at once.
 		if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 		{
 			_raw_data_size = stream->get_size();
@@ -207,7 +209,6 @@ namespace cheonsa
 		{
 			goto cancel;
 		}
-
 		for ( sint32_c i = 0; i < chunk_count; i++ )
 		{
 			chunk_header_c chunk_header;
@@ -218,8 +219,40 @@ namespace cheonsa
 
 			//
 			//
+			// string_table
+			if ( ops::memory_compare( chunk_header.signature, string_table_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.string_table.construct_mode_static_from_array( reinterpret_cast< char8_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.data_size );
+				}
+				else
+				{
+					_data.string_table.set_length_absolute( chunk_header.data_size );
+					if ( _data.string_table.get_internal_array_size_used() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					if ( !stream->load( _data.string_table.get_internal_array(), chunk_header.data_size ) )
+					{
+						goto cancel;
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
+
+			//
+			//
 			// mesh_bone_name_list
-			if ( ops::memory_compare( chunk_header.signature, mesh_bone_name_c::get_signature(), 4 ) )
+			else if ( ops::memory_compare( chunk_header.signature, mesh_bone_name_c::get_signature(), 4 ) )
 			{
 				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
@@ -1033,38 +1066,6 @@ namespace cheonsa
 						{
 							goto cancel;
 						}
-					}
-					if ( !stream->set_position( return_stream_position ) )
-					{
-						goto cancel;
-					}
-				}
-			}
-
-			//
-			//
-			// string_table
-			else if ( ops::memory_compare( chunk_header.signature, string_table_c::get_signature(), 4 ) )
-			{
-				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
-				{
-					_data.string_table.construct_mode_static_from_array( reinterpret_cast< char8_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.data_size );
-				}
-				else
-				{
-					_data.string_table.set_length_absolute( chunk_header.data_size );
-					if ( _data.string_table.get_internal_array_size_used() != chunk_header.data_size )
-					{
-						goto cancel;
-					}
-					sint32_c return_stream_position = stream->get_position();
-					if ( !stream->set_position( chunk_header.data_offset ) )
-					{
-						goto cancel;
-					}
-					if ( !stream->load( _data.string_table.get_internal_array(), chunk_header.data_size ) )
-					{
-						goto cancel;
 					}
 					if ( !stream->set_position( return_stream_position ) )
 					{

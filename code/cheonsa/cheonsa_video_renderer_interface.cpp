@@ -14,7 +14,7 @@
 namespace cheonsa
 {
 
-	video_blend_type_e debug_line_blend_type = video_blend_type_e_mix;
+	video_blend_type_e debug_line_blend_type = video_blend_type_e_add; // add blend mode is nice because lines will contribute to blurring even when there is over draw.
 
 	static video_vertex_buffer_c * vertex_buffers_to_bind[ 4 ] = {};
 	static video_texture_c * textures_to_bind[ 8 ] = {};
@@ -813,6 +813,11 @@ namespace cheonsa
 		delete _constant_buffers.menu_batch_block_constant_buffer;
 		_constant_buffers.menu_batch_block_constant_buffer = nullptr;
 
+		ops::memory_aligned_deallocate( _constant_buffers.menu_draw_block );
+		_constant_buffers.menu_draw_block = nullptr;
+		delete _constant_buffers.menu_draw_block_constant_buffer;
+		_constant_buffers.menu_draw_block_constant_buffer = nullptr;
+
 		delete _texture_buffers.bones_texture_buffer;
 		_texture_buffers.bones_texture_buffer = nullptr;
 
@@ -878,6 +883,8 @@ namespace cheonsa
 		_constant_buffers.menu_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( menu_block_c ) );
 		_constant_buffers.menu_batch_block = reinterpret_cast< menu_batch_block_c * >( ops::memory_aligned_allocate( sizeof( menu_batch_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
 		_constant_buffers.menu_batch_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( menu_batch_block_c ) );
+		_constant_buffers.menu_draw_block = reinterpret_cast< menu_draw_block_c * >( ops::memory_aligned_allocate( sizeof( menu_draw_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.menu_draw_block, sizeof( menu_draw_block_c ) );
+		_constant_buffers.menu_draw_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( menu_draw_block_c ) );
 
 		// create texture buffers.
 		_texture_buffers.bones_texture_buffer = engine_c::get_instance()->get_video_interface()->create_texture_buffer( sizeof( matrix32x4x4_c ) * bones_limit );
@@ -900,7 +907,7 @@ namespace cheonsa
 		//_scene_light_probe_model = global_engine_instance.interfaces.resource_manager->load_model( string16_c( mode_e_static, L"[e]internal/sphere.model" ) );
 
 		// bind constant buffers once, they will stay bound for the life of the program.
-		video_constant_buffer_c * constant_buffers_to_bind[ 8 ];
+		video_constant_buffer_c * constant_buffers_to_bind[ 9 ];
 		// bind vs constant buffers..
 		constant_buffers_to_bind[ 0 ] = _constant_buffers.shadow_camera_block_constant_buffer;
 		constant_buffers_to_bind[ 1 ] = _constant_buffers.shadow_object_block_constant_buffer;
@@ -910,7 +917,8 @@ namespace cheonsa
 		constant_buffers_to_bind[ 5 ] = _constant_buffers.material_block_constant_buffer;
 		constant_buffers_to_bind[ 6 ] = _constant_buffers.menu_block_constant_buffer;
 		constant_buffers_to_bind[ 7 ] = _constant_buffers.menu_batch_block_constant_buffer;
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader_constant_buffers( 0, 8, constant_buffers_to_bind );
+		constant_buffers_to_bind[ 8 ] = _constant_buffers.menu_draw_block_constant_buffer;
+		engine_c::get_instance()->get_video_interface()->bind_vertex_shader_constant_buffers( 0, 9, constant_buffers_to_bind );
 		// pind ps constant buffers, a few are ommitted.
 		constant_buffers_to_bind[ 0 ] = nullptr;
 		constant_buffers_to_bind[ 1 ] = nullptr;
@@ -920,7 +928,8 @@ namespace cheonsa
 		constant_buffers_to_bind[ 5 ] = _constant_buffers.material_block_constant_buffer;
 		constant_buffers_to_bind[ 6 ] = nullptr;
 		constant_buffers_to_bind[ 7 ] = _constant_buffers.menu_batch_block_constant_buffer;
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_constant_buffers( 0, 8, constant_buffers_to_bind );
+		constant_buffers_to_bind[ 8 ] = _constant_buffers.menu_draw_block_constant_buffer;
+		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_constant_buffers( 0, 9, constant_buffers_to_bind );
 
 		// bind texture buffers once and forget about them.
 		// these should remain bound for the life time of the program.
@@ -1756,8 +1765,6 @@ namespace cheonsa
 				vertex_buffers_to_bind[ 0 ] = _quad_vertex_buffer;
 				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
 				engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-				textures_to_bind[ 0 ] = view.canvas->_target_color;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 				// prepare constants.
 				_constant_buffers.camera_block->canvas_actual_size.a = static_cast< float32_c >( view.canvas->get_actual_width() / 2 );
 				_constant_buffers.camera_block->canvas_actual_size.b = static_cast< float32_c >( view.canvas->get_actual_height() / 2 );
@@ -1873,186 +1880,6 @@ namespace cheonsa
 		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 		_scene = nullptr;
 	}
-
-	/*
-	void_c video_renderer_interface_c::render_menu( menu_render_procedure_c * menu_render_procedure, video_renderer_canvas_c * canvas )
-	{
-		assert( menu_render_procedure != nullptr );
-		assert( canvas != nullptr );
-		assert( ( menu_render_procedure->_is_3d && _views.get_length() > 0 ) || ( !menu_render_procedure->_is_3d && _views.get_length() == 0 ) );
-
-		// if _view_list.get_length() == 0 then it means that we are being called by the game to render the 2d menus, so we need to bind targets.
-		// if _view_list.get_length() > 0 then it means that we were called by render_scene() and we are rendering a 3d menu component, so we don't need to bind targets.
-
-		// update menu constant buffer.
-		view_c * primary_view = nullptr;
-		if ( !menu_render_procedure->_is_3d )
-		{
-			_constant_buffers.menu_block->menu_view_projection_transform = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( static_cast< float32_c >( canvas->get_apparent_width() ) * 0.5f, static_cast< float32_c >( canvas->get_apparent_height() ) * 0.5f, -1.0f ), vector32x3_c( 0.0f, 0.0f, 1.0f ), vector32x3_c( 0.0f, -1.0f, 0.0f ) ) * ops::make_matrix32x4x4_projection_orthographic( static_cast< float32_c >( canvas->get_apparent_width() ), static_cast< float32_c >( canvas->get_apparent_height() ), 0.1f, 10.0f );
-		}
-		else
-		{
-			_constant_buffers.menu_block->menu_view_projection_transform = _constant_buffers.camera_block->camera_view_projection_transform;
-			primary_view = &_views[ 0 ];
-		}
-		_constant_buffers.menu_block_constant_buffer->set_data( _constant_buffers.menu_block, sizeof( menu_block_c ) );
-
-		// bind output targets if needed.
-		if ( !menu_render_procedure->_is_3d )
-		{
-			video_texture_c * output_target = canvas->_output != nullptr ? canvas->_output->get_texture_resource() : canvas->_target_color_final;
-			assert( output_target );
-
-			textures_to_bind[ 0 ] = output_target;
-			engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-
-			textures_to_bind[ 0 ] = canvas->_target_outline;
-			textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-			textures_to_bind[ 1 ] = canvas->_target_normal;
-			textures_to_bind_types[ 1 ] = video_texture_type_e_texture2d;
-			textures_to_bind[ 2 ] = canvas->_target_depth;
-			textures_to_bind_types[ 2 ] = video_texture_type_e_texture2d;
-			textures_to_bind[ 3 ] = canvas->_target_color;
-			textures_to_bind_types[ 3 ] = video_texture_type_e_texture2d;
-			textures_to_bind[ 4 ] = canvas->_target_color_quarter;
-			textures_to_bind_types[ 4 ] = video_texture_type_e_texture2d;
-			textures_to_bind[ 5 ] = canvas->_target_color_quarter_blurred_xy;
-			textures_to_bind_types[ 5 ] = video_texture_type_e_texture2d;
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures, 6, textures_to_bind, textures_to_bind_types );
-		}
-
-		for ( sint32_c layer_index = 0; layer_index < menu_layer_e_count_; layer_index++ )
-		{
-			menu_render_procedure_c::layer_c * layer = &menu_render_procedure->layers[ layer_index ];
-			if ( layer->_vertex_list.get_length() && layer->_index_list.get_length() )
-			{
-				// upload vertices to vertex buffer.
-				if ( _menu_vertex_buffer == nullptr || layer->_vertex_list.get_length() > _menu_vertex_buffer->get_vertex_count() )
-				{
-					if ( _menu_vertex_buffer != nullptr )
-					{
-						delete _menu_vertex_buffer;
-						_menu_vertex_buffer = nullptr;
-					}
-					_menu_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, layer->_vertex_list.get_internal_array_length_allocated(), nullptr, 0, true, false, false );
-				}
-				_menu_vertex_buffer->set_data( layer->_vertex_list.get_internal_array(), layer->_vertex_list.get_internal_array_size() );
-
-				// upload indices to index buffer.
-				if ( _menu_index_buffer == nullptr || layer->_index_list.get_length() > _menu_index_buffer->get_index_count() )
-				{
-					if ( _menu_index_buffer != nullptr )
-					{
-						delete _menu_index_buffer;
-						_menu_index_buffer = nullptr;
-					}
-					_menu_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, layer->_index_list.get_internal_array_length_allocated(), nullptr, 0, true, false );
-				}
-				_menu_index_buffer->set_data( layer->_index_list.get_internal_array(), layer->_index_list.get_internal_array_size() );
-
-				// bind glyph map texture.
-				textures_to_bind[ 0 ] = global_engine_instance.interfaces.glyph_manager->_glyph_atlas_texture;
-				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2darray;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_glyph_atlas_texture, 1, textures_to_bind, textures_to_bind_types );
-
-				// render batches.
-				// if _view_list.get_length() != 0 then we are being rendered into a 3d scene.
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_mix );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-				engine_c::get_instance()->get_video_interface()->bind_vertex_shader( _views.get_length() == 0 ? global_engine_instance.interfaces.video_renderer_shader_manager->menu2_vs : global_engine_instance.interfaces.video_renderer_shader_manager->menu3_vs );
-				vertex_buffers_to_bind[ 0 ] = _menu_vertex_buffer;
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( _menu_index_buffer );
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_list );
-				for ( sint32_c i = 0; i < layer->_draw_batch_list.get_length(); i++ )
-				{
-					menu_render_procedure_c::layer_c::menu_draw_batch_c * draw_batch = &layer->_draw_batch_list[ i ];
-					if ( _views.get_length() != 0 )
-					{
-						_constant_buffers.menu_batch_block->menu_world_transform = ops::make_matrix32x4x4_from_space_transform( draw_batch->world_space_transform, primary_view->world_space_position );
-					}
-					_constant_buffers.menu_batch_block->menu_basis.a = draw_batch->basis.a.a;
-					_constant_buffers.menu_batch_block->menu_basis.b = draw_batch->basis.a.b;
-					_constant_buffers.menu_batch_block->menu_basis.c = draw_batch->basis.b.a;
-					_constant_buffers.menu_batch_block->menu_basis.d = draw_batch->basis.b.b;
-					_constant_buffers.menu_batch_block->menu_origin = draw_batch->origin;
-					_constant_buffers.menu_batch_block->menu_saturation = draw_batch->saturation;
-					_constant_buffers.menu_batch_block->menu_color = draw_batch->color;
-					_constant_buffers.menu_batch_block->menu_clip_plane_stack_length = draw_batch->clip_plane_stack_length;
-					for ( sint32_c i = 0; i < video_renderer_interface_c::menu_clip_plane_stack_count; i++ )
-					{
-						_constant_buffers.menu_batch_block->menu_clip_plane_stack[ i ] = draw_batch->clip_plane_stack[ i ];
-					}
-					_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
-
-					uint32_c draw_end = draw_batch->draw_start + draw_batch->draw_count;
-					for ( uint32_c j = draw_batch->draw_start; j < draw_end; j++ )
-					{
-						menu_render_procedure_c::layer_c::menu_draw_c * draw = &layer->_draw_list[ j ];
-						engine_c::get_instance()->get_video_interface()->bind_pixel_shader( draw->pixel_shader );
-						textures_to_bind[ 0 ] = draw->texture != nullptr ? draw->texture->_video_texture : nullptr;
-						textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-						engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
-						engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_count );
-					}
-				}
-			}
-
-			// render debug line list.
-			if ( layer->_debug_draw_list.get_length() )
-			{
-				// upload line list.
-				if ( _menu_debug_vertex_buffer == nullptr || layer->_debug_vertex_list.get_length() > _menu_debug_vertex_buffer->get_vertex_count() )
-				{
-					if ( _menu_debug_vertex_buffer != nullptr )
-					{
-						delete _menu_debug_vertex_buffer;
-						_menu_debug_vertex_buffer = nullptr;
-					}
-					_menu_debug_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_debug, layer->_debug_vertex_list.get_internal_array_length_allocated(), nullptr, 0, true, false, false );
-				}
-				_menu_debug_vertex_buffer->set_data( layer->_debug_vertex_list.get_internal_array(), layer->_debug_vertex_list.get_internal_array_size() );
-
-				// draw primitives
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( debug_line_blend_type );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( global_engine_instance.interfaces.video_renderer_shader_manager->menu_ps_debug );
-				for ( sint32_c i = 0; i < layer->_debug_draw_list.get_length(); i++ )
-				{
-					menu_render_procedure_c::layer_c::menu_debug_draw_c * debug_draw = &layer->_debug_draw_list[ i ];
-					if ( debug_draw->is_3d )
-					{
-						_constant_buffers.menu_batch_block->menu_world_transform = ops::make_matrix32x4x4_from_space_transform( debug_draw->world_space_transform, primary_view->world_space_position );
-						_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
-						engine_c::get_instance()->get_video_interface()->bind_vertex_shader( global_engine_instance.interfaces.video_renderer_shader_manager->menu3_vs_debug );
-					}
-					else
-					{
-						engine_c::get_instance()->get_video_interface()->bind_vertex_shader( global_engine_instance.interfaces.video_renderer_shader_manager->menu2_vs_debug );
-					}
-					vertex_buffers_to_bind[ 0 ] = _menu_debug_vertex_buffer;
-					engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-					for ( sint32_c i = 0; i < layer->_debug_draw_list.get_length(); i++ )
-					{
-						menu_render_procedure_c::layer_c::menu_debug_draw_c const * debug_draw = &layer->_debug_draw_list[ i ];
-						engine_c::get_instance()->get_video_interface()->bind_primitive_type( debug_draw->primitive_type );
-						engine_c::get_instance()->get_video_interface()->draw( debug_draw->vertex_start, debug_draw->vertex_count );
-					}
-				}
-			}
-		}
-
-		// un-bind resources.
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_glyph_atlas_texture, 1, nullptr, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 18, nullptr, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 0, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader( nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
-	}
-	*/
 
 	void_c video_renderer_interface_c::_add_shadow_views( scene_light_c * const light, view_c const & camera_view )
 	{
@@ -3708,6 +3535,11 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < draw_list.draw_list.get_length(); i++ )
 		{
 			menu_draw_list_c::draw_c const & draw = draw_list.draw_list[ i ];
+			_constant_buffers.menu_draw_block->menu_draw_color = draw.color;
+			_constant_buffers.menu_draw_block->menu_draw_shared_colors[ 0 ] = draw.shared_colors[ 0 ];
+			_constant_buffers.menu_draw_block->menu_draw_shared_colors[ 1 ] = draw.shared_colors[ 1 ];
+			_constant_buffers.menu_draw_block->menu_draw_shared_colors[ 2 ] = draw.shared_colors[ 2 ];
+			_constant_buffers.menu_draw_block_constant_buffer->set_data( _constant_buffers.menu_draw_block, sizeof( menu_draw_block_c ) );
 			assert( draw.pixel_shader );
 			engine_c::get_instance()->get_video_interface()->bind_pixel_shader( draw.pixel_shader );
 			textures_to_bind[ 0 ] = draw.texture ? draw.texture->get_video_texture() : texture_green_pixel;

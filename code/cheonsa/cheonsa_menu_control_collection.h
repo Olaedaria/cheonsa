@@ -17,7 +17,7 @@ namespace cheonsa
 	class menu_control_collection_item_c
 	{
 	public:
-		// cached column/property values.
+		// cached column/property values. 
 		// used to sort items by column/property.
 		class value_c
 		{
@@ -34,7 +34,8 @@ namespace cheonsa
 		friend class menu_control_collection_c;
 		
 		menu_control_collection_c * _mother_collection; // the collection that is holding this item.
-		value_c * _values; // list of resolved column values, always the same length as the _column_list in the _mother_collection.
+		value_c * _value_cache; // list of resolved column values, always the same length as the _column_list in the _mother_collection.
+		sint32_c _group; // can be used to group together items of the same type when items are sorted. for example, when used by file collections, folders will be assigned group 0 and files will be assigned group 1, which causes folders to group together and files to group together.
 		sint32_c _index; // the index of this item within the list.
 		boolean_c _is_selected; // this item's selected state.
 
@@ -43,11 +44,15 @@ namespace cheonsa
 	public:
 		menu_control_collection_item_c();
 
+		sint32_c get_group() const;
+		void_c set_group( sint32_c value );
+
 		sint32_c get_index() const;
 
 		// queries the icon or thumbnail for this item.
 		// if _mother_collection->get_display_mode() == menu_control_collection_c::display_mode_e_icons then you can return a thumbnail instead of an icon if you want.
-		virtual boolean_c query_icon( resource_file_texture_c * & result ) const;
+		// may return nullptr.
+		virtual resource_file_texture_c * get_icon_texture() const;
 
 		// queries the values of a property with key.
 		// override with your own implementation.
@@ -55,15 +60,15 @@ namespace cheonsa
 		// key is the column/property key.
 		// set sort_value to values >= 0 for things that can be sorted by absolute value, things like file size and file time modified. set it to -1 to indicate to not use the sort value.
 		// set display_value to the user facing value of the item, if needed take into account locale settings when constructing this string value, when sort_value == -1 then natural string compare string16_sort_compare() will be used to sort these items.
-		virtual boolean_c query_value( string8_c const & key, string16_c & display_value, sint64_c & absolute_value ) const;
+		virtual boolean_c get_value( string8_c const & property_key, string16_c & display_value, sint64_c & absolute_value ) const;
 
-		// gets a previously cached property value.
-		value_c const * get_value( string8_c const & key ) const;
+		//// gets a previously cached property value.
+		//value_c const * get_cached_value( string8_c const & property_key ) const;
 
 		// attempts to set display value of a given property.
-		// your implementation may reinterpret the user-provided display_value as something else, for example a date and time string could be converted to a uint64_c time stamp.
+		// your implementation may reinterpret the user-provided display_value as something else, for example a date and time string could be converted to a sint64_c time in milliseconds relative to an epoch.
 		// return true if the new display value is accepted, false if not.
-		virtual boolean_c set_value( string8_c const & key, string16_c const & display_value );
+		virtual boolean_c set_value( string8_c const & property_key, string16_c const & display_value );
 
 		// gets the selected state of this item.
 		boolean_c get_is_selected() const;
@@ -72,14 +77,16 @@ namespace cheonsa
 		void_c set_is_selected( boolean_c value );
 
 	public:
-		static sint32_c relative_value_function( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b );
-		static uint64_c absolute_value_function( menu_control_collection_item_c * const & a );
+		static sint32_c relative_compare( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b ); // for insertion sort.
+		static uint64_c absolute_value( menu_control_collection_item_c * const & a ); // for quick sort.
+		static sint32_c relative_group_compare( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b ); // for insertion sort, secondary sort.
 
 	};
 
 	// can be used to display things like files in a file system.
 	// is designed to immitate windows file explorer icon view and details view.
-	// in order for items to appear in the collection, you must add at least one column, for example call it "name" and implement query_value() to handle a query for "name".
+	// in order for items to appear in the collection, you must add at least one column, for example call it "name" and implement get_property_value() to handle a query for "name".
+	// 
 	class menu_control_collection_c : public menu_control_c
 	{
 	public:
@@ -135,7 +142,7 @@ namespace cheonsa
 
 	protected:
 		// which columns to display at the top of the collection when the display mode is details.
-		// which properties to cache per item in the collection.
+		// which property values to cache with each item in the collection.
 		class column_c
 		{
 		public:
@@ -155,14 +162,15 @@ namespace cheonsa
 		friend class menu_control_collection_item_c;
 
 		// the elements in the _element_list are as follows:
-		// three frame elements:
+		// base elements:
 		//   _element_frame
 		//   _element_mouse_selected_frame
 		//   _element_last_selected_frame
-		// column elements, one frame and one text for each column:
-		//   struct { menu_element_frame_c * frame, menu_element_text_c * text };
-		// item elements, one frame for the icon, followed by column number of text elements:
-		//   struct { menu_element_frame_c * icon_frame, menu_element_text_c * column_0_text, ... menu_element_text_c * column_n_text }
+		// supplemental elements:
+		//   per column elements: one frame and one text:
+		//     { column_frame, column_text }
+		//   per item elements: one frame for selected state background, one frame for icon, [ display mode details: one text per column | display mode icons: one text ]:
+		//     { item_selected_frame, item_icon_frame, item_text, ... }
 		menu_element_frame_c _element_frame; // name is "frame", the background of this collection.
 		menu_element_frame_c _element_mouse_selected_frame; // name is "mouse_selected_frame". is laid out and drawn behind the _mouse_selected_item.
 		menu_element_frame_c _element_last_selected_frame; // name is "last_selected_frame". is laid out and drawn behind the _last_selected_item.
@@ -181,37 +189,31 @@ namespace cheonsa
 		sint32_c _icons_icon_height; // when display mode is icons.
 		sint32_c _details_item_height; // when display mode is details.
 
-		sint32_c _currently_visible_item_start;
-		sint32_c _currently_visible_item_count;
-
 		core_list_c< column_c * > _column_list; // columns to display, when display mode is details then all columns are displayed, otherwise only the first column is used to look up the display name of each item.
-
-		boolean_c _value_cache_is_dirty; // if true then item values need to be queried and cached.
 
 		select_mode_e _select_mode; // determines how items can be selected in this collection.
 
-		string8_c _sort_key; // basically which column to sort by. if this can't be resolved, then items will be sorted by "name". and if that can't be resolved then items will not be sorted.
-		sint32_c _sort_index; // sort key resolved to a column index.
+		boolean_c _value_cache_is_dirty; // if true then item values need to be queried and cached.
+		void_c _update_value_cache(); // caches items values based on current columns settings.
+
+		string8_c _sort_key; // basically which column to sort by. if this can't be resolved then items will be sorted by "name", and if that can't be resolved then items will not be sorted.
+		sint32_c _sort_index;
 		sort_order_e _sort_order; // which direction to sort in.
 		boolean_c _sort_is_dirty; // if true then items will be sorted on next call to refresh().
+		void_c _update_sort(); // sorts items based on current sort settings.
 
-		core_list_c< menu_control_collection_item_c * > _item_list; // all of the items in this collection, sorted by the _sort_key and _sort_order.
+		menu_frame_style_c _item_icon_frame_style; // override style applied to all icons in the collection.
+		core_list_c< menu_control_collection_item_c * > _item_list; // all of the items in this collection, sorted by the _sort_key (and _sort_index) and _sort_order.
 		core_list_c< menu_control_collection_item_c * > _selected_item_list; // all of the currently selected items in this collection, in the order that they were selected.
+		core_list_c< menu_element_c * > _item_elements; // item elements allocated for the potentially visible set of items.
+		boolean_c _item_layout_is_dirty; // if true then item elements need to be updated and laid out on next call to refresh().
+		void_c _update_item_layout();
 
-		menu_control_collection_item_c * _item_renaming; // will be set if the user is currently renaming an item.
-		string8_c _item_renaming_property_key; // the property of the item that is being renamed, usually is the name but it can be something else.
-		menu_control_text_c * _item_renaming_text; // laid out and drawn over item that is in the process of being renamed by the user. hidden otherwise.
+		//menu_control_collection_item_c * _editing_item; // will be set if the user is currently renaming an item.
+		//string8_c _editing_item_property_key; // the property of the item that is being renamed, usually is the name but it can be something else.
+		//menu_control_text_c * _editing_item_text_field; // laid out and drawn over item that is in the process of being renamed by the user. hidden otherwise.
 
-		//sint32_c _item_elements_list_capacity; // number of elements allocated to draw up to this many items.
-		//menu_element_frame_c * _item_elements_frames; // icons and details modes: two elements per item, each named "item_selected" and "item_icon". these elements are not added to _private_element_list.
-		//menu_element_text_c * _item_elements_texts; // icons and list modes: one element per item, each named "item_text". details mode: one element per column per item, each named "item_text". these elements are not added to _private_element_list.
-		boolean_c _item_layout_is_dirty; // if true then item elements need to be updated and laid out.
-				
-		void_c _cache_items_values(); // caches items values based on current columns settings.
-
-		void_c _sort_items(); // sorts items based on current sort settings.
-
-		box32x2_c _get_item_rectangle( sint32_c item_index, float32_c x, float32_c y );
+		box32x2_c _get_item_box( sint32_c item_index );
 
 		menu_control_collection_item_c * _pick_item_at_local_point( vector32x2_c const & local_point );
 
@@ -225,6 +227,10 @@ namespace cheonsa
 
 	public:
 		menu_control_collection_c();
+		virtual ~menu_control_collection_c() override;
+
+		virtual void_c update_animations( float32_c time_step ) override;
+		virtual void_c update_transform_and_layout() override;
 
 		// call this after changing columns around, and after adding or removing items.
 		// queries and caches item property values if needed.
@@ -266,8 +272,8 @@ namespace cheonsa
 		// is_editable is true then the user can press F2 or click on the same item twice to edit its value.
 		// don't forget to call refresh() after you are done changing columns and items.
 		void_c add_column( string8_c const & key, string16_c const & display_value, sint32_c width, sort_by_e sort_by, boolean_c is_editable );
-		// removes all columns.
-		// adding support for adding/removing columns during run time is not too difficult to do but i don't forsee a need for it at this time.
+		// removes and deletes all columns.
+		// adding support for adding/removing columns during run time is not too difficult to do but i don't forsee a need for it at this time, so i'm being lazy.
 		// don't forget to call refresh() after you are done changing columns and items.
 		void_c remove_all_columns();
 

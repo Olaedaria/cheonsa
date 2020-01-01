@@ -46,11 +46,11 @@ namespace cheonsa
 		video_renderer_canvas_c * get_canvas() const; // gets the canvas that this scene control renders to.
 
 	public:
-		void_c add_control( menu_control_c * control );
-		void_c remove_control( menu_control_c * control );
+		void_c give_control( menu_control_c * control );
+		menu_control_c * take_control( menu_control_c * control );
 
 		core_event_c< void_c, float32_c > on_update;
-		core_event_c< void_c, menu_event_info_c > on_input;
+		core_event_c< void_c, menu_event_information_c > on_input;
 
 	};
 

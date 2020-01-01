@@ -5,9 +5,9 @@
 namespace cheonsa
 {
 
-	void_c menu_window_dialog_c::_handle_button_on_click( menu_event_info_c event_info )
+	void_c menu_window_dialog_c::_handle_button_on_click( menu_event_information_c event_information )
 	{
-		if ( event_info.control == _control_button_a )
+		if ( event_information.control == _control_button_a )
 		{
 			if ( _mode == mode_e_okay || _mode == mode_e_okay_cancel )
 			{
@@ -18,7 +18,7 @@ namespace cheonsa
 				_result = result_e_yes;
 			}
 		}
-		else if ( event_info.control == _control_button_b )
+		else if ( event_information.control == _control_button_b )
 		{
 			if ( _mode == mode_e_okay_cancel )
 			{
@@ -29,7 +29,7 @@ namespace cheonsa
 				_result = result_e_no;
 			}
 		}
-		else if ( event_info.control == _control_button_c )
+		else if ( event_information.control == _control_button_c )
 		{
 			if ( _mode == mode_e_yes_no_cancel )
 			{
@@ -80,17 +80,17 @@ namespace cheonsa
 		_control_button_a = new menu_control_button_c();
 		_control_button_a->set_name( string8_c( mode_e_static, "button_a" ) );
 		_control_button_a->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
-		_add_control( _control_button_a );
+		_give_control( _control_button_a );
 
 		_control_button_b = new menu_control_button_c();
 		_control_button_b->set_name( string8_c( mode_e_static, "button_b" ) );
 		_control_button_b->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
-		_add_control( _control_button_b );
+		_give_control( _control_button_b );
 
 		_control_button_c = new menu_control_button_c();
 		_control_button_c->set_name( string8_c( mode_e_static, "button_c" ) );
 		_control_button_c->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
-		_add_control( _control_button_c );
+		_give_control( _control_button_c );
 
 		set_style_map_key( string8_c( mode_e_static, "e_window_dialog" ) );
 	}

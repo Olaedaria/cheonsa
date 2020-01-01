@@ -7,5 +7,5 @@ void ps_main( in vertex_menu_view_c input, out float4 output : SV_Target0 )
 		discard;
 	}
 
-	output = input.color * menu_color;
+	output = input.color * menu_draw_color * menu_color;
 }

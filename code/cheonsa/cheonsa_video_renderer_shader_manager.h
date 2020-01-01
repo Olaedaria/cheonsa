@@ -77,6 +77,7 @@ namespace cheonsa
 
 		video_pixel_shader_c * _menu_ps_debug; // "menu_ps_debug.hlsl".
 		video_pixel_shader_c * _menu_ps_frame; // "menu_ps_frame.hlsl".
+		video_pixel_shader_c * _menu_ps_frame_keyed; // "menu_ps_frame_keyed.hlsl".
 		video_pixel_shader_c * _menu_ps_solid_color; // "menu_ps_frame_solid_color.hlsl".
 		video_pixel_shader_c * _menu_ps_text; // "menu_ps_text.hlsl".
 		video_vertex_shader_c * _menu2_vs; // "menu2_vs.hlsl".

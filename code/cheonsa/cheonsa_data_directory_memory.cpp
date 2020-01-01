@@ -59,7 +59,7 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	boolean_c data_directory_memory_c::data_does_file_exist( string16_c const & file_path )
+	boolean_c data_directory_memory_c::file_system_does_file_exist( string16_c const & file_path )
 	{
 		return _find_existing_file( file_path ) != nullptr;
 	}

@@ -13,29 +13,42 @@ namespace cheonsa
 
 	void_c menu_control_collection_item_c::_cache_values()
 	{
-		if ( _values )
+		if ( _value_cache )
 		{
-			delete[] _values;
-			_values = nullptr;
+			delete[] _value_cache;
+			_value_cache = nullptr;
 		}
 		if ( _mother_collection )
 		{
 			sint32_c value_count = _mother_collection->_column_list.get_length();
-			assert( value_count > 0 );
-			_values = new value_c[ value_count ];
-			for ( sint32_c i = 0; i < value_count; i++ )
+			if ( value_count > 0 )
 			{
-				query_value( _mother_collection->_column_list[ i ]->_key, _values[ i ].display_value, _values[ i ].absolute_value );
+				_value_cache = new value_c[ value_count ];
+				for ( sint32_c i = 0; i < value_count; i++ )
+				{
+					get_value( _mother_collection->_column_list[ i ]->_key, _value_cache[ i ].display_value, _value_cache[ i ].absolute_value );
+				}
 			}
 		}
 	}
 
 	menu_control_collection_item_c::menu_control_collection_item_c()
 		: _mother_collection( nullptr )
-		, _values( nullptr )
+		, _value_cache( nullptr )
+		, _group( 0 )
 		, _index( -1 )
 		, _is_selected( false )
 	{
+	}
+
+	sint32_c menu_control_collection_item_c::get_group() const
+	{
+		return _group;
+	}
+
+	void_c menu_control_collection_item_c::set_group( sint32_c value )
+	{
+		_group = value;
 	}
 
 	sint32_c menu_control_collection_item_c::get_index() const
@@ -43,34 +56,33 @@ namespace cheonsa
 		return _index;
 	}
 
-	boolean_c menu_control_collection_item_c::query_icon( resource_file_texture_c * & result ) const
+	resource_file_texture_c * menu_control_collection_item_c::get_icon_texture() const
 	{
-		result = nullptr;
-		return false;
+		return nullptr;
 	}
 
-	boolean_c menu_control_collection_item_c::query_value( string8_c const & key, string16_c & display_value, sint64_c & absolute_value ) const
+	boolean_c menu_control_collection_item_c::get_value( string8_c const & property_key, string16_c & display_value, sint64_c & absolute_value ) const
 	{
 		display_value = string16_c( mode_e_static, L"[none]" );
 		absolute_value = 0;
 		return false;
 	}
 
-	menu_control_collection_item_c::value_c const * menu_control_collection_item_c::get_value( string8_c const & key ) const
-	{
-		assert( _mother_collection );
-		sint32_c column_count = _mother_collection->_column_list.get_length();
-		for ( sint32_c i = 0; i < column_count; i++ )
-		{
-			if ( _mother_collection->_column_list[ i ]->_key == key )
-			{
-				return &_values[ i ];
-			}
-		}
-		return nullptr;
-	}
+	//menu_control_collection_item_c::value_c const * menu_control_collection_item_c::get_cached_value( string8_c const & property_key ) const
+	//{
+	//	assert( _mother_collection );
+	//	sint32_c column_count = _mother_collection->_column_list.get_length();
+	//	for ( sint32_c i = 0; i < column_count; i++ )
+	//	{
+	//		if ( _mother_collection->_column_list[ i ]->_key == property_key )
+	//		{
+	//			return &_value_cache[ i ];
+	//		}
+	//	}
+	//	return nullptr;
+	//}
 
-	boolean_c menu_control_collection_item_c::set_value( string8_c const & key, string16_c const & display_value )
+	boolean_c menu_control_collection_item_c::set_value( string8_c const & property_key, string16_c const & display_value )
 	{
 		return false;
 	}
@@ -115,15 +127,27 @@ namespace cheonsa
 		}
 	}
 
-	sint32_c menu_control_collection_item_c::relative_value_function( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b )
+	sint32_c menu_control_collection_item_c::relative_compare( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b )
 	{
-		sint32_c sort_index = a->_mother_collection->_sort_index;
-		return ops::string16_sort_compare( a->_values[ sort_index ].display_value, b->_values[ sort_index ].display_value );
+		return ops::string16_sort_compare_case_insensitive( a->_value_cache[ a->_mother_collection->_sort_index ].display_value, b->_value_cache[ a->_mother_collection->_sort_index ].display_value );
 	}
 
-	uint64_c menu_control_collection_item_c::absolute_value_function( menu_control_collection_item_c * const & a )
+	uint64_c menu_control_collection_item_c::absolute_value( menu_control_collection_item_c * const & a )
 	{
-		return a->_values[ a->_mother_collection->_sort_index ].absolute_value;
+		return a->_value_cache[ a->_mother_collection->_sort_index ].absolute_value;
+	}
+
+	sint32_c menu_control_collection_item_c::relative_group_compare( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b )
+	{
+		if ( a->_group > b->_group )
+		{
+			return 1;
+		}
+		else if ( a->_group < b->_group )
+		{
+			return -1;
+		}
+		return 0;
 	}
 
 	menu_control_collection_c::column_c::column_c()
@@ -142,7 +166,7 @@ namespace cheonsa
 		_item_layout_is_dirty = true;
 	}
 
-	void_c menu_control_collection_c::_cache_items_values()
+	void_c menu_control_collection_c::_update_value_cache()
 	{
 		for ( sint32_c i = 0; i < _item_list.get_length(); i++ )
 		{
@@ -151,75 +175,325 @@ namespace cheonsa
 		_value_cache_is_dirty = false;
 	}
 
-	void_c menu_control_collection_c::_sort_items()
+	void_c menu_control_collection_c::_update_sort()
 	{
-		assert( _sort_index >= 0 && _sort_index < _column_list.get_length() );
-		if ( _value_cache_is_dirty ) // update and cache values if needed so that we can sort them.
+		// find column index to sort by.
+		for ( sint32_c i = 0; i < _column_list.get_length(); i++ )
 		{
-			_cache_items_values();
+			if ( _column_list[ i ]->_key == _sort_key )
+			{
+				_sort_index = i;
+				
+				// update value cache if needed.
+				// these values need to be up to date because these are what we sort items by.
+				if ( _value_cache_is_dirty )
+				{
+					_update_value_cache();
+				}
+
+				// primary sort, by column.
+				column_c * sort_column = _column_list[ _sort_index ];
+				if ( sort_column->_sort_by == sort_by_e_display_value )
+				{
+					_item_list.insertion_sort( &menu_control_collection_item_c::relative_compare, _sort_order == sort_order_e_descending );
+				}
+				else if ( sort_column->_sort_by == sort_by_e_absolute_value )
+				{
+					_item_list.quick_sort( &menu_control_collection_item_c::absolute_value, _sort_order == sort_order_e_descending );
+				}
+
+				// secondary sort, by group.
+				// this should preserve the primary sort order.
+				_item_list.insertion_sort( &menu_control_collection_item_c::relative_group_compare, false );
+
+				// finish up.
+				for ( sint32_c j = 0; j < _item_list.get_length(); j++ )
+				{
+					_item_list[ j ]->_index = j;
+				}
+
+				_sort_is_dirty = false;
+
+				return;
+			}
 		}
-		column_c * sort_column = _column_list[ _sort_index ];
-		if ( sort_column->_sort_by == sort_by_e_display_value )
-		{
-			_item_list.insertion_sort( &menu_control_collection_item_c::relative_value_function, _sort_order == sort_order_e_descending );
-		}
-		else if ( sort_column->_sort_by == sort_by_e_absolute_value )
-		{
-			_item_list.quick_sort( &menu_control_collection_item_c::absolute_value_function, _sort_order == sort_order_e_descending );
-		}
-		_sort_is_dirty = false;
 	}
 
-	box32x2_c menu_control_collection_c::_get_item_rectangle( sint32_c item_index, float32_c x, float32_c y )
+	void_c menu_control_collection_c::_update_item_layout()
 	{
-		box32x2_c item_rectangle;
+		if ( _value_cache_is_dirty )
+		{
+			_update_value_cache();
+		}
+
+		if ( _sort_is_dirty )
+		{
+			_update_sort();
+		}
+
+		if ( _element_list.get_length() == 3 )
+		{
+			// (re)add supplemental elements for column(s).
+			// add directly, rather than with _add_element(), to avoid (re)resolving style assignment from mother control's style map.
+			if ( _display_mode == display_mode_e_details )
+			{
+				for ( sint32_c i = 0; i < _column_list.get_length(); i++ )
+				{
+					column_c * column = _column_list[ i ];
+					_element_list.insert_at_end( &column->_element_frame );
+					_element_list.insert_at_end( &column->_element_text );
+				}
+			}
+
+			// (re)add supplemental elements for items.
+			// add directly, rather than with _add_element(), to avoid (re)resolving style assignment from mother control's style map.
+			_element_list.insert_at_end( _item_elements.get_internal_array(), _item_elements.get_length() );
+		}
+
+		// calculate potentially visible item count.
+		sint32_c content_height = 0;
+		sint32_c potentially_visible_item_count = 0; // highest number of items that might be visible in a single frame.
+		sint32_c potentially_visible_item_element_count = 0; // number of column and item elements needed.
 		if ( _display_mode == display_mode_e_icons )
 		{
-			sint32_c visible_column_count = ops::math_minimum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) );
-			item_rectangle.minimum.a = x + ( ( item_index % visible_column_count ) * _icons_item_width );
-			item_rectangle.minimum.b = y + ( ( item_index / visible_column_count ) * _icons_item_height );
-			item_rectangle.maximum.a = item_rectangle.minimum.a + _icons_item_width;
-			item_rectangle.maximum.b = item_rectangle.minimum.b + _icons_item_height;
+			sint32_c items_per_x = ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) );
+			sint32_c items_per_y = ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_height() / _icons_item_height ) );
+			potentially_visible_item_count = items_per_x * items_per_y;
+			sint32_c elements_per_item = 3; // item_selected_frame, item_icon_frame, item_text.
+			potentially_visible_item_element_count = elements_per_item * potentially_visible_item_count;
+			content_height = ( _item_list.get_length() / items_per_x + 1 ) * _icons_item_height;
+			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
+			if ( potentially_visible_item_element_count > _item_elements.get_length() )
+			{
+				// look up style map style assignments.
+				menu_frame_style_c const * item_selected_frame_style = nullptr;
+				menu_text_style_c const * item_text_style = nullptr;
+				if ( _style_map_reference.get_value() )
+				{
+					menu_style_map_c::entry_c const * style_map_entry = nullptr;
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "element:item_selected_frame" ) );
+					if ( style_map_entry )
+					{
+						item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
+					}
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "element:item_text" ) );
+					if ( style_map_entry )
+					{
+						item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->style_key );
+					}
+				}
+
+				// create and add new element instances.
+				for ( sint32_c i = _item_elements.get_length() / elements_per_item; i < potentially_visible_item_count; i++ )
+				{
+					menu_element_frame_c * item_selected_frame = new menu_element_frame_c();
+					item_selected_frame->set_mother_control( this );
+					item_selected_frame->set_name( string8_c( mode_e_static, "item_selected_frame" ) );
+					item_selected_frame->set_shared_color_class( menu_shared_color_class_e_field );
+					item_selected_frame->get_style_reference().set_value( item_selected_frame_style );
+					_item_elements.insert_at_end( item_selected_frame );
+					_element_list.insert_at_end( item_selected_frame );
+
+					menu_element_frame_c * item_icon_frame = new menu_element_frame_c();
+					item_icon_frame->set_mother_control( this );
+					item_icon_frame->set_name( string8_c( mode_e_static, "item_icon_frame" ) );
+					item_icon_frame->set_shared_color_class( menu_shared_color_class_e_field );
+					item_icon_frame->set_override_style( &_item_icon_frame_style );
+					_item_elements.insert_at_end( item_icon_frame );
+					_element_list.insert_at_end( item_icon_frame );
+
+					menu_element_text_c * item_text = new menu_element_text_c();
+					item_text->set_mother_control( this );
+					item_text->set_name( string8_c( mode_e_static, "item_text" ) );
+					item_text->set_shared_color_class( menu_shared_color_class_e_field );
+					item_text->get_style_reference().set_value( item_text_style );
+					_item_elements.insert_at_end( item_text );
+					_element_list.insert_at_end( item_text );
+				}
+			}
+
+			// allocate and lay out elements to the currently visible set of items.
+			sint32_c visible_item_index = static_cast< sint32_c >( _vertical_scroll_bar->get_value() / _icons_item_height ) * items_per_x; // index of first visible item.
+			sint32_c allocated_item_count = _item_elements.get_length() / elements_per_item;
+			for ( sint32_c i = 0; i < allocated_item_count; i++, visible_item_index++ )
+			{
+				menu_element_frame_c * item_selected_frame = dynamic_cast< menu_element_frame_c * >( _item_elements[ i * elements_per_item ] );
+				menu_element_frame_c * item_icon_frame = dynamic_cast< menu_element_frame_c * >( _item_elements[ i * elements_per_item + 1 ] );
+				menu_element_text_c * item_text = dynamic_cast< menu_element_text_c * >( _item_elements[ i * elements_per_item + 2 ] );
+				if ( visible_item_index < _item_list.get_length() )
+				{
+					menu_control_collection_item_c * item = _item_list[ visible_item_index ];
+					box32x2_c item_box = _get_item_box( visible_item_index );
+					if ( ops::intersect_box_vs_box( item_box, _local_box ) )
+					{
+						item_selected_frame->set_is_showing( item->get_is_selected() );
+						item_selected_frame->set_layout_simple( item_box );
+						item_icon_frame->set_is_showing( true );
+						resource_file_texture_c * icon_texture = item->get_icon_texture();
+						item_icon_frame->set_override_texture( icon_texture );
+						if ( icon_texture != nullptr )
+						{
+							float32_c cx = item_box.minimum.a + _icons_item_width * 0.5f;
+							float32_c cy = item_box.minimum.b + _icons_icon_height * 0.5f;
+							float32_c w = static_cast< float32_c >( icon_texture->get_video_texture()->get_width() );
+							float32_c h = static_cast< float32_c >( icon_texture->get_video_texture()->get_height() );
+							cx = cx - w * 0.5f;
+							cy = cy - h * 0.5f;
+							item_icon_frame->set_layout_simple( box32x2_c( cx, cy, cx + w, cy + h ) );
+						}
+						else
+						{
+							item_icon_frame->set_layout_simple( box32x2_c( item_box.minimum.a, item_box.minimum.b, item_box.maximum.a, item_box.minimum.b + _icons_icon_height ) );
+						}
+						item_text->set_is_showing( true );
+						item_text->set_layout_simple( box32x2_c( item_box.minimum.a, item_box.minimum.b + _icons_icon_height + 1.0f, item_box.maximum.a, item_box.maximum.b ) );
+						item_text->set_plain_text_value( item->_value_cache[ 0 ].display_value );
+						continue;
+					}
+				}
+				item_selected_frame->set_is_showing( false );
+				item_icon_frame->set_is_showing( false );
+				item_text->set_is_showing( false );
+			}
+		}
+		else
+		{
+			sint32_c items_per_y = ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_height() / _details_item_height ) );
+			potentially_visible_item_count = items_per_y;
+			sint32_c elements_per_item = 2 + _column_list.get_length(); // item_selected_frame, item_icon_frame, item_text, ... .
+			potentially_visible_item_element_count = elements_per_item * potentially_visible_item_count;
+			content_height = _details_item_height * _item_list.get_length();
+			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
+			if ( potentially_visible_item_element_count > _item_elements.get_length() )
+			{
+				// look up style map style assignments.
+				menu_frame_style_c const * item_selected_frame_style = nullptr;
+				menu_text_style_c const * item_text_style = nullptr;
+				if ( _style_map_reference.get_value() )
+				{
+					menu_style_map_c::entry_c const * style_map_entry = nullptr;
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "element:item_selected_frame" ) );
+					if ( style_map_entry )
+					{
+						item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
+					}
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "element:item_text" ) );
+					if ( style_map_entry )
+					{
+						item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->style_key );
+					}
+				}
+
+				// create and add new element instances.
+				for ( sint32_c i = _item_elements.get_length() / elements_per_item; i < potentially_visible_item_count; i++ )
+				{
+					menu_element_frame_c * item_selected_frame = new menu_element_frame_c();
+					item_selected_frame->set_mother_control( this );
+					item_selected_frame->set_name( string8_c( mode_e_static, "item_selected_frame" ) );
+					item_selected_frame->set_shared_color_class( menu_shared_color_class_e_field );
+					item_selected_frame->get_style_reference().set_value( item_selected_frame_style );
+					_item_elements.insert_at_end( item_selected_frame );
+					_element_list.insert_at_end( item_selected_frame );
+
+					menu_element_frame_c * item_icon_frame = new menu_element_frame_c();
+					item_icon_frame->set_mother_control( this );
+					item_icon_frame->set_name( string8_c( mode_e_static, "item_icon_frame" ) );
+					item_icon_frame->set_shared_color_class( menu_shared_color_class_e_field );
+					item_icon_frame->set_override_style( &_item_icon_frame_style );
+					_item_elements.insert_at_end( item_icon_frame );
+					_element_list.insert_at_end( item_icon_frame );
+
+					for ( sint32_c j = 0; j < _column_list.get_length(); j++ )
+					{
+						column_c * column = _column_list[ j ];
+						menu_element_text_c * item_text = new menu_element_text_c();
+						item_text->set_mother_control( this );
+						item_text->set_name( string8_c( mode_e_static, "item_text" ) );
+						item_text->set_shared_color_class( menu_shared_color_class_e_field );
+						item_text->get_style_reference().set_value( item_text_style );
+						_item_elements.insert_at_end( item_text );
+						_element_list.insert_at_end( item_text );
+					}
+				}
+			}
+
+			// allocate and lay out elements to the currently visible set of items.
+			sint32_c visible_item_index = static_cast< sint32_c >( _vertical_scroll_bar->get_value() / _details_item_height );
+			sint32_c allocated_item_count = _item_elements.get_length() / elements_per_item;
+			for ( sint32_c i = 0; i < allocated_item_count; i++, visible_item_index++ )
+			{
+				menu_element_frame_c * item_selected_frame = dynamic_cast< menu_element_frame_c * >( _item_elements[ i * elements_per_item ] );
+				menu_element_frame_c * item_icon_frame = dynamic_cast< menu_element_frame_c * >( _item_elements[ i * elements_per_item + 1 ] );
+				if ( visible_item_index < _item_list.get_length() )
+				{
+					menu_control_collection_item_c * item = _item_list[ visible_item_index ];
+					box32x2_c item_box = _get_item_box( visible_item_index );
+					if ( ops::intersect_box_vs_box( item_box, _local_box ) )
+					{
+						item_selected_frame->set_is_showing( true );
+						item_selected_frame->set_layout_simple( item_box );
+						item_icon_frame->set_is_showing( true );
+						item_icon_frame->set_override_texture( item->get_icon_texture() );
+						item_icon_frame->set_layout_simple( box32x2_c( item_box.minimum.a, item_box.minimum.b, item_box.minimum.a + _details_item_height, item_box.maximum.b ) );
+						for ( sint32_c k = 0; k < _column_list.get_length(); k++ )
+						{
+							column_c * column = _column_list[ k ];
+							menu_element_text_c * item_text = dynamic_cast< menu_element_text_c * >( _item_elements[ i * elements_per_item + 2 + k ] );
+							item_text->set_is_showing( true );
+							item_text->set_layout_simple( box32x2_c( item_box.minimum.a + _details_item_height + column->_position, item_box.minimum.b, item_box.minimum.a + _details_item_height + column->_position + column->_width, item_box.maximum.b ) );
+							item_text->set_plain_text_value( item->_value_cache[ k ].display_value );
+						}
+						continue;
+					}
+				}
+				item_selected_frame->set_is_showing( false );
+				item_icon_frame->set_is_showing( false );
+				for ( sint32_c k = 0; k < _column_list.get_length(); k++ )
+				{
+					menu_element_text_c * item_text = dynamic_cast< menu_element_text_c * >( _item_elements[ i * elements_per_item + 2 + k ] );
+					item_text->set_is_showing( false );
+				}
+			}
+		}
+
+		_item_layout_is_dirty = false;
+	}
+
+	box32x2_c menu_control_collection_c::_get_item_box( sint32_c item_index )
+	{
+		box32x2_c result;
+		float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
+		if ( _display_mode == display_mode_e_icons )
+		{
+			sint32_c items_per_x = ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) );
+			result.minimum.a = _local_box.minimum.a + static_cast< float32_c >( ( item_index % items_per_x ) * _icons_item_width );
+			result.minimum.b = _local_box.minimum.b + static_cast< float32_c >( ( item_index / items_per_x ) * _icons_item_height ) + y;
+			result.maximum.a = result.minimum.a + static_cast< float32_c >( _icons_item_width );
+			result.maximum.b = result.minimum.b + static_cast< float32_c >( _icons_item_height );
 		}
 		else
 		{
 			assert( _column_list.get_length() > 0 );
 			column_c * last_column = _column_list[ _column_list.get_length() - 1 ];
-			item_rectangle.minimum.a = x + _local_box.minimum.a;
-			item_rectangle.minimum.b = y + ( item_index * _details_item_height );
-			item_rectangle.maximum.a = item_rectangle.minimum.a + last_column->_position + last_column->_width;
-			item_rectangle.maximum.b = item_rectangle.minimum.b + _details_item_height;
+			result.minimum.a = _local_box.minimum.a;
+			result.minimum.b = _local_box.minimum.b + static_cast< float32_c >( item_index * _details_item_height ) + y;
+			result.maximum.a = result.minimum.a + static_cast< float32_c >( last_column->_position + last_column->_width );
+			result.maximum.b = result.minimum.b + static_cast< float32_c >( _details_item_height );
 		}
-		return item_rectangle;
+		return result;
 	}
 
 	menu_control_collection_item_c * menu_control_collection_c::_pick_item_at_local_point( vector32x2_c const & local_point )
 	{
-		float32_c x = 0.0f;
-		float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
-		sint32_c next_visible_item_index = 0;
-		if ( _display_mode == display_mode_e_icons )
+		for ( sint32_c i = 0; i < _item_list.get_length(); i++ )
 		{
-			sint32_c visible_column_count = ops::math_minimum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) );
-			next_visible_item_index = visible_column_count * static_cast< sint32_c >( -y / _icons_item_height );
-		}
-		else
-		{
-			next_visible_item_index = static_cast< sint32_c >( -y ) / _details_item_height;
-		}
-		for ( sint32_c i = next_visible_item_index; i < _item_list.get_length(); i++ )
-		{
-			box32x2_c item_rectangle = _get_item_rectangle( i, x, y );
-			if ( ops::intersect_rectangle_vs_rectangle( _local_box, item_rectangle ) )
+			box32x2_c item_box = _get_item_box( i );
+			if ( ops::intersect_box_vs_box( item_box, _local_box ) )
 			{
-				if ( ops::intersect_rectangle_vs_point( item_rectangle, local_point ) )
+				if ( ops::intersect_box_vs_point( item_box, local_point ) )
 				{
 					return _item_list[ i ];
 				}
-			}
-			else
-			{
-				return nullptr;
 			}
 		}
 		return nullptr;
@@ -259,6 +533,8 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::_on_input( input_event_c * input_event )
 	{
+		refresh();
+
 		if ( _is_mouse_overed )
 		{
 		}
@@ -269,27 +545,25 @@ namespace cheonsa
 			_mouse_selected_item = _pick_item_at_local_point( local_mouse_position );
 		}
 
-		float32_c x = 0.0f;
-		float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
 		_element_mouse_selected_frame.set_is_showing( false );
 		if ( _mouse_selected_item )
 		{
 			_element_mouse_selected_frame.set_is_showing( true );
-			box32x2_c item_rectangle = _get_item_rectangle( _mouse_selected_item->_index, x, y );
-			_element_mouse_selected_frame.set_layout_simple( item_rectangle );
+			box32x2_c item_box = _get_item_box( _mouse_selected_item->_index );
+			_element_mouse_selected_frame.set_layout_simple( item_box );
 		}
 		_element_last_selected_frame.set_is_showing( false );
 		if ( _last_selected_item )
 		{
 			_element_last_selected_frame.set_is_showing( true );
-			box32x2_c item_rectangle = _get_item_rectangle( _last_selected_item->_index, x, y );
-			_element_last_selected_frame.set_layout_simple( item_rectangle );
+			box32x2_c item_box = _get_item_box( _last_selected_item->_index );
+			_element_last_selected_frame.set_layout_simple( item_box );
 		}
 	}
 
 	menu_control_collection_c::menu_control_collection_c()
 		: menu_control_c()
-		, _element_frame()
+		//, _element_frame()
 		, _mouse_selected_item( nullptr )
 		, _element_mouse_selected_frame()
 		, _last_selected_item( nullptr )
@@ -297,258 +571,80 @@ namespace cheonsa
 		, _vertical_scroll_bar_visibility( menu_visibility_mode_e_automatic )
 		, _vertical_scroll_bar( nullptr )
 		, _display_mode( display_mode_e_icons )
-		, _icons_item_width( 60 )
-		, _icons_item_height( 100 )
-		, _icons_icon_height( 60 )
+		, _icons_item_width( 100 )
+		, _icons_item_height( 120 )
+		, _icons_icon_height( 80 )
 		, _details_item_height( 20 )
-		, _currently_visible_item_start( 0 )
-		, _currently_visible_item_count( 0 )
 		, _column_list()
 		, _select_mode( select_mode_e_single )
 		, _sort_key()
+		, _sort_index( -1 )
 		, _sort_order( sort_order_e_descending )
 		, _sort_is_dirty( false )
 		, _item_list()
 		, _selected_item_list()
-		, _item_renaming( nullptr )
-		, _item_renaming_property_key()
-		, _item_renaming_text( nullptr )
 	{
 		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_add_element( &_element_frame );
 		
 		_element_mouse_selected_frame.set_name( string8_c( mode_e_static, "mouse_selected_frame" ) );
+		_element_mouse_selected_frame.set_is_showing( false );
 		_add_element( &_element_mouse_selected_frame );
 
 		_element_last_selected_frame.set_name( string8_c( mode_e_static, "last_selected_frame" ) );
+		_element_last_selected_frame.set_is_showing( false );
 		_add_element( &_element_last_selected_frame );
 
 		_vertical_scroll_bar = new menu_control_scroll_bar_vertical_c();
 		_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
 		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_on_value_changed );
-		_add_control( _vertical_scroll_bar );
+		_give_control( _vertical_scroll_bar );
 		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility );
 
 		set_style_map_key( string8_c( mode_e_static, "e_collection" ) );
+
+		_item_icon_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
+	}
+
+	menu_control_collection_c::~menu_control_collection_c()
+	{
+		_column_list.remove_and_delete_all();
+		_item_list.remove_and_delete_all();
+		_selected_item_list.remove_all();
+	}
+
+	void_c menu_control_collection_c::update_animations( float32_c time_step )
+	{
+		menu_control_c::update_animations( time_step );
+
+		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
+
+		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_frame.set_is_pressed( _is_pressed );
+	}
+
+	void_c menu_control_collection_c::update_transform_and_layout()
+	{
+		menu_control_c::update_transform_and_layout();
+		_update_item_layout();
 	}
 
 	void_c menu_control_collection_c::refresh()
 	{
 		assert( _column_list.get_length() > 0 );
-
-		_currently_visible_item_start = 0;
-		_currently_visible_item_count = 0;
-
-		// query and cache item values if needed.
 		if ( _value_cache_is_dirty )
 		{
-			_cache_items_values();
+			_update_value_cache();
 		}
-
-		// sort items if needed.
 		if ( _sort_is_dirty )
 		{
-			_sort_items();
+			_update_sort();
 		}
-
-		// reallocate elements if needed.
-		sint32_c content_height = 0;
-		sint32_c potentially_visible_item_count = 0; // highest number of items that might be visible in a single frame.
-		sint32_c potentially_visible_element_count = 0; // number of column and item elements needed.
-		if ( _display_mode == display_mode_e_icons )
-		{
-			potentially_visible_item_count = ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) ) * ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_height() / _icons_item_height  ) );
-			potentially_visible_element_count = potentially_visible_item_count * 2;
-			content_height = _item_list.get_length() / ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) ) * _icons_item_height;
-		}
-		else
-		{
-			potentially_visible_item_count = static_cast< sint32_c >( _local_box.get_height() / _icons_icon_height ) + 1;
-			potentially_visible_element_count = ( _column_list.get_length() * 2 ) + ( ( 2 + _column_list.get_length() ) * potentially_visible_item_count );
-			content_height = _details_item_height * _item_list.get_length();
-		}
-		if ( potentially_visible_element_count > _element_list.get_length() - 3 )
-		{
-			// delete existing column and item elements.
-			for ( sint32_c i = 3; i < _element_list.get_length(); i++ )
-			{
-				delete _element_list[ i ];
-				_element_list[ i ] = nullptr;
-			}
-
-			// truncate element list.
-			_element_list.set_length( 3 );
-
-			// look up styles for application later.
-			menu_frame_style_c const * column_frame_style = nullptr;
-			menu_text_style_c const * column_text_style = nullptr;
-			menu_frame_style_c const * item_selected_frame_style = nullptr;
-			menu_frame_style_c const * item_icon_frame_style = nullptr;
-			menu_text_style_c const * item_text_style = nullptr;
-			if ( _style_map_reference.get_value() )
-			{
-				menu_style_map_c::entry_c const * style_map_entry = nullptr;
-				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_frame" ) );
-				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
-				{
-					column_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
-				}
-				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_text" ) );
-				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
-				{
-					column_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->style_key );
-				}
-				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_selected_frame" ) );
-				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
-				{
-					item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
-				}
-				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_icon_frame" ) );
-				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
-				{
-					item_icon_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
-				}
-				style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_text" ) );
-				if ( style_map_entry && style_map_entry->get_target_type() == "element" )
-				{
-					item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->style_key );
-				}
-			}
-
-			// create new column and item elements.
-			// we aren't adding them via the proper _add_element() method because doing so would incur style map lookups each timee.
-			// we already looked up which styles to apply from the style maps, so we can just set them directly.
-			if ( _display_mode == display_mode_e_icons )
-			{
-				for ( sint32_c i = 0; i < potentially_visible_item_count; i++ )
-				{
-					menu_element_frame_c * item_element_frame = new menu_element_frame_c();
-					item_element_frame->set_name( string8_c( mode_e_static, "item_icon_frame" ) );
-					item_element_frame->get_style_reference().set_value( item_icon_frame_style );
-					_element_list.insert_at_end( item_element_frame );
-					menu_element_text_c * item_element_text = new menu_element_text_c();
-					item_element_text->set_name( string8_c( mode_e_static, "item_text" ) );
-					item_element_text->get_style_reference().set_value( item_text_style );
-					_element_list.insert_at_end( item_element_text );
-				}
-			}
-			else
-			{
-				for ( sint32_c i = 0; i < _column_list.get_length(); i++ )
-				{
-					menu_element_frame_c * column_frame = new menu_element_frame_c();
-					column_frame->set_name( string8_c( mode_e_static, "column_frame" ) );
-					column_frame->get_style_reference().set_value( column_frame_style );
-					_element_list.insert_at_end( column_frame );
-					menu_element_text_c * column_text = new menu_element_text_c();
-					column_text->set_name( string8_c( mode_e_static, "column_text" ) );
-					column_text->get_style_reference().set_value( column_text_style );
-					_element_list.insert_at_end( column_text );
-				}
-				for ( sint32_c i = 0; i < potentially_visible_item_count; i++ )
-				{
-					menu_element_frame_c * item_selected_frame = new menu_element_frame_c();
-					item_selected_frame->set_name( string8_c( mode_e_static, "item_selected_frame" ) );
-					item_selected_frame->get_style_reference().set_value( item_selected_frame_style );
-					_element_list.insert_at_end( item_selected_frame );
-					menu_element_frame_c * item_icon_frame = new menu_element_frame_c();
-					item_icon_frame->set_name( string8_c( mode_e_static, "item_icon_frame" ) );
-					item_icon_frame->get_style_reference().set_value( item_icon_frame_style );
-					_element_list.insert_at_end( item_icon_frame );
-					for ( sint32_c j = 0; j < _column_list.get_length(); j++ )
-					{
-						menu_element_text_c * item_text = new menu_element_text_c();
-						item_text->set_name( string8_c( mode_e_static, "item_text" ) );
-						item_text->get_style_reference().set_value( item_text_style );
-						_element_list.insert_at_end( item_text );
-					}
-				}
-			}
-		}
-
-		// resize vertical scroll bar.
-		_vertical_scroll_bar->set_value_range_and_page_size( 0.0, static_cast< float64_c >( content_height ), static_cast< float64_c >( _local_box.get_height() ) );
-
-		// layout and update visible item elements if needed.
 		if ( _item_layout_is_dirty )
 		{
-			_item_layout_is_dirty = false;
-			float32_c x = 0.0f;
-			float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
-			if ( _display_mode == display_mode_e_icons )
-			{
-				sint32_c visible_column_count = ops::math_minimum( 1, static_cast< sint32_c >( _local_box.get_width() / _icons_item_width ) );
-				_currently_visible_item_start = static_cast< sint32_c >( -y ) / _icons_item_height * visible_column_count;
-				_currently_visible_item_count = 0;
-				sint32_c item_element_per_set_count = 3; // selected frame, icon frame, text.
-				sint32_c item_element_start = 3 + ( _column_list.get_length() * 2 ); // three for built in frames. then for each column, one frame and one text.
-				sint32_c item_element_flat_count = _element_list.get_length() - item_element_start; // total number of elements allocated for items.
-				sint32_c item_element_set_count = item_element_flat_count / item_element_per_set_count; // number of elements allocated per item.
-				sint32_c i = item_element_start;
-				for ( ; i < _element_list.get_length(); i += item_element_per_set_count )
-				{
-					box32x2_c item_rectangle = _get_item_rectangle( _currently_visible_item_start + _currently_visible_item_count, x, y );
-					if ( item_rectangle.minimum.b > _local_box.maximum.b )
-					{
-						break;
-					}
-					_currently_visible_item_count++;
-					menu_control_collection_item_c * item = _item_list[ _currently_visible_item_start + _currently_visible_item_count ];
-					menu_element_frame_c * item_selected_frame = static_cast< menu_element_frame_c * >( _element_list[ i ] );
-					item_selected_frame->set_is_showing( item->_is_selected );
-					item_selected_frame->set_layout_simple( item_rectangle );
-					menu_element_frame_c * item_icon_frame = static_cast< menu_element_frame_c * >( _element_list[ i + 1 ] );
-					item_icon_frame->set_is_showing( true );
-					item_icon_frame->set_layout_simple( box32x2_c( item_rectangle.minimum.a, item_rectangle.minimum.b, item_rectangle.minimum.a + _icons_item_width, item_rectangle.minimum.b + _icons_icon_height ) );
-					menu_element_text_c * item_text = static_cast< menu_element_text_c * >( _element_list[ i + 2 ] );
-					item_text->set_is_showing( true );
-					item_text->set_layout_simple( box32x2_c( item_rectangle.minimum.a, item_rectangle.minimum.b + _icons_icon_height, item_rectangle.maximum.a, item_rectangle.maximum.b ) );
-				}
-				for ( ; i < _element_list.get_length(); i++ )
-				{
-					menu_element_c * element = _element_list[ i ];
-					element->set_is_showing( false );
-				}
-			}
-			else
-			{
-				_currently_visible_item_start = static_cast< sint32_c >( -y ) / _details_item_height;
-				_currently_visible_item_count = 0;
-				sint32_c item_element_per_set_count = ( 2 + _column_list.get_length() );
-				sint32_c item_element_start = 3 + ( _column_list.get_length() * 2 );
-				sint32_c item_element_flat_count = _element_list.get_length() - item_element_start;
-				sint32_c item_element_set_count = item_element_flat_count / item_element_per_set_count;
-				sint32_c i = item_element_start;
-				for ( ; i < _element_list.get_length(); i += item_element_per_set_count )
-				{
-					box32x2_c item_rectangle = _get_item_rectangle( _currently_visible_item_start + _currently_visible_item_count, x, y );
-					if ( item_rectangle.minimum.b > _local_box.maximum.b )
-					{
-						break;
-					}
-					_currently_visible_item_count++;
-					menu_control_collection_item_c * item = _item_list[ _currently_visible_item_start + _currently_visible_item_count ];
-					menu_element_frame_c * item_selected_frame = static_cast< menu_element_frame_c * >( _element_list[ i ] );
-					item_selected_frame->set_is_showing( true );
-					item_selected_frame->set_layout_simple( item_rectangle );
-					menu_element_frame_c * item_icon_frame = static_cast< menu_element_frame_c * >( _element_list[ i + 1 ] );
-					item_icon_frame->set_is_showing( true );
-					item_icon_frame->set_layout_simple( box32x2_c( item_rectangle.minimum.a, item_rectangle.minimum.b, item_rectangle.minimum.a + _details_item_height, item_rectangle.maximum.b ) );
-					for ( sint32_c j = 0; j < _column_list.get_length(); j++ )
-					{
-						column_c const * column = _column_list[ j ];
-						menu_element_text_c * item_text = static_cast< menu_element_text_c * >( _element_list[ i + 2 + j ] );
-						item_text->set_is_showing( true );
-						item_text->set_layout_simple( box32x2_c( item_rectangle.minimum.a + column->_position, item_rectangle.minimum.b, item_rectangle.minimum.a + column->_position + column->_width, item_rectangle.maximum.b ) );
-					}
-				}
-				for ( ; i < _element_list.get_length(); i++ )
-				{
-					menu_element_c * element = _element_list[ i ];
-					element->set_is_showing( false );
-				}
-			}
+			_update_item_layout();
 		}
 	}
 
@@ -558,8 +654,9 @@ namespace cheonsa
 
 		data_scribe_markup_c::attribute_c const * attribute = nullptr;
 
-		remove_all_columns();
+		//remove_all_columns();
 
+		/*
 		attribute = node->find_attribute( "display_mode" );
 		display_mode_e display_mode = display_mode_e_icons;
 		if ( attribute )
@@ -574,7 +671,9 @@ namespace cheonsa
 			}
 		}
 		set_display_mode( display_mode );
+		*/
 
+		/*
 		sint32_c icons_item_width = 60;
 		sint32_c icons_item_height = 100;
 		sint32_c icons_icon_height = 50;
@@ -602,7 +701,9 @@ namespace cheonsa
 			ops::convert_string8_to_sint32( attribute->get_value(), details_item_height );
 		}
 		set_details_metrics( details_item_height );
+		*/
 
+		/*
 		data_scribe_markup_c::node_c const * tag = node->find_tag( "column_list" );
 		if ( tag )
 		{
@@ -658,6 +759,7 @@ namespace cheonsa
 				add_column( column_key, column_display_value, column_width, column_sort_by, column_is_editable );
 			}
 		}
+		*/
 	}
 
 	menu_control_collection_c::display_mode_e menu_control_collection_c::get_display_mode() const
@@ -667,14 +769,13 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::set_display_mode( display_mode_e value )
 	{
-		_display_mode = value;
-		_item_layout_is_dirty = true;
-		for ( sint32_c i = 3; i < _element_list.get_length(); i++ )
+		if ( _display_mode != value )
 		{
-			delete _element_list[ i ];
-			_element_list[ i ] = nullptr;
+			_display_mode = value;
+			_item_layout_is_dirty = true;
+			_element_list.set_length( 3 );
+			_item_elements.remove_and_delete_all();
 		}
-		_element_list.set_length( 3 );
 	}
 
 	void_c menu_control_collection_c::set_icons_metrics( sint32_c item_width, sint32_c item_height, sint32_c icon_height )
@@ -709,15 +810,6 @@ namespace cheonsa
 	void_c menu_control_collection_c::set_sort( string8_c const & sort_key, sort_order_e sort_order )
 	{
 		_sort_key = sort_key;
-		_sort_index = -1;
-		for ( sint32_c i = 0; i < _column_list.get_length(); i++ )
-		{
-			if ( _column_list[ i ]->_key == sort_key )
-			{
-				_sort_index = i;
-				break;
-			}
-		}
 		_sort_order = sort_order;
 		_sort_is_dirty = true;
 		_item_layout_is_dirty = true;
@@ -730,7 +822,22 @@ namespace cheonsa
 			assert( _column_list[ i ]->_key != key );
 		}
 
-		sint32_c index = _column_list.get_length();
+		menu_frame_style_c const * column_frame_style = nullptr;
+		menu_text_style_c const * column_text_style = nullptr;
+		if ( _style_map_reference.get_value() )
+		{
+			menu_style_map_c::entry_c const * style_map_entry = nullptr;
+			style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "element:column_frame" ) );
+			if ( style_map_entry )
+			{
+				column_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->style_key );
+			}
+			style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "element:column_text" ) );
+			if ( style_map_entry )
+			{
+				column_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->style_key );
+			}
+		}
 
 		column_c * column = new column_c();
 		column->_key = key;
@@ -743,33 +850,35 @@ namespace cheonsa
 		column->_width = width;
 		column->_sort_by = sort_by;
 		column->_is_editable = is_editable;
+		column->_element_frame.set_mother_control( this );
 		column->_element_frame.set_name( string8_c( mode_e_static, "column_frame" ) );
-		_add_element( &column->_element_frame );
+		column->_element_frame.set_shared_color_class( menu_shared_color_class_e_button );
+		column->_element_frame.get_style_reference().set_value( column_frame_style );
+		column->_element_text.set_mother_control( this );
 		column->_element_text.set_name( string8_c( mode_e_static, "column_text" ) );
-		_add_element( &column->_element_text );
+		column->_element_text.set_shared_color_class( menu_shared_color_class_e_button );
+		column->_element_text.get_style_reference().set_value( column_text_style );
 		column->_element_text.set_plain_text_value( display_value );
 		_column_list.insert_at_end( column );
 
-		if ( _sort_index == -1 && _sort_key == key )
+		_element_list.set_length( 3 );
+		_item_elements.remove_and_delete_all();
+		_value_cache_is_dirty = true;
+		_item_layout_is_dirty = true;
+		if ( _sort_key == key )
 		{
-			_sort_index = index;
 			_sort_is_dirty = true;
 		}
-
-		_value_cache_is_dirty = true;
 	}
 
 	void_c menu_control_collection_c::remove_all_columns()
 	{
-		for ( sint32_c i = 0; i < _column_list.get_length(); i++ )
-		{
-			column_c * column = _column_list[ i ];
-			_remove_element( &column->_element_frame );
-			_remove_element( &column->_element_text );
-		}
-		_column_list.remove_all();
-		_sort_index = -1;
+		_column_list.remove_and_delete_all();
+		_element_list.set_length( 3 );
+		_item_elements.remove_and_delete_all();
 		_value_cache_is_dirty = true;
+		_item_layout_is_dirty = true;
+		_sort_is_dirty = true;
 	}
 
 	sint32_c menu_control_collection_c::get_item_count()
@@ -779,13 +888,9 @@ namespace cheonsa
 
 	menu_control_collection_item_c * menu_control_collection_c::get_item_at_index( sint32_c item_index )
 	{
-		if ( _value_cache_is_dirty )
-		{
-			_cache_items_values();
-		}
 		if ( _sort_is_dirty )
 		{
-			_sort_items();
+			_update_sort();
 		}
 		return _item_list[ item_index ];
 	}
@@ -795,10 +900,9 @@ namespace cheonsa
 		assert( item != nullptr );
 		assert( item->_mother_collection == nullptr );
 		assert( _column_list.get_length() > 0 );
-		_sort_is_dirty = true;
 		item->_mother_collection = this;
 		item->_index = _item_list.get_length();
-		if ( _value_cache_is_dirty == false ) // cache now if rest of cache is already up to date since this will be cheap, otherwise we can skip caching now because cache will be rebuilt later.
+		if ( _value_cache_is_dirty == false ) // if value cache is already up to date, then we can cache this new item's values. otherwise, we won't bother, entire cache will need to be updated later anyway.
 		{
 			item->_cache_values();
 		}
@@ -823,6 +927,8 @@ namespace cheonsa
 				item->_is_selected = false;
 			}
 		}
+		_item_layout_is_dirty = true;
+		_sort_is_dirty = true;
 	}
 
 	void_c menu_control_collection_c::remove_and_delete_item( sint32_c item_index )

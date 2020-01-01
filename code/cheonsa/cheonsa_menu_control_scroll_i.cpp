@@ -42,7 +42,7 @@ namespace cheonsa
 			if ( input_event->mouse_key == input_mouse_key_e_left )
 			{
 				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
-				if ( ops::intersect_rectangle_vs_point( _grip_element.get_local_box(), local_mouse_position ) )
+				if ( ops::intersect_box_vs_point( _grip_element.get_local_box(), local_mouse_position ) )
 				{
 					_mouse_grab = true;
 					_value_original = _value;
@@ -242,9 +242,11 @@ namespace cheonsa
 		}
 
 		_rail_element.set_name( string8_c( mode_e_static, "rail_frame" ) );
+		_rail_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_element( &_rail_element );
 
 		_grip_element.set_name( string8_c( mode_e_static, "grip_frame" ) );
+		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_element( &_grip_element );
 
 		set_style_map_key( string8_c( mode_e_static, "engine_scroll" ) );

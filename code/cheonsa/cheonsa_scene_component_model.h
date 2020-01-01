@@ -10,7 +10,7 @@ namespace cheonsa
 
 	// to use, call set_model_resource() with a pointer to a model resource.
 	// you may also call set_animations_resource() with a pointer to an additional model resource that contains additional animations to use.
-	// this is a way to increase reuse and reduce duplication, if you want to use the same animations between multiple models.
+	// this is a way to reuse animations between multiple models.
 	// vertex skinning is done in object (model) space.
 	class scene_component_model_c : public scene_component_c
 	{
@@ -21,8 +21,8 @@ namespace cheonsa
 	public:
 		enum vertex_skin_mode_e
 		{
-			vertex_skin_mode_e_gpu, // supports simple vertex skinning, transforms mesh by its bones.
-			vertex_skin_mode_e_cpu, // supports more complex vertex skinning, transforms mesh by its bones, does physics, etc.
+			vertex_skin_mode_e_gpu, // supports simple vertex skinning, deforms mesh using bones.
+			vertex_skin_mode_e_cpu, // supports more complex vertex skinning, deforms mesh using bones, and potentially also using per-vertex physics (soft body).
 		};
 
 		// used with animation dictionary, the key is the animation name, the value is this.

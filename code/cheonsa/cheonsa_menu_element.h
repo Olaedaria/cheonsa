@@ -32,7 +32,9 @@ namespace cheonsa
 
 		string8_c _name; // name to identify this element by, unique within the control that this element belongs to, can be used by the control to find the element and map styles to it.
 
-		vector32x4_c _local_color; // color tint of this element. opacity is inherited from control, this is a limitation to keep the render procedure design simple.
+		menu_shared_color_class_e _shared_color_class; // defines which set of shared colors are used to draw this control's elements.
+
+		vector32x4_c _local_color; // color tint of this element to upload to menu_colors[ 3 ]. opacity defined here is ignored. actual opacity is always inherited from control, this is a limitation to keep the render procedure (layering, compositing) design simple.
 
 		menu_anchor_e _local_box_anchor;
 		box32x2_c _local_box_anchor_measures;
@@ -66,12 +68,16 @@ namespace cheonsa
 		box32x2_c const & get_local_box() const;
 
 		menu_control_c * get_mother_control() const;
+		void_c set_mother_control( menu_control_c * value ); // the need for this is very specific, generally you don't need to use this directly.
 
 		string8_c const & get_name() const;
 		void_c set_name( string8_c const & value );
 
 		vector32x4_c const & get_local_color() const;
 		void_c set_local_color( vector32x4_c const & value );
+
+		menu_shared_color_class_e get_shared_color_class() const;
+		void_c set_shared_color_class( menu_shared_color_class_e value );
 
 		boolean_c get_is_showing() const;
 		void_c set_is_showing( boolean_c value );

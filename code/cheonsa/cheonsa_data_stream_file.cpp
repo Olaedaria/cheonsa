@@ -55,7 +55,7 @@ namespace cheonsa
 		DWORD dwShareMode = FILE_SHARE_READ;
 
 		DWORD dwCreationDisposition = 0;
-		if ( ops::data_does_file_exist( windows_file_path ) )
+		if ( ops::file_system_does_file_exist( windows_file_path ) )
 		{
 			if ( stream_mode & data_stream_mode_e_write )
 			{

@@ -9,9 +9,9 @@
 namespace cheonsa
 {
 
-	// if the file's byte order is the same as the environment's byte order, then the whole file is loaded into memory, and static mode lists are wrapped around that memory.
-	// if the file's byte order is not the same as the environment's byte order, then dynamic mode lists are allocated and each value is loaded one by one so that byte order can be flipped.
-	// ideally and in practice, little endian byte order is in and we only want to use this byte order, so IDK why i wrote all the extra code.
+	// if the file's byte order is the same as the environment's byte order, then the whole file is loaded into memory, and static mode lists are wrapped around sub-ranges of that memory.
+	// if the file's byte order is not the same as the environment's byte order, then dynamic mode lists are allocated and each binary value is loaded one by one so that byte order can be flipped.
+	// ideally and in practice, little endian byte order is popular these days and is preferable to big endian.
 	// i think GPU these days are all little endian, in which case the conversion step is currently missing.
 	//
 	// why are enums defined in the file format when they basically mirror 1 to 1 the enums defined in the engine sub-systems? it seems redundant.
@@ -32,9 +32,13 @@ namespace cheonsa
 		virtual char8_c const * get_type() const override { return get_type_static(); }
 
 	public:
-		static char8_c const * get_file_signature() { return "cm01"; }
-
 #pragma pack( push, 1 )
+
+		struct string_table_c
+		{
+			static char8_c const * get_signature() { return "st__"; }
+
+		};
 
 		// 2 bytes for uint16_c string reference.
 		struct mesh_bone_name_c
@@ -1446,12 +1450,6 @@ namespace cheonsa
 
 		};
 
-		struct string_table_c
-		{
-			static char8_c const * get_signature() { return "st__"; }
-
-		};
-
 		// 16 bytes.
 		struct chunk_header_c
 		{
@@ -1490,6 +1488,8 @@ namespace cheonsa
 		// in the case that the file's byte order is not the same as the environment's native byte order, then each list is allocated dynamically.
 		struct data_c
 		{
+			core_list_c< char8_c > string_table;
+
 			box32x3_c mesh_box; // calculated post-load, minimum axis aligned bounding box that contains all the vertices in the rest pose.
 
 			core_list_c< uint16_c > mesh_bone_name_list; // names of bones that will be used to skin in the model.
@@ -1520,8 +1520,6 @@ namespace cheonsa
 			core_list_c< light_c > light_list;
 
 			core_list_c< property_c > property_list;
-
-			core_list_c< char8_c > string_table;
 
 			core_list_c< bone_extras_c > bone_extras_list;
 

@@ -5,10 +5,9 @@
 namespace cheonsa
 {
 
-	// used to coordinate mutually exclusive data access between multiple threads.
-	// any number of threads may request to enter (lock) the critical section.
-	// once one thread enters (locks) the critical section, any other threads that also request to enter (lock) the critical section will be forced to block (wait).
-	// this is one way to avoid race conditions (concurrent data access).
+	// used to coordinate mutually exclusive (mutex) access of data between multiple threads.
+	// any number of threads may simultaneously request to enter (lock) the critical section.
+	// at most only one thread is granted access to enter (lock) the critical section, and all the other threads that simultaneiously requested to enter (lock) the critical section will be made to block (wait, spin) until the one thread can exit (unlock) the critical section.
 	class platform_critical_section_c
 	{
 	private:

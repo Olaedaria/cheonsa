@@ -7,6 +7,23 @@
 namespace cheonsa
 {
 
+	class menu_shared_color_base_notes_c
+	{
+	public:
+		vector32x4_c window_primary;
+		vector32x4_c window_secondary;
+		vector32x4_c window_accent;
+
+		vector32x4_c button_primary;
+		vector32x4_c button_secondary;
+		vector32x4_c button_accent;
+
+		vector32x4_c field_primary;
+		vector32x4_c field_secondary;
+		vector32x4_c field_accent;
+
+	};
+
 	// manages loading of styles from xml files and serves as a registry for all loaded control style maps and element styles.
 	// supports hot-loading of style files, which will trigger all frame and text elements to re-resolve their style references, and will trigger reflow/relayout of all glyphs in text elements.
 	// there is one global shared instance, declared in "cheonsa_engine.h", defined in "cheonsa_engine.cpp", it's fully qualified name is "global_engine_instance.interfaces.menu_style_manager".
@@ -15,7 +32,8 @@ namespace cheonsa
 	private:
 		float32_c _shared_transition_speed; // speed in units per second of visual state transitions. a speed of 1 will take 1 second, a speed of 100 will take 1/100th of a second.
 		
-		menu_color_style_c _shared_color_style_list[ menu_shared_color_e_count_ ]; // engine and/or game can set these programatically to customize the color scheme. style files may reference these with keys "[n]", where n is a number between 0 and 7.
+		menu_shared_color_base_notes_c _shared_color_base_notes;
+		menu_color_style_c _shared_color_style_list[ menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_ ]; // engine and/or game can set these programatically to customize the color scheme. style files may reference these with keys "[n]", where n is a number between 0 and 7.
 		core_dictionary_c< string8_c, menu_color_style_c * > _shared_color_style_dictionary;
 
 		resource_file_font_c::reference_c _default_font; // global default font to use.
@@ -33,7 +51,10 @@ namespace cheonsa
 
 		void_c refresh(); // reloads engine and game style files.
 
-		menu_color_style_c * find_shared_color_style( menu_shared_color_e index );
+		void_c set_shared_color_base_notes( menu_shared_color_base_notes_c const & values );
+		void_c get_shared_color_base_notes( menu_shared_color_base_notes_c & values );
+
+		menu_color_style_c * find_shared_color_style( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot );
 		menu_color_style_c * find_shared_color_style( string8_c key );
 
 		menu_color_style_c const * find_color_style( string8_c const & key ) const;

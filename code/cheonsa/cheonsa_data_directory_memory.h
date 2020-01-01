@@ -28,7 +28,7 @@ namespace cheonsa
 		~data_directory_memory_c();
 
 		data_stream_memory_c * open_file( string16_c const & file_path, data_stream_mode_e stream_mode ); // opens and returns a * to a stream located at file_path in this file system. do not close the stream when you are done with it because that will erase whatever is in it. do not delete the stream when you are done with it because it is managed by this file system.
-		boolean_c data_does_file_exist( string16_c const & file_path ); // returns true if a file exists at file_path within this file system.
+		boolean_c file_system_does_file_exist( string16_c const & file_path ); // returns true if a file exists at file_path within this file system.
 		boolean_c delete_file( string16_c const & file_path ); // returns true if successfully deleted file at file_path within this file system.
 		void_c reset(); // deletes all files in this file system.
 

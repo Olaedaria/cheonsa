@@ -1,4 +1,4 @@
-#include "cheonsa_safe_reference_count.h"
+#include "cheonsa_core_safe_reference_counter.h"
 #include "cheonsa___build.h"
 #if defined( cheonsa_platform_windows )
 #include <windows.h>
@@ -7,21 +7,19 @@
 namespace cheonsa
 {
 
-	safe_reference_count_c::safe_reference_count_c( sint32_c initial_count )
+	core_safe_reference_counter_c::core_safe_reference_counter_c( sint32_c initial_count )
 		: _count( initial_count )
 	{
 	}
 
-	sint32_c safe_reference_count_c::increment()
+	sint32_c core_safe_reference_counter_c::increment()
 	{
 #if defined( cheonsa_platform_windows )
-		//return InterlockedIncrement( &_count );
-
 		sint32_c const volatile * c = &_count;
 		while ( true )
 		{
-			sint32_c tmp = static_cast< sint32_c const volatile & >( *c );
-			if ( tmp == 0 ) // if zero it means the thing should be dead.
+			sint32_c tmp = static_cast< sint32_c const volatile & >( *c ); // code from godot, but why even bother with the static cast?
+			if ( tmp == 0 ) // if 0 it means the thing was released by another thread already.
 			{
 				return 0;
 			}
@@ -35,7 +33,7 @@ namespace cheonsa
 #endif
 	}
 
-	sint32_c safe_reference_count_c::decrement()
+	sint32_c core_safe_reference_counter_c::decrement()
 	{
 #if defined( cheonsa_platform_windows )
 		return InterlockedDecrement( &_count );
@@ -44,7 +42,7 @@ namespace cheonsa
 #endif
 	}
 
-	sint32_c safe_reference_count_c::get_count()
+	sint32_c core_safe_reference_counter_c::get_count()
 	{
 		return _count;
 	}

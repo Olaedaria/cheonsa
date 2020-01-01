@@ -1,5 +1,4 @@
 #include "cheonsa__ops.h"
-#include "cheonsa_time_types.h"
 #include "third_party/strnatcmp.h"
 #include "third_party/xxhash.h"
 #include <cstdlib>
@@ -1632,74 +1631,74 @@ namespace cheonsa
 		}
 
 		/*
-		vector32x2_c get_rectangle_point( box32x2_c const & rectangle, matrix32x2x2_c const & rectangle_basis, vector32x2_c const & rectangle_origin, sint32_c rectangle_point_index )
+		vector32x2_c get_box_point( box32x2_c const & box, matrix32x2x2_c const & box_basis, vector32x2_c const & box_origin, sint32_c box_point_index )
 		{
 			vector32x2_c result;
-			switch ( rectangle_point_index )
+			switch ( box_point_index )
 			{
 			case 0:
 				// top left.
-				result.a = rectangle.minimum.a;
-				result.b = rectangle.minimum.b;
+				result.a = box.minimum.a;
+				result.b = box.minimum.b;
 				break;
 			case 1:
 				// top right.
-				result.a = rectangle.maximum.a;
-				result.b = rectangle.minimum.b;
+				result.a = box.maximum.a;
+				result.b = box.minimum.b;
 				break;
 			case 2:
 				// bottom left.
-				result.a = rectangle.minimum.a;
-				result.b = rectangle.maximum.b;
+				result.a = box.minimum.a;
+				result.b = box.maximum.b;
 				break;
 			case 3:
 				// bottom right.
-				result.a = rectangle.maximum.b;
-				result.b = rectangle.maximum.b;
+				result.a = box.maximum.b;
+				result.b = box.maximum.b;
 				break;
 			}
-			result = make_vector32x2_transformed_point( result, rectangle_origin, rectangle_basis );
+			result = make_vector32x2_transformed_point( result, box_origin, box_basis );
 			return result;
 		}
 
-		line32_c get_rectangle_line( box32x2_c const & rectangle, matrix32x2x2_c const & rectangle_basis, vector32x2_c const & rectangle_origin, sint32_c rectangle_edge_index )
+		line32_c get_box_line( box32x2_c const & box, matrix32x2x2_c const & box_basis, vector32x2_c const & box_origin, sint32_c box_edge_index )
 		{
 			line32_c result;
 			vector32x2_c segment_point_a; // origin of vector to produce tangent.
 			vector32x2_c segment_point_b; // extrusion of vector to produce tangent.
-			switch ( rectangle_edge_index )
+			switch ( box_edge_index )
 			{
 			case 0:
 				// left edge, top to bottom, so that right hand tangent/normal points left towards outside.
-				segment_point_a.a = rectangle.minimum.a;
-				segment_point_a.b = rectangle.minimum.b;
-				segment_point_b.a = rectangle.minimum.a;
-				segment_point_b.b = rectangle.maximum.b;
+				segment_point_a.a = box.minimum.a;
+				segment_point_a.b = box.minimum.b;
+				segment_point_b.a = box.minimum.a;
+				segment_point_b.b = box.maximum.b;
 				break;
 			case 1:
 				// top edge, right to left, so that right hand tangent/normal points up towards outside.
-				segment_point_a.a = rectangle.maximum.a;
-				segment_point_a.b = rectangle.minimum.b;
-				segment_point_b.a = rectangle.minimum.a;
-				segment_point_b.b = rectangle.minimum.b;
+				segment_point_a.a = box.maximum.a;
+				segment_point_a.b = box.minimum.b;
+				segment_point_b.a = box.minimum.a;
+				segment_point_b.b = box.minimum.b;
 				break;
 			case 2:
 				// right edge, bottom to top, so that right hand tangent/normal points right towards outside.
-				segment_point_a.a = rectangle.maximum.a;
-				segment_point_a.b = rectangle.maximum.b;
-				segment_point_b.a = rectangle.maximum.a;
-				segment_point_b.b = rectangle.minimum.b;
+				segment_point_a.a = box.maximum.a;
+				segment_point_a.b = box.maximum.b;
+				segment_point_b.a = box.maximum.a;
+				segment_point_b.b = box.minimum.b;
 				break;
 			case 3:
 				// bottom edge, left to right, so that right hand tangent/normal points down towards outside.
-				segment_point_a.a = rectangle.minimum.a;
-				segment_point_a.b = rectangle.maximum.b;
-				segment_point_b.a = rectangle.maximum.a;
-				segment_point_b.b = rectangle.maximum.b;
+				segment_point_a.a = box.minimum.a;
+				segment_point_a.b = box.maximum.b;
+				segment_point_b.a = box.maximum.a;
+				segment_point_b.b = box.maximum.b;
 				break;
 			}
-			segment_point_a = make_vector32x2_transformed_point( segment_point_a, rectangle_basis, rectangle_origin );
-			segment_point_b = make_vector32x2_transformed_point( segment_point_b, rectangle_basis, rectangle_origin );
+			segment_point_a = make_vector32x2_transformed_point( segment_point_a, box_basis, box_origin );
+			segment_point_b = make_vector32x2_transformed_point( segment_point_b, box_basis, box_origin );
 			result = make_line32_from_segment( segment_point_a, segment_point_b );
 			return result;
 		}
@@ -2354,17 +2353,51 @@ namespace cheonsa
 			return true;
 		}
 
-		void_c make_polygon32x2_from_rectangle32( box32x2_c const & rectangle_in, polygon32x2_c & polygon_out )
+		vector32x4_c adjust_color_brightness( vector32x4_c const & color, float32_c amount )
+		{
+			amount = ops::math_saturate( amount );
+			vector32x4_c result;
+			result.a = ops::math_saturate( color.a + amount );
+			result.b = ops::math_saturate( color.b + amount );
+			result.c = ops::math_saturate( color.c + amount );
+			result.d = color.d;
+			return result;
+		}
+
+		vector32x4_c adjust_color_contrast( vector32x4_c const & color, float32_c amount )
+		{
+			amount = 1.0f + ops::math_saturate( amount );
+			vector32x4_c result;
+			result.a = ops::math_saturate( color.a * amount );
+			result.b = ops::math_saturate( color.b * amount );
+			result.c = ops::math_saturate( color.c * amount );
+			result.d = color.d;
+			return result;
+		}
+
+		vector32x4_c adjust_color_saturation( vector32x4_c const & color, float32_c amount )
+		{
+			amount = ops::math_saturate( amount );
+			vector32x4_c result;
+			float32_c p = ops::math_square_root( ops::make_float32_dot_product( vector32x3_c( color.a, color.b, color.c ), vector32x3_c( 0.299f, 0.587f, 0.114f ) ) );
+			result.a = ( ( color.a - p ) * amount ) + p;
+			result.b = ( ( color.b - p ) * amount ) + p;
+			result.c = ( ( color.c - p ) * amount ) + p;
+			result.d = color.d;
+			return result;
+		}
+
+		void_c make_polygon32x2_from_box32x2( box32x2_c const & box_in, polygon32x2_c & polygon_out )
 		{
 			polygon_out.points_count = 4;
-			polygon_out.points[ 0 ].a = rectangle_in.minimum.a;
-			polygon_out.points[ 0 ].b = rectangle_in.minimum.b;
-			polygon_out.points[ 1 ].a = rectangle_in.minimum.a;
-			polygon_out.points[ 1 ].b = rectangle_in.maximum.b;
-			polygon_out.points[ 2 ].a = rectangle_in.maximum.a;
-			polygon_out.points[ 2 ].b = rectangle_in.maximum.b;
-			polygon_out.points[ 3 ].a = rectangle_in.maximum.a;
-			polygon_out.points[ 3 ].b = rectangle_in.minimum.b;
+			polygon_out.points[ 0 ].a = box_in.minimum.a;
+			polygon_out.points[ 0 ].b = box_in.minimum.b;
+			polygon_out.points[ 1 ].a = box_in.minimum.a;
+			polygon_out.points[ 1 ].b = box_in.maximum.b;
+			polygon_out.points[ 2 ].a = box_in.maximum.a;
+			polygon_out.points[ 2 ].b = box_in.maximum.b;
+			polygon_out.points[ 3 ].a = box_in.maximum.a;
+			polygon_out.points[ 3 ].b = box_in.minimum.b;
 		}
 
 		vector64x3_c make_vector64x3_normal_from_triangle( vector64x3_c a, vector64x3_c b, vector64x3_c c )
@@ -2715,9 +2748,9 @@ namespace cheonsa
 			}
 		}
 
-		vector64x2_c nearest_point_on_rectangle( vector64x2_c const & point, box64x2_c const & rectangle )
+		vector64x2_c nearest_point_on_box( vector64x2_c const & point, box64x2_c const & box )
 		{
-			return vector64x2_c( math_clamp( point.a, rectangle.minimum.a, rectangle.maximum.a ), math_clamp( point.b, rectangle.minimum.b, rectangle.maximum.b ) );
+			return vector64x2_c( math_clamp( point.a, box.minimum.a, box.maximum.a ), math_clamp( point.b, box.minimum.b, box.maximum.b ) );
 		}
 
 		boolean_c intersect_frustum_vs_point( frustum64_c const & frustum, vector64x3_c const & point )
@@ -2899,30 +2932,30 @@ namespace cheonsa
 			return make_float64_length_squared( sphere.position - closest_point_on_box ) <= ( sphere.radius * sphere.radius );
 		}
 
-		boolean_c intersect_rectangle_vs_point( box32x2_c const & rectangle, vector32x2_c const & point )
+		boolean_c intersect_box_vs_point( box32x2_c const & box, vector32x2_c const & point )
 		{
-			return ( point.a >= rectangle.minimum.a && point.a <= rectangle.maximum.a ) && ( point.b >= rectangle.minimum.b && point.b <= rectangle.maximum.b );
+			return ( point.a >= box.minimum.a && point.a <= box.maximum.a ) && ( point.b >= box.minimum.b && point.b <= box.maximum.b );
 		}
 
-		boolean_c intersect_rectangle_vs_point( box64x2_c const & rectangle, vector64x2_c const & point )
+		boolean_c intersect_box_vs_point( box64x2_c const & box, vector64x2_c const & point )
 		{
-			return ( point.a >= rectangle.minimum.a && point.a <= rectangle.maximum.a ) && ( point.b >= rectangle.minimum.b && point.b <= rectangle.maximum.b );
+			return ( point.a >= box.minimum.a && point.a <= box.maximum.a ) && ( point.b >= box.minimum.b && point.b <= box.maximum.b );
 		}
 
-		boolean_c intersect_rectangle_vs_rectangle( box32x2_c const & rectangle_a, box32x2_c const & rectangle_b )
+		boolean_c intersect_box_vs_box( box32x2_c const & box_a, box32x2_c const & box_b )
 		{
-			return ( rectangle_a.maximum.a >= rectangle_b.minimum.b && rectangle_a.maximum.b >= rectangle_b.minimum.b );
+			return ( box_a.maximum.a >= box_b.minimum.a && box_a.minimum.a <= box_b.maximum.a ) && ( box_a.maximum.b >= box_b.minimum.b && box_a.minimum.b <= box_b.maximum.b );
 		}
 
-		boolean_c intersect_rectangle_vs_rectangle( box64x2_c const & rectangle_a, box64x2_c const & rectangle_b )
+		boolean_c intersect_box_vs_box( box64x2_c const & box_a, box64x2_c const & box_b )
 		{
-			return ( rectangle_a.maximum.a >= rectangle_b.minimum.b && rectangle_a.maximum.b >= rectangle_b.minimum.b );
+			return ( box_a.maximum.a >= box_b.minimum.a && box_a.minimum.a <= box_b.maximum.a ) && ( box_a.maximum.b >= box_b.minimum.b && box_a.minimum.b <= box_b.maximum.b );
 		}
 
-		boolean_c intersect_rectangle_vs_circle( box64x2_c const & rectangle, circle64_c const & circle )
+		boolean_c intersect_box_vs_circle( box64x2_c const & box, circle64_c const & circle )
 		{
-			vector64x2_c nearest_point_on_or_in_rectangle = nearest_point_on_rectangle( circle.position, rectangle );
-			return make_float64_length_squared( circle.position - nearest_point_on_or_in_rectangle ) <= ( circle.radius * circle.radius );
+			vector64x2_c nearest_point_on_or_in_box = nearest_point_on_box( circle.position, box );
+			return make_float64_length_squared( circle.position - nearest_point_on_or_in_box ) <= ( circle.radius * circle.radius );
 		}
 
 		boolean_c intersect_plane_vs_plane_vs_plane( plane64_c const & plane_a, plane64_c const & plane_b, plane64_c const & plane_c, vector64x3_c * intersection_point )
@@ -3742,7 +3775,7 @@ namespace cheonsa
 		//
 		//
 
-		boolean_c data_get_file_or_folder_modified_time( string16_c const & file_path, sint64_c & miliseconds_since_epoch )
+		boolean_c file_system_get_file_or_folder_modified_time( string16_c const & file_path, sint64_c & milliseconds_since_epoch )
 		{
 			if ( file_path.get_length() == 0 )
 			{
@@ -3753,7 +3786,7 @@ namespace cheonsa
 			string16_c file_path_windows;
 			ops::path_format_for_windows( file_path, file_path_windows );
 			boolean_c result = false;
-			miliseconds_since_epoch = 0;
+			milliseconds_since_epoch = 0;
 			HANDLE file_handle = CreateFileW( file_path_windows.character_list.get_internal_array(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 			if ( file_handle != INVALID_HANDLE_VALUE )
 			{
@@ -3763,18 +3796,18 @@ namespace cheonsa
 					ULARGE_INTEGER file_time_large_integer;
 					file_time_large_integer.LowPart = file_time.dwLowDateTime;
 					file_time_large_integer.HighPart = file_time.dwHighDateTime;
-					miliseconds_since_epoch = static_cast< sint64_c >( file_time_large_integer.QuadPart - windows_epoch_to_cheonsa_epoch ) / windows_interval_to_cheonsa_interval; // divided by 10000 to convert from 100 nanosecond intervals to milliseconds, minus epoch delta to put into milliseconds since y2k.
+					milliseconds_since_epoch = time_format_for_cheonsa( file_time_large_integer.QuadPart );
 					result = true;
 				}
 				CloseHandle( file_handle );
 			}
 			return result;
 			#else
-			#error data_get_file_or_folder_modified_time is not implemented.
+			#error file_system_get_file_or_folder_modified_time is not implemented.
 			#endif
 		}
 
-		boolean_c data_set_file_or_folder_time_modified( string16_c const & file_path, sint64_c miliseconds_since_epoch )
+		boolean_c file_system_set_file_or_folder_time_modified( string16_c const & file_path, sint64_c milliseconds_since_epoch )
 		{
 			assert( path_is_formatted_for_cheonsa( file_path, false ) );
 			#if defined( cheonsa_platform_windows )
@@ -3785,7 +3818,7 @@ namespace cheonsa
 			if ( file_handle != INVALID_HANDLE_VALUE )
 			{
 				ULARGE_INTEGER file_time_large_integer;
-				file_time_large_integer.QuadPart = static_cast< ULONGLONG >( miliseconds_since_epoch * windows_interval_to_cheonsa_interval ) + windows_epoch_to_cheonsa_epoch; // mutliplied by 10000 to convert from milliseconds to 100 nanosecond intervals, plus epoch delta to put into milliseconds since y2k.
+				file_time_large_integer.QuadPart = time_format_for_windows( milliseconds_since_epoch );
 				FILETIME file_time;
 				file_time.dwLowDateTime = file_time_large_integer.LowPart;
 				file_time.dwHighDateTime = file_time_large_integer.HighPart;
@@ -3795,11 +3828,11 @@ namespace cheonsa
 			}
 			return result;
 			#else
-			#error data_get_file_or_folder_modified_time is not implemented.
+			#error file_system_get_file_or_folder_modified_time is not implemented.
 			#endif
 		}
 
-		boolean_c data_does_file_exist( string16_c const & file_path )
+		boolean_c file_system_does_file_exist( string16_c const & file_path )
 		{
 			#if defined( cheonsa_platform_windows )
 			string16_c file_path_windows;
@@ -3807,11 +3840,11 @@ namespace cheonsa
 			DWORD file_attributes = GetFileAttributesW( file_path_windows.character_list.get_internal_array() );
 			return ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 ) );
 			#else
-			#error data_does_file_exist is not implemented.
+			#error file_system_does_file_exist is not implemented.
 			#endif
 		}
 
-		boolean_c data_create_file( string16_c const & file_path )
+		boolean_c file_system_create_file( string16_c const & file_path )
 		{
 			#if defined( cheonsa_platform_windows )
 			string16_c file_path_windows;
@@ -3829,11 +3862,11 @@ namespace cheonsa
 			fclose( file );
 			return true;
 			#else
-			#error data_create_file is not implemented.
+			#error file_system_create_file is not implemented.
 			#endif
 		}
 
-		boolean_c data_does_folder_exist( string16_c const & file_path )
+		boolean_c file_system_does_folder_exist( string16_c const & file_path )
 		{
 			#if defined( cheonsa_platform_windows )
 			string16_c file_path_windows;
@@ -3841,11 +3874,11 @@ namespace cheonsa
 			DWORD file_attributes = GetFileAttributesW( file_path_windows.character_list.get_internal_array() );
 			return ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 ) );
 			#else
-			#error data_does_folder_exist is not implemented.
+			#error file_system_does_folder_exist is not implemented.
 			#endif
 		}
 
-		boolean_c data_create_folder( string16_c const & file_path )
+		boolean_c file_system_create_folder( string16_c const & file_path )
 		{
 			#if defined( cheonsa_platform_windows )
 			// windows doesn't let us create a new folder multiple levels of non-existent folders, so we have to create folders for each path level one by one.
@@ -3876,11 +3909,11 @@ namespace cheonsa
 			}
 			return result != 0;
 			#else
-			#error data_create_folder is not implemented.
+			#error file_system_create_folder is not implemented.
 			#endif
 		}
 
-		boolean_c data_move_file_or_folder( string16_c const & from_file_path, string16_c const & to_file_path )
+		boolean_c file_system_move_file_or_folder( string16_c const & from_file_path, string16_c const & to_file_path )
 		{
 			#if defined( cheonsa_platform_windows )
 			string16_c from_file_path_windows;
@@ -3890,11 +3923,11 @@ namespace cheonsa
 			BOOL result = MoveFileW( from_file_path_windows.character_list.get_internal_array(), to_file_path_windows.character_list.get_internal_array() );
 			return result != 0;
 			#else
-			#error data_move_file_or_folder is not implemented.
+			#error file_system_move_file_or_folder is not implemented.
 			#endif
 		}
 
-		boolean_c data_delete_file_or_folder( string16_c const & file_path )
+		boolean_c file_system_delete_file_or_folder( string16_c const & file_path )
 		{
 			#if defined( cheonsa_platform_windows )
 			string16_c file_path_windows;
@@ -3902,13 +3935,101 @@ namespace cheonsa
 			BOOL result = DeleteFileW( file_path_windows.character_list.get_internal_array() );
 			return result != 0;
 			#else
-			#error data_delete_file_or_folder is not implemented.
+			#error file_system_delete_file_or_folder is not implemented.
 			#endif
 		}
 
-		void_c _data_get_files_recursive( core_list_c< string16_c >& result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter )
+		void_c file_system_get_list( core_list_c< file_system_file_information_c > & result, string16_c const & path, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter )
 		{
-			#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
+			// check that the provided search path is formatted like a folder path.
+			char16_c path_last_character = path.character_list[ path.character_list.get_length() - 2 ];
+			assert( path_last_character == '\\' || path_last_character == '/' );
+
+			// format the search path for windows's file system.
+			string16_c path_for_windows;
+			path_format_for_windows( path, path_for_windows );
+			string16_c path_for_windows_with_wild_card;
+			path_for_windows_with_wild_card += path_for_windows;
+			path_for_windows_with_wild_card += "*";
+
+			HANDLE find_file_handle = INVALID_HANDLE_VALUE;
+			WIN32_FIND_DATAW find_file_data;
+			find_file_handle = FindFirstFileW( path_for_windows_with_wild_card.character_list.get_internal_array(), &find_file_data );
+			if ( find_file_handle == INVALID_HANDLE_VALUE )
+			{
+				return;
+			}
+
+			core_list_c< string16_c > file_extension_filter_list;
+			if ( file_extension_filter != nullptr )
+			{
+				ops::string16_split_at_delimiter( string16_c( file_extension_filter ), string16_c( mode_e_static, L"|" ), file_extension_filter_list );
+			}
+
+			do
+			{
+				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN ) != 0 || ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM ) != 0 )
+				{
+					continue;
+				}
+
+				ULARGE_INTEGER windows_time;
+				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 && get_folders )
+				{
+					file_system_file_information_c * result_item = result.emplace_at_end();
+					result_item->path = path;
+					result_item->path += string16_c( mode_e_static, find_file_data.cFileName );
+					windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
+					windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
+					result_item->creation_time = time_format_for_cheonsa( windows_time.QuadPart );
+					windows_time.LowPart = find_file_data.ftLastAccessTime.dwLowDateTime;
+					windows_time.HighPart = find_file_data.ftLastAccessTime.dwHighDateTime;
+					result_item->last_access_time = time_format_for_cheonsa( windows_time.QuadPart );
+					windows_time.LowPart = find_file_data.ftLastWriteTime.dwLowDateTime;
+					windows_time.HighPart = find_file_data.ftLastWriteTime.dwHighDateTime;
+					result_item->last_write_time = time_format_for_cheonsa( windows_time.QuadPart );
+					result_item->is_folder = true;
+				}
+				else if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 && get_files )
+				{
+					boolean_c add = true;
+					if ( file_extension_filter_list.get_length() > 0 )
+					{
+						add = false;
+						for ( sint32_c i = 0; i < file_extension_filter_list.get_length(); i++ )
+						{
+							if ( string16_ends_with( find_file_data.cFileName, file_extension_filter_list[ i ].character_list.get_internal_array() ) )
+							{
+								add = true;
+								break;
+							}
+						}
+					}
+					if ( add )
+					{
+						file_system_file_information_c * result_item = result.emplace_at_end();
+						result_item->path = path;
+						result_item->path += string16_c( mode_e_static, find_file_data.cFileName );
+						windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
+						windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
+						result_item->creation_time = time_format_for_cheonsa( windows_time.QuadPart );
+						windows_time.LowPart = find_file_data.ftLastAccessTime.dwLowDateTime;
+						windows_time.HighPart = find_file_data.ftLastAccessTime.dwHighDateTime;
+						result_item->last_access_time = time_format_for_cheonsa( windows_time.QuadPart );
+						windows_time.LowPart = find_file_data.ftLastWriteTime.dwLowDateTime;
+						windows_time.HighPart = find_file_data.ftLastWriteTime.dwHighDateTime;
+						result_item->last_write_time = time_format_for_cheonsa( windows_time.QuadPart );
+						result_item->is_folder = false;
+					}
+				}
+			} while ( FindNextFileW( find_file_handle, &find_file_data ) != 0 );
+#endif
+		}
+
+		void_c _file_system_get_files_recursive( core_list_c< string16_c >& result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter )
+		{
+#if defined( cheonsa_platform_windows )
 
 			char16_c last_char = folder_path.character_list[ folder_path.character_list.get_length() - 2 ];
 			assert( last_char == '\\' || last_char == '/' );
@@ -3948,23 +4069,23 @@ namespace cheonsa
 					sub_folder_path += folder_path_windows;
 					sub_folder_path += sub_folder_name;
 					sub_folder_path += "/";
-					_data_get_files_recursive( result, sub_folder_path, search_sub_folders, extension_filter );
+					_file_system_get_files_recursive( result, sub_folder_path, search_sub_folders, extension_filter );
 				}
 			} while ( FindNextFileW( find_handle, &find_file_data ) != 0 );
 			FindClose( find_handle );
-			#else
+#else
 			#error _data_get_files_recursive not implemented.
-			#endif
+#endif
 		}
 
-		void_c data_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter )
+		void_c file_system_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter )
 		{
-			_data_get_files_recursive( result, folder_path, search_sub_folders, extension_filter );
+			_file_system_get_files_recursive( result, folder_path, search_sub_folders, extension_filter );
 		}
 
-		void_c _data_get_folders_recursive( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
+		void_c _file_system_get_folders_recursive( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
 		{
-			#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 
 			char16_c last_char = folder_path.character_list[ folder_path.character_list.get_length() - 2 ];
 			assert( last_char == '\\' || last_char == '/' );
@@ -4005,20 +4126,20 @@ namespace cheonsa
 						sub_folder_path += folder_path_windows;
 						sub_folder_path += sub_folder_name;
 						sub_folder_path += "\\";
-						_data_get_folders_recursive( result, sub_folder_path, search_sub_folders );
+						_file_system_get_folders_recursive( result, sub_folder_path, search_sub_folders );
 					}
 				}
 			} while ( FindNextFileW( find_handle, &find_file_data ) != 0 );
 
 			FindClose( find_handle );
-			#else
+#else
 			#error _data_get_folders_recursive not implemented.
-			#endif
+#endif
 		}
 
-		void_c data_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
+		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
 		{
-			_data_get_folders_recursive( result, folder_path, search_sub_folders );
+			_file_system_get_folders_recursive( result, folder_path, search_sub_folders );
 		}
 
 
@@ -4030,59 +4151,94 @@ namespace cheonsa
 
 		sint64_c time_get_high_resolution_timer_frequency()
 		{
-			#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 			static LARGE_INTEGER result = {};
 			if ( result.QuadPart == 0 )
 			{
 				QueryPerformanceFrequency( &result );
 			}
 			return result.QuadPart;
-			#else
+#else
 			#error time_get_high_resolution_timer_frequency not implemented.
-			#endif
+#endif
 		}
 
 		sint64_c time_get_high_resolution_timer_count()
 		{
-			#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 			LARGE_INTEGER result = {};
 			QueryPerformanceCounter( &result );
 			return result.QuadPart;
-			#else
+#else
 			#error time_get_high_resolution_timer_count not implemented.
-			#endif
+#endif
 		}
 
 		sint64_c time_get_milliseconds_since_epoch()
 		{
-			#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 			FILETIME file_time = {};
 			GetSystemTimeAsFileTime( &file_time );
 			ULARGE_INTEGER time_large_integer;
 			time_large_integer.LowPart = file_time.dwLowDateTime;
 			time_large_integer.HighPart = file_time.dwHighDateTime;
-			return static_cast< sint64_c >( time_large_integer.QuadPart / windows_interval_to_cheonsa_interval ) - ( windows_epoch_to_cheonsa_epoch * 1000 );
-			#else
+			return time_format_for_cheonsa( time_large_integer.QuadPart );
+#else
 			#error time_get_milliseconds_since_epoch not implemented.
-			#endif
+#endif
 		}
 
 		sint64_c time_get_local_time_zone_offset()
 		{
-			#if defined( cheonsa_platform_windows )
+#if defined( cheonsa_platform_windows )
 			DYNAMIC_TIME_ZONE_INFORMATION dynamic_time_zone_information = {};
 			if ( GetDynamicTimeZoneInformation( &dynamic_time_zone_information ) != 0 )
 			{
 				// Bias contains the current local timezone offset plus daylight savings offset.
 				// Bias units are originally in minutes so we need to convert to milliseconds.
-				return ( dynamic_time_zone_information.Bias * 60 * 1000 ); // 60 seconds per minute, 1000 miliseconds per second.
+				return ( dynamic_time_zone_information.Bias * 60 * 1000 ); // 60 seconds per minute, 1000 milliseconds per second.
 			}
 			return 0;
-			#else
+#else
 			#error time_get_local_time_zone_offset not implemented.
-			#endif
+#endif
 		}
 
+#if defined( cheonsa_platform_windows )
+
+		// windows measures time in 100 nanosecond intervals.
+		// cheonsa measures time in 1 millisecond intervals.
+		// 1 nanosecond = 1/1000000000 = 0.000000001 second.
+		// 100 nanosecond = 0.0000001 second
+		// 1 millisecond  = 1/1000 = 0.0001 second
+		// 0.0001 / 0.0000001 = 10000
+		//   10000 (100 nanosecond intervals per millisecond)
+#define cheonsa_windows_interval_to_cheonsa_interval 10000
+
+		// windows' epoch is 1601 January 1 00:00 GMT.
+		// cheonsa's epoch is 2000 January 1 12:00 GMT. (Julain years J2000).
+		// these are 12591201600 seconds apart.
+		// calculated the difference between the two epochs using python:
+		//   >>> windows_epoch = datetime.datetime( 1601, 1, 1, 0 )
+		//   >>> cheonsa_epoch = datetime.datetime( 2000, 1, 1, 12 )
+		//   >>> ( cheonsa_epoch - windows_epoch ).total_seconds()
+#define cheonsa_windows_epoch_to_cheonsa_epoch 12591201600
+
+		sint64_c time_format_for_cheonsa( sint64_c windows_time )
+		{
+			// times 10000000 to convert from 1 second intervals to 100 nanosecond intervals.
+			return ( windows_time - ( cheonsa_windows_epoch_to_cheonsa_epoch * 10000000 ) ) / cheonsa_windows_interval_to_cheonsa_interval;
+		}
+
+		sint64_c time_format_for_windows( sint64_c cheonsa_time )
+		{
+			// times 1000 to convert from 1 second intervals to 1 millisecond intervals.
+			return ( cheonsa_time + ( cheonsa_windows_epoch_to_cheonsa_epoch * 1000 ) ) * cheonsa_windows_interval_to_cheonsa_interval;
+		}
+
+#else
+	#error not implemented.
+#endif
 
 		//
 		//

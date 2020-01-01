@@ -49,20 +49,21 @@ namespace cheonsa
 		return _sub_menu;
 	}
 
-	void_c menu_control_menu_list_item_c::set_sub_menu( menu_control_menu_list_c * menu )
+	void_c menu_control_menu_list_item_c::give_sub_menu( menu_control_menu_list_c * menu )
 	{
-		if ( _sub_menu )
-		{
-			_remove_control( _sub_menu->get_index() );
-			_sub_menu = nullptr;
-		}
-		if ( menu )
-		{
-			assert( menu->get_user_interface() == nullptr );
-			assert( menu->get_mother_control() == nullptr );
-			_add_control( menu );
-			_sub_menu = menu;
-		}
+		assert( _sub_menu == nullptr );
+		assert( menu != nullptr );
+		assert( menu->get_user_interface() == nullptr );
+		assert( menu->get_mother_control() == nullptr );
+		_give_control( menu );
+		_sub_menu = menu;
+	}
+
+	menu_control_menu_list_c * menu_control_menu_list_item_c::take_sub_menu()
+	{
+		assert( _sub_menu != nullptr );
+		return _sub_menu;
+		_sub_menu = nullptr;
 	}
 
 	//void_c menu_control_popup_menu_item_c::hide_popup_menu_hierarchy()
@@ -116,24 +117,24 @@ namespace cheonsa
 		return result;
 	}
 
-	void_c menu_control_menu_list_c::insert_item_at_end( menu_control_menu_list_item_c * item )
+	void_c menu_control_menu_list_c::give_item_at_end( menu_control_menu_list_item_c * item )
 	{
-		_list_item_holder->_add_control( item );
+		_list_item_holder->_give_control( item );
 	}
 
-	void_c menu_control_menu_list_c::insert_item_at_index( menu_control_menu_list_item_c * item, sint32_c index )
+	void_c menu_control_menu_list_c::give_item_at_index( menu_control_menu_list_item_c * item, sint32_c index )
 	{
-		_list_item_holder->_add_control( item, index );
+		_list_item_holder->_give_control( item, index );
 	}
 
-	void_c menu_control_menu_list_c::remove_item( menu_control_menu_list_item_c * item )
+	menu_control_menu_list_item_c * menu_control_menu_list_c::take_item( menu_control_menu_list_item_c * item )
 	{
-		_list_item_holder->_remove_control( item->get_index() );
+		return dynamic_cast< menu_control_menu_list_item_c * >( _list_item_holder->_take_control( item->get_index() ) );
 	}
 
-	void_c menu_control_menu_list_c::remove_item_at_index( sint32_c index )
+	menu_control_menu_list_item_c * menu_control_menu_list_c::take_item_at_index( sint32_c index )
 	{
-		_list_item_holder->_remove_control( index );
+		return dynamic_cast< menu_control_menu_list_item_c * >( _list_item_holder->_take_control( index ) );
 	}
 
 	void_c menu_control_menu_list_c::remove_and_delete_all_items()

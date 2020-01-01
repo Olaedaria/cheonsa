@@ -78,19 +78,19 @@ namespace cheonsa
 		return result;
 	}
 
-	void_c menu_control_combo_list_c::add_item( menu_control_combo_list_item_c * item, sint32_c index )
+	void_c menu_control_combo_list_c::give_item( menu_control_combo_list_item_c * item, sint32_c index )
 	{
-		_list_item_holder->_add_control( item, index );
+		_list_item_holder->_give_control( item, index );
 	}
 
-	void_c menu_control_combo_list_c::remove_item( menu_control_combo_list_item_c * item )
+	void_c menu_control_combo_list_c::take_item( menu_control_combo_list_item_c * item )
 	{
-		_list_item_holder->_remove_control( item->get_index() );
+		_list_item_holder->_take_control( item->get_index() );
 	}
 
-	void_c menu_control_combo_list_c::remove_item( sint32_c index )
+	void_c menu_control_combo_list_c::take_item( sint32_c index )
 	{
-		_list_item_holder->_remove_control( index );
+		_list_item_holder->_take_control( index );
 	}
 
 	void_c menu_control_combo_list_c::remove_and_delete_all_items()
@@ -123,7 +123,7 @@ namespace cheonsa
 	{
 		_name = string8_c( mode_e_static, "combo" );
 		_combo_list = new menu_control_combo_list_c();
-		_add_control( _combo_list );
+		_give_control( _combo_list );
 		set_style_map_key( string8_c( mode_e_static, "e_combo" ) );
 	}
 

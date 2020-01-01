@@ -32,6 +32,7 @@ namespace cheonsa
 	{
 		if ( _value )
 		{
+			assert( _value->_reference_count > 0 );
 			_value->_reference_count--;
 		}
 	}
@@ -233,7 +234,7 @@ namespace cheonsa
 	boolean_c video_renderer_shader_manager_c::_load_source_dependency_information( shader_variations_c * shader_variations )
 	{
 		shader_variations->source_file_dependency_list.remove_all();
-		if ( !ops::data_get_file_or_folder_modified_time( shader_variations->source_file.absolute_file_path, shader_variations->source_file.file_modified_time ) )
+		if ( !ops::file_system_get_file_or_folder_modified_time( shader_variations->source_file.absolute_file_path, shader_variations->source_file.file_modified_time ) )
 		{
 			return false;
 		}
@@ -318,7 +319,7 @@ namespace cheonsa
 					video_renderer_shader_manager_c::file_dependency_c & sub_file_dependency = *result.emplace_at_end();
 					sub_file_dependency.file_name = file_name;
 					resolve_file_path( sub_file_dependency.file_name, is_internal, sub_file_dependency.absolute_file_path );
-					ops::data_get_file_or_folder_modified_time( sub_file_dependency.absolute_file_path, sub_file_dependency.file_modified_time );
+					ops::file_system_get_file_or_folder_modified_time( sub_file_dependency.absolute_file_path, sub_file_dependency.file_modified_time );
 					__load_source_dependency_list_recursive( sub_file_dependency, is_internal, result ); // recurse.
 				}
 			}
@@ -427,9 +428,9 @@ namespace cheonsa
 		cache_folder_path = ops::path_get_mother( shader_variations->source_file.absolute_file_path );
 		cache_folder_path += "cache/";
 
-		if ( !ops::data_does_folder_exist( cache_folder_path ) )
+		if ( !ops::file_system_does_folder_exist( cache_folder_path ) )
 		{
-			ops::data_create_folder( cache_folder_path );
+			ops::file_system_create_folder( cache_folder_path );
 		}
 
 		if ( !stream.open( shader_variations->source_file.absolute_file_path, data_stream_mode_e_read ) )
@@ -698,6 +699,7 @@ namespace cheonsa
 		: _skin_mesh( nullptr )
 		, _menu_ps_debug( nullptr )
 		, _menu_ps_frame( nullptr )
+		, _menu_ps_frame_keyed( nullptr )
 		, _menu_ps_solid_color( nullptr )
 		, _menu_ps_text( nullptr )
 		, _menu2_vs( nullptr )
@@ -763,6 +765,10 @@ namespace cheonsa
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_frame.hlsl" ), true );
 		shader_variations->ps = &_menu_ps_frame;
+		_shader_variations_list.insert_at_end( shader_variations );
+
+		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_frame_keyed.hlsl" ), true );
+		shader_variations->ps = &_menu_ps_frame_keyed;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_solid_color.hlsl" ), true );
@@ -889,7 +895,6 @@ namespace cheonsa
 			debug_annoy( L"error", L"could not load a built in material shader." );
 			return false;
 		}
-
 		_scene_camera_color_ps_mesh->_reference_count++; // add one fake user to keep this shader loaded at all times, it's basically built in.
 
 		return true;
@@ -1042,7 +1047,7 @@ namespace cheonsa
 				result = game_data_folder_path_list[ i ];
 				result += shader_folder_path;
 				result += relative_file_path;
-				if ( ops::data_does_file_exist( result ) )
+				if ( ops::file_system_does_file_exist( result ) )
 				{
 					absolute_file_path = result;
 					return true;
@@ -1054,7 +1059,7 @@ namespace cheonsa
 		result = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 		result += shader_folder_path;
 		result += relative_file_path;
-		if ( ops::data_does_file_exist( result ) )
+		if ( ops::file_system_does_file_exist( result ) )
 		{
 			absolute_file_path = result;
 			return true;

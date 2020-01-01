@@ -9,7 +9,7 @@ namespace cheonsa
 	// enables a 2d menu control to operate in a 3d scene.
 	// menu units are in pixels, whereas scene units are in meters.
 	// the size of the menu control that is associated with this component determines the size and bounds of this component.
-	// 3d renderer is hard coded with a corrective scale of 0.001, because menu coordinates are in pixels, and scene coordinates are in meters, so this makes the menu coordinates map to milimeters.
+	// 3d renderer is hard coded with a corrective scale of 0.001, so that pixels map to millimeters.
 	class scene_component_menu_control_c : public scene_component_c
 	{
 	public:
@@ -20,8 +20,8 @@ namespace cheonsa
 		boolean_c _control_is_ours; // if true then we are responsible for deleting _control in our destructor.
 		menu_control_c * _control;
 		uint32_c _last_render_frame;
-		void_c _add_control_to_user_interface();
-		void_c _remove_control_from_user_interface();
+		void_c _give_control_to_user_interface();
+		void_c _take_control_from_user_interface();
 		virtual void_c _handle_after_added_to_scene() override;
 		virtual void_c _handle_before_removed_from_scene() override;
 

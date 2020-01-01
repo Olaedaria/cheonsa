@@ -11,9 +11,6 @@ namespace cheonsa
 	// wide string, 16-bit characters, null terminated.
 	// 16-bit strings are used for file paths.
 	// 16-bit strings are used for user facing text.
-	// this string can operate in two modes:
-	// static: the string16_c instance is a light weight wrapper around a string literal value. a benefit to this is that copying by value is very low overhead. a draw back to this is that the string value can not be manipulated.
-	// dynamic: the string16_c instance manages its own heap memory dynamically to hold the string value. a benefit to this is that the string value can be manipulated. a draw back to this is that copying by value will mean creating a new copy on the heap.
 	class string16_c
 	{
 	public:

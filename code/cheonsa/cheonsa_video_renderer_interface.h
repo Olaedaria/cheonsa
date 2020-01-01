@@ -383,6 +383,12 @@ namespace cheonsa
 			vector32x4_c menu_clip_plane_stack[ menu_clip_plane_stack_count ]; // these work as long as each set of planes defines an enclosed convex shape, then we can have shapes within shapes.
 		};
 
+		struct menu_draw_block_c
+		{
+			vector32x4_c menu_draw_color;
+			vector32x4_c menu_draw_shared_colors[ 3 ];
+		};
+
 		struct
 		{
 			shadow_camera_block_c * shadow_camera_block;
@@ -408,6 +414,9 @@ namespace cheonsa
 
 			menu_batch_block_c * menu_batch_block;
 			video_constant_buffer_c * menu_batch_block_constant_buffer;
+
+			menu_draw_block_c * menu_draw_block;
+			video_constant_buffer_c * menu_draw_block_constant_buffer;
 
 		} _constant_buffers;
 
