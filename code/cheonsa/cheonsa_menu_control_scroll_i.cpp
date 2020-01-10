@@ -387,14 +387,12 @@ namespace cheonsa
 		menu_control_c::update_animations( time_step );
 	}
 
-	void_c menu_control_scroll_i::load_properties( data_scribe_markup_c::node_c const * node )
+	void_c menu_control_scroll_i::load_static_data_properties( data_scribe_markup_c::node_c const * node )
 	{
-		menu_control_c::load_properties( node );
-
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
+		menu_control_c::load_static_data_properties( node );
 
 		_page_size = 0.0;
-		attribute = node->find_attribute( "page_size" );
+		data_scribe_markup_c::attribute_c const * attribute = node->find_attribute( "page_size" );
 		if ( attribute )
 		{
 			ops::convert_string8_to_float64( attribute->get_value(), _page_size );

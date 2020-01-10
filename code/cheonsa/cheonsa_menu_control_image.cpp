@@ -55,9 +55,9 @@ namespace cheonsa
 		_element_frame_style.texture = value;
 	}
 
-	void_c menu_control_image_c::load_properties( data_scribe_markup_c::node_c const * node )
+	void_c menu_control_image_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
 	{
-		menu_control_c::load_properties( node );
+		menu_control_c::load_static_data_properties( node );
 
 		data_scribe_markup_c::attribute_c const * attribute = nullptr;
 

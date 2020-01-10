@@ -23,7 +23,7 @@ namespace cheonsa
 		assert( list );
 		if ( list != nullptr )
 		{
-			if ( list->_selected_item_limit != 0 )
+			if ( list->_list_item_select_mode != menu_list_item_select_mode_e_none )
 			{
 				set_is_selected( !_is_selected );
 			}
@@ -61,13 +61,13 @@ namespace cheonsa
 
 	void_c menu_control_list_item_i::update_animations( float32_c time_step )
 	{
+		menu_control_c::update_animations( time_step );
 		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
 		{
 			menu_element_c * element = _element_list[ i ];
 			element->set_is_selected( _is_mouse_focused );
 			element->set_is_pressed( _is_pressed );
 		}
-		menu_control_c::update_animations( time_step );
 	}
 
 	void_c menu_control_list_item_i::update_item_layout()
@@ -112,9 +112,9 @@ namespace cheonsa
 				{
 					assert( list->_selected_item_list.find_index_of( this ) == -1 );
 					list->_selected_item_list.insert_at_end( this );
-					if ( list->_selected_item_limit >= 0 )
+					if ( list->_list_item_select_mode == menu_list_item_select_mode_e_one )
 					{
-						sint32_c deselect_count = list->_selected_item_list.get_length() - list->_selected_item_limit;
+						sint32_c deselect_count = list->_selected_item_list.get_length() - 1;
 						if ( deselect_count > 0 )
 						{
 							for ( sint32_c i = 0; i < deselect_count; i++ )
@@ -195,6 +195,7 @@ namespace cheonsa
 		_list_item_holder->_content_offset.b = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
 	}
 
+	/*
 	void_c menu_control_list_i::_set_selected_item_limit( sint32_c selected_item_limit )
 	{
 		assert( selected_item_limit >= -1 );
@@ -221,6 +222,7 @@ namespace cheonsa
 			}
 		}
 	}
+	*/
 
 	sint32_c menu_control_list_i::_get_selected_item_index() const
 	{
@@ -472,7 +474,7 @@ namespace cheonsa
 		, _vertical_size_maximum( 0.0f )
 		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic )
 		, _vertical_scroll_bar( nullptr )
-		, _selected_item_limit( 0 )
+		, _list_item_select_mode( menu_list_item_select_mode_e_none )
 		, _selected_item_list()
 	{
 		_layer = menu_layer_e_base;
@@ -506,14 +508,12 @@ namespace cheonsa
 		menu_control_c::update_animations( time_step );
 	}
 
-	void_c menu_control_list_i::load_properties( data_scribe_markup_c::node_c const * node )
+	void_c menu_control_list_i::load_static_data_properties( data_scribe_markup_c::node_c const * node )
 	{
-		menu_control_c::load_properties( node );
+		menu_control_c::load_static_data_properties( node );
 
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-		
 		_vertical_size_mode = menu_size_mode_e_fixed;
-		attribute = node->find_attribute( "vertical_size_mode" );
+		data_scribe_markup_c::attribute_c const * attribute = node->find_attribute( "vertical_size_mode" );
 		if ( attribute )
 		{
 			if ( attribute->get_value() == "fixed" )

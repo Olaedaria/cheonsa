@@ -1,14 +1,4 @@
 <styles>
-	<frame
-		key="e_panel_frame"
-		pixel_shader="menu_ps_frame_keyed.hlsl"
-		texture="menus/atlas.png"
-		texture_map_mode="nine_slice_stretch"
-		texture_map_size="24 24"
-		texture_map_edges="4 4 4 4"
-		texture_map_origin="1 1"
-		texture_map_fill_middle="true">
-	</frame>
 
 	<frame
 		key="e_window_frame"
@@ -18,8 +8,31 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 27"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
+
+	<text
+		key="e_window_text"
+		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
+		size="16.0"
+		align_horizontal="left"
+		align_vertical="center"/>
+
+	<frame
+		key="e_panel_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="1 1"
+		texture_map_fill_middle="true"/>
+
+	<text
+		key="e_label_text"
+		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
+		size="14.0"
+		align_horizontal="left"
+		align_vertical="center"/>
 
 	<frame
 		key="e_field_frame"
@@ -29,70 +42,14 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 105"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<text
-		key="e_window_text_h1"
-		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
-		size="32.0"
-		color="1.0 1.0 1.0 1.0"
-		skew="0.0"
-		weight="0.0"
-		softness="0.0"
-		underline="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
-		text_align_horizontal="left"
-		text_align_vertical="top">
-	</text>
-
-	<text
-		key="e_window_text_h2"
-		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
-		size="28.0"
-		color="1.0 1.0 1.0 1.0"
-		skew="0.0"
-		weight="0.0"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
-		align_horizontal="left"
-		align_vertical="top">
-	</text>
-
-	<text
-		key="e_window_text_h3"
-		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
-		size="24.0"
-		color="1.0 1.0 1.0 1.0"
-		skew="0.0"
-		weight="0.0"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
-		align_horizontal="left"
-		align_vertical="top">
-	</text>
-
-	<text
-		key="e_window_text_p"
+		key="e_field_text"
 		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
-		color="1.0 1.0 1.0 1.0"
-		offset="0.0 0.0"
-		skew="0.0"
-		weight="0.0"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
 		align_horizontal="left"
-		align_vertical="center">
-	</text>
+		align_vertical="center"/>
 
 	<frame
 		key="e_button_frame"
@@ -102,83 +59,39 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 53"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<text
-		key="e_button_text_p"
+		key="e_button_text"
 		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
-		color="1.0 1.0 1.0 1.0"
-		offset="0.0 0.0"
-		skew="0.0"
-		weight="0.0"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
 		align_horizontal="center"
-		align_vertical="center">
-	</text>
+		align_vertical="center"/>
 
 	<text
 		key="e_button_text_small"
 		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
 		size="12.0"
-		color="1.0 1.0 1.0 1.0"
-		offset="0.0 0.0"
-		skew="0.0"
-		weight="0.0"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
 		align_horizontal="center"
-		align_vertical="center">
-	</text>
+		align_vertical="center"/>
 
 	<frame
-		key="e_button_prime_frame"
+		key="e_button_priority_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 79"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<text
-		key="e_button_prime_text_p"
+		key="e_button_priority_text"
 		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
-		color="1.0 1.0 1.0 1.0"
-		offset="0.0 0.0"
-		skew="0.0"
 		weight="0.0125"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
 		align_horizontal="center"
-		align_vertical="center">
-	</text>
-
-	<text
-		key="e_field_text_p"
-		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
-		size="16.0"
-		color="1.0 1.0 1.0 1.0"
-		offset="0.0 0.0"
-		skew="0.0"
-		weight="0.0125"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
-		align_horizontal="left"
-		align_vertical="center">
-	</text>
+		align_vertical="center"/>
 
 	<frame
 		key="e_check_mark_frame"
@@ -187,8 +100,7 @@
 		texture_map_size="24 24"
 		texture_map_edges="8 8 8 8"
 		texture_map_origin="1 105"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<frame
 		key="e_scroll_rail_frame"
@@ -197,8 +109,7 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<frame
 		key="e_scroll_grip_frame"
@@ -207,8 +118,7 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<frame
 		key="e_list_item_frame"
@@ -218,8 +128,7 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="1 1"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<frame
 		key="e_list_item_outlined_frame"
@@ -229,8 +138,7 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 1"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<frame
 		key="e_list_item_selected_frame"
@@ -239,14 +147,12 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 27"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<text
-		key="e_list_item_text_p"
+		key="e_list_item_text"
 		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
 		size="14.0"
-		color="1.0 1.0 1.0 1.0"
 		offset="0.0 0.0"
 		skew="0.0"
 		weight="0.0"
@@ -255,8 +161,50 @@
 		line_spacing="0.0"
 		glyph_spacing="0.0"
 		align_horizontal="left"
-		align_vertical="center">
-	</text>
+		align_vertical="center"/>
+
+	<frame
+		key="e_menu_item_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="1 1"
+		texture_map_fill_middle="true"/>
+
+	<frame
+		key="e_list_item_outlined_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="79 1"
+		texture_map_fill_middle="true"/>
+
+	<frame
+		key="e_list_item_selected_frame"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="79 27"
+		texture_map_fill_middle="true"/>
+
+	<text
+		key="e_list_item_text"
+		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
+		size="14.0"
+		offset="0.0 0.0"
+		skew="0.0"
+		weight="0.0"
+		softness="0.0"
+		paragraph_spacing="5.0"
+		line_spacing="0.0"
+		glyph_spacing="0.0"
+		align_horizontal="left"
+		align_vertical="center"/>
 
 	<frame
 		key="e_combo_frame"
@@ -266,112 +214,7 @@
 		texture_map_size="50 24"
 		texture_map_edges="4 4 25 4"
 		texture_map_origin="1 157"
-		texture_map_fill_middle="true">
-	</frame>
-
-	<map key="e_panel">
-		<entry target="element:frame" style_key="e_panel_frame"/>
-	</map>
-
-	<map key="e_window">
-		<entry target="element:frame" style_key="e_window_frame"/>
-		<entry target="element:text" style_key="e_window_text_p"/>
-	</map>
-
-	<map key="e_button">
-		<entry target="element:frame" style_key="e_button_frame"/>
-		<entry target="element:text" style_key="e_button_text_p"/>
-	</map>
-
-	<map key="e_button_frameless">
-		<entry target="element:frame" style_key="[invisible]"/>
-		<entry target="element:text" style_key="e_button_text_p"/>
-	</map>
-
-	<map key="e_button_small_frameless">
-		<entry target="element:frame" style_key="[invisible]"/>
-		<entry target="element:text" style_key="e_button_text_small"/>
-	</map>
-
-	<map key="e_button_prime">
-		<entry target="element:frame" style_key="e_button_prime_frame"/>
-		<entry target="element:text" style_key="e_button_prime_text_p"/>
-	</map>
-
-	<map key="e_label_h1">
-		<entry target="element:frame" style_key="[invisible]"/>
-		<entry target="element:text" style_key="e_window_text_h1"/>
-	</map>
-
-	<map key="e_label_h2">
-		<entry target="element:frame" style_key="[invisible]"/>
-		<entry target="element:text" style_key="e_window_text_h2"/>
-	</map>
-
-	<map key="e_label_h3">
-		<entry target="element:frame" style_key="[invisible]"/>
-		<entry target="element:text" style_key="e_window_text_h3"/>
-	</map>
-
-	<map key="e_label">
-		<entry target="element:frame" style_key="[invisible]"/>
-		<entry target="element:text" style_key="e_window_text_p"/>
-	</map>
-
-	<map key="e_text">
-		<entry target="element:frame" style_key="e_field_frame"/>
-		<entry target="element:text" style_key="e_field_text_p" anchor_measures="4 4 4 4"/>
-	</map>
-
-	<map key="e_check">
-		<entry target="element:box_frame" style_key="e_field_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
-		<entry target="element:mark_frame" style_key="e_check_mark_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
-		<entry target="element:text" style_key="e_field_text_p" anchor="top right bottom" anchor_measures="28 0 0 0"/>
-	</map>
-
-	<map key="e_list">
-		<entry target="element:frame" style_key="e_field_frame"/>
-		<entry target="control:list_item" style_key="e_list_item"/>
-	</map>
-
-	<map key="e_list_item">
-		<entry target="element:frame" style_key="e_window_frame"/>
-		<entry target="element:selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry target="element:text" style_key="e_list_item_text_p"/>
-	</map>
-
-	<map key="e_combo">
-		<entry target="element:frame" style_key="e_combo_frame"/>
-		<entry target="element:text" style_key="e_field_text_p"/>
-		<entry target="control:list" style_key="e_combo_list"/>
-	</map>
-
-	<map key="e_combo_list">
-		<entry target="element:frame" style_key="e_field_frame"/>
-		<entry target="control:list_item" style_key="e_combo_list_item"/>
-	</map>
-
-	<map key="e_combo_list_item">
-		<entry target="element:frame" style_key="e_list_item_frame"/>
-		<entry target="element:selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry target="element:text" style_key="e_list_item_text_p"/>
-	</map>
-
-	<map key="e_menu_list">
-		<entry target="element:frame" style_key="e_field_frame"/>
-		<entry target="control:list_item" style_key="e_menu_list_item"/>
-	</map>
-
-	<map key="e_menu_list_item">
-		<entry target="element:frame" style_key="e_list_item_frame"/>
-		<entry target="element:selected_frame" style_key="[invisible]"/>
-		<entry target="element:text" style_key="e_list_item_text_p" anchor_measures="10 0 10 0"/>
-	</map>
-
-	<map key="e_scroll">
-		<entry target="element:rail_frame" style_key="e_scroll_rail_frame"/>
-		<entry target="element:grip_frame" style_key="e_scroll_grip_frame"/>
-	</map>
+		texture_map_fill_middle="true"/>
 
 	<frame
 		key="e_collection_column_frame"
@@ -381,14 +224,12 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 53"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<text
 		key="e_collection_column_text"
 		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
 		size="10.0"
-		color="0.0 0.0 0.0 1.0"
 		offset="0.0 0.0"
 		skew="0.0"
 		weight="0.0"
@@ -397,8 +238,7 @@
 		line_spacing="0.0"
 		glyph_spacing="0.0"
 		align_horizontal="left"
-		align_vertical="center">
-	</text>
+		align_vertical="center"/>
 
 	<frame
 		key="e_collection_item_selected_frame"
@@ -408,8 +248,7 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 28"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<frame
 		key="e_collection_item_icon_frame"
@@ -419,8 +258,7 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 28"
-		texture_map_fill_middle="true">
-	</frame>
+		texture_map_fill_middle="true"/>
 
 	<text
 		key="e_collection_item_text"
@@ -432,35 +270,111 @@
 		softness="0.0"
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
-		glyph_spacing="0.0">
-	</text>
+		glyph_spacing="0.0"/>
 
-	<map key="e_collection">
-		<entry target="element:frame" style_key="e_field_frame"/>
-		<entry target="element:mouse_selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry target="element:last_selected_frame" style_key="e_list_item_outlined_frame"/>
-		<entry target="element:column_frame" style_key="e_collection_column_frame"/>
-		<entry target="element:column_text" style_key="e_collection_column_text"/>
-		<entry target="element:item_selected_frame" style_key="e_collection_item_selected_frame"/>
-		<entry target="element:item_icon_frame" style_key="e_collection_item_icon_frame"/>
-		<entry target="element:item_text" style_key="e_collection_item_text"/>
-		<entry target="control:vertical_scroll" style_key="e_scroll"/>
+	<map key="e_window">
+		<entry element_name="frame" style_key="e_window_frame"/>
+		<entry element_name="text" style_key="e_window_text"/>
+		<entry element_name="client_panel" style_key="[invisible]"/>
 	</map>
 
-	<map key="e_window_dialog">
-		<entry target="element:frame" style_key="e_window_frame"/>
-		<entry target="control:client_panel" style_key="[invisible]"/>
-		<entry target="control:button_a" style_key="e_button_prime"/>
-		<entry target="control:button_b" style_key="e_button"/>
-		<entry target="control:button_c" style_key="e_button"/>
+	<map key="e_panel">
+		<entry element_name="frame" style_key="e_panel_frame"/>
 	</map>
 
-	<map key="e_property_inspector">
-		<entry target="element:frame" style_key="e_field_frame"/>
+	<map key="e_label">
+		<entry element_name="frame" style_key="[invisible]"/>
+		<entry element_name="text" style_key="e_label_text"/>
+	</map>
+
+	<map key="e_text">
+		<entry element_name="frame" style_key="e_field_frame"/>
+		<entry element_name="text" style_key="e_field_text" anchor_measures="4 4 4 4"/>
+	</map>
+
+	<map key="e_button">
+		<entry element_name="frame" style_key="e_button_frame"/>
+		<entry element_name="text" style_key="e_button_text_p"/>
+	</map>
+
+	<map key="e_button_frameless">
+		<entry element_name="frame" style_key="[invisible]"/>
+		<entry element_name="text" style_key="e_button_text"/>
+	</map>
+
+	<map key="e_button_frameless_small">
+		<entry element_name="frame" style_key="[invisible]"/>
+		<entry element_name="text" style_key="e_button_text_small"/>
+	</map>
+
+	<map key="e_button_priority">
+		<entry element_name="frame" style_key="e_button_priority_frame"/>
+		<entry element_name="text" style_key="e_button_priority_text"/>
+	</map>
+
+	<map key="e_check">
+		<entry element_name="box_frame" style_key="e_field_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
+		<entry element_name="mark_frame" style_key="e_check_mark_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
+		<entry element_name="text" style_key="e_field_text_p" anchor="top right bottom" anchor_measures="28 0 0 0"/>
+	</map>
+
+	<map key="e_list">
+		<entry element_name="frame" style_key="e_field_frame"/>
+	</map>
+
+	<map key="e_list_item">
+		<entry element_name="frame" style_key="e_list_item_frame"/>
+		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry element_name="text" style_key="e_list_item_text"/>
+	</map>
+
+	<map key="e_menu_list">
+		<entry element_name="frame" style_key="e_field_frame"/>
+	</map>
+
+	<map key="e_menu_list_item">
+		<entry element_name="frame" style_key="e_list_item_frame"/>
+		<entry element_name="selected_frame" style_key="[invisible]"/>
+		<entry element_name="text" style_key="e_list_item_text"/>
+	</map>
+
+	<map key="e_combo">
+		<entry element_name="frame" style_key="e_combo_frame"/>
+		<entry element_name="text" style_key="e_field_text"/>
+	</map>
+
+	<map key="e_combo_list">
+		<entry element_name="frame" style_key="e_field_frame"/>
+	</map>
+
+	<map key="e_combo_list_item">
+		<entry element_name="frame" style_key="e_list_item_frame"/>
+		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry element_name="text" style_key="e_list_item_text"/>
+	</map>
+
+	<map key="e_scroll">
+		<entry element_name="rail_frame" style_key="e_scroll_rail_frame"/>
+		<entry element_name="grip_frame" style_key="e_scroll_grip_frame"/>
 	</map>
 
 	<map key="e_file_picker">
-		<entry target="element:frame" style_key="e_field_frame"/>
+		<entry element_name="frame" style_key="e_panel_frame"/>
+	</map>
+
+	<map key="e_collection">
+		<entry element_name="frame" style_key="e_field_frame"/>
+		<entry element_name="mouse_selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry element_name="last_selected_frame" style_key="e_list_item_outlined_frame"/>
+		<entry element_name="column_frame" style_key="e_collection_column_frame"/>
+		<entry element_name="column_text" style_key="e_collection_column_text"/>
+		<entry element_name="item_selected_frame" style_key="e_collection_item_selected_frame"/>
+		<entry element_name="item_icon_frame" style_key="e_collection_item_icon_frame"/>
+		<entry element_name="item_text" style_key="e_collection_item_text"/>
+	</map>
+
+	<map key="e_property_inspector">
+		<entry element_name="frame" style_key="e_field_frame"/>
 	</map>
 
 </styles>

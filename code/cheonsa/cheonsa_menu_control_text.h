@@ -8,7 +8,7 @@
 namespace cheonsa
 {
 
-	// plain text text entry field.
+	// plain text text box text entry field.
 	// only supports text modes menu_text_mode_e_plain_static, menu_text_mode_e_plain_static_selectable, and menu_text_mode_e_plain_editable.
 	class menu_control_text_c : public menu_control_c
 	{
@@ -19,7 +19,7 @@ namespace cheonsa
 	protected:
 		menu_element_frame_c _element_frame; // name is "frame".
 		menu_element_text_c _element_text; // name is "text".
-		menu_element_text_c * _element_place_holder_text; // name is "text_placeholder". this element is only newed if a placeholder is enabled, and is deleted if it is disabled.
+		menu_element_text_c * _element_place_holder_text; // name is "place_holder_text". this element is only newed if a placeholder is enabled, and is deleted if it is disabled.
 		string8_c _place_holder_text_style_key; // place holder style key, stored separately from element because element may not be persistent.
 
 		menu_visibility_mode_e _horizontal_scroll_bar_visibility_mode;
@@ -87,7 +87,6 @@ namespace cheonsa
 
 	public:
 		virtual void_c update_animations( float32_c time_step ) override;
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	public:
 		core_event_c< void_c, menu_control_text_c * > on_value_changed_preview; // occurs whenever the text value changes as the user types.

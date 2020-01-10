@@ -44,7 +44,7 @@ namespace cheonsa
 		void_c set_text_align_vertical( menu_text_align_vertical_e value );
 
 	public:
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

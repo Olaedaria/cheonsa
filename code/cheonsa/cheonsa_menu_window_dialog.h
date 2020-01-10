@@ -47,7 +47,7 @@ namespace cheonsa
 	public:
 		menu_window_dialog_c();
 
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );

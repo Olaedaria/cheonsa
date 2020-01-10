@@ -38,7 +38,7 @@ namespace cheonsa
 		void_c set_image( resource_file_texture_c * value );
 
 	public:
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

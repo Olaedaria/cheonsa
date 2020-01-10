@@ -10,12 +10,12 @@
 namespace cheonsa
 {
 
+	// menu element base class.
 	// an element is a rectangular thing that is managed by a control.
+	// every displayable thing that the user sees in the menu system is made out of elements.
+	// there are only two types of elements: frames (menu_element_frame_c) and texts (menu_element_text_c).
+	// each menu control will contain one or more elements.
 	// elements make up the visual representation of the control.
-	// they are divorced from layout logic (layout of the element is handled by the control that owns the element).
-	// they are supposed to be divorced from user input and response logic as well, but the text element is able to handle user input on its own, so the control that owns it is responsible for channeling input events into the text element as needed.
-	// for example, for a scroll bar control, the scroll bar is the control, and it contains two sub elements: bacground rail frame and foreground grip frame. the scroll bar control logic performs mouse hit detection against the elements and it lays them out appropriately.
-	// for example, for a button control, the button is the control, and it contains two sub elements: background frame and foreground text.
 	class menu_element_c
 	{
 	public:

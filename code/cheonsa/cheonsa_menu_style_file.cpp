@@ -105,13 +105,13 @@ namespace cheonsa
 					{
 						menu_style_map_c * style_map = new menu_style_map_c();
 						style_map->load( sub_node );
-						if ( style_map->key.get_length() > 0 )
+						if ( style_map->get_key().get_length() > 0 )
 						{
-							if ( _style_map_dictionary.contains( style_map->key ) )
+							if ( _style_map_dictionary.contains( style_map->get_key() ) )
 							{
-								delete _style_map_dictionary.find_value( style_map->key );
+								delete _style_map_dictionary.find_value( style_map->get_key() );
 							}
-							_style_map_dictionary.insert( style_map->key, style_map );
+							_style_map_dictionary.insert( style_map->get_key(), style_map );
 						}
 						else
 						{

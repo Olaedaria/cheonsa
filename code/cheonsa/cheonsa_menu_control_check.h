@@ -54,7 +54,7 @@ namespace cheonsa
 
 	public:
 		virtual void_c update_animations( float32_c time_step ) override;
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

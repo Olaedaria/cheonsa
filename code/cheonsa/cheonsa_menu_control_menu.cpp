@@ -42,6 +42,7 @@ namespace cheonsa
 		, _is_checked( false )
 		, _sub_menu( nullptr )
 	{
+		set_style_map_key( string8_c( mode_e_static, "e_menu_list_item" ) );
 	}
 
 	menu_control_menu_list_c * menu_control_menu_list_item_c::get_sub_menu() const
@@ -90,7 +91,7 @@ namespace cheonsa
 		: menu_control_list_i()
 	{
 		_layer = menu_layer_e_popup;
-		_set_selected_item_limit( 0 );
+		_list_item_select_mode = menu_list_item_select_mode_e_none;
 		_vertical_size_mode = menu_size_mode_e_fit_content;
 		_vertical_size_maximum = 0.0f;
 		set_vertical_scroll_visibility_mode( menu_visibility_mode_e_automatic );

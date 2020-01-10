@@ -184,10 +184,11 @@ namespace cheonsa
 
 		display_mode_e _display_mode; // how items are dispalyed and laid out in the container.
 
-		sint32_c _icons_item_width; // when display mode is icons.
-		sint32_c _icons_item_height; // when display mode is icons.
-		sint32_c _icons_icon_height; // when display mode is icons.
-		sint32_c _details_item_height; // when display mode is details.
+		sint32_c _icons_item_width; // when display mode is icons. width in pixels of each item.
+		sint32_c _icons_item_height; // when display mode is icons. height in pixels of each item.
+		sint32_c _icons_icon_height; // when display mode is icons. height of icon, should be less than _icons_item_height. what is left-over (of _icons_item_height - _icons_icon_height) will be the height of the item's text label.
+		sint32_c _icons_item_spacing; // when display mode is icons. distance in pixels between collection edges and items, and between items and items.
+		sint32_c _details_item_height; // when display mode is details. hieght in pixels of each item.
 
 		core_list_c< column_c * > _column_list; // columns to display, when display mode is details then all columns are displayed, otherwise only the first column is used to look up the display name of each item.
 
@@ -243,9 +244,8 @@ namespace cheonsa
 		// this needs to be called each time _local_box is modified, or item metrics change, or scroll bar values change.
 		void_c refresh();
 
-		// loads display mode, layout metrics, and columns.
-		// does not load items, these have to be added by the program, since you have to implement your own menu_control_collection_item_c.
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node ) override;
+		// only loads item layout metrics, not items content or columns or sort key or anything else.
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 		// gets display mode of collection.
 		display_mode_e get_display_mode() const;
@@ -253,9 +253,24 @@ namespace cheonsa
 		void_c set_display_mode( display_mode_e value );
 
 		// sets metrics to use to lay out items when display mode is set to icons.
-		void_c set_icons_metrics( sint32_c item_width, sint32_c item_height, sint32_c icon_height );
+		void_c set_icons_metrics( sint32_c item_width, sint32_c item_height, sint32_c icon_height, sint32_c item_spacing );
 		// sets metrics to use to lay out items when display mode is set to details.
 		void_c set_details_metrics( sint32_c item_height );
+
+		sint32_c get_icons_item_width() const;
+		void_c set_icons_item_width( sint32_c value );
+
+		sint32_c get_icons_item_height() const;
+		void_c set_icons_item_height( sint32_c value );
+
+		sint32_c get_icons_icon_height() const;
+		void_c set_icons_icon_height( sint32_c value );
+
+		sint32_c get_icons_item_spacing() const;
+		void_c set_icons_item_spacing( sint32_c value );
+
+		sint32_c get_details_item_height() const;
+		void_c set_details_item_height( sint32_c value );
 
 		// gets current sort column key.
 		string8_c const & get_sort_key() const;

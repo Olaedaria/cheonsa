@@ -42,7 +42,14 @@ namespace cheonsa
 	// to store delta snahshots for paragraph state changes is more difficult.
 	//
 	// todo:
-	// add clickable links (uri).
+	// add inlineable images (emojis).
+	// add clickable links (uris).
+	// resolve references (formatted like "$string_key" in the original plain text value) to localized string values.
+	//
+	// if the user is supposed to be able to interact with the text content in the text element, then the control needs to channel events to the text element's event handler functions:
+	//   handle_on_character_focus_gained()
+	//   handle_on_character_focus_lost()
+	//   handle_on_input()
 	class menu_element_text_c
 		: public menu_element_c
 	{

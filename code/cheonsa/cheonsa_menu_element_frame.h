@@ -8,6 +8,8 @@
 namespace cheonsa
 {
 
+	// just a textured quad.
+	// but with lots of styling options.
 	class menu_element_frame_c
 		: public menu_element_c
 	{

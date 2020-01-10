@@ -91,13 +91,11 @@ namespace cheonsa
 		_control_button_c->set_name( string8_c( mode_e_static, "button_c" ) );
 		_control_button_c->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
 		_give_control( _control_button_c );
-
-		set_style_map_key( string8_c( mode_e_static, "e_window_dialog" ) );
 	}
 
-	void menu_window_dialog_c::load_properties( data_scribe_markup_c::node_c const * node )
+	void menu_window_dialog_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
 	{
-		menu_window_c::load_properties( node );
+		menu_window_c::load_static_data_properties( node );
 
 		data_scribe_markup_c::attribute_c const * attribute = nullptr;
 

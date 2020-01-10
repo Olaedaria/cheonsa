@@ -275,7 +275,7 @@ namespace cheonsa
 
 		void_c reset();
 		void_c load( data_scribe_markup_c::node_c const * node );
-		void_c initialize( sint32_c index, string8_c const & key, vector32x4_c const & value );
+		void_c initialize( sint32_c index, string8_c const & key );
 
 	};
 
@@ -325,7 +325,7 @@ namespace cheonsa
 		{
 		public:
 			//menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
-			vector32x4_c color; // color tint, multiplied with texture.
+			//vector32x4_c color; // color tint, multiplied with texture.
 			float32_c saturation; // color saturation, applied to ( element_color.rgb * texture.rgb ).
 			float32_c apparent_scale; // when rendered, the frame is scaled by this factor around its center point. this is an apparent scale, meaning that it affects the visual representation only, and does not affect the actual scale of the control itself or hit detection.
 			sint16_c texture_map[ 4 ]; // left, top, right, and bottom coordinates in pixels of edges of texture map rectangle.
@@ -335,7 +335,7 @@ namespace cheonsa
 			state_c();
 
 			void_c reset();
-			vector32x4_c get_expressed_color() const; // if style_for_color is resolved then returns the color defined by the color style, otherwise returns the fall back color.
+			//vector32x4_c get_expressed_color() const; // if style_for_color is resolved then returns the color defined by the color style, otherwise returns the fall back color.
 
 		};
 
@@ -394,7 +394,7 @@ namespace cheonsa
 		{
 		public:
 			//menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
-			vector32x4_c color; // color tint, multiplied with texture.
+			//vector32x4_c color; // color tint, multiplied with texture.
 			float32_c saturation; // multiplicative color saturation.
 			float32_c apparent_scale; // multiplicative apparent element scale.
 
@@ -402,7 +402,7 @@ namespace cheonsa
 			state_c();
 
 			void_c reset();
-			vector32x4_c get_expressed_color() const; // if element_color_style is resolved then returns that color, otherwise returns element_color.
+			//vector32x4_c get_expressed_color() const; // if element_color_style is resolved then returns that color, otherwise returns element_color.
 
 		};
 
@@ -500,36 +500,48 @@ namespace cheonsa
 		// maps a style key assignment to an element in the control.
 		class entry_c
 		{
-		public:
-			string8_c target; // prefixed with "element:" if this maps to an element, prefixed with "control:" if this maps to a control.
-			string8_c style_key; // the key of the element style or control style map to apply to the target element or control. if the target is a frame element then this will be a frame style key, if the target is a text element then this will be a text style key, if the target is a control then this will be a style map key.
-			menu_anchor_e anchor; // used to adjust the insets of the element rectangle relative to the control rectangle.
-			box32x2_c anchor_measures;
+		private:
+			friend class menu_style_map_c;
+
+			string8_c _element_name; // the name of the element(s) in the control that this entry maps a style to.
+			string8_c _style_key; // the key of element style to map to the element(s) targeted by element_key.
+			//menu_anchor_e anchor; // used to adjust the insets of the element rectangle relative to the control rectangle.
+			//box32x2_c anchor_measures;
 
 		public:
 			entry_c();
 
-			string8_c get_target_type() const; // everything before the ":" in target, should be "frame", "text", or "control".
-			string8_c get_target_name() const; // everything after the ":" in target.
+			//string8_c get_target_type() const; // everything before the ":" in target, should be "frame", "text", or "control".
+			//string8_c get_target_name() const; // everything after the ":" in target.
+
+			string8_c const & get_element_name() const;
+			string8_c const & get_style_key() const;
 
 		};
 
-		// defines an arbitrary property that can be used to define colors or layout metrics or anything (depending on if the control is programmed to use the property).
-		class property_c
-		{
-		public:
-			string8_c name; // this property's name.
-			string8_c value;
+		//// defines an arbitrary property that can be used to define colors or layout metrics or anything (depending on if the control is programmed to use the property).
+		//class property_c
+		//{
+		//private:
+		//	friend class menu_style_map_c;
 
-		public:
-			property_c();
+		//	string8_c _name; // this property's name.
+		//	string8_c _value;
 
-		};
+		//public:
+		//	property_c();
 
-	public:
-		string8_c key; // unique key to identify this style map by.
-		core_list_c< entry_c * > entry_list; // defines style mappings for sub-elements and sub-controls.
-		core_list_c< property_c * > property_list; // defines property values for this control.
+		//	string8_c const & get_name() const;
+		//	string8_c const & get_value() const;
+
+		//};
+
+	private:
+		friend class menu_control_c;
+
+		string8_c _key; // unique key to identify this style map by.
+		core_list_c< entry_c * > _entry_list; // defines style mappings for sub-elements and sub-controls.
+		//core_list_c< property_c * > property_list; // defines property values for this control.
 
 	public:
 		menu_style_map_c();
@@ -537,14 +549,16 @@ namespace cheonsa
 
 		void_c load( data_scribe_markup_c::node_c const * node );
 
-		entry_c const * find_entry( string8_c const & target ) const;
+		string8_c const & get_key() const;
 
-		property_c const * find_property( string8_c const & name ) const;
-		boolean_c find_property_as_float32( string8_c const & name, float32_c & property_value_as_float32 ) const;
+		entry_c const * find_entry( string8_c const & element_name ) const;
+
+		//property_c const * find_property( string8_c const & name ) const;
+		//boolean_c find_property_as_float32( string8_c const & name, float32_c & property_value_as_float32 ) const;
 
 	};
 
-	// resolved text glyph sytle.
+	// resolved text glyph style.
 	// resolved means that it has inherited all of the styles that are granularly defined by mother span(s), mother paragraph, mother text element, and built in (topmost).
 	// within the context of the text element, all of the values will be set to be set to something valid and usable (although maybe not ideal).
 	class menu_text_glyph_style_c
@@ -628,8 +642,8 @@ namespace cheonsa
 		public:
 			video_pixel_shader_c * pixel_shader; // optional pixel shader to use. if it's nullptr then the renderer will pick a default given the type of the mother_element.
 			resource_file_texture_c * texture; // optional texture to use. if it's nullptr then the renderer will pick a default given the type of the mother_element. (only used by frame type elements though).
-			vector32x4_c color;
-			vector32x4_c shared_colors[ 3 ]; // maps to menu_shared_color_slot_e.
+			vector32x4_c color; // uploads to menu_draw_color.
+			vector32x4_c shared_colors[ 3 ]; // uploads to menu_draw_shared_colors.
 			uint32_c vertex_start;
 			uint32_c vertex_count;
 			uint32_c index_start;

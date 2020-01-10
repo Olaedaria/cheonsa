@@ -15,10 +15,22 @@ namespace cheonsa
 	class scene_component_menu_control_c;
 
 	// menu control base class.
+	//
 	// a control is a rectangular thing made up of one or more rectangular elements that the user can interact with in a certain way.
-	// a control can be added to as a daughter to a menu context (a root level control), or can be added as a daughter to another control (a non-root level control).
+	// a control can be added to as a daughter to the engine's user interface (a root level control), or it can be added as a daughter to another control (a non-root level control).
 	// this class can be inherited from to create everything from simple buttons to complex color pickers and property inspectors.
-	// cheonsa menus are 2d by nature, but will be 3d when _scene_component is linked.
+	// cheonsa menus are 2d by nature, but can be placed in 3d space when _scene_component is linked (but it will still be flat/planar).
+	//
+	// controls have many properties, which can be classified into categories as a way to make it easier to think about and understand.
+	//   static data properties:
+	//     these are things like non-user-editable text values displayed by the control.
+	//     these are things like layout, transform, and style map assignment values.
+	//     these values may be managed by the program, but the xml file may set these values itself.
+	//   dynamic data and functional properties:
+	//     these are things like user-editable text and number values displayed by the control.
+	//     these are things like events that the program hooks up to.
+	//     these may also be hidden values like the page range and scroll position of a scroll bar, which is closely integrated with the layout logic system.
+	//     these values are always managed by the program, the xml file can not interact with these values.
 	class menu_control_c
 	{
 	public:
@@ -39,8 +51,6 @@ namespace cheonsa
 		// this lets us reload style files during run time and force controls to reacquire their style map references.
 		// this lets us reload layout files during run time and force controls to reload their properties and layouts.
 		static core_linked_list_c< menu_control_c * > _global_list;
-		// resolves style maps of each control in the _global_list.
-		//static void_c _global_resolve_style_maps();
 
 		core_linked_list_c< menu_control_c * >::node_c _global_list_node;
 
@@ -57,10 +67,8 @@ namespace cheonsa
 		core_list_c< menu_control_c * > _control_list; // daughter controls.
 		virtual void_c _give_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end.
 		virtual menu_control_c * _take_control( sint32_c index );
-		//virtual void_c _remove_all_controls();
 		virtual void_c _remove_and_delete_all_controls();
 		menu_control_c * _find_control( string8_c const & name, string8_c const & type );
-		void_c _find_controls_with_name( string8_c const & name, core_list_c< menu_control_c * > & result ); // searches private and public daughter controls for all controls that match the given name.
 
 		core_list_c< menu_element_c * > _element_list; // private daughter elements are added by this control's private implementation.
 		void_c _add_element( menu_element_c * element );
@@ -105,11 +113,13 @@ namespace cheonsa
 		vector32x4_c _global_color; // inherited color and opacity of this control.
 
 		// off screen rendering system.
-		// each control that is either root level or not full opacity, makes up a group of controls that are made up of the control and all its related daughters that are at full opacity.
-		// these groups are then rendered to the off screen texture at full opacity and without angle.
-		// then the off screen texture is copied to the canvas at the control's actual opacity.
-		// the _off_screen_texture is only created and used for the root control of each group.
-		boolean_c _control_group_is_root; // will be true if this control is the root control of a control group.
+		// controls are batched together for rendering into what are called control groups.
+		// each control in the user interface that is root level or not full opacity defines the root control of a control group.
+		// for each control group, for each control, for each element, that element is rendered at (full opacity (and for the root only: no scale and no angle)) to the control group's off-screen texture.
+		// control group off-screen textures are then eventually composited|rendered (with their specified opacity, scale, and angle) into other control group off-screen target textures or the canvas's target texture.
+		// this solves the problem that arises with the naive approach of rendering two overlapping elements at 50% opacity which results in 75% actual opacity when 50% is what is desired.
+		// the _control_group_texture is only created and used for the root control of each group.
+		boolean_c _control_group_is_root; // will be true if this control is the root control of a control group. which is true when the control is a root control in the user interface or is not full opacity.
 		menu_control_c * _control_group_mother; // if this control is the root control of a control group, then this points to the control that is the root control of the control group that is the mother of this control group.
 		core_list_c< menu_control_c * > _control_group_daughter_list; // points to daughter controls that are root controls of the control groups that are daughter to this control group.
 		video_texture_c * _control_group_texture; // managed by renderer, is initialized to be large enough to draw this control to (without scale or angle).
@@ -121,29 +131,7 @@ namespace cheonsa
 
 		scene_component_menu_control_c * _scene_component; // if set then this menu control is in a 3d scene.
 
-		menu_non_client_type_e _non_client_type; // used by the engine for non-client hit detection, which lets our user interface system act like the window title bar, size handles, etc.
-
-		// used to track what things were instanced the xml file so that they can be removed and deleted when the xml file is refreshed.
-		// this way the things that were programmatically added (hard coded) will not be deleted.
-		struct thing_added_by_xml_c
-		{
-			enum type_e
-			{
-				type_e_none,
-				type_e_element,
-				type_e_control,
-			};
-			type_e type;
-			union
-			{
-				menu_element_c * element;
-				menu_control_c * control;
-			};
-			thing_added_by_xml_c();
-			thing_added_by_xml_c( menu_element_c * element );
-			thing_added_by_xml_c( menu_control_c * control );
-		};
-		core_list_c< thing_added_by_xml_c > _things_added_by_xml;
+		menu_non_client_type_e _non_client_type; // lets the user interface system define areas within the client are of the engine's client window that we want the operating system to treat like non-client areas, these are things like window title bars and window edge resize handles.
 
 		resource_file_menu_layout_c::reference_c _resource_file_menu;
 		void_c _handle_resource_file_menu_on_load( resource_file_c * resource_file );
@@ -182,27 +170,25 @@ namespace cheonsa
 		// all user input should be handled through the input event handlers.
 		virtual void_c update_animations( float32_c time_step );
 
-		// loads the control hierarchy and layout from the given markup node.
+		// loads static data property values from the given markup node, recursive.
+		// static data properties are things like non-user-editable text values, layout, transform, and style map assignments.
 		// node is optional, if node is nullptr then the hierarchy state will be reset to its initial default.
-		// parts of the control hierarchy that are necessary for base operation should be added programatically by the control's constructor.
-		// the load function will walk the xml nodes and find existing element and controls that match type and name.
-		// if an existing element or control can't be found with a given type and name, then a new element or control of that type and name will be instantiated.
-		// the properties from the xml node will then be loaded by the element or control.
-		virtual void_c load_hierarchy_and_properties( data_scribe_markup_c::node_c const * node );
+		// the node should look like:
+		// <control type="[control type name]" name="[name]" [additional attributes] [/]>
+		void_c load_static_data_properties_recursive( data_scribe_markup_c::node_c const * node );
 
-		// resets layout and data properties of this control to a default but operable state.
-		// so that if load_properties() is called, then properties that are not defined by the node will be defaulted.
-		virtual void_c reset_properties();
-
-		// loads layout and data properties for this control from an xml node.
-		virtual void_c load_properties( data_scribe_markup_c::node_c const * node );
+		// resets static data property values to a default but operable state.
+		virtual void_c reset_static_data_properties();
+		// loads static data property values from the given node.
+		// only extracts data from the given node and applies it to this control, so it is not recursive.
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node );
 
 		// gets the menu layout of this control system.
 		// this should only be set on the root control of a system (for example, the window control of a file picker dialog).
-		resource_file_menu_layout_c * get_menu_layout_resource() const;
+		resource_file_menu_layout_c * get_menu_layout() const;
 		// sets the menu layout of this control system.
 		// this should only be set on the root control of a control system.
-		void_c set_menu_layout_resource( resource_file_menu_layout_c * value );
+		void_c set_menu_layout( resource_file_menu_layout_c * value );
 
 		virtual menu_control_c * pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer );
 
@@ -303,11 +289,6 @@ namespace cheonsa
 		void_c set_content_offset( vector32x2_c const & value );
 		void_c set_content_offset_horizontal( float32_c value );
 		void_c set_content_offset_vertical( float32_c value );
-
-		// the render procedure calls this, and lets this control pick and choose which elements it wants to add for rendering.
-		// by default, this is implemented to add all of the elements in _private_element_list.
-		// but your specific type of control can override this if it wants to do something different.
-		//virtual void_c _add_elements_to_render_procedure_layer( menu_render_procedure_c::layer_c * layer );
 
 		// used by menu renderer to compile clip planes for this control, in preparation to render this control to the control group render target texture.
 		// clip planes are not generated when rendering control group root controls since they will be rendering directly to the control group render target without angle or scale, so the rasterizer's clip rectangle serves the same purpose.

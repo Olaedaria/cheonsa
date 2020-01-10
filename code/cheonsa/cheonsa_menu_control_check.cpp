@@ -125,14 +125,12 @@ namespace cheonsa
 		menu_control_c::update_animations( time_step );
 	}
 
-	void_c menu_control_check_c::load_properties( data_scribe_markup_c::node_c const * node )
+	void_c menu_control_check_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
 	{
-		menu_control_c::load_properties( node );
+		menu_control_c::load_static_data_properties( node );
 
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-		
 		_mode = mode_e_normal;
-		attribute = node->find_attribute( "mode" );
+		data_scribe_markup_c::attribute_c const * attribute = node->find_attribute( "mode" );
 		if ( attribute )
 		{
 			if ( attribute->get_value() == "normal" )

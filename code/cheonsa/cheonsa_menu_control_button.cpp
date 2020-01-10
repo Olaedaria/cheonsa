@@ -68,13 +68,11 @@ namespace cheonsa
 		_element_text.set_is_pressed( _is_pressed );
 	}
 
-	void_c menu_control_button_c::load_properties( data_scribe_markup_c::node_c const * node )
+	void_c menu_control_button_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
 	{
-		menu_control_c::load_properties( node );
+		menu_control_c::load_static_data_properties( node );
 
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-
-		attribute = node->find_attribute( "plain_text_value" );
+		data_scribe_markup_c::attribute_c const * attribute = node->find_attribute( "plain_text_value" );
 		if ( attribute )
 		{
 			set_plain_text_value( attribute->get_value() );

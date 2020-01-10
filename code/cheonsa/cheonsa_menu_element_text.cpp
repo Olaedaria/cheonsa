@@ -36,18 +36,18 @@ namespace cheonsa
 		//vector32x4_c element_color = text_style->state_list[ state ].get_expressed_color() * _local_color;
 		//float32_c element_saturation = text_style->state_list[ state ].saturation;
 
-		vector32x4_c element_color = text_style_state.get_expressed_color() * _local_color;
-		vector32x4_c element_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
+		vector32x4_c draw_color = _local_color;
+		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
 		menu_color_style_c * shared_color = nullptr;
 		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
 		assert( shared_color );
-		element_shared_colors[ 0 ] = shared_color->value;
+		draw_shared_colors[ 0 ] = shared_color->value;
 		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
 		assert( shared_color );
-		element_shared_colors[ 1 ] = shared_color->value;
+		draw_shared_colors[ 1 ] = shared_color->value;
 		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
-		element_shared_colors[ 2 ] = shared_color->value;
+		draw_shared_colors[ 2 ] = shared_color->value;
 
 		// these lists will be used to simultaniously build geometry for different layers.
 		// at the end, they will be appened to the draw batch so that the layers are drawn in the correct order.
@@ -338,15 +338,15 @@ namespace cheonsa
 		// stitch the various draw lists together.
 		if ( vertex_list_for_selection.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_selection, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, element_color, element_shared_colors );
+			_draw_list.append_rectangle_list( vertex_list_for_selection, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, draw_color, draw_shared_colors );
 		}
 		if ( vertex_list_for_glyphs.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_glyphs, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_text(), nullptr, element_color, element_shared_colors );
+			_draw_list.append_rectangle_list( vertex_list_for_glyphs, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_text(), nullptr, draw_color, draw_shared_colors );
 		}
 		if ( vertex_list_for_cursor.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_cursor, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, element_color, element_shared_colors );
+			_draw_list.append_rectangle_list( vertex_list_for_cursor, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, draw_color, draw_shared_colors );
 		}
 		vertex_list_for_selection.remove_all();
 		vertex_list_for_glyphs.remove_all();
@@ -558,11 +558,7 @@ namespace cheonsa
 		text_span_c const * span = this;
 		if ( span->_text_style_reference.get_value() )
 		{
-			/*if ( span->_text_style_reference.get_value()->color_style_is_defined && span->_text_style_reference.get_value()->color_style.get_value() )
-			{
-				return span->_text_style_reference.get_value()->color_style.get_value()->value;
-			}
-			else */if ( span->_text_style_reference.get_value()->color_is_defined )
+			if ( span->_text_style_reference.get_value()->color_is_defined )
 			{
 				return span->_text_style_reference.get_value()->color;
 			}
@@ -1253,11 +1249,7 @@ namespace cheonsa
 		assert( _mother_element_text );
 		if ( _text_style_reference.get_value() )
 		{
-			/*if ( _text_style_reference.get_value()->color_style_is_defined && _text_style_reference.get_value()->color_style.get_value() )
-			{
-				return _text_style_reference.get_value()->color_style.get_value()->value;
-			}
-			else */if ( _text_style_reference.get_value()->color_is_defined )
+			if ( _text_style_reference.get_value()->color_is_defined )
 			{
 				return _text_style_reference.get_value()->color;
 			}

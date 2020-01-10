@@ -10,53 +10,6 @@ namespace cheonsa
 		_name = string8_c( mode_e_static, "list_item" );
 	}
 
-	boolean_c menu_control_list_item_c::get_is_selected() const
-	{
-		return _is_selected;
-	}
-
-	void_c menu_control_list_item_c::set_is_selected( boolean_c value )
-	{
-		if ( _is_selected != value && _mother_control != nullptr )
-		{
-			assert( _mother_control->get_type_name() == menu_control_list_c::get_type_name_static() );
-			menu_control_list_i * list_box = dynamic_cast< menu_control_list_i * >( _mother_control );
-			assert( list_box );
-			assert( list_box->_selected_item_limit >= -1 );
-
-			_is_selected = value;
-			_element_selected_frame.set_is_showing( value );
-
-			if ( value )
-			{
-				// append this selection.
-				list_box->_selected_item_list.insert_at_end( this );
-
-				// if over the select limit then deselect old selection(s).
-				sint32_c deselect_count = list_box->_selected_item_list.get_length() - list_box->_selected_item_limit;
-				if ( deselect_count > 0 )
-				{
-					for ( sint32_c i = 0; i < deselect_count; i++ )
-					{
-						menu_control_list_item_i * list_item = list_box->_selected_item_list[ i ];
-						list_item->_is_selected = false;
-						list_item->_element_selected_frame.set_is_showing( false );
-					}
-					list_box->_selected_item_list.remove_at_index( 0, deselect_count );
-					list_box->_on_selection_changed();
-				}
-			}
-			else
-			{
-				// remove this selection.
-				list_box->_selected_item_list.remove( this );
-			}
-
-			// trigger event.
-			list_box->_on_selection_changed();
-		}
-	}
-
 	void_c menu_control_list_c::_on_selection_changed()
 	{
 		on_selection_changed.invoke( this );
@@ -67,57 +20,6 @@ namespace cheonsa
 	{
 		_name = string8_c( mode_e_static, "list" );
 		set_style_map_key( string8_c( mode_e_static, "e_list" ) );
-	}
-
-	void_c menu_control_list_c::load_hierarchy_and_properties( data_scribe_markup_c::node_c const * node )
-	{
-		remove_and_delete_all_items();
-
-		menu_control_c::load_hierarchy_and_properties( node );
-
-		// list items.
-		data_scribe_markup_c::node_c const * sub_node = sub_node = node->find_tag( "list_items" );
-		if ( sub_node )
-		{
-			data_scribe_markup_c::node_c const * sub_sub_node = sub_node->get_first_daughter();
-			while ( sub_sub_node )
-			{
-				if ( sub_sub_node->get_type() == data_scribe_markup_c::node_c::type_e_tag )
-				{
-					if ( sub_sub_node->get_value()== menu_control_list_item_c::get_type_name_static() )
-					{
-						menu_control_list_item_c * list_item = new menu_control_list_item_c();
-						data_scribe_markup_c::attribute_c const * name_attribute = sub_sub_node->find_attribute( "name" );
-						if ( name_attribute != nullptr && name_attribute->get_value().get_length() > 0 )
-						{
-							list_item->set_name( name_attribute->get_value() );
-						}
-						list_item->load_hierarchy_and_properties( sub_sub_node );
-						add_item( list_item );
-					}
-				}
-				sub_sub_node = sub_sub_node->get_next_sister();
-			}
-		}
-	}
-
-	void_c menu_control_list_c::load_properties( data_scribe_markup_c::node_c const * node )
-	{
-		menu_control_c::load_properties( node );
-
-		data_scribe_markup_c::attribute_c const * attribute = node->find_attribute( "selected_item_limit" );
-		if ( attribute )
-		{
-			sint32_c value = 0;
-			if ( ops::convert_string8_to_sint32( attribute->get_value(), value ) )
-			{
-				if ( value < -1 )
-				{
-					value = -1;
-				}
-				set_selected_item_limit( value );
-			}
-		}
 	}
 
 	sint32_c menu_control_list_c::get_item_count() const
@@ -151,16 +53,6 @@ namespace cheonsa
 	void_c menu_control_list_c::remove_and_delete_all_items()
 	{
 		_list_item_holder->_remove_and_delete_all_controls();
-	}
-
-	sint32_c menu_control_list_c::get_selected_item_limit() const
-	{
-		return _selected_item_limit;
-	}
-
-	void_c menu_control_list_c::set_selected_item_limit( sint32_c value )
-	{
-		_set_selected_item_limit( value );
 	}
 
 	sint32_c menu_control_list_c::get_selected_item_index() const
