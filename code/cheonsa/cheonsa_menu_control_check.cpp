@@ -27,7 +27,7 @@ namespace cheonsa
 		_element_mark.set_name( string8_c( mode_e_static, "mark_frame" ) );
 		_element_mark.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_mark.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
-		_element_mark.set_is_showing( _is_checked );
+		_element_mark.set_is_showed( _is_checked );
 		_add_element( &_element_mark );
 
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
@@ -101,13 +101,13 @@ namespace cheonsa
 					}
 				}
 				_is_checked = true;
-				_element_mark.set_is_showing( true );
+				_element_mark.set_is_showed( true );
 				on_checked_changed.invoke( this );
 			}
 			else
 			{
 				_is_checked = false;
-				_element_mark.set_is_showing( false );
+				_element_mark.set_is_showed( false );
 				on_checked_changed.invoke( this );
 			}
 		}

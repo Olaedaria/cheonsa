@@ -11,7 +11,8 @@ namespace cheonsa
 	// images are usually going to be unique to each instance.
 	// so defining the image at the control level instead of the style level is more convenient.
 	// because we can define the image programatically/dynamically at run time instead of with the static styles.xml data file.
-	class menu_control_image_c : public menu_control_c
+	class menu_control_image_c
+		: public menu_control_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "image"; }

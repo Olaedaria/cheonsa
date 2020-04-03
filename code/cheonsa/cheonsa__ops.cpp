@@ -1711,14 +1711,21 @@ namespace cheonsa
 		//
 		//
 
-		plane64_c make_plane64_from_normal_and_distance( vector64x3_c const & normal, float64_c const distance )
+		plane32_c make_plane32_from_normal_and_point( vector32x3_c const & normal, vector32x3_c const & point )
 		{
-			return make_plane64_normalized( plane64_c( normal.a, normal.b, normal.c, distance ) );
+			return plane32_c( normal.a, normal.b, normal.c, -make_float32_dot_product( normal, point ) );
+		}
+
+		plane32_c make_plane32_from_triangle( vector32x3_c const & point_a, vector32x3_c const & point_b, vector32x3_c const & point_c )
+		{
+			vector32x3_c normal = make_vector32x3_normalized( make_vector32x3_cross_product( point_b - point_a, point_c - point_a ) );
+			return make_plane32_from_normal_and_point( normal, point_a );
 		}
 
 		plane64_c make_plane64_from_normal_and_point( vector64x3_c const & normal, vector64x3_c const & point )
 		{
-			return make_plane64_normalized( plane64_c( normal.a, normal.b, normal.c, -make_float64_dot_product( normal, point ) ) );
+			//return make_plane64_normalized( plane64_c( normal.a, normal.b, normal.c, -make_float64_dot_product( normal, point ) ) );
+			return plane64_c( normal.a, normal.b, normal.c, -make_float64_dot_product( normal, point ) );
 		}
 
 		plane64_c make_plane64_from_triangle( vector64x3_c const & point_a, vector64x3_c const & point_b, vector64x3_c const & point_c )
@@ -2387,17 +2394,30 @@ namespace cheonsa
 			return result;
 		}
 
-		void_c make_polygon32x2_from_box32x2( box32x2_c const & box_in, polygon32x2_c & polygon_out )
+		polygon32x2_c make_polygon32x2_from_box32x2( box32x2_c const & box_in )
 		{
-			polygon_out.points_count = 4;
-			polygon_out.points[ 0 ].a = box_in.minimum.a;
-			polygon_out.points[ 0 ].b = box_in.minimum.b;
-			polygon_out.points[ 1 ].a = box_in.minimum.a;
-			polygon_out.points[ 1 ].b = box_in.maximum.b;
-			polygon_out.points[ 2 ].a = box_in.maximum.a;
-			polygon_out.points[ 2 ].b = box_in.maximum.b;
-			polygon_out.points[ 3 ].a = box_in.maximum.a;
-			polygon_out.points[ 3 ].b = box_in.minimum.b;
+			polygon32x2_c result;
+			result.points_count = 4;
+			result.points[ 0 ].a = box_in.minimum.a;
+			result.points[ 0 ].b = box_in.minimum.b;
+			result.points[ 1 ].a = box_in.minimum.a;
+			result.points[ 1 ].b = box_in.maximum.b;
+			result.points[ 2 ].a = box_in.maximum.a;
+			result.points[ 2 ].b = box_in.maximum.b;
+			result.points[ 3 ].a = box_in.maximum.a;
+			result.points[ 3 ].b = box_in.minimum.b;
+			return result;
+		}
+
+		polygon32x2_c make_polygon32x2_transformed( polygon32x2_c const & polygon_in, matrix32x2x2_c transform_basis, vector32x2_c transform_origin )
+		{
+			polygon32x2_c result;
+			result.points_count = polygon_in.points_count;
+			for ( sint32_c i = 0; i < polygon_in.points_count; i++ )
+			{
+				result.points[ i ] = make_vector32x2_transformed_point( polygon_in.points[ i ], transform_basis ) + transform_origin;
+			}
+			return result;
 		}
 
 		vector64x3_c make_vector64x3_normal_from_triangle( vector64x3_c a, vector64x3_c b, vector64x3_c c )
@@ -2693,7 +2713,7 @@ namespace cheonsa
 
 		float32_c distance_between_point_and_line( vector32x2_c const & point, line32_c const & line )
 		{
-			return ( point.a * line.a ) * ( point.b * line.b ) + ( line.c );
+			return ( point.a * line.a ) + ( point.b * line.b ) + ( line.c );
 		}
 
 		float64_c distance_between_point_and_plane( vector64x3_c const & point, plane64_c const & plane )
@@ -3083,14 +3103,13 @@ namespace cheonsa
 				{
 					edge_vector = polygon_b.get_edge_vector( i - polygon_a.points_count );
 				}
-				vector32x2_c axis = ops::make_vector32x2_normalized( vector32x2_c( -edge_vector.b, edge_vector.a ) );
+				vector32x2_c axis = ops::make_vector32x2_normalized( vector32x2_c( -edge_vector.b, edge_vector.a ) ); // normal of edge, tangent to edge.
 				float32_c minimum_a;
 				float32_c maximum_a;
 				float32_c minimum_b;
 				float32_c maximum_b;
 				project_polygon( polygon_a, axis, minimum_a, maximum_a );
 				project_polygon( polygon_b, axis, minimum_b, maximum_b );
-
 				if ( interval_distance( minimum_a, maximum_a, minimum_b, maximum_b ) > 0.0f )
 				{
 					return 0;

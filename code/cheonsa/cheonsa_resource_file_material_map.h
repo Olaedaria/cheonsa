@@ -7,7 +7,8 @@ namespace cheonsa
 {
 
 	// defines what materials to apply to what things in an object.
-	class resource_file_material_map_c : public resource_file_c
+	class resource_file_material_map_c
+		: public resource_file_c
 	{
 	public:
 		typedef resource_file_reference_c< resource_file_material_map_c > reference_c;

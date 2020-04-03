@@ -54,8 +54,8 @@ namespace cheonsa
 
 		result_e get_result() const; // gets the last result of the dialog.
 
-		virtual void_c show() override; // sets _result to result_e_none and then shows the window.
-		virtual void_c show_immediately() override; // sets _result to result_e_none and then shows the window.
+		virtual void_c set_is_showed( boolean_c value, boolean_c and_wants_to_be_deleted = false ) override; // sets _result to result_e_none and then calls base implementation.
+		virtual void_c set_is_showed_immediately( boolean_c value ) override; // sets _result to result_e_none and then calls base implementation.
 
 		core_event_c< void_c, menu_window_dialog_c * > on_result; // subscribe to on_hide instead and then call get_result().
 

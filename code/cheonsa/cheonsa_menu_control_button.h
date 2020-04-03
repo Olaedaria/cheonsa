@@ -9,7 +9,8 @@ namespace cheonsa
 
 	// button is a compound control consisting of a frame element and a text element.
 	// it's almost exactly the same as menu_control_text_field_c, but the text element is not editable.
-	class menu_control_button_c : public menu_control_c
+	class menu_control_button_c
+		: public menu_control_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "button"; }

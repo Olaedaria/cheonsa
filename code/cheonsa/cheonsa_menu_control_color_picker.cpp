@@ -93,7 +93,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_color_picker_c::_handle_slider_on_value_changed( menu_control_scroll_i * slider )
+	void_c menu_control_color_picker_c::_handle_slider_on_value_changed( menu_control_scroll_bar_i * slider )
 	{
 		if ( slider == _h_scroll_bar )
 		{
@@ -239,7 +239,7 @@ namespace cheonsa
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_window );
 		_add_element( &_element_frame );
 
-		_h_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_h_scroll_bar = new menu_control_scroll_bar_x_c();
 		_h_scroll_bar->set_name( string8_c( mode_e_static, "h_scroll" ) );
 		_h_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
 		_h_scroll_bar->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
@@ -254,7 +254,7 @@ namespace cheonsa
 		_h_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _h_text );
 
-		_s_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_s_scroll_bar = new menu_control_scroll_bar_x_c();
 		_s_scroll_bar->set_name( string8_c( mode_e_static, "s_scroll_bar" ) );
 		_s_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
 		_s_scroll_bar->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
@@ -271,7 +271,7 @@ namespace cheonsa
 		_s_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _s_text );
 
-		_v_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_v_scroll_bar = new menu_control_scroll_bar_x_c();
 		_v_scroll_bar->set_name( string8_c( mode_e_static, "v_scroll_bar" ) );
 		_v_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
 		_v_scroll_bar->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
@@ -288,7 +288,7 @@ namespace cheonsa
 		_v_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _v_text );
 
-		_r_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_r_scroll_bar = new menu_control_scroll_bar_x_c();
 		_r_scroll_bar->set_name( string8_c( mode_e_static, "r_scroll" ) );
 		_r_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
 		_r_scroll_bar->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
@@ -305,7 +305,7 @@ namespace cheonsa
 		_r_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _r_text );
 
-		_g_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_g_scroll_bar = new menu_control_scroll_bar_x_c();
 		_g_scroll_bar->set_name( string8_c( mode_e_static, "g_scroll" ) );
 		_g_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
 		_g_scroll_bar->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
@@ -322,7 +322,7 @@ namespace cheonsa
 		_g_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _g_text );
 
-		_b_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_b_scroll_bar = new menu_control_scroll_bar_x_c();
 		_b_scroll_bar->set_name( string8_c( mode_e_static, "b_scroll" ) );
 		_b_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
 		_b_scroll_bar->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
@@ -339,7 +339,7 @@ namespace cheonsa
 		_b_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _b_text );
 
-		_a_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+		_a_scroll_bar = new menu_control_scroll_bar_x_c();
 		_a_scroll_bar->set_name( string8_c( mode_e_static, "a_scroll" ) );
 		_a_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );
 		_a_scroll_bar->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_slider_on_value_changed );

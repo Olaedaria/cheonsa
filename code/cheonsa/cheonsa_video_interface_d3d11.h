@@ -5,7 +5,8 @@
 namespace cheonsa
 {
 
-	class video_interface_d3d11_c final : public video_interface_c
+	class video_interface_d3d11_c final
+		: public video_interface_c
 	{
 	public:
 		video_interface_d3d11_c();

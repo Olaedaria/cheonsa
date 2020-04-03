@@ -10,7 +10,8 @@ namespace cheonsa
 	// static plain or rich text label.
 	// does not support scroll bars.
 	// only supports text modes menu_text_mode_e_plain_static and menu_text_mode_e_rich_static.
-	class menu_control_label_c : public menu_control_c
+	class menu_control_label_c
+		: public menu_control_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "label"; }

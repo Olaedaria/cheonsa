@@ -10,7 +10,8 @@ namespace cheonsa
 
 	// font formats conventionally place the coordinate frame in bottom-left, but cheonsa tranlsates this coordinate frame to top-left.
 	// font formats conventionally describe the ascender and descender as distance above the base line, so that descender would usually be a negative value, but cheonsa converts descender to distance below the base line so that it will usually be a positive value too.
-	class resource_file_font_c : public resource_file_c
+	class resource_file_font_c
+		: public resource_file_c
 	{
 	public:
 		typedef resource_file_reference_c< resource_file_font_c > reference_c;

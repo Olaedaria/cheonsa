@@ -1836,9 +1836,9 @@ namespace cheonsa
 	}
 
 	polygon32x2_c::polygon32x2_c()
-		: origin()
-		, basis()
-		, points_count( 0 )
+		//: origin()
+		//, basis()
+		: points_count( 0 )
 		, points{}
 	{
 	}
@@ -1846,7 +1846,8 @@ namespace cheonsa
 	vector32x2_c polygon32x2_c::get_point( sint32_c point_index ) const
 	{
 		assert( point_index >= 0 && point_index < points_count );
-		return ops::make_vector32x2_transformed_point( points[ point_index ], basis ) + origin;
+		//return ops::make_vector32x2_transformed_point( points[ point_index ], basis ) + origin;
+		return points[ point_index ];
 	}
 
 	vector32x2_c polygon32x2_c::get_edge_vector( sint32_c edge_index ) const

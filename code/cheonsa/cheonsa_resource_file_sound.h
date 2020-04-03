@@ -5,7 +5,9 @@
 
 namespace cheonsa
 {
-	class resource_file_sound_c : public resource_file_c
+
+	class resource_file_sound_c
+		: public resource_file_c
 	{
 	public:
 		typedef resource_file_reference_c< resource_file_sound_c > reference_c;

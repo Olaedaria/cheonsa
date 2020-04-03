@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa___build.h"
+#include "cheonsa___build_configuration.h"
 #include "cheonsa__types.h"
 #include "cheonsa_data_types.h"
 #include "cheonsa_string8.h"
@@ -243,9 +243,15 @@ namespace cheonsa
 		//
 		//
 
-		plane64_c make_plane64_from_normal_and_distance( vector64x3_c const & normal, float64_c distance ); // normal needs to be normalized already.
-		plane64_c make_plane64_from_normal_and_point( vector64x3_c const & normal, vector64x3_c const & point ); // normal needs to be normalized already.
-		plane64_c make_plane64_from_triangle( vector64x3_c const & point_a, vector64x3_c const & point_b, vector64x3_c const & point_c ); // if points are laid on the face of a clock, and wind order is counter clock wise, then plane normal will point out of the face of the clock.
+		plane32_c make_plane32_from_normal_and_point( vector32x3_c const & normal, vector32x3_c const & point ); // normal needs to be normalized already.
+		plane32_c make_plane32_from_triangle( vector32x3_c const & point_a, vector32x3_c const & point_b, vector32x3_c const & point_c ); // if the triangle points are laid out counter clock wise on the face of a clock, then the normal will point out of the face of the clock.
+
+		plane64_c make_plane64_from_normal_and_point( vector64x3_c const & normal, vector64x3_c const & point ); // normal needs to be normalized already. point is any point on the plane.
+		plane64_c make_plane64_from_triangle( vector64x3_c const & point_a, vector64x3_c const & point_b, vector64x3_c const & point_c ); // if the triangle points are laid out counter clock wise on the face of a clock, then the normal will point out of the face of the clock.
+
+		// normalizes the given plane, if it is not normalized.
+		// in cheonsa, the abc components of the plane are the plane's normal (a normalized unit length vector), and then the d component is the distance of the plane along the plane's normal to the coordinate space's origin.
+		// in other math libraries and game engines, sometimes the plane is treated like a 4 component vector, and so to normalize it means to normalize it like you would a 4 component vector. which does also work and it means the same thing, but to me it is very ugly and unintuitive to think about.
 		plane64_c make_plane64_normalized( plane64_c const & plane );
 
 
@@ -285,9 +291,8 @@ namespace cheonsa
 		//
 		//
 
-		// sets the points and points_count of polygon_out, leaves everything else alone.
-		// result is a counter clock wise wind order polygon, starting with the top left vertex of the box.
-		void_c make_polygon32x2_from_box32x2( box32x2_c const & box_in, polygon32x2_c & polygon_out );
+		polygon32x2_c make_polygon32x2_from_box32x2( box32x2_c const & box_in ); // result is a counter clock wise wind order polygon, starting with the top left vertex of the box, so the first edge will be the left edge.
+		polygon32x2_c make_polygon32x2_transformed( polygon32x2_c const & polygon_in, matrix32x2x2_c transform_basis, vector32x2_c transform_origin ); // transforms the points in the given polygon by the given transform.
 
 		//ray64_c make_transformed_ray( ray64_c const & ray, matrix64x3x4_c const & transform );
 		vector64x3_c make_vector64x3_normal_from_triangle( vector64x3_c a, vector64x3_c b, vector64x3_c c );

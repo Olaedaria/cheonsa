@@ -8,7 +8,8 @@ namespace cheonsa
 {
 
 	// if you set the position to the middle of the stream and then write to the stream, then it overwrites the existing bytes rather than inserts.
-	class data_stream_memory_c : public data_stream_c
+	class data_stream_memory_c
+		: public data_stream_c
 	{
 	private:
 		core_list_c< uint8_c > _buffer; // the underlying memory buffer.

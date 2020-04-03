@@ -40,8 +40,8 @@ namespace cheonsa
 		box32x2_c _local_box_anchor_measures;
 		box32x2_c _local_box;
 
-		boolean_c _is_showing_from_style; // style map assignment may set this to false to hide this element. the element will still be laid out, but it just won't be rendered.
-		boolean_c _is_showing; // if _control->_is_showing is false then it overrides this value.
+		boolean_c _is_showed_from_style; // style map assignment may set this to false to hide this element. the element will still be laid out, but it just won't be rendered.
+		boolean_c _is_showed; // if _control->_is_showing is false then it overrides this value.
 		boolean_c _is_enabled; // if _control->_is_enabled is false then it overrides this value.
 		boolean_c _is_selected;
 		boolean_c _is_pressed;
@@ -79,8 +79,8 @@ namespace cheonsa
 		menu_shared_color_class_e get_shared_color_class() const;
 		void_c set_shared_color_class( menu_shared_color_class_e value );
 
-		boolean_c get_is_showing() const;
-		void_c set_is_showing( boolean_c value );
+		boolean_c get_is_showed() const;
+		void_c set_is_showed( boolean_c value );
 
 		boolean_c get_is_enabled() const;
 		void_c set_is_enabled( boolean_c value );

@@ -6,16 +6,10 @@
 namespace cheonsa
 {
 
-	void_c menu_control_text_c::_on_text_focus_gained()
+	void_c menu_control_text_c::_on_is_text_focused_changed()
 	{
-		_element_text.handle_on_character_focus_gained();
-		on_text_focus_gained.invoke( menu_event_information_c( this, nullptr ) );
-	}
-
-	void_c menu_control_text_c::_on_text_focus_lost()
-	{
-		_element_text.handle_on_character_focus_lost();
-		on_text_focus_lost.invoke( menu_event_information_c( this, nullptr ) );
+		_element_text.handle_on_is_text_focused_changed( _is_text_focused );
+		on_is_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_control_text_c::_on_input( input_event_c * input_event )
@@ -250,7 +244,7 @@ namespace cheonsa
 		{
 			if ( _horizontal_scroll_bar == nullptr )
 			{
-				_horizontal_scroll_bar = new menu_control_scroll_bar_horizontal_c();
+				_horizontal_scroll_bar = new menu_control_scroll_bar_x_c();
 				_horizontal_scroll_bar->set_name( string8_c( mode_e_static, "horizontal_scroll_bar" ) );
 				_horizontal_scroll_bar->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 8.0f, 0.0f, 0.0f ) );
 				_give_control( _horizontal_scroll_bar );
@@ -284,7 +278,7 @@ namespace cheonsa
 		{
 			if ( _vertical_scroll_bar == nullptr )
 			{
-				_vertical_scroll_bar = new menu_control_scroll_bar_vertical_c();
+				_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
 				_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
 				_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
 				_give_control( _vertical_scroll_bar );

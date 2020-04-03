@@ -67,10 +67,8 @@
     <ClInclude Include="cheonsa_scene_tree_kd.h" />
     <ClInclude Include="cheonsa_scene_tree_tetrahedron.h" />
     <ClInclude Include="cheonsa_scene_component_body.h" />
-    <ClInclude Include="cheonsa_scene_component_planet.h" />
     <ClInclude Include="cheonsa_scene_component_model.h" />
     <ClInclude Include="cheonsa_input_types.h" />
-    <ClInclude Include="cheonsa___build.h" />
     <ClInclude Include="cheonsa_data_types.h" />
     <ClInclude Include="cheonsa_video_types.h" />
     <ClInclude Include="cheonsa_memory_allocator_pool.h" />
@@ -90,7 +88,6 @@
     <ClInclude Include="cheonsa_core_dictionary.h" />
     <ClInclude Include="cheonsa_core_event.h" />
     <ClInclude Include="cheonsa_core_circle_buffer.h" />
-    <ClInclude Include="cheonsa_menu_control_panel.h" />
     <ClInclude Include="cheonsa_menu_control_collection.h" />
     <ClInclude Include="cheonsa_data_scribe_text.h" />
     <ClInclude Include="cheonsa_menu_control_scene.h" />
@@ -506,11 +503,16 @@
     <ClInclude Include="cheonsa__ops.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
-    <ClInclude Include="cheonsa_menu_control_scroll_i.h" />
-    <ClInclude Include="cheonsa_menu_control_scroll_bar.h" />
-    <ClInclude Include="cheonsa_menu_control_scrub_bar.h" />
     <ClInclude Include="cheonsa_core_safe_reference_counter.h" />
     <ClInclude Include="cheonsa_core_shared_pointer.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_bar_i.h" />
+    <ClInclude Include="cheonsa_menu_control_panel_i.h" />
+    <ClInclude Include="cheonsa_menu_control_panel.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_bar_x.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_bar_y.h" />
+    <ClInclude Include="cheonsa_menu_control_scrub_bar_x.h" />
+    <ClInclude Include="cheonsa_menu_control_scrub_bar_y.h" />
+    <ClInclude Include="cheonsa___build_configuration.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -590,7 +592,6 @@
     <ClCompile Include="cheonsa_user_interface.cpp" />
     <ClCompile Include="cheonsa_scene.cpp" />
     <ClCompile Include="cheonsa_menu_control_scene.cpp" />
-    <ClCompile Include="cheonsa_menu_control_panel.cpp" />
     <ClCompile Include="cheonsa_menu_control_image.cpp" />
     <ClCompile Include="cheonsa_menu_control_label.cpp" />
     <ClCompile Include="cheonsa_menu_control_list_i.cpp" />
@@ -631,9 +632,13 @@
     <ClCompile Include="cheonsa__ops.cpp" />
     <ClCompile Include="cheonsa_debug_manager.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
-    <ClCompile Include="cheonsa_menu_control_scroll_i.cpp" />
-    <ClCompile Include="cheonsa_menu_control_scroll_bar.cpp" />
-    <ClCompile Include="cheonsa_menu_control_scrub_bar.cpp" />
     <ClCompile Include="cheonsa_core_safe_reference_counter.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_bar_i.cpp" />
+    <ClCompile Include="cheonsa_menu_control_panel_i.cpp" />
+    <ClCompile Include="cheonsa_menu_control_panel.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_bar_x.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_bar_y.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scrub_bar_x.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scrub_bar_y.cpp" />
   </ItemGroup>
 </Project>

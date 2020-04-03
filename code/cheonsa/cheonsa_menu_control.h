@@ -1,9 +1,9 @@
 #pragma once
 
 #include "cheonsa__types.h"
+#include "cheonsa_menu_types.h"
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_menu_types.h"
 #include "cheonsa_data_scribe_structure.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_input_manager.h"
@@ -43,7 +43,8 @@ namespace cheonsa
 		friend class user_interface_c;
 		friend class menu_style_manager_c; // to call _global_resolve_style_maps.
 		friend class video_renderer_interface_c;
-		friend class menu_control_panel_c;
+		friend class menu_control_panel_i;
+		friend class menu_control_list_i;
 
 		// the global list is used to hold a pointer to every control that is instantiated.
 		// each control adds itself to this list when it is constructed.
@@ -61,12 +62,12 @@ namespace cheonsa
 		sint32_c _index; // this control's index within its mother's _control_list or _private_control_list.
 
 		vector32x2_c _content_offset; // scroll bars can plug in to this to scroll the daughter controls of this control.
-		box32x2_c _content_box; // minimum axis aligned bounding box that contains all of the daughter controls and elements.
-		boolean_c _content_box_is_dirty; // if true then _content_box is out of date and needs to be recalculated.
+		box32x2_c _content_bounds; // minimum axis aligned bounding box that contains all of the daughter controls and elements.
+		boolean_c _content_bounds_is_dirty; // if true then _content_bounds is out of date and needs to be recalculated.
 
 		core_list_c< menu_control_c * > _control_list; // daughter controls.
-		virtual void_c _give_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end.
-		virtual menu_control_c * _take_control( sint32_c index );
+		virtual sint32_c _give_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end.
+		virtual menu_control_c * _take_control( sint32_c control_index );
 		virtual void_c _remove_and_delete_all_controls();
 		menu_control_c * _find_control( string8_c const & name, string8_c const & type );
 
@@ -85,15 +86,15 @@ namespace cheonsa
 
 		boolean_c _wants_to_be_deleted; // if true, then this control is in the process of hiding (fading out), and it wants its mother to delete it once its opacity reaches 0.
 		
-		boolean_c _is_showing; // controls visual state. if true then this control can receive user input. if false then this control is not considered for user input.
-		float32_c _is_showing_weight; // 0 is fully transparent, 1 is fully opaque.
+		boolean_c _is_showed; // controls visual state. if true then this control can receive user input. if false then this control is not considered for user input.
+		float32_c _is_showed_weight; // 0 is fully transparent, 1 is fully opaque.
 
 		boolean_c _is_enabled; // controls visual state.
 
-		sint32_c _is_deep_text_focused; // is incremented when this or any of this control's daughters gains text input focus. is decremented when this or any of this control's daughters loses text input focus. it's valid values are 0 and 1, anything outside of this range indicates a bug with state logic and may assert.
+		sint32_c _is_deep_text_focused; // is incremented when this or any of this control's daughters gains text input focus. is decremented when this or any of this control's daughters loses text input focus. it's valid values are 0 and 1, if it is outside of this range outside of transitioning between states then it's a bug.
+		boolean_c _is_text_focused; // controls visual state effects. is true if this control has trapped text input (will receive text events), is false if not.
 		boolean_c _is_mouse_overed; // controls visual state effects for buttons. is true if this control intersects with the mouse pointer, false if not. or this may be used by the context if directional input is used to select controls rather than the mouse.
 		boolean_c _is_mouse_focused; // controls visual state effects. is true if this control has trapped mouse input (will receive mouse input events even if the mouse is not over this control), is false if not.
-		boolean_c _is_text_focused; // controls visual state effects. is true if this control has trapped text input (will receive text events), is false if not.
 		boolean_c _is_pressed; // controls visual state effects. is true if this control is pressed by a mouse click.
 
 		menu_layout_mode_e _layout_mode; // how to calculate _local_box.
@@ -109,16 +110,18 @@ namespace cheonsa
 
 		vector32x2_c _global_origin; // final inherited origin, which is _local_origin transformed by the inherited global origin.
 		matrix32x2x2_c _global_basis; // final inherited 2D basis, which is _local_basis transformed by the inherited global basis.
-		matrix32x2x2_c _global_basis_inverse; // inverse of _global_basis so that global coordinates can be easily transformed to local coordinates for easy hit detection.
+		matrix32x2x2_c _global_basis_inverted; // inverse of _global_basis so that global coordinates can be easily transformed to local coordinates for easy hit detection.
 		vector32x4_c _global_color; // inherited color and opacity of this control.
+		void_c _update_global_space_properties(); // updates global space properties of this control based on local properties and mother. these properties need to be up to date in order for mouse picking to work correctly.
 
 		// off screen rendering system.
 		// controls are batched together for rendering into what are called control groups.
-		// each control in the user interface that is root level or not full opacity defines the root control of a control group.
-		// for each control group, for each control, for each element, that element is rendered at (full opacity (and for the root only: no scale and no angle)) to the control group's off-screen texture.
-		// control group off-screen textures are then eventually composited|rendered (with their specified opacity, scale, and angle) into other control group off-screen target textures or the canvas's target texture.
+		// each control in the user interface that is at root level or not full opacity defines the root control of a control group.
+		// each control group has an off screen render target texture in which to render all of the controls that belong to that control group.
+		// for each control group, for each control (recursive), for each element, that element is rendered at (full opacity (and for the root only: no scale and no angle)) to the control group's off-screen texture.
+		// control group textures are then eventually composited|rendered (with their specified opacity, scale, and angle) into other control group textures or the canvas's target texture.
 		// this solves the problem that arises with the naive approach of rendering two overlapping elements at 50% opacity which results in 75% actual opacity when 50% is what is desired.
-		// the _control_group_texture is only created and used for the root control of each group.
+		// the _control_group_texture is only created and used for the root control of each group. otherwise it is deleted.
 		boolean_c _control_group_is_root; // will be true if this control is the root control of a control group. which is true when the control is a root control in the user interface or is not full opacity.
 		menu_control_c * _control_group_mother; // if this control is the root control of a control group, then this points to the control that is the root control of the control group that is the mother of this control group.
 		core_list_c< menu_control_c * > _control_group_daughter_list; // points to daughter controls that are root controls of the control groups that are daughter to this control group.
@@ -142,23 +145,17 @@ namespace cheonsa
 		boolean_c _get_is_descendant_character_focused(); // returns true if any descendant control of this control has character focus.
 		boolean_c _get_is_descendant_mouse_focused(); // returns true if any descendant control of this control has mouse focus.
 
-		virtual void_c _on_added_to_user_interface(); // protected first responder to on_added_to_user_interface event.
-		virtual void_c _on_removed_from_user_interface(); // protected first responder to on_removed_from_user_interface event.
-		virtual void_c _on_show(); // protected first responder to on_show event.
-		virtual void_c _on_hide(); // protected first responder to on_hide event.
-		virtual void_c _on_enable();
-		virtual void_c _on_disable();
-		virtual void_c _on_clicked( input_event_c * input_event ); // protected first responder to on_clicked event. input event is provided so that responders have context of modifier keys. can be triggered for each of the 3 main mouse buttons.
-		virtual void_c _on_multi_clicked( input_event_c * input_event ); // protected first responder to on_multi_clicked event. input event is provided so that have context of modifier keys. can be triggered for each of the 3 main mouse buttons.
-		virtual void_c _on_deep_text_focus_gained(); // protected first responder to on_deep_text_focus_gained event.
-		virtual void_c _on_deep_text_focus_lost(); // protected first responder to on_deep_text_focus_lost event.
-		virtual void_c _on_text_focus_gained(); // protected first responder to on_text_focus_gained event. the argument will be set to the control that text focus was taken from.
-		virtual void_c _on_text_focus_lost(); // protected first responder to on_text_focus_lost event. the argument will be set to the control that text focus will be given to.
-		virtual void_c _on_mouse_over_gained();
-		virtual void_c _on_mouse_over_lost();
-		virtual void_c _on_mouse_focus_gained(); // protected first responder to on_mouse_focus_gained event. the argument will be set to the control that mouse focus was taken from.
-		virtual void_c _on_mouse_focus_lost(); // protected first responder to on_mouse_focus_lost event. the argument will be set to the control that mouse focus will be given to.
-		virtual void_c _on_input( input_event_c * input_event ); // protected first responder to on_input event.
+		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ); // occurs right after the control is added to (associated with) the user interface or right before the control is removed from (disassociated from) the user interface. user_interface is the user interface that this control was just added to or removed from. if the control was added then the _user_interface memeber will be set, if the control was removed then the _user_interface memeber will be nullptr.
+		virtual void_c _on_is_showed_changed(); // is called right after _is_showed state is changed. after performing control specific implementation, it should in turn invoke the is_showed_changed event.
+		virtual void_c _on_is_enabled_changed(); // is called right after _is_enabled state is changed. after performing control specific implementation, it should in turn invoke the is_enabled_changed event.
+		virtual void_c _on_is_deep_text_focused_changed(); // is called right after _is_deep_text_focused state is changed. after performing control specific implementation, it should in turn invoke the is_deep_text_focused_changed event.
+		virtual void_c _on_is_text_focused_changed(); // is called right after _is_text_focused state is changed. after performing control specific implementation, it should in turn invoke the on_is_text_focused_changed event.
+		virtual void_c _on_is_mouse_overed_changed(); // is called right after _is_mouse_overed state is changed. after performing control specific implementation, it should in turn invoke the on_is_mouse_overed_changed event.
+		virtual void_c _on_is_mouse_focused_changed(); // is called right after _is_mouse_focused state is changed. after performing control specific implementation, it should in turn invoke the on_is_mouse_focused_changed event.
+		virtual void_c _on_is_pressed_changed(); // is called right after _is_pressed state is changed. after performing control specific implementation, it should in turn invoke the on_is_pressed_changed event.
+		virtual void_c _on_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been clicked on.
+		virtual void_c _on_multi_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been multi-(double, triple)-clicked on.
+		virtual void_c _on_input( input_event_c * input_event ); // is called for any other user input events.
 
 	public:
 		menu_control_c();
@@ -188,6 +185,7 @@ namespace cheonsa
 		resource_file_menu_layout_c * get_menu_layout() const;
 		// sets the menu layout of this control system.
 		// this should only be set on the root control of a control system.
+		// this menu layout resource defines layout of controls in hierarchy.
 		void_c set_menu_layout( resource_file_menu_layout_c * value );
 
 		virtual menu_control_c * pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer );
@@ -206,14 +204,14 @@ namespace cheonsa
 
 		sint32_c get_index() const; // gets the index of this control within it's mother's daughter list.
 
-		user_interface_c * get_user_interface(); // returns the menu context of the root mother control.
+		user_interface_c * get_user_interface_root(); // returns the menu context of the root mother control.
 
 		menu_control_c * get_root_mother_control(); // returns the root mother control of this control, also called a window (regardless of if it acts like one or not), which is the control that is directly added to the menu context.
 
 		menu_control_c * get_mother_control(); // returns the control that is the immediate mother of this control.
 
 		sint32_c get_control_count() const;
-		menu_control_c * get_control( sint32_c index ) const;
+		menu_control_c * get_control( sint32_c control_index ) const;
 
 		boolean_c is_descendant_of( menu_control_c * control ); // returns true if this control is a descendant of the given control, false if not.
 
@@ -222,16 +220,13 @@ namespace cheonsa
 		menu_select_mode_e get_select_mode() const;
 		void_c set_select_mode( menu_select_mode_e value );
 
-		boolean_c get_is_showing() const;
-		float32_c get_is_showing_weight() const;
-		virtual void_c show(); // shows the control.
-		virtual void_c show_immediately(); // shows the control and sets _showing_opacity to 1.
-		void_c hide( boolean_c wants_to_be_deleted = false ); // hides the control and causes it to fade out until it is fully hidden.
-		void_c hide_immediately(); // hides the control and sets its _showing_opacity to 0.
+		boolean_c get_is_showed() const;
+		float32_c get_is_showed_weight() const;
+		virtual void_c set_is_showed( boolean_c value, boolean_c and_wants_to_be_deleted = false ); // and_wants_to_be_deleted will be respected if value is false.
+		virtual void_c set_is_showed_immediately( boolean_c value );
 
 		boolean_c get_is_enabled() const;
-		void_c enable();
-		void_c disable();
+		void_c set_is_enabled( boolean_c value );
 
 		sint32_c get_is_deep_text_focused() const;
 		boolean_c get_is_mouse_overed() const;
@@ -266,7 +261,7 @@ namespace cheonsa
 
 		vector32x2_c const & get_global_origin() const;
 		matrix32x2x2_c const & get_global_basis() const;
-		matrix32x2x2_c const & get_global_basis_inverse() const;
+		matrix32x2x2_c const & get_global_basis_inverted() const;
 		vector32x4_c const & get_global_color() const;
 
 		scene_component_menu_control_c * get_scene_component() const;
@@ -278,13 +273,11 @@ namespace cheonsa
 		void_c * get_user_pointer() const;
 		void_c set_user_pointer( void_c * value );
 
-		//void_c set_local_saturation( float32_c value );
+		void_c bring_to_front(); // moves this control to the front of the list.
 
-		void_c bring_to_front(); // 
+		void_c give_text_focus(); // gives this control text focus, which lets it receive text input events.
 
-		void_c give_text_focus(); // gives this control text focus, which gives it exclusive first response to text input events.
-
-		box32x2_c const & get_content_box();
+		box32x2_c const & get_content_bounds();
 		vector32x2_c const & get_content_offset() const;
 		void_c set_content_offset( vector32x2_c const & value );
 		void_c set_content_offset_horizontal( float32_c value );
@@ -299,22 +292,16 @@ namespace cheonsa
 		void_c _compile_control_groups( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list ); // used by the menu renderer to recursively compile the control group state for this control and all daughter controls, in preparation to render the menus for a given frame.
 
 	public:
-		core_event_c< void_c, user_interface_c * > on_added_to_user_interface; // public event hook for secondary responder(s), occurs after the control is added to the context. is only called on the top most (window) control.
-		core_event_c< void_c, user_interface_c * > on_removed_from_user_interface; // public event hook for secondary responder(s), occurs after the control is removed from the context. is only called on the top most (window) control.
-		core_event_c< void_c, menu_event_information_c > on_show; // public event for hook secondary responder(s), occurs after show() and show_immediately().
-		core_event_c< void_c, menu_event_information_c > on_hide; // public event for hook secondary responder(s), occurs after hide(), hide_immediately(), and hide_and_delete().
-		core_event_c< void_c, menu_event_information_c > on_enable; // public event hook for secondary responder(s), occurs after enable().
-		core_event_c< void_c, menu_event_information_c > on_disable; // public event hook for secondary responder(s), occurs after disable().
-		core_event_c< void_c, menu_event_information_c > on_clicked; // public event hook for secondary responder(s), occurs when the control is clicked on with the left mouse button. click handlers for other mouse buttons are not implemented yet, but it might be something i'll need later.
-		core_event_c< void_c, menu_event_information_c > on_multi_clicked; // public event hook for secondary responder(s), occurs when the control is double clicked on with the left mouse button.
-		core_event_c< void_c, menu_event_information_c > on_deep_text_focus_gained; // public event hook for secondary responder(s), occurs when the control or any of her daughters gains text input focus.
-		core_event_c< void_c, menu_event_information_c > on_deep_text_focus_lost; // public event hook for secondary responder(s), occurs when the control and all of her daughters lose text input focus.
-		core_event_c< void_c, menu_event_information_c > on_text_focus_gained; // public event for secondary responder(s), occurs when the control gains character input focus which happens when the control is clicked on. the argument will be set to the control that text focus was taken from.
-		core_event_c< void_c, menu_event_information_c > on_text_focus_lost; // public event for secondary responder(s), occurs when the control loses character input focus. input_event might be nullptr if the control was removed from the context while it had character focus. the argument will be set to the control that text focus will be given to.
-		core_event_c< void_c, menu_event_information_c > on_mouse_over_gained;
-		core_event_c< void_c, menu_event_information_c > on_mouse_over_lost;
-		core_event_c< void_c, menu_event_information_c > on_mouse_focus_gained; // public event for secondary responder(s), occurs when the mouse enters this control's area. the argument will be set to the control that mouse focus was taken from.
-		core_event_c< void_c, menu_event_information_c > on_mouse_focus_lost; // public event for secondary responder(s), occurs when the mouse leaves this control's area. input_event might be nullptr if the control was removed from the context while it had mouse focus. the argument will be set to the control that mouse focus will be given to.
+		core_event_c< void_c, user_interface_c * > on_user_interface_association_changed;
+		core_event_c< void_c, menu_event_information_c > on_is_showed_changed;
+		core_event_c< void_c, menu_event_information_c > on_is_enabled_changed;
+		core_event_c< void_c, menu_event_information_c > on_is_deep_text_focused_changed;
+		core_event_c< void_c, menu_event_information_c > on_is_text_focused_changed;
+		core_event_c< void_c, menu_event_information_c > on_is_mouse_overed_changed;
+		core_event_c< void_c, menu_event_information_c > on_is_mouse_focused_changed;
+		core_event_c< void_c, menu_event_information_c > on_is_pressed_changed;
+		core_event_c< void_c, menu_event_information_c > on_clicked;
+		core_event_c< void_c, menu_event_information_c > on_multi_clicked;
 
 	};
 

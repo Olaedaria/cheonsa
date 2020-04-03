@@ -7,7 +7,8 @@ namespace cheonsa
 {
 
 	// enables a markup file to define the layout of a menu.
-	class resource_file_menu_layout_c : public resource_file_c
+	class resource_file_menu_layout_c
+		: public resource_file_c
 	{
 	public:
 		typedef resource_file_reference_c< resource_file_menu_layout_c > reference_c;

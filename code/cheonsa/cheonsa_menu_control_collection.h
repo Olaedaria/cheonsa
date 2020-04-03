@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa_menu_control.h"
-#include "cheonsa_menu_control_scroll_bar.h"
+#include "cheonsa_menu_control_scroll_bar_y.h"
 #include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa_menu_element_frame.h"
@@ -10,11 +10,10 @@
 namespace cheonsa
 {
 	
-	// an item instance that can be added to a menu_control_collection_c.
-	// does not store layout properties, layout does not need to be recalculated when items are added or removed from the middle of the collection, item layout can be calculated on the fly based on the scroll bar(s) and the fact that each item in the collection has the same size.
-	// in this way, collections are suited for holding massive numbers of items with optimal memory overhead (rather than allocating controls for each item, a number of controls are allocated for the maximum number of items that can be visible at a time, and those are used to display only the set of items that are visible), but the limitation is that each item has the same dimensions so that layout of each item can be assumed without having to measure each item one by one.
-	// contrast to a list, where items manage their own elements, and so all those elements have to stay in memory even if the item is not in view, but the advantage is that items can have different heights.
-	class menu_control_collection_item_c
+	// base interface of an item instance that can be added to a menu_control_collection_c.
+	// you need to implement your own version of this, and override the methods get_icon_texture(), get_value(), and set_value().
+	// then add those instnaces to your menu_control_collection_c instance.
+	class menu_control_collection_item_i
 	{
 	public:
 		// cached column/property values. 
@@ -42,7 +41,7 @@ namespace cheonsa
 		void_c _cache_values(); // rebuilds _value_list for this item, queries and caches property column values.
 
 	public:
-		menu_control_collection_item_c();
+		menu_control_collection_item_i();
 
 		sint32_c get_group() const;
 		void_c set_group( sint32_c value );
@@ -77,17 +76,19 @@ namespace cheonsa
 		void_c set_is_selected( boolean_c value );
 
 	public:
-		static sint32_c relative_compare( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b ); // for insertion sort.
-		static uint64_c absolute_value( menu_control_collection_item_c * const & a ); // for quick sort.
-		static sint32_c relative_group_compare( menu_control_collection_item_c * const & a, menu_control_collection_item_c * const & b ); // for insertion sort, secondary sort.
+		static sint32_c relative_compare( menu_control_collection_item_i * const & a, menu_control_collection_item_i * const & b ); // for insertion sort.
+		static uint64_c absolute_value( menu_control_collection_item_i * const & a ); // for quick sort.
+		static sint32_c relative_group_compare( menu_control_collection_item_i * const & a, menu_control_collection_item_i * const & b ); // for insertion sort, secondary sort.
 
 	};
 
-	// can be used to display things like files in a file system.
-	// is designed to immitate windows file explorer icon view and details view.
-	// in order for items to appear in the collection, you must add at least one column, for example call it "name" and implement get_property_value() to handle a query for "name".
-	// 
-	class menu_control_collection_c : public menu_control_c
+	// collections are suited for holding massive numbers of items with optimal memory overhead and constant speed cost to calculate visible item layout.
+	// this is because items in the collection do not store anything related to layout.
+	// contrast to cheonsa's list control, where each list items is in turn a control, and all of those controls have to update and run their layout logic even when they are not in view.
+	// this collection is designed to immitate windows's file explorer icon view and details view.
+	// in order for items to appear in the collection, you must add at least one column, for example call it "name", and get_value() on your collection item implementation should return a result for query of "name".	
+	class menu_control_collection_c
+		: public menu_control_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "collection"; }
@@ -159,7 +160,7 @@ namespace cheonsa
 
 		};
 
-		friend class menu_control_collection_item_c;
+		friend class menu_control_collection_item_i;
 
 		// the elements in the _element_list are as follows:
 		// base elements:
@@ -172,15 +173,15 @@ namespace cheonsa
 		//   per item elements: one frame for selected state background, one frame for icon, [ display mode details: one text per column | display mode icons: one text ]:
 		//     { item_selected_frame, item_icon_frame, item_text, ... }
 		menu_element_frame_c _element_frame; // name is "frame", the background of this collection.
-		menu_element_frame_c _element_mouse_selected_frame; // name is "mouse_selected_frame". is laid out and drawn behind the _mouse_selected_item.
 		menu_element_frame_c _element_last_selected_frame; // name is "last_selected_frame". is laid out and drawn behind the _last_selected_item.
+		menu_element_frame_c _element_mouse_selected_frame; // name is "mouse_selected_frame". is laid out and drawn behind the _mouse_selected_item.
 
-		menu_control_collection_item_c * _mouse_selected_item; // is set to the item that the mouse is currently over. analogs: in modern windows this item would be highlighted with a light blue background, in legacy windows i don't think there was an analog.
-		menu_control_collection_item_c * _last_selected_item; // is set to the first item that was added to the collection, or the item that was last selected in the collection. this is the item that directional keyboard input will originate from. analogs: in modern windows this item would be outlined with a solid blue line, in legacy windows this item would be outlined with a dotted black line.
+		menu_control_collection_item_i * _last_selected_item; // is set to the first item that was added to the collection, or the item that was last selected in the collection. this is the item that directional keyboard input will originate from. analogs: in modern windows this item would be outlined with a solid blue line, in legacy windows this item would be outlined with a dotted black line.
+		menu_control_collection_item_i * _mouse_selected_item; // is set to the item that the mouse is currently over. analogs: in modern windows this item would be highlighted with a light blue background, in legacy windows i don't think there was an analog.
 
 		menu_visibility_mode_e _vertical_scroll_bar_visibility; // how to show or hide the vertical scroll bar.
-		menu_control_scroll_bar_vertical_c * _vertical_scroll_bar; // name is "vertical_scroll_bar".
-		void_c _handle_on_value_changed( menu_control_scroll_i * scroll );
+		menu_control_scroll_bar_y_c * _vertical_scroll_bar; // name is "vertical_scroll_bar".
+		void_c _handle_on_value_changed( menu_control_scroll_bar_i * scroll );
 
 		display_mode_e _display_mode; // how items are dispalyed and laid out in the container.
 
@@ -204,19 +205,19 @@ namespace cheonsa
 		void_c _update_sort(); // sorts items based on current sort settings.
 
 		menu_frame_style_c _item_icon_frame_style; // override style applied to all icons in the collection.
-		core_list_c< menu_control_collection_item_c * > _item_list; // all of the items in this collection, sorted by the _sort_key (and _sort_index) and _sort_order.
-		core_list_c< menu_control_collection_item_c * > _selected_item_list; // all of the currently selected items in this collection, in the order that they were selected.
+		core_list_c< menu_control_collection_item_i * > _item_list; // all of the items in this collection, sorted by the _sort_key (and _sort_index) and _sort_order.
+		core_list_c< menu_control_collection_item_i * > _selected_item_list; // all of the currently selected items in this collection, in the order that they were selected.
 		core_list_c< menu_element_c * > _item_elements; // item elements allocated for the potentially visible set of items.
 		boolean_c _item_layout_is_dirty; // if true then item elements need to be updated and laid out on next call to refresh().
 		void_c _update_item_layout();
 
-		//menu_control_collection_item_c * _editing_item; // will be set if the user is currently renaming an item.
+		//menu_control_collection_item_i * _editing_item; // will be set if the user is currently renaming an item.
 		//string8_c _editing_item_property_key; // the property of the item that is being renamed, usually is the name but it can be something else.
 		//menu_control_text_c * _editing_item_text_field; // laid out and drawn over item that is in the process of being renamed by the user. hidden otherwise.
 
 		box32x2_c _get_item_box( sint32_c item_index );
 
-		menu_control_collection_item_c * _pick_item_at_local_point( vector32x2_c const & local_point );
+		menu_control_collection_item_i * _pick_item_at_local_point( vector32x2_c const & local_point );
 
 	public:
 		// handles item click selection.
@@ -295,26 +296,28 @@ namespace cheonsa
 		// gets number of items in this collection.
 		sint32_c get_item_count();
 		// gets an item in this collection, after sorting has been applied.
-		menu_control_collection_item_c * get_item_at_index( sint32_c item_index );
+		menu_control_collection_item_i * get_item_at_index( sint32_c item_index );
 
 		// adds an item to this collection.
 		// an item can be added to at most one collection at a time.
 		// don't forget to call refresh() after you are done changing columns and items.
-		void_c add_item( menu_control_collection_item_c * item );
+		void_c add_item( menu_control_collection_item_i * item );
 		// removes and deletes an item from the collection.
 		// don't forget to call refresh() after you are done changing columns and items.
 		void_c remove_and_delete_item( sint32_c item_index );
 		// don't forget to call refresh() after you are done changing columns and items.
 		void_c remove_and_delete_all_items();
 
-		// gets all of the currently selected items.
-		core_list_c< menu_control_collection_item_c * > const & get_selected_items() const;
-		// sets the currently selected item, or clears the current selection if provided item is nullptr.
-		void_c set_selected_item( menu_control_collection_item_c * item );
+		// gets all of the currently selected items, they will be ordered by the order that they were selected in.
+		core_list_c< menu_control_collection_item_i * > const & get_selected_items() const;
+		// gets just the most recent currently selected item, or nullptr if there isn't one.
+		menu_control_collection_item_i * get_last_selected_item() const;
+		// clears all selected items.
+		void_c clear_selected_items();
 
 	public:
 		core_event_c< void_c, menu_control_collection_c * > on_selected_items_changed; // occurs when the set of selected items changes for any reason.
-		core_event_c< void_c, menu_control_collection_c * > on_selected_items_invoked; // occurs when one or more items are invoked with the enter key.
+		core_event_c< void_c, menu_control_collection_c * > on_selected_items_invoked; // occurs when one or more items are invoked with the enter key or when a single item is double clicked.
 
 	};
 

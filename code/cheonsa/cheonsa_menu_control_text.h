@@ -1,7 +1,8 @@
 #pragma once
 
 #include "cheonsa_menu_control.h"
-#include "cheonsa_menu_control_scroll_bar.h"
+#include "cheonsa_menu_control_scroll_bar_x.h"
+#include "cheonsa_menu_control_scroll_bar_y.h"
 #include "cheonsa_menu_element_frame.h"
 #include "cheonsa_menu_element_text.h"
 
@@ -10,7 +11,8 @@ namespace cheonsa
 
 	// plain text text box text entry field.
 	// only supports text modes menu_text_mode_e_plain_static, menu_text_mode_e_plain_static_selectable, and menu_text_mode_e_plain_editable.
-	class menu_control_text_c : public menu_control_c
+	class menu_control_text_c
+		: public menu_control_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "text"; }
@@ -23,12 +25,11 @@ namespace cheonsa
 		string8_c _place_holder_text_style_key; // place holder style key, stored separately from element because element may not be persistent.
 
 		menu_visibility_mode_e _horizontal_scroll_bar_visibility_mode;
-		menu_control_scroll_bar_horizontal_c * _horizontal_scroll_bar;
+		menu_control_scroll_bar_x_c * _horizontal_scroll_bar;
 		menu_visibility_mode_e _vertical_scroll_bar_visibility_mode;
-		menu_control_scroll_bar_vertical_c * _vertical_scroll_bar;
+		menu_control_scroll_bar_y_c * _vertical_scroll_bar;
 
-		virtual void_c _on_text_focus_gained() override;
-		virtual void_c _on_text_focus_lost() override;
+		virtual void_c _on_is_text_focused_changed() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 		void_c _handle_on_value_changed_preview( menu_element_text_c * text );

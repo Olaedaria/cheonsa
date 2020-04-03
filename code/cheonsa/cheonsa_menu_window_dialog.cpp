@@ -36,7 +36,7 @@ namespace cheonsa
 				_result = result_e_cancel;
 			}
 		}
-		hide();
+		set_is_showed( false );
 		on_result.invoke( this );
 	}
 
@@ -59,7 +59,7 @@ namespace cheonsa
 				{
 					_result = result_e_no;
 				}
-				hide();
+				set_is_showed( false );
 				on_result.invoke( this );
 			}
 		}
@@ -142,15 +142,15 @@ namespace cheonsa
 			{
 				_control_button_a->set_layout_box_anchor( box_anchor, box_c );
 				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
-				_control_button_a->show_immediately();
+				_control_button_a->set_is_showed_immediately( true );
 			}
 			if ( _control_button_b )
 			{
-				_control_button_b->hide_immediately();
+				_control_button_b->set_is_showed_immediately( false );
 			}
 			if ( _control_button_c )
 			{
-				_control_button_c->hide_immediately();
+				_control_button_c->set_is_showed_immediately( false );
 			}
 		}
 		else if ( _mode == mode_e_okay_cancel || _mode == mode_e_yes_no )
@@ -158,17 +158,17 @@ namespace cheonsa
 			if ( _control_button_a )
 			{
 				_control_button_a->set_layout_box_anchor( box_anchor, box_b );
-				_control_button_a->show_immediately();
+				_control_button_a->set_is_showed_immediately( true );
 				
 			}
 			if ( _control_button_b )
 			{
 				_control_button_b->set_layout_box_anchor( box_anchor, box_c );
-				_control_button_b->show_immediately();
+				_control_button_b->set_is_showed_immediately( false );
 			}
 			if ( _control_button_c )
 			{
-				_control_button_c->hide_immediately();
+				_control_button_c->set_is_showed_immediately( false );
 			}
 			if ( _mode == mode_e_okay_cancel )
 			{
@@ -187,19 +187,19 @@ namespace cheonsa
 			{
 				_control_button_a->set_layout_box_anchor( box_anchor, box_a );
 				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"yes" ) );
-				_control_button_a->show_immediately();
+				_control_button_a->set_is_showed_immediately( true );
 			}
 			if ( _control_button_b )
 			{
 				_control_button_b->set_layout_box_anchor( box_anchor, box_b );
 				_control_button_b->set_plain_text_value( string16_c( mode_e_static, L"no" ) );
-				_control_button_b->show_immediately();
+				_control_button_b->set_is_showed_immediately( true );
 			}
 			if ( _control_button_c )
 			{
 				_control_button_c->set_layout_box_anchor( box_anchor, box_c );
 				_control_button_c->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
-				_control_button_c->show_immediately();
+				_control_button_c->set_is_showed_immediately( true );
 			}
 		}
 	}
@@ -209,16 +209,22 @@ namespace cheonsa
 		return _result;
 	}
 
-	void_c menu_window_dialog_c::show()
+	void_c menu_window_dialog_c::set_is_showed( boolean_c value, boolean_c and_wants_to_be_deleted )
 	{
-		_result = result_e_none;
-		menu_control_c::show();
+		if ( value )
+		{
+			_result = result_e_none;
+		}
+		menu_control_c::set_is_showed( value, and_wants_to_be_deleted );
 	}
 
-	void_c menu_window_dialog_c::show_immediately()
+	void_c menu_window_dialog_c::set_is_showed_immediately( boolean_c value )
 	{
-		_result = result_e_none;
-		menu_control_c::show_immediately();
+		if ( value )
+		{
+			_result = result_e_none;
+		}
+		menu_control_c::set_is_showed_immediately( value );
 	}
 
 }

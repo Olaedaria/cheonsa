@@ -12,7 +12,7 @@ namespace cheonsa
 
 		_draw_list.reset();
 
-		if ( !_is_showing_from_style || !_is_showing || _local_color.d <= 0.0f )
+		if ( !_is_showed_from_style || !_is_showed || _local_color.d <= 0.0f )
 		{
 			return;
 		}
@@ -51,7 +51,7 @@ namespace cheonsa
 
 		// these lists will be used to simultaniously build geometry for different layers.
 		// at the end, they will be appened to the draw batch so that the layers are drawn in the correct order.
-		// static, so not thread safe.
+		// static, so not multi-thread safe.
 		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_selection;
 		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_glyphs;
 		static core_list_c< video_renderer_vertex_menu_c > vertex_list_for_cursor;
@@ -2863,6 +2863,11 @@ namespace cheonsa
 		_multi_line = value;
 	}
 
+	float32_c menu_element_text_c::get_default_size() const
+	{
+		return _get_style_size();
+	}
+
 	vector32x2_c const & menu_element_text_c::get_content_offset() const
 	{
 		return _content_offset;
@@ -3546,20 +3551,22 @@ namespace cheonsa
 		_text_style_reference.set_key( text_style_key );
 	}
 
-	void_c menu_element_text_c::handle_on_character_focus_gained()
+	void_c menu_element_text_c::handle_on_is_text_focused_changed( boolean_c value )
 	{
-		_is_text_value_modified = false;
-		_is_text_focused = true;
-	}
-
-	void_c menu_element_text_c::handle_on_character_focus_lost()
-	{
-		if ( _is_text_value_modified )
+		if ( value )
 		{
 			_is_text_value_modified = false;
-			on_text_value_changed.invoke( this );
+			_is_text_focused = true;
 		}
-		_is_text_focused = false;
+		else
+		{
+			if ( _is_text_value_modified )
+			{
+				_is_text_value_modified = false;
+				on_text_value_changed.invoke( this );
+			}
+			_is_text_focused = false;
+		}
 	}
 
 	boolean_c menu_element_text_c::handle_on_input( input_event_c * input_event )

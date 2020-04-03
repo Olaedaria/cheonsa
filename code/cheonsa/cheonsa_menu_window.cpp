@@ -4,18 +4,25 @@
 namespace cheonsa
 {
 
-	void_c menu_window_c::_on_deep_text_focus_gained()
+	void_c menu_window_c::_on_is_deep_text_focused_changed()
 	{
-		if ( _user_interface != nullptr )
+		if ( _is_deep_text_focused == true )
 		{
-			_user_interface->bring_control_to_front( this );
+			if ( _user_interface != nullptr )
+			{
+				_user_interface->bring_control_to_front( this );
+			}
 		}
+		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
-	void_c menu_window_c::_on_mouse_focus_lost()
+	void_c menu_window_c::_on_is_mouse_focused_changed()
 	{
-		_grabbed_element = grabbed_element_e_none;
-		menu_control_c::_on_mouse_focus_lost();
+		if ( _is_mouse_focused == false )
+		{
+			_grabbed_element = grabbed_element_e_none;
+		}
+		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
 	void_c menu_window_c::_on_input( input_event_c * input_event )
@@ -353,14 +360,14 @@ namespace cheonsa
 		update_transform_and_layout();
 	}
 
-	void_c menu_window_c::give_control( menu_control_c * control )
+	sint32_c menu_window_c::give_control( menu_control_c * control, sint32_c index )
 	{
-		_client_panel->give_control( control );
+		return _client_panel->give_control( control, index );
 	}
 
-	menu_control_c * menu_window_c::take_control( menu_control_c * control )
+	menu_control_c * menu_window_c::take_control( sint32_c control_index )
 	{
-		return _client_panel->take_control( control );
+		return _client_panel->take_control( control_index );
 	}
 
 }

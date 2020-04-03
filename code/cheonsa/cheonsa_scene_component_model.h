@@ -12,7 +12,8 @@ namespace cheonsa
 	// you may also call set_animations_resource() with a pointer to an additional model resource that contains additional animations to use.
 	// this is a way to reuse animations between multiple models.
 	// vertex skinning is done in object (model) space.
-	class scene_component_model_c : public scene_component_c
+	class scene_component_model_c
+		: public scene_component_c
 	{
 	public:
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_model; }

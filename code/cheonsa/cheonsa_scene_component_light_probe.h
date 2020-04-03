@@ -6,7 +6,8 @@
 namespace cheonsa
 {
 
-	class scene_component_light_probe_c : public scene_component_c
+	class scene_component_light_probe_c
+		: public scene_component_c
 	{
 	public:
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_light_probe; }

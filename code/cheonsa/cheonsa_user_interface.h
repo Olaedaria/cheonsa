@@ -112,13 +112,14 @@ namespace cheonsa
 
 		void_c let_go_of_mouse_overed(); // the engine can call this when the mouse enters a non-client window area to tell the user interface to let go of _mouse_overed, so that it doesn't get stuck in a highlighted state.
 
-		//void_c find_drop_down_rectangle( vector32x2_c const & open_at_global_origin, matrix32x2x2_c const & open_at_global_basis, box32x2_c const & open_at_local_box, vector32x2_c & local_drop_down_origin, box32x2_c & local_drop_down_rectangle );
+		box32x2_c _make_pop_up_box_for_iteration( menu_pop_up_type_e type, sint32_c iteration, box32x2_c const & around, vector32x2_c const & pop_up_size );
+		// local space of pop up is assumed to be default, so around_global_basis and around_global_origin define the global space of the mother control that the pop up is popping up around.
+		// the result will be box in the local space defined by around_global_basis and around_global_origin, which can plug directly in to set_layout_simple() of the pop up control.
+		box32x2_c _find_pop_up_box( box32x2_c const & around_box, matrix32x2x2_c const & around_global_basis, vector32x2_c const & around_global_origin, menu_pop_up_type_e pop_up_type, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space );
 
-		// popup_type determines which directions the algorithm will prefer to try to open towards.
-		// global_origin and global_basis define an origin space to try to open the popup in.
-		// local_around defines a rectangle (relative to global_origin and global_basis) that the popup result will try to open around.
-		// local_size defines the size of the popup to open (relative to global_origin and global_basis).
-		//box32x2_c find_popup_box( menu_popup_type_e popup_type, vector32x2_c const & global_origin, matrix32x2x2_c const & global_basis, box32x2_c const & local_around, vector32x2_c const & local_size );
+		box32x2_c find_context_menu_pop_up_box( vector32x2_c screen_space_point_to_spawn_pop_up_around, vector32x2_c const & pop_up_size ); // prefers to open down and to the right of the given point.
+		box32x2_c find_sub_menu_pop_up_box( menu_control_c * menu_item_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down and to the right of the given box defined by the given control.
+		box32x2_c find_combo_list_pop_up_box( menu_control_c * combo_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down of the given box defined by the given control.
 
 	};
 

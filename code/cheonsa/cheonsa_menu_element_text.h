@@ -379,6 +379,8 @@ namespace cheonsa
 		boolean_c get_word_wrap() const;
 		void_c set_word_wrap( boolean_c value ); // if word wrap setting is set to true, then multi line setting should also be set to true in order for it to be meaningful.
 
+		float32_c get_default_size() const;
+
 		vector32x2_c const & get_content_offset() const;
 		void_c set_content_offset( vector32x2_c const & value );
 
@@ -438,15 +440,15 @@ namespace cheonsa
 		// text_style_key is a text style key that references a text style instance in the menu style manager.
 		virtual void_c set_style_key( string8_c const & text_style_key ) override;
 
-		// should be called by text box control when it gains character focus.
-		// sets _is_text_value_modified to false.
-		// sets _is_text_focused to true, which enables display of the cursor.
-		void_c handle_on_character_focus_gained();
-
-		// should be called by text box control when it loses character focus.
-		// if _is_text_value_modified is true then invokes on_value_changed_commit event.
-		// sets _is_text_focused to false, which disables display of the cursor.
-		void_c handle_on_character_focus_lost();
+		// should be called by text box control when it gains or loses text focus.
+		// when gaining text focus:
+		//     sets _is_text_value_modified to false.
+		//     sets _is_text_focused to true, which enables display of the cursor.
+		// when losing text focus:
+		//     if _is_text_value_modified is true then
+		//         invokes on_value_changed_commit event.
+		//     sets _is_text_focused to false, which disables display of the cursor.
+		void_c handle_on_is_text_focused_changed( boolean_c value );
 
 		// should be called by text box control when it receives an input event.
 		// returns true if input event is handled (consumed), false if otherwise.

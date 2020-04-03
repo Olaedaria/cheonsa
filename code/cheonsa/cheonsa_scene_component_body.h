@@ -28,7 +28,8 @@ namespace cheonsa
 	// keep in mind that physics shapes need to be reinitialzied every time the scene object's scale changes.
 	// this is a limitation with the physics engine, because object scale is not a property that the physics engine is programmed to be able to work with.
 	// physics shapes always have an implicit unit scale, so when cheonsa scene objects have a non-unit scale, those physics shapes need to be initialized with dimensions that reflect the non-unit scale.
-	class scene_component_body_c : public scene_component_c
+	class scene_component_body_c
+		: public scene_component_c
 	{
 	public:
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_body; }

@@ -10,7 +10,8 @@ namespace cheonsa
 	// menu units are in pixels, whereas scene units are in meters.
 	// the size of the menu control that is associated with this component determines the size and bounds of this component.
 	// 3d renderer is hard coded with a corrective scale of 0.001, so that pixels map to millimeters.
-	class scene_component_menu_control_c : public scene_component_c
+	class scene_component_menu_control_c
+		: public scene_component_c
 	{
 	public:
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_menu; }

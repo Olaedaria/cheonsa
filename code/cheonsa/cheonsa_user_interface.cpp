@@ -67,13 +67,13 @@ namespace cheonsa
 			if ( _mouse_overed != nullptr )
 			{
 				_mouse_overed->_is_mouse_overed = false;
-				_mouse_overed->_on_mouse_over_lost();
+				_mouse_overed->_on_is_mouse_overed_changed();
 			}
 			_mouse_overed = picked_control;
 			if ( _mouse_overed != nullptr )
 			{
 				_mouse_overed->_is_mouse_overed = true;
-				_mouse_overed->_on_mouse_over_gained();
+				_mouse_overed->_on_is_mouse_overed_changed();
 			}
 		}
 
@@ -84,7 +84,7 @@ namespace cheonsa
 
 	boolean_c user_interface_c::_pick_control_level_2( input_event_c * input_event, menu_control_c * window, menu_layer_e minimum_layer, menu_control_c * & result, float64_c & result_distance )
 	{
-		if ( window->_is_showing == true )
+		if ( window->_is_showed == true )
 		{
 			float64_c control_distance = 0.0; // for 3d menus, this is the distance from the camera to the point of intersection with the menu. for 2d menus this is unused and will always be 0.
 			if ( window->_scene_component == nullptr )
@@ -175,15 +175,19 @@ namespace cheonsa
 			{
 				if ( _mouse_focused )
 				{
-					_mouse_focused->_is_pressed = false;
+					if ( _mouse_focused->_is_pressed )
+					{
+						_mouse_focused->_is_pressed = false;
+						_mouse_focused->_on_is_pressed_changed();
+					}
 					_mouse_focused->_is_mouse_focused = false;
-					_mouse_focused->_on_mouse_focus_lost();
+					_mouse_focused->_on_is_mouse_focused_changed();
 				}
 				_mouse_focused = _mouse_overed;
 				if ( _mouse_focused )
 				{
 					_mouse_focused->_is_mouse_focused = true;
-					_mouse_focused->_on_mouse_focus_gained();
+					_mouse_focused->_on_is_mouse_focused_changed();
 				}
 			}
 		}
@@ -204,6 +208,7 @@ namespace cheonsa
 				if ( input_event->mouse_key == input_mouse_key_e_left )
 				{
 					_mouse_focused->_is_pressed = true;
+					_mouse_focused->_on_is_pressed_changed();
 				}
 				_bubble_input_event( _mouse_focused, input_event );
 				if ( input_event->mouse_key_multi_click_count == 2 )
@@ -219,6 +224,7 @@ namespace cheonsa
 				if ( input_event->mouse_key == input_mouse_key_e_left )
 				{
 					_mouse_focused->_is_pressed = false;
+					_mouse_focused->_on_is_pressed_changed();
 				}
 				_bubble_input_event( _mouse_focused, input_event );
 			}
@@ -374,7 +380,7 @@ namespace cheonsa
 			menu_control_c * control = _control_list[ i ];
 			control->_index = i;
 			control->update_animations( time_step );
-			if ( control->_wants_to_be_deleted && control->_is_showing_weight <= 0.0f )
+			if ( control->_wants_to_be_deleted && control->_is_showed_weight <= 0.0f )
 			{
 				_control_list.remove_at_index( i );
 				delete control;
@@ -495,7 +501,7 @@ namespace cheonsa
 		}
 		assert( _local_box.maximum.a > _local_box.minimum.a && _local_box.maximum.b > _local_box.minimum.b );
 		control->update_transform_and_layout();
-		control->_on_added_to_user_interface();
+		control->_on_user_interface_association_changed( this );
 	}
 
 	void_c user_interface_c::take_control( menu_control_c * control )
@@ -513,7 +519,7 @@ namespace cheonsa
 		}
 		control->_user_interface = nullptr;
 		control->_index = -1;
-		control->_on_removed_from_user_interface();
+		control->_on_user_interface_association_changed( this );
 	}
 
 	void_c user_interface_c::bring_control_to_front( menu_control_c * control )
@@ -565,7 +571,7 @@ namespace cheonsa
 
 		if ( menu_control )
 		{
-			assert( menu_control->get_user_interface() == this );
+			assert( menu_control->get_user_interface_root() == this );
 		}
 
 		// clear text focus.
@@ -574,7 +580,7 @@ namespace cheonsa
 		{
 			assert( _text_focused->_is_text_focused );
 			_text_focused->_is_text_focused = false;
-			_text_focused->_on_text_focus_lost(); // this has a possibility to nest and cascade.
+			_text_focused->_on_is_text_focused_changed(); // this has a possibility to nest and cascade.
 			_text_focused = nullptr;
 		}
 
@@ -594,7 +600,7 @@ namespace cheonsa
 			deep_text_focused->_is_deep_text_focused--;
 			if ( deep_text_focused->_is_deep_text_focused == 0 )
 			{
-				deep_text_focused->_on_deep_text_focus_lost();
+				deep_text_focused->_on_is_deep_text_focused_changed();
 			}
 			deep_text_focused = deep_text_focused->get_mother_control();
 		}
@@ -605,7 +611,7 @@ namespace cheonsa
 		{
 			assert( _text_focused->_is_text_focused == 0 );
 			_text_focused->_is_text_focused++;
-			_text_focused->_on_text_focus_gained();
+			_text_focused->_on_is_text_focused_changed();
 		}
 
 		deep_text_focused = menu_control;
@@ -614,7 +620,7 @@ namespace cheonsa
 			assert( deep_text_focused->_is_deep_text_focused == 0 || deep_text_focused->_is_deep_text_focused == 1 );
 			if ( deep_text_focused->_is_deep_text_focused == 1 )
 			{
-				deep_text_focused->_on_deep_text_focus_gained();
+				deep_text_focused->_on_is_deep_text_focused_changed();
 			}
 			deep_text_focused = deep_text_focused->get_mother_control();
 		}
@@ -629,13 +635,13 @@ namespace cheonsa
 			if ( _text_focused == control || _text_focused->is_descendant_of( control ) )
 			{
 				_text_focused->_is_text_focused = false;
-				_text_focused->_on_text_focus_lost();
+				_text_focused->_on_is_text_focused_changed();
 				menu_control_c * deep_text_focused = _text_focused;
 				while ( deep_text_focused )
 				{
 					assert ( deep_text_focused->_is_deep_text_focused == 1 );
 					deep_text_focused->_is_deep_text_focused--;
-					deep_text_focused->_on_deep_text_focus_lost();
+					deep_text_focused->_on_is_deep_text_focused_changed();
 					deep_text_focused = deep_text_focused->get_mother_control();
 				}
 				_text_focused = nullptr;
@@ -646,8 +652,9 @@ namespace cheonsa
 			if ( _mouse_focused == control || _mouse_focused->is_descendant_of( control ) )
 			{
 				_mouse_focused->_is_pressed = false;
+				_mouse_focused->_on_is_pressed_changed();
 				_mouse_focused->_is_mouse_focused = false;
-				_mouse_focused->_on_mouse_focus_lost();
+				_mouse_focused->_on_is_mouse_focused_changed();
 				_mouse_focused = nullptr;
 			}
 		}
@@ -656,6 +663,7 @@ namespace cheonsa
 			if ( _mouse_overed == control || _mouse_overed->is_descendant_of( control ) )
 			{
 				_mouse_overed->_is_mouse_overed = false;
+				_mouse_overed->_on_is_mouse_overed_changed();
 				_mouse_overed = false;
 			}
 		}
@@ -680,164 +688,262 @@ namespace cheonsa
 		if ( _mouse_focused )
 		{
 			_mouse_focused->_is_pressed = false;
+			_mouse_focused->_on_is_pressed_changed();
 			_mouse_focused->_is_mouse_focused = false;
-			_mouse_focused->_on_mouse_focus_lost();
+			_mouse_focused->_on_is_mouse_focused_changed();
 			_mouse_focused = nullptr;
 		}
 		if ( _mouse_overed )
 		{
 			_mouse_overed->_is_mouse_overed = false;
+			_mouse_overed->_on_is_mouse_overed_changed();
 			_mouse_overed = nullptr;
 		}
 	}
 
-	void_c make_popup_rectangle( box32x2_c const & around, vector32x2_c const & size, menu_anchor_e towards_x, menu_anchor_e towards_y, box32x2_c & result )
+	box32x2_c user_interface_c::_make_pop_up_box_for_iteration( menu_pop_up_type_e pop_up_type, sint32_c iteration, box32x2_c const & around, vector32x2_c const & pop_up_size )
 	{
-		if ( towards_x == menu_anchor_e_left )
+		box32x2_c result;
+		if ( pop_up_type == menu_pop_up_type_e_right_bottom )
 		{
-			result.maximum.a = around.minimum.a;
-			result.minimum.a = result.maximum.a - size.a;
+			if ( iteration == 0 )
+			{
+				// towards right bottom.
+				result.minimum.a = around.maximum.a;
+				result.maximum.a = result.minimum.a + pop_up_size.a;
+				result.minimum.b = around.minimum.b;
+				result.maximum.b = result.minimum.b + pop_up_size.b;
+			}
+			else if ( iteration == 1 )
+			{
+				// towards right top.
+				result.minimum.a = around.maximum.a;
+				result.maximum.a = around.minimum.a + pop_up_size.a;
+				result.maximum.b = around.maximum.b;
+				result.minimum.b = result.maximum.b - pop_up_size.b;
+			}
+			else if ( iteration == 2 )
+			{
+				// towards left bottom.
+				result.maximum.a = around.minimum.a;
+				result.minimum.a = result.maximum.a - pop_up_size.a;
+				result.minimum.b = around.minimum.b;
+				result.maximum.b = result.minimum.b + pop_up_size.b;
+			}
+			else if ( iteration == 3 )
+			{
+				// towards left top.
+				result.maximum.a = around.minimum.a;
+				result.minimum.a = result.maximum.a - pop_up_size.a;
+				result.maximum.b = around.maximum.b;
+				result.minimum.b = result.maximum.b - pop_up_size.b;
+			}
 		}
-		else if ( towards_x == menu_anchor_e_right )
+		else if ( pop_up_type == menu_pop_up_type_e_bottom_right )
 		{
-			result.minimum.a = around.maximum.a;
-			result.maximum.a = result.minimum.a + size.a;
+			if ( iteration == 0 )
+			{
+				// towards bottom right.
+				result.minimum.a = around.minimum.a;
+				result.maximum.a = result.minimum.a + pop_up_size.a;
+				result.minimum.b = around.maximum.b;
+				result.maximum.b = result.minimum.b + pop_up_size.b;
+			}
+			else if ( iteration == 1 )
+			{
+				// towards top right.
+				result.minimum.a = around.minimum.a;
+				result.maximum.a = result.minimum.a + pop_up_size.a;
+				result.maximum.b = around.minimum.b;
+				result.minimum.b = result.maximum.b - pop_up_size.b;
+			}
+			else if ( iteration == 2 )
+			{
+				// towards bottom left.
+				result.maximum.a = around.maximum.a;
+				result.minimum.a = result.maximum.a - pop_up_size.a;
+				result.minimum.b = around.maximum.b;
+				result.maximum.b = result.minimum.b + pop_up_size.b;
+			}
+			else if ( iteration == 3 )
+			{
+				// towards top left.
+				result.maximum.a = around.maximum.a;
+				result.minimum.a = result.maximum.a - pop_up_size.a;
+				result.maximum.b = around.minimum.b;
+				result.minimum.b = result.maximum.b - pop_up_size.b;
+			}
 		}
-		else
-		{
-			// no towards_x preference defined, result will be centered horizontally with around (used by combo box drop downs).
-			result.minimum.a = ( ( around.minimum.a + around.maximum.a ) * 0.5f ) - ( size.a * 0.5f );
-			result.maximum.a = ( ( around.minimum.a + around.maximum.a ) * 0.5f ) + ( size.a * 0.5f );
-		}
-
-		if ( towards_y == menu_anchor_e_top )
-		{
-			result.maximum.b = around.minimum.b;
-			result.minimum.b = result.maximum.b - size.b;
-		}
-		else if ( towards_y == menu_anchor_e_bottom )
-		{
-			result.minimum.b = around.maximum.b;
-			result.maximum.b = result.minimum.b + size.b;
-		}
-		else
-		{
-			// no towards_y preference defined, result height will be same as around height (not used by anything in practice at the moment).
-			result.minimum.b = ( ( around.minimum.b + around.maximum.b ) * 0.5f ) - ( size.b * 0.5f );
-			result.maximum.b = ( ( around.minimum.b + around.maximum.b ) * 0.5f ) + ( size.b * 0.5f );
-		}
+		return result;
 	}
 
-	/*
-	box32x2_c user_interface_c::find_popup_box( menu_popup_type_e popup_type, vector32x2_c const & global_origin, matrix32x2x2_c const & global_basis, box32x2_c const & local_around, vector32x2_c const & local_size )
+	box32x2_c user_interface_c::_find_pop_up_box( box32x2_c const & around_box, matrix32x2x2_c const & around_global_basis, vector32x2_c const & around_global_origin, menu_pop_up_type_e pop_up_type, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space )
 	{
-		// build parameters.
-		polygon32x2_c local_polygon; // polygon version of _local_box.
-		ops::make_polygon32x2_from_rectangle32( _local_box, local_polygon );
-		menu_anchor_e towards_x = popup_type == menu_popup_type_e_menu_list ? menu_anchor_e_right : menu_anchor_e_none; // context menu popup type favors opening towards right.
-		menu_anchor_e towards_y = menu_anchor_e_bottom; // all popup types favor opening towards down.
-		box32x2_c popup_rectangle; // the result.
-		polygon32x2_c popup_polygon; // the intermediate result. we use polygons because they work with angles.
-		popup_polygon.origin = global_origin;
-		popup_polygon.basis = global_basis;
+		box32x2_c result;
+		polygon32x2_c screen_box_polygon;
+		box32x2_c pop_up_box;
+		polygon32x2_c pop_up_box_polygon;
+		sint32_c intersection;
 
-		// we go through at most 4 iterations to try to find an acceptable layout.
-		// each iteration we flip either the x and/or y towards.
-		sint32_c intersection = 0; // tracks how popup_polygon intersects with local_polygon.
+		// find a pop up box that fits in the screen box.
+		screen_box_polygon = ops::make_polygon32x2_from_box32x2( _local_box );
 		for ( sint32_c i = 0; i < 4; i++ )
 		{
-			// flip one or both of the towards axes if on a subsequent iteration.
-			if ( i >= 1 )
-			{
-				if ( towards_x != 0 )
-				{
-					towards_x = towards_x == menu_anchor_e_left ? menu_anchor_e_right : menu_anchor_e_left; // flip x.
-				}
-				if ( i == 2 )
-				{
-					if ( towards_y != 0 )
-					{
-						towards_y = towards_y == menu_anchor_e_top ? menu_anchor_e_bottom : menu_anchor_e_top; // flip y.
-					}
-				}
-			}
-
-			// build popup_rectangle, convert it to popup_polygon, and test if it intersects with local_polygon.
-			make_popup_rectangle( local_around, local_size, towards_x, towards_y, popup_rectangle );
-			ops::make_polygon32x2_from_rectangle32( popup_rectangle, popup_polygon );
-			intersection = ops::intersect_polygon_vs_polygon( local_polygon, popup_polygon );
+			pop_up_box = _make_pop_up_box_for_iteration( pop_up_type, i, around_box, pop_up_size ); // create local space pop up box.
+			pop_up_box_polygon = ops::make_polygon32x2_from_box32x2( pop_up_box ); // create polygon of box.
+			pop_up_box_polygon = ops::make_polygon32x2_transformed( pop_up_box_polygon, around_global_basis, around_global_origin ); // transform from local space to global space.
+			intersection = ops::intersect_polygon_vs_polygon( screen_box_polygon, pop_up_box_polygon ); // check for intersection against screen polygon.
 			if ( intersection == 2 )
 			{
-				break; // popup_polygon is fully contained within local_polygon, so we found a layout that works, break now.
-			}
-
-			// determine if we can skip some interations.
-			if ( towards_x == 0 )
-			{
-				if ( towards_y == 0 )
-				{
-					// centered on both axes, so there's nothing to flip on subsequent iteration, break now.
-					break;
-				}
-				i++; // can't flip x on the next iteration, so this will count from 0 to 2 (and skip 1).
+				// pop up is fully contained in screen, so we have a result that will work.
+				goto finish_up;
 			}
 		}
 
-		// if popup_polygon is still not fully contained in local_polygon, then translate it so that it fits.
-		// if popup_polygon is too large to fit completely within local_polygon, then we will center it.
-		if ( intersection != 2 )
+		// we have a preliminary result, but it's not completely inside the screen.
+		// we will try to get it to fit.
+		// find the largest amount of overlap between each edge of the screen and all of the points in the pop up polygon, so that we can nudge the pop up polygon to fit within the bounds of the screen.
+		// a generic implementation would measuring distances of pop up polygon points against screen polygon edges, but since the screen rectangle is always going to be a rectangle and axis aligned i will keep it simple.
+		float32_c distances[ 4 ]; // distances over left, top, right, and bottom edges of screen. values will be positive if there is overlap (pop up goes outside of that side of screen), negative if there is underlap (pop up is within that side of screen).
+		distances[ 0 ] = _local_box.minimum.a - pop_up_box_polygon.points[ 0 ].a;
+		distances[ 1 ] = _local_box.minimum.b - pop_up_box_polygon.points[ 0 ].b;
+		distances[ 2 ] = pop_up_box_polygon.points[ 0 ].a - _local_box.maximum.a;
+		distances[ 3 ] = pop_up_box_polygon.points[ 0 ].b - _local_box.maximum.b;
+		for ( sint32_c i = 1; i < pop_up_box_polygon.points_count; i++ )
 		{
-			// find distances that popup polygon lies out of bounds of for each edge of local rectangle.
-			float32_c distances[ 4 ] = { 0, 0, 0, 0 }; // longest distances over each edge: left, bottom, right, top.
-			vector32x2_c popup_polygon_points[ 4 ]; // popup polygon points in same space as local_polygon.
-			for ( sint32_c i = 0; i < 4; i++ )
+			float32_c d = _local_box.minimum.a - pop_up_box_polygon.points[ i ].a;
+			if ( distances[ 0 ] < d )
 			{
-				popup_polygon_points[ i ] = popup_polygon.get_point( i );
+				distances[ 0 ] = d;
 			}
 
-			for ( sint32_c i = 0; i < local_polygon.points_count; i++ )
+			d = _local_box.minimum.b - pop_up_box_polygon.points[ i ].b;
+			if ( distances[ 1 ] < d )
 			{
-				line32_c local_polygon_edge_line = local_polygon.get_edge_line( i );
-							
-				for ( sint32_c j = 0; j < popup_polygon.points_count; j++ )
+				distances[ 1 ] = d;
+			}
+
+			d = pop_up_box_polygon.points[ i ].a - _local_box.maximum.a;
+			if ( distances[ 2 ] < d )
+			{
+				distances[ 2 ] = d;
+			}
+
+			d = pop_up_box_polygon.points[ i ].b - _local_box.maximum.b;
+			if ( distances[ 3 ] < d )
+			{
+				distances[ 3 ] = d;
+			}
+		}
+		// nudge horizontally if needed.
+		if ( distances[ 0 ] > 0.0f || distances[ 2 ] > 0.0f )
+		{
+			// the pop up is overlapping the left or right side(s) of the screen.
+			float32_c pop_up_width_in_screen = distances[ 2 ] - distances[ 0 ];
+			if ( pop_up_width_in_screen <= _local_box.get_width() )
+			{
+				// the pop up horizontal cross section is less than or equal to the width of the screen, so nudge the pop up over to fit in the screen.
+				if ( distances[ 0 ] > 0.0f )
 				{
-					float32_c t = ops::distance_between_point_and_line( popup_polygon_points[ j ], local_polygon_edge_line );
-					if ( t > distances[ i ] )
+					// nudge right.
+					for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
 					{
-						distances[ i ] = t;
+						pop_up_box_polygon.points[ i ].a += distances[ 0 ];
+					}
+				}
+				else if ( distances[ 2 ] > 0.0f )
+				{
+					// nudge left.
+					for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
+					{
+						pop_up_box_polygon.points[ i ].a -= distances[ 2 ];
 					}
 				}
 			}
-
-			// construct translation quantity that will nudge popup rectangle back into bounds of local rectangle.
-			vector32x2_c translate;
-			translate.a = distances[ 0 ] - distances[ 2 ]; // distance over left minus distance over right.
-			if ( distances[ 0 ] != 0.0f && distances[ 2 ] != 0.0f ) // center if out of bounds of both left and right.
+			else
 			{
-				translate.a *= 0.5f;
+				// the pop up horizontal cross section is larger than the width of the screen, so center the pop up horizontally.
+				float32_c nudge_amount = distances[ 0 ] - ( ( pop_up_width_in_screen - _local_box.get_width() ) * 0.5f );
+				for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
+				{
+					pop_up_box_polygon.points[ i ].a += nudge_amount;
+				}
 			}
-			translate.b = distances[ 3 ] - distances[ 1 ]; // distance over top minus distance over bottom.
-			if ( distances[ 3 ] != 0.0f && distances[ 1 ] != 0.0f ) // center if out of bounds of both top and bottom.
+		}
+		// nudge vertically if needed.
+		if ( distances[ 1 ] > 0.0f || distances[ 3 ] > 0.0f )
+		{
+			// the pop up is overlapping the top or bottom side(s) of the screen.
+			float32_c pop_up_height_in_screen = distances[ 3 ] - distances[ 1 ];
+			if ( pop_up_height_in_screen <= _local_box.get_height() )
 			{
-				translate.b *= 0.0f;
+				// the pop up vertical cross section is less than or equal to the height of the screen, so nudge the pop up over to fit in the screen.
+				if ( distances[ 1 ] > 0.0f )
+				{
+					// nudge down.
+					for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
+					{
+						pop_up_box_polygon.points[ i ].b += distances[ 1 ];
+					}
+				}
+				else if ( distances[ 3 ] > 0.0f )
+				{
+					// nudge up.
+					for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
+					{
+						pop_up_box_polygon.points[ i ].b -= distances[ 3 ];
+					}
+				}
 			}
-
-			// translate the popup rectangle and localize the coordinates.
-			matrix32x2x2_c popup_polygon_basis_inverted = ops::make_matrix32x2x2_inverted( popup_polygon.basis );
-			for ( sint32_c i = 0; i < 4; i++ )
+			else
 			{
-				popup_polygon_points[ i ] += translate; // nudge back in bounds.
-				popup_polygon_points[ i ] -= popup_polygon.origin; // translate to local space.
-				popup_polygon_points[ i ] = ops::make_vector32x2_transformed_point( popup_polygon_points[ i ], popup_polygon_basis_inverted ); // transform (orientation and scale)into local space.
+				// the pop up vertical cross section is larger than the height of the screen, so center the pop up vertically.
+				float32_c nudge_amount = distances[ 1 ] - ( ( pop_up_height_in_screen - _local_box.get_height() ) * 0.5f );
+				for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
+				{
+					pop_up_box_polygon.points[ i ].b += nudge_amount;
+				}
 			}
-
-			// now we have the minimum and maximum bounds of the result.
-			popup_rectangle.minimum = popup_polygon_points[ 0 ]; // top left.
-			popup_rectangle.maximum = popup_polygon_points[ 2 ]; // bottom right.
 		}
 
-		return popup_rectangle;
+	finish_up:
+		// transform the pop up polygon from global space back to the local space relative to around_global_basis and around_global_origin.
+		// this should produce a rectangular polygon that is axis aligned, then we can convert it to a box by simply grabbing a couple of points.
+		if ( !give_result_in_global_space )
+		{
+			matrix32x2x2_c around_global_basis_inverted = ops::make_matrix32x2x2_inverted( around_global_basis );
+			for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
+			{
+				pop_up_box_polygon.points[ i ] = ops::make_vector32x2_transformed_point( pop_up_box_polygon.points[ i ] - around_global_origin, around_global_basis_inverted );
+			}
+		}
+		result.minimum = pop_up_box_polygon.points[ 0 ]; // top left point.
+		result.maximum = pop_up_box_polygon.points[ 2 ]; // bottom right point.
+		return result;
 	}
-	*/
+
+	box32x2_c user_interface_c::find_context_menu_pop_up_box( vector32x2_c screen_space_point_to_spawn_pop_up_around, vector32x2_c const & pop_up_size )
+	{
+		box32x2_c around_box = box32x2_c( screen_space_point_to_spawn_pop_up_around, screen_space_point_to_spawn_pop_up_around );
+		matrix32x2x2_c around_global_basis;
+		vector32x2_c around_global_origin;
+		return _find_pop_up_box( around_box, around_global_basis, around_global_origin, menu_pop_up_type_e_right_bottom, pop_up_size, true );
+	}
+
+	box32x2_c user_interface_c::find_sub_menu_pop_up_box( menu_control_c * menu_item_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space )
+	{
+		box32x2_c around_box = menu_item_to_spawn_pop_up_around->get_local_box();
+		matrix32x2x2_c around_global_basis = menu_item_to_spawn_pop_up_around->get_global_basis();
+		vector32x2_c around_global_origin = menu_item_to_spawn_pop_up_around->get_global_origin();
+		return _find_pop_up_box( around_box, around_global_basis, around_global_origin, menu_pop_up_type_e_right_bottom, pop_up_size, give_result_in_global_space );
+	}
+
+	box32x2_c user_interface_c::find_combo_list_pop_up_box( menu_control_c * combo_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space )
+	{
+		box32x2_c around_box = combo_to_spawn_pop_up_around->get_local_box();
+		matrix32x2x2_c around_global_basis = combo_to_spawn_pop_up_around->get_global_basis();
+		vector32x2_c around_global_origin = combo_to_spawn_pop_up_around->get_global_origin();
+		return _find_pop_up_box( around_box, around_global_basis, around_global_origin, menu_pop_up_type_e_bottom_right, pop_up_size, give_result_in_global_space );
+	}
 
 }

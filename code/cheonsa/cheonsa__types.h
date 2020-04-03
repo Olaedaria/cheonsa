@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa___build.h"
+#include "cheonsa___build_configuration.h"
 #include "third_party/half.hpp"
 
 namespace cheonsa
@@ -565,6 +565,7 @@ namespace cheonsa
 	matrix32x4x4_c operator * ( matrix32x4x4_c const & a, matrix32x4x4_c const & b );
 
 	// single precision 2d transform matrix, used to rotate and scale 2d points.
+	// for 2d coordinate systems in cheonsa, the origin is conventionally in the top left, and the horizontal axis coordinates ascend in values towards the right, and the vertical axis coordinates ascend in values towards the bottom.
 	class matrix32x2x2_c
 	{
 	public:
@@ -623,11 +624,14 @@ namespace cheonsa
 	quaternion32_c operator * ( quaternion32_c const & a, quaternion32_c const & b );
 
 	// single precision 2D line.
+	// ab represents the line normal (which is tangent to the line), a unit length vector.
+	// c represents a distance along the line normal between the line and the world origin point.
+	// by convention, the normal points towards the "outside" or "topside" (in the case of a polygon, each normal will face outside of the polygon), so the distance will be a negative value if the line is "above" the world origin.
 	class line32_c
 	{
 	public:
-		float32_c a; // normal_a component. actually tangent to the line, but calling it a normal anyway. points top side.
-		float32_c b; // normal_b component. actually tangent to the line, but calling it a normal anyway. points top side.
+		float32_c a; // normal_a component.
+		float32_c b; // normal_b component.
 		float32_c c; // distance component.
 
 	public:
@@ -653,8 +657,9 @@ namespace cheonsa
 	};
 
 	// single precision 3D plane.
-	// abc represents the plane normal, a unit length vector.
-	// d represents a distance in the opposite direction of that normal to where the plane surface lies.
+	// abc represents the plane normal (which is tangent to the plane), a unit length vector.
+	// d represents the distance along the plane normal between the plane and the world origin point.
+	// by convention, the normal points towards the "outside" or "topside" of the plane (in the case of a convex bounding volume, each normal will face outside of the volume), so the distance will be a negative value if the line is "above" the world origin.
 	class plane32_c
 	{
 	public:
@@ -690,7 +695,8 @@ namespace cheonsa
 
 	// double precision 3D plane.
 	// abc represents the plane normal, a unit length vector.
-	// d represents a distance in the opposite direction of that normal to where the plane surface lies.
+	// d represents the distance along the plane normal between the plane and the world origin point.
+	// by convention, the normal points towards the "outside" or "topside" of the plane (in the case of a convex bounding volume, each normal will face outside of the volume), so the distance will be a negative value if the line is "above" the world origin.
 	class plane64_c
 	{
 	public:
@@ -1116,22 +1122,21 @@ namespace cheonsa
 	class polygon32x2_c
 	{
 	public:
-		vector32x2_c origin;
-		matrix32x2x2_c basis;
+		//vector32x2_c origin;
+		//matrix32x2x2_c basis;
 		sint32_c points_count;
 		vector32x2_c points[ 8 ]; // points in local space, without transform applied.
 
 	public:
 		polygon32x2_c();
 
-		// gets point in polygon with transform applied.
+		// gets point in polygon.
 		vector32x2_c get_point( sint32_c point_index ) const;
 		
-		// gets edge vector in polygon with transform applied.
-		// the vector is edge_point_b - edge_point_a.
+		// gets edge vector in polygon, which is edge point b minus edge point a.
 		vector32x2_c get_edge_vector( sint32_c edge_index ) const;
 
-		// gets edge line in polygon with transform applied.
+		// gets edge line in polygon.
 		// if wind order of polygon points is clock wise then normal of line will point towards interior of polygon.
 		// if wind order of polygon points is counter clock wise then normal of line will point towards exterior of polygon.
 		line32_c get_edge_line( sint32_c edge_index ) const;

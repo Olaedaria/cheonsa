@@ -8,7 +8,8 @@ namespace cheonsa
 {
 
 	// a sprite set defines sprite animations, which reference a texture, and defines a list of frames, each with a duration and a rectangle.
-	class resource_file_sprite_set_c : public resource_file_c
+	class resource_file_sprite_set_c
+		: public resource_file_c
 	{
 	public:
 		typedef resource_file_reference_c< resource_file_sprite_set_c > reference_c;

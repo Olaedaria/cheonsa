@@ -11,7 +11,8 @@ namespace cheonsa
 	// normal: any number of check box options can be selected.
 	// single: also known as radio button, only at most one check box option can be selected per a group of sister check boxes that share the same mother.
 	// it consists of a check box on the left side, and a text element to the right of it.
-	class menu_control_check_c : public menu_control_c
+	class menu_control_check_c
+		: public menu_control_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "check"; }

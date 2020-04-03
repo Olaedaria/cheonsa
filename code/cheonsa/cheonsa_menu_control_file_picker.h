@@ -10,7 +10,8 @@
 namespace cheonsa
 {
 
-	class menu_control_file_picker_item_c : public menu_control_collection_item_c
+	class menu_control_file_picker_item_c
+		: public menu_control_collection_item_i
 	{
 	private:
 		string16_c _path; // absolute path of file or folder.
@@ -27,7 +28,8 @@ namespace cheonsa
 
 	};
 
-	class menu_control_file_picker_c : public menu_control_c
+	class menu_control_file_picker_c
+		: public menu_control_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "file_picker"; }

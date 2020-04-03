@@ -6,8 +6,9 @@
 #include "cheonsa_menu_control_button.h"
 #include "cheonsa_menu_control_combo.h"
 #include "cheonsa_menu_control_list.h"
-#include "cheonsa_menu_control_scroll_bar.h"
-#include "cheonsa_menu_control_scrub_bar.h"
+#include "cheonsa_menu_control_scroll_bar_x.h"
+#include "cheonsa_menu_control_scroll_bar_y.h"
+#include "cheonsa_menu_control_scrub_bar_x.h"
 #include "cheonsa_menu_control_label.h"
 #include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_control_color_picker.h"
@@ -36,7 +37,7 @@ namespace cheonsa
 
 			menu_control_text_c * text; // text box for editing string values. also used with sliders to display and edit the value of the slider.
 			menu_control_combo_c * combo; // combo box for editing enumerated values.
-			menu_control_scroll_i * scroll; // might be a horizontal scroll bar or a horizontal scrub bar, for editing number values that are constrained to a certain range.
+			menu_control_scroll_bar_i * scroll; // might be a horizontal scroll bar or a horizontal scrub bar, for editing number values that are constrained to a certain range.
 			menu_control_button_c * button; // optional edit button that appears to the right of text box, for values that can be edited by dialog windows.
 
 			menu_control_list_c * item_list;
@@ -119,21 +120,19 @@ namespace cheonsa
 		//void _handle_value_text_on_character_focus_lost( menu_control_c * control );
 		void_c _handle_value_text_on_value_changed_preview( menu_control_text_c * text );
 		void_c _handle_value_text_on_value_changed( menu_control_text_c * text );
-		void_c _handle_value_scroll_on_value_changed_preview( menu_control_scroll_i * scroll );
-		void_c _handle_value_scroll_on_value_changed( menu_control_scroll_i * scroll );
-		void_c _handle_value_combo_on_selection_changed_preview( menu_control_combo_list_c * combo_list ); // is called as user mouses over options in combo list.
-		void_c _handle_value_combo_on_selection_changed( menu_control_combo_list_c * combo_list ); // is called when user clicks on an option in combo list.
-		void_c _handle_value_edit_on_click( menu_event_information_c event_information );
+		void_c _handle_value_scroll_on_value_changed_preview( menu_control_scroll_bar_i * scroll );
+		void_c _handle_value_scroll_on_value_changed( menu_control_scroll_bar_i * scroll );
+		void_c _handle_value_combo_on_selected_item_changed_preview( menu_control_combo_list_c * combo_list ); // is called as user mouses over options in combo list.
+		void_c _handle_value_combo_on_selected_item_changed( menu_control_combo_list_c * combo_list ); // is called when user clicks on an option in combo list.
+		void_c _handle_value_edit_on_clicked( menu_event_information_c event_information );
 		void_c _handle_color_picker_on_value_changed( menu_control_color_picker_c * color_picker_panel );
-		void_c _handle_item_selected_index_changed( menu_control_list_c * list_box );
-		void_c _handle_item_add_on_click( menu_event_information_c event_information );
-		void_c _handle_item_remove_on_click( menu_event_information_c event_information );
-		void_c _handle_item_move_up_on_click( menu_event_information_c event_information );
-		void_c _handle_item_move_down_on_click( menu_event_information_c event_information );
-		void_c _handle_item_sort_on_click( menu_event_information_c event_information );
+		void_c _handle_item_list_on_selected_item_changed( menu_control_list_c * list );
+		void_c _handle_item_add_on_clicked( menu_event_information_c event_information );
+		void_c _handle_item_remove_on_clicked( menu_event_information_c event_information );
+		void_c _handle_item_move_up_on_clicked( menu_event_information_c event_information );
+		void_c _handle_item_move_down_on_clicked( menu_event_information_c event_information );
+		void_c _handle_item_sort_on_clicked( menu_event_information_c event_information );
 		void_c _handle_dialog_on_result( menu_window_dialog_c * dialog_window );
-
-		//virtual void_c _handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value ) override; // calls base, pulls layout related property values from style map, redoes layout of existing controls.
 
 	public:
 		menu_control_property_inspector_c( menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.

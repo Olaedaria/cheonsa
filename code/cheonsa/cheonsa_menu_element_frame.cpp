@@ -11,7 +11,7 @@ namespace cheonsa
 
 		_draw_list.reset();
 
-		if ( _is_showing_from_style == false || _is_showing == false || _local_color.d <= 0.0f )
+		if ( _is_showed_from_style == false || _is_showed == false || _local_color.d <= 0.0f )
 		{
 			return;
 		}

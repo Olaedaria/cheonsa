@@ -7,7 +7,8 @@
 namespace cheonsa
 {
 
-	class data_stream_file_c : public data_stream_c
+	class data_stream_file_c
+		: public data_stream_c
 	{
 	private:
 		void_c * _file;

@@ -8,7 +8,8 @@
 namespace cheonsa
 {
 
-	class scene_component_emitter_c : public scene_component_c
+	class scene_component_emitter_c
+		: public scene_component_c
 	{
 	public:
 		static inline char8_c const * get_type_static() { return "emitter"; }

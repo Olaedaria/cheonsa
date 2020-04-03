@@ -86,8 +86,8 @@ namespace cheonsa
 		, _local_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom )
 		, _local_box_anchor_measures( 0.0f, 0.0f, 0.0f, 0.0f )
 		, _local_box( 0.0f, 0.0f, 100.0f, 100.0f )
-		, _is_showing_from_style( true )
-		, _is_showing( true )
+		, _is_showed_from_style( true )
+		, _is_showed( true )
 		, _is_enabled( true )
 		, _is_selected( false )
 		, _is_pressed( false )
@@ -213,14 +213,14 @@ namespace cheonsa
 		_shared_color_class = value;
 	}
 
-	boolean_c menu_element_c::get_is_showing() const
+	boolean_c menu_element_c::get_is_showed() const
 	{
-		return _is_showing;
+		return _is_showed;
 	}
 
-	void_c menu_element_c::set_is_showing( boolean_c value )
+	void_c menu_element_c::set_is_showed( boolean_c value )
 	{
-		_is_showing = value;
+		_is_showed = value;
 	}
 
 	boolean_c menu_element_c::get_is_enabled() const

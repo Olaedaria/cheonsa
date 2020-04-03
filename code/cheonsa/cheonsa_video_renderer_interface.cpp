@@ -3456,7 +3456,7 @@ namespace cheonsa
 
 	void_c video_renderer_interface_c::_render_control_for_control_group( menu_control_c * control )
 	{
-		assert( control && control->_is_showing_weight >= 0.0f && control->_local_color.d >= 0.0f );
+		assert( control && control->_is_showed_weight >= 0.0f && control->_local_color.d >= 0.0f );
 
 		static core_list_c< vector32x4_c > clip_planes;
 
@@ -3493,7 +3493,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < control->_element_list.get_length(); i++ )
 		{
 			menu_element_c const * element = control->_element_list[ i ];
-			if ( element->_is_showing && element->_is_showing_from_style )
+			if ( element->_is_showed && element->_is_showed_from_style )
 			{
 				menu_draw_list_c const & draw_list = element->get_draw_list();
 				_render_menu_draw_list( draw_list );
@@ -3504,7 +3504,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < control->_control_list.get_length(); i++ )
 		{
 			menu_control_c * daughter_control = control->_control_list[ i ];
-			if ( daughter_control->_is_showing_weight > 0.0f && daughter_control->_local_color.d > 0.0f )
+			if ( daughter_control->_is_showed_weight > 0.0f && daughter_control->_local_color.d > 0.0f )
 			{
 				if ( !daughter_control->_control_group_is_root )
 				{
@@ -3515,7 +3515,7 @@ namespace cheonsa
 					_constant_buffers.menu_batch_block->menu_basis = ( control_group_basis * daughter_control->_local_basis ).as_vector32x4();
 					_constant_buffers.menu_batch_block->menu_origin = control_group_origin + daughter_control->_local_origin;
 					_constant_buffers.menu_batch_block->menu_color = control->_control_group_color * daughter_control->_local_color;
-					_constant_buffers.menu_batch_block->menu_color.d *= daughter_control->_is_showing_weight;
+					_constant_buffers.menu_batch_block->menu_color.d *= daughter_control->_is_showed_weight;
 					_constant_buffers.menu_batch_block->menu_clip_plane_stack_length = 0;
 					_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
 					_render_menu_draw_list( daughter_control->_control_group_draw_list );
@@ -3576,13 +3576,13 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < user_interface->_control_list.get_length(); i++ )
 		{
 			menu_control_c * control = user_interface->_control_list[ i ];
-			if ( control->_scene_component == nullptr && control->_is_showing_weight > 0.0f && control->_local_color.d > 0.0f )
+			if ( control->_scene_component == nullptr && control->_is_showed_weight > 0.0f && control->_local_color.d > 0.0f )
 			{
 				assert( control->_control_group_draw_list.draw_list.get_length() == 1 );
 				_constant_buffers.menu_batch_block->menu_basis = control->_global_basis.as_vector32x4();
 				_constant_buffers.menu_batch_block->menu_origin = control->_global_origin;
 				_constant_buffers.menu_batch_block->menu_color = control->_local_color;
-				_constant_buffers.menu_batch_block->menu_color.d *= control->_is_showing_weight;
+				_constant_buffers.menu_batch_block->menu_color.d *= control->_is_showed_weight;
 				_constant_buffers.menu_batch_block->menu_saturation = 1.0f;
 				_constant_buffers.menu_batch_block->menu_clip_plane_stack_length = 0;
 				_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );

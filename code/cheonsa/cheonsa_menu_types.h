@@ -107,17 +107,17 @@ namespace cheonsa
 		menu_size_mode_e_fit_content = 0x02, // width or height will be set to width or height of contents.
 	};
 
-	enum menu_popup_type_e
+	enum menu_pop_up_type_e
 	{
-		menu_popup_type_e_bottom, // prioritizes opening towards the bottom, then towards the right. used for combo lists, menu bar menus, right click context menus.
-		menu_popup_type_e_right, // prioritizes opening towards the right, then towards the bottom. used for menu sub menus.
+		menu_pop_up_type_e_bottom_right, // prioritizes opening towards the bottom, then towards the right. used for combo lists, menu bar menus, right click context menus.
+		menu_pop_up_type_e_right_bottom, // prioritizes opening towards the right, then towards the bottom. used for sub menus.
 	};
 
 	enum menu_layout_mode_e : uint8_c
 	{
 		menu_layout_mode_e_simple, // _local_box is what it is.
 		menu_layout_mode_e_box_anchor, // _local_box is calculated from _local_anchor and _local_anchor_measures, then _local_origin set to center of _local_box, then _local_box is translated by negative _local_origin.
-		menu_layout_mode_e_point_anchor // _local_box is what it is. _local_origin is calculated from _local_anchor and _local_anchor_measures.minimum.
+		menu_layout_mode_e_point_anchor, // _local_box is what it is. _local_origin is calculated from _local_anchor and _local_anchor_measures.minimum.
 	};
 
 	// anchor bit flags tell the layout logic which edges of a control should be anchored to the same edge of the mother control.
@@ -223,9 +223,9 @@ namespace cheonsa
 	// texts will only use secondary.
 	enum menu_shared_color_slot_e
 	{
-		menu_shared_color_slot_e_primary, // used for frames.
-		menu_shared_color_slot_e_secondary, // used for texts.
-		menu_shared_color_slot_e_accent, // used for frames (accents).
+		menu_shared_color_slot_e_primary, // used for frames. for color keyed shader, this maps to red channel in texture.
+		menu_shared_color_slot_e_secondary, // used for texts. for color keyed shader, this maps to green channel in texture.
+		menu_shared_color_slot_e_accent, // used for frames (accents). for color keyed shader, this maps to blue channel in texture.
 		menu_shared_color_slot_e_count_
 	};
 

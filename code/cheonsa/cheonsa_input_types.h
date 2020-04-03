@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa___build.h"
+#include "cheonsa___build_configuration.h"
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_event.h"

@@ -7,7 +7,8 @@ namespace cheonsa
 {
 
 	// a single sprite, which is a textured quad, which is made up of four vertices and two triangles.
-	class scene_component_sprite_c : public scene_component_c
+	class scene_component_sprite_c
+		: public scene_component_c
 	{
 	public:
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_sprite; }

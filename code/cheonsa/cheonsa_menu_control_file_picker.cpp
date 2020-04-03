@@ -9,7 +9,7 @@ namespace cheonsa
 {
 
 	menu_control_file_picker_item_c::menu_control_file_picker_item_c( ops::file_system_file_information_c const & file_information )
-		: menu_control_collection_item_c()
+		: menu_control_collection_item_i()
 		, _path( file_information.path )
 		, _creation_time( file_information.creation_time )
 		, _last_access_time( file_information.last_access_time )
@@ -52,10 +52,9 @@ namespace cheonsa
 
 	void_c menu_control_file_picker_c::_add_shortcut_path( string16_c const & absolute_path, string16_c const & friendly_name )
 	{
-		menu_control_list_item_c * list_item = new menu_control_list_item_c();
+		menu_control_list_item_text_c * list_item = new menu_control_list_item_text_c();
 		list_item->set_plain_text_value( friendly_name );
-		_control_shortcut_list->add_item( list_item );
-
+		_control_shortcut_list->give_item( list_item );
 		_shortcut_path_list.insert_at_end( absolute_path );
 	}
 
@@ -199,9 +198,9 @@ namespace cheonsa
 		if ( S_OK == SHGetKnownFolderPath( FOLDERID_Desktop, 0, NULL, &ppszPath ) )
 		{
 			_shortcut_path_list.insert_at_end( string16_c( mode_e_static_volatile, ppszPath ) );
-			menu_control_list_item_c * list_item = new menu_control_list_item_c();
+			menu_control_list_item_text_c * list_item = new menu_control_list_item_text_c();
 			list_item->set_plain_text_value( string16_c( mode_e_static_volatile, L"desktop" ) );
-			_control_shortcut_list->add_item( list_item );
+			_control_shortcut_list->give_item( list_item );
 			CoTaskMemFree( ppszPath );
 		}
 
@@ -247,7 +246,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < unfiltered_file_list.get_length(); i++ )
 		{
 			ops::file_system_file_information_c & file_information = unfiltered_file_list[ i ];
-			menu_control_collection_item_c * collection_item = new menu_control_file_picker_item_c( file_information );
+			menu_control_collection_item_i * collection_item = new menu_control_file_picker_item_c( file_information );
 			
 			_control_files_collection->add_item( collection_item );
 		}

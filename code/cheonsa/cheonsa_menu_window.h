@@ -49,8 +49,8 @@ namespace cheonsa
 		grabbed_element_e _grabbed_element; // which element was grabbed, determines if the user is resizing or moving the panel.
 		vector32x2_c _grabbed_point_local; // local point relative to origin of where the panel was grabbed by the user, for resizing or moving.
 
-		virtual void_c _on_deep_text_focus_gained() override;
-		virtual void_c _on_mouse_focus_lost() override;
+		virtual void_c _on_is_deep_text_focused_changed() override;
+		virtual void_c _on_is_mouse_focused_changed() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 	public:
@@ -89,8 +89,8 @@ namespace cheonsa
 		vector32x2_c get_size() const;
 		void_c set_size( vector32x2_c const & value );
 
-		void_c give_control( menu_control_c * control );
-		menu_control_c * take_control( menu_control_c * control );
+		sint32_c give_control( menu_control_c * control, sint32_c index = -1 );
+		menu_control_c * take_control( sint32_c control_index );
 
 	};
 

@@ -22,7 +22,8 @@ namespace cheonsa
 	//		resource_file_model_c::physics_shape_c::type_e maps to physics_shape_type_e.
 	//		resource_file_model_c::physics_constraint_c::type_e maps to physics_constraint_type_e.
 	//		resource_file_model_c::light_c::type_e maps to scene_light_type_e.
-	class resource_file_model_c : public resource_file_c
+	class resource_file_model_c
+		: public resource_file_c
 	{
 	public:
 		typedef resource_file_reference_c< resource_file_model_c > reference_c;

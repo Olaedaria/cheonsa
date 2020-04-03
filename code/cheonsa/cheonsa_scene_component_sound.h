@@ -10,7 +10,8 @@ namespace cheonsa
 	// plays looping audio for ambient sound effects.
 	// randomizes upon on first play, so that upon loading into a scene for the first time everything isn't all synchronized.
 	// for one-off play-once sound effects, don't use this component.
-	class scene_component_sound_c : public scene_component_c
+	class scene_component_sound_c
+		: public scene_component_c
 	{
 	public:
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_sound; }

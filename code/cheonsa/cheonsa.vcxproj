@@ -159,9 +159,12 @@
     <ClInclude Include="cheonsa_audio2.h" />
     <ClInclude Include="cheonsa_core_shared_pointer.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
-    <ClInclude Include="cheonsa_menu_control_scroll_bar.h" />
-    <ClInclude Include="cheonsa_menu_control_scrub_bar.h" />
+    <ClInclude Include="cheonsa_menu_control_panel.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_bar_x.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_bar_y.h" />
+    <ClInclude Include="cheonsa_menu_control_scrub_bar_x.h" />
     <ClInclude Include="cheonsa_core_safe_reference_counter.h" />
+    <ClInclude Include="cheonsa_menu_control_scrub_bar_y.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
     <ClInclude Include="cheonsa_content_manager.h" />
     <ClInclude Include="cheonsa_database.h" />
@@ -195,7 +198,7 @@
     <ClInclude Include="cheonsa_core_linked_list.h" />
     <ClInclude Include="cheonsa_menu_control_combo.h" />
     <ClInclude Include="cheonsa_menu_control_menu.h" />
-    <ClInclude Include="cheonsa_menu_control_panel.h" />
+    <ClInclude Include="cheonsa_menu_control_panel_i.h" />
     <ClInclude Include="cheonsa_menu_style_manager.h" />
     <ClInclude Include="cheonsa__ops.h" />
     <ClInclude Include="cheonsa_physics_body.h" />
@@ -205,7 +208,6 @@
     <ClInclude Include="cheonsa_physics_shape.h" />
     <ClInclude Include="cheonsa_physics_types.h" />
     <ClInclude Include="cheonsa_platform_thread.h" />
-    <ClInclude Include="cheonsa_scene_component_planet.h" />
     <ClInclude Include="cheonsa_resource_file_model.h" />
     <ClInclude Include="cheonsa_scene_component_body.h" />
     <ClInclude Include="cheonsa_scene_component_model.h" />
@@ -259,7 +261,7 @@
     <ClInclude Include="cheonsa_menu_control_list.h" />
     <ClInclude Include="cheonsa_menu_control.h" />
     <ClInclude Include="cheonsa_user_interface.h" />
-    <ClInclude Include="cheonsa_menu_control_scroll_i.h" />
+    <ClInclude Include="cheonsa_menu_control_scroll_bar_i.h" />
     <ClInclude Include="cheonsa_menu_types.h" />
     <ClInclude Include="cheonsa_network.h" />
     <ClInclude Include="cheonsa_reflection_manager.h" />
@@ -283,7 +285,7 @@
     <ClInclude Include="cheonsa_menu_control_property_inspector.h" />
     <ClInclude Include="cheonsa_scene_tree_tetrahedron.h" />
     <ClInclude Include="cheonsa__types.h" />
-    <ClInclude Include="cheonsa___build.h" />
+    <ClInclude Include="cheonsa___build_configuration.h" />
     <ClInclude Include="cheonsa_menu_control_collection.h" />
     <ClInclude Include="cheonsa_menu_control_image.h" />
     <ClInclude Include="cheonsa_input_action_manager.h" />
@@ -679,9 +681,12 @@
     <ClCompile Include="cheonsa_database_table.cpp" />
     <ClCompile Include="cheonsa_database_types.cpp" />
     <ClCompile Include="cheonsa_debug_manager.cpp" />
-    <ClCompile Include="cheonsa_menu_control_scroll_bar.cpp" />
-    <ClCompile Include="cheonsa_menu_control_scrub_bar.cpp" />
+    <ClCompile Include="cheonsa_menu_control_panel.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_bar_x.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_bar_y.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scrub_bar_x.cpp" />
     <ClCompile Include="cheonsa_core_safe_reference_counter.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scrub_bar_y.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_menu_style_file.cpp" />
     <ClCompile Include="cheonsa_platform_critical_section.cpp" />
@@ -702,7 +707,7 @@
     <ClCompile Include="cheonsa_menu_control_label.cpp" />
     <ClCompile Include="cheonsa_menu_control_list_i.cpp" />
     <ClCompile Include="cheonsa_menu_control_menu.cpp" />
-    <ClCompile Include="cheonsa_menu_control_panel.cpp" />
+    <ClCompile Include="cheonsa_menu_control_panel_i.cpp" />
     <ClCompile Include="cheonsa_menu_control_scene.cpp" />
     <ClCompile Include="cheonsa_menu_style_manager.cpp" />
     <ClCompile Include="cheonsa__ops.cpp" />
@@ -766,7 +771,7 @@
     <ClCompile Include="cheonsa_menu_control_list.cpp" />
     <ClCompile Include="cheonsa_menu_control.cpp" />
     <ClCompile Include="cheonsa_user_interface.cpp" />
-    <ClCompile Include="cheonsa_menu_control_scroll_i.cpp" />
+    <ClCompile Include="cheonsa_menu_control_scroll_bar_i.cpp" />
     <ClCompile Include="cheonsa_menu_types.cpp" />
     <ClCompile Include="cheonsa_network.cpp" />
     <ClCompile Include="cheonsa_resource_manager.cpp" />

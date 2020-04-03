@@ -127,7 +127,27 @@
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
-		texture_map_origin="1 1"
+		texture_map_origin="79 79"
+		texture_map_fill_middle="true"/>
+
+	<frame
+		key="e_list_item_selected_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="79 27"
+		texture_map_fill_middle="true"/>
+
+	<frame
+		key="e_list_item_mouse_selected_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="24 24"
+		texture_map_edges="4 4 4 4"
+		texture_map_origin="79 27"
 		texture_map_fill_middle="true"/>
 
 	<frame
@@ -138,58 +158,6 @@
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
 		texture_map_origin="79 1"
-		texture_map_fill_middle="true"/>
-
-	<frame
-		key="e_list_item_selected_frame"
-		texture="menus/atlas.png"
-		texture_map_mode="nine_slice_stretch"
-		texture_map_size="24 24"
-		texture_map_edges="4 4 4 4"
-		texture_map_origin="79 27"
-		texture_map_fill_middle="true"/>
-
-	<text
-		key="e_list_item_text"
-		font="menus/DXLBaB-KSCpc-EUC-H.ttf"
-		size="14.0"
-		offset="0.0 0.0"
-		skew="0.0"
-		weight="0.0"
-		softness="0.0"
-		paragraph_spacing="5.0"
-		line_spacing="0.0"
-		glyph_spacing="0.0"
-		align_horizontal="left"
-		align_vertical="center"/>
-
-	<frame
-		key="e_menu_item_frame"
-		pixel_shader="menu_ps_frame_keyed.hlsl"
-		texture="menus/atlas.png"
-		texture_map_mode="nine_slice_stretch"
-		texture_map_size="24 24"
-		texture_map_edges="4 4 4 4"
-		texture_map_origin="1 1"
-		texture_map_fill_middle="true"/>
-
-	<frame
-		key="e_list_item_outlined_frame"
-		pixel_shader="menu_ps_frame_keyed.hlsl"
-		texture="menus/atlas.png"
-		texture_map_mode="nine_slice_stretch"
-		texture_map_size="24 24"
-		texture_map_edges="4 4 4 4"
-		texture_map_origin="79 1"
-		texture_map_fill_middle="true"/>
-
-	<frame
-		key="e_list_item_selected_frame"
-		texture="menus/atlas.png"
-		texture_map_mode="nine_slice_stretch"
-		texture_map_size="24 24"
-		texture_map_edges="4 4 4 4"
-		texture_map_origin="79 27"
 		texture_map_fill_middle="true"/>
 
 	<text
@@ -247,7 +215,7 @@
 		texture_map_mode="nine_slice_stretch"
 		texture_map_size="24 24"
 		texture_map_edges="4 4 4 4"
-		texture_map_origin="79 28"
+		texture_map_origin="79 27"
 		texture_map_fill_middle="true"/>
 
 	<frame
@@ -325,6 +293,7 @@
 	<map key="e_list_item">
 		<entry element_name="frame" style_key="e_list_item_frame"/>
 		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry element_name="mouse_selected_frame" style_key="e_list_item_mouse_selected_frame"/>
 		<entry element_name="text" style_key="e_list_item_text"/>
 	</map>
 
@@ -334,7 +303,8 @@
 
 	<map key="e_menu_list_item">
 		<entry element_name="frame" style_key="e_list_item_frame"/>
-		<entry element_name="selected_frame" style_key="[invisible]"/>
+		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry element_name="mouse_selected_frame" style_key="e_list_item_mouse_selected_frame"/>
 		<entry element_name="text" style_key="e_list_item_text"/>
 	</map>
 
@@ -350,6 +320,7 @@
 	<map key="e_combo_list_item">
 		<entry element_name="frame" style_key="e_list_item_frame"/>
 		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry element_name="mouse_selected_frame" style_key="e_list_item_mouse_selected_frame"/>
 		<entry element_name="text" style_key="e_list_item_text"/>
 	</map>
 
@@ -364,7 +335,7 @@
 
 	<map key="e_collection">
 		<entry element_name="frame" style_key="e_field_frame"/>
-		<entry element_name="mouse_selected_frame" style_key="e_list_item_selected_frame"/>
+		<entry element_name="mouse_selected_frame" style_key="e_list_item_outlined_frame"/>
 		<entry element_name="last_selected_frame" style_key="e_list_item_outlined_frame"/>
 		<entry element_name="column_frame" style_key="e_collection_column_frame"/>
 		<entry element_name="column_text" style_key="e_collection_column_text"/>

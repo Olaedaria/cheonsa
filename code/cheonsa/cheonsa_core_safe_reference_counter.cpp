@@ -1,5 +1,5 @@
 #include "cheonsa_core_safe_reference_counter.h"
-#include "cheonsa___build.h"
+#include "cheonsa___build_configuration.h"
 #if defined( cheonsa_platform_windows )
 #include <windows.h>
 #endif
