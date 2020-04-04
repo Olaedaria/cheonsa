@@ -1,12 +1,18 @@
-#include "cheonsa_menu_window.h"
+﻿#include "cheonsa_menu_window.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
 {
 
+	void_c menu_window_c::_apply_client_margins()
+	{
+		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
+		_set_client_margins( box32x2_c( _edge_size, _edge_size + _top_bar_size, _edge_size, _edge_size + _bottom_bar_size ) );
+	}
+
 	void_c menu_window_c::_on_is_deep_text_focused_changed()
 	{
-		if ( _is_deep_text_focused == true )
+		if ( _is_deep_text_focused != 0 )
 		{
 			if ( _user_interface != nullptr )
 			{
@@ -34,24 +40,24 @@ namespace cheonsa
 			if ( input_event->mouse_key == input_mouse_key_e_left )
 			{
 				// check for intersection with horizontal edge.
-				if ( local_mouse_position.a >= _local_box.minimum.a && local_mouse_position.a <= _local_box.minimum.a + _local_edge_size )
+				if ( local_mouse_position.a >= _local_box.minimum.a && local_mouse_position.a <= _local_box.minimum.a + _edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_left );
 					_grabbed_point_local.a = local_mouse_position.a;
 				}
-				else if ( local_mouse_position.a <= _local_box.maximum.a && local_mouse_position.a >= _local_box.maximum.a - _local_edge_size )
+				else if ( local_mouse_position.a <= _local_box.maximum.a && local_mouse_position.a >= _local_box.maximum.a - _edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_right );
 					_grabbed_point_local.a = _local_box.maximum.a - local_mouse_position.a;
 				}
 
 				// check for intersection with vertical edge.
-				if ( local_mouse_position.b >= _local_box.minimum.b && local_mouse_position.b <= _local_box.minimum.b + _local_edge_size )
+				if ( local_mouse_position.b >= _local_box.minimum.b && local_mouse_position.b <= _local_box.minimum.b + _edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_top );
 					_grabbed_point_local.b = local_mouse_position.b;
 				}
-				else if ( local_mouse_position.b <= _local_box.maximum.b && local_mouse_position.b >= _local_box.maximum.b - _local_edge_size )
+				else if ( local_mouse_position.b <= _local_box.maximum.b && local_mouse_position.b >= _local_box.maximum.b - _edge_size )
 				{
 					_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_bottom );
 					_grabbed_point_local.b = _local_box.maximum.b - local_mouse_position.b;
@@ -74,7 +80,7 @@ namespace cheonsa
 				if ( _user_can_move )
 				{
 					// check for intersection with title bar.
-					if ( _grabbed_element == grabbed_element_e_none && local_mouse_position.a > _local_box.minimum.a + _local_edge_size && local_mouse_position.a < _local_box.maximum.a - _local_edge_size && local_mouse_position.b > _local_box.minimum.a + _local_edge_size && local_mouse_position.b <= _local_box.minimum.b + _local_edge_size + _local_title_bar_size )
+					if ( _grabbed_element == grabbed_element_e_none && local_mouse_position.a > _local_box.minimum.a + _edge_size && local_mouse_position.a < _local_box.maximum.a - _edge_size && local_mouse_position.b > _local_box.minimum.a + _edge_size && local_mouse_position.b <= _local_box.minimum.b + _edge_size + _top_bar_size )
 					{
 						_grabbed_element = grabbed_element_e_title_bar;
 						_grabbed_point_local.a = local_mouse_position.a;
@@ -106,13 +112,13 @@ namespace cheonsa
 					float32_c left = input_event->menu_global_mouse_position.a - _grabbed_point_local.a;
 					float32_c right = _local_origin.a + _local_box.maximum.a;
 					float32_c width = right - left;
-					if ( width < _local_size_minimum.a )
+					if ( width < _minimum_size.a )
 					{
-						width = _local_size_minimum.a;
+						width = _minimum_size.a;
 					}
-					if ( _local_size_maximum.a > 0.0f && width > _local_size_maximum.a )
+					if ( _maximum_size.a > 0.0f && width > _maximum_size.a )
 					{
-						width = _local_size_maximum.a;
+						width = _maximum_size.a;
 					}
 					_local_box.maximum.a = width;
 					_local_origin.a = right - width;
@@ -120,13 +126,13 @@ namespace cheonsa
 				else if ( _grabbed_element & grabbed_element_e_edge_right )
 				{
 					float32_c width = input_event->menu_global_mouse_position.a + _grabbed_point_local.a - _local_origin.a;
-					if ( width < _local_size_minimum.a )
+					if ( width < _minimum_size.a )
 					{
-						width = _local_size_minimum.a;
+						width = _minimum_size.a;
 					}
-					if ( _local_size_maximum.a > 0.0f && width > _local_size_maximum.a )
+					if ( _maximum_size.a > 0.0f && width > _maximum_size.a )
 					{
-						width = _local_size_maximum.a;
+						width = _maximum_size.a;
 					}
 					_local_box.maximum.a = width;
 				}
@@ -135,13 +141,13 @@ namespace cheonsa
 					float32_c top = input_event->menu_global_mouse_position.b - _grabbed_point_local.b;
 					float32_c bottom = _local_origin.b + _local_box.maximum.b;
 					float32_c height = bottom - top;
-					if ( height < _local_size_minimum.b )
+					if ( height < _minimum_size.b )
 					{
-						height = _local_size_minimum.b;
+						height = _minimum_size.b;
 					}
-					if ( _local_size_maximum.b > 0.0f && height > _local_size_maximum.b )
+					if ( _maximum_size.b > 0.0f && height > _maximum_size.b )
 					{
-						height = _local_size_maximum.b;
+						height = _maximum_size.b;
 					}
 					_local_box.maximum.b = height;
 					_local_origin.b = bottom - height;
@@ -149,13 +155,13 @@ namespace cheonsa
 				else if ( _grabbed_element & grabbed_element_e_edge_bottom )
 				{
 					float32_c height = input_event->menu_global_mouse_position.b + _grabbed_point_local.b - _local_origin.b;
-					if ( height < _local_size_minimum.b )
+					if ( height < _minimum_size.b )
 					{
-						height = _local_size_minimum.b;
+						height = _minimum_size.b;
 					}
-					if ( _local_size_maximum.b > 0.0f && height > _local_size_maximum.b )
+					if ( _maximum_size.b > 0.0f && height > _maximum_size.b )
 					{
-						height = _local_size_maximum.b;
+						height = _maximum_size.b;
 					}
 					_local_box.maximum.b = height;
 				}
@@ -165,41 +171,24 @@ namespace cheonsa
 	}
 
 	menu_window_c::menu_window_c()
-		: menu_control_c()
-		, _element_frame()
+		: menu_control_panel_i()
 		, _element_text()
-		//, _close_button( nullptr )
-		, _client_panel( nullptr )
+		, _edge_size( 8.0f )
+		, _top_bar_size( 30.0f )
+		, _bottom_bar_size( 0.0f )
 		, _user_can_resize( false )
-		, _local_edge_size( 8.0f )
-		, _local_size_minimum( 100.0f, 100.0f )
-		, _local_size_maximum( 1000.0f, 1000.0f )
 		, _user_can_move( false )
-		, _local_title_bar_size( 30.0f )
+		, _minimum_size( 100.0f, 100.0f )
+		, _maximum_size( 1000.0f, 1000.0f )
 		, _grabbed_element( grabbed_element_e_none )
 		, _grabbed_point_local( 0.0f, 0.0f )
 	{
-		//_select_mode = menu_select_mode_e_mouse;
-
-		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
-		_element_frame.set_shared_color_class( menu_shared_color_class_e_window );
-		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
-		_add_element( &_element_frame );
-
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
-		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _local_edge_size, _local_edge_size, _local_edge_size, _local_title_bar_size ) );
+		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
 		_add_element( &_element_text );
 
-		_client_panel = new menu_control_panel_c();
-		_client_panel->set_name( string8_c( mode_e_static, "client_panel" ) );
-		_client_panel->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( _local_edge_size, _local_edge_size + _local_title_bar_size, _local_edge_size, _local_edge_size ) );
-		_give_control( _client_panel );
-
-		//_close_button = new menu_control_button_c();
-		//_close_button->set_name( string8_c( mode_e_static, "close_button" ) );
-		//_close_button->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 75.0f, 0.0f, 0.0f, 24.0f ) );
-		//_add_control( _close_button );
+		_apply_client_margins();
 
 		set_style_map_key( string8_c( mode_e_static, "e_window" ) );
 	}
@@ -225,10 +214,10 @@ namespace cheonsa
 
 	void_c menu_window_c::constrain_transform()
 	{
-		// constrain window title bar to fit in user interface.
+		// constrain window title bar to stay in bounds of user interface.
 		if ( _user_interface != nullptr )
 		{
-			float32_c cap_bottom = _user_interface->get_local_box().maximum.b - engine_c::get_instance()->get_window_manager()->get_window_edge_thickness() - _local_title_bar_size;
+			float32_c cap_bottom = _user_interface->get_local_box().maximum.b - engine_c::get_instance()->get_window_manager()->get_window_edge_thickness() - _top_bar_size;
 			if ( _local_origin.b > cap_bottom )
 			{
 				_local_origin.b = cap_bottom;
@@ -294,46 +283,57 @@ namespace cheonsa
 		_user_can_resize = value;
 	}
 
-	float32_c menu_window_c::get_local_title_bar_size() const
+	float32_c menu_window_c::get_top_bar_size() const
 	{
-		return _local_title_bar_size;
+		return _top_bar_size;
 	}
 
-	void_c menu_window_c::set_local_title_bar_size( float32_c value )
+	void_c menu_window_c::set_top_bar_size( float32_c value )
 	{
-		_local_title_bar_size = value;
-		_client_panel->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( _local_edge_size, _local_edge_size + _local_title_bar_size, _local_edge_size, _local_edge_size ) );
+		_top_bar_size = value;
+		_apply_client_margins();
 	}
 
-	float32_c menu_window_c::get_local_edge_size() const
+	float32_c menu_window_c::get_bottom_bar_size() const
 	{
-		return _local_edge_size;
+		return _bottom_bar_size;
 	}
 
-	void_c menu_window_c::set_local_edge_size( float32_c value )
+	void_c menu_window_c::set_bottom_bar_size( float32_c value )
 	{
-		_local_edge_size = value;
-		_client_panel->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( _local_edge_size, _local_edge_size + _local_title_bar_size, _local_edge_size, _local_edge_size ) );
+		_bottom_bar_size = value;
+		_apply_client_margins();
 	}
 
-	vector32x2_c const & menu_window_c::get_local_size_minimum() const
+	float32_c menu_window_c::get_edge_size() const
 	{
-		return _local_size_minimum;
+		return _edge_size;
 	}
 
-	void_c menu_window_c::set_local_size_minimum( vector32x2_c const & value )
+	void_c menu_window_c::set_edge_size( float32_c value )
 	{
-		_local_size_minimum = value;
+		_edge_size = value;
+		_apply_client_margins();
 	}
 
-	vector32x2_c const & menu_window_c::get_local_size_maximum() const
+	vector32x2_c const & menu_window_c::get_minimum_size() const
 	{
-		return _local_size_maximum;
+		return _minimum_size;
 	}
 
-	void_c menu_window_c::set_local_size_maximum( vector32x2_c const & value )
+	void_c menu_window_c::set_minimum_size( vector32x2_c const & value )
 	{
-		_local_size_maximum = value;
+		_minimum_size = value;
+	}
+
+	vector32x2_c const & menu_window_c::get_maximum_size() const
+	{
+		return _maximum_size;
+	}
+
+	void_c menu_window_c::set_maximum_size( vector32x2_c const & value )
+	{
+		_maximum_size = value;
 	}
 
 	vector32x2_c const & menu_window_c::get_position() const
@@ -360,14 +360,54 @@ namespace cheonsa
 		update_transform_and_layout();
 	}
 
-	sint32_c menu_window_c::give_control( menu_control_c * control, sint32_c index )
+	menu_visibility_mode_e menu_window_c::get_horizontal_scroll_bar_visibility_mode() const
 	{
-		return _client_panel->give_control( control, index );
+		return _get_horizontal_scroll_bar_visibility_mode();
 	}
 
-	menu_control_c * menu_window_c::take_control( sint32_c control_index )
+	void_c menu_window_c::set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value )
 	{
-		return _client_panel->take_control( control_index );
+		_set_horizontal_scroll_bar_visibility_mode( value );
+	}
+
+	menu_visibility_mode_e menu_window_c::get_vertical_scroll_bar_visibility_mode() const
+	{
+		return _get_vertical_scroll_bar_visibility_mode();
+	}
+
+	void_c menu_window_c::set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value )
+	{
+		_set_vertical_scroll_bar_visibility_mode( value );
+	}
+
+	sint32_c menu_window_c::get_controls_in_client_count() const
+	{
+		return _get_controls_in_client_count();
+	}
+
+	menu_control_c const * menu_window_c::get_control_in_client( sint32_c control_index ) const
+	{
+		return _get_control_in_client( control_index );
+	}
+
+	menu_control_c * menu_window_c::get_control_in_client( sint32_c control_index )
+	{
+		return _get_control_in_client( control_index );
+	}
+
+	sint32_c menu_window_c::give_control_to_client( menu_control_c * control, sint32_c index )
+	{
+		return _give_control_to_client( control, index );
+	}
+
+	menu_control_c * menu_window_c::take_control_from_client( sint32_c control_index )
+	{
+		return _take_control_from_client( control_index );
+	}
+
+	void_c menu_window_c::remove_and_delete_all_controls_from_client()
+	{
+		_remove_and_delete_all_controls_from_client();
 	}
 
 }

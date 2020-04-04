@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_data_scribe_binary.h"
 

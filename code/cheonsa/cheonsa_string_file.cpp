@@ -1,4 +1,4 @@
-#include "cheonsa_string_file.h"
+﻿#include "cheonsa_string_file.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_data_scribe_markup.h"
 

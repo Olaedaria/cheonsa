@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_button.h"
@@ -99,7 +99,7 @@ namespace cheonsa
 
 		result_e get_result() const;
 
-		core_event_c< void_c, menu_control_file_picker_c * > on_result; 
+		core_event_c< void_c, menu_control_file_picker_c * > on_submitted; 
 
 	};
 

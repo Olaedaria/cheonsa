@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /*
 
@@ -318,6 +318,7 @@ namespace cheonsa
 			texture_map_mode_e_scale_to_fill, // scales a texture over a rectangle to completely cover it, preserves aspect ratio of the texture. some of the texture might be cut off if its aspect ratio is different from the rectangle.
 			texture_map_mode_e_nine_slice_stretch, // nine slice, with the texture stretched over the edges and the middle.
 			texture_map_mode_e_nine_slice_tile, // nine slice, with the texture tiled over the edges and the middle.
+			texture_map_mode_e_center, // single instance texture_map, centered, will be clipped if it's larger than dimensions of element.
 		};
 
 		// element appearance properties that can be defined for each visual state.

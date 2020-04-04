@@ -1,4 +1,4 @@
-#include "cheonsa_resource_file_font.h"
+﻿#include "cheonsa_resource_file_font.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa__ops.h"

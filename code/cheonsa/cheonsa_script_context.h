@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_script_types.h"
 #include "cheonsa_script_scope.h"

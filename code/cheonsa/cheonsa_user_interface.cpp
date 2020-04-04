@@ -1,4 +1,4 @@
-#include "cheonsa_user_interface.h"
+﻿#include "cheonsa_user_interface.h"
 #include "cheonsa_menu_control.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_scene_component_menu_control.h"
@@ -630,9 +630,9 @@ namespace cheonsa
 
 	void_c user_interface_c::_suspend_control( menu_control_c * control )
 	{
-		if ( _text_focused && _text_focused->_is_text_focused ) // check _text_focused->_is_text_focused because it's possible that the control is already in the process of losing focus, and we are here via a response to an event (_on_text_focus_lost(), _on_general_focus_lost()).
+		if ( _text_focused && _text_focused->_is_text_focused ) // check _text_focused->_is_text_focused because it's possible that the control is already in the process of losing focus, and we are here via a cascading response to an event (_on_text_focus_lost(), _on_general_focus_lost()).
 		{
-			if ( _text_focused == control || _text_focused->is_descendant_of( control ) )
+			if ( control->is_related_to( _text_focused ) )
 			{
 				_text_focused->_is_text_focused = false;
 				_text_focused->_on_is_text_focused_changed();
@@ -649,7 +649,7 @@ namespace cheonsa
 		}
 		if ( _mouse_focused )
 		{
-			if ( _mouse_focused == control || _mouse_focused->is_descendant_of( control ) )
+			if ( _mouse_focused->is_related_to( control ) )
 			{
 				_mouse_focused->_is_pressed = false;
 				_mouse_focused->_on_is_pressed_changed();
@@ -660,7 +660,7 @@ namespace cheonsa
 		}
 		if ( _mouse_overed )
 		{
-			if ( _mouse_overed == control || _mouse_overed->is_descendant_of( control ) )
+			if ( _mouse_overed->is_related_to( control ) )
 			{
 				_mouse_overed->_is_mouse_overed = false;
 				_mouse_overed->_on_is_mouse_overed_changed();

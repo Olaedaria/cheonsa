@@ -1,4 +1,4 @@
-#include "cheonsa_string8.h"
+﻿#include "cheonsa_string8.h"
 #include "cheonsa__ops.h"
 #include <cassert>
 

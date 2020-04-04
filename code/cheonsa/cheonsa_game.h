@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa__types.h"
 
@@ -7,6 +7,8 @@ namespace cheonsa
 
 	class resource_file_sprite_set_c;
 
+	// base game interface class.
+	// keep it simple.
 	class game_c
 	{
 	public:

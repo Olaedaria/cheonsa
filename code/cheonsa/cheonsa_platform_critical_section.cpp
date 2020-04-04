@@ -1,4 +1,4 @@
-#include "cheonsa_platform_critical_section.h"
+﻿#include "cheonsa_platform_critical_section.h"
 
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN

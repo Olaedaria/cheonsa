@@ -1,4 +1,4 @@
-#include "cheonsa_data_scribe_structure.h"
+﻿#include "cheonsa_data_scribe_structure.h"
 #include "cheonsa__ops.h"
 #include <cassert>
 

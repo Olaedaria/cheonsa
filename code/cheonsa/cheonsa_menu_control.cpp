@@ -1,4 +1,4 @@
-#include "cheonsa_menu_control.h"
+﻿#include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_button.h"
 #include "cheonsa_menu_control_check.h"
 #include "cheonsa_menu_control_collection.h"
@@ -114,7 +114,7 @@ namespace cheonsa
 				for ( sint32_c j = 0; j < element_list.get_length(); j++ )
 				{
 					menu_element_c * element = element_list[ j ];
-					if ( entry->get_style_key() == "[invisible]" )
+					if ( entry->get_style_key() == "" )
 					{
 						element->_is_showed_from_style = false;
 						element->set_style_key( string8_c() );
@@ -331,33 +331,33 @@ namespace cheonsa
 		load_static_data_properties_recursive( nullptr );
 	}
 
-	boolean_c menu_control_c::_get_is_descendant_character_focused()
-	{
-		menu_control_c * control = get_user_interface_root()->get_text_focused();
-		while ( control != nullptr )
-		{
-			if ( control == this )
-			{
-				return true;
-			}
-			control = control->_mother_control;
-		}
-		return false;
-	}
+	//boolean_c menu_control_c::_get_is_descendant_character_focused()
+	//{
+	//	menu_control_c * control = get_user_interface_root()->get_text_focused();
+	//	while ( control != nullptr )
+	//	{
+	//		if ( control == this )
+	//		{
+	//			return true;
+	//		}
+	//		control = control->_mother_control;
+	//	}
+	//	return false;
+	//}
 
-	boolean_c menu_control_c::_get_is_descendant_mouse_focused()
-	{
-		menu_control_c * control = get_user_interface_root()->get_mouse_focused();
-		while ( control != nullptr )
-		{
-			if ( control == this )
-			{
-				return true;
-			}
-			control = control->_mother_control;
-		}
-		return false;
-	}
+	//boolean_c menu_control_c::_get_is_descendant_mouse_focused()
+	//{
+	//	menu_control_c * control = get_user_interface_root()->get_mouse_focused();
+	//	while ( control != nullptr )
+	//	{
+	//		if ( control == this )
+	//		{
+	//			return true;
+	//		}
+	//		control = control->_mother_control;
+	//	}
+	//	return false;
+	//}
 
 	void_c menu_control_c::_on_user_interface_association_changed( user_interface_c * user_interface )
 	{
@@ -487,10 +487,12 @@ namespace cheonsa
 		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
+		boolean_c is_selected = is_related_to( get_user_interface_root()->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
 		{
 			menu_element_c * element = _element_list[ i ];
 			element->set_is_enabled( _is_enabled );
+			element->set_is_selected( is_selected );
 			element->set_is_pressed( _is_pressed && _is_mouse_overed );
 			element->update_animations( time_step );
 		}
@@ -781,16 +783,32 @@ namespace cheonsa
 		return _control_list[ control_index ];
 	}
 
-	boolean_c menu_control_c::is_descendant_of( menu_control_c * control )
+	//boolean_c menu_control_c::is_descendant_of( menu_control_c * control )
+	//{
+	//	if ( control != nullptr )
+	//	{
+	//		menu_control_c * mother_control = _mother_control;
+	//		while ( mother_control != nullptr )
+	//		{
+	//			if ( mother_control == control )
+	//			{
+	//				return true;
+	//			}
+	//			mother_control = mother_control->_mother_control;
+	//		}
+	//	}
+	//	return false;
+	//}
+
+	boolean_c menu_control_c::is_related_to( menu_control_c * control )
 	{
-		menu_control_c * mother_control = _mother_control;
-		while ( mother_control )
+		while ( control != nullptr )
 		{
-			if ( mother_control == control )
+			if ( control == this )
 			{
 				return true;
 			}
-			mother_control = mother_control->_mother_control;
+			control = control->_mother_control;
 		}
 		return false;
 	}

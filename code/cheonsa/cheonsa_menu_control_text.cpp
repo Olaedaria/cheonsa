@@ -1,7 +1,7 @@
-#include "cheonsa_menu_control_text.h"
+﻿#include "cheonsa_menu_control_text.h"
 #include "cheonsa_data_scribe_markup.h"
+#include "cheonsa_user_interface.h"
 #include "cheonsa__ops.h"
-#include "cheonsa_engine.h"
 
 namespace cheonsa
 {
@@ -320,7 +320,7 @@ namespace cheonsa
 		_element_text.set_content_offset( content_offset );
 		_element_text.update_animations( time_step );
 
-		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
+		boolean_c is_descendant_mouse_focused = is_related_to( get_user_interface_root()->get_mouse_focused() );
 
 		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_frame.set_is_pressed( _is_pressed );

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa___build_configuration.h"
 #include "third_party/half.hpp"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_string16.h"
 #include "cheonsa_video_interface.h"

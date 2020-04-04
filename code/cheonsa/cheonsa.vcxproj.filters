@@ -99,7 +99,6 @@
     <ClInclude Include="cheonsa_scene_component_menu_control.h" />
     <ClInclude Include="cheonsa_platform_thread.h" />
     <ClInclude Include="cheonsa_content_manager.h" />
-    <ClInclude Include="cheonsa_input_action_manager.h" />
     <ClInclude Include="cheonsa_scene_tree_octo.h" />
     <ClInclude Include="cheonsa_database.h" />
     <ClInclude Include="cheonsa_reflection_types.h" />

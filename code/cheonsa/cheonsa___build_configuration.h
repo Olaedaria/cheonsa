@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // auto detect which platform (operating system) we are targeting.
 #if defined( _WIN32 )

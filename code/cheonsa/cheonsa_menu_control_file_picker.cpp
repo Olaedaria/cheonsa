@@ -1,4 +1,4 @@
-#include "cheonsa_menu_control_file_picker.h"
+﻿#include "cheonsa_menu_control_file_picker.h"
 #include "cheonsa_engine.h"
 
 #if defined( cheonsa_platform_windows )
@@ -68,7 +68,7 @@ namespace cheonsa
 		{
 			_result = result_e_cancel;
 		}
-		on_result.invoke( this );
+		on_submitted.invoke( this );
 	}
 
 	menu_control_file_picker_c::menu_control_file_picker_c()
@@ -104,7 +104,7 @@ namespace cheonsa
 
 		_control_up_button = new menu_control_button_c();
 		_control_up_button->set_name( string8_c( mode_e_static, "up_button" ) );
-		_control_up_button->set_plain_text_value( string16_c( mode_e_static, L"../" ) );
+		_control_up_button->set_plain_text_value( string16_c( mode_e_static, L"˄" ) );
 		_give_control( _control_up_button );
 
 		_control_folder_path_text = new menu_control_text_c();

@@ -288,7 +288,6 @@
     <ClInclude Include="cheonsa___build_configuration.h" />
     <ClInclude Include="cheonsa_menu_control_collection.h" />
     <ClInclude Include="cheonsa_menu_control_image.h" />
-    <ClInclude Include="cheonsa_input_action_manager.h" />
     <ClInclude Include="third_party\bullet\btBulletCollisionCommon.h" />
     <ClInclude Include="third_party\bullet\btBulletDynamicsCommon.h" />
     <ClInclude Include="third_party\bullet\BulletCollision\BroadphaseCollision\btAxisSweep3.h" />

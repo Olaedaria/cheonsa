@@ -1,4 +1,4 @@
-#include "cheonsa_glyph_manager.h"
+﻿#include "cheonsa_glyph_manager.h"
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_resource_file_font.h"

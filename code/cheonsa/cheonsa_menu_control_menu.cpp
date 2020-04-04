@@ -1,4 +1,4 @@
-#include "cheonsa_menu_control_menu.h"
+﻿#include "cheonsa_menu_control_menu.h"
 #include "cheonsa_user_interface.h"
 
 namespace cheonsa
@@ -13,7 +13,7 @@ namespace cheonsa
 	{
 		if ( _is_mouse_overed )
 		{
-			_element_mouse_selected_frame.set_is_showed( true );
+			_element_highlighted_frame.set_is_showed( true );
 			//if ( _sub_menu )
 			//{
 			//	_sub_menu->show_like_sub_menu( this );
@@ -21,7 +21,7 @@ namespace cheonsa
 		}
 		else
 		{
-			_element_mouse_selected_frame.set_is_showed( false );
+			_element_highlighted_frame.set_is_showed( false );
 			//if ( _sub_menu )
 			//{
 			//	_sub_menu->set_is_showed( false );

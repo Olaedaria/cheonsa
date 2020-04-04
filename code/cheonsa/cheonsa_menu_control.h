@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_menu_types.h"
@@ -91,7 +91,7 @@ namespace cheonsa
 
 		boolean_c _is_enabled; // controls visual state.
 
-		sint32_c _is_deep_text_focused; // is incremented when this or any of this control's daughters gains text input focus. is decremented when this or any of this control's daughters loses text input focus. it's valid values are 0 and 1, if it is outside of this range outside of transitioning between states then it's a bug.
+		sint32_c _is_deep_text_focused; // is incremented when this or any of this control's daughters gains text input focus. is decremented when this or any of this control's daughters loses text input focus. it's valid values are 0 and 1, if it settles at a value besides 0 or 1 then there's a bug with state transition management. we use a counter so that we can call _on_is_deep_text_focused only once per transition between 0 and 1, and because it may count higher than 1 if it is transitioning.
 		boolean_c _is_text_focused; // controls visual state effects. is true if this control has trapped text input (will receive text events), is false if not.
 		boolean_c _is_mouse_overed; // controls visual state effects for buttons. is true if this control intersects with the mouse pointer, false if not. or this may be used by the context if directional input is used to select controls rather than the mouse.
 		boolean_c _is_mouse_focused; // controls visual state effects. is true if this control has trapped mouse input (will receive mouse input events even if the mouse is not over this control), is false if not.
@@ -142,8 +142,8 @@ namespace cheonsa
 
 		void_c * _user_pointer; // can be set by the user to associate some other kind of data with this control.
 
-		boolean_c _get_is_descendant_character_focused(); // returns true if any descendant control of this control has character focus.
-		boolean_c _get_is_descendant_mouse_focused(); // returns true if any descendant control of this control has mouse focus.
+		//boolean_c _get_is_descendant_character_focused(); // returns true if any descendant control of this control has character focus.
+		//boolean_c _get_is_descendant_mouse_focused(); // returns true if any descendant control of this control has mouse focus.
 
 		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ); // occurs right after the control is added to (associated with) the user interface or right before the control is removed from (disassociated from) the user interface. user_interface is the user interface that this control was just added to or removed from. if the control was added then the _user_interface memeber will be set, if the control was removed then the _user_interface memeber will be nullptr.
 		virtual void_c _on_is_showed_changed(); // is called right after _is_showed state is changed. after performing control specific implementation, it should in turn invoke the is_showed_changed event.
@@ -213,7 +213,8 @@ namespace cheonsa
 		sint32_c get_control_count() const;
 		menu_control_c * get_control( sint32_c control_index ) const;
 
-		boolean_c is_descendant_of( menu_control_c * control ); // returns true if this control is a descendant of the given control, false if not.
+		//boolean_c is_descendant_of( menu_control_c * control ); // returns true if this control is a descendant of the given control, false if not.
+		boolean_c is_related_to( menu_control_c * control ); // kind of inverse of is_descendant_of(). just a little easier to use sometimes cases. returns true if this control is equal to the given control, or if this control is 
 
 		menu_layer_e get_expressed_layer(); // returns the value of the first control up the heirarchy to have _layer not set to menu_layer_e_undefined, otherwise returns menu_layer_e_base.
 

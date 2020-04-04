@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_scroll_bar_y.h"
@@ -165,7 +165,7 @@ namespace cheonsa
 		// the elements in the _element_list are as follows:
 		// base elements:
 		//   _element_frame
-		//   _element_mouse_selected_frame
+		//   _element_highlighted_frame
 		//   _element_last_selected_frame
 		// supplemental elements:
 		//   per column elements: one frame and one text:
@@ -174,7 +174,7 @@ namespace cheonsa
 		//     { item_selected_frame, item_icon_frame, item_text, ... }
 		menu_element_frame_c _element_frame; // name is "frame", the background of this collection.
 		menu_element_frame_c _element_last_selected_frame; // name is "last_selected_frame". is laid out and drawn behind the _last_selected_item.
-		menu_element_frame_c _element_mouse_selected_frame; // name is "mouse_selected_frame". is laid out and drawn behind the _mouse_selected_item.
+		menu_element_frame_c _element_highlighted_frame; // name is "highlighted_frame". is laid out and drawn behind the _mouse_selected_item.
 
 		menu_control_collection_item_i * _last_selected_item; // is set to the first item that was added to the collection, or the item that was last selected in the collection. this is the item that directional keyboard input will originate from. analogs: in modern windows this item would be outlined with a solid blue line, in legacy windows this item would be outlined with a dotted black line.
 		menu_control_collection_item_i * _mouse_selected_item; // is set to the item that the mouse is currently over. analogs: in modern windows this item would be highlighted with a light blue background, in legacy windows i don't think there was an analog.

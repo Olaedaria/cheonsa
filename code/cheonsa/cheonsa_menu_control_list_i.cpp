@@ -1,4 +1,4 @@
-#include "cheonsa_menu_control_list_i.h"
+﻿#include "cheonsa_menu_control_list_i.h"
 #include "cheonsa_user_interface.h"
 #include "cheonsa__ops.h"
 
@@ -118,7 +118,7 @@ namespace cheonsa
 
 	void_c menu_control_list_item_text_i::_on_is_mouse_overed_changed()
 	{
-		_element_mouse_selected_frame.set_is_showed( _is_mouse_overed );
+		_element_highlighted_frame.set_is_showed( _is_mouse_overed );
 		_update_element_states();
 	}
 
@@ -159,7 +159,7 @@ namespace cheonsa
 		: menu_control_list_item_i()
 		, _element_frame()
 		, _element_selected_frame()
-		, _element_mouse_selected_frame()
+		, _element_highlighted_frame()
 		, _element_text()
 	{
 		_can_be_selected = true;
@@ -178,10 +178,10 @@ namespace cheonsa
 		_element_selected_frame.set_is_showed( false );
 		_add_element( &_element_selected_frame );
 
-		_element_mouse_selected_frame.set_name( string8_c( mode_e_static, "mouse_selected_frame" ) );
-		_element_mouse_selected_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_mouse_selected_frame.set_is_showed( false );
-		_add_element( &_element_mouse_selected_frame );
+		_element_highlighted_frame.set_name( string8_c( mode_e_static, "highlighted_frame" ) );
+		_element_highlighted_frame.set_shared_color_class( menu_shared_color_class_e_field );
+		_element_highlighted_frame.set_is_showed( false );
+		_add_element( &_element_highlighted_frame );
 
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
@@ -544,11 +544,6 @@ namespace cheonsa
 		{
 			_lay_out_item_origins();
 		}
-
-		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
-
-		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-
 		menu_control_c::update_animations( time_step );
 	}
 

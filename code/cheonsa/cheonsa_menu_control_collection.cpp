@@ -1,4 +1,5 @@
-#include "cheonsa_menu_control_collection.h"
+﻿#include "cheonsa_menu_control_collection.h"
+#include "cheonsa_user_interface.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -537,7 +538,7 @@ namespace cheonsa
 	{
 		refresh();
 
-		_element_mouse_selected_frame.set_is_showed( false );
+		_element_highlighted_frame.set_is_showed( false );
 		_element_last_selected_frame.set_is_showed( false );
 
 		if ( input_event->type == input_event_c::type_e_mouse_move || input_event->type == input_event_c::type_e_mouse_key_pressed )
@@ -546,9 +547,9 @@ namespace cheonsa
 			_mouse_selected_item = _pick_item_at_local_point( local_mouse_position );
 			if ( _mouse_selected_item )
 			{
-				_element_mouse_selected_frame.set_is_showed( true );
+				_element_highlighted_frame.set_is_showed( true );
 				box32x2_c item_box = _get_item_box( _mouse_selected_item->_index );
-				_element_mouse_selected_frame.set_layout_simple( item_box );
+				_element_highlighted_frame.set_layout_simple( item_box );
 			}
 			if ( _last_selected_item )
 			{
@@ -571,7 +572,7 @@ namespace cheonsa
 	menu_control_collection_c::menu_control_collection_c()
 		: menu_control_c()
 		, _element_frame()
-		, _element_mouse_selected_frame()
+		, _element_highlighted_frame()
 		, _element_last_selected_frame()
 		, _last_selected_item( nullptr )
 		, _mouse_selected_item( nullptr )
@@ -600,9 +601,9 @@ namespace cheonsa
 		_element_last_selected_frame.set_is_showed( false );
 		_add_element( &_element_last_selected_frame );
 
-		_element_mouse_selected_frame.set_name( string8_c( mode_e_static, "mouse_selected_frame" ) );
-		_element_mouse_selected_frame.set_is_showed( false );
-		_add_element( &_element_mouse_selected_frame );
+		_element_highlighted_frame.set_name( string8_c( mode_e_static, "highlighted_frame" ) );
+		_element_highlighted_frame.set_is_showed( false );
+		_add_element( &_element_highlighted_frame );
 
 		_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
 		_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
@@ -627,7 +628,7 @@ namespace cheonsa
 	{
 		menu_control_c::update_animations( time_step );
 
-		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
+		boolean_c is_descendant_mouse_focused = is_related_to( get_user_interface_root()->get_mouse_focused() );
 		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_frame.set_is_pressed( _is_pressed );
 

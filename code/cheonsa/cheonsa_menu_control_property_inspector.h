@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_database_types.h"
 #include "cheonsa_reflection_types.h"

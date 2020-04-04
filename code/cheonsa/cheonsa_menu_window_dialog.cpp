@@ -1,4 +1,4 @@
-#include "cheonsa_menu_window_dialog.h"
+﻿#include "cheonsa_menu_window_dialog.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -73,9 +73,8 @@ namespace cheonsa
 		, _mode( mode_e_okay )
 		, _result( result_e_okay )
 	{
-		box32x2_c client_panel_local_anchor_measures = _client_panel->get_local_anchor_measures();
-		client_panel_local_anchor_measures.maximum.b += 30.0f + _local_edge_size;
-		_client_panel->set_local_anchor_measures( client_panel_local_anchor_measures );
+		_bottom_bar_size = 30.0f + 8.0f;
+		_apply_client_margins();
 
 		_control_button_a = new menu_control_button_c();
 		_control_button_a->set_name( string8_c( mode_e_static, "button_a" ) );
@@ -131,9 +130,9 @@ namespace cheonsa
 	void_c menu_window_dialog_c::set_mode( mode_e value )
 	{
 		menu_anchor_e box_anchor = menu_anchor_e_right | menu_anchor_e_bottom;
-		box32x2_c box_a = box32x2_c( 100.0f, 30.0f, _local_edge_size + 100.0f + _local_edge_size + 100.0f + _local_edge_size, _local_edge_size );
-		box32x2_c box_b = box32x2_c( 100.0f, 30.0f, _local_edge_size + 100.0f + _local_edge_size, _local_edge_size );
-		box32x2_c box_c = box32x2_c( 100.0f, 30.0f, _local_edge_size, _local_edge_size );
+		box32x2_c box_a = box32x2_c( 100.0f, 30.0f, _edge_size + 100.0f + _edge_size + 100.0f + _edge_size, _edge_size );
+		box32x2_c box_b = box32x2_c( 100.0f, 30.0f, _edge_size + 100.0f + _edge_size, _edge_size );
+		box32x2_c box_c = box32x2_c( 100.0f, 30.0f, _edge_size, _edge_size );
 
 		_mode = value;
 		if ( _mode == mode_e_okay )

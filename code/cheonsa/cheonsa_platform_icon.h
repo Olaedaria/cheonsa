@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_string16.h"

@@ -1,4 +1,4 @@
-#include "cheonsa_menu_types.h" 
+﻿#include "cheonsa_menu_types.h" 
 #include "cheonsa_menu_control.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
@@ -225,7 +225,7 @@ namespace cheonsa
 		: key()
 		, texture( nullptr )
 		, texture_map_mode( texture_map_mode_e_stretch )
-		, texture_map_fill_middle( false )
+		, texture_map_fill_middle( true )
 		, pixel_shader_reference()
 		, state_list()
 	{
@@ -236,7 +236,7 @@ namespace cheonsa
 		key = string8_c();
 		texture = nullptr;
 		texture_map_mode = texture_map_mode_e_stretch;
-		texture_map_fill_middle = false;
+		texture_map_fill_middle = true;
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 		{
 			state_list[ i ].reset();
@@ -261,12 +261,12 @@ namespace cheonsa
 			texture = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 		}
 
-		boolean_c texture_map_size_is_defined = false;
-		sint16_c texture_map_size[ 2 ] = {};
-		attribute = node->find_attribute( "texture_map_size" );
+		boolean_c texture_map_origin_is_defined = false;
+		sint16_c texture_map_origin[ 2 ] = {};
+		attribute = node->find_attribute( "texture_map_origin" );
 		if ( attribute )
 		{
-			texture_map_size_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_size, 2 ) );
+			texture_map_origin_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_origin, 2 ) );
 		}
 
 		boolean_c texture_map_edges_is_defined = false;
@@ -277,12 +277,12 @@ namespace cheonsa
 			texture_map_edges_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_edges, 4 ) );
 		}
 
-		boolean_c texture_map_origin_is_defined = false;
-		sint16_c texture_map_origin[ 2 ] = {};
-		attribute = node->find_attribute( "texture_map_origin" );
+		boolean_c texture_map_size_is_defined = false;
+		sint16_c texture_map_size[ 2 ] = {};
+		attribute = node->find_attribute( "texture_map_size" );
 		if ( attribute )
 		{
-			texture_map_origin_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_origin, 2 ) );
+			texture_map_size_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_size, 2 ) );
 		}
 
 		attribute = node->find_attribute( "texture_map_mode" );
@@ -397,18 +397,6 @@ namespace cheonsa
 						ops::convert_string8_to_float32( attribute->get_value(), state.apparent_scale );
 					}
 
-					attribute = sub_node->find_attribute( "texture_map" );
-					if ( attribute )
-					{
-						ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, state.texture_map, 4 ) );
-					}
-
-					attribute = sub_node->find_attribute( "texture_map_edges" );
-					if ( attribute )
-					{
-						ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, state.texture_map_edges, 4 ) );
-					}
-
 					attribute = sub_node->find_attribute( "texture_map_origin" );
 					if ( attribute )
 					{
@@ -417,7 +405,17 @@ namespace cheonsa
 						{
 							texture_map_origin[ 0 ] = state_texture_map_origin[ 0 ];
 							texture_map_origin[ 1 ] = state_texture_map_origin[ 1 ];
+							state.texture_map[ 0 ] = texture_map_origin[ 0 ];
+							state.texture_map[ 1 ] = texture_map_origin[ 1 ];
+							state.texture_map[ 2 ] = texture_map_origin[ 0 ] + texture_map_size[ 0 ];
+							state.texture_map[ 3 ] = texture_map_origin[ 1 ] + texture_map_size[ 1 ];
 						}
+					}
+
+					attribute = sub_node->find_attribute( "texture_map_edges" );
+					if ( attribute )
+					{
+						ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, state.texture_map_edges, 4 ) );
 					}
 
 					// advance to next state index by default.

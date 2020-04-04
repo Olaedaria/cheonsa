@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_menu_types.h"
 #include "cheonsa_platform_pointer.h"

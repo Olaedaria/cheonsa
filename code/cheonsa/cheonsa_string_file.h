@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_dictionary.h"

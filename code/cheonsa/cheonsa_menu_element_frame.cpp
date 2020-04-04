@@ -1,4 +1,4 @@
-#include "cheonsa_menu_element_frame.h"
+﻿#include "cheonsa_menu_element_frame.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -330,6 +330,9 @@ namespace cheonsa
 					_draw_list.append_rectangle( box, map, pixel_shader, texture, draw_color, draw_shared_colors );
 				}
 			}
+		}
+		else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_center )
+		{
 		}
 
 		_draw_list_is_dirty = false;

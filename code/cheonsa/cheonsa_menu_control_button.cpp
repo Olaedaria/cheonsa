@@ -1,4 +1,5 @@
-#include "cheonsa_menu_control_button.h"
+﻿#include "cheonsa_menu_control_button.h"
+#include "cheonsa_user_interface.h"
 
 namespace cheonsa
 {
@@ -59,7 +60,7 @@ namespace cheonsa
 	{
 		menu_control_c::update_animations( time_step );
 
-		boolean_c is_descendant_mouse_focused = _get_is_descendant_mouse_focused();
+		boolean_c is_descendant_mouse_focused = is_related_to( get_user_interface_root()->get_mouse_focused() );
 
 		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_frame.set_is_pressed( _is_pressed );

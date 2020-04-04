@@ -1,4 +1,4 @@
-#include "cheonsa_menu_control_scroll_bar_i.h"
+﻿#include "cheonsa_menu_control_scroll_bar_i.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -248,7 +248,7 @@ namespace cheonsa
 		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_element( &_grip_element );
 
-		set_style_map_key( string8_c( mode_e_static, "engine_scroll" ) );
+		set_style_map_key( string8_c( mode_e_static, "e_scroll" ) );
 
 		update_transform_and_layout();
 	}

@@ -1,4 +1,4 @@
-#include "cheonsa_menu_control_property_inspector.h"
+﻿#include "cheonsa_menu_control_property_inspector.h"
 #include "cheonsa_user_interface.h"
 #include "cheonsa_reflection_enumeration.h"
 #include "cheonsa_reflection_class.h"
@@ -982,24 +982,24 @@ namespace cheonsa
 			_message = new menu_control_label_c();
 			_message->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 			_message_dialog = new menu_window_dialog_c();
-			_message_dialog->give_control( _message );
+			_message_dialog->give_control_to_client( _message );
 
 			_color_picker = new menu_control_color_picker_c();
 			_color_picker->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 			_color_picker->on_value_changed.subscribe( this, &menu_control_property_inspector_c::_handle_color_picker_on_value_changed );
 			_color_picker_dialog = new menu_window_dialog_c();
-			_color_picker_dialog->give_control( _color_picker );
+			_color_picker_dialog->give_control_to_client( _color_picker );
 
 			_file_picker = new menu_control_file_picker_c();
 			_file_picker->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 			_file_picker->set_mode( menu_control_file_picker_c::mode_e_load );
 			_file_picker_dialog = new menu_window_dialog_c();
-			_file_picker_dialog->give_control( _file_picker );
+			_file_picker_dialog->give_control_to_client( _file_picker );
 
 			_text_editor = new menu_control_text_c();
 			_text_editor->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 			_text_editor_dialog = new menu_window_dialog_c();
-			_text_editor_dialog->give_control( _text_editor );
+			_text_editor_dialog->give_control_to_client( _text_editor );
 		}
 
 		set_style_map_key( string8_c( mode_e_static, "e_property_inspector" ) );

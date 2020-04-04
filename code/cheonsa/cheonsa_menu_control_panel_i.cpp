@@ -1,4 +1,4 @@
-#include "cheonsa_menu_control_panel.h"
+﻿#include "cheonsa_menu_control_panel.h"
 
 namespace cheonsa
 {
@@ -27,6 +27,36 @@ namespace cheonsa
 		}
 	}
 
+	sint32_c menu_control_panel_i::_get_controls_in_client_count() const
+	{
+		return _client->get_control_count();
+	}
+
+	menu_control_c const * menu_control_panel_i::_get_control_in_client( sint32_c control_index ) const
+	{
+		return _client->get_control( control_index );
+	}
+
+	menu_control_c * menu_control_panel_i::_get_control_in_client( sint32_c control_index )
+	{
+		return _client->get_control( control_index );
+	}
+
+	sint32_c menu_control_panel_i::_give_control_to_client( menu_control_c * control, sint32_c index )
+	{
+		return _client->_give_control( control, index );
+	}
+
+	menu_control_c * menu_control_panel_i::_take_control_from_client( sint32_c control_index )
+	{
+		return _client->_take_control( control_index );
+	}
+
+	void_c menu_control_panel_i::_remove_and_delete_all_controls_from_client()
+	{
+		_client->_remove_and_delete_all_controls();
+	}
+
 	menu_control_panel_i::menu_control_panel_i()
 		: menu_control_c()
 		, _element_frame()
@@ -53,36 +83,6 @@ namespace cheonsa
 	{
 		_element_frame.set_is_selected( _is_mouse_focused || _is_text_focused );
 		menu_control_c::update_animations( time_step );
-	}
-
-	sint32_c menu_control_panel_i::get_controls_in_client_count() const
-	{
-		return _client->get_control_count();
-	}
-
-	menu_control_c const * menu_control_panel_i::get_control_in_client( sint32_c control_index ) const
-	{
-		return _client->get_control( control_index );
-	}
-
-	menu_control_c * menu_control_panel_i::get_control_in_client( sint32_c control_index )
-	{
-		return _client->get_control( control_index );
-	}
-
-	sint32_c menu_control_panel_i::give_control_to_client( menu_control_c * control, sint32_c index )
-	{
-		return _client->_give_control( control, index );
-	}
-
-	menu_control_c * menu_control_panel_i::take_control_from_client( sint32_c control_index )
-	{
-		return _client->_take_control( control_index );
-	}
-
-	void_c menu_control_panel_i::remove_and_delete_all_controls_from_client()
-	{
-		_client->_remove_and_delete_all_controls();
 	}
 
 	box32x2_c const & menu_control_panel_i::_get_client_margins() const

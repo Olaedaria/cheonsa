@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cheonsa_data_stream.h"
 #include "cheonsa_string8.h"

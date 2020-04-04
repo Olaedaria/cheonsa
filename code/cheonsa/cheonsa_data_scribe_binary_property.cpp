@@ -1,4 +1,4 @@
-#include "cheonsa_data_scribe_binary_property.h"
+﻿#include "cheonsa_data_scribe_binary_property.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa

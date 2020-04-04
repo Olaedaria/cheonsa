@@ -1,4 +1,4 @@
-#include "cheonsa_platform_pointer.h"
+﻿#include "cheonsa_platform_pointer.h"
 #include "cheonsa_engine.h"
 
 #if defined( cheonsa_platform_windows )
