@@ -71,7 +71,7 @@ namespace cheonsa
 		time_date_code_e_ss
 	};
 
-	boolean_c time_scan_for_date_code( char8_c * string, time_date_code_e & code, sint32_c & code_length )
+	boolean_c time_scan_for_date_code( char8_c const * string, time_date_code_e & code, sint32_c & code_length )
 	{
 		if ( string[ 0 ] )
 		{
@@ -326,7 +326,7 @@ namespace cheonsa
 
 		time_date_code_e code;
 		sint32_c code_length;
-		char8_c * string = format.character_list.get_internal_array();
+		char8_c const * string = format.character_list.get_internal_array();
 		while ( string[ 0 ] )
 		{
 			if ( time_scan_for_date_code( string, code, code_length ) )

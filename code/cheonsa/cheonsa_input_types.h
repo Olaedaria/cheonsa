@@ -366,14 +366,17 @@ namespace cheonsa
 	public:
 		type_e type; // what kind of event occurred, and which data in this structure is relevant to it.
 
+		sint64_c time; // when this event was recorded (don't expect it to be perfect, but it should be very close to when it actually happened), via call to ops::time_get_high_resolution_timer_count().
+
 		input_mouse_key_e mouse_key; // the mouse key which's state was changed. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
 		input_key_state_bit_e mouse_key_state; // will be either input_key_state_bit_e_pressed or input_key_state_bit_e_released. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
-		sint8_c mouse_key_multi_click_count; // if mouse_key_state == input_key_state_bit_e_pressed, then this will be set to 1, 2 or 3 for single, double, or triple click. otherwise it will be set to 0. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
 
 		vector32x2_c mouse_position; // current position of mouse in the game window's client area.
 		vector32x2_c mouse_position_delta; // delta position of mouse relative to last mouse_move input event. only used when event_type is input_event_type_e_mouse_move.
 
 		float32_c mouse_wheel_delta; // delta position of mouse wheel relative to last mouse_wheel input event. only used when event_type is input_event_type_e_mouse_wheel.
+
+		sint32_c multi_click_count;
 
 		input_keyboard_key_e keyboard_key; // only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
 		input_key_state_bit_e keyboard_key_state; // will be either input_key_state_bit_e_pressed or input_key_state_bit_e_released. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
@@ -401,8 +404,8 @@ namespace cheonsa
 	class input_drag_drop_payload_c
 	{
 	public:
-		string8_c type;
-		core_list_c< uint8_c > data;
+		string8_c type; // hint to the program as to what kind of data is in the payload.
+		core_list_c< uint8_c > data; // any kind of data. could be a string, could be a pointer, etc.
 
 	public:
 		input_drag_drop_payload_c();

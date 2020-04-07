@@ -33,9 +33,11 @@ namespace cheonsa
 		};
 
 	private:
-		menu_control_button_c * _control_button_a; // okay, yes.
-		menu_control_button_c * _control_button_b; // cancel, no.
-		menu_control_button_c * _control_button_c; // cancel.
+		menu_control_text_c * _message;
+
+		menu_control_button_c * _button_a; // okay, yes.
+		menu_control_button_c * _button_b; // cancel, no.
+		menu_control_button_c * _button_c; // cancel.
 
 		mode_e _mode;
 		result_e _result;
@@ -52,12 +54,17 @@ namespace cheonsa
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );
 
+		string16_c get_message() const;
+		void_c set_message( string8_c const & plain_text );
+		void_c set_message( string16_c const & plain_text );
+		void_c clear_message();
+
 		result_e get_result() const; // gets the last result of the dialog.
 
 		virtual void_c set_is_showed( boolean_c value, boolean_c and_wants_to_be_deleted = false ) override; // sets _result to result_e_none and then calls base implementation.
 		virtual void_c set_is_showed_immediately( boolean_c value ) override; // sets _result to result_e_none and then calls base implementation.
 
-		core_event_c< void_c, menu_window_dialog_c * > on_result; // subscribe to on_hide instead and then call get_result().
+		core_event_c< void_c, menu_window_dialog_c * > on_submitted;
 
 	};
 

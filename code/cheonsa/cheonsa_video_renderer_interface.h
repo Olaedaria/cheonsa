@@ -387,6 +387,7 @@ namespace cheonsa
 		{
 			vector32x4_c menu_draw_color;
 			vector32x4_c menu_draw_shared_colors[ 3 ];
+			vector32x4_c menu_draw_clip_planes[ 4 ]; // per-element clip planes, in addition to the nested ones defined by menu_clip_plane_stack_length and menu_clip_plane_stack.
 		};
 
 		struct

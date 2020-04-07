@@ -9,6 +9,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX // silly windows, leave us alone.
 #include <Windows.h>
+#include <Shlobj.h> // needed for SHGetKnownFolderPath, used to build shortcut list to common locations on windows.
 #endif
 
 namespace cheonsa
@@ -3531,10 +3532,10 @@ namespace cheonsa
 		boolean_c string16_is_valid_for_file_path( string16_c const & string )
 		{
 			sint32_c length = string.get_length();
-			char16_c * array = string.character_list.get_internal_array();
+			char16_c const * c = string.character_list.get_internal_array();
 			for ( sint32_c i = 0; i < length; i++ )
 			{
-				if ( !char16_is_valid_for_file_path( array[ i ] ) )
+				if ( !char16_is_valid_for_file_path( c[ i ] ) )
 				{
 					return false;
 				}
@@ -3545,101 +3546,16 @@ namespace cheonsa
 		boolean_c string16_is_valid_for_file_name( string16_c const & string )
 		{
 			sint32_c length = string.get_length();
-			char16_c * array = string.character_list.get_internal_array();
+			char16_c const * c = string.character_list.get_internal_array();
 			for ( sint32_c i = 0; i < length; i++ )
 			{
-				if ( !char16_is_valid_for_file_name( array[ i ] ) )
+				if ( !char16_is_valid_for_file_name( c[ i ] ) )
 				{
 					return false;
 				}
 			}
 			return true;
 		}
-
-		boolean_c path_is_formatted_for_cheonsa( string16_c const & path, boolean_c has_trailing_slash )
-		{
-			char16_c const * character_pointer = path.character_list.get_internal_array();
-			char16_c const * character_array_end = character_pointer + path.get_length();
-			char16_c character = 0;
-			while ( character_pointer < character_array_end )
-			{
-				character = *character_pointer++;
-				if ( ( character >= 0 && character <= 31 ) || ( character >= 128 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '\\' ) )
-				{
-					return false;
-				}
-			}
-			if ( has_trailing_slash && character != '/' )
-			{
-				return false;
-			}
-			if ( !has_trailing_slash && character == '/' )
-			{
-				return false;
-			}
-			return true;
-		}
-
-		void_c path_format_for_cheonsa( string16_c const & windows_file_path_in, string16_c & cheonsa_file_path_out, boolean_c add_trailing_slash )
-		{
-			sint32_c start = 0;
-			if ( string16_starts_with( windows_file_path_in.character_list.get_internal_array(), "\\\\?\\" ) )
-			{
-				start = 4;
-			}
-			cheonsa_file_path_out.character_list.construct_mode_dynamic_from_array( &windows_file_path_in.character_list.get_internal_array()[ start ], windows_file_path_in.character_list.get_length() - start );
-
-			sint32_c length = cheonsa_file_path_out.get_length();
-			for ( sint32_c i = 0; i < length; i++ )
-			{
-				if ( cheonsa_file_path_out.character_list[ i ] == '\\' )
-				{
-					cheonsa_file_path_out.character_list[ i ] = '/';
-				}
-			}
-
-			if ( add_trailing_slash )
-			{
-				if ( cheonsa_file_path_out.character_list[ cheonsa_file_path_out.get_length() ] != '/' )
-				{
-					cheonsa_file_path_out += '/';
-				}
-			}
-		}
-
-		#if defined( cheonsa_platform_windows )
-		void_c path_format_for_windows( string16_c const & file_path_in, string16_c & file_path_out )
-		{
-			// os paths must be absolute paths so they must start with a drive letter.
-			assert( file_path_in.get_length() > 0 );
-
-			// "File I/O functions in the Windows API convert "/" to "\" as part of converting the name to an NT-style name, except when using the "\\?\" prefix as detailed in the following sections."
-			// "Because you cannot use the "\\?\" prefix with a relative path, relative paths are always limited to a total of MAX_PATH characters."
-			// "The Windows API has many functions that also have Unicode versions to permit an extended-length path for a maximum total path length of 32,767 characters. This type of path is composed of components separated by backslashes, each up to the value returned in the lpMaximumComponentLength parameter of the GetVolumeInformation function (this value is commonly 255 characters). To specify an extended-length path, use the "\\?\" prefix. For example, "\\?\D:\very long path"."
-			if ( !string16_starts_with( file_path_in.character_list.get_internal_array(), "\\\\?\\" ) )
-			{
-				assert( ( file_path_in.character_list[ 0 ] >= 'a' && file_path_in.character_list[ 0 ] <= 'z' ) || ( file_path_in.character_list[ 0 ] >= 'A' && file_path_in.character_list[ 0 ] <= 'Z' ) );
-				assert( file_path_in.character_list[ 1 ] == ':' );
-				assert( file_path_in.character_list[ 2 ] == '\\' || file_path_in.character_list[ 2 ] == '/' );
-				file_path_out += "\\\\?\\";
-				file_path_out += file_path_in;
-			}
-			else
-			{
-				file_path_out.character_list.construct_mode_dynamic_from_array( file_path_in.character_list.get_internal_array(), file_path_in.character_list.get_length() );
-			}
-
-			// change forward slashes to back slashes.
-			sint32_c length = file_path_out.get_length();
-			for ( sint32_c i = 0; i < length; i++ )
-			{
-				if ( file_path_out.character_list[ i ] == '/' )
-				{
-					file_path_out.character_list[ i ] = '\\';
-				}
-			}
-		}
-		#endif
 
 		string16_c path_get_mother( string16_c const & a )
 		{
@@ -3647,7 +3563,8 @@ namespace cheonsa
 
 			// skip the trailing slash if it's present.
 			sint32_c a_length = a.get_length();
-			if ( a.character_list[ a_length - 1 ] == '/' )
+			char16_c a_character = a.character_list[ a_length - 1 ];
+			if ( a_character == '/' || a_character == '\\' )
 			{
 				a_length--;
 			}
@@ -3656,8 +3573,8 @@ namespace cheonsa
 			sint32_c i = a_length - 1;
 			while ( i >= 0 )
 			{
-				char16_c a_character = a.character_list[ i ];
-				if ( a_character == '/' )
+				a_character = a.character_list[ i ];
+				if ( a_character == '/' || a_character == '\\' )
 				{
 					i++;
 					break;
@@ -3681,7 +3598,8 @@ namespace cheonsa
 			// file paths must not end with a slash.
 			sint32_c a_length = a.get_length();
 			assert( a_length > 0 );
-			assert( a.character_list[ a_length - 1 ] != '/' && a.character_list[ a_length - 1 ] != '\\' );
+			char16_c a_character = a.character_list[ a_length - 1 ];
+			assert( a_character != '/' && a_character != '\\' );
 
 			// walk backwards until we find a dot.
 			sint32_c i = a_length - 1;
@@ -3716,7 +3634,9 @@ namespace cheonsa
 
 			// folder paths will end in a slash and we want to exclude it from the result.
 			sint32_c a_length = a.get_length();
-			if ( a.character_list[ a_length - 1 ] == '/' )
+			assert( a_length > 0 );
+			char16_c a_character = a.character_list[ a_length - 1 ];
+			if ( a_character == '/' || a_character == '\\' )
 			{
 				a_length--;
 			}
@@ -3754,7 +3674,9 @@ namespace cheonsa
 
 			// folder paths will end in a slash and we want to exclude it from the result.
 			sint32_c a_length = a.get_length();
-			if ( a.character_list[ a_length - 1 ] == '/' )
+			assert( a_length > 0 );
+			char16_c a_character = a.character_list[ a_length - 1 ];
+			if ( a_character == '/' || a_character == '\\' )
 			{
 				a_length--;
 			}
@@ -3794,83 +3716,289 @@ namespace cheonsa
 		//
 		//
 
-		boolean_c file_system_get_file_or_folder_modified_time( string16_c const & file_path, sint64_c & milliseconds_since_epoch )
+//		boolean_c file_system_set_file_or_folder_last_write_time( string16_c const & file_path, sint64_c milliseconds_since_epoch )
+//		{
+//			assert( path_is_formatted_for_cheonsa( file_path, false ) );
+//#if defined( cheonsa_platform_windows )
+//			string16_c file_path_windows = ops::path_format_for_windows( file_path );
+//			boolean_c result = false;
+//			HANDLE file_handle = CreateFileW( file_path_windows.character_list.get_internal_array(), FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+//			if ( file_handle != INVALID_HANDLE_VALUE )
+//			{
+//				ULARGE_INTEGER file_time_large_integer;
+//				file_time_large_integer.QuadPart = time_format_for_windows( milliseconds_since_epoch );
+//				FILETIME file_time;
+//				file_time.dwLowDateTime = file_time_large_integer.LowPart;
+//				file_time.dwHighDateTime = file_time_large_integer.HighPart;
+//				SetFileTime( file_handle, NULL, NULL, &file_time );
+//				CloseHandle( file_handle );
+//				result = true;
+//			}
+//			return result;
+//#else
+//#error file_system_get_file_or_folder_modified_time is not implemented.
+//#endif
+//		}
+
+		boolean_c file_system_is_path_formatted_for_cheonsa( string16_c const & path, file_system_path_type_e path_type )
 		{
-			if ( file_path.get_length() == 0 )
+			// all cheonsa paths should be relative.
+			// should not start with a drive letter, but we check this indirectly by checking that it does not contain a colon ':'.
+			// check that only valid characters are in the path.
+			char16_c const * c = path.character_list.get_internal_array();
+			char16_c character;
+			while ( *c )
+			{
+				character = *c++;
+				if ( ( character >= 0 && character <= 31 ) || ( character >= 128 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '\\' ) )
+				{
+					return false;
+				}
+			}
+			// check for presence or absence of trailing slash.
+			if ( path_type == file_system_path_type_e_file && character == '/' )
 			{
 				return false;
 			}
-			assert( path_is_formatted_for_cheonsa( file_path, false ) );
-			#if defined( cheonsa_platform_windows )
-			string16_c file_path_windows;
-			ops::path_format_for_windows( file_path, file_path_windows );
-			boolean_c result = false;
-			milliseconds_since_epoch = 0;
-			HANDLE file_handle = CreateFileW( file_path_windows.character_list.get_internal_array(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-			if ( file_handle != INVALID_HANDLE_VALUE )
+			if ( path_type == file_system_path_type_e_folder && character != '/' )
 			{
-				FILETIME file_time;
-				if ( GetFileTime( file_handle, NULL, NULL, &file_time ) )
-				{
-					ULARGE_INTEGER file_time_large_integer;
-					file_time_large_integer.LowPart = file_time.dwLowDateTime;
-					file_time_large_integer.HighPart = file_time.dwHighDateTime;
-					milliseconds_since_epoch = time_format_for_cheonsa( file_time_large_integer.QuadPart );
-					result = true;
-				}
-				CloseHandle( file_handle );
+				return false;
 			}
-			return result;
-			#else
-			#error file_system_get_file_or_folder_modified_time is not implemented.
-			#endif
+			return true;
 		}
 
-		boolean_c file_system_set_file_or_folder_time_modified( string16_c const & file_path, sint64_c milliseconds_since_epoch )
+		string16_c file_system_fix_path( string16_c const & path )
 		{
-			assert( path_is_formatted_for_cheonsa( file_path, false ) );
-			#if defined( cheonsa_platform_windows )
-			string16_c file_path_windows;
-			ops::path_format_for_windows( file_path, file_path_windows );
-			boolean_c result = false;
-			HANDLE file_handle = CreateFileW( file_path_windows.character_list.get_internal_array(), FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-			if ( file_handle != INVALID_HANDLE_VALUE )
+			string16_c result;
+			string16_c t;
+			string16_c node;
+			sint32_c i = 0;
+			WCHAR t2[ MAX_PATH ] = {};
+			DWORD t2r = 0;
+			//if ( ops::string16_starts_with( path.character_list.get_internal_array(), "\\\\?\\" ) )
+			//{
+			//	i = 4;
+			//}
+			// check for drive letter.
+			if ( path.get_length() < i + 2 )
 			{
-				ULARGE_INTEGER file_time_large_integer;
-				file_time_large_integer.QuadPart = time_format_for_windows( milliseconds_since_epoch );
-				FILETIME file_time;
-				file_time.dwLowDateTime = file_time_large_integer.LowPart;
-				file_time.dwHighDateTime = file_time_large_integer.HighPart;
-				SetFileTime( file_handle, NULL, NULL, &file_time );
-				CloseHandle( file_handle );
-				result = true;
+				goto done;
+			}
+			// check for colon.
+			if ( path.character_list[ i + 1 ] == ':' )
+			{
+				if ( !char16_is_letter( path.character_list[ i ] ) )
+				{
+					goto done;
+				}
+				t += char16_to_upper( path.character_list[ i ] );
+				t += ':';
+			}
+			// if path is just drive letter and colon, then add the trailing slash and return.
+			if ( path.get_length() == 2 )
+			{
+				t += '\\';
+				result = t;
+				goto done;
+			}
+			i = 2;
+
+		process_next_node:
+			while ( i < path.get_length() )
+			{
+				char16_c c = path.character_list[ i ];
+				if ( node.get_length() == 0 )
+				{
+					if ( c == '/' || c == '\\' )
+					{
+						node += '\\';
+						i++;
+					}
+					else
+					{
+						goto done;
+					}
+				}
+				else
+				{
+					if ( c == '/' || c == '\\' )
+					{
+						break;
+					}
+					else
+					{
+						node += c;
+						i++;
+					}
+				}
+			}
+
+			if ( node == "\\." )
+			{
+				// ignore this node.
+			}
+			else if( node == "\\.." )
+			{
+				// get mother node.
+				t = path_get_mother( t );
+				if ( t.get_length() == 0 )
+				{
+					// if collapsed into nothing, return nothing.
+					goto done;
+				}
+			}
+			else
+			{
+				if ( t.character_list[ t.get_length() - 1 ] != '\\' )
+				{
+					t += node;
+				}
+			}
+			if ( i < path.get_length() )
+			{
+				node = string16_c();
+				goto process_next_node;
+			}
+
+			// fix casing.
+			t2r = GetLongPathName( t.character_list.get_internal_array(), t2, MAX_PATH );
+			if ( t2r == 0 )
+			{
+				goto done;
+			}
+			else if ( t2r == 3 )
+			{
+				// just drive letter.
+				result = t2;
+				goto done;
+			}
+
+			// determine if trailing slash needs to be added or removed.
+			DWORD file_attributes = GetFileAttributes( t2 );
+			if ( file_attributes == INVALID_FILE_ATTRIBUTES )
+			{
+				goto done;
+			}
+			result = t2;
+			if ( file_attributes & FILE_ATTRIBUTE_DIRECTORY )
+			{
+				if ( result.character_list[ result.get_length() - 1 ] != '\\' )
+				{
+					result += '\\';
+				}
+			}
+			else
+			{
+				if ( result.character_list[ result.get_length() - 1 ] == '\\' )
+				{
+					result.character_list.remove_at_end( 2 );
+					result.character_list.insert_at_end( 0 );
+				}
+			}
+
+		done:
+			return result;
+		}
+
+		boolean_c file_system_is_path_formatted_for_windows( string16_c const & path, file_system_path_type_e path_type )
+		{
+			// all windows paths should be absolute.
+			// check for max path prefix.
+			sint32_c i = 0;
+			//if ( ops::string16_starts_with( path.character_list.get_internal_array(), "\\\\?\\" ) )
+			//{
+			//	i = 4;
+			//}
+			// check for drive letter.
+			if ( path.get_length() < i + 3 )
+			{
+				return false;
+			}
+			if ( char16_is_letter( path.character_list[ i ] ) )
+			{
+				// check for colon.
+				if ( path.character_list[ i + 1 ] == ':' )
+				{
+					// check for back slash.
+					if ( path.character_list[ i + 2 ] == '\\' )
+					{
+						// check that only valid characters are in the path.
+						char16_c const * c = &path.character_list.get_internal_array()[ i ];
+						char16_c character;
+						while ( *c )
+						{
+							character = *c++;
+							if ( ( character >= 0 && character <= 31 ) || ( character >= 128 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '/' ) )
+							{
+								return false;
+							}
+						}
+						// check for presence or absence of trailing slash.
+						if ( path_type == file_system_path_type_e_file && character == '\\' )
+						{
+							return false;
+						}
+						if ( path_type == file_system_path_type_e_folder && character != '\\' )
+						{
+							return false;
+						}
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		string16_c file_system_convert_path_format_from_cheonsa_to_windows( string16_c const & path )
+		{
+			string16_c result;
+			result = path;
+			char16_c * character_pointer = result.character_list.get_internal_array();
+			while ( *character_pointer )
+			{
+				if ( *character_pointer == '/' )
+				{
+					*character_pointer = '\\';
+				}
+				character_pointer++;
 			}
 			return result;
-			#else
-			#error file_system_get_file_or_folder_modified_time is not implemented.
-			#endif
+		}
+
+		string16_c file_system_convert_path_format_from_windows_to_cheonsa( string16_c const & path )
+		{
+			string16_c result;
+			result = path;
+			char16_c * c = result.character_list.get_internal_array();
+			while ( *c )
+			{
+				if ( *c == '\\' )
+				{
+					*c = '/';
+				}
+				c++;
+			}
+			return result;
 		}
 
 		boolean_c file_system_does_file_exist( string16_c const & file_path )
 		{
-			#if defined( cheonsa_platform_windows )
-			string16_c file_path_windows;
-			path_format_for_windows( file_path, file_path_windows );
-			DWORD file_attributes = GetFileAttributesW( file_path_windows.character_list.get_internal_array() );
+#if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_file ) );
+			DWORD file_attributes = GetFileAttributes( file_path.character_list.get_internal_array() );
 			return ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 ) );
-			#else
-			#error file_system_does_file_exist is not implemented.
-			#endif
+#else
+#error ops::file_system_does_file_exist() is not implemented.
+#endif
 		}
 
 		boolean_c file_system_create_file( string16_c const & file_path )
 		{
-			#if defined( cheonsa_platform_windows )
-			string16_c file_path_windows;
-			path_format_for_windows( file_path, file_path_windows );
+#if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_file ) );
 			FILE * file = nullptr;
-			errno_t omg_lol_wtf_even_are_words = _wfopen_s( &file, file_path_windows.character_list.get_internal_array(), L"wb" );
-			if ( omg_lol_wtf_even_are_words != 0 )
+			errno_t asdkgjfhawe = _wfopen_s( &file, file_path.character_list.get_internal_array(), L"wb" );
+			if ( asdkgjfhawe != 0 )
 			{
 				return false;
 			}
@@ -3880,102 +4008,118 @@ namespace cheonsa
 			}
 			fclose( file );
 			return true;
-			#else
-			#error file_system_create_file is not implemented.
-			#endif
+#else
+#error ops::file_system_create_file() is not implemented.
+#endif
 		}
 
-		boolean_c file_system_does_folder_exist( string16_c const & file_path )
+		boolean_c file_system_does_folder_exist( string16_c const & folder_path )
 		{
-			#if defined( cheonsa_platform_windows )
-			string16_c file_path_windows;
-			path_format_for_windows( file_path, file_path_windows );
-			DWORD file_attributes = GetFileAttributesW( file_path_windows.character_list.get_internal_array() );
+#if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
+			DWORD file_attributes = GetFileAttributes( folder_path.character_list.get_internal_array() );
 			return ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 ) );
-			#else
-			#error file_system_does_folder_exist is not implemented.
-			#endif
+#else
+#error ops::file_system_does_folder_exist() is not implemented.
+#endif
 		}
 
-		boolean_c file_system_create_folder( string16_c const & file_path )
+		boolean_c file_system_create_folder( string16_c const & folder_path )
 		{
-			#if defined( cheonsa_platform_windows )
-			// windows doesn't let us create a new folder multiple levels of non-existent folders, so we have to create folders for each path level one by one.
-			string16_c file_path_windows;
-			path_format_for_windows( file_path, file_path_windows );
-
+#if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
+			// windows doesn't let us create a set of nested folders in one call, so we have to create folders at each level one by one.
 			BOOL result = FALSE;
-			sint32_c final_end = file_path_windows.get_length();
-			sint32_c end = 7;
+			sint32_c final_end = folder_path.get_length();
+			sint32_c end = 7; // skip the "\\?\C:\".
 			while ( end < final_end )
 			{
 				while ( end < final_end )
 				{
-					if ( file_path_windows.character_list[ end ] == '\\' )
+					if ( folder_path.character_list[ end ] == '\\' )
 					{
 						end++;
 						break;
 					}
 					end++;
 				}
-				string16_c sub_path = ops::string16_sub_string( file_path_windows, 0, end );
-				DWORD file_attributes = GetFileAttributesW( sub_path.character_list.get_internal_array() );
+				string16_c sub_folder_path = ops::string16_sub_string( folder_path, 0, end );
+				DWORD file_attributes = GetFileAttributes( sub_folder_path.character_list.get_internal_array() );
 				BOOL folder_exists = ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 ) );
 				if ( folder_exists == false )
 				{
-					result = CreateDirectoryW( sub_path.character_list.get_internal_array(), NULL );
+					result = CreateDirectoryW( sub_folder_path.character_list.get_internal_array(), NULL );
 				}
 			}
 			return result != 0;
-			#else
-			#error file_system_create_folder is not implemented.
-			#endif
+#else
+#error ops::file_system_create_folder() is not implemented.
+#endif
 		}
 
 		boolean_c file_system_move_file_or_folder( string16_c const & from_file_path, string16_c const & to_file_path )
 		{
-			#if defined( cheonsa_platform_windows )
-			string16_c from_file_path_windows;
-			path_format_for_windows( from_file_path, from_file_path_windows );
-			string16_c to_file_path_windows;
-			path_format_for_windows( to_file_path, to_file_path_windows );
-			BOOL result = MoveFileW( from_file_path_windows.character_list.get_internal_array(), to_file_path_windows.character_list.get_internal_array() );
+			assert( false );
+#if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( from_file_path, file_system_path_type_e_dont_care ) );
+			assert( file_system_is_path_formatted_for_windows( to_file_path, file_system_path_type_e_dont_care ) );
+			BOOL result = MoveFileW( from_file_path.character_list.get_internal_array(), to_file_path.character_list.get_internal_array() );
 			return result != 0;
-			#else
-			#error file_system_move_file_or_folder is not implemented.
-			#endif
+#else
+#error ops::file_system_move_file_or_folder() is not implemented.
+#endif
 		}
 
 		boolean_c file_system_delete_file_or_folder( string16_c const & file_path )
 		{
-			#if defined( cheonsa_platform_windows )
-			string16_c file_path_windows;
-			path_format_for_windows( file_path, file_path_windows );
-			BOOL result = DeleteFileW( file_path_windows.character_list.get_internal_array() );
+			assert( false );
+#if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_dont_care ) );
+			BOOL result = DeleteFileW( file_path.character_list.get_internal_array() );
 			return result != 0;
-			#else
-			#error file_system_delete_file_or_folder is not implemented.
-			#endif
+#else
+#error ops::file_system_delete_file_or_folder() is not implemented.
+#endif
 		}
 
-		void_c file_system_get_list( core_list_c< file_system_file_information_c > & result, string16_c const & path, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter )
+		boolean_c file_system_get_file_or_folder_last_write_time( string16_c const & file_path, sint64_c & last_write_time )
 		{
 #if defined( cheonsa_platform_windows )
-			// check that the provided search path is formatted like a folder path.
-			char16_c path_last_character = path.character_list[ path.character_list.get_length() - 2 ];
-			assert( path_last_character == '\\' || path_last_character == '/' );
+			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_dont_care ) );
+			boolean_c result = false;
+			HANDLE file_handle = CreateFileW( file_path.character_list.get_internal_array(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+			if ( file_handle != INVALID_HANDLE_VALUE )
+			{
+				FILETIME file_time;
+				if ( GetFileTime( file_handle, NULL, NULL, &file_time ) )
+				{
+					ULARGE_INTEGER file_time_large_integer;
+					file_time_large_integer.LowPart = file_time.dwLowDateTime;
+					file_time_large_integer.HighPart = file_time.dwHighDateTime;
+					last_write_time = time_convert_time_format_from_windows_to_cheonsa( file_time_large_integer.QuadPart );
+					result = true;
+				}
+				CloseHandle( file_handle );
+			}
+			return result;
+#else
+#error ops::file_system_get_file_or_folder_last_write_time() is not implemented.
+#endif
+		}
 
-			// format the search path for windows's file system.
-			string16_c path_for_windows;
-			path_format_for_windows( path, path_for_windows );
-			string16_c path_for_windows_with_wild_card;
-			path_for_windows_with_wild_card += path_for_windows;
-			path_for_windows_with_wild_card += "*";
+		void_c file_system_get_file_information_list( core_list_c< file_system_file_information_c > & result, string16_c const & folder_path, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter )
+		{
+			result.remove_all();
+#if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
 
-			HANDLE find_file_handle = INVALID_HANDLE_VALUE;
+			string16_c folder_path_with_wild_card = folder_path;
+			folder_path_with_wild_card += "*";
+
+			HANDLE find_handle = INVALID_HANDLE_VALUE;
 			WIN32_FIND_DATAW find_file_data;
-			find_file_handle = FindFirstFileW( path_for_windows_with_wild_card.character_list.get_internal_array(), &find_file_data );
-			if ( find_file_handle == INVALID_HANDLE_VALUE )
+			find_handle = FindFirstFileW( folder_path_with_wild_card.character_list.get_internal_array(), &find_file_data );
+			if ( find_handle == INVALID_HANDLE_VALUE )
 			{
 				return;
 			}
@@ -3992,25 +4136,27 @@ namespace cheonsa
 				{
 					continue;
 				}
+				if ( ops::string16_compare( find_file_data.cFileName, L"." ) || ops::string16_compare( find_file_data.cFileName, L".." ) )
+				{
+					continue;
+				}
 
 				ULARGE_INTEGER windows_time;
-				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 && get_folders )
+				if ( get_folders && ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 )
 				{
 					file_system_file_information_c * result_item = result.emplace_at_end();
-					result_item->path = path;
+					result_item->path = folder_path;
 					result_item->path += string16_c( mode_e_static, find_file_data.cFileName );
+					result_item->path += L'\\';
 					windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
 					windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
-					result_item->creation_time = time_format_for_cheonsa( windows_time.QuadPart );
-					windows_time.LowPart = find_file_data.ftLastAccessTime.dwLowDateTime;
-					windows_time.HighPart = find_file_data.ftLastAccessTime.dwHighDateTime;
-					result_item->last_access_time = time_format_for_cheonsa( windows_time.QuadPart );
+					result_item->creation_time = time_convert_time_format_from_windows_to_cheonsa( windows_time.QuadPart );
 					windows_time.LowPart = find_file_data.ftLastWriteTime.dwLowDateTime;
 					windows_time.HighPart = find_file_data.ftLastWriteTime.dwHighDateTime;
-					result_item->last_write_time = time_format_for_cheonsa( windows_time.QuadPart );
+					result_item->last_write_time = time_convert_time_format_from_windows_to_cheonsa( windows_time.QuadPart );
 					result_item->is_folder = true;
 				}
-				else if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 && get_files )
+				else if ( get_files && ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 )
 				{
 					boolean_c add = true;
 					if ( file_extension_filter_list.get_length() > 0 )
@@ -4028,36 +4174,30 @@ namespace cheonsa
 					if ( add )
 					{
 						file_system_file_information_c * result_item = result.emplace_at_end();
-						result_item->path = path;
+						result_item->path = folder_path;
 						result_item->path += string16_c( mode_e_static, find_file_data.cFileName );
 						windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
 						windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
-						result_item->creation_time = time_format_for_cheonsa( windows_time.QuadPart );
-						windows_time.LowPart = find_file_data.ftLastAccessTime.dwLowDateTime;
-						windows_time.HighPart = find_file_data.ftLastAccessTime.dwHighDateTime;
-						result_item->last_access_time = time_format_for_cheonsa( windows_time.QuadPart );
+						result_item->creation_time = time_convert_time_format_from_windows_to_cheonsa( windows_time.QuadPart );
 						windows_time.LowPart = find_file_data.ftLastWriteTime.dwLowDateTime;
 						windows_time.HighPart = find_file_data.ftLastWriteTime.dwHighDateTime;
-						result_item->last_write_time = time_format_for_cheonsa( windows_time.QuadPart );
+						result_item->last_write_time = time_convert_time_format_from_windows_to_cheonsa( windows_time.QuadPart );
 						result_item->is_folder = false;
 					}
 				}
-			} while ( FindNextFileW( find_file_handle, &find_file_data ) != 0 );
+			} while ( FindNextFileW( find_handle, &find_file_data ) != 0 );
+			FindClose( find_handle );
+#else
+#error ops::file_system_get_file_information_list() is not implemented.
 #endif
 		}
 
 		void_c _file_system_get_files_recursive( core_list_c< string16_c >& result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter )
 		{
 #if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
 
-			char16_c last_char = folder_path.character_list[ folder_path.character_list.get_length() - 2 ];
-			assert( last_char == '\\' || last_char == '/' );
-
-			string16_c folder_path_windows;
-			path_format_for_windows( folder_path, folder_path_windows );
-
-			string16_c folder_path_with_wild_card;
-			folder_path_with_wild_card += folder_path_windows;
+			string16_c folder_path_with_wild_card = folder_path;
 			folder_path_with_wild_card += "*";
 
 			HANDLE find_handle = INVALID_HANDLE_VALUE;
@@ -4076,7 +4216,7 @@ namespace cheonsa
 					if ( ( extension_filter == nullptr ) || ( string16_ends_with( sub_file_name.character_list.get_internal_array(), extension_filter ) ) )
 					{
 						string16_c sub_file_path;
-						sub_file_path += folder_path_windows;
+						sub_file_path += folder_path;
 						sub_file_path += sub_file_name;
 						result.insert_at_end( sub_file_path );
 					}
@@ -4085,35 +4225,29 @@ namespace cheonsa
 				{
 					string16_c sub_folder_name = string16_c( mode_e_static, find_file_data.cFileName );
 					string16_c sub_folder_path;
-					sub_folder_path += folder_path_windows;
+					sub_folder_path += folder_path;
 					sub_folder_path += sub_folder_name;
-					sub_folder_path += "/";
+					sub_folder_path += "\\";
 					_file_system_get_files_recursive( result, sub_folder_path, search_sub_folders, extension_filter );
 				}
 			} while ( FindNextFileW( find_handle, &find_file_data ) != 0 );
 			FindClose( find_handle );
 #else
-			#error _data_get_files_recursive not implemented.
+#error ops::_file_system_get_files_recursive() is not implemented.
 #endif
 		}
 
-		void_c file_system_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter )
+		void_c file_system_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * file_extension_filter )
 		{
-			_file_system_get_files_recursive( result, folder_path, search_sub_folders, extension_filter );
+			_file_system_get_files_recursive( result, folder_path, search_sub_folders, file_extension_filter );
 		}
 
 		void_c _file_system_get_folders_recursive( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
 		{
 #if defined( cheonsa_platform_windows )
+			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
 
-			char16_c last_char = folder_path.character_list[ folder_path.character_list.get_length() - 2 ];
-			assert( last_char == '\\' || last_char == '/' );
-
-			string16_c folder_path_windows;
-			path_format_for_windows( folder_path, folder_path_windows );
-
-			string16_c folder_path_with_wild_card;
-			folder_path_with_wild_card += folder_path_windows;
+			string16_c folder_path_with_wild_card = folder_path;
 			folder_path_with_wild_card += "*";
 
 			HANDLE find_handle = INVALID_HANDLE_VALUE;
@@ -4132,33 +4266,92 @@ namespace cheonsa
 					if ( sub_folder_name != "." && sub_folder_name != ".." )
 					{
 						string16_c sub_folder_path;
-						sub_folder_path += folder_path_windows;
+						sub_folder_path += folder_path;
 						sub_folder_path += sub_folder_name;
 						sub_folder_path += '\\';
-						string16_c sub_folder_path_normalized;
-						path_format_for_cheonsa( sub_folder_path, sub_folder_path_normalized, false ); // add_trailing_slash can be false because path will already end with slash.
-						result.insert_at_end( sub_folder_path_normalized );
+						result.insert_at_end( sub_folder_path );
 					}
 					if ( search_sub_folders )
 					{
 						string16_c sub_folder_path;
-						sub_folder_path += folder_path_windows;
+						sub_folder_path += folder_path;
 						sub_folder_path += sub_folder_name;
 						sub_folder_path += "\\";
 						_file_system_get_folders_recursive( result, sub_folder_path, search_sub_folders );
 					}
 				}
 			} while ( FindNextFileW( find_handle, &find_file_data ) != 0 );
-
 			FindClose( find_handle );
 #else
-			#error _data_get_folders_recursive not implemented.
+#error ops::_file_system_get_folders_recursive() is not implemented.
 #endif
 		}
 
 		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
 		{
 			_file_system_get_folders_recursive( result, folder_path, search_sub_folders );
+		}
+
+		boolean_c file_system_get_quick_access_folder_path( file_system_quick_access_folder_e folder, string16_c & result_folder_path )
+		{
+#if defined( cheonsa_platform_windows )
+			PWSTR ppszPath = NULL;
+			if ( folder == file_system_quick_access_folder_e_desktop )
+			{
+				if ( S_OK == SHGetKnownFolderPath( FOLDERID_Desktop, 0, NULL, &ppszPath ) )
+				{
+					result_folder_path = ppszPath;
+					CoTaskMemFree( ppszPath );
+					return true;
+				}
+			}
+			else if ( folder == file_system_quick_access_folder_e_documents )
+			{
+				if ( S_OK == SHGetKnownFolderPath( FOLDERID_Documents, 0, NULL, &ppszPath ) )
+				{
+					result_folder_path  = ppszPath;
+					CoTaskMemFree( ppszPath );
+					return true;
+				}
+			}
+#else
+#error ops::file_system_get_quick_access_folder_path() is not implemented.
+#endif
+			return false;
+		}
+
+		void_c file_system_get_drive_path_list( core_list_c< file_system_file_information_c > & result )
+		{
+			result.remove_all();
+#if defined( cheonsa_platform_windows )
+			// scan all 26 letters.
+			// what a dumb design in my opinion but it's set in stone i guess.
+			DWORD logical_drives = GetLogicalDrives();
+			for ( sint32_c i = 0; i < 26; i++ )
+			{
+				uint32_c bit = static_cast< uint32_c >( 0x0001 ) << i;
+				if ( logical_drives & bit )
+				{
+					string16_c drive_path;
+					drive_path += static_cast< char16_c >( 'A' + i );
+					drive_path += ":\\";
+					UINT drive_type = GetDriveTypeW( drive_path.character_list.get_internal_array() );
+					if ( drive_type >= 2 )
+					{
+						file_system_file_information_c * information = result.emplace_at_end();
+						information->label = string16_c();
+						information->path = drive_path;
+						WCHAR drive_label[ MAX_PATH + 1 ];
+						if ( GetVolumeInformationW( drive_path.character_list.get_internal_array(), drive_label, MAX_PATH + 1, NULL, 0, 0, NULL, 0 ) )
+						{
+							information->label = drive_label;
+						}
+					}
+				}
+			}
+#else
+#error ops::file_system_get_drive_path_list() is not implemented.
+#endif
 		}
 
 
@@ -4178,7 +4371,7 @@ namespace cheonsa
 			}
 			return result.QuadPart;
 #else
-			#error time_get_high_resolution_timer_frequency not implemented.
+#error ops::time_get_high_resolution_timer_frequency() is not implemented.
 #endif
 		}
 
@@ -4189,7 +4382,7 @@ namespace cheonsa
 			QueryPerformanceCounter( &result );
 			return result.QuadPart;
 #else
-			#error time_get_high_resolution_timer_count not implemented.
+#error ops::time_get_high_resolution_timer_count() is not implemented.
 #endif
 		}
 
@@ -4201,9 +4394,9 @@ namespace cheonsa
 			ULARGE_INTEGER time_large_integer;
 			time_large_integer.LowPart = file_time.dwLowDateTime;
 			time_large_integer.HighPart = file_time.dwHighDateTime;
-			return time_format_for_cheonsa( time_large_integer.QuadPart );
+			return time_convert_time_format_from_windows_to_cheonsa( time_large_integer.QuadPart );
 #else
-			#error time_get_milliseconds_since_epoch not implemented.
+#error ops::time_get_milliseconds_since_epoch() is not implemented.
 #endif
 		}
 
@@ -4219,7 +4412,7 @@ namespace cheonsa
 			}
 			return 0;
 #else
-			#error time_get_local_time_zone_offset not implemented.
+#error ops::time_get_local_time_zone_offset() is not implemented.
 #endif
 		}
 
@@ -4243,20 +4436,20 @@ namespace cheonsa
 		//   >>> ( cheonsa_epoch - windows_epoch ).total_seconds()
 #define cheonsa_windows_epoch_to_cheonsa_epoch 12591201600
 
-		sint64_c time_format_for_cheonsa( sint64_c windows_time )
+		sint64_c time_convert_time_format_from_windows_to_cheonsa( sint64_c windows_time )
 		{
 			// times 10000000 to convert from 1 second intervals to 100 nanosecond intervals.
 			return ( windows_time - ( cheonsa_windows_epoch_to_cheonsa_epoch * 10000000 ) ) / cheonsa_windows_interval_to_cheonsa_interval;
 		}
 
-		sint64_c time_format_for_windows( sint64_c cheonsa_time )
+		sint64_c time_convert_time_format_from_cheonsa_to_windows( sint64_c cheonsa_time )
 		{
 			// times 1000 to convert from 1 second intervals to 1 millisecond intervals.
 			return ( cheonsa_time + ( cheonsa_windows_epoch_to_cheonsa_epoch * 1000 ) ) * cheonsa_windows_interval_to_cheonsa_interval;
 		}
 
 #else
-	#error not implemented.
+#error is not implemented.
 #endif
 
 		//
@@ -5720,6 +5913,11 @@ namespace cheonsa
 		sint32_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b )
 		{
 			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true );
+		}
+
+		boolean_c string16_sort_compare_is_b_less_than_a( string16_c const & a, string16_c const & b )
+		{
+			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false ) > 0;
 		}
 
 		sint32_c string16_sort_compare( string16_c const & a, string16_c const & b )

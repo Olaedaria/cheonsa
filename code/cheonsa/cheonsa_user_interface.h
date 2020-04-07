@@ -7,6 +7,7 @@
 #include "cheonsa_menu_control_scene.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_scene_object.h"
+#include "cheonsa_menu_window_dialog.h"
 
 namespace cheonsa
 {
@@ -45,9 +46,9 @@ namespace cheonsa
 	protected:
 		friend class video_renderer_interface_c;
 
-		video_renderer_canvas_c * _canvas_and_output; // canvas and output associated with operating system window that this user interface will render to.
+		box32x2_c _local_box; // used to lay out root controls that use anchor layout, because they need a rectangle to anchor to. minimum will always be (0, 0). maximum will be (width, height). this is the "window" area of the user interface.
 
-		//menu_render_procedure_c _menu_render_procedure; // used to compile draw lists for 2d menus and to render 2d menus.
+		video_renderer_canvas_c * _canvas_and_output; // canvas and output associated with operating system window that this user interface will render to.
 
 		scene_c * _scene; // this scene needs to be set by the game. it will be the world that the user experiences.
 
@@ -57,10 +58,15 @@ namespace cheonsa
 		menu_control_c * _mouse_focused; // this is the control that has mouse input focus and which will receieve mouse events. controls will trap mouse input focus temporarily if the user initiates a click on them and then drags the mouse, so that the control will continue to receive mouse input events even if the mouse is dragged off of it.
 		menu_control_c * _text_focused; // this is the control that was last clicked on and it is the control will exclusively receieve all keyboard and character input events.
 
-		boolean_c _is_mouse_inside; // tracks if the mouse pointer intersects with any of the controls in this menu context. this lets other parts of the program to determine if the mouse ray32_c intersected with the the user interface before it tries to determine if the mouse ray32_c intersects with the scene.
-		boolean_c _is_set_text_focus; // tracks if set_text_focus() is currently in the process of being processed, so that we can assert if a sequence of events nests and cascaeds where it wants to set text focus recursively and we aren't designd to deal with that.
+		boolean_c _is_mouse_overed; // tracks if the mouse pointer intersects with any of the controls in this menu context. this lets other parts of the program to determine if the mouse ray32_c intersected with the the user interface before it tries to determine if the mouse ray32_c intersects with the scene.
+		boolean_c _is_set_text_focused_changing; // tracks if set_text_focus() is currently in the process of being processed, so that we can assert if a sequence of events nests and cascades where it wants to set text focus recursively and we aren't designd to deal with that (but at this time it's easier to detect such a condition than to program around it).
 
-		box32x2_c _local_box; // used to lay out root controls that use anchor layout, because they need a rectangle to anchor to. minimum will always be (0, 0). maximum will be (width, height). this is the "window" area of the user interface.
+		menu_control_c * _multi_click_control; // the control that left mouse key down occurred, so that multi-clicks can be detected or reset.
+		sint64_c _multi_click_time; // time that last left mouse key down occurred, so that multi-clicks can be detected or reset.
+		vector32x2_c _multi_click_position; // position of mouse cursor when left mouse key down occurred, so that multi-clicks can be detected or reset.
+		sint32_c _multi_click_count;
+		float32_c _get_multi_click_time() const;
+		float32_c _get_multi_click_space() const;
 
 		// uses the cpu to pick the control under the mouse pointer.
 		boolean_c _pick_control( input_event_c * input_event, menu_control_c * & result );
@@ -85,8 +91,6 @@ namespace cheonsa
 		void_c update( float32_c time_step ); // time_step here is the time since last update, updates animations, deletes controls that want to be deleted.
 		void_c render_and_present( float32_c time_step ); // time_step here is the time since last render, which is used to calculate per-second statistics. also resolves the 3d pixel perfect pick query.
 
-		//sint32_c get_width() const; // gets the width of the canvas associated with the client window.
-		//sint32_c get_height() const; // gets the height of the canvas associated with the client window.
 		box32x2_c const & get_local_box() const; // gets a rectangle that can be used to lay out 2d menu controls in the client window.
 		core_event_c< void_c, user_interface_c * > on_local_box_changed; // is invoked when local box changes, and before 2d menu controls are laid out again.
 
@@ -98,13 +102,18 @@ namespace cheonsa
 		void_c bring_control_to_front( menu_control_c * control ); // moves the given control (which is already in the user interface) to front (layered above all other controls in the user interface).
 		core_list_c< menu_control_c * > const & get_control_list() const;
 
-		//boolean_c is_mouse_inside(); // returns true if the mouse intersects with any normal or modal control in this context, false if otherwise.
+		// controls that do not respond to multi-clicks should call this in their _on_clicked() method.
+		// controls that do respond to multi-clicks should call this in their _on_multi_clicked() method when the multi-click count is equal to the maximum multi-click count that the control is programmed to respond to.
+		void_c reset_multi_click_detection();
+
 		boolean_c has_text_focus(); // returns true if this menu context has text input focus.
 
 		menu_control_c * get_mouse_overed() const;
 		menu_control_c * get_mouse_focused() const;
 		menu_control_c * get_text_focused() const;
 		void_c set_text_focused( menu_control_c * menu_control );
+
+		boolean_c get_is_mouse_overed() const; // returns true if mouse cursor currently intersects any control in the user interface.
 
 		void_c _suspend_control( menu_control_c * control ); // called whenever an element is removed, disabled, or hidden so that the affected controls states can be returned to a default state.
 
@@ -120,6 +129,10 @@ namespace cheonsa
 		box32x2_c find_context_menu_pop_up_box( vector32x2_c screen_space_point_to_spawn_pop_up_around, vector32x2_c const & pop_up_size ); // prefers to open down and to the right of the given point.
 		box32x2_c find_sub_menu_pop_up_box( menu_control_c * menu_item_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down and to the right of the given box defined by the given control.
 		box32x2_c find_combo_list_pop_up_box( menu_control_c * combo_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down of the given box defined by the given control.
+
+		// opens a modal dialog window asking for the user to make a simple choice.
+		// modal means that it covers the whole screen and forces the user to interact with it.
+		menu_window_dialog_c * open_modal_dialog( string16_c const & title, string16_c const & text, menu_window_dialog_c::mode_e mode );
 
 	};
 

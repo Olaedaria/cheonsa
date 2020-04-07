@@ -450,7 +450,9 @@ namespace cheonsa
 		//     sets _is_text_focused to false, which disables display of the cursor.
 		void_c handle_on_is_text_focused_changed( boolean_c value );
 
-		// should be called by text box control when it receives an input event.
+		// should be called by text box control when it receives an on multi clicked event.
+		boolean_c handle_on_multi_clicked( input_event_c * input_event );
+		// should be called by text box control when it receives an on input event.
 		// returns true if input event is handled (consumed), false if otherwise.
 		boolean_c handle_on_input( input_event_c * input_event );
 

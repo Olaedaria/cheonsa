@@ -3,8 +3,6 @@
 #include "cheonsa_string16.h"
 #include "cheonsa_video_interface.h"
 
-#define shader_folder_path "_common/shaders/"
-
 namespace cheonsa
 {
 
@@ -24,7 +22,7 @@ namespace cheonsa
 		public:
 			string16_c file_name; // file name, if referencing hlsl then includes file extension, otherwise if referencing cached shader object then excludes file extension (just to make it easier to search for shader object variants, since more than one shader object may be generated from a single compiled hlsl file).
 			string16_c absolute_file_path; // resolved file_name to an absolute file path using resolve_shader_file_path_absolute().
-			sint64_c file_modified_time; // milliseconds since epoch that tells us when the file was last modified.
+			sint64_c last_write_time; // milliseconds since epoch that tells us when the file was last modified.
 			file_dependency_c();
 			file_dependency_c & operator = ( file_dependency_c const & other );
 			boolean_c operator == ( file_dependency_c const & other ) const;
@@ -126,7 +124,7 @@ namespace cheonsa
 
 		static boolean_c _load_source_dependency_information( shader_variations_c * shader_variations ); // scans source code files for all dependencies and times modified.
 		static boolean_c __load_source_dependency_list_recursive( file_dependency_c const & source_file_dependency, boolean_c is_internal, core_list_c< file_dependency_c > & result );
-		static boolean_c _load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & absolute_file_path, sint64_c & file_modified_time, core_list_c< file_dependency_c > & file_dependency_list ); // scans cache file for all file dependencies (included file names and times modified at the time of compilation).
+		static boolean_c _load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & absolute_file_path, sint64_c & file_last_write_time, core_list_c< file_dependency_c > & file_dependency_list ); // scans cache file for all file dependencies (included file names and times modified at the time of compilation).
 
 		void_c _refresh_shader_variations( shader_variations_c * shader_variations );
 		boolean_c _compile_and_save_to_cache( shader_variations_c * shader_variations, variation_e variation );

@@ -19,7 +19,7 @@ namespace cheonsa
 
 		virtual void_c update( float32_c time_step ) = 0; // occurs once per frame, after all input events are processed.
 
-		virtual string16_c const & get_folder_name() const = 0; // user settings will be saved in a folder by this name defined by the game.
+		virtual string16_c const & get_user_data_folder_name() const = 0; // user generated setting files, save game files, and screen shot files should be saved in a folder with this name.
 
 	};
 

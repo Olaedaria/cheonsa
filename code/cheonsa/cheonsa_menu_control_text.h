@@ -30,6 +30,8 @@ namespace cheonsa
 		menu_control_scroll_bar_y_c * _vertical_scroll_bar;
 
 		virtual void_c _on_is_text_focused_changed() override;
+		virtual void_c _on_clicked( input_event_c * input_event ) override;
+		virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 		void_c _handle_on_value_changed_preview( menu_element_text_c * text );
@@ -91,7 +93,7 @@ namespace cheonsa
 
 	public:
 		core_event_c< void_c, menu_control_text_c * > on_value_changed_preview; // occurs whenever the text value changes as the user types.
-		core_event_c< void_c, menu_control_text_c * > on_value_changed_commit; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
+		core_event_c< void_c, menu_control_text_c * > on_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
 
 	};
 

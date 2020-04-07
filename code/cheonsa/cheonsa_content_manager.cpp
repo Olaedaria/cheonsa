@@ -111,7 +111,7 @@ namespace cheonsa
 			}
 		}
 		result += '/';
-		result += engine_c::get_instance()->get_game()->get_folder_name();
+		result += engine_c::get_instance()->get_game()->get_user_data_folder_name();
 		result += '/';
 #else
 	#error get_user_data_folder_path() is not implemented.
@@ -163,7 +163,7 @@ namespace cheonsa
 			return false;
 		}
 
-		assert( ops::path_is_formatted_for_cheonsa( relative_file_path, false ) );
+		assert( ops::file_system_is_path_formatted_for_cheonsa( relative_file_path, ops::file_system_path_type_e_file ) );
 
 		locale_c const * locale = engine_c::get_instance()->get_content_manager()->get_actual_locale();
 
@@ -202,15 +202,27 @@ namespace cheonsa
 					string16_c scan_path = game_data_folder_path_list[ i ];
 					if ( j == 0 )
 					{
-						scan_path += "_common/";
+#if defined( cheonsa_platform_windows )
+						scan_path += "_common\\";
+#else
+#error
+#endif
 					}
 					else
 					{
 						assert( locale != nullptr );
 						scan_path += locale->get_code();
-						scan_path += "/";
+#if defined( cheonsa_platform_windows )
+						scan_path += "\\";
+#else
+#error
+#endif
 					}
-					scan_path += file_path_relative_b;
+#if defined( cheonsa_platform_windows )
+					scan_path += ops::file_system_convert_path_format_from_cheonsa_to_windows( file_path_relative_b );
+#else
+#error
+#endif
 					if ( ops::file_system_does_file_exist( scan_path ) )
 					{
 						absolute_file_path = scan_path;
@@ -228,15 +240,27 @@ namespace cheonsa
 				string16_c scan_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
 				if ( j == 0 )
 				{
-					scan_path += "_common/";
+#if defined( cheonsa_platform_windows )
+					scan_path += "_common\\";
+#else
+#error
+#endif
 				}
 				else
 				{
 					assert( locale != nullptr );
 					scan_path += locale->get_code();
-					scan_path += "/";
+#if defined( cheonsa_platform_windows )
+					scan_path += "\\";
+#else
+#error
+#endif
 				}
-				scan_path += file_path_relative_b;
+#if defined( cheonsa_platform_windows )
+				scan_path += ops::file_system_convert_path_format_from_cheonsa_to_windows( file_path_relative_b );
+#else
+#error
+#endif
 				if ( ops::file_system_does_file_exist( scan_path ) )
 				{
 					absolute_file_path = scan_path;
@@ -347,13 +371,18 @@ namespace cheonsa
 			}
 		}
 
-		// reload string files then refresh all string reference instances.
+		// reload string files.
 		_string_file_list.remove_and_delete_all();
 		if ( _actual_locale )
 		{
 			string16_c strings_file_path = _engine_data_folder_path;
 			strings_file_path += _actual_locale->get_code();
-			strings_file_path += "/strings.xml";
+#if defined( cheonsa_platform_windows )
+			strings_file_path += "\\";
+#else
+#error
+#endif
+			strings_file_path += "strings.xml";
 			if ( ops::file_system_does_file_exist( strings_file_path ) )
 			{
 				string_file_c * string_file = new string_file_c();
@@ -370,7 +399,12 @@ namespace cheonsa
 			{
 				strings_file_path = _game_data_folder_path_list[ i ];
 				strings_file_path += _actual_locale->get_code();
-				strings_file_path += "/strings.xml";
+#if defined( cheonsa_platform_windows )
+				strings_file_path += "\\";
+#else
+#error
+#endif
+				strings_file_path += "strings.xml";
 				if ( ops::file_system_does_file_exist( strings_file_path ) )
 				{
 					string_file_c * string_file = new string_file_c();
@@ -386,6 +420,7 @@ namespace cheonsa
 			}
 		}
 
+		// refresh all string reference instances.
 		core_linked_list_c< string_c::reference_c * >::node_c const * string_list_node = string_c::reference_c::_global_list.get_first();
 		while ( string_list_node )
 		{

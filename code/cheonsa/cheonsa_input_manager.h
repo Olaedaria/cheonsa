@@ -47,9 +47,6 @@ namespace cheonsa
 		core_list_c< input_event_c > _events_b;
 		boolean_c _mouse_pointer_visibility;
 
-		vector32x2_c _mouse_position_when_key_pressed; // tracks the position that the last mouse key was pressed so that double/triple clicks can be determined. if this position changes more than a certain amount between subsequent clicks then double/triple clicks won't be registered for those keys.
-		sint64_c _mouse_key_multi_click_times[ input_mouse_key_e_count_ ]; // tracks the time that each mouse key was last pressed so that double/triple clicks can be determined. if the time between subsequent clicks is greater than a certain amount then double/triple clicks won't be registered for those keys.
-		sint8_c _mouse_key_multi_click_counts[ input_mouse_key_e_count_ ]; // tracks the number of valid subsequent mouse key downs that contribute to double/triple clicks. is reset to 1 for each key down that does not meet requirements. is incremented to a maximum of 3 for each key down that does. wraps around back to 1 if subsequent fast clicks are made.
 		boolean_c _is_any_mouse_key_on();
 
 		input_event_c * _emplace_input_event();
@@ -71,9 +68,6 @@ namespace cheonsa
 		boolean_c start();
 
 		void_c update(); // swaps input buffers.
-
-		float32_c get_double_click_time(); // gets time in seconds that subsequent clicks of the same button need to be within to be considered as double click.
-		float32_c get_double_click_space(); // gets distance in pixels that subsequent clicks of the same button need to be within to be considered as double clicks.
 
 		boolean_c get_mouse_pointer_visibility();
 		void_c set_mouse_pointer_visibility( boolean_c value );

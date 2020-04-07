@@ -24,16 +24,16 @@ namespace cheonsa
 			// load the next resource in the queue.
 			if ( resource_manager->_worker_thread_load_queue.get_length() > 0 )
 			{
-				resource_file_c * resource = resource_manager->_worker_thread_load_queue[ 0 ];
+				resource_file_c * resource_file = resource_manager->_worker_thread_load_queue[ 0 ];
 				resource_manager->_worker_thread_load_queue.remove_at_index( 0 );
 					
 				string16_c absolute_file_path;
-				if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource->get_relative_file_path(), absolute_file_path ) )
+				if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource_file->_relative_file_path, absolute_file_path ) )
 				{
 					data_stream_file_c stream;
 					if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 					{
-						resource_manager->_load_internal( resource, &stream, absolute_file_path, true );
+						resource_manager->_load_resource_file( resource_file, &stream, absolute_file_path, true );
 						stream.close();
 					}
 				}
@@ -47,50 +47,53 @@ namespace cheonsa
 		return 0;
 	}
 
-	void_c resource_manager_c::_load_internal( resource_file_c * resource, data_stream_c * stream, string16_c const & absolute_file_path, boolean_c for_async_load_thread )
+	void_c resource_manager_c::_load_resource_file( resource_file_c * resource_file, data_stream_c * stream, string16_c const & absolute_file_path, boolean_c for_async_load_thread )
 	{
-		if ( resource->_load( stream ) )
+		if ( resource_file->_load( stream ) )
 		{
-			resource->_absolute_file_path = absolute_file_path;
-			ops::file_system_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
-			if ( for_async_load_thread )
+			resource_file->_absolute_file_path = absolute_file_path;
+			sint64_c last_write_time;
+			if ( ops::file_system_get_file_or_folder_last_write_time( absolute_file_path, last_write_time ) )
 			{
-				ops::file_system_get_file_or_folder_modified_time( absolute_file_path, resource->_file_modified_time );
-				assert( resource->_reference_count > 0 ); // there should be at least one fake user count added when the resource was put into the _async_load_queue.
-				resource->_reference_count--; // remove the fake user.
+				resource_file->_last_write_time = last_write_time;
+				if ( for_async_load_thread )
+				{
+					assert( resource_file->_reference_count > 0 ); // there should be at least one user because of a fake user that was added when the resource was put into the _async_load_queue.
+					resource_file->_reference_count--; // remove the fake user.
+				}
 			}
 		}
 	}
 
-	void_c resource_manager_c::_refresh_resource( resource_file_c * resource )
+	void_c resource_manager_c::_refresh_resource_file( resource_file_c * resource_file )
 	{
-		string16_c absolute_file_path = resource->_absolute_file_path;
-		sint64_c file_modified_time = resource->_file_modified_time;
+		string16_c absolute_file_path = resource_file->_absolute_file_path;
+		sint64_c last_write_time = resource_file->_last_write_time;
 
-		if ( !engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource->_relative_file_path, absolute_file_path ) )
+		if ( !engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource_file->_relative_file_path, absolute_file_path ) )
 		{
 			return;
 		}
 
-		if ( !ops::file_system_get_file_or_folder_modified_time( absolute_file_path, file_modified_time ) )
+		if ( !ops::file_system_get_file_or_folder_last_write_time( absolute_file_path, last_write_time ) )
 		{
 			return;
 		}
 
-		if ( resource->_absolute_file_path != absolute_file_path || resource->_file_modified_time != file_modified_time )
+		if ( resource_file->_absolute_file_path != absolute_file_path || resource_file->_last_write_time != last_write_time )
 		{
 			data_stream_file_c file_stream;
 			if ( file_stream.open( absolute_file_path, data_stream_mode_e_read ) )
 			{
-				if ( resource->get_is_loaded() )
+				if ( resource_file->get_is_loaded() )
 				{
-					resource->_unload();
+					resource_file->_unload();
 				}
-				resource->_file_modified_time = 0;
-				if ( resource->_load( &file_stream ) )
+				resource_file->_last_write_time = 0;
+				if ( resource_file->_load( &file_stream ) )
 				{
-					resource->_absolute_file_path = absolute_file_path;
-					resource->_file_modified_time = file_modified_time;
+					resource_file->_absolute_file_path = absolute_file_path;
+					resource_file->_last_write_time = last_write_time;
 				}
 			}
 		}
@@ -131,8 +134,8 @@ namespace cheonsa
 			sint32_c scan_per_frame = 4;
 			for ( sint32_c i = 0; i < scan_per_frame; i++ )
 			{
-				resource_file_c * resource = _resource_list[ _scan_index ];
-				_refresh_resource( resource );
+				resource_file_c * resource_file = _resource_list[ _scan_index ];
+				_refresh_resource_file( resource_file );
 				_scan_index++;
 				if ( _scan_index >= _resource_list.get_length() )
 				{
@@ -146,13 +149,13 @@ namespace cheonsa
 	{
 		for ( sint32_c i = 0; i < _resource_list.get_length(); i++ )
 		{
-			resource_file_c * resource = _resource_list[ i ];
-			_refresh_resource( resource );
+			resource_file_c * resource_file = _resource_list[ i ];
+			_refresh_resource_file( resource_file );
 		}
 	}
 
-	template< typename resource_type_c >
-	resource_type_c * resource_manager_c::_load( string16_c const & relative_file_path, boolean_c load_now )
+	template< typename resource_file_type_c >
+	resource_file_type_c * resource_manager_c::_load( string16_c const & relative_file_path, boolean_c load_now )
 	{
 		if ( relative_file_path == "" )
 		{
@@ -163,16 +166,16 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _resource_list.get_length(); i++ )
 		{
 			resource_file_c * resource = _resource_list[ i ];
-			if ( resource->get_type() == resource_type_c::get_type_static() && resource->_relative_file_path == relative_file_path )
+			if ( resource->get_type() == resource_file_type_c::get_type_static() && resource->_relative_file_path == relative_file_path )
 			{
-				return dynamic_cast< resource_type_c * >( resource );
+				return dynamic_cast< resource_file_type_c * >( resource );
 			}
 		}
 
 		// create new resource instance.
-		resource_type_c * new_resource = new resource_type_c();
-		new_resource->_relative_file_path = relative_file_path;
-		_resource_list.insert_at_end( new_resource );
+		resource_file_type_c * resource_file = new resource_file_type_c();
+		resource_file->_relative_file_path = relative_file_path;
+		_resource_list.insert_at_end( resource_file );
 
 		if ( load_now )
 		{
@@ -183,7 +186,7 @@ namespace cheonsa
 				data_stream_file_c stream;
 				if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 				{
-					_load_internal( new_resource, &stream, absolute_file_path, false );
+					_load_resource_file( resource_file, &stream, absolute_file_path, false );
 					stream.close();
 				}
 			}
@@ -191,14 +194,14 @@ namespace cheonsa
 		else
 		{
 			// add the resource to the load queue
-			new_resource->_reference_count++;
+			resource_file->_reference_count++;
 			_worker_thread_critical_section.enter();
-			_load_queue.insert_at_end( new_resource );
+			_load_queue.insert_at_end( resource_file );
 			_worker_thread_critical_section.exit();
 		}
 
 		// return the new resource instance.
-		return new_resource;
+		return resource_file;
 	}
 
 	resource_file_font_c * resource_manager_c::load_font( string16_c const & relative_file_path, boolean_c load_now )

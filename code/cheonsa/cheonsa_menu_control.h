@@ -142,9 +142,6 @@ namespace cheonsa
 
 		void_c * _user_pointer; // can be set by the user to associate some other kind of data with this control.
 
-		//boolean_c _get_is_descendant_character_focused(); // returns true if any descendant control of this control has character focus.
-		//boolean_c _get_is_descendant_mouse_focused(); // returns true if any descendant control of this control has mouse focus.
-
 		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ); // occurs right after the control is added to (associated with) the user interface or right before the control is removed from (disassociated from) the user interface. user_interface is the user interface that this control was just added to or removed from. if the control was added then the _user_interface memeber will be set, if the control was removed then the _user_interface memeber will be nullptr.
 		virtual void_c _on_is_showed_changed(); // is called right after _is_showed state is changed. after performing control specific implementation, it should in turn invoke the is_showed_changed event.
 		virtual void_c _on_is_enabled_changed(); // is called right after _is_enabled state is changed. after performing control specific implementation, it should in turn invoke the is_enabled_changed event.
@@ -213,13 +210,14 @@ namespace cheonsa
 		sint32_c get_control_count() const;
 		menu_control_c * get_control( sint32_c control_index ) const;
 
-		//boolean_c is_descendant_of( menu_control_c * control ); // returns true if this control is a descendant of the given control, false if not.
-		boolean_c is_related_to( menu_control_c * control ); // kind of inverse of is_descendant_of(). just a little easier to use sometimes cases. returns true if this control is equal to the given control, or if this control is 
+		boolean_c is_ascendant_of( menu_control_c * control ); // returns true if this control is equal to the given control or if the given control is a descendant of this control.
 
 		menu_layer_e get_expressed_layer(); // returns the value of the first control up the heirarchy to have _layer not set to menu_layer_e_undefined, otherwise returns menu_layer_e_base.
 
 		menu_select_mode_e get_select_mode() const;
 		void_c set_select_mode( menu_select_mode_e value );
+
+		boolean_c get_wants_to_be_deleted() const;
 
 		boolean_c get_is_showed() const;
 		float32_c get_is_showed_weight() const;

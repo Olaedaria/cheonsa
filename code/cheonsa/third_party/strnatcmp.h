@@ -160,7 +160,7 @@ namespace strnatcmp
 			{
 				fractional = ( ca == '0' || cb == '0' );
 
-				if (fractional)
+				if ( fractional )
 				{
 					if ( ( result = compare_left< char_type_c >( a, b, ai, bi ) ) != 0 )
 					{

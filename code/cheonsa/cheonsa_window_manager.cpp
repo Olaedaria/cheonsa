@@ -234,8 +234,8 @@ namespace cheonsa
 
 				case WM_SIZE:
 				{
-					RECT window_rectangle;
-					GetClientRect( hWnd, &window_rectangle );
+					//RECT window_rectangle;
+					//GetClientRect( hWnd, &window_rectangle );
 					if ( wParam == SIZE_MAXIMIZED )
 					{
 						engine->get_window_manager()->_window_state = window_state_e_maximized;
@@ -505,7 +505,6 @@ namespace cheonsa
 	window_manager_c::window_manager_c()
 		: _process_handle( 0 )
 		, _window_handle( 0 )
-		, _window_state( window_state_e_undefined )
 		, _window_is_focused( false )
 		, _window_edge_thickness( 8 )
 		, _window_title_bar_thickness( 30 )
@@ -551,7 +550,8 @@ namespace cheonsa
 		//SetWindowPos( _members->window_handle, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE );
 		//ShowWindow( _members->window_handle, SW_SHOW );
 
-		center_client_window();
+		//center_client_window();
+		maximize_client_window();
 
 		// register mouse for raw input so we can get reliable mouse deltas.
 		// this enables us to receive WM_INPUT messages.
@@ -563,6 +563,15 @@ namespace cheonsa
 		assert( RegisterRawInputDevices( raw_input_device_array, 1, sizeof( RAWINPUTDEVICE ) ) );
 
 		return true;
+#else
+#error not implemented.
+#endif
+	}
+
+	void_c window_manager_c::maximize_client_window()
+	{
+#if defined( cheonsa_platform_windows )
+		ShowWindow( static_cast< HWND >( _window_handle ), SW_SHOWMAXIMIZED );
 #else
 #error not implemented.
 #endif
@@ -646,6 +655,7 @@ namespace cheonsa
 	void_c window_manager_c::set_window_state( window_state_e value )
 	{
 #if defined( cheonsa_platform_windows )
+		// ShowWindow() should inadvertently set _window_state, when windows sends us a WM_SIZE message to process.
 		if ( value == window_state_e_normaled )
 		{
 			ShowWindow( static_cast< HWND >( _window_handle ), SW_RESTORE );

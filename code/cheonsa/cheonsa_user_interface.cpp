@@ -7,8 +7,26 @@
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
+#if defined( cheonsa_platform_windows )
+#include <windows.h>
+#endif
+
 namespace cheonsa
 {
+
+	float32_c user_interface_c::_get_multi_click_time() const
+	{
+#if defined( cheonsa_platform_windows )
+		return static_cast< float32_c >( GetDoubleClickTime() ) * 0.001f; // GetDoubleClickTime() returns value in milliseconds, but we want seconds, so we convert it to seconds.
+#else
+#error
+#endif
+	}
+
+	float32_c user_interface_c::_get_multi_click_space() const
+	{
+		return 3.0f;
+	}
 
 	boolean_c user_interface_c::_pick_control( input_event_c * input_event, menu_control_c * & result )
 	{
@@ -113,7 +131,7 @@ namespace cheonsa
 			menu_control_c * candidate = window->pick_control_with_global_point( input_event->menu_global_mouse_position, minimum_layer );
 			if ( candidate != nullptr && ( result == nullptr || control_distance < result_distance ) )
 			{
-				_is_mouse_inside = true;
+				_is_mouse_overed = true;
 				result = candidate;
 				result_distance = control_distance;
 				return true;
@@ -134,7 +152,7 @@ namespace cheonsa
 	void_c user_interface_c::_process_input_event( input_event_c * input_event )
 	{
 		// reset things.
-		_is_mouse_inside = false;
+		_is_mouse_overed = false;
 		//_is_modal_window_open = false;
 
 		// default to 2d, until we have to pick 3d.
@@ -209,11 +227,32 @@ namespace cheonsa
 				{
 					_mouse_focused->_is_pressed = true;
 					_mouse_focused->_on_is_pressed_changed();
-				}
-				_bubble_input_event( _mouse_focused, input_event );
-				if ( input_event->mouse_key_multi_click_count == 2 )
-				{
-					_mouse_focused->_on_multi_clicked( input_event );
+					if ( _multi_click_control != _mouse_focused ||
+						ops::make_float32_length_squared( input_event->mouse_position - _multi_click_position ) > _get_multi_click_space() ||
+						( static_cast< float64_c >( input_event->time - _multi_click_time ) / static_cast< float64_c >( ops::time_get_high_resolution_timer_frequency() ) ) > _get_multi_click_time() )
+					{
+						_multi_click_count = 1;
+					}
+					else
+					{
+						_multi_click_count++;
+						if ( _multi_click_count > 3 )
+						{
+							_multi_click_count = 1;
+						}
+					}
+					_multi_click_control = _mouse_focused;
+					_multi_click_time = input_event->time;
+					_multi_click_position = input_event->mouse_position;
+					if ( _multi_click_count != 1 )
+					{
+						input_event->multi_click_count = _multi_click_count;
+						_mouse_focused->_on_multi_clicked( input_event );
+					}
+					else
+					{
+						_bubble_input_event( _mouse_focused, input_event );
+					}
 				}
 			}
 		}
@@ -232,11 +271,18 @@ namespace cheonsa
 			{
 				if ( original_mouse_focused && original_mouse_focused == _mouse_overed && input_event->mouse_key == input_mouse_key_e_left )
 				{
-					original_mouse_focused->_on_clicked( input_event );
+					if ( _multi_click_count == 1 )
+					{
+						original_mouse_focused->_on_clicked( input_event );
+					}
 				}
 			}
 		}
-		else // if ( input_event->event_type == input_event_type_e_character )
+		else if ( input_event->type == input_event_c::type_e_mouse_wheel )
+		{
+			_bubble_input_event( _mouse_overed, input_event );
+		}
+		else //if ( input_event->type == input_event_c::type_e_character )
 		{
 			if ( _text_focused )
 			{
@@ -251,16 +297,18 @@ namespace cheonsa
 	}
 
 	user_interface_c::user_interface_c()
-		: _canvas_and_output( nullptr )
+		: _local_box()
+		, _canvas_and_output( nullptr )
 		, _scene( nullptr )
 		, _control_list()
 		, _mouse_overed( nullptr )
 		, _mouse_focused( nullptr )
 		, _text_focused( nullptr )
-		, _is_mouse_inside( false )
-		, _is_set_text_focus( false )
-		, _local_box()
-
+		, _is_mouse_overed( false )
+		, _is_set_text_focused_changing( false )
+		, _multi_click_control( nullptr )
+		, _multi_click_time( 0 )
+		, _multi_click_position()
 	{
 	}
 
@@ -272,8 +320,8 @@ namespace cheonsa
 		_mouse_overed = nullptr;
 		_mouse_focused = nullptr;
 		_text_focused = nullptr;
-		_is_mouse_inside = false;
-		_is_set_text_focus = false;
+		_is_mouse_overed = false;
+		_is_set_text_focused_changing = false;
 		_control_list.remove_and_delete_all();
 	}
 
@@ -410,16 +458,6 @@ namespace cheonsa
 		_canvas_and_output->present();
 	}
 
-	//sint32_c user_interface_c::get_width() const
-	//{
-	//	return static_cast< sint32_c >( _local_box.get_size_a() );
-	//}
-
-	//sint32_c user_interface_c::get_height() const
-	//{
-	//	return static_cast< sint32_c >( _local_box.get_size_b() );
-	//}
-
 	box32x2_c const & user_interface_c::get_local_box() const
 	{
 		return _local_box;
@@ -539,10 +577,14 @@ namespace cheonsa
 		return _control_list;
 	}
 
-	//boolean_c user_interface_c::is_mouse_inside()
-	//{
-	//	return _is_mouse_inside || _mouse_focused != nullptr;
-	//}
+	void_c user_interface_c::reset_multi_click_detection()
+	{
+		_multi_click_control = nullptr;
+		_multi_click_time = 0;
+		_multi_click_position.a = 0.0f;
+		_multi_click_position.b = 0.0f;
+		_multi_click_count = 0;
+	}
 
 	boolean_c user_interface_c::has_text_focus()
 	{
@@ -564,10 +606,15 @@ namespace cheonsa
 		return _text_focused;
 	}
 
+	boolean_c user_interface_c::get_is_mouse_overed() const
+	{
+		return _is_mouse_overed;
+	}
+
 	void_c user_interface_c::set_text_focused( menu_control_c * menu_control )
 	{
-		assert( _is_set_text_focus == false );
-		_is_set_text_focus = true;
+		assert( _is_set_text_focused_changing == false );
+		_is_set_text_focused_changing = true;
 
 		if ( menu_control )
 		{
@@ -625,14 +672,14 @@ namespace cheonsa
 			deep_text_focused = deep_text_focused->get_mother_control();
 		}
 
-		_is_set_text_focus = false;
+		_is_set_text_focused_changing = false;
 	}
 
 	void_c user_interface_c::_suspend_control( menu_control_c * control )
 	{
 		if ( _text_focused && _text_focused->_is_text_focused ) // check _text_focused->_is_text_focused because it's possible that the control is already in the process of losing focus, and we are here via a cascading response to an event (_on_text_focus_lost(), _on_general_focus_lost()).
 		{
-			if ( control->is_related_to( _text_focused ) )
+			if ( control->is_ascendant_of( _text_focused ) )
 			{
 				_text_focused->_is_text_focused = false;
 				_text_focused->_on_is_text_focused_changed();
@@ -649,7 +696,7 @@ namespace cheonsa
 		}
 		if ( _mouse_focused )
 		{
-			if ( _mouse_focused->is_related_to( control ) )
+			if ( control->is_ascendant_of( _mouse_focused ) )
 			{
 				_mouse_focused->_is_pressed = false;
 				_mouse_focused->_on_is_pressed_changed();
@@ -660,7 +707,7 @@ namespace cheonsa
 		}
 		if ( _mouse_overed )
 		{
-			if ( _mouse_overed->is_related_to( control ) )
+			if ( control->is_ascendant_of( _mouse_overed ) )
 			{
 				_mouse_overed->_is_mouse_overed = false;
 				_mouse_overed->_on_is_mouse_overed_changed();

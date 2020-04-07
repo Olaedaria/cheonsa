@@ -480,7 +480,7 @@ namespace cheonsa
 		int file_data_size = static_cast< sint32_c >( image.width * image.height * 8.25f );
 	try_again:
 		jpg_file_data.construct_mode_dynamic( file_data_size );
-		bool result = jpge::compress_image_to_jpeg_file_in_memory( jpg_file_data.get_internal_array(), file_data_size, image.width, image.height, 3, reinterpret_cast< jpge::uint8_c * >( conformant_image->data.get_internal_array() ), jpge_params );
+		bool result = jpge::compress_image_to_jpeg_file_in_memory( jpg_file_data.get_internal_array(), file_data_size, image.width, image.height, 3, reinterpret_cast< jpge::uint8_c const * >( conformant_image->data.get_internal_array() ), jpge_params );
 		if ( result )
 		{
 			jpg_file_data.set_length( file_data_size );

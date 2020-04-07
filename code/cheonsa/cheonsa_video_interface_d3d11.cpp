@@ -1147,7 +1147,7 @@ namespace cheonsa
 			com_safe_release( _d3d11_texture2d );
 		}
 
-		void_c start( ID3D11Device * d3d11_device, video_texture_format_e texture_format, sint32_c width, sint32_c height, sint32_c multi_sample_count, sint32_c array_slice_count, void_c * top_mip_level_data, sint32_c top_mip_level_data_size, boolean_c set_data_enable, boolean_c get_data_enable, boolean_c target_enable, boolean_c mip_enable )
+		void_c start( ID3D11Device * d3d11_device, video_texture_format_e texture_format, sint32_c width, sint32_c height, sint32_c multi_sample_count, sint32_c array_slice_count, void_c const * top_mip_level_data, sint32_c top_mip_level_data_size, boolean_c set_data_enable, boolean_c get_data_enable, boolean_c target_enable, boolean_c mip_enable )
 		{
 			// validate current state and inputs.
 			assert( _texture_format == video_texture_format_e_none );
@@ -1261,23 +1261,23 @@ namespace cheonsa
 			D3D11_SUBRESOURCE_DATA * d3d11_sub_resource_data_description_array = nullptr;
 			boolean_c top_mip_level_data_is_required = ( multi_sample_count == 1 && set_data_enable == false && get_data_enable == false && target_enable == false && ( top_mip_level_data == nullptr || top_mip_level_data_size == 0 ) );
 			sint32_c top_mip_level_data_size_expected = width * height * video_texture_format_size_get( texture_format ) * array_slice_count;
+			char8_c * our_top_mip_level_data = nullptr;
 			if ( top_mip_level_data_is_required )
 			{
 				assert( multi_sample_count == 1 );
-				//boolean_c top_mip_level_data_is_ours = false;
 				if ( top_mip_level_data == nullptr )
 				{
-					//top_mip_level_data_is_ours = true;
 					top_mip_level_data_size = top_mip_level_data_size_expected;
-					top_mip_level_data = new char8_c[ top_mip_level_data_size ];
-					ops::memory_zero( top_mip_level_data, top_mip_level_data_size );
+					our_top_mip_level_data = new char8_c[ top_mip_level_data_size ];
+					ops::memory_zero( our_top_mip_level_data, top_mip_level_data_size );
+					top_mip_level_data = our_top_mip_level_data;
 				}
 			}
 			if ( top_mip_level_data != nullptr )
 			{
 				assert( top_mip_level_data_size == top_mip_level_data_size_expected );
 				d3d11_sub_resource_data_description_array = new D3D11_SUBRESOURCE_DATA[ array_slice_count * _mip_level_count ];
-				char8_c const * top_mip_level_data_for_current_array_slice = reinterpret_cast< char8_c * >( top_mip_level_data );
+				char8_c const * top_mip_level_data_for_current_array_slice = reinterpret_cast< char8_c const * >( top_mip_level_data );
 				sint32_c k = 0;
 				for ( sint32_c i = 0; i < array_slice_count; i++ )
 				{
@@ -1307,10 +1307,10 @@ namespace cheonsa
 				delete[] d3d11_sub_resource_data_description_array;
 				d3d11_sub_resource_data_description_array = nullptr;
 			}
-			if ( top_mip_level_data_is_required )
+			if ( our_top_mip_level_data )
 			{
-				delete[] top_mip_level_data;
-				top_mip_level_data = nullptr;
+				delete[] our_top_mip_level_data;
+				our_top_mip_level_data = nullptr;
 				top_mip_level_data_size = 0;
 			}
 
@@ -2671,7 +2671,7 @@ namespace cheonsa
 		return new video_depth_stencil_d3d11_c( this, _members->d3d11_device, depth_stencil_format, width, height, multi_sample_count, array_slice_count );
 	}
 
-	video_texture_c * video_interface_d3d11_c::create_texture( video_texture_format_e texture_format, sint32_c width, sint32_c height, sint32_c multi_sample_count, sint32_c array_slice_count, void_c * top_mip_level_data, sint32_c top_mip_level_data_size, boolean_c set_data_enable, boolean_c get_data_enable, boolean_c target_enable, boolean_c mip_enable )
+	video_texture_c * video_interface_d3d11_c::create_texture( video_texture_format_e texture_format, sint32_c width, sint32_c height, sint32_c multi_sample_count, sint32_c array_slice_count, void_c const * top_mip_level_data, sint32_c top_mip_level_data_size, boolean_c set_data_enable, boolean_c get_data_enable, boolean_c target_enable, boolean_c mip_enable )
 	{
 		video_texture_d3d11_c * result = new video_texture_d3d11_c( this );
 		result->start( _members->d3d11_device, texture_format, width, height, multi_sample_count, array_slice_count, top_mip_level_data, top_mip_level_data_size, set_data_enable, get_data_enable, target_enable, mip_enable );

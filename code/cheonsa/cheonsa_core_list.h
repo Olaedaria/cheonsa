@@ -571,7 +571,13 @@ namespace cheonsa
 		}
 
 		// gets the internal array used to store values.
-		inline value_type_c * get_internal_array() const
+		inline value_type_c * get_internal_array()
+		{
+			return _array;
+		}
+
+		// gets the internal array used to store values.
+		inline value_type_c const * get_internal_array() const
 		{
 			return _array;
 		}
@@ -687,18 +693,37 @@ namespace cheonsa
 
 		// sorts the values in this list using an insertion sort algorithm.
 		// insertion sort uses relative valuations of list item values (compares list item values to each other) to sort.
-		// relative_value_function is a function that returns -1 if a < b, 0 if a == b, and 1 if a > b.
 		// insertion sort is good for sorting strings since they don't have an absolute numeric value that we can sort by, instead they are sorted by comparing for relative inequality against each other.
-		void_c insertion_sort( sint32_c (*relative_value_function)( value_type_c const & a, value_type_c const & b ), boolean_c invert )
+		void_c insertion_sort( boolean_c (*is_b_less_than_a)( value_type_c const & a, value_type_c const & b ), boolean_c invert, sint32_c start = -1, sint32_c end = -1 )
 		{
-			for ( sint32_c i = 1; i < _array_length_used; i++ )
+			if ( start == -1 )
+			{
+				start = 0;
+			}
+			if ( end == -1 )
+			{
+				end = _array_length_used;
+			}
+			assert( start >= 0 && end <= _array_length_used );
+			for ( sint32_c i = start + 1; i < end; i++ )
 			{
 				value_type_c value = _array[ i ];
 				sint32_c j = i - 1;
-				while ( j >= 0 && ( relative_value_function( _array[ j ], _array[ i ] ) * ( invert ? -1 : 1 ) ) > 0 )
+				if ( invert == false )
 				{
-					_array[ j + 1 ] = _array[ j ];
-					j--;
+					while ( j >= 0 && is_b_less_than_a( _array[ j ], value ) )
+					{
+						_array[ j + 1 ] = _array[ j ];
+						j--;
+					}
+				}
+				else
+				{
+					while ( j >= 0 && is_b_less_than_a( value, _array[ j ] ) )
+					{
+						_array[ j + 1 ] = _array[ j ];
+						j--;
+					}
 				}
 				_array[ j + 1 ] = value;
 			}
@@ -707,9 +732,18 @@ namespace cheonsa
 		// sorts the values in this list using a quick sort algorithm.
 		// quick sort uses absolute valuations of list item values to sort.
 		template< typename sort_type_c >
-		void_c quick_sort( sort_type_c (*absolute_value_function)( value_type_c const & a ), boolean_c invert ) // quick sort is good for sorting numbers and values that can be sorted by absolute values.
+		void_c quick_sort( sort_type_c (*absolute_value_function)( value_type_c const & a ), boolean_c invert, sint32_c start = -1, sint32_c end = -1 ) // quick sort is good for sorting numbers and values that can be sorted by absolute values.
 		{
-			_quick_sort_internal< sort_type_c >( absolute_value_function, 0, _array_length_used - 1, invert );
+			if ( start == -1 )
+			{
+				start = 0;
+			}
+			if ( end == -1 )
+			{
+				end = _array_length_used;
+			}
+			assert( start >= 0 && end <= _array_length_used );
+			_quick_sort_internal< sort_type_c >( absolute_value_function, start, end - 1, invert );
 		}
 
 	private:

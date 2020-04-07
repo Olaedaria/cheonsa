@@ -11,6 +11,7 @@ namespace cheonsa
 		assert( _mother_control );
 
 		_draw_list.reset();
+		_draw_list.set_clip_planes( _local_box, _mother_control->get_control_group_basis(), _mother_control->get_control_group_origin() );
 
 		if ( !_is_showed_from_style || !_is_showed || _local_color.d <= 0.0f )
 		{
@@ -164,8 +165,6 @@ namespace cheonsa
 								{
 									if ( laid_out_glyph->_glyph )
 									{
-										assert( laid_out_glyph->_glyph->key.code_point == character );
-
 										// this glyph is displayable.
 										float32_c glyph_left = line_left + laid_out_glyph->_left + laid_out_glyph->_box.minimum.a;
 										float32_c glyph_top = line_top_baseline + laid_out_glyph->_box.minimum.b;
@@ -3569,6 +3568,22 @@ namespace cheonsa
 		}
 	}
 
+	boolean_c menu_element_text_c::handle_on_multi_clicked( input_event_c * input_event )
+	{
+		vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
+		if ( input_event->multi_click_count == 2 )
+		{
+			_text_select_mode = menu_text_select_mode_e_word;
+		}
+		else if ( input_event->multi_click_count == 3 )
+		{
+			_text_select_mode = menu_text_select_mode_e_paragraph;
+		}
+		_place_cursor_at_local_point( local_mouse_position, false );
+		_cursor_time = 0.0f;
+		return true;
+	}
+
 	boolean_c menu_element_text_c::handle_on_input( input_event_c * input_event )
 	{
 		if ( _text_interact_mode == menu_text_interact_mode_e_static )
@@ -3634,7 +3649,7 @@ namespace cheonsa
 			}
 			else if ( input_event->keyboard_key == input_keyboard_key_e_enter )
 			{
-				if ( _text_interact_mode == menu_text_interact_mode_e_editable && _multi_line )
+				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
 					input_return( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
 					return true;
@@ -3647,34 +3662,14 @@ namespace cheonsa
 			vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
 			if ( input_event->mouse_key == input_mouse_key_e_left && ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) )
 			{
-				if ( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 )
-				{
-					_text_select_mode = menu_text_select_mode_e_character;
-					_place_cursor_at_local_point( local_mouse_position, true );
-				}
-				else
-				{
-					if ( input_event->mouse_key_multi_click_count == 1 )
-					{
-						_text_select_mode = menu_text_select_mode_e_character;
-					}
-					else if ( input_event->mouse_key_multi_click_count == 2 )
-					{
-						_text_select_mode = menu_text_select_mode_e_word;
-					}
-					else if ( input_event->mouse_key_multi_click_count == 3 )
-					{
-						_text_select_mode = menu_text_select_mode_e_paragraph;
-					}
-					_place_cursor_at_local_point( local_mouse_position, false );
-					_cursor_time = 0.0f;
-				}
+				_text_select_mode = menu_text_select_mode_e_character;
+				_place_cursor_at_local_point( local_mouse_position, ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				_cursor_time = 0.0f;
 				return true;
 			}
 			else if ( input_event->mouse_key == input_mouse_key_e_right )
 			{
 				// if the mouse pointer is not intersecting with the currently selected range of text, then place the cursor where the mouse pointer is.
-
 				_place_cursor_at_local_point( local_mouse_position, false );
 				return true;
 			}

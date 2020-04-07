@@ -15,11 +15,6 @@ namespace cheonsa
 		_name = string8_c( mode_e_static, "list_item" );
 	}
 
-	void_c menu_control_list_item_text_c::set_is_selected( boolean_c value )
-	{
-		_set_is_selected( value );
-	}
-
 	void_c menu_control_list_c::_on_selected_item_list_changed()
 	{
 		on_selected_item_list_changed.invoke( this );

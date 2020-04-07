@@ -28,10 +28,12 @@ namespace cheonsa
 		friend class resource_manager_c;
 
 		boolean_c _is_loaded; // tracks if this resource is loaded and ready to be used or not.
-		string16_c _relative_file_path; // file path that the game uses to identify this resource.
-		string16_c _absolute_file_path; // relative file path resolved to a full file path that identifies where this resource was actually loaded from.
-		sint64_c _file_modified_time; // tracks source file modified time, so we can detect if the source file is modified during run time and re load it.
+		
 		sint32_c _reference_count; // number of users using this resource, so we can automatically un load it when it has no more users.
+
+		string16_c _relative_file_path; // file path that the game uses to identify this resource. this path is formatted in cheonsa's path format, using forward slashes, and is interpreted as being relative to the data folders.
+		string16_c _absolute_file_path; // absolute file path that identifies where this resource was actually loaded from. this is formatted in the opearting system's file path format.
+		sint64_c _last_write_time; // milliseconds since epoch that tells us when the source file was last modified.
 
 		virtual boolean_c _load( data_stream_c * stream ) = 0;
 		virtual void_c _unload() = 0;
@@ -44,12 +46,12 @@ namespace cheonsa
 
 		boolean_c get_is_loaded() const;
 
+		sint32_c get_reference_count() const;
+
 		string16_c const & get_relative_file_path() const;
 		string16_c const & get_absolute_file_path() const;
 
-		sint64_c get_file_modified_time() const;
-
-		sint32_c get_reference_count() const;
+		sint64_c get_last_write_time() const;
 
 	public:
 		core_event_c< void_c, resource_file_c * > on_load; // users may subscribe to this event to be notified when we are done loading.

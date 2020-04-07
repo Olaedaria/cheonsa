@@ -65,10 +65,10 @@ namespace cheonsa
 		virtual void_c update_transform_and_layout() override;
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
 
-		string16_c get_plain_text_value() const;
-		void_c set_plain_text_value( string8_c const & plain_text );
-		void_c set_plain_text_value( string16_c const & plain_text );
-		void_c clear_text_value();
+		string16_c get_title() const;
+		void_c set_title( string8_c const & plain_text );
+		void_c set_title( string16_c const & plain_text );
+		void_c clear_title();
 
 		boolean_c get_user_can_move() const;
 		void_c set_user_can_move( boolean_c value );

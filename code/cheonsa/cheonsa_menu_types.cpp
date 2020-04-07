@@ -1155,11 +1155,45 @@ namespace cheonsa
 
 	void_c menu_draw_list_c::reset()
 	{
+		clip_planes[ 0 ] = vector32x4_c( 0.0f, 0.0f, 0.0f, -1.0f );
+		clip_planes[ 1 ] = vector32x4_c( 0.0f, 0.0f, 0.0f, -1.0f );
+		clip_planes[ 2 ] = vector32x4_c( 0.0f, 0.0f, 0.0f, -1.0f );
+		clip_planes[ 3 ] = vector32x4_c( 0.0f, 0.0f, 0.0f, -1.0f );
 		vertex_list.remove_all();
 		index_list.remove_all();
 		draw_list.remove_all();
 		vertex_base = 0;
 		index_base = 0;
+	}
+
+	void_c menu_draw_list_c::set_clip_planes( box32x2_c const box, matrix32x2x2_c const & control_group_basis, vector32x2_c const & control_group_origin )
+	{
+			vector32x2_c minimum = ops::make_vector32x2_transformed_point( box.minimum, control_group_basis ) + control_group_origin;
+			vector32x2_c maximum = ops::make_vector32x2_transformed_point( box.maximum, control_group_basis ) + control_group_origin;
+			vector32x2_c normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 1.0f, 0.0f ), control_group_basis ) );
+			vector32x4_c * plane = &clip_planes[ 0 ];
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->d = 0.0f;
+			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, 1.0f ), control_group_basis ) );
+			plane = &clip_planes[ 1 ];
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->d = 0.0f;
+			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( -1.0f, 0.0f ), control_group_basis ) );
+			plane = &clip_planes[ 2 ];
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->d = 0.0f;
+			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, -1.0f ), control_group_basis ) );
+			plane = &clip_planes[ 3 ];
+			plane->a = normal.a;
+			plane->b = normal.b;
+			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->d = 0.0f;
 	}
 
 	void_c menu_draw_list_c::append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] )

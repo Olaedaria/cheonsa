@@ -32,20 +32,20 @@ namespace cheonsa
 		core_list_c< resource_file_c * > _worker_thread_load_queue;
 		static uint32_c _worker_thread_function( platform_thread_c * platform_thread );
 
-		template< typename resource_type >
-		resource_type * _load( string16_c const & file_path, boolean_c load_now );
+		template< typename resource_file_type_c >
+		resource_file_type_c * _load( string16_c const & file_path, boolean_c load_now );
 
 		sint32_c _cpu_memory_usage; // tracks roughly how much cpu RAM is used by currently loaded resources.
 		sint32_c _gpu_memory_usage; // tracks roughly how much gpu RAM is used by currently loaded resources.
 
-		boolean_c _scan_enable; // if true then the resource manager will continuously scan for file modifications in the background.
-		sint32_c _scan_index; // tracks which resource the scanner is currently on.
+		boolean_c _scan_enable; // if true then the resource manager will continuously scan for source file modifications in the background.
+		sint32_c _scan_index; // tracks which resource file the scanner is currently on.
 		
-		void_c _refresh_resource( resource_file_c * resource ); // used by the scanner to check if a source file of a given resource was modified, and if so then it reloads the resource, otherwise it doesn't do anything.
-
 		// called by async load thread, is here for friend access benefit (since the async load thread does not have access).
 		// also called by templated _load method, since friend benefits don't apply in there.
-		static void_c _load_internal( resource_file_c * resource, data_stream_c * stream, string16_c const & absolute_file_path, boolean_c for_async_load_thread );
+		static void_c _load_resource_file( resource_file_c * resource_file, data_stream_c * stream, string16_c const & absolute_file_path, boolean_c for_async_load_thread );
+
+		void_c _refresh_resource_file( resource_file_c * resource_file ); // used by the scanner to check if a source file of a given resource file was modified, and if so then it reloads the resource file, otherwise it doesn't do anything.
 
 	public:
 		resource_manager_c(); // spins up the background resource loading thread.

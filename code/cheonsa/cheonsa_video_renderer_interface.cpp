@@ -3535,6 +3535,10 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < draw_list.draw_list.get_length(); i++ )
 		{
 			menu_draw_list_c::draw_c const & draw = draw_list.draw_list[ i ];
+			_constant_buffers.menu_draw_block->menu_draw_clip_planes[ 0 ] = draw_list.clip_planes[ 0 ];
+			_constant_buffers.menu_draw_block->menu_draw_clip_planes[ 1 ] = draw_list.clip_planes[ 1 ];
+			_constant_buffers.menu_draw_block->menu_draw_clip_planes[ 2 ] = draw_list.clip_planes[ 2 ];
+			_constant_buffers.menu_draw_block->menu_draw_clip_planes[ 3 ] = draw_list.clip_planes[ 3 ];
 			_constant_buffers.menu_draw_block->menu_draw_color = draw.color;
 			_constant_buffers.menu_draw_block->menu_draw_shared_colors[ 0 ] = draw.shared_colors[ 0 ];
 			_constant_buffers.menu_draw_block->menu_draw_shared_colors[ 1 ] = draw.shared_colors[ 1 ];

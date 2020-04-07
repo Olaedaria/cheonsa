@@ -28,7 +28,7 @@ namespace cheonsa
 
 		void_c * _process_handle;
 		void_c * _window_handle;
-		window_state_e _window_state; // treat as read only, but use set_window_state() to change.
+		window_state_e _window_state; // treat as read only, but use set_window_state() to change. used to remember the state of the window when the operating system changes it.
 		boolean_c _window_is_focused; // will be set to true as long as the client's window has focus.
 		sint32_c _window_edge_thickness; // when the client window is borderless mode, this tells the non client hit detection logic the thickness of each resizable edge handle in pxiels.
 		sint32_c _window_title_bar_thickness; // when the client window is in borderless mode, this tells the non client hit detection logic the size of the title bar in pixels.
@@ -38,8 +38,9 @@ namespace cheonsa
 	public:
 		~window_manager_c();
 
-		boolean_c open_client_window(); // opens the client window.
-		void_c center_client_window(); // centers the window again after exiting full screen.
+		boolean_c open_client_window(); // opens the client window, not maximized.
+		void_c maximize_client_window(); // 
+		void_c center_client_window(); // ucenters the window again after exiting full screen, un-maximizes it.
 		void_c close_client_window(); // closes the client window.
 
 		void_c * get_window_handle(); // gets the client window handle, but casted to a void_c const * so that it is platform neutral.

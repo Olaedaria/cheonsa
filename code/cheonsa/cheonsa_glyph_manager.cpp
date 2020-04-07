@@ -1298,12 +1298,15 @@ namespace cheonsa
 
 	char8_c const * const glyph_list_signature = "glYa";
 	char8_c const * const row_list_signature = "glYb";
-	char8_c const * const font_cache_folder = "_common/fonts/cache/";
 
 	boolean_c glyph_manager_c::save_to_disk()
 	{
 		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
-		folder_path += font_cache_folder;
+#if defined( cheonsa_platform_windows )
+		folder_path += "_common\\fonts\\cache\\";
+#else
+#error
+#endif
 
 		if ( !ops::file_system_does_folder_exist( folder_path ) )
 		{
@@ -1484,7 +1487,11 @@ namespace cheonsa
 		assert( _glyph_dictionary.get_length() == 0 );
 
 		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
-		folder_path += font_cache_folder;
+#if defined( cheonsa_platform_windows )
+		folder_path += "_common\\fonts\\cache\\";
+#else
+#error
+#endif
 
 		if ( !ops::file_system_does_folder_exist( folder_path ) )
 		{

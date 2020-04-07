@@ -65,47 +65,20 @@ namespace cheonsa
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
 		{
-			assert( input_event->mouse_key >= 0 && input_event->mouse_key < input_mouse_key_e_count_ );
+			assert( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ );
 			boolean_c previous_any_mouse_key_state = _is_any_mouse_key_on();
 			if ( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ )
 			{
 				_mouse_keys_state[ input_event->mouse_key ] = input_key_state_bit_e_on | input_key_state_bit_e_pressed;
 			}
-
 			if ( previous_any_mouse_key_state == false )
 			{
 				SetCapture( static_cast< HWND >( engine_c::get_instance()->get_window_manager()->get_window_handle() ) );
 			}
-
-			sint64_c pressed_time = ops::time_get_high_resolution_timer_count();
-			if ( ops::make_float32_length_squared( _mouse_position - _mouse_position_when_key_pressed ) < get_double_click_space() )
-			{
-				if ( static_cast< float32_c >( static_cast< float64_c >( pressed_time - _mouse_key_multi_click_times[ input_event->mouse_key ] ) / static_cast< float64_c >( ops::time_get_high_resolution_timer_frequency() ) ) < get_double_click_time() && _mouse_key_multi_click_counts[ input_event->mouse_key ] < 3 )
-				{
-					if ( _mouse_key_multi_click_counts[ input_event->mouse_key ] < 100 )
-					{
-						_mouse_key_multi_click_counts[ input_event->mouse_key ]++;
-					}
-				}
-				else
-				{
-					_mouse_key_multi_click_counts[ input_event->mouse_key ] = 1;
-				}
-			}
-			else
-			{
-				for ( sint32_c i = 0; i < input_mouse_key_e_count_; i++ )
-				{
-					_mouse_key_multi_click_counts[ i ] = 1;
-				}
-			}
-			_mouse_position_when_key_pressed = _mouse_position;
-			_mouse_key_multi_click_times[ input_event->mouse_key ] = pressed_time;
-			input_event->mouse_key_multi_click_count = _mouse_key_multi_click_counts[ input_event->mouse_key ];
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
 		{
-			assert( input_event->mouse_key >= 0 && input_event->mouse_key < input_mouse_key_e_count_ );
+			assert( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ );
 			if ( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ )
 			{
 				_mouse_keys_state[ input_event->mouse_key ] = input_key_state_bit_e_released;
@@ -142,10 +115,7 @@ namespace cheonsa
 		, _events_a()
 		, _events_b()
 		, _mouse_pointer_visibility( true )
-		, _mouse_position_when_key_pressed()
-		, _mouse_key_multi_click_times{ 0 }
-		, _mouse_key_multi_click_counts{ 1, 1, 1, 1, 1, 1 }
-	{	
+	{
 	}
 
 	input_manager_c::~input_manager_c()
@@ -168,18 +138,6 @@ namespace cheonsa
 		_events = _next_events;
 		_next_events = temp;
 		_next_events->remove_all();
-	}
-
-	float32_c input_manager_c::get_double_click_time()
-	{
-#if defined( cheonsa_platform_windows )
-		return static_cast< float32_c >( GetDoubleClickTime() ) * 0.001f;
-#endif
-	}
-
-	float32_c input_manager_c::get_double_click_space()
-	{
-		return 3.0f;
 	}
 
 	boolean_c input_manager_c::get_mouse_pointer_visibility()
@@ -250,6 +208,7 @@ namespace cheonsa
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_keyboard_key_released;
+		input_event->time = ops::time_get_high_resolution_timer_count();
 		input_event->keyboard_key = keyboard_key;
 		_finalize_input_event( input_event );
 	}
@@ -258,6 +217,7 @@ namespace cheonsa
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_character;
+		input_event->time = ops::time_get_high_resolution_timer_count();
 		input_event->character = character;
 		input_event->character_repeat_count = character_repeat_count;
 		_finalize_input_event( input_event );
@@ -267,6 +227,7 @@ namespace cheonsa
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_move;
+		input_event->time = ops::time_get_high_resolution_timer_count();
 		input_event->mouse_position.a = static_cast< float32_c >( mouse_position_x );
 		input_event->mouse_position.b = static_cast< float32_c >( mouse_position_y );
 		_finalize_input_event( input_event );
@@ -276,6 +237,7 @@ namespace cheonsa
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_wheel;
+		input_event->time = ops::time_get_high_resolution_timer_count();
 		input_event->mouse_wheel_delta = mouse_wheel_delta;
 		_finalize_input_event( input_event );
 	}
@@ -284,6 +246,7 @@ namespace cheonsa
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_key_pressed;
+		input_event->time = ops::time_get_high_resolution_timer_count();
 		input_event->mouse_key = mouse_key;
 		_finalize_input_event( input_event );
 	}
@@ -292,6 +255,7 @@ namespace cheonsa
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_key_released;
+		input_event->time = ops::time_get_high_resolution_timer_count();
 		input_event->mouse_key = mouse_key;
 		_finalize_input_event( input_event );
 	}

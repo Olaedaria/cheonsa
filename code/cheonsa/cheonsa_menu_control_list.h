@@ -27,8 +27,6 @@ namespace cheonsa
 	public:
 		menu_control_list_item_text_c();
 
-		void_c set_is_selected( boolean_c value );
-
 	};
 
 	class menu_control_list_c

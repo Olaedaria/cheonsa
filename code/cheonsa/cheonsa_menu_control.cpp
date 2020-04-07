@@ -331,34 +331,6 @@ namespace cheonsa
 		load_static_data_properties_recursive( nullptr );
 	}
 
-	//boolean_c menu_control_c::_get_is_descendant_character_focused()
-	//{
-	//	menu_control_c * control = get_user_interface_root()->get_text_focused();
-	//	while ( control != nullptr )
-	//	{
-	//		if ( control == this )
-	//		{
-	//			return true;
-	//		}
-	//		control = control->_mother_control;
-	//	}
-	//	return false;
-	//}
-
-	//boolean_c menu_control_c::_get_is_descendant_mouse_focused()
-	//{
-	//	menu_control_c * control = get_user_interface_root()->get_mouse_focused();
-	//	while ( control != nullptr )
-	//	{
-	//		if ( control == this )
-	//		{
-	//			return true;
-	//		}
-	//		control = control->_mother_control;
-	//	}
-	//	return false;
-	//}
-
 	void_c menu_control_c::_on_user_interface_association_changed( user_interface_c * user_interface )
 	{
 		on_user_interface_association_changed.invoke( user_interface );
@@ -401,6 +373,7 @@ namespace cheonsa
 
 	void_c menu_control_c::_on_clicked( input_event_c * input_event )
 	{
+		get_user_interface_root()->reset_multi_click_detection();
 		on_clicked.invoke( menu_event_information_c( this, input_event ) );
 	}
 
@@ -487,7 +460,7 @@ namespace cheonsa
 		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_selected = is_related_to( get_user_interface_root()->get_mouse_overed() );
+		boolean_c is_selected = is_ascendant_of( get_user_interface_root()->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
 		{
 			menu_element_c * element = _element_list[ i ];
@@ -500,9 +473,9 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 		{
 			menu_control_c * control = _control_list[ i ];
-			control->_index = i;
+			assert( control->get_index() == i );
 			control->update_animations( time_step );
-			if ( control->_wants_to_be_deleted && control->_is_showed_weight <= 0.0f )
+			if ( control->get_wants_to_be_deleted() && control->get_is_showed_weight() <= 0.0f )
 			{
 				_take_control( i );
 				delete control;
@@ -783,24 +756,7 @@ namespace cheonsa
 		return _control_list[ control_index ];
 	}
 
-	//boolean_c menu_control_c::is_descendant_of( menu_control_c * control )
-	//{
-	//	if ( control != nullptr )
-	//	{
-	//		menu_control_c * mother_control = _mother_control;
-	//		while ( mother_control != nullptr )
-	//		{
-	//			if ( mother_control == control )
-	//			{
-	//				return true;
-	//			}
-	//			mother_control = mother_control->_mother_control;
-	//		}
-	//	}
-	//	return false;
-	//}
-
-	boolean_c menu_control_c::is_related_to( menu_control_c * control )
+	boolean_c menu_control_c::is_ascendant_of( menu_control_c * control )
 	{
 		while ( control != nullptr )
 		{
@@ -837,6 +793,11 @@ namespace cheonsa
 		_select_mode = value;
 	}
 
+	boolean_c menu_control_c::get_wants_to_be_deleted() const
+	{
+		return _wants_to_be_deleted;
+	}
+
 	boolean_c menu_control_c::get_is_showed() const
 	{
 		return _is_showed;
@@ -851,18 +812,24 @@ namespace cheonsa
 	{
 		if ( value )
 		{
-			_is_showed = true;
-			_wants_to_be_deleted = false;
-			_on_is_showed_changed();
+			if ( _is_showed == false )
+			{
+				_is_showed = true;
+				_wants_to_be_deleted = false;
+				_on_is_showed_changed();
+			}
 		}
 		else
 		{
-			_is_showed = false;
-			_wants_to_be_deleted = and_wants_to_be_deleted;
-			_on_is_showed_changed();
-			if ( user_interface_c * user_interface = get_user_interface_root() )
+			if ( _is_showed == true )
 			{
-				user_interface->_suspend_control( this );
+				_is_showed = false;
+				_wants_to_be_deleted = and_wants_to_be_deleted;
+				_on_is_showed_changed();
+				if ( user_interface_c * user_interface = get_user_interface_root() )
+				{
+					user_interface->_suspend_control( this );
+				}
 			}
 		}
 	}

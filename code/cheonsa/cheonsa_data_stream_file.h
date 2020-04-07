@@ -17,8 +17,8 @@ namespace cheonsa
 		data_stream_file_c();
 		virtual ~data_stream_file_c() override;
 
-		// on windows the file_path can be relative to the directory of the executable, but cheonsa's convention is to always use an absolute path as best practice.
-		// if stream_mode == stream_mode_write_e, then a new file will be created, or the existing file will be replaced with an empty file.
+		// the file path must be absolute and must be formatted with the operating system's native path format.
+		// if stream_mode == stream_mode_write_e, then a new file will be created. if it already exists, then it will be overwritten.
 		boolean_c open( string16_c const & file_path, data_stream_mode_e const stream_mode );
 		void_c close();
 

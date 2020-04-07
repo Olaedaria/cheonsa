@@ -15,13 +15,13 @@ namespace cheonsa
 			return false;
 		}
 
-		sint64_c file_modified_time = 0;
-		if ( !ops::file_system_get_file_or_folder_modified_time( _absolute_file_path, file_modified_time ) )
+		sint64_c source_file_last_write_time = 0;
+		if ( !ops::file_system_get_file_or_folder_last_write_time( _absolute_file_path, source_file_last_write_time ) )
 		{
 			return false;
 		}
 
-		if ( file_modified_time == _file_modified_time )
+		if ( source_file_last_write_time == _last_write_time )
 		{
 			return false;
 		}
@@ -130,7 +130,7 @@ namespace cheonsa
 	menu_style_file_c::menu_style_file_c( string16_c const & relative_file_path )
 		: _relative_file_path( relative_file_path )
 		, _absolute_file_path()
-		, _file_modified_time( 0 )
+		, _last_write_time( 0 )
 		, _color_style_dictionary()
 		, _frame_style_dictionary()
 		, _text_style_dictionary()

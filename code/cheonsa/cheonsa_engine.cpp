@@ -78,8 +78,7 @@ namespace cheonsa
 		char16_c module_file_path[ MAX_PATH + 1 ];
 		GetModuleFileNameW( NULL, module_file_path, MAX_PATH + 1 );
 		module_file_path[ MAX_PATH ] = 0;
-		string16_c executable_file_path;
-		ops::path_format_for_cheonsa( string16_c( mode_e_static, module_file_path ), executable_file_path, false );
+		string16_c executable_file_path = string16_c( mode_e_static, module_file_path );
 		string16_c executable_folder_path = ops::path_get_mother( executable_file_path );
 		string16_c executable_file_name = ops::path_get_file_name( executable_file_path );
 		
@@ -92,7 +91,7 @@ namespace cheonsa
 		// default to "data/engine/" folder in executable folder path.
 		string16_c engine_data_folder_path;
 		engine_data_folder_path += executable_folder_path;
-		engine_data_folder_path += "data/engine/";
+		engine_data_folder_path += "data\\engine\\";
 
 		// if data folder is not in executable folder, then assume that running out of "x64/Debug/", so go up a few folders and dig down again.
 #if defined( _DEBUG )
@@ -102,7 +101,7 @@ namespace cheonsa
 			engine_data_folder_path = ops::path_get_mother( engine_data_folder_path );
 			engine_data_folder_path = ops::path_get_mother( engine_data_folder_path );
 			engine_data_folder_path = ops::path_get_mother( engine_data_folder_path );
-			engine_data_folder_path += "data/engine/";
+			engine_data_folder_path += "data\\engine\\";
 		}
 #endif
 		
@@ -119,8 +118,12 @@ namespace cheonsa
 			if ( ops::string16_starts_with( arg.character_list.get_internal_array(), arg_data ) )
 			{
 				// extract value. note that if the argument contained a file path that was enclosed by double quotes, windows will remove those quotes before giving it to us.
-				string16_c value = ops::string16_sub_string( arg, arg_data_length, arg.get_length() - arg_data_length );
-				ops::path_format_for_cheonsa( value, engine_data_folder_path, true );
+				engine_data_folder_path = ops::string16_sub_string( arg, arg_data_length, arg.get_length() - arg_data_length );
+#if defined( cheonsa_platform_windows )
+				engine_data_folder_path += '\\';
+#else
+#error
+#endif
 			}
 		}
 #else

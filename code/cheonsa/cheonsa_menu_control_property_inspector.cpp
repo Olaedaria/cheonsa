@@ -782,7 +782,8 @@ namespace cheonsa
 			}
 			string16_c folder_path = ops::path_get_mother( value_as_string16 );
 			string16_c file_name = ops::path_get_file_name( value_as_string16 );
-			_file_picker->set_folder_path( folder_path );
+			_file_picker->clear_history();
+			_file_picker->go_to_folder_path( folder_path );
 			_file_picker->set_file_name( file_name );
 			_file_picker_dialog->set_is_showed( true );
 		}
@@ -799,7 +800,8 @@ namespace cheonsa
 			{
 				_editing_property_field->bound_reflection_property->_accessors._value_getter( _bound_reflection_object, &value_as_string16 );
 			}
-			_file_picker->set_folder_path( value_as_string16 );
+			_file_picker->clear_history();
+			_file_picker->go_to_folder_path( value_as_string16 );
 			_file_picker_dialog->set_is_showed( true );
 		}
 	}

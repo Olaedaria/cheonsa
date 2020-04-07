@@ -101,7 +101,7 @@ namespace cheonsa
 	video_renderer_shader_manager_c::file_dependency_c::file_dependency_c()
 		: file_name()
 		, absolute_file_path()
-		, file_modified_time( 0 )
+		, last_write_time( 0 )
 	{
 	}
 
@@ -109,24 +109,28 @@ namespace cheonsa
 	{
 		file_name = other.file_name;
 		absolute_file_path = other.absolute_file_path;
-		file_modified_time = other.file_modified_time;
+		last_write_time = other.last_write_time;
 		return *this;
 	}
 
 	boolean_c video_renderer_shader_manager_c::file_dependency_c::operator == ( file_dependency_c const & other ) const
 	{
-		return file_name == other.file_name && file_modified_time == other.file_modified_time;
+		return file_name == other.file_name && last_write_time == other.last_write_time;
 	}
 
 	boolean_c video_renderer_shader_manager_c::file_dependency_c::operator != ( file_dependency_c const & other ) const
 	{
-		return file_name != other.file_name || file_modified_time != other.file_modified_time;
+		return file_name != other.file_name || last_write_time != other.last_write_time;
 	}
 
 	void_c video_renderer_shader_manager_c::_resolve_cache_file_path_absolute( file_dependency_c const & source_file_dependency, variation_e variation, string16_c & result )
 	{
 		result = ops::path_get_mother( source_file_dependency.absolute_file_path );
-		result += "cache/";
+#if defined( cheonsa_platform_windows )
+		result += "cache\\";
+#else
+#error
+#endif
 		result += ops::path_get_file_name_without_extension( source_file_dependency.file_name );
 		result += get_variation_suffix( variation );
 		result += ".so";
@@ -234,7 +238,7 @@ namespace cheonsa
 	boolean_c video_renderer_shader_manager_c::_load_source_dependency_information( shader_variations_c * shader_variations )
 	{
 		shader_variations->source_file_dependency_list.remove_all();
-		if ( !ops::file_system_get_file_or_folder_modified_time( shader_variations->source_file.absolute_file_path, shader_variations->source_file.file_modified_time ) )
+		if ( !ops::file_system_get_file_or_folder_last_write_time( shader_variations->source_file.absolute_file_path, shader_variations->source_file.last_write_time ) )
 		{
 			return false;
 		}
@@ -319,7 +323,7 @@ namespace cheonsa
 					video_renderer_shader_manager_c::file_dependency_c & sub_file_dependency = *result.emplace_at_end();
 					sub_file_dependency.file_name = file_name;
 					resolve_file_path( sub_file_dependency.file_name, is_internal, sub_file_dependency.absolute_file_path );
-					ops::file_system_get_file_or_folder_modified_time( sub_file_dependency.absolute_file_path, sub_file_dependency.file_modified_time );
+					ops::file_system_get_file_or_folder_last_write_time( sub_file_dependency.absolute_file_path, sub_file_dependency.last_write_time );
 					__load_source_dependency_list_recursive( sub_file_dependency, is_internal, result ); // recurse.
 				}
 			}
@@ -328,12 +332,16 @@ namespace cheonsa
 		return true;
 	}
 
-	boolean_c video_renderer_shader_manager_c::_load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & absolute_file_path, sint64_c & file_modified_time, core_list_c< file_dependency_c > & file_dependency_list )
+	boolean_c video_renderer_shader_manager_c::_load_cached_dependency_information( shader_variations_c * shader_variations, variation_e variation, string16_c & absolute_file_path, sint64_c & file_last_write_time, core_list_c< file_dependency_c > & file_dependency_list )
 	{
-		file_modified_time = 0;
+		file_last_write_time = 0;
 		file_dependency_list.remove_all();
 		absolute_file_path = ops::path_get_mother( shader_variations->source_file.absolute_file_path );
-		absolute_file_path += "cache/";
+#if defined( cheonsa_platform_windows )
+		absolute_file_path += "cache\\";
+#else
+#error
+#endif
 		absolute_file_path += ops::path_get_file_name_without_extension( shader_variations->source_file.file_name );
 		absolute_file_path += get_variation_suffix( variation );
 		absolute_file_path += ".so";
@@ -352,7 +360,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !scribe_binary.load_sint64( file_modified_time ) )
+		if ( !scribe_binary.load_sint64( file_last_write_time ) )
 		{
 			return false;
 		}
@@ -371,7 +379,7 @@ namespace cheonsa
 				return false;
 			}
 			file_dependency.file_name = file_dependency_file_name_string8;
-			if ( !scribe_binary.load_sint64( file_dependency.file_modified_time ) )
+			if ( !scribe_binary.load_sint64( file_dependency.last_write_time ) )
 			{
 				return false;
 			}
@@ -397,12 +405,12 @@ namespace cheonsa
 			{
 				// load the dependencies that were present at the time of compilation that are saved with the cache file.
 				string16_c cache_file_path_absolute;
-				sint64_c cache_file_modified_time = 0;
+				sint64_c cache_file_last_write_time = 0;
 				core_list_c< file_dependency_c > cache_file_dependency_list; // file names of included files, and their file modified times.
-				boolean_c has_cached = _load_cached_dependency_information( shader_variations, variation, cache_file_path_absolute, cache_file_modified_time, cache_file_dependency_list );
+				boolean_c has_cached = _load_cached_dependency_information( shader_variations, variation, cache_file_path_absolute, cache_file_last_write_time, cache_file_dependency_list );
 
 				// compare for differences between source file and cache file.
-				if ( has_cached == false || shader_variations->source_file.file_modified_time != cache_file_modified_time || shader_variations->source_file_dependency_list != cache_file_dependency_list )
+				if ( has_cached == false || shader_variations->source_file.last_write_time != cache_file_last_write_time || shader_variations->source_file_dependency_list != cache_file_dependency_list )
 				{
 					// cache file is out of sync, need to recompile and recache this shader.
 					_compile_and_save_to_cache( shader_variations, variation );
@@ -426,7 +434,11 @@ namespace cheonsa
 
 		string16_c cache_folder_path;
 		cache_folder_path = ops::path_get_mother( shader_variations->source_file.absolute_file_path );
-		cache_folder_path += "cache/";
+#if defined( cheonsa_platform_windows )
+		cache_folder_path += "cache\\";
+#else
+#error
+#endif
 
 		if ( !ops::file_system_does_folder_exist( cache_folder_path ) )
 		{
@@ -543,14 +555,14 @@ namespace cheonsa
 
 			sint32_c compiled_code_position = 0;
 			scribe_binary.save_sint32( 0 ); // place holder for where we will save the location of compiled code.
-			scribe_binary.save_sint64( shader_variations->source_file.file_modified_time );
+			scribe_binary.save_sint64( shader_variations->source_file.last_write_time );
 			assert( shader_variations->source_file_dependency_list.get_length() < 0xFF );
 			scribe_binary.save_uint8( static_cast< uint8_c >( shader_variations->source_file_dependency_list.get_length() ) );
 			for ( sint32_c i = 0; i < shader_variations->source_file_dependency_list.get_length(); i++ )
 			{
 				file_dependency_c & file_dependency = shader_variations->source_file_dependency_list[i];
 				scribe_binary.save_string8( string8_c( file_dependency.file_name ) );
-				scribe_binary.save_sint64( file_dependency.file_modified_time );
+				scribe_binary.save_sint64( file_dependency.last_write_time );
 			}
 			compiled_code_position = stream.get_position();
 			scribe_binary.save_sint32( compiled_code_size );
@@ -1045,8 +1057,12 @@ namespace cheonsa
 			for ( sint32_c i = game_data_folder_path_list.get_length() - 1; i >= 0; i-- )
 			{
 				result = game_data_folder_path_list[ i ];
-				result += shader_folder_path;
-				result += relative_file_path;
+#if defined( cheonsa_platform_windows )
+				result += "_common\\shaders\\";
+#else
+#error
+#endif
+				result += ops::file_system_convert_path_format_from_cheonsa_to_windows( relative_file_path );
 				if ( ops::file_system_does_file_exist( result ) )
 				{
 					absolute_file_path = result;
@@ -1057,8 +1073,12 @@ namespace cheonsa
 
 		// scan engine data folder.
 		result = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
-		result += shader_folder_path;
-		result += relative_file_path;
+#if defined( cheonsa_platform_windows )
+		result += "_common\\shaders\\";
+#else
+#error
+#endif
+		result += ops::file_system_convert_path_format_from_cheonsa_to_windows( relative_file_path );
 		if ( ops::file_system_does_file_exist( result ) )
 		{
 			absolute_file_path = result;

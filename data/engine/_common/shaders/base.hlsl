@@ -122,6 +122,7 @@ cbuffer menu_draw_block : register( b8 )
 {
 	float4 menu_draw_color;
 	float4 menu_draw_shared_colors[ 3 ];
+	float4 menu_draw_clip_planes[ 4 ]; // per-element clip planes, in addition to the nested ones defined by menu_clip_plane_stack_length and menu_clip_plane_stack.
 };
 
 struct vertex_mesh_c // should match "cheonsa::video_renderer_vertex_mesh_base_c" in "cheonsa_video_renderer_types.h"
@@ -399,6 +400,17 @@ float get_menu_clip( float2 position )
 		if ( dot( clip_plane.xy, position.xy ) + clip_plane.z < 0.0 )
 		{
 			return 0.0;
+		}
+	}
+	if ( menu_draw_clip_planes[ 0 ].w == 0.0f )
+	{
+		for ( int i = 0; i < 4; i++ )
+		{
+			float4 clip_plane = menu_draw_clip_planes[ i ];
+			if ( dot( clip_plane.xy, position.xy ) + clip_plane.z < 0.0 )
+			{
+				return 0.0;
+			}
 		}
 	}
 	return 1.0;

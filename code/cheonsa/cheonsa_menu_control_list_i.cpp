@@ -12,7 +12,7 @@ namespace cheonsa
 	{
 	}
 
-	void_c menu_control_list_item_i::_set_is_selected( boolean_c value )
+	void_c menu_control_list_item_i::_set_is_selected( boolean_c value, boolean_c try_to_multi_select )
 	{
 		assert( _can_be_selected == true ); // this function should only be called if this type of list item is designed to have a toggleable selected state.
 		menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
@@ -24,19 +24,30 @@ namespace cheonsa
 				// this item wants to become selected.
 				if ( mother_list != nullptr )
 				{
-					// work with list to update selected item state.
 					assert( mother_list->_selected_item_list.find_index_of( this ) == -1 );
-					mother_list->_selected_item_list.insert_at_end( this ); // append new selection.
-					mother_list->_deselect_items_over_limit();
+					if ( try_to_multi_select )
+					{
+						// work with list to update selected item state.
+						mother_list->_selected_item_list.insert_at_end( this ); // append new selection.
+						mother_list->_deselect_items_over_limit();
+					}
+					else
+					{
+						mother_list->_deselect_all_items();
+					}
 				}
 				_is_selected = value;
-				_on_is_selected_changed();
+				//_on_is_selected_changed();
+				if ( mother_list != nullptr )
+				{
+					mother_list->_on_selected_item_list_changed();
+				}
 			}
 			else
 			{
 				// this item wants to become deselected.
 				_is_selected = value;
-				_on_is_selected_changed();
+				//_on_is_selected_changed();
 				if ( mother_list != nullptr )
 				{
 					assert( mother_list->_selected_item_list.remove( this ) );
@@ -111,10 +122,10 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_list_item_text_i::_on_is_selected_changed()
-	{
-		_element_selected_frame.set_is_showed( _is_selected );
-	}
+	//void_c menu_control_list_item_text_i::_on_is_selected_changed()
+	//{
+	//	_element_selected_frame.set_is_showed( _is_selected );
+	//}
 
 	void_c menu_control_list_item_text_i::_on_is_mouse_overed_changed()
 	{
@@ -140,9 +151,9 @@ namespace cheonsa
 		assert( mother_list );
 		if ( mother_list != nullptr )
 		{
-			_set_is_selected( true );
+			_set_is_selected( true, input_event->check_modifier_key_states( false, true, false ) );
 		}
-		menu_control_c::_on_clicked( input_event );
+		on_clicked.invoke( menu_event_information_c( this, input_event ) );
 	}
 
 	void_c menu_control_list_item_text_i::_update_element_states()
@@ -226,14 +237,9 @@ namespace cheonsa
 		}
 	}
 
-	boolean_c menu_control_list_item_text_i::get_is_selected() const
+	void_c menu_control_list_item_text_i::set_is_selected( boolean_c value, boolean_c try_to_multi_select )
 	{
-		return _is_selected;
-	}
-
-	void_c menu_control_list_item_text_i::set_is_selected( boolean_c value )
-	{
-		_set_is_selected( value );
+		_set_is_selected( value, try_to_multi_select );
 	}
 
 	string16_c menu_control_list_item_text_i::get_plain_text_value() const
@@ -341,6 +347,16 @@ namespace cheonsa
 		_deselect_items_over_limit();
 	}
 
+	void_c menu_control_list_i::_deselect_all_items()
+	{
+		for ( sint32_c i = 0; i < _selected_item_list.get_length(); i++ )
+		{
+			menu_control_list_item_i * list_item = _selected_item_list[ i ];
+			list_item->_is_selected = false;
+			list_item->_on_is_selected_changed();
+		}
+	}
+
 	void_c menu_control_list_i::_deselect_items_over_limit()
 	{
 		if ( _selected_item_limit >= 0 )
@@ -355,7 +371,6 @@ namespace cheonsa
 					list_item->_on_is_selected_changed();
 				}
 				_selected_item_list.remove_at_index( 0, deselect_count );
-				_on_selected_item_list_changed();
 			}
 		}
 	}

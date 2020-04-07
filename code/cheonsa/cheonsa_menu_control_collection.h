@@ -76,9 +76,9 @@ namespace cheonsa
 		void_c set_is_selected( boolean_c value );
 
 	public:
-		static sint32_c relative_compare( menu_control_collection_item_i * const & a, menu_control_collection_item_i * const & b ); // for insertion sort.
+		static boolean_c relative_compare( menu_control_collection_item_i * const & a, menu_control_collection_item_i * const & b ); // for insertion sort.
 		static uint64_c absolute_value( menu_control_collection_item_i * const & a ); // for quick sort.
-		static sint32_c relative_group_compare( menu_control_collection_item_i * const & a, menu_control_collection_item_i * const & b ); // for insertion sort, secondary sort.
+		static boolean_c relative_group_compare( menu_control_collection_item_i * const & a, menu_control_collection_item_i * const & b ); // for insertion sort, secondary sort.
 
 	};
 
@@ -181,7 +181,7 @@ namespace cheonsa
 
 		menu_visibility_mode_e _vertical_scroll_bar_visibility; // how to show or hide the vertical scroll bar.
 		menu_control_scroll_bar_y_c * _vertical_scroll_bar; // name is "vertical_scroll_bar".
-		void_c _handle_on_value_changed( menu_control_scroll_bar_i * scroll );
+		void_c _handle_scroll_bar_on_value_changed( menu_control_scroll_bar_i * scroll );
 
 		display_mode_e _display_mode; // how items are dispalyed and laid out in the container.
 
@@ -234,7 +234,7 @@ namespace cheonsa
 		virtual void_c update_animations( float32_c time_step ) override;
 		virtual void_c update_transform_and_layout() override;
 
-		// call this after changing columns around, and after adding or removing items.
+		// call this after changing columns around or after adding or removing items.
 		// queries and caches item property values if needed.
 		// sorts items if needed.
 		// updates scroll bar capacity.

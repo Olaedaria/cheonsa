@@ -12,6 +12,20 @@ namespace cheonsa
 		on_is_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
+	void_c menu_control_text_c::_on_clicked( input_event_c * input_event )
+	{
+		on_clicked.invoke( menu_event_information_c( this, input_event ) );
+	}
+
+	void_c menu_control_text_c::_on_multi_clicked( input_event_c * input_event )
+	{
+		_element_text.handle_on_multi_clicked( input_event );
+		if ( input_event->multi_click_count == 3 )
+		{
+			get_user_interface_root()->reset_multi_click_detection();
+		}
+	}
+
 	void_c menu_control_text_c::_on_input( input_event_c * input_event )
 	{
 		_element_text.handle_on_input( input_event );
@@ -24,7 +38,7 @@ namespace cheonsa
 
 	void_c menu_control_text_c::_handle_on_value_changed( menu_element_text_c * text )
 	{
-		on_value_changed_commit.invoke( this );
+		on_value_changed.invoke( this );
 	}
 
 	menu_control_text_c::menu_control_text_c()
@@ -320,7 +334,7 @@ namespace cheonsa
 		_element_text.set_content_offset( content_offset );
 		_element_text.update_animations( time_step );
 
-		boolean_c is_descendant_mouse_focused = is_related_to( get_user_interface_root()->get_mouse_focused() );
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( get_user_interface_root()->get_mouse_focused() );
 
 		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_frame.set_is_pressed( _is_pressed );

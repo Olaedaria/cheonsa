@@ -7,7 +7,7 @@ namespace cheonsa
 
 	void_c menu_window_dialog_c::_handle_button_on_click( menu_event_information_c event_information )
 	{
-		if ( event_information.control == _control_button_a )
+		if ( event_information.control == _button_a )
 		{
 			if ( _mode == mode_e_okay || _mode == mode_e_okay_cancel )
 			{
@@ -18,7 +18,7 @@ namespace cheonsa
 				_result = result_e_yes;
 			}
 		}
-		else if ( event_information.control == _control_button_b )
+		else if ( event_information.control == _button_b )
 		{
 			if ( _mode == mode_e_okay_cancel )
 			{
@@ -29,7 +29,7 @@ namespace cheonsa
 				_result = result_e_no;
 			}
 		}
-		else if ( event_information.control == _control_button_c )
+		else if ( event_information.control == _button_c )
 		{
 			if ( _mode == mode_e_yes_no_cancel )
 			{
@@ -37,7 +37,7 @@ namespace cheonsa
 			}
 		}
 		set_is_showed( false );
-		on_result.invoke( this );
+		on_submitted.invoke( this );
 	}
 
 	void_c menu_window_dialog_c::_on_input( input_event_c * input_event )
@@ -60,36 +60,42 @@ namespace cheonsa
 					_result = result_e_no;
 				}
 				set_is_showed( false );
-				on_result.invoke( this );
+				on_submitted.invoke( this );
 			}
 		}
 	}
 
 	menu_window_dialog_c::menu_window_dialog_c()
 		: menu_window_c()
-		, _control_button_a( nullptr )
-		, _control_button_b( nullptr )
-		, _control_button_c( nullptr )
+		, _message( nullptr )
+		, _button_a( nullptr )
+		, _button_b( nullptr )
+		, _button_c( nullptr )
 		, _mode( mode_e_okay )
 		, _result( result_e_okay )
 	{
 		_bottom_bar_size = 30.0f + 8.0f;
 		_apply_client_margins();
 
-		_control_button_a = new menu_control_button_c();
-		_control_button_a->set_name( string8_c( mode_e_static, "button_a" ) );
-		_control_button_a->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
-		_give_control( _control_button_a );
+		_message = new menu_control_text_c();
+		_message->set_name( string8_c( mode_e_static, "text" ) );
+		_message->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
+		_give_control_to_client( _message );
 
-		_control_button_b = new menu_control_button_c();
-		_control_button_b->set_name( string8_c( mode_e_static, "button_b" ) );
-		_control_button_b->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
-		_give_control( _control_button_b );
+		_button_a = new menu_control_button_c();
+		_button_a->set_name( string8_c( mode_e_static, "button_a" ) );
+		_button_a->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
+		_give_control( _button_a );
 
-		_control_button_c = new menu_control_button_c();
-		_control_button_c->set_name( string8_c( mode_e_static, "button_c" ) );
-		_control_button_c->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
-		_give_control( _control_button_c );
+		_button_b = new menu_control_button_c();
+		_button_b->set_name( string8_c( mode_e_static, "button_b" ) );
+		_button_b->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
+		_give_control( _button_b );
+
+		_button_c = new menu_control_button_c();
+		_button_c->set_name( string8_c( mode_e_static, "button_c" ) );
+		_button_c->on_clicked.subscribe( this, &menu_window_dialog_c::_handle_button_on_click );
+		_give_control( _button_c );
 	}
 
 	void menu_window_dialog_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
@@ -137,70 +143,90 @@ namespace cheonsa
 		_mode = value;
 		if ( _mode == mode_e_okay )
 		{
-			if ( _control_button_a )
+			if ( _button_a )
 			{
-				_control_button_a->set_layout_box_anchor( box_anchor, box_c );
-				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
-				_control_button_a->set_is_showed_immediately( true );
+				_button_a->set_layout_box_anchor( box_anchor, box_c );
+				_button_a->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
+				_button_a->set_is_showed_immediately( true );
 			}
-			if ( _control_button_b )
+			if ( _button_b )
 			{
-				_control_button_b->set_is_showed_immediately( false );
+				_button_b->set_is_showed_immediately( false );
 			}
-			if ( _control_button_c )
+			if ( _button_c )
 			{
-				_control_button_c->set_is_showed_immediately( false );
+				_button_c->set_is_showed_immediately( false );
 			}
 		}
 		else if ( _mode == mode_e_okay_cancel || _mode == mode_e_yes_no )
 		{
-			if ( _control_button_a )
+			if ( _button_a )
 			{
-				_control_button_a->set_layout_box_anchor( box_anchor, box_b );
-				_control_button_a->set_is_showed_immediately( true );
+				_button_a->set_layout_box_anchor( box_anchor, box_b );
+				_button_a->set_is_showed_immediately( true );
 				
 			}
-			if ( _control_button_b )
+			if ( _button_b )
 			{
-				_control_button_b->set_layout_box_anchor( box_anchor, box_c );
-				_control_button_b->set_is_showed_immediately( false );
+				_button_b->set_layout_box_anchor( box_anchor, box_c );
+				_button_b->set_is_showed_immediately( false );
 			}
-			if ( _control_button_c )
+			if ( _button_c )
 			{
-				_control_button_c->set_is_showed_immediately( false );
+				_button_c->set_is_showed_immediately( false );
 			}
 			if ( _mode == mode_e_okay_cancel )
 			{
-				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
-				_control_button_b->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
+				_button_a->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
+				_button_b->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
 			}
 			else if ( _mode == mode_e_yes_no )
 			{
-				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"yes" ) );
-				_control_button_b->set_plain_text_value( string16_c( mode_e_static, L"no" ) );
+				_button_a->set_plain_text_value( string16_c( mode_e_static, L"yes" ) );
+				_button_b->set_plain_text_value( string16_c( mode_e_static, L"no" ) );
 			}
 		}
 		else if ( _mode == mode_e_yes_no_cancel )
 		{
-			if ( _control_button_a )
+			if ( _button_a )
 			{
-				_control_button_a->set_layout_box_anchor( box_anchor, box_a );
-				_control_button_a->set_plain_text_value( string16_c( mode_e_static, L"yes" ) );
-				_control_button_a->set_is_showed_immediately( true );
+				_button_a->set_layout_box_anchor( box_anchor, box_a );
+				_button_a->set_plain_text_value( string16_c( mode_e_static, L"yes" ) );
+				_button_a->set_is_showed_immediately( true );
 			}
-			if ( _control_button_b )
+			if ( _button_b )
 			{
-				_control_button_b->set_layout_box_anchor( box_anchor, box_b );
-				_control_button_b->set_plain_text_value( string16_c( mode_e_static, L"no" ) );
-				_control_button_b->set_is_showed_immediately( true );
+				_button_b->set_layout_box_anchor( box_anchor, box_b );
+				_button_b->set_plain_text_value( string16_c( mode_e_static, L"no" ) );
+				_button_b->set_is_showed_immediately( true );
 			}
-			if ( _control_button_c )
+			if ( _button_c )
 			{
-				_control_button_c->set_layout_box_anchor( box_anchor, box_c );
-				_control_button_c->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
-				_control_button_c->set_is_showed_immediately( true );
+				_button_c->set_layout_box_anchor( box_anchor, box_c );
+				_button_c->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
+				_button_c->set_is_showed_immediately( true );
 			}
 		}
+	}
+
+	string16_c menu_window_dialog_c::get_message() const
+	{
+		return _message->get_plain_text_value();
+	}
+
+	void_c menu_window_dialog_c::set_message( string8_c const & plain_text )
+	{
+		_message->set_plain_text_value( plain_text );
+	}
+
+	void_c menu_window_dialog_c::set_message( string16_c const & plain_text )
+	{
+		_message->set_plain_text_value( plain_text );
+	}
+
+	void_c menu_window_dialog_c::clear_message()
+	{
+		_message->clear_text_value();
 	}
 
 	menu_window_dialog_c::result_e menu_window_dialog_c::get_result() const

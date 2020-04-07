@@ -195,12 +195,31 @@ namespace cheonsa
 
 	void_c menu_window_c::update_animations( float32_c time_step )
 	{
-		menu_control_c::update_animations( time_step );
-		boolean_c is_deep_text_focused = get_is_deep_text_focused();
-		_element_frame.set_is_selected( is_deep_text_focused );
-		_element_frame.set_is_pressed( _grabbed_element != grabbed_element_e_none );
-		_element_text.set_is_selected( is_deep_text_focused );
-		_element_text.set_is_pressed( _grabbed_element != grabbed_element_e_none );
+		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
+		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
+
+		boolean_c is_selected = is_ascendant_of( get_user_interface_root()->get_mouse_overed() ) || get_is_deep_text_focused();
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			menu_element_c * element = _element_list[ i ];
+			element->set_is_enabled( _is_enabled );
+			element->set_is_selected( is_selected );
+			element->set_is_pressed( _is_pressed && _is_mouse_overed );
+			element->update_animations( time_step );
+		}
+
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * control = _control_list[ i ];
+			assert( control->get_index() == i );
+			control->update_animations( time_step );
+			if ( control->get_wants_to_be_deleted() && control->get_is_showed_weight() <= 0.0f )
+			{
+				_take_control( i );
+				delete control;
+				i--;
+			}
+		}
 	}
 
 	void_c menu_window_c::update_transform_and_layout()
@@ -243,22 +262,22 @@ namespace cheonsa
 		}
 	}
 
-	string16_c menu_window_c::get_plain_text_value() const
+	string16_c menu_window_c::get_title() const
 	{
 		return _element_text.get_plain_text_value();
 	}
 
-	void_c menu_window_c::set_plain_text_value( string8_c const & plain_text )
+	void_c menu_window_c::set_title( string8_c const & plain_text )
 	{
 		_element_text.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_window_c::set_plain_text_value( string16_c const & plain_text )
+	void_c menu_window_c::set_title( string16_c const & plain_text )
 	{
 		_element_text.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_window_c::clear_text_value()
+	void_c menu_window_c::clear_title()
 	{
 		_element_text.clear_text_value();
 	}

@@ -13,6 +13,7 @@ namespace cheonsa
 	// when databases are loaded their data is in native [ byte order | endianness ].
 	// when databases are saved their data may be converted to match _endianness if it is non-native [ byte order | endianness ].
 	// this isn't as bloated or as robust as sqlite or whatever.
+	// all databases are in memory all the time.
 	class database_c
 	{
 	private:

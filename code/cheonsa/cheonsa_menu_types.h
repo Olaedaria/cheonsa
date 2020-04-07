@@ -656,6 +656,7 @@ namespace cheonsa
 		};
 
 		//menu_element_c * mother_element;
+		vector32x4_c clip_planes[ 4 ]; // clip planes that define a rectangle, the size of the element.
 		core_list_c< video_renderer_vertex_menu_c > vertex_list;
 		core_list_c< uint16_c > index_list; // formatted as triangle list.
 		core_list_c< draw_c > draw_list;
@@ -667,6 +668,9 @@ namespace cheonsa
 
 		// resets state, clears all the draw lists.
 		void_c reset();
+
+		// 
+		void_c set_clip_planes( box32x2_c const box, matrix32x2x2_c const & control_group_basis, vector32x2_c const & control_group_origin );
 
 		// interprets the input_vertex_list as a list of quads to build the index_list.
 		void_c append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] );

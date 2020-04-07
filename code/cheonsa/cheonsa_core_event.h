@@ -188,6 +188,22 @@ namespace cheonsa
 			}
 		}
 
+		return_type_c invoke_with_return_value( parameter_type_c parameter ) const
+		{
+			return_type_c result = 0;
+			core_list_c< delegate_c * > copy = _delegate_list; // iterate over a copy so that we are not affected if subscription list is modified during invocation.
+			for ( sint32_c i = 0; i < copy.get_length(); i++ )
+			{
+				result = copy[ i ]->invoke( parameter );
+			}
+			return result;
+		}
+
+		sint32_c get_subscriber_count() const
+		{
+			return _delegate_list.get_length();
+		}
+
 	};
 
 }

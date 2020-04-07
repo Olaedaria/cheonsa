@@ -251,7 +251,7 @@ namespace cheonsa
 		_h_text->set_word_wrap( false );
 		_h_text->set_text_value_length_limit( 50 );
 		_h_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_h_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_h_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _h_text );
 
 		_s_scroll_bar = new menu_control_scroll_bar_x_c();
@@ -268,7 +268,7 @@ namespace cheonsa
 		_s_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_s_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_s_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_s_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_s_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _s_text );
 
 		_v_scroll_bar = new menu_control_scroll_bar_x_c();
@@ -285,7 +285,7 @@ namespace cheonsa
 		_v_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_v_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_v_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_v_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_v_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _v_text );
 
 		_r_scroll_bar = new menu_control_scroll_bar_x_c();
@@ -302,7 +302,7 @@ namespace cheonsa
 		_r_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_r_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_r_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_r_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_r_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _r_text );
 
 		_g_scroll_bar = new menu_control_scroll_bar_x_c();
@@ -319,7 +319,7 @@ namespace cheonsa
 		_g_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_g_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_g_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_g_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_g_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _g_text );
 
 		_b_scroll_bar = new menu_control_scroll_bar_x_c();
@@ -336,7 +336,7 @@ namespace cheonsa
 		_b_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_b_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_b_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_b_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_b_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _b_text );
 
 		_a_scroll_bar = new menu_control_scroll_bar_x_c();
@@ -353,7 +353,7 @@ namespace cheonsa
 		_a_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_a_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_a_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_a_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_a_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _a_text );
 
 		_rgba_hex_text = new menu_control_text_c();
@@ -363,7 +363,7 @@ namespace cheonsa
 		_rgba_hex_text->set_text_value_length_limit( 16 );
 		_rgba_hex_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_rgba_hex_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_rgba_hex_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_rgba_hex_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _rgba_hex_text );
 
 		_rgba_float_text = new menu_control_text_c();
@@ -372,7 +372,7 @@ namespace cheonsa
 		_rgba_float_text->set_word_wrap( false );
 		_rgba_float_text->set_text_value_length_limit( 64 );
 		_rgba_float_text->on_value_changed_preview.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
-		_rgba_float_text->on_value_changed_commit.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
+		_rgba_float_text->on_value_changed.subscribe( this, &menu_control_color_picker_c::_handle_text_on_value_changed );
 		_give_control( _rgba_float_text );
 	}
 

@@ -116,7 +116,7 @@ namespace cheonsa
 
 	void_c menu_control_check_c::update_animations( float32_c time_step )
 	{
-		boolean_c is_descendant_mouse_focused = is_related_to( get_user_interface_root()->get_mouse_focused() );
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( get_user_interface_root()->get_mouse_focused() );
 		_element_box.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_box.set_is_pressed( _is_pressed );
 		_element_mark.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
