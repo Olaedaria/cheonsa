@@ -161,7 +161,7 @@ namespace cheonsa
 							vector32x4_c laid_out_glyph_color = text_glyph_style->color;// * element_color;
 							if ( laid_out_glyph_color.d != 0.0f )
 							{
-								if ( ( character & 0xF000 ) != 0xF000 )
+								//if ( ( character & 0xF000 ) != 0xF000 )
 								{
 									if ( laid_out_glyph->_glyph )
 									{
@@ -220,35 +220,35 @@ namespace cheonsa
 										}
 									}
 								}
-								else
-								{
-									// this is an entity.
-									menu_text_entity_c * entity = paragraph->_entity_list[ character & 0x0FFF ];
-									if ( entity->type_code == menu_text_entity_sprite_c::type_code_static() )
-									{
-										// this is a sprite entity.
-										menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
-										if ( entity_sprite->value.get_is_ready() )
-										{
-											resource_file_sprite_set_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
-											resource_file_sprite_set_c::frame_c const * current_frame = entity_sprite->value.get_frame();
+								//else
+								//{
+								//	// this is an entity.
+								//	menu_text_entity_c * entity = paragraph->_entity_list[ character & 0x0FFF ];
+								//	if ( entity->type_code == menu_text_entity_sprite_c::type_code_static() )
+								//	{
+								//		// this is a sprite entity.
+								//		menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
+								//		if ( entity_sprite->value.get_is_ready() )
+								//		{
+								//			resource_file_sprite_set_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
+								//			resource_file_sprite_set_c::frame_c const * current_frame = entity_sprite->value.get_frame();
 
-											float32_c scale_to_size = text_glyph_style->size / entity_sprite->value.get_sprite()->font_size;
+								//			float32_c scale_to_size = text_glyph_style->size / entity_sprite->value.get_sprite()->font_size;
 
-											float32_c origin_a = line_left + laid_out_glyph->_left;
-											float32_c origin_b = line_top_baseline;
+								//			float32_c origin_a = line_left + laid_out_glyph->_left;
+								//			float32_c origin_b = line_top_baseline;
 
-											laid_out_sprite_c * laid_out_sprite = sprite_list.emplace_at_end();
-											laid_out_sprite->texture_resource = entity_sprite->value.get_sprite()->texture_resource;
-											laid_out_sprite->color = laid_out_glyph_color;
-											laid_out_sprite->box.minimum.a = origin_a + ( current_frame->box.minimum.a * scale_to_size );
-											laid_out_sprite->box.minimum.b = origin_b + ( current_frame->box.minimum.b * scale_to_size );
-											laid_out_sprite->box.maximum.a = origin_a + ( current_frame->box.maximum.a * scale_to_size );
-											laid_out_sprite->box.maximum.b = origin_b + ( current_frame->box.maximum.b * scale_to_size );
-											laid_out_sprite->map = current_frame->map;
-										}
-									}
-								}
+								//			laid_out_sprite_c * laid_out_sprite = sprite_list.emplace_at_end();
+								//			laid_out_sprite->texture_resource = entity_sprite->value.get_sprite()->texture_resource;
+								//			laid_out_sprite->color = laid_out_glyph_color;
+								//			laid_out_sprite->box.minimum.a = origin_a + ( current_frame->box.minimum.a * scale_to_size );
+								//			laid_out_sprite->box.minimum.b = origin_b + ( current_frame->box.minimum.b * scale_to_size );
+								//			laid_out_sprite->box.maximum.a = origin_a + ( current_frame->box.maximum.a * scale_to_size );
+								//			laid_out_sprite->box.maximum.b = origin_b + ( current_frame->box.maximum.b * scale_to_size );
+								//			laid_out_sprite->map = current_frame->map;
+								//		}
+								//	}
+								//}
 							}
 						}
 					}
@@ -1919,9 +1919,6 @@ namespace cheonsa
 
 		_text_select_anchor_index_start = _cursor_index;
 		_text_select_anchor_index_end = _cursor_index;
-
-		_is_text_value_modified = true;
-		on_text_value_changed_preview.invoke( this );		
 	}
 
 	void_c menu_element_text_c::_insert_plain_text( char16_c const * values, sint32_c values_count, sint32_c at_character_index )
@@ -2434,6 +2431,8 @@ namespace cheonsa
 	{
 		_clear_text_value();
 		_input_plain_text( value );
+		_is_text_value_modified = false;
+		on_text_value_changed.invoke( this );
 	}
 
 	boolean_c menu_element_text_c::_set_rich_text_value( string8_c const & value )
@@ -3033,12 +3032,13 @@ namespace cheonsa
 		if ( has_selected_text_range() )
 		{
 			_delete_selected_text();
-			on_text_value_changed_preview.invoke( this );
 		}
 
 		string16_c value_string;
 		value_string += character;
 		_input_plain_text( value_string );
+		_is_text_value_modified = true;
+		on_text_value_changed_preview.invoke( this );
 	}
 
 	void_c menu_element_text_c::input_return( boolean_c shift )
@@ -3502,6 +3502,8 @@ namespace cheonsa
 			}
 			_input_plain_text( clip );
 			_cursor_index += clip.get_length();
+			_is_text_value_modified = true;
+			on_text_value_changed_preview.invoke( this );
 			return true;
 		}
 		return false;

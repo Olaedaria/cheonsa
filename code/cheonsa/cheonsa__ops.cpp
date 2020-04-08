@@ -3511,18 +3511,20 @@ namespace cheonsa
 		//
 		//
 
-		boolean_c char16_is_valid_for_file_path( char16_c character )
-		{
-			if ( ( character >= 0 && character <= 31 ) || ( character >= 128 ) || character == '<' || character == '>' || character == '"' || character == '|' || character == '?' || character == '*' || character == '%' )
-			{
-				return false;
-			}
-			return true;
-		}
+		//boolean_c char16_is_valid_for_file_path( char16_c character )
+		//{
+		//	if ( !char16_is_printable( character ) || ( character == 127 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '/' ) )
+		//	if ( ( character >= 0 && character <= 31 ) || !char16_is_printable( character ) || character == '<' || character == '>' || character == '"' || character == '|' || character == '?' || character == '*' || character == '%' )
+		//	{
+		//		return false;
+		//	}
+		//	return true;
+		//}
 
+		/*
 		boolean_c char16_is_valid_for_file_name( char16_c character )
 		{
-			if ( ( character >= 0 && character <= 31 ) || ( character >= 128 ) || character == '<' || character == '>' || character == '"' || character == '|' || character == '?' || character == '*' || character == '%' || character == ':' || character == '\\' || character == '/' )
+			if ( ( character >= 0 && character <= 31 ) || !char16_is_printable( character ) || character == '<' || character == '>' || character == '"' || character == '|' || character == '?' || character == '*' || character == '%' || character == ':' || character == '\\' || character == '/' )
 			{
 				return false;
 			}
@@ -3556,6 +3558,7 @@ namespace cheonsa
 			}
 			return true;
 		}
+		*/
 
 		string16_c path_get_mother( string16_c const & a )
 		{
@@ -3750,7 +3753,7 @@ namespace cheonsa
 			while ( *c )
 			{
 				character = *c++;
-				if ( ( character >= 0 && character <= 31 ) || ( character >= 128 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '\\' ) )
+				if ( !char16_is_printable( character ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '\\' ) )
 				{
 					return false;
 				}
@@ -3928,7 +3931,7 @@ namespace cheonsa
 						while ( *c )
 						{
 							character = *c++;
-							if ( ( character >= 0 && character <= 31 ) || ( character >= 128 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '/' ) )
+							if ( !char16_is_printable( character ) || ( character == 127 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '/' ) )
 							{
 								return false;
 							}
@@ -5223,7 +5226,7 @@ namespace cheonsa
 
 		boolean_c char16_is_printable( char16_c a )
 		{
-			return isprint( a ) != 0;
+			return !( ( a >= 0 && a <= 31 ) || ( a == 127 ) );
 		}
 
 		boolean_c char16_is_space( char16_c a )

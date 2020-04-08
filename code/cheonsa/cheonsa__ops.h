@@ -417,11 +417,10 @@ namespace cheonsa
 		//
 		//
 
-		boolean_c char16_is_valid_for_file_path( char16_c character ); // allows all printable ascii characters, except for '<', '>', '"', '|', '?', '*', '%'.
-		boolean_c char16_is_valid_for_file_name( char16_c character ); // allows all printable ascii characters, except for '<', '>', '"', '|', '?', '*', '%', ':', '/', '\'.
-
-		boolean_c string16_is_valid_for_file_path( string16_c const & string );
-		boolean_c string16_is_valid_for_file_name( string16_c const & string );
+		//boolean_c char16_is_valid_for_file_path( char16_c character ); // allows all printable ascii characters, except for '<', '>', '"', '|', '?', '*', '%'.
+		//boolean_c char16_is_valid_for_file_name( char16_c character ); // allows all printable ascii characters, except for '<', '>', '"', '|', '?', '*', '%', ':', '/', '\'.
+		//boolean_c string16_is_valid_for_file_path( string16_c const & string );
+		//boolean_c string16_is_valid_for_file_name( string16_c const & string );
 
 		string16_c path_get_mother( string16_c const & path ); // removes the last node from the given path and returns it. works with forward slashes and back slashes. works with and without trailing slash.
 		string16_c path_get_file_extension( string16_c const & path ); // returns the file extension of the last node in the path. works with forward slashes and back slashes. works with and without trailing slash.

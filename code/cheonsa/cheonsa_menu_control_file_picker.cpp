@@ -305,14 +305,10 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( folder_path_2.character_list[ folder_path_2.get_length() - 1 ] != '\\' ) // in case the user didn't include the trailing slash, let's include it for them.
-		{
-			folder_path_2 += '\\';
-		}
-		if ( ops::file_system_is_path_formatted_for_windows( folder_path_2, ops::file_system_path_type_e_dont_care ) )
+		if ( ops::file_system_is_path_formatted_for_windows( folder_path_2, ops::file_system_path_type_e_folder) )
 		{
 #endif
-			if ( ops::file_system_does_folder_exist( folder_path_2 ) )
+			if ( _folder_path != folder_path_2 && ops::file_system_does_folder_exist( folder_path_2 ) )
 			{
 				sint32_c how_many_to_remove = _history_stack.get_length() - ( _history_index + 1 );
 				if ( how_many_to_remove > 0 )

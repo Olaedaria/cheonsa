@@ -297,11 +297,11 @@ namespace cheonsa
 					end = scanner;
 					break;
 				}
-				else if ( !ops::char16_is_valid_for_file_path( *scanner ) )
-				{
-					// illegal character, we can abort.
-					return false;
-				}
+				//else if ( !ops::char16_is_valid_for_file_path( *scanner ) )
+				//{
+				//	// illegal character, we can abort.
+				//	return false;
+				//}
 				scanner++;
 			}
 			// insert into result list if needed.
@@ -1062,7 +1062,8 @@ namespace cheonsa
 #else
 #error
 #endif
-				result += ops::file_system_convert_path_format_from_cheonsa_to_windows( relative_file_path );
+				//result += ops::file_system_convert_path_format_from_cheonsa_to_windows( relative_file_path );
+				result += relative_file_path;
 				if ( ops::file_system_does_file_exist( result ) )
 				{
 					absolute_file_path = result;
