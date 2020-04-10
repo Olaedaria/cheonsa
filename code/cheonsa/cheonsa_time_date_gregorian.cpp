@@ -19,29 +19,29 @@ namespace cheonsa
 		, hour_of_day( 0 )
 		, minute_of_hour( 0 )
 		, second_of_minute( 0 )
-		, miliseconds_of_second( 0 )
+		, milliseconds_of_second( 0 )
 	{
 	}
 
-	void_c time_date_gregorian_c::from_miliseconds_since_epoch( sint64_c value )
+	void_c time_date_gregorian_c::from_milliseconds_since_epoch( sint64_c value )
 	{
 		sint64_c days_since_epoch = value / milliseconds_per_day;
 		convert_days_since_epoch_to_date( days_since_epoch, year, month_of_year, day_of_month, day_of_year );
 		convert_days_since_epoch_to_day_of_week( days_since_epoch, day_of_week );
-		sint32_c miliseconds_left_over = static_cast<sint32_c>( value - ( days_since_epoch * milliseconds_per_day ) );
-		hour_of_day = miliseconds_left_over / milliseconds_per_hour;
-		miliseconds_left_over -= hour_of_day * milliseconds_per_hour;
-		minute_of_hour = miliseconds_left_over / milliseconds_per_minute;
-		miliseconds_left_over -= minute_of_hour * milliseconds_per_minute;
-		second_of_minute = miliseconds_left_over / milliseconds_per_second;
-		miliseconds_of_second = miliseconds_left_over - ( second_of_minute * miliseconds_of_second );
+		sint32_c milliseconds_left_over = static_cast<sint32_c>( value - ( days_since_epoch * milliseconds_per_day ) );
+		hour_of_day = milliseconds_left_over / milliseconds_per_hour;
+		milliseconds_left_over -= hour_of_day * milliseconds_per_hour;
+		minute_of_hour = milliseconds_left_over / milliseconds_per_minute;
+		milliseconds_left_over -= minute_of_hour * milliseconds_per_minute;
+		second_of_minute = milliseconds_left_over / milliseconds_per_second;
+		milliseconds_of_second = milliseconds_left_over - ( second_of_minute * milliseconds_of_second );
 	}
 
-	sint64_c time_date_gregorian_c::to_miliseconds_since_epoch() const
+	sint64_c time_date_gregorian_c::to_milliseconds_since_epoch() const
 	{
 		sint64_c days_since_epoch;
 		convert_date_to_days_since_epoch( days_since_epoch, year, month_of_year, day_of_month );
-		return ( days_since_epoch * milliseconds_per_day ) + ( hour_of_day * milliseconds_per_hour ) + ( minute_of_hour * milliseconds_per_minute ) + ( second_of_minute * milliseconds_per_second ) + ( miliseconds_of_second );
+		return ( days_since_epoch * milliseconds_per_day ) + ( hour_of_day * milliseconds_per_hour ) + ( minute_of_hour * milliseconds_per_minute ) + ( second_of_minute * milliseconds_per_second ) + ( milliseconds_of_second );
 	}
 
 	enum time_date_code_e

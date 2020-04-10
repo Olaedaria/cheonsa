@@ -46,11 +46,11 @@ namespace cheonsa
 			it can be present but if it is then it is ignored.
 		we are not required to have a single root level tag.
 		we can have any number of root level nodes, and they can be any combination of text, tags, and comments.
-		closing tags can simply be "</>", but you can give them a name if you want.
+		closing tags can simply be "</>", but you can give them a name if you want, but the name is ignored.
 		closing tags are also allowed to define attributes, but there's no reason for it since you won't be able to access them.
 		comments may start with "<!" or "<!--".
 		comments may end with "!>" or "-->".
-		comments may be nested, the root comment containing any number of other nested comments is converted to a single comment node which you can access when you walk the nodes.
+		comments may be nested, a nest of comments is flattened into a single comment node which you can access when you walk the nodes.
 	
 	*/
 

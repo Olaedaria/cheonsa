@@ -7,23 +7,6 @@
 namespace cheonsa
 {
 
-	class menu_shared_color_base_notes_c
-	{
-	public:
-		vector32x4_c window_primary;
-		vector32x4_c window_secondary;
-		vector32x4_c window_accent;
-
-		vector32x4_c button_primary;
-		vector32x4_c button_secondary;
-		vector32x4_c button_accent;
-
-		vector32x4_c field_primary;
-		vector32x4_c field_secondary;
-		vector32x4_c field_accent;
-
-	};
-
 	// manages loading of styles from xml files and serves as a registry for all loaded control style maps and element styles.
 	// supports hot-loading of style files, which will trigger all frame and text elements to re-resolve their style references, and will trigger reflow/relayout of all glyphs in text elements.
 	// there is one global shared instance, declared in "cheonsa_engine.h", defined in "cheonsa_engine.cpp", it's fully qualified name is "global_engine_instance.interfaces.menu_style_manager".

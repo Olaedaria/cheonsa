@@ -1,5 +1,6 @@
 ﻿#include "cheonsa_user_interface.h"
 #include "cheonsa_menu_control.h"
+#include "cheonsa_menu_control_frame.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_scene_component_menu_control.h"
 #include "cheonsa_scene_component_sound.h"
@@ -142,34 +143,26 @@ namespace cheonsa
 
 	void_c user_interface_c::_bubble_input_event( menu_control_c * control, input_event_c * input_event )
 	{
-		while ( control && !input_event->processed )
+		assert( input_event->was_handled == false );
+		while ( control )
 		{
 			control->_on_input( input_event );
 			control = control->_mother_control;
+			if ( input_event->was_handled )
+			{
+				return;
+			}
 		}
+		on_input.invoke( input_event );
 	}
 
 	void_c user_interface_c::_process_input_event( input_event_c * input_event )
 	{
 		// reset things.
 		_is_mouse_overed = false;
-		//_is_modal_window_open = false;
 
 		// default to 2d, until we have to pick 3d.
 		input_event->menu_global_mouse_position = input_event->mouse_position;
-
-		// determine if there is a top level modal window that is showing.
-		// if a modal window is open then it has exclusive access to input events.
-		//menu_control_c * modal_window = nullptr;
-		//for ( sint32_c i = 0; i < _modal_public_daughter_control_list.get_length(); i++ )
-		//{
-		//	if ( _modal_public_daughter_control_list[ i ]->_is_showing )
-		//	{
-		//		_is_modal_window_open = true;
-		//		modal_window = _modal_public_daughter_control_list[ i ];
-		//		break;
-		//	}
-		//}
 
 		// route mouse move event to appropriate control.
 		// do this before picking controls under the mouse, because this lets controls update in response to drag and drop operations.
@@ -292,8 +285,7 @@ namespace cheonsa
 
 		// do mouse pick, potentially for the second time.
 		//mouse_hit_was_blocked |= _pick_control_level_1( input_event, modal_window );
-
-		input_event->processed |= _mouse_focused != nullptr || _mouse_overed != nullptr;
+		//input_event->was_handled |= _mouse_focused != nullptr || _mouse_overed != nullptr;
 	}
 
 	user_interface_c::user_interface_c()
@@ -604,11 +596,6 @@ namespace cheonsa
 	menu_control_c * user_interface_c::get_text_focused() const
 	{
 		return _text_focused;
-	}
-
-	boolean_c user_interface_c::get_is_mouse_overed() const
-	{
-		return _is_mouse_overed;
 	}
 
 	void_c user_interface_c::set_text_focused( menu_control_c * menu_control )
@@ -991,6 +978,31 @@ namespace cheonsa
 		matrix32x2x2_c around_global_basis = combo_to_spawn_pop_up_around->get_global_basis();
 		vector32x2_c around_global_origin = combo_to_spawn_pop_up_around->get_global_origin();
 		return _find_pop_up_box( around_box, around_global_basis, around_global_origin, menu_pop_up_type_e_bottom_right, pop_up_size, give_result_in_global_space );
+	}
+
+	menu_control_c * user_interface_c::open_modal_screen()
+	{
+		menu_control_frame_c * result = new menu_control_frame_c();
+		result->set_name( string8_c( mode_e_static, "modal_screen" ) );
+		result->set_style_map_key( string8_c( mode_e_static, "e_modal" ) );
+		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
+		give_control( result );
+		return result;
+	}
+
+	menu_window_dialog_c * user_interface_c::open_window_dialog( menu_window_dialog_c::mode_e mode, string16_c const & title, string16_c message, menu_control_c * modal_screen )
+	{
+		menu_window_dialog_c * result = new menu_window_dialog_c();
+		result->set_name( string8_c( mode_e_static, "window_dialog" ) );
+		result->set_title( title );
+		result->set_message( message );
+		result->set_mode( mode );
+		float32_c width = 600.0f;
+		float32_c height = 400.0f;
+		result->set_layout_simple( _local_box.get_center(), box32x2_c( width * -0.5f, height * -0.5f, width * 0.5f, height * 0.5f ) );
+		give_control( result );
+		result->show_dialog( modal_screen );
+		return result;
 	}
 
 }

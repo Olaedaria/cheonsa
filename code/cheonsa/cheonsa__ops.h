@@ -564,7 +564,7 @@ namespace cheonsa
 		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders );
 
 		// sets the last write time of a file or folder.
-		//boolean_c file_system_set_file_or_folder_last_write_time( string16_c const & file_path, sint64_c miliseconds_since_epoch );
+		//boolean_c file_system_set_file_or_folder_last_write_time( string16_c const & file_path, sint64_c milliseconds_since_epoch );
 
 		// returns true if the current operating system and user supports the given type of quick access folder.	
 		boolean_c file_system_get_quick_access_folder_path( file_system_quick_access_folder_e folder, string16_c & result_folder_path );

@@ -61,9 +61,6 @@ namespace cheonsa
 		// set display_value to the user facing value of the item, if needed take into account locale settings when constructing this string value, when sort_value == -1 then natural string compare string16_sort_compare() will be used to sort these items.
 		virtual boolean_c get_value( string8_c const & property_key, string16_c & display_value, sint64_c & absolute_value ) const;
 
-		//// gets a previously cached property value.
-		//value_c const * get_cached_value( string8_c const & property_key ) const;
-
 		// attempts to set display value of a given property.
 		// your implementation may reinterpret the user-provided display_value as something else, for example a date and time string could be converted to a sint64_c time in milliseconds relative to an epoch.
 		// return true if the new display value is accepted, false if not.

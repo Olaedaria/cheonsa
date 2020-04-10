@@ -64,24 +64,20 @@ namespace cheonsa
 
 	boolean_c menu_control_collection_item_i::get_value( string8_c const & property_key, string16_c & display_value, sint64_c & absolute_value ) const
 	{
+		assert( _value_cache != nullptr );
+		for ( sint32_c i = 0; i < _mother_collection->_column_list.get_length(); i++ )
+		{
+			if ( _mother_collection->_column_list[ i ]->_key == property_key )
+			{
+				display_value = _value_cache[ i ].display_value;
+				absolute_value = _value_cache[ i ].absolute_value;
+				return true;
+			}
+		}
 		display_value = string16_c( mode_e_static, L"[none]" );
 		absolute_value = 0;
 		return false;
 	}
-
-	//menu_control_collection_item_i::value_c const * menu_control_collection_item_i::get_cached_value( string8_c const & property_key ) const
-	//{
-	//	assert( _mother_collection );
-	//	sint32_c column_count = _mother_collection->_column_list.get_length();
-	//	for ( sint32_c i = 0; i < column_count; i++ )
-	//	{
-	//		if ( _mother_collection->_column_list[ i ]->_key == property_key )
-	//		{
-	//			return &_value_cache[ i ];
-	//		}
-	//	}
-	//	return nullptr;
-	//}
 
 	boolean_c menu_control_collection_item_i::set_value( string8_c const & property_key, string16_c const & display_value )
 	{
@@ -265,20 +261,17 @@ namespace cheonsa
 
 		// calculate potentially visible item count.
 		sint32_c content_height = 0;
-		sint32_c potentially_visible_item_count = 0; // highest number of items that might be visible in a single frame.
-		sint32_c potentially_visible_item_element_count = 0; // number of column and item elements needed.
 		if ( _display_mode == display_mode_e_icons )
 		{
 			sint32_c items_per_x = ops::math_maximum( 1, static_cast< sint32_c >( ( _local_box.get_width() - _icons_item_spacing ) / ( _icons_item_width + _icons_item_spacing ) ) );
-			sint32_c items_per_y = ops::math_maximum( 1, static_cast< sint32_c >( ( _local_box.get_height() - _icons_item_spacing ) / ( _icons_item_height + _icons_item_spacing ) ) );
-			potentially_visible_item_count = items_per_x * items_per_y;
+			sint32_c items_per_y = ops::math_maximum( 1, static_cast< sint32_c >( ( _local_box.get_height() - _icons_item_spacing ) / ( _icons_item_height + _icons_item_spacing ) ) ) + 1;
+			sint32_c visible_item_count = items_per_x * items_per_y; // highest number of items that are potentially visible with the current layout configuration.
 			sint32_c elements_per_item = 3; // item_selected_frame, item_icon_frame, item_text.
-			potentially_visible_item_element_count = elements_per_item * potentially_visible_item_count;
 			content_height = _icons_item_spacing + ( _item_list.get_length() / items_per_x + 1 ) * ( _icons_item_height + _icons_item_spacing );
 			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
 			_vertical_scroll_bar->set_line_size( _icons_item_height );
 			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility );
-			if ( potentially_visible_item_element_count > _item_elements.get_length() )
+			if ( visible_item_count > _item_elements.get_length() / elements_per_item )
 			{
 				// look up style map style assignments.
 				menu_frame_style_c const * item_selected_frame_style = nullptr;
@@ -299,7 +292,7 @@ namespace cheonsa
 				}
 
 				// create and add new element instances.
-				for ( sint32_c i = _item_elements.get_length() / elements_per_item; i < potentially_visible_item_count; i++ )
+				for ( sint32_c i = _item_elements.get_length() / elements_per_item; i < visible_item_count; i++ )
 				{
 					menu_element_frame_c * item_selected_frame = new menu_element_frame_c();
 					item_selected_frame->set_mother_control( this );
@@ -328,7 +321,7 @@ namespace cheonsa
 			}
 
 			// allocate and lay out elements to the currently visible set of items.
-			sint32_c visible_item_index = static_cast< sint32_c >( _vertical_scroll_bar->get_value() / ( _icons_item_height + _icons_item_spacing ) ) * items_per_x; // index of first visible item.
+			sint32_c visible_item_index = static_cast< sint32_c >( ( _vertical_scroll_bar->get_value() - _icons_item_spacing ) / ( _icons_item_height + _icons_item_spacing ) ) * items_per_x; // index of first visible item.
 			sint32_c allocated_item_count = _item_elements.get_length() / elements_per_item;
 			for ( sint32_c i = 0; i < allocated_item_count; i++, visible_item_index++ )
 			{
@@ -374,14 +367,13 @@ namespace cheonsa
 		else
 		{
 			sint32_c items_per_y = ops::math_maximum( 1, static_cast< sint32_c >( _local_box.get_height() / _details_item_height ) );
-			potentially_visible_item_count = items_per_y;
+			sint32_c visible_item_count = items_per_y;
 			sint32_c elements_per_item = 2 + _column_list.get_length(); // item_selected_frame, item_icon_frame, item_text, ... .
-			potentially_visible_item_element_count = elements_per_item * potentially_visible_item_count;
 			content_height = _details_item_height * _item_list.get_length();
 			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
 			_vertical_scroll_bar->set_line_size( _details_item_height );
 			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility );
-			if ( potentially_visible_item_element_count > _item_elements.get_length() )
+			if ( visible_item_count > _item_elements.get_length() / elements_per_item )
 			{
 				// look up style map style assignments.
 				menu_frame_style_c const * item_selected_frame_style = nullptr;
@@ -402,7 +394,7 @@ namespace cheonsa
 				}
 
 				// create and add new element instances.
-				for ( sint32_c i = _item_elements.get_length() / elements_per_item; i < potentially_visible_item_count; i++ )
+				for ( sint32_c i = _item_elements.get_length() / elements_per_item; i < visible_item_count; i++ )
 				{
 					menu_element_frame_c * item_selected_frame = new menu_element_frame_c();
 					item_selected_frame->set_mother_control( this );
@@ -979,6 +971,8 @@ namespace cheonsa
 	void_c menu_control_collection_c::remove_and_delete_all_items()
 	{
 		_item_list.remove_and_delete_all();
+		_element_last_selected_frame.set_is_showed( false );
+		_element_highlighted_frame.set_is_showed( false );
 		_vertical_scroll_bar->set_value_range_and_page_size( 0.0, 0.0f, _local_box.get_height() );
 		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility );
 		_value_cache_is_dirty = false;

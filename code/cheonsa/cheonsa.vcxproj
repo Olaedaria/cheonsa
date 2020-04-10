@@ -159,6 +159,7 @@
     <ClInclude Include="cheonsa_audio2.h" />
     <ClInclude Include="cheonsa_core_shared_pointer.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
+    <ClInclude Include="cheonsa_menu_control_frame.h" />
     <ClInclude Include="cheonsa_menu_control_panel.h" />
     <ClInclude Include="cheonsa_menu_control_scroll_bar_x.h" />
     <ClInclude Include="cheonsa_menu_control_scroll_bar_y.h" />
@@ -680,6 +681,7 @@
     <ClCompile Include="cheonsa_database_table.cpp" />
     <ClCompile Include="cheonsa_database_types.cpp" />
     <ClCompile Include="cheonsa_debug_manager.cpp" />
+    <ClCompile Include="cheonsa_menu_control_frame.cpp" />
     <ClCompile Include="cheonsa_menu_control_panel.cpp" />
     <ClCompile Include="cheonsa_menu_control_scroll_bar_x.cpp" />
     <ClCompile Include="cheonsa_menu_control_scroll_bar_y.cpp" />

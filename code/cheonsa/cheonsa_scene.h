@@ -11,40 +11,6 @@
 namespace cheonsa
 {
 
-	/*
-	// imagine an infinite square grid on the xy plane of the scene, where the center grid cell is centered at the world origin, where each grid line is _cell_stride meters away from the lines next to it.
-	// imagine each grid cell on this grid either being empty, or being populated by a scene_cell_c.
-	// the level designer is responsible for enabling or disabling scene_cell_c's in each imaginary grid cell.
-	// the scene holds a flat list of these scene_cell_c's, each one positioned at a different grid cell.
-	// each scene_cell_c has a center point that is placed in somewhere the absolute scene space, at an increment of however wide and long each cell is.
-	// each scene_cell_c contains a collection of scene_object_c's, and each one of those is positioned relative to the scene_cell_c's center point.
-	// this is how we somewhat solve the problem of floating point imprecision (at least on the x and y axes, but not the z axis).
-	// as the player character object moves through the world, they cross cell boundaries.
-	// as scene objects update in the scene, if their positions every cross into the boundary of a different cell than the one they were in before, then they are removed from their old cell and inserted into the new cell. their relative cell position changes, but their absolute position remains similar.
-	// each scene_cell_c has its own physics scene, with simulation occurring around that physics scene's zero origin (which is virtually at the cell's absolute_center).
-	// when a static object like an environment mesh has it's center point in one cell, but its bounds intersecting with the borders of one or more neighboring cells, then a physics collision component is spawned in the physics scene of each affected cell. this uses a little extra memory, but it allows the level designer to place objects like trees or rocks on the borders of the cells.
-	// when a dynamic object has bounds that intersect with more than one cell, then we do the same thing that we do with the static mesh, we create redundant physics body components in each affected cell's physics scene, but we average the result of all of the 1-4 simulations for that object, and then apply that back to the scene object. i'm not sure how broken this will be in practice, but i'm going to try it.
-	// when a physics object intersects with border of one or more neighboring cells, then we temporarily spawn other potentially interacting physics objects from the neighboring cells into the current cell's physics scene, and the physics simulation results from the current cell takes priority over those temporary objects.
-	// when a physics object fully crosses over into another cell, 
-	class scene_cell_c
-	{
-	public:
-		scene_c * _scene; // the scene that owns this cell.
-		sint32_c _coordinates[3]; // xy grid cell coordinates.
-		vector32x3_c _absolute_center; // this should not suffer from precision issues because we are using large increments of 100 meters.
-		box32x3_c _absolute_bounds;
-		physics_scene_c _physics_scene; // the physics scene for the cell.
-		scene_object_c * _object_list_first;
-		scene_object_c * _object_list_last;
-
-	public:
-		scene_cell_c();
-		void_c insert_object_at_end( scene_object_c * object );
-		void_c remove_object( scene_object_c * object );
-
-	};
-	*/
-
 	// pixel perfect hit detection.
 	// works with renderer to render geometry in the line of the pick ray.
 	// sorts results by their depth, from near to far.
@@ -60,7 +26,7 @@ namespace cheonsa
 
 	// a 3d scene, or world.
 	// it's spatially optimized a little bit, it uses octo trees to hold scene components and scene lights, which allows for quick look up based on proximity.
-	// update on scene objecst has to be managed by the game, and it should occur in the following order:
+	// update on scene objects has to be managed by the game, and it should occur in the following order:
 	//   game calls update_animations() on all its animated model scene components.
 	//   game calls update() on the physics scene contained in the scene.
 	//   game calls update_simulated_bone_logics() on all its animated model scene components.

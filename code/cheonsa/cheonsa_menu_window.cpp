@@ -168,6 +168,14 @@ namespace cheonsa
 				update_transform_and_layout();
 			}
 		}
+		else if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
+		{
+			if ( input_event->keyboard_key == input_keyboard_key_e_escape )
+			{
+				_result = result_e_cancel;
+				on_result.invoke( this );
+			}
+		}
 	}
 
 	menu_window_c::menu_window_c()
@@ -182,6 +190,7 @@ namespace cheonsa
 		, _maximum_size( 1000.0f, 1000.0f )
 		, _grabbed_element( grabbed_element_e_none )
 		, _grabbed_point_local( 0.0f, 0.0f )
+		, _modal_screen( nullptr )
 	{
 		_element_text.set_name( string8_c( mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
@@ -427,6 +436,31 @@ namespace cheonsa
 	void_c menu_window_c::remove_and_delete_all_controls_from_client()
 	{
 		_remove_and_delete_all_controls_from_client();
+	}
+
+	void_c menu_window_c::show_dialog( menu_control_c * modal_screen )
+	{
+		assert( _modal_screen == nullptr );
+		_result = result_e_none;
+		_modal_screen = modal_screen;
+		set_is_showed( true );
+		bring_to_front();
+		give_text_focus();
+	}
+
+	void_c menu_window_c::hide_dialog()
+	{
+		set_is_showed( false );
+		if ( _modal_screen != nullptr )
+		{
+			_modal_screen->set_is_showed( false, true );
+			_modal_screen = nullptr;
+		}
+	}
+
+	menu_window_c::result_e menu_window_c::get_result() const
+	{
+		return _result;
 	}
 
 }

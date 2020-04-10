@@ -6,6 +6,7 @@
 #include "cheonsa_menu_control_list.h"
 #include "cheonsa_menu_control_collection.h"
 #include "cheonsa_menu_element_frame.h"
+#include "cheonsa_menu_window_dialog.h"
 
 namespace cheonsa
 {
@@ -39,6 +40,7 @@ namespace cheonsa
 	public:
 		enum result_e
 		{
+			result_e_none,
 			result_e_cancel,
 			result_e_okay,
 		};
@@ -52,6 +54,8 @@ namespace cheonsa
 		typedef boolean_c( *can_load_call_back_f )( string16_c const & folder_or_file_path );
 
 	private:
+		boolean_c _muted; // when true, the _handle_* functions will return immediately. the file picker is in the middle of changing values of controls, so it wants to temporarily ignore any events that are created by those controls.
+
 		menu_element_frame_c _frame; // name is "frame", makes the background of this control.
 
 		menu_control_text_c * _folder_path_text; // name is "folder_path_text", address bar at top. this path will be formatted with the operating system's file system path format.
@@ -67,23 +71,24 @@ namespace cheonsa
 		menu_control_list_c * _short_cut_list; // name is "shortcut_list", shortcuts at left side, for current user's desktop, documents, and connected disk drives. uses short and friendly names. each item in this list corresponds to an item in _shortcut_path_list.
 		core_list_c< string16_c > _short_cut_path_list; // list of absolute file paths that are associated with the list items in _control_shortcut_list.
 		void_c _short_cut_list_remove_all(); // clears short cut list.
-		void_c _short_cut_list_add( string16_c const & folder_path, string16_c const & friendly_name ); // folder path is absolute path of folder.
+		void_c _handle_short_cut_on_clicked( menu_event_information_c event_information );
 
 		menu_control_button_c * _okay_button; // name is "okay_button", save or open button at bottom, right of file name.
 		menu_control_button_c * _cancel_button; // name is "cancel_button", cancel button at bottom, right of file name.
 		result_e _result; // holds okay or cancel result.
 
 		mode_e _mode; // if the file picker is being used to load a file or save a file.
-		void_c _try_to_invoke_file_for_load(); // tries to pick the currently selected file, which means that if mode is load then it checks if the file can be opened, if mode is save then it warns on overwrite.
+		void_c _try_to_okay(); // tries to pick the currently selected file, which means that if mode is load then it checks if the file can be opened, if mode is save then it warns on overwrite.
 
-		boolean_c _is_asking_for_overwrite;
-
-		boolean_c _muted; // when true, the _handle_* functions will return immediately. the file picker is in the middle of changing values of controls, so it wants to temporarily ignore any events that are created by those controls.
+		boolean_c _sub_dialog_is_asking_for_over_write;
+		menu_window_dialog_c * _sub_dialog; // used to ask the user if they want to overwrite an existing file or not.
+		void_c _sub_dialog_handle_on_result( menu_window_c * window_dialog );
 
 		void_c _handle_button_on_clicked( menu_event_information_c event_information );
 		void_c _handle_text_on_value_changed( menu_control_text_c * control );
 		void_c _handle_file_collection_on_selected_items_changed( menu_control_collection_c * collection );
 		void_c _handle_file_collection_on_selected_items_invoked( menu_control_collection_c * collection );
+		virtual void_c _on_input( input_event_c * input_event ) override;
 
 	public:
 		menu_control_file_picker_c();
@@ -112,7 +117,7 @@ namespace cheonsa
 
 		core_event_c< boolean_c, menu_control_file_picker_c * > can_load; // is invoked each time a file is selected if mode is load.
 
-		core_event_c< void_c, menu_control_file_picker_c * > on_submitted; // is called when dialog is canceled or okayed.
+		core_event_c< void_c, menu_control_file_picker_c * > on_result; // is called when dialog is canceled or okayed.
 
 	};
 

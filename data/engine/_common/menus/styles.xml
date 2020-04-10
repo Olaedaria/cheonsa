@@ -1,6 +1,15 @@
 <styles>
 
 	<frame
+		key="e_modal_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="stretch"
+		texture_map_origin="13 3"
+		texture_map_size="4 4"
+		texture_map_edges="0 0 0 0"/>
+
+	<frame
 		key="e_panel_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
@@ -227,6 +236,10 @@
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
 		glyph_spacing="0.0"/>
+
+	<map key="e_modal">
+		<entry element_name="frame" style_key="e_modal_frame"/>
+	</map>
 
 	<map key="e_window">
 		<entry element_name="frame" style_key="e_window_frame"/>

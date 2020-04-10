@@ -513,7 +513,7 @@ namespace cheonsa
 		// void_c _process_vertices_for_flesh();
 
 	public:
-		scene_component_model_c(); // constructor is protected to prevent instantiation on the stack. use make_new_instance() to make a new instance on the heap. then use delete as normal to delete it.
+		scene_component_model_c();
 		virtual ~scene_component_model_c() override;
 
 		void_c update_animations( float32_c time_step ); // updates and applies animations, then updates and applies non-simulated bone logics.

@@ -3987,7 +3987,7 @@ namespace cheonsa
 		boolean_c file_system_does_file_exist( string16_c const & file_path )
 		{
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_file ) );
+			//assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_file ) );
 			DWORD file_attributes = GetFileAttributes( file_path.character_list.get_internal_array() );
 			return ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 ) );
 #else

@@ -390,7 +390,7 @@ namespace cheonsa
 
 		vector32x2_c menu_global_mouse_position; // 2d mouse position in menu space. for 2d user interfaces this is basically screen space. for 3d user interfaces this is in local 2d space of the root intersected 3d menu.
 
-		boolean_c processed; // is initially set to false, until some object uses or consumes the event. used with menu context event bubbling, so that an event will continue to bubble up the control heirarchy until it is processed.
+		boolean_c was_handled; // is initially set to false, until some object uses or consumes the event. used with menu context event bubbling, so that an event will continue to bubble up the control heirarchy until it is processed.
 
 	public:
 		input_event_c();

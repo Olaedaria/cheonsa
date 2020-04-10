@@ -19,12 +19,12 @@ namespace cheonsa
 		sint32_c hour_of_day; // 0 to 23.
 		sint32_c minute_of_hour; // 0 to 59.
 		sint32_c second_of_minute; // 0 to 59.
-		sint32_c miliseconds_of_second; // 0 to 999 milliseconds.
+		sint32_c milliseconds_of_second; // 0 to 999 milliseconds.
 
 	public:
 		time_date_gregorian_c();
-		virtual void_c from_miliseconds_since_epoch( sint64_c value ) override; // if localize is true, then local time zone and daylight savings will be applied.
-		virtual sint64_c to_miliseconds_since_epoch() const override;
+		virtual void_c from_milliseconds_since_epoch( sint64_c value ) override; // if localize is true, then local time zone and daylight savings will be applied.
+		virtual sint64_c to_milliseconds_since_epoch() const override;
 
 		// attempts to extract date information from an arbitrarily formatted date string.
 		// i find two digit year designations to be distasteful.

@@ -25,12 +25,12 @@ namespace cheonsa
 	// it contains any number of root level 2d menu controls.
 	// these 2d menu controls may in turn contain other 2d menu controls and 3d scenes.
 	//
-	// it user interface delegates:
-	//		routing user input events to 2d and 3d menu controls and to the game.
-	//		updating animations of 2d menu controls.
-	//		rendering the 3d scene.
-	//		rendering the 2d menus.
-	//	
+	// it delegates:
+	//     routing user input events to 2d and 3d menu controls and to the game.
+	//     updating animations of 2d menu controls.
+	//     rendering the 3d scene.
+	//     rendering the 2d menus.
+	//
 	// the user's 2d screen space inputs are routed through each 2d/3d system seamlessly.
 	// input focus is managed between all of these things.
 	//
@@ -113,8 +113,6 @@ namespace cheonsa
 		menu_control_c * get_text_focused() const;
 		void_c set_text_focused( menu_control_c * menu_control );
 
-		boolean_c get_is_mouse_overed() const; // returns true if mouse cursor currently intersects any control in the user interface.
-
 		void_c _suspend_control( menu_control_c * control ); // called whenever an element is removed, disabled, or hidden so that the affected controls states can be returned to a default state.
 
 		menu_non_client_type_e perform_non_client_hit_test( vector32x2_c const & point ); // the engine can use this to query if there are any controls that are serving a non-client purpose, which in turn is used by the operating system to do things like resize or move the window, or detect clicks on minimize, maximize, and close buttons. it's kinda a close relationship we have with the operating system with this function.
@@ -130,9 +128,19 @@ namespace cheonsa
 		box32x2_c find_sub_menu_pop_up_box( menu_control_c * menu_item_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down and to the right of the given box defined by the given control.
 		box32x2_c find_combo_list_pop_up_box( menu_control_c * combo_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down of the given box defined by the given control.
 
-		// opens a modal dialog window asking for the user to make a simple choice.
-		// modal means that it covers the whole screen and forces the user to interact with it.
-		menu_window_dialog_c * open_modal_dialog( string16_c const & title, string16_c const & text, menu_window_dialog_c::mode_e mode );
+		// opens a new modal screen to block the user's ability to interact with anything behind it.
+		// after opening a modal screen, the next controls that are added or brought to front will appear over the modal screen.
+		// it forces the user to interact only with the controls that are over the modal screen.
+		// when the modal is ready to be dismissed, call set_is_showed( false, true ), this will make it fade out and delete itself.
+		menu_control_c * open_modal_screen();
+
+		// opens a new window dialog to ask the user a question about something.
+		// modal_screen is optional, but if you want a modal window dialog then pass in the result of open_modal_screen().
+		menu_window_dialog_c * open_window_dialog( menu_window_dialog_c::mode_e mode, string16_c const & title, string16_c message, menu_control_c * modal_screen );
+
+		// input events that bubble to the top without being handled invoke this event.
+		// this lets the game do something with them if it wants to.
+		core_event_c< void_c, input_event_c * > on_input;
 
 	};
 

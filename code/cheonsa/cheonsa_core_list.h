@@ -47,7 +47,7 @@ namespace cheonsa
 			assert( length_to_allocate >= 0 );
 			if ( length_to_allocate > 0 )
 			{
-				assert( _array_length_used <= length_to_allocate ); // if caller is down sizing, let them clip the count before they call us, for paranoia's sake.
+				//assert( _array_length_used <= length_to_allocate ); // if caller is down sizing, let them clip the count before they call us, for paranoia's sake.
 				value_type_c * new_array = new value_type_c[ length_to_allocate ];
 				if ( _move_list_item_function )
 				{

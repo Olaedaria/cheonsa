@@ -145,7 +145,7 @@ namespace cheonsa
 		, modifier_keys_state{}
 		, mouse_keys_state{}
 		, keyboard_keys_state{}
-		, processed( false )
+		, was_handled( false )
 	{
 	}
 

@@ -226,13 +226,30 @@ namespace cheonsa
 		menu_shared_color_slot_e_primary, // used for frames. for color keyed shader, this maps to red channel in texture.
 		menu_shared_color_slot_e_secondary, // used for texts. for color keyed shader, this maps to green channel in texture.
 		menu_shared_color_slot_e_accent, // used for frames (accents). for color keyed shader, this maps to blue channel in texture.
-		menu_shared_color_slot_e_count_
+		menu_shared_color_slot_e_count_,
 	};
 
 	inline sint32_c get_shared_color_index( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot )
 	{
 		return ( color_class * menu_state_e_count_ * menu_shared_color_slot_e_count_ ) + ( color_state * menu_shared_color_slot_e_count_ ) + color_slot;
 	}
+
+	class menu_shared_color_base_notes_c
+	{
+	public:
+		vector32x4_c window_primary;
+		vector32x4_c window_secondary;
+		vector32x4_c window_accent;
+
+		vector32x4_c button_primary;
+		vector32x4_c button_secondary;
+		vector32x4_c button_accent;
+
+		vector32x4_c field_primary;
+		vector32x4_c field_secondary;
+		vector32x4_c field_accent;
+
+	};
 
 	// these define color values that can be shared and used by any number of elements.
 	// the menu style manager holds a built in fixed length collection of these, one for each enum menu_shared_color_e, these built in shared colors are intended to be controlled by the program at run time.
@@ -299,8 +316,8 @@ namespace cheonsa
 			reference_c();
 			~reference_c();
 
-			void_c release_value(); // releases _value but keeps _key, then involes on_refreshed.
-			void_c resolve_value(); // looks up _value with _key, then invokes on_refreshed.
+			void_c release_value(); // releases _value but keeps _key.
+			void_c resolve_value(); // looks up _value with _key.
 
 			string8_c const & get_key() const;
 			void_c set_key( string8_c const & value );

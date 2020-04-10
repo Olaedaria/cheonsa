@@ -23,12 +23,18 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
-		//menu_element_frame_c _element_frame; // name is "frame".
-		menu_element_text_c _element_text; // name is "text"
-		//menu_control_button_c * _close_button;
-		//menu_control_panel_c * _client_panel; // name is "client_panel"
+		enum result_e
+		{
+			result_e_none, // is set when the window is initially shown, and also is set if cancel or close button is clicked. indicates no result.
+			result_e_cancel,
+			result_e_okay,
+			result_e_yes,
+			result_e_no,
+		};
 
 	protected:
+		menu_element_text_c _element_text; // name is "text"
+
 		float32_c _edge_size; // thickness of each grab-able edge, used for hit testing, user can grab this to resize the window.
 		float32_c _top_bar_size; // extra thickness of top edge, for title bar, for hit testing, user can grab this to move the window.
 		float32_c _bottom_bar_size; // extra thickness of bottom edge, for additional dialog buttons.
@@ -51,6 +57,10 @@ namespace cheonsa
 
 		grabbed_element_e _grabbed_element; // which element was grabbed, determines if the user is resizing or moving the panel.
 		vector32x2_c _grabbed_point_local; // local point relative to origin of where the panel was grabbed by the user, for resizing or moving.
+
+		menu_control_c * _modal_screen; // if set, then when this window is responsible for hiding this modal screen when this window is dismissed.
+
+		result_e _result; // optional, used by dialog windows to hold result of dialog interaction.
 
 		void_c _apply_client_margins();
 
@@ -110,6 +120,20 @@ namespace cheonsa
 		sint32_c give_control_to_client( menu_control_c * control, sint32_c index = -1 );
 		menu_control_c * take_control_from_client( sint32_c control_index );
 		void_c remove_and_delete_all_controls_from_client();
+
+		// shows this window like a dialog.
+		// modal_screen is optional, but if it's proivided then this window needs to be responsible for hiding and deleting it with set_is_showed( false, true ).
+		// this modal screen is a root level control, created by the user interface system, provided for us to remember.
+		// invokes on_dialog_showed.
+		virtual void_c show_dialog( menu_control_c * modal_screen );
+
+		// hides this window, does not delete it.
+		// hides and deletes modal screen if one is associated.
+		// invokes on_dialog_hided.
+		virtual void_c hide_dialog();
+
+		result_e get_result() const; // gets the current or last result.
+		core_event_c< void_c, menu_window_c * > on_result;
 
 	};
 
