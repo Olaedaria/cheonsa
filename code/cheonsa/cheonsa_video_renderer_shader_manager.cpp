@@ -264,7 +264,7 @@ namespace cheonsa
 
 		// find instances of "#include".
 		core_list_c< sint32_c > instances;
-		ops::string8_find_indices_of( data, string8_c( mode_e_static, "#include" ), instances );
+		ops::string8_find_indices_of( data, string8_c( core_list_mode_e_static, "#include" ), instances );
 
 		// find quoted string.
 		for ( sint32_c i = 0; i < instances.get_length(); i++ )
@@ -713,6 +713,7 @@ namespace cheonsa
 		, _menu_ps_frame( nullptr )
 		, _menu_ps_frame_keyed( nullptr )
 		, _menu_ps_solid_color( nullptr )
+		, _menu_ps_solid_color_hue_slider( nullptr )
 		, _menu_ps_text( nullptr )
 		, _menu2_vs( nullptr )
 		, _menu2_vs_debug( nullptr )
@@ -765,58 +766,62 @@ namespace cheonsa
 	{
 		shader_variations_c * shader_variations = nullptr;
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"skin_mesh.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"skin_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base_and_bone_weight;
 		shader_variations->output_vertex_format = &video_renderer_interface_c::vertex_format_mesh_base;
 		shader_variations->vs = &_skin_mesh;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_debug.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_debug.hlsl" ), true );
 		shader_variations->ps = &_menu_ps_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_frame.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_frame.hlsl" ), true );
 		shader_variations->ps = &_menu_ps_frame;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_frame_keyed.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_frame_keyed.hlsl" ), true );
 		shader_variations->ps = &_menu_ps_frame_keyed;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_solid_color.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_solid_color.hlsl" ), true );
 		shader_variations->ps = &_menu_ps_solid_color;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu_ps_text.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_solid_color_hue_slider.hlsl" ), true );
+		shader_variations->ps = &_menu_ps_solid_color_hue_slider;
+		_shader_variations_list.insert_at_end( shader_variations );
+
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_text.hlsl" ), true );
 		shader_variations->ps = &_menu_ps_text;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu2_vs.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu2_vs.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
 		shader_variations->vs = &_menu2_vs;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu2_vs_debug.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu2_vs_debug.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
 		shader_variations->vs = &_menu2_vs_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu3_vs.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu3_vs.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
 		shader_variations->vs = &_menu3_vs;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"menu3_vs_debug.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu3_vs_debug.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
 		shader_variations->vs = &_menu3_vs_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_normal_and_depth_ps_mesh.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_normal_and_depth_ps_mesh.hlsl" ), true );
 		shader_variations->ps = &_scene_camera_normal_and_depth_ps_mesh;
 		shader_variations->ps_masked = &_scene_camera_normal_and_depth_ps_mesh_masked;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_normal_and_depth_vs_mesh.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_normal_and_depth_vs_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
 		shader_variations->vs = &_scene_camera_normal_and_depth_vs_mesh;
 		shader_variations->vs_waved = &_scene_camera_normal_and_depth_vs_mesh_waved;
@@ -824,21 +829,21 @@ namespace cheonsa
 		shader_variations->vs_waved_clipped = &_scene_camera_normal_and_depth_vs_mesh_waved_clipped;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_outline_ps_mesh.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_outline_ps_mesh.hlsl" ), true );
 		shader_variations->ps = &_scene_camera_outline_ps_mesh;
 		shader_variations->ps_masked = &_scene_camera_outline_ps_mesh_masked;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_color_ps_debug.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_color_ps_debug.hlsl" ), true );
 		shader_variations->ps = &_scene_camera_color_ps_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_color_vs_debug.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_color_vs_debug.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
 		shader_variations->vs = &_scene_camera_color_vs_debug;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_camera_color_vs_mesh.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_color_vs_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
 		shader_variations->vs = &_scene_camera_color_vs_mesh;
 		shader_variations->vs_waved = &_scene_camera_color_vs_mesh_waved;
@@ -846,38 +851,38 @@ namespace cheonsa
 		shader_variations->vs_waved_clipped = &_scene_camera_color_vs_mesh_waved_clipped;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_shadow_ps_mesh.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_shadow_ps_mesh.hlsl" ), true );
 		shader_variations->ps = &_scene_shadow_ps_mesh;
 		shader_variations->ps_masked = &_scene_shadow_ps_mesh_masked;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_shadow_vs_mesh.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_shadow_vs_mesh.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
 		shader_variations->vs = &_scene_shadow_vs_mesh;
 		shader_variations->vs_waved = &_scene_shadow_vs_mesh_waved;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_blur_x.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_blur_x.hlsl" ), true );
 		shader_variations->ps = &_scene_post_ps_blur_x;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_blur_y.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_blur_y.hlsl" ), true );
 		shader_variations->ps = &_scene_post_ps_blur_y;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_native.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_resolve_native.hlsl" ), true );
 		shader_variations->ps = &_scene_post_ps_resolve_native;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_scaled.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_resolve_scaled.hlsl" ), true );
 		shader_variations->ps = &_scene_post_ps_resolve_scaled;
 		_shader_variations_list.insert_at_end( shader_variations );
 
-		//shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_resolve_quarter.hlsl" ), true );
+		//shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_resolve_quarter.hlsl" ), true );
 		//shader_variations->ps = &_scene_post_ps_resolve_quarter;
 		//_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_ps_process.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_process.hlsl" ), true );
 		shader_variations->ps = &_scene_post_ps_process;
 		_shader_variations_list.insert_at_end( shader_variations );
 
@@ -888,7 +893,7 @@ namespace cheonsa
 		//shader_variations->ps_msaa_count_8 = &scene_post_ps_resolve_msaa_count_8;
 		//_shader_variations_list.insert_at_end( shader_variations );
 
-		shader_variations = new shader_variations_c( string16_c( mode_e_static, L"scene_post_vs.hlsl" ), true );
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_vs.hlsl" ), true );
 		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_point;
 		shader_variations->vs = &_scene_post_vs;
 		_shader_variations_list.insert_at_end( shader_variations );

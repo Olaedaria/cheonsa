@@ -22,8 +22,8 @@ namespace cheonsa
 		         string16_c( string16_c const & other ); // constructs copy of other string, converts mode if needed.
 		explicit string16_c( char8_c const * other ); // constructs dynamic mode copy of other string, decodes from utf-8.
 		explicit string16_c( char8_c const * other, sint32_c other_length ); // constructs dynamic mode copy of other string, decodes from utf-8. other_length is length of other string including the terminating null character.
-		explicit string16_c( mode_e mode, char16_c const * other ); // constructs static or dynamic mode copy of other string.
-		explicit string16_c( mode_e mode, char16_c const * other, sint32_c other_length_with_null_terminator ); // constructs static or dynamic mode copy of other string. other_length is length of other string including the terminating null character.
+		explicit string16_c( core_list_mode_e mode, char16_c const * other ); // constructs static or dynamic mode copy of other string.
+		explicit string16_c( core_list_mode_e mode, char16_c const * other, sint32_c other_length_with_null_terminator ); // constructs static or dynamic mode copy of other string. other_length is length of other string including the terminating null character.
 
 		boolean_c is_set() const; // returns true if character_list.get_length() > 1.
 

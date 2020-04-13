@@ -12,7 +12,7 @@ namespace cheonsa
 	menu_control_list_item_text_c::menu_control_list_item_text_c()
 		: menu_control_list_item_text_i()
 	{
-		_name = string8_c( mode_e_static, "list_item" );
+		_name = string8_c( core_list_mode_e_static, "list_item" );
 	}
 
 	void_c menu_control_list_c::_on_selected_item_list_changed()
@@ -23,8 +23,8 @@ namespace cheonsa
 	menu_control_list_c::menu_control_list_c()
 		: menu_control_list_i()
 	{
-		_name = string8_c( mode_e_static, "list" );
-		set_style_map_key( string8_c( mode_e_static, "e_list" ) );
+		_name = string8_c( core_list_mode_e_static, "list" );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_list" ) );
 	}
 
 	sint32_c menu_control_list_c::get_item_count() const

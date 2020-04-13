@@ -71,14 +71,7 @@ namespace cheonsa
 		return _is_selected;
 	}
 
-	menu_control_list_item_separator_i::menu_control_list_item_separator_i()
-		: menu_control_list_item_i()
-		, _element_frame()
-		, _height( 10.0f )
-	{
-	}
-
-	void_c menu_control_list_item_separator_i::update_transform_and_layout()
+	void_c menu_control_list_item_separator_i::_update_transform_and_layout()
 	{
 		if ( _mother_control == nullptr )
 		{
@@ -103,6 +96,13 @@ namespace cheonsa
 		}
 	}
 
+	menu_control_list_item_separator_i::menu_control_list_item_separator_i()
+		: menu_control_list_item_i()
+		, _element_frame()
+		, _height( 10.0f )
+	{
+	}
+
 	float32_c menu_control_list_item_separator_i::get_height() const
 	{
 		return _height;
@@ -111,21 +111,16 @@ namespace cheonsa
 	void_c menu_control_list_item_separator_i::set_height( float32_c value )
 	{
 		_height = ops::math_clamp( value, 1.0f, 100.0f );
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_list_item_text_i::_handle_element_text_on_value_changed( menu_element_text_c * element )
 	{
 		if ( _mother_control != nullptr )
 		{
-			update_transform_and_layout();
+			_update_transform_and_layout();
 		}
 	}
-
-	//void_c menu_control_list_item_text_i::_on_is_selected_changed()
-	//{
-	//	_element_selected_frame.set_is_showed( _is_selected );
-	//}
 
 	void_c menu_control_list_item_text_i::_on_is_mouse_overed_changed()
 	{
@@ -166,43 +161,7 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_list_item_text_i::menu_control_list_item_text_i()
-		: menu_control_list_item_i()
-		, _element_frame()
-		, _element_selected_frame()
-		, _element_highlighted_frame()
-		, _element_text()
-	{
-		_can_be_selected = true;
-
-		_layout_mode = menu_layout_mode_e_simple;
-		_local_anchor = menu_anchor_e_none;
-
-		_select_mode = menu_select_mode_e_mouse_and_directional;
-
-		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
-		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_add_element( &_element_frame );
-
-		_element_selected_frame.set_name( string8_c( mode_e_static, "selected_frame" ) );
-		_element_selected_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_selected_frame.set_is_showed( false );
-		_add_element( &_element_selected_frame );
-
-		_element_highlighted_frame.set_name( string8_c( mode_e_static, "highlighted_frame" ) );
-		_element_highlighted_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_highlighted_frame.set_is_showed( false );
-		_add_element( &_element_highlighted_frame );
-
-		_element_text.set_name( string8_c( mode_e_static, "text" ) );
-		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_text.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
-		_add_element( &_element_text );
-
-		set_style_map_key( string8_c( mode_e_static, "e_list_item" ) );
-	}
-
-	void_c menu_control_list_item_text_i::update_transform_and_layout()
+	void_c menu_control_list_item_text_i::_update_transform_and_layout()
 	{
 		if ( _mother_control == nullptr )
 		{
@@ -235,6 +194,42 @@ namespace cheonsa
 			}
 			mother_list->_item_origins_are_dirty = true;
 		}
+	}
+
+	menu_control_list_item_text_i::menu_control_list_item_text_i()
+		: menu_control_list_item_i()
+		, _element_frame()
+		, _element_selected_frame()
+		, _element_highlighted_frame()
+		, _element_text()
+	{
+		_can_be_selected = true;
+
+		_layout_mode = menu_layout_mode_e_simple;
+		_local_anchor = menu_anchor_e_none;
+
+		_select_mode = menu_select_mode_e_mouse_and_directional;
+
+		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
+		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
+		_add_element( &_element_frame );
+
+		_element_selected_frame.set_name( string8_c( core_list_mode_e_static, "selected_frame" ) );
+		_element_selected_frame.set_shared_color_class( menu_shared_color_class_e_field );
+		_element_selected_frame.set_is_showed( false );
+		_add_element( &_element_selected_frame );
+
+		_element_highlighted_frame.set_name( string8_c( core_list_mode_e_static, "highlighted_frame" ) );
+		_element_highlighted_frame.set_shared_color_class( menu_shared_color_class_e_field );
+		_element_highlighted_frame.set_is_showed( false );
+		_add_element( &_element_highlighted_frame );
+
+		_element_text.set_name( string8_c( core_list_mode_e_static, "text" ) );
+		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
+		_element_text.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
+		_add_element( &_element_text );
+
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_list_item" ) );
 	}
 
 	void_c menu_control_list_item_text_i::set_is_selected( boolean_c value, boolean_c try_to_multi_select )
@@ -533,24 +528,24 @@ namespace cheonsa
 		_vertical_size_mode = menu_size_mode_e_fixed;
 		_vertical_size_maximum = 0.0f;
 
-		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
 		_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
-		_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
+		_vertical_scroll_bar->set_name( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
 		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_list_i::_handle_vertical_scroll_bar_on_value_changed );
 		_vertical_scroll_bar->on_preferred_thickness_changed.subscribe( this, &menu_control_list_i::_handle_vertical_scroll_bar_on_preferred_thickness_changed );
 		_give_control( _vertical_scroll_bar );
 
 		_client = new menu_control_c();
-		_client->set_name( string8_c( mode_e_static, "client" ) );
+		_client->set_name( string8_c( core_list_mode_e_static, "client" ) );
 		_client->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 8.0f, 8.0f, 8.0f ) );
 		_give_control( _client );
 
-		set_style_map_key( string8_c( mode_e_static, "e_list" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_list" ) );
 	}
 
 	void_c menu_control_list_i::update_animations( float32_c time_step )

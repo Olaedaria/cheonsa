@@ -65,13 +65,13 @@ namespace cheonsa
 				attribute = frame_tag->find_attribute( "box" );
 				if ( attribute )
 				{
-					ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, frame->box.as_array(), 4 ) );
+					ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, frame->box.as_array(), 4 ) );
 				}
 
 				attribute = frame_tag->find_attribute( "map" );
 				if ( attribute )
 				{
-					ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, frame->map.as_array(), 4 ) );
+					ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, frame->map.as_array(), 4 ) );
 				}
 
 				attribute = frame_tag->find_attribute( "duration" );

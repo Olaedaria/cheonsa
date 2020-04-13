@@ -906,7 +906,7 @@ namespace cheonsa
 		vector64x3_c make_vector64x3_transformed_point( vector64x3_c const & point, space_transform_c const & transform )
 		{
 			vector64x3_c result;
-			result = ops::make_vector64x3_rotated_vector( point, transform.rotation ) * transform.scale + transform.position;
+			result = make_vector64x3_rotated_vector( point, transform.rotation ) * transform.scale + transform.position;
 			return result;
 		}
 
@@ -1042,7 +1042,7 @@ namespace cheonsa
 
 		matrix32x4x4_c make_matrix32x4x4_from_space_transform( space_transform_c const & space_transform )\
 		{
-			matrix32x4x4_c result = ops::make_matrix32x4x4_basis_from_quaternion32( space_transform.rotation );
+			matrix32x4x4_c result = make_matrix32x4x4_basis_from_quaternion32( space_transform.rotation );
 			result.d.a = static_cast< float32_c >( space_transform.position.a );
 			result.d.b = static_cast< float32_c >( space_transform.position.b );
 			result.d.c = static_cast< float32_c >( space_transform.position.c );
@@ -1051,7 +1051,7 @@ namespace cheonsa
 
 		matrix32x4x4_c make_matrix32x4x4_from_space_transform( space_transform_c const & space_transform, vector64x3_c const & relative_to_origin )
 		{
-			matrix32x4x4_c result = ops::make_matrix32x4x4_basis_from_quaternion32( space_transform.rotation );
+			matrix32x4x4_c result = make_matrix32x4x4_basis_from_quaternion32( space_transform.rotation );
 			result.d.a = static_cast< float32_c >( space_transform.position.a - relative_to_origin.a );
 			result.d.b = static_cast< float32_c >( space_transform.position.b - relative_to_origin.b );
 			result.d.c = static_cast< float32_c >( space_transform.position.c - relative_to_origin.c );
@@ -1877,10 +1877,10 @@ namespace cheonsa
 
 		void_c convert_rgba_to_rgba( vector32x4_c const & value, uint32_c & result )
 		{
-			result = static_cast< uint32_c >( ops::math_saturate( value.a ) * 255.0f ) << 24 |
-					 static_cast< uint32_c >( ops::math_saturate( value.b ) * 255.0f ) << 16 |
-					 static_cast< uint32_c >( ops::math_saturate( value.c ) * 255.0f ) << 8 |
-					 static_cast< uint32_c >( ops::math_saturate( value.d ) * 255.0f );
+			result = static_cast< uint32_c >( math_saturate( value.a ) * 255.0f ) << 24 |
+					 static_cast< uint32_c >( math_saturate( value.b ) * 255.0f ) << 16 |
+					 static_cast< uint32_c >( math_saturate( value.c ) * 255.0f ) << 8 |
+					 static_cast< uint32_c >( math_saturate( value.d ) * 255.0f );
 		}
 
 		void_c convert_rgba_to_rgba( uint32_c const & value, vector32x4_c & result )
@@ -1893,79 +1893,100 @@ namespace cheonsa
 
 		boolean_c convert_rgb_to_hsv( vector64x3_c const & rgb, vector64x3_c & hsv )
 		{
-			// taken from http://wiki.beyondunreal.com/HSV-RGB_Conversion
-			// thanks
-			float64_c minimum_v = math_minimum( math_minimum( rgb.a, rgb.b ), rgb.c );
-			float64_c maximum_v = math_maximum( math_maximum( rgb.a, rgb.b ), rgb.c );
-			float64_c chroma = maximum_v - minimum_v;
-			if ( chroma != 0.0 ) //If chroma is 0, then S is 0 by definition, and H is undefined but 0 by convention.
+			// taken from an answer on:
+			// https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
+			float64_c min = rgb.a < rgb.b ? rgb.a : rgb.b; min = min < rgb.c ? min : rgb.c;
+			float64_c max = rgb.a > rgb.b ? rgb.a : rgb.b; max = max > rgb.c ? max : rgb.c;
+			hsv.c = max;
+			float64_c delta = max - min;
+			if ( delta < 0.00001 )
 			{
-				if ( rgb.a == maximum_v )
-				{
-					hsv.a = ( rgb.b - rgb.c ) / chroma;
-					if ( hsv.a < 0.0 )
-					{
-						hsv.a += 6.0; // wrap hue back into domain of 0.0 to 6.0.
-					}
-				}
-				else if ( rgb.b == maximum_v )
-				{
-					hsv.a = ( ( rgb.c - rgb.a ) / chroma ) + 2.0;
-				}
-				else //if ( RGB.Z == Max )
-				{
-					hsv.a = ( ( rgb.a - rgb.b ) / chroma ) + 4.0;
-				}
-				hsv.a *= 60.0; // scale hue into domain of 0.0 to 360.0.
-				hsv.b = chroma / maximum_v;
+				// can't solve hue, preserve its existing value for the color picker's sake.
+				hsv.b = 0;
+				return true;
 			}
-			hsv.c = maximum_v;
+			if ( max > 0.0 )
+			{
+				hsv.b = ( delta / max );
+			}
+			else
+			{
+				// can't solve hue, preserve its existing value for the color picker's sake.
+				hsv.b = 0.0;
+				return true;
+			}
+			if ( rgb.a >= max )
+			{
+				hsv.a = ( rgb.b - rgb.c ) / delta; // between yellow and magenta.
+			}
+			else
+			{
+				if ( rgb.b >= max )
+				{
+					hsv.a = 2.0 + ( rgb.c - rgb.a ) / delta; // between cyan and yellow.
+				}
+				else
+				{
+					hsv.a = 4.0 + ( rgb.a - rgb.b ) / delta; // between magenta and cyan.
+				}
+			}
+			hsv.a *= 60.0; // scale to degrees.
+			if ( hsv.a < 0.0 )
+			{
+				hsv.a += 360.0;
+			}
 			return true;
 		}
 
 		boolean_c convert_hsv_to_rgb( vector64x3_c const & hsv, vector64x3_c & rgb )
 		{
-			// taken from http://wiki.beyondunreal.com/HSV-RGB_Conversion
-			// thanks
-			float64_c minimum_v;
-			float64_c chroma = hsv.b * hsv.c;
-			float64_c hue = hsv.a / 60.0; // scale from domain of 0.0 to 360.0 to domain of 0.0 to 6.0.
-
-			float64_c x = chroma * ( 1.0 - math_absolute_value( ( remainder( hue, 2.0 ) ) - 1.0 ) );
-			if ( hue < 1.0 )
+			// taken from an answer on:
+			// https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both.
+			float64_c hh = hsv.a;
+			if ( hh >= 360.0 )
 			{
-				rgb.a = chroma;
-				rgb.b = x;
+				hh = 0.0;
 			}
-			else if ( hue < 2.0 )
+			hh /= 60.0;
+			sint32_c i = static_cast< sint32_c >( hh );
+			float64_c ff = hh - i;
+			float64_c p = hsv.c * ( 1.0 - hsv.b );
+			float64_c q = hsv.c * ( 1.0 - ( hsv.b * ff ) );
+			float64_c t = hsv.c * ( 1.0 - ( hsv.b * ( 1.0 - ff ) ) );
+			switch ( i )
 			{
-				rgb.a = x;
-				rgb.b = chroma;
+			case 0:
+				rgb.a = hsv.c;
+				rgb.b = t;
+				rgb.c = p;
+				break;
+			case 1:
+				rgb.a = q;
+				rgb.b = hsv.c;
+				rgb.c = p;
+				break;
+			case 2:
+				rgb.a = p;
+				rgb.b = hsv.c;
+				rgb.c = t;
+				break;
+			case 3:
+				rgb.a = p;
+				rgb.b = q;
+				rgb.c = hsv.c;
+				break;
+			case 4:
+				rgb.a = t;
+				rgb.b = p;
+				rgb.c = hsv.c;
+				break;
+			case 5:
+			default:
+				rgb.a = hsv.c;
+				rgb.b = p;
+				rgb.c = q;
+				break;
 			}
-			else if ( hue < 3.0 )
-			{
-				rgb.b = chroma;
-				rgb.c = x;
-			}
-			else if ( hue < 4.0 )
-			{
-				rgb.b = x;
-				rgb.c = chroma;
-			}
-			else if ( hue < 5.0 )
-			{
-				rgb.a = x;
-				rgb.c = chroma;
-			}
-			else if ( hue <= 6.0 )
-			{
-				rgb.a = chroma;
-				rgb.c = x;
-			}
-			minimum_v = hsv.c - chroma;
-			rgb.a += minimum_v;
-			rgb.b += minimum_v;
-			rgb.c += minimum_v;
 			return true;
 		}
 
@@ -2363,31 +2384,31 @@ namespace cheonsa
 
 		vector32x4_c adjust_color_brightness( vector32x4_c const & color, float32_c amount )
 		{
-			amount = ops::math_saturate( amount );
+			amount = math_saturate( amount );
 			vector32x4_c result;
-			result.a = ops::math_saturate( color.a + amount );
-			result.b = ops::math_saturate( color.b + amount );
-			result.c = ops::math_saturate( color.c + amount );
+			result.a = math_saturate( color.a + amount );
+			result.b = math_saturate( color.b + amount );
+			result.c = math_saturate( color.c + amount );
 			result.d = color.d;
 			return result;
 		}
 
 		vector32x4_c adjust_color_contrast( vector32x4_c const & color, float32_c amount )
 		{
-			amount = 1.0f + ops::math_saturate( amount );
+			amount = 1.0f + math_saturate( amount );
 			vector32x4_c result;
-			result.a = ops::math_saturate( color.a * amount );
-			result.b = ops::math_saturate( color.b * amount );
-			result.c = ops::math_saturate( color.c * amount );
+			result.a = math_saturate( color.a * amount );
+			result.b = math_saturate( color.b * amount );
+			result.c = math_saturate( color.c * amount );
 			result.d = color.d;
 			return result;
 		}
 
 		vector32x4_c adjust_color_saturation( vector32x4_c const & color, float32_c amount )
 		{
-			amount = ops::math_saturate( amount );
+			amount = math_saturate( amount );
 			vector32x4_c result;
-			float32_c p = ops::math_square_root( ops::make_float32_dot_product( vector32x3_c( color.a, color.b, color.c ), vector32x3_c( 0.299f, 0.587f, 0.114f ) ) );
+			float32_c p = math_square_root( make_float32_dot_product( vector32x3_c( color.a, color.b, color.c ), vector32x3_c( 0.299f, 0.587f, 0.114f ) ) );
 			result.a = ( ( color.a - p ) * amount ) + p;
 			result.b = ( ( color.b - p ) * amount ) + p;
 			result.c = ( ( color.c - p ) * amount ) + p;
@@ -2450,7 +2471,7 @@ namespace cheonsa
 			if ( obb_basis.b.a < 0.0f ) { obb_basis.b.a = -obb_basis.b.a; }
 			if ( obb_basis.b.b < 0.0f ) { obb_basis.b.b = -obb_basis.b.b; }
 			vector32x2_c center = ( obb.minimum + obb.maximum ) * 0.5f;
-			vector32x2_c extent = ops::make_vector32x2_transformed_point( obb.minimum - center, obb_basis );
+			vector32x2_c extent = make_vector32x2_transformed_point( obb.minimum - center, obb_basis );
 			return box32x2_c( center - extent + obb_position, center + extent + obb_position);
 		}
 
@@ -2820,7 +2841,7 @@ namespace cheonsa
 			// this code taken from:
 			// http://www.gamedev.net/topic/539116-optimized-obb-frustum64_c/
 			matrix32x3x3_c box_transform_basis = box_transform.get_scaled_basis();
-			vector64x3_c box_center = ops::make_vector64x3_transformed_point( box.get_center(), box_transform );
+			vector64x3_c box_center = make_vector64x3_transformed_point( box.get_center(), box_transform );
 			vector64x3_c box_half_lengths = ( box.maximum - box.minimum ) * 0.5;
 			vector64x3_c to_inside; // temp, will store the corner point of the box that is closest to the inside of the plane we are testing against.
 			for ( sint32_c i = 0; i < 6; i++ ) // test the box against each plane in the frustum.
@@ -3082,7 +3103,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < polygon.points_count; i++ )
 			{
 				line32_c edge_line = polygon.get_edge_line( i );
-				if ( ops::distance_between_point_and_line( point, edge_line ) > 0.0f )
+				if ( distance_between_point_and_line( point, edge_line ) > 0.0f )
 				{
 					return false;
 				}
@@ -3104,7 +3125,7 @@ namespace cheonsa
 				{
 					edge_vector = polygon_b.get_edge_vector( i - polygon_a.points_count );
 				}
-				vector32x2_c axis = ops::make_vector32x2_normalized( vector32x2_c( -edge_vector.b, edge_vector.a ) ); // normal of edge, tangent to edge.
+				vector32x2_c axis = make_vector32x2_normalized( vector32x2_c( -edge_vector.b, edge_vector.a ) ); // normal of edge, tangent to edge.
 				float32_c minimum_a;
 				float32_c maximum_a;
 				float32_c minimum_b;
@@ -3387,7 +3408,7 @@ namespace cheonsa
 		{
 			space_transform_c box_transform_inverted = box_transform.get_inverted();
 
-			segment64_c point_path_local = segment64_c( ops::make_vector64x3_transformed_point( point_path.point_a, box_transform_inverted ), ops::make_vector64x3_transformed_point( point_path.point_b, box_transform_inverted ) );
+			segment64_c point_path_local = segment64_c( make_vector64x3_transformed_point( point_path.point_a, box_transform_inverted ), make_vector64x3_transformed_point( point_path.point_b, box_transform_inverted ) );
 			return sweep_point_vs_box( point_path_local, box, t );
 		}
 
@@ -3395,7 +3416,7 @@ namespace cheonsa
 		{
 			box64x3_c box_with_margin = box64x3_c( box.minimum.a - sphere_radius, box.minimum.b - sphere_radius, box.minimum.c - sphere_radius, box.maximum.a + sphere_radius, box.maximum.b + sphere_radius, box.maximum.c + sphere_radius );
 			space_transform_c box_transform_inverted = box_transform.get_inverted();
-			segment64_c sphere_path_local = segment64_c( ops::make_vector64x3_transformed_point( sphere_path.point_a, box_transform_inverted ), ops::make_vector64x3_transformed_point( sphere_path.point_b, box_transform_inverted ) );
+			segment64_c sphere_path_local = segment64_c( make_vector64x3_transformed_point( sphere_path.point_a, box_transform_inverted ), make_vector64x3_transformed_point( sphere_path.point_b, box_transform_inverted ) );
 
 			if ( !sweep_point_vs_box( sphere_path_local, box_with_margin, t ) || t > 1.0 )
 			{
@@ -3723,7 +3744,7 @@ namespace cheonsa
 //		{
 //			assert( path_is_formatted_for_cheonsa( file_path, false ) );
 //#if defined( cheonsa_platform_windows )
-//			string16_c file_path_windows = ops::path_format_for_windows( file_path );
+//			string16_c file_path_windows = path_format_for_windows( file_path );
 //			boolean_c result = false;
 //			HANDLE file_handle = CreateFileW( file_path_windows.character_list.get_internal_array(), FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 //			if ( file_handle != INVALID_HANDLE_VALUE )
@@ -3778,7 +3799,7 @@ namespace cheonsa
 			sint32_c i = 0;
 			WCHAR t2[ MAX_PATH ] = {};
 			DWORD t2r = 0;
-			//if ( ops::string16_starts_with( path.character_list.get_internal_array(), "\\\\?\\" ) )
+			//if ( string16_starts_with( path.character_list.get_internal_array(), "\\\\?\\" ) )
 			//{
 			//	i = 4;
 			//}
@@ -3908,7 +3929,7 @@ namespace cheonsa
 			// all windows paths should be absolute.
 			// check for max path prefix.
 			sint32_c i = 0;
-			//if ( ops::string16_starts_with( path.character_list.get_internal_array(), "\\\\?\\" ) )
+			//if ( string16_starts_with( path.character_list.get_internal_array(), "\\\\?\\" ) )
 			//{
 			//	i = 4;
 			//}
@@ -4130,7 +4151,7 @@ namespace cheonsa
 			core_list_c< string16_c > file_extension_filter_list;
 			if ( file_extension_filter != nullptr )
 			{
-				ops::string16_split_at_delimiter( string16_c( file_extension_filter ), string16_c( mode_e_static, L"|" ), file_extension_filter_list );
+				ops::string16_split_at_delimiter( string16_c( file_extension_filter ), string16_c( core_list_mode_e_static, L"|" ), file_extension_filter_list );
 			}
 
 			do
@@ -4149,7 +4170,7 @@ namespace cheonsa
 				{
 					file_system_file_information_c * result_item = result.emplace_at_end();
 					result_item->path = folder_path;
-					result_item->path += string16_c( mode_e_static, find_file_data.cFileName );
+					result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
 					result_item->path += L'\\';
 					windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
 					windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
@@ -4178,7 +4199,7 @@ namespace cheonsa
 					{
 						file_system_file_information_c * result_item = result.emplace_at_end();
 						result_item->path = folder_path;
-						result_item->path += string16_c( mode_e_static, find_file_data.cFileName );
+						result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
 						windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
 						windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
 						result_item->creation_time = time_convert_time_format_from_windows_to_cheonsa( windows_time.QuadPart );
@@ -4215,7 +4236,7 @@ namespace cheonsa
 			{
 				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 )
 				{
-					string16_c sub_file_name = string16_c( mode_e_static, find_file_data.cFileName );
+					string16_c sub_file_name = string16_c( core_list_mode_e_static, find_file_data.cFileName );
 					if ( ( extension_filter == nullptr ) || ( string16_ends_with( sub_file_name.character_list.get_internal_array(), extension_filter ) ) )
 					{
 						string16_c sub_file_path;
@@ -4226,7 +4247,7 @@ namespace cheonsa
 				}
 				else if ( search_sub_folders )
 				{
-					string16_c sub_folder_name = string16_c( mode_e_static, find_file_data.cFileName );
+					string16_c sub_folder_name = string16_c( core_list_mode_e_static, find_file_data.cFileName );
 					string16_c sub_folder_path;
 					sub_folder_path += folder_path;
 					sub_folder_path += sub_folder_name;
@@ -4265,7 +4286,7 @@ namespace cheonsa
 			{
 				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 )
 				{
-					string16_c sub_folder_name = string16_c( mode_e_static, find_file_data.cFileName );
+					string16_c sub_folder_name = string16_c( core_list_mode_e_static, find_file_data.cFileName );
 					if ( sub_folder_name != "." && sub_folder_name != ".." )
 					{
 						string16_c sub_folder_path;
@@ -4668,13 +4689,13 @@ namespace cheonsa
 			auto const * c = in.character_list.get_internal_array();
 			while ( *c != 0 )
 			{
-				if ( char16_is_number( *c ) || *c == '.' || *c == '-' )
+				if ( char16_is_decimal_digit( *c ) || *c == '.' || *c == '-' )
 				{
 					do
 					{
 						element_string += *c;
 						c++;
-					} while ( ( *c != 0 ) && ( char16_is_number( *c ) || *c == '.' || *c == '-' ) );
+					} while ( ( *c != 0 ) && ( char16_is_decimal_digit( *c ) || *c == '.' || *c == '-' ) );
 					element_value = 0;
 					_convert_string_to_int< string_type_c, int_type_c >( element_string, element_value, 10 );
 					element_string = string_type_c();
@@ -4945,21 +4966,24 @@ namespace cheonsa
 			{
 				out.remove_all();
 			}
-			string8_c element_string;
-			float32_c element_value;
-			sint32_c element_index = 0;
-			char8_c const * c = in.character_list.get_internal_array();
-			while ( *c != 0 )
+			else
 			{
-				if ( char16_is_number( *c ) || *c == '.' || *c == '-' )
+				assert( out.get_length() > 0 );
+			}
+			string8_c element_string;
+			float32_c element_value = 0.0;
+			sint32_c element_index = 0; // for writing to fixed length out.
+			char8_c const * c = in.character_list.get_internal_array();
+			while ( ( *c != 0 ) )
+			{
+				if ( char16_is_decimal_digit( *c ) || *c == '.' || *c == '-' )
 				{
 					element_string = string8_c();
-					do
+					while ( char16_is_decimal_digit( *c ) || *c == '.' || *c == '-' )
 					{
 						element_string += *c;
 						c++;
-					} while ( ( *c != 0 ) && ( char16_is_number( *c ) || *c == '.' || *c == '-' ) );
-					element_value = 0;
+					}
 					convert_string8_to_float32( element_string, element_value );
 					if ( out.get_mode_is_dynamic() )
 					{
@@ -4970,17 +4994,20 @@ namespace cheonsa
 						if ( element_index < out.get_length() )
 						{
 							out[ element_index ] = element_value;
-						}
-						else
-						{
-							return false;
+							element_index++;
+							if ( element_index == out.get_length() )
+							{
+								return true;
+							}
 						}
 					}
-					element_index++;
 				}
-				c++;
+				else
+				{
+					c++;
+				}
 			}
-			return true;
+			return out.get_mode_is_dynamic();
 		}
 
 		void_c convert_float32xn_to_string8( core_list_c< float32_c > const & in, string8_c & out )
@@ -5023,21 +5050,24 @@ namespace cheonsa
 			{
 				out.remove_all();
 			}
-			string8_c element_string;
-			float64_c element_value;
-			sint32_c element_index = 0;
-			char8_c const * c = in.character_list.get_internal_array();
-			while ( *c != 0 )
+			else
 			{
-				if ( char16_is_number( *c ) || *c == '.' || *c == '-' )
+				assert( out.get_length() > 0 );
+			}
+			string8_c element_string;
+			float64_c element_value = 0.0;
+			sint32_c element_index = 0; // for writing to fixed length out.
+			char8_c const * c = in.character_list.get_internal_array();
+			while ( ( *c != 0 ) )
+			{
+				if ( char16_is_decimal_digit( *c ) || *c == '.' || *c == '-' )
 				{
 					element_string = string8_c();
-					do
+					while ( char16_is_decimal_digit( *c ) || *c == '.' || *c == '-' )
 					{
 						element_string += *c;
 						c++;
-					} while ( ( *c != 0 ) && ( char16_is_number( *c ) || *c == '.' || *c == '-' ) );
-					element_value = 0;
+					}
 					convert_string8_to_float64( element_string, element_value );
 					if ( out.get_mode_is_dynamic() )
 					{
@@ -5048,17 +5078,20 @@ namespace cheonsa
 						if ( element_index < out.get_length() )
 						{
 							out[ element_index ] = element_value;
-						}
-						else
-						{
-							return false;
+							element_index++;
+							if ( element_index == out.get_length() )
+							{
+								return true;
+							}
 						}
 					}
-					element_index++;
 				}
-				c++;
+				else
+				{
+					c++;
+				}
 			}
-			return true;
+			return out.get_mode_is_dynamic();
 		}
 
 		void_c convert_float64xn_to_string8( core_list_c< float64_c > const & in, string8_c & out )
@@ -5099,11 +5132,11 @@ namespace cheonsa
 		{
 			if ( in )
 			{
-				out = string8_c( mode_e_static, "true" );
+				out = string8_c( core_list_mode_e_static, "true" );
 			}
 			else
 			{
-				out = string8_c( mode_e_static, "false" );
+				out = string8_c( core_list_mode_e_static, "false" );
 			}
 		}
 
@@ -5155,18 +5188,33 @@ namespace cheonsa
 
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba )
 		{
-			sint32_c range_start = 0;
+			boolean_c hex = false;
+			sint32_c hex_start = 0;
 			if ( string8_starts_with( string.character_list.get_internal_array(), "#" ) )
 			{
-				range_start = 1;
+				hex = true;
+				hex_start = 1;
 			}
 			else if ( string8_starts_with( string.character_list.get_internal_array(), "0x" ) )
 			{
-				range_start = 2;
+				hex = true;
+				hex_start = 2;
 			}
-			if ( range_start != 0 )
+			else if ( string.get_length() == 3 || string.get_length() == 4 || string.get_length() == 6 || string.get_length() == 8 )
 			{
-				string8_c color_string = string8_sub_string( string, range_start, string.get_length() - range_start );
+				hex = true;
+				for ( sint32_c i = 0; i < string.get_length(); i++ )
+				{
+					if ( !char16_is_hexadecimal_digit( string.character_list[ i ] ) )
+					{
+						hex = false;
+						break;
+					}
+				}
+			}
+			if ( hex )
+			{
+				string8_c color_string = string8_sub_string( string, hex_start, string.get_length() - hex_start );
 
 				uint32_c color_value = 0xFFFFFFFF;
 				sint32_c r = ( color_value >> 24 ) & 0xFF;
@@ -5241,10 +5289,14 @@ namespace cheonsa
 			return isalpha( a ) != 0;
 		}
 
-		boolean_c char16_is_number( char16_c a )
+		boolean_c char16_is_decimal_digit( char16_c a )
 		{
-			//return ( a >= '0' ) && ( a <= '9' );
-			return isdigit( a ) != 0;
+			return a >= '0' && a <= '9';
+		}
+
+		boolean_c char16_is_hexadecimal_digit( char16_c a )
+		{
+			return ( a >= '0' && a <= '9' ) || ( a >= 'a' && a <= 'f' ) || ( a >= 'A' && a <= 'F' );
 		}
 
 		boolean_c char16_is_punctuation( char16_c a )

@@ -300,11 +300,11 @@ namespace cheonsa
 		// scene, camera, and canvas
 		scene_c * _scene; // primary scene that is currently being rendered.
 
-		video_texture_c * texture_white_pixel; // white pixel.
-		resource_file_texture_c texture_white_pixel_wrapper;
+		video_texture_c * _white_pixel_texture; // white pixel.
+		resource_file_texture_c _white_pixel_texture_wrapper;
 
-		video_texture_c * texture_green_pixel; // green pixel for pointing out missing textures.
-		resource_file_texture_c texture_green_pixel_wrapper;
+		video_texture_c * _green_pixel_texture; // green pixel for pointing out missing textures.
+		resource_file_texture_c _green_pixel_texture_wrapper;
 
 		scene_material_c _scene_default_material;
 

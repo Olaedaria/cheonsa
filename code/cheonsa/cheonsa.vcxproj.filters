@@ -513,6 +513,8 @@
     <ClInclude Include="cheonsa_menu_control_scrub_bar_y.h" />
     <ClInclude Include="cheonsa___build_configuration.h" />
     <ClInclude Include="cheonsa_menu_control_frame.h" />
+    <ClInclude Include="cheonsa_menu_control_color_slider.h" />
+    <ClInclude Include="cheonsa_menu_element_mesh.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -641,5 +643,7 @@
     <ClCompile Include="cheonsa_menu_control_scrub_bar_x.cpp" />
     <ClCompile Include="cheonsa_menu_control_scrub_bar_y.cpp" />
     <ClCompile Include="cheonsa_menu_control_frame.cpp" />
+    <ClCompile Include="cheonsa_menu_element_mesh.cpp" />
+    <ClCompile Include="cheonsa_menu_control_color_slider.cpp" />
   </ItemGroup>
 </Project>

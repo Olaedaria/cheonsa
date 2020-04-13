@@ -7,7 +7,7 @@ namespace cheonsa
 {
 
 	string16_c::string16_c()
-		: character_list( mode_e_static, L"", 1 )
+		: character_list( core_list_mode_e_static, L"", 1 )
 	{
 	}
 
@@ -24,26 +24,26 @@ namespace cheonsa
 	}
 
 	string16_c::string16_c( char8_c const * other )
-		: character_list( mode_e_static, nullptr, 0 )
+		: character_list( core_list_mode_e_static, nullptr, 0 )
 	{
 		assert( other != nullptr );
 		*this = other;
 	}
 
 	string16_c::string16_c( char8_c const * other, sint32_c other_length )
-		: character_list( mode_e_dynamic, nullptr, 0 )
+		: character_list( core_list_mode_e_dynamic, nullptr, 0 )
 	{
 		assert( other );
 		assert( other_length >= 0 && other[ other_length ] == 0 );
-		ops::convert_string8_to_string16( core_list_c< char8_c >( mode_e_static, other, other_length + 1 ), character_list );
+		ops::convert_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, other_length + 1 ), character_list );
 	}
 
-	string16_c::string16_c( mode_e mode, char16_c const * other )
+	string16_c::string16_c( core_list_mode_e mode, char16_c const * other )
 		: character_list( mode, other, ops::string16_find_length( other ) + 1 )
 	{
 	}
 
-	string16_c::string16_c( mode_e mode, char16_c const * other, sint32_c other_length_with_null_terminator )
+	string16_c::string16_c( core_list_mode_e mode, char16_c const * other, sint32_c other_length_with_null_terminator )
 		: character_list( mode, other, other_length_with_null_terminator )
 	{
 		assert( other[ other_length_with_null_terminator - 1 ] == 0 );
@@ -62,7 +62,7 @@ namespace cheonsa
 	string16_c & string16_c::operator = ( char8_c const * other )
 	{
 		character_list.remove_all();
-		ops::convert_string8_to_string16( core_list_c< char8_c >( mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
+		ops::convert_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
 
@@ -117,7 +117,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove_at_end();
-		ops::convert_string8_to_string16( core_list_c< char8_c >( mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
+		ops::convert_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
 

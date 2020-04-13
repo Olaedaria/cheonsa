@@ -154,6 +154,8 @@ namespace cheonsa
 		virtual void_c _on_multi_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been multi-(double, triple)-clicked on.
 		virtual void_c _on_input( input_event_c * input_event ); // is called for any other user input events.
 
+		virtual void_c _update_transform_and_layout(); // updates global space properties based on inheritance and local space properties.
+
 	public:
 		menu_control_c();
 		virtual ~menu_control_c();
@@ -238,8 +240,6 @@ namespace cheonsa
 		void_c set_layout_simple( box32x2_c const & local_box, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // spatial properties are in mother's coordinate space. origin will be placed at center of local_box.
 		void_c set_layout_box_anchor( menu_anchor_e local_anchor, box32x2_c const & local_anchor_measures, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // enables anchor layout. measurements are in mother control's coordinate space.
 		void_c set_layout_point_anchor( menu_anchor_e local_anchor, vector32x2_c const & local_anchor_measures, box32x2_c const & local_box, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f );
-
-		virtual void_c update_transform_and_layout(); // updates global space properties based on inheritance and local space properties.
 
 		vector32x2_c const & get_local_origin() const;
 		void_c set_local_origin( vector32x2_c const & value );

@@ -16,10 +16,10 @@ namespace cheonsa
 		{
 			_rail_element.set_is_selected( false );
 			_grip_element.set_is_selected( false );
-			if ( _mouse_grab )
+			if ( _mouse_is_grabbed )
 			{
-				_mouse_grab = false;
-				_mouse_grab_offset = 0.0f;
+				_mouse_is_grabbed = false;
+				_mouse_is_grabbed_offset = 0.0f;
 				_scrub_input = 0.0;
 				_grip_element.set_is_pressed( false );
 			}
@@ -40,15 +40,15 @@ namespace cheonsa
 				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
 				if ( ops::intersect_box_vs_point( _grip_element.get_local_box(), local_mouse_position ) )
 				{
-					_mouse_grab = true;
+					_mouse_is_grabbed = true;
 					_value_original = _value;
 					if ( _orientation == orientation_e_y )
 					{
-						_mouse_grab_offset = local_mouse_position.b - _grip_element.get_local_box().minimum.b;
+						_mouse_is_grabbed_offset = local_mouse_position.b - _grip_element.get_local_box().minimum.b;
 					}
 					else
 					{
-						_mouse_grab_offset = local_mouse_position.a - _grip_element.get_local_box().minimum.a;
+						_mouse_is_grabbed_offset = local_mouse_position.a - _grip_element.get_local_box().minimum.a;
 					}
 					_grip_element.set_is_pressed( true );
 				}
@@ -58,8 +58,8 @@ namespace cheonsa
 		{
 			if ( input_event->mouse_key == input_mouse_key_e_left )
 			{
-				_mouse_grab = false;
-				_mouse_grab_offset = 0.0f;
+				_mouse_is_grabbed = false;
+				_mouse_is_grabbed_offset = 0.0f;
 				_scrub_input = 0.0;
 				_grip_element.set_is_pressed( false );
 				if ( _value_original != _value )
@@ -71,11 +71,11 @@ namespace cheonsa
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_move )
 		{
-			if ( _mouse_grab )
+			if ( _mouse_is_grabbed )
 			{
 				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
 				float32_c grip_effective_range = ( _orientation == orientation_e_y ? _local_box.get_height() : _local_box.get_width() ) - _dynamic_grip_length;
-				float64_c grip_position = ops::math_clamp( ( _orientation == orientation_e_y ? local_mouse_position.b : local_mouse_position.a ) - _mouse_grab_offset - ( _orientation == orientation_e_y ? _local_box.minimum.b : _local_box.minimum.a ), 0.0f, grip_effective_range );
+				float64_c grip_position = ops::math_clamp( ( _orientation == orientation_e_y ? local_mouse_position.b : local_mouse_position.a ) - _mouse_is_grabbed_offset - ( _orientation == orientation_e_y ? _local_box.minimum.b : _local_box.minimum.a ), 0.0f, grip_effective_range );
 				float64_c grip_position_percent = grip_position / grip_effective_range;
 				float64_c value_effective_range = _value_maximum - _value_minimum - _page_size;
 				if ( value_effective_range < 0.0 )
@@ -103,10 +103,10 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_scroll_bar_i::update_transform_and_layout()
+	void_c menu_control_scroll_bar_i::_update_transform_and_layout()
 	{
 		// this will update layout, and detect changes to layout.
-		menu_control_c::update_transform_and_layout();
+		menu_control_c::_update_transform_and_layout();
 
 		_rail_element.set_layout_simple( _local_box );
 
@@ -185,25 +185,25 @@ namespace cheonsa
 		, _fixed_grip_length( 0.0f )
 		, _dynamic_grip_length( 0.0f )
 		, _dynamic_grip_position( 0.0f )
-		, _mouse_grab( false )
-		, _mouse_grab_offset( 0.0f )
+		, _mouse_is_grabbed( false )
+		, _mouse_is_grabbed_offset( 0.0f )
 	{
 		if ( _mode == mode_e_scrub_bar )
 		{
 			_fixed_grip_length = 10.0f;
 		}
 
-		_rail_element.set_name( string8_c( mode_e_static, "rail_frame" ) );
+		_rail_element.set_name( string8_c( core_list_mode_e_static, "rail_frame" ) );
 		_rail_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_element( &_rail_element );
 
-		_grip_element.set_name( string8_c( mode_e_static, "grip_frame" ) );
+		_grip_element.set_name( string8_c( core_list_mode_e_static, "grip_frame" ) );
 		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_element( &_grip_element );
 
-		set_style_map_key( string8_c( mode_e_static, "e_scroll" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_scroll" ) );
 
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_scroll_bar_i::update_animations( float32_c time_step )
@@ -251,7 +251,7 @@ namespace cheonsa
 
 		// we don't necessarily need to call this on each update.
 		// but it will keep the layout of the elements in sync with the current value.
-		update_transform_and_layout();
+		_update_transform_and_layout();
 
 		// update smooth scroll
 		float64_c value_difference = _value_smoothed - _value;
@@ -417,7 +417,7 @@ namespace cheonsa
 		_value_minimum = value_minimum;
 		_value_maximum = value_maximum;
 		_page_size = page_size;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	float64_c menu_control_scroll_bar_i::get_page_size() const
@@ -448,7 +448,7 @@ namespace cheonsa
 	void_c menu_control_scroll_bar_i::set_value_minimum( float64_c value )
 	{
 		_value_minimum = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	float64_c menu_control_scroll_bar_i::get_value_maximum() const
@@ -459,7 +459,7 @@ namespace cheonsa
 	void_c menu_control_scroll_bar_i::set_value_maximum( float64_c value )
 	{
 		_value_maximum = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	float64_c menu_control_scroll_bar_i::get_value_increment() const
@@ -548,7 +548,7 @@ namespace cheonsa
 			value = 1.0;
 		}
 		_fixed_grip_length = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_scroll_bar_i::inject_mouse_wheel_input( float32_c value )

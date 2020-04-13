@@ -18,11 +18,11 @@ namespace cheonsa
 	{
 		if ( _is_folder )
 		{
-			return engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( mode_e_static, L"menus/icon_folder.png" ) );
+			return engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_folder.png" ) );
 		}
 		else
 		{
-			return engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( mode_e_static, L"menus/icon_file.png" ) );
+			return engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_file.png" ) );
 		}
 		return nullptr;
 	}
@@ -90,7 +90,7 @@ namespace cheonsa
 		if ( _sub_dialog_is_asking_for_over_write )
 		{
 			_sub_dialog_is_asking_for_over_write = false;
-			if ( _sub_dialog->get_result() == menu_window_dialog_c::result_e_yes )
+			if ( _sub_dialog->get_result() == menu_dialog_result_e_yes )
 			{
 				_result = result_e_okay;
 				on_result.invoke( this );
@@ -100,7 +100,7 @@ namespace cheonsa
 
 	void_c menu_control_file_picker_c::_handle_button_on_clicked( menu_event_information_c event_information )
 	{
-		if ( _muted )
+		if ( _is_muted )
 		{
 			return;
 		}
@@ -130,7 +130,7 @@ namespace cheonsa
 
 	void_c menu_control_file_picker_c::_handle_text_on_value_changed( menu_control_text_c * control )
 	{
-		if ( _muted )
+		if ( _is_muted )
 		{
 			return;
 		}
@@ -146,7 +146,7 @@ namespace cheonsa
 
 	void_c menu_control_file_picker_c::_handle_file_collection_on_selected_items_changed( menu_control_collection_c * collection )
 	{
-		if ( _muted )
+		if ( _is_muted )
 		{
 			return;
 		}
@@ -182,7 +182,7 @@ namespace cheonsa
 
 	void_c menu_control_file_picker_c::_handle_file_collection_on_selected_items_invoked( menu_control_collection_c * collection )
 	{
-		if ( _muted )
+		if ( _is_muted )
 		{
 			return;
 		}
@@ -194,7 +194,7 @@ namespace cheonsa
 				string16_c display_value;
 				sint64_c absolute_value;
 				menu_control_file_picker_item_c * item = static_cast< menu_control_file_picker_item_c * >( _files_collection->get_selected_items()[ 0 ] );
-				if ( item->get_value( string8_c( mode_e_static, "name" ), display_value, absolute_value ) )
+				if ( item->get_value( string8_c( core_list_mode_e_static, "name" ), display_value, absolute_value ) )
 				{
 					if ( item->_is_folder == true )
 					{
@@ -237,7 +237,7 @@ namespace cheonsa
 
 	menu_control_file_picker_c::menu_control_file_picker_c()
 		: menu_control_c()
-		, _muted( false )
+		, _is_muted( false )
 		, _frame()
 		, _folder_path_text( nullptr )
 		, _file_name_text( nullptr )
@@ -257,62 +257,70 @@ namespace cheonsa
 		, _sub_dialog_is_asking_for_over_write( false )
 		, _sub_dialog( nullptr )
 	{
-		_frame.set_name( string8_c( mode_e_static, "frame" ) );
-		_frame.set_style_key( string8_c( mode_e_static, "e_field_frame" ) );
+		_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
+		_frame.set_style_key( string8_c( core_list_mode_e_static, "e_field_frame" ) );
 		_add_element( &_frame );
 
 		_folder_path_text = new menu_control_text_c();
-		_folder_path_text->set_name( string8_c( mode_e_static, "folder_path_text" ) );
+		_folder_path_text->set_name( string8_c( core_list_mode_e_static, "folder_path_text" ) );
 		_folder_path_text->on_value_changed.subscribe( this, &menu_control_file_picker_c::_handle_text_on_value_changed );
+		_folder_path_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 152, 8, 8, 30 ) );
 		_give_control( _folder_path_text );
 
 		_file_name_text = new menu_control_text_c();
-		_file_name_text->set_name( string8_c( mode_e_static, "file_name_text" ) );
+		_file_name_text->set_name( string8_c( core_list_mode_e_static, "file_name_text" ) );
+		_file_name_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 152, 30, 8, 46 ) );
 		_file_name_text->on_value_changed.subscribe( this, &menu_control_file_picker_c::_handle_text_on_value_changed );
 		_give_control( _file_name_text );
 
 		_back_button = new menu_control_button_c();
-		_back_button->set_name( string8_c( mode_e_static, "back_button" ) );
-		_back_button->set_plain_text_value( string16_c( mode_e_static, L"" ) );
+		_back_button->set_name( string8_c( core_list_mode_e_static, "back_button" ) );
+		_back_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"" ) );
+		_back_button->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( 8, 8, 40, 30 ) );
 		_back_button->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_button_on_clicked );
 		_give_control( _back_button );
 
 		_forward_button = new menu_control_button_c();
-		_forward_button->set_name( string8_c( mode_e_static, "forward_button" ) );
-		_forward_button->set_plain_text_value( string16_c( mode_e_static, L"" ) );
+		_forward_button->set_name( string8_c( core_list_mode_e_static, "forward_button" ) );
+		_forward_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"" ) );
+		_forward_button->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( 56, 8, 40, 30 ) );
 		_forward_button->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_button_on_clicked );
 		_give_control( _forward_button );
 
 		_up_button = new menu_control_button_c();
-		_up_button->set_name( string8_c( mode_e_static, "up_button" ) );
-		_up_button->set_plain_text_value( string16_c( mode_e_static, L"" ) );
+		_up_button->set_name( string8_c( core_list_mode_e_static, "up_button" ) );
+		_up_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"" ) );
+		_up_button->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( 104, 8, 40, 30 ) );
 		_up_button->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_button_on_clicked );
 		_give_control( _up_button );
 
-		_short_cut_list = new menu_control_list_c();
-		_short_cut_list->set_name( string8_c( mode_e_static, "short_cut_list" ) );
-		_give_control( _short_cut_list );
-
 		_files_collection = new menu_control_collection_c();
-		_files_collection->set_name( string8_c( mode_e_static, "files_collection" ) );
-		_files_collection->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 10.0f, 0.0f, 10.0f ) );
-		_files_collection->add_column( string8_c( mode_e_static, "name" ), string16_c( mode_e_static, L"name" ), 500, menu_control_collection_c::sort_by_e_display_value, false );
-		_files_collection->set_sort( string8_c( mode_e_static, "name" ), menu_control_collection_c::sort_order_e_ascending );
+		_files_collection->set_name( string8_c( core_list_mode_e_static, "files_collection" ) );
+		_files_collection->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 152, 46, 8, 84 ) );
+		_files_collection->add_column( string8_c( core_list_mode_e_static, "name" ), string16_c( core_list_mode_e_static, L"name" ), 500, menu_control_collection_c::sort_by_e_display_value, false );
+		_files_collection->set_sort( string8_c( core_list_mode_e_static, "name" ), menu_control_collection_c::sort_order_e_ascending );
 		_files_collection->on_selected_items_changed.subscribe( this, &menu_control_file_picker_c::_handle_file_collection_on_selected_items_changed );
 		_files_collection->on_selected_items_invoked.subscribe( this, &menu_control_file_picker_c::_handle_file_collection_on_selected_items_invoked );
 		_give_control( _files_collection );
 
-		_okay_button = new menu_control_button_c();
-		_okay_button->set_name( string8_c( mode_e_static, "okay_button" ) );
-		_okay_button->set_plain_text_value( string16_c( mode_e_static, L"okay" ) );
-		_okay_button->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_button_on_clicked );
-		_give_control( _okay_button );
+		_short_cut_list = new menu_control_list_c();
+		_short_cut_list->set_name( string8_c( core_list_mode_e_static, "short_cut_list" ) );
+		_short_cut_list->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 8, 46, 136, 46 ) );
+		_give_control( _short_cut_list );
 
 		_cancel_button = new menu_control_button_c();
-		_cancel_button->set_name( string8_c( mode_e_static, "cancel_button" ) );
-		_cancel_button->set_plain_text_value( string16_c( mode_e_static, L"cancel" ) );
+		_cancel_button->set_name( string8_c( core_list_mode_e_static, "cancel_button" ) );
+		_cancel_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 116, 8 ) );
+		_cancel_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"cancel" ) );
 		_cancel_button->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_button_on_clicked );
 		_give_control( _cancel_button );
+
+		_okay_button = new menu_control_button_c();
+		_okay_button->set_name( string8_c( core_list_mode_e_static, "okay_button" ) );
+		_okay_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
+		_okay_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"okay" ) );
+		_okay_button->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_button_on_clicked );
+		_give_control( _okay_button );
 	}
 
 	menu_control_file_picker_c::mode_e menu_control_file_picker_c::get_mode() const
@@ -335,7 +343,7 @@ namespace cheonsa
 
 	boolean_c menu_control_file_picker_c::go_to_folder_path( string16_c const & folder_path )
 	{
-		assert( _muted == false );
+		assert( _is_muted == false );
 		if ( folder_path.get_length() == 0 )
 		{
 			return false;
@@ -349,7 +357,7 @@ namespace cheonsa
 		if ( ops::file_system_is_path_formatted_for_windows( folder_path_2, ops::file_system_path_type_e_folder) )
 		{
 #endif
-			if ( _folder_path != folder_path_2 && ops::file_system_does_folder_exist( folder_path_2 ) )
+			if ( ( _history_stack.get_length() == 0 || _folder_path != folder_path_2 ) && ops::file_system_does_folder_exist( folder_path_2 ) )
 			{
 				sint32_c how_many_to_remove = _history_stack.get_length() - ( _history_index + 1 );
 				if ( how_many_to_remove > 0 )
@@ -358,14 +366,14 @@ namespace cheonsa
 				}
 				_history_stack.insert_at_end( folder_path_2 );
 				_history_index = _history_stack.get_length() - 1;
-				_muted = true;
+				_is_muted = true;
 				_back_button->set_is_enabled( _history_index > 0 );
 				_forward_button->set_is_enabled( false );
 				_folder_path = folder_path_2;
 				_folder_path_text->set_plain_text_value( folder_path_2 );
 				_file_name_text->clear_text_value();
 				_up_button->set_is_enabled( ops::path_get_mother( _folder_path ).get_length() > 0 );
-				_muted = false;
+				_is_muted = false;
 				refresh_files_collection();
 				return true;
 			}
@@ -377,18 +385,18 @@ namespace cheonsa
 
 	boolean_c menu_control_file_picker_c::go_back()
 	{
-		assert( _muted == false );
+		assert( _is_muted == false );
 		if ( _history_index > 0 )
 		{
 			_history_index--;
-			_muted = true;
+			_is_muted = true;
 			_back_button->set_is_enabled( _history_index > 0 );
 			_forward_button->set_is_enabled( true );
 			_folder_path = _history_stack[ _history_index ];
 			_folder_path_text->set_plain_text_value( _folder_path );
 			_file_name_text->clear_text_value();
 			_up_button->set_is_enabled( ops::path_get_mother( _folder_path ).get_length() > 0 );
-			_muted = false;
+			_is_muted = false;
 			refresh_files_collection();
 			return true;
 		}
@@ -397,18 +405,18 @@ namespace cheonsa
 
 	boolean_c menu_control_file_picker_c::go_forward()
 	{
-		assert( _muted == false );
+		assert( _is_muted == false );
 		if ( _history_index + 1 < _history_stack.get_length() )
 		{
 			_history_index++;
-			_muted = true;
+			_is_muted = true;
 			_back_button->set_is_enabled( true );
 			_forward_button->set_is_enabled( _history_index < _history_stack.get_length() - 1 );
 			_folder_path = _history_stack[ _history_index ];
 			_folder_path_text->set_plain_text_value( _folder_path );
 			_file_name_text->clear_text_value();
 			_up_button->set_is_enabled( ops::path_get_mother( _folder_path ).get_length() > 0 );
-			_muted = false;
+			_is_muted = false;
 			refresh_files_collection();
 			return true;
 		}
@@ -458,7 +466,7 @@ namespace cheonsa
 		{
 			_short_cut_path_list.insert_at_end( folder_path );
 			menu_control_list_item_text_c * list_item = new menu_control_list_item_text_c();
-			list_item->set_plain_text_value( string16_c( mode_e_static_volatile, L"Desktop" ) );
+			list_item->set_plain_text_value( string16_c( core_list_mode_e_static_volatile, L"Desktop" ) );
 			list_item->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_short_cut_on_clicked );
 			_short_cut_list->give_item( list_item );
 		}
@@ -467,7 +475,7 @@ namespace cheonsa
 		{
 			_short_cut_path_list.insert_at_end( folder_path );
 			menu_control_list_item_text_c * list_item = new menu_control_list_item_text_c();
-			list_item->set_plain_text_value( string16_c( mode_e_static_volatile, L"Documents" ) );
+			list_item->set_plain_text_value( string16_c( core_list_mode_e_static_volatile, L"Documents" ) );
 			list_item->on_clicked.subscribe( this, &menu_control_file_picker_c::_handle_short_cut_on_clicked );
 			_short_cut_list->give_item( list_item );
 		}

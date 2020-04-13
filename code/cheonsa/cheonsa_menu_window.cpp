@@ -94,7 +94,7 @@ namespace cheonsa
 			if ( input_event->mouse_key == input_mouse_key_e_left )
 			{
 				_grabbed_element = grabbed_element_e_none;
-				update_transform_and_layout();
+				_update_transform_and_layout();
 			}
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_move && _grabbed_element != grabbed_element_e_none )
@@ -103,7 +103,7 @@ namespace cheonsa
 			if ( _grabbed_element == grabbed_element_e_title_bar )
 			{
 				_local_origin = input_event->menu_global_mouse_position - _grabbed_point_local;
-				update_transform_and_layout();
+				_update_transform_and_layout();
 			}
 			else
 			{
@@ -165,17 +165,26 @@ namespace cheonsa
 					}
 					_local_box.maximum.b = height;
 				}
-				update_transform_and_layout();
+				_update_transform_and_layout();
 			}
 		}
 		else if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
 		{
 			if ( input_event->keyboard_key == input_keyboard_key_e_escape )
 			{
-				_result = result_e_cancel;
+				_result = menu_dialog_result_e_cancel;
 				on_result.invoke( this );
 			}
 		}
+	}
+
+	void_c menu_window_c::_update_transform_and_layout()
+	{
+		if ( _grabbed_element == grabbed_element_e_none )
+		{
+			constrain_transform();
+		}
+		menu_control_c::_update_transform_and_layout();
 	}
 
 	menu_window_c::menu_window_c()
@@ -192,14 +201,14 @@ namespace cheonsa
 		, _grabbed_point_local( 0.0f, 0.0f )
 		, _modal_screen( nullptr )
 	{
-		_element_text.set_name( string8_c( mode_e_static, "text" ) );
+		_element_text.set_name( string8_c( core_list_mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
 		_add_element( &_element_text );
 
 		_apply_client_margins();
 
-		set_style_map_key( string8_c( mode_e_static, "e_window" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_window" ) );
 	}
 
 	void_c menu_window_c::update_animations( float32_c time_step )
@@ -229,15 +238,6 @@ namespace cheonsa
 				i--;
 			}
 		}
-	}
-
-	void_c menu_window_c::update_transform_and_layout()
-	{
-		if ( _grabbed_element == grabbed_element_e_none )
-		{
-			constrain_transform();
-		}
-		menu_control_c::update_transform_and_layout();
 	}
 
 	void_c menu_window_c::constrain_transform()
@@ -373,7 +373,7 @@ namespace cheonsa
 	{
 		_local_origin.a = ops::math_round_down( value.a );
 		_local_origin.b = ops::math_round_down( value.b );
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	vector32x2_c menu_window_c::get_size() const
@@ -385,7 +385,7 @@ namespace cheonsa
 	{
 		_local_box.maximum.a = ops::math_round_down( value.a );
 		_local_box.maximum.b = ops::math_round_down( value.b );
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	menu_visibility_mode_e menu_window_c::get_horizontal_scroll_bar_visibility_mode() const
@@ -441,7 +441,7 @@ namespace cheonsa
 	void_c menu_window_c::show_dialog( menu_control_c * modal_screen )
 	{
 		assert( _modal_screen == nullptr );
-		_result = result_e_none;
+		_result = menu_dialog_result_e_none;
 		_modal_screen = modal_screen;
 		set_is_showed( true );
 		bring_to_front();
@@ -458,7 +458,7 @@ namespace cheonsa
 		}
 	}
 
-	menu_window_c::result_e menu_window_c::get_result() const
+	menu_dialog_result_e menu_window_c::get_result() const
 	{
 		return _result;
 	}

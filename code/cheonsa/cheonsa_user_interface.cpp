@@ -360,7 +360,7 @@ namespace cheonsa
 				menu_control_c * control = _control_list[ i ];
 				if ( control->_scene_component == nullptr )
 				{
-					control->update_transform_and_layout();
+					control->_update_transform_and_layout();
 				}
 			}
 		}
@@ -530,7 +530,7 @@ namespace cheonsa
 			_control_list[ i ]->_index = index;
 		}
 		assert( _local_box.maximum.a > _local_box.minimum.a && _local_box.maximum.b > _local_box.minimum.b );
-		control->update_transform_and_layout();
+		control->_update_transform_and_layout();
 		control->_on_user_interface_association_changed( this );
 	}
 
@@ -983,8 +983,8 @@ namespace cheonsa
 	menu_control_c * user_interface_c::open_modal_screen()
 	{
 		menu_control_frame_c * result = new menu_control_frame_c();
-		result->set_name( string8_c( mode_e_static, "modal_screen" ) );
-		result->set_style_map_key( string8_c( mode_e_static, "e_modal" ) );
+		result->set_name( string8_c( core_list_mode_e_static, "modal_screen" ) );
+		result->set_style_map_key( string8_c( core_list_mode_e_static, "e_modal" ) );
 		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
 		give_control( result );
 		return result;
@@ -993,7 +993,7 @@ namespace cheonsa
 	menu_window_dialog_c * user_interface_c::open_window_dialog( menu_window_dialog_c::mode_e mode, string16_c const & title, string16_c message, menu_control_c * modal_screen )
 	{
 		menu_window_dialog_c * result = new menu_window_dialog_c();
-		result->set_name( string8_c( mode_e_static, "window_dialog" ) );
+		result->set_name( string8_c( core_list_mode_e_static, "window_dialog" ) );
 		result->set_title( title );
 		result->set_message( message );
 		result->set_mode( mode );

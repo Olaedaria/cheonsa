@@ -6,7 +6,7 @@ namespace cheonsa
 {
 
 	string8_c::string8_c()
-		: character_list( mode_e_static, "", 1 )
+		: character_list( core_list_mode_e_static, "", 1 )
 	{
 	}
 
@@ -17,24 +17,24 @@ namespace cheonsa
 	}
 
 	string8_c::string8_c( char16_c const * other )
-		: character_list( mode_e_static, nullptr, 0 )
+		: character_list( core_list_mode_e_static, nullptr, 0 )
 	{
 		assert( other != nullptr );
 		*this = other;
 	}
 
 	string8_c::string8_c( string16_c const & other )
-		: character_list( mode_e_static, nullptr, 0 )
+		: character_list( core_list_mode_e_static, nullptr, 0 )
 	{
 		*this = other;
 	}
 
-	string8_c::string8_c( mode_e mode, char8_c const * other )
+	string8_c::string8_c( core_list_mode_e mode, char8_c const * other )
 		: character_list( mode, other, ops::string8_find_length( other ) + 1 )
 	{
 	}
 
-	string8_c::string8_c( mode_e mode, char8_c const * other, sint32_c other_length_with_null_terminator )
+	string8_c::string8_c( core_list_mode_e mode, char8_c const * other, sint32_c other_length_with_null_terminator )
 		: character_list( mode, other, other_length_with_null_terminator )
 	{
 		assert( other[ other_length_with_null_terminator - 1 ] == 0 );
@@ -78,7 +78,7 @@ namespace cheonsa
 	string8_c & string8_c::operator = ( char16_c const * other )
 	{
 		character_list.remove_all();
-		ops::convert_string16_to_string8( core_list_c< char16_c >( mode_e_static, other, ops::string16_find_length( other ) + 1 ), character_list );
+		ops::convert_string16_to_string8( core_list_c< char16_c >( core_list_mode_e_static, other, ops::string16_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
 
@@ -136,7 +136,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove_at_end();
-		ops::convert_string16_to_string8( core_list_c< char16_c >( mode_e_static, other, ops::string16_find_length( other ) + 1 ), character_list );
+		ops::convert_string16_to_string8( core_list_c< char16_c >( core_list_mode_e_static, other, ops::string16_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
 

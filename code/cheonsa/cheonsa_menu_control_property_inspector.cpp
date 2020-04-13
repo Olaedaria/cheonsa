@@ -228,7 +228,7 @@ namespace cheonsa
 		//property_field_c * property_field = new property_field_c();
 		//_property_field_list.insert_at_end( property_field );
 		//property_field->label = new menu_control_text_c();
-		//property_field->label->set_name( string8_c( mode_e_static, "class_label" ) );
+		//property_field->label->set_name( string8_c( core_list_mode_e_static, "class_label" ) );
 		//property_field->label->set_user_pointer( property_field );
 		//property_field->label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 0.0f, _y, 0.0f, styled_properties.height_for_class_row ) );
 		//_add_private_control( property_field->label );
@@ -247,13 +247,13 @@ namespace cheonsa
 			property_field->label->set_user_pointer( property_field );
 			if ( property->_type == data_type_e_category_label )
 			{
-				property_field->label->set_name( string8_c( mode_e_static, "category_label" ) );
+				property_field->label->set_name( string8_c( core_list_mode_e_static, "category_label" ) );
 				property_field->label->set_plain_text_value( string16_c( property->_name ) );
 				_give_control( property_field->label );
 			}
 			else
 			{
-				property_field->label->set_name( string8_c( mode_e_static, "property_label" ) );
+				property_field->label->set_name( string8_c( core_list_mode_e_static, "property_label" ) );
 				property_field->label->set_plain_text_value( string16_c( property->_name ) );
 				_give_control( property_field->label );
 
@@ -262,7 +262,7 @@ namespace cheonsa
 				{
 					property_field->text = new menu_control_text_c();
 					property_field->text->set_user_pointer( property_field );
-					property_field->text->set_name( string8_c( mode_e_static, "property_value_text" ) );
+					property_field->text->set_name( string8_c( core_list_mode_e_static, "property_value_text" ) );
 					if ( property->_view == data_view_e_text )
 					{
 						property_field->text->set_text_interact_mode( menu_text_interact_mode_e_static );
@@ -275,8 +275,8 @@ namespace cheonsa
 				{
 					property_field->button = new menu_control_button_c();
 					property_field->button->set_user_pointer( property_field );
-					property_field->button->set_name( string8_c( mode_e_static, "property_value_button" ) );
-					property_field->button->set_plain_text_value( string16_c( mode_e_static, L"..." ) );
+					property_field->button->set_name( string8_c( core_list_mode_e_static, "property_value_button" ) );
+					property_field->button->set_plain_text_value( string16_c( core_list_mode_e_static, L"..." ) );
 					property_field->button->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_value_edit_on_clicked );
 					_give_control( property_field->button );
 				}
@@ -308,7 +308,7 @@ namespace cheonsa
 						property_field->scroll = new menu_control_scrub_bar_x_c();
 					}
 					property_field->scroll->set_user_pointer( property_field );
-					property_field->scroll->set_name( string8_c( mode_e_static, "property_value_scroll" ) );
+					property_field->scroll->set_name( string8_c( core_list_mode_e_static, "property_value_scroll" ) );
 					property_field->scroll->set_value_minimum( value_minimum );
 					property_field->scroll->set_value_maximum( value_maximum );
 					property_field->scroll->on_value_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_preview );
@@ -322,7 +322,7 @@ namespace cheonsa
 					reflection_enumeration_c const * enumeration = property->_enumeration;
 					assert( enumeration );
 					property_field->combo = new menu_control_combo_c();
-					property_field->combo->set_name( string8_c( mode_e_static, "property_value_combo" ) );
+					property_field->combo->set_name( string8_c( core_list_mode_e_static, "property_value_combo" ) );
 					//property_field->combo->get_combo_list()->on_selection_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_combo_on_selection_changed_preview );
 					property_field->combo->get_combo_list()->on_selected_item_changed.subscribe( this, &menu_control_property_inspector_c::_handle_value_combo_on_selected_item_changed );
 					for ( sint32_c j = 0; j < enumeration->get_value_count(); j++ ) // populate combo control.
@@ -354,31 +354,31 @@ namespace cheonsa
 
 					property_field->item_add = new menu_control_button_c();
 					property_field->item_add->set_user_pointer( property_field );
-					property_field->item_add->set_plain_text_value( string16_c( mode_e_static, L"+" ) );
+					property_field->item_add->set_plain_text_value( string16_c( core_list_mode_e_static, L"+" ) );
 					property_field->item_add->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_add_on_clicked );
 					_give_control( property_field->item_add );
 
 					property_field->item_remove = new menu_control_button_c();
 					property_field->item_remove->set_user_pointer( property_field );
-					property_field->item_remove->set_plain_text_value( string16_c( mode_e_static, L"-" ) );
+					property_field->item_remove->set_plain_text_value( string16_c( core_list_mode_e_static, L"-" ) );
 					property_field->item_remove->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_remove_on_clicked );
 					_give_control( property_field->item_remove );
 
 					property_field->item_move_up = new menu_control_button_c();
 					property_field->item_move_up->set_user_pointer( property_field );
-					property_field->item_move_up->set_plain_text_value( string16_c( mode_e_static, L"u" ) );
+					property_field->item_move_up->set_plain_text_value( string16_c( core_list_mode_e_static, L"u" ) );
 					property_field->item_move_up->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_move_up_on_clicked );
 					_give_control( property_field->item_move_up );
 
 					property_field->item_move_down = new menu_control_button_c();
 					property_field->item_move_down->set_user_pointer( property_field );
-					property_field->item_move_down->set_plain_text_value( string16_c( mode_e_static, L"d" ) );
+					property_field->item_move_down->set_plain_text_value( string16_c( core_list_mode_e_static, L"d" ) );
 					property_field->item_move_down->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_move_down_on_clicked );
 					_give_control( property_field->item_move_down );
 
 					property_field->item_sort = new menu_control_button_c();
 					property_field->item_sort->set_user_pointer( property_field );
-					property_field->item_sort->set_plain_text_value( string16_c( mode_e_static, L"s" ) );
+					property_field->item_sort->set_plain_text_value( string16_c( core_list_mode_e_static, L"s" ) );
 					property_field->item_sort->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_sort_on_clicked );
 					_give_control( property_field->item_sort );
 				}
@@ -740,13 +740,13 @@ namespace cheonsa
 			if ( _editing_property_field->bound_reflection_property->_type == data_type_e_uint32 || _editing_property_field->bound_reflection_property->_type_count == 4 )
 			{
 				// rgba
-				_color_picker->set_alpha_enable( true );
+				_color_picker->set_alpha_is_enabled( true );
 				_color_picker->set_rgba( _editing_value_as_color_original );
 			}
 			else
 			{
 				// rgb
-				_color_picker->set_alpha_enable( false );
+				_color_picker->set_alpha_is_enabled( false );
 				_color_picker->set_rgb( vector64x3_c( _editing_value_as_color_original.as_array() ) );
 			}
 			_color_picker_dialog->set_is_showed( true );
@@ -908,7 +908,7 @@ namespace cheonsa
 		reflection_value_container_c new_value; // might be new value, or old one of canceling.
 		if ( dialog == _message_dialog )
 		{
-			if ( dialog->get_result() == menu_window_dialog_c::result_e_okay )
+			if ( dialog->get_result() == menu_dialog_result_e_okay )
 			{
 				_editing_property_field->bound_reflection_property->_accessors._object_list_item_remover( _bound_reflection_object, _pending_delete_list_item_index );
 			}
@@ -916,7 +916,7 @@ namespace cheonsa
 		}
 		else if ( dialog == _color_picker_dialog )
 		{
-			if ( dialog->get_result() == menu_window_dialog_c::result_e_okay )
+			if ( dialog->get_result() == menu_dialog_result_e_okay )
 			{
 				_update_property_from_ui( _editing_property_field, _color_picker_dialog, true );
 			}
@@ -930,7 +930,7 @@ namespace cheonsa
 		}
 		else if ( dialog == _file_picker_dialog )
 		{
-			if ( dialog->get_result() == menu_window_dialog_c::result_e_okay )
+			if ( dialog->get_result() == menu_dialog_result_e_okay )
 			{
 				new_value.string16 = _file_picker->get_folder_path();
 				new_value.string16 += _file_picker->get_file_name();
@@ -943,7 +943,7 @@ namespace cheonsa
 		}
 		else if ( dialog == _text_editor_dialog )
 		{
-			if ( dialog->get_result() == menu_window_dialog_c::result_e_okay )
+			if ( dialog->get_result() == menu_dialog_result_e_okay )
 			{
 				new_value.string16 = _text_editor->get_plain_text_value();
 				if ( _editing_property_field->bound_reflection_property->_type == data_type_e_string8 )
@@ -968,7 +968,7 @@ namespace cheonsa
 		, _y( 0.0f )
 		, _mute( false )
 	{
-		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
@@ -1004,7 +1004,7 @@ namespace cheonsa
 			_text_editor_dialog->give_control_to_client( _text_editor );
 		}
 
-		set_style_map_key( string8_c( mode_e_static, "e_property_inspector" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_property_inspector" ) );
 	}
 
 	menu_control_property_inspector_c::~menu_control_property_inspector_c()

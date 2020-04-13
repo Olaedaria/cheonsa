@@ -178,7 +178,7 @@ namespace cheonsa
 
 		// update layout.
 		//_content_bounds_is_dirty = true;
-		control->update_transform_and_layout();
+		control->_update_transform_and_layout();
 
 		return index;
 	}
@@ -386,6 +386,133 @@ namespace cheonsa
 	{
 	}
 
+	void_c menu_control_c::_update_transform_and_layout()
+	{
+		user_interface_c * user_interface = get_user_interface_root();
+		if ( user_interface == nullptr )
+		{
+			return;
+		}
+
+		// update _local_basis.
+		_local_basis = ops::make_matrix32x2x2_transform( _local_angle, _local_scale );
+
+		// layout _local_box.
+		if ( _layout_mode == menu_layout_mode_e_box_anchor )
+		{
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
+			if ( ( _local_anchor & menu_anchor_e_left ) && ( _local_anchor & menu_anchor_e_right ) )
+			{
+				// anchor left and right edges.
+				_local_box.minimum.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
+				_local_box.maximum.a = mother_rectangle.maximum.a - _local_anchor_measures.maximum.a;
+			}
+			else if ( _local_anchor & menu_anchor_e_left )
+			{
+				// anchor left edge.
+				_local_box.minimum.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
+				_local_box.maximum.a = _local_box.minimum.a + _local_anchor_measures.maximum.a;
+			}
+			else if ( _local_anchor & menu_anchor_e_right )
+			{
+				// anchor right edge.
+				_local_box.maximum.a = mother_rectangle.maximum.a - _local_anchor_measures.maximum.a;
+				_local_box.minimum.a = _local_box.maximum.a - _local_anchor_measures.minimum.a;
+			}
+			if ( ( _local_anchor & menu_anchor_e_top ) && ( _local_anchor & menu_anchor_e_bottom ) )
+			{
+				// anchor top and bottom edges.
+				_local_box.minimum.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
+				_local_box.maximum.b = mother_rectangle.maximum.b - _local_anchor_measures.maximum.b;
+			}
+			else if ( _local_anchor & menu_anchor_e_top )
+			{
+				// anchor top edge.
+				_local_box.minimum.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
+				_local_box.maximum.b = _local_box.minimum.b + _local_anchor_measures.maximum.b;
+			}
+			else if ( _local_anchor & menu_anchor_e_bottom )
+			{
+				// anchor bottom edge.
+				_local_box.maximum.b = mother_rectangle.maximum.b - _local_anchor_measures.maximum.b;
+				_local_box.minimum.b = _local_box.maximum.b - _local_anchor_measures.minimum.b;
+			}
+
+			// constrain dimensions such that width and height don't become smaller than zero.
+			if ( _local_box.maximum.a < _local_box.minimum.a )
+			{
+				_local_box.maximum.a = _local_box.minimum.a;
+			}
+			if ( _local_box.maximum.b < _local_box.minimum.b )
+			{
+				_local_box.maximum.b = _local_box.minimum.b;
+			}
+
+			//// if we are scaled differently from our mother then we can factor in corrective adjustments here.
+			//// this keeps the effect of anchor offsets constant even as our local scale changes.
+			//if ( _local_scale != 1.0f )
+			//{
+			//	float32_c local_scale_inverted = 1.0f / _local_scale;
+			//	_local_box.minimum.a *= local_scale_inverted;
+			//	_local_box.minimum.b *= local_scale_inverted;
+			//	_local_box.maximum.a *= local_scale_inverted;
+			//	_local_box.maximum.b *= local_scale_inverted;
+			//}
+
+			// set result_local_origin to center of result_local_box, then translate the result_local_box by the inverted.
+			_local_origin = _local_box.get_center();
+			_local_box.minimum -= _local_origin;
+			_local_box.maximum -= _local_origin;
+		}
+		else if ( _layout_mode == menu_layout_mode_e_point_anchor )
+		{
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
+			_local_origin = vector32x2_c();
+			if ( _local_anchor & menu_anchor_e_left )
+			{
+				_local_origin.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
+			}
+			else if ( _local_anchor & menu_anchor_e_right )
+			{
+				_local_origin.a = mother_rectangle.maximum.a - _local_anchor_measures.minimum.a;
+			}
+			if ( _local_anchor & menu_anchor_e_top )
+			{
+				_local_origin.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
+			}
+			else if ( _local_anchor & menu_anchor_e_bottom )
+			{
+				_local_origin.b = mother_rectangle.maximum.b - _local_anchor_measures.minimum.b;
+			}
+		}
+
+		// update _global_origin and _global_basis and _global_basis_inverted.
+		_update_global_space_properties();
+
+		// determine if local layout changed.
+		if ( _old_local_box != _local_box )
+		{
+			_old_local_box = _local_box;
+
+			// invalidate content bounds.
+			//_content_bounds_is_dirty = true;
+		}
+
+		// layout daughter elements.
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			menu_element_c * element = _element_list[ i ];
+			element->update_layout( _local_box );
+		}
+
+		// layout daughter controls.
+		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		{
+			menu_control_c * control = _control_list[ i ];
+			control->_update_transform_and_layout();
+		}
+	}
+
 	menu_control_c::menu_control_c()
 		: _global_list_node( this )
 		, _style_map_reference()
@@ -528,7 +655,7 @@ namespace cheonsa
 		_local_angle = 0.0f;
 		_local_scale = 1.0f;
 		_local_color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
@@ -556,7 +683,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "local_origin" );
 		if ( attribute )
 		{
-			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_origin.as_array(), 2 ) );
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, _local_origin.as_array(), 2 ) );
 		}
 
 		attribute = node->find_attribute( "local_anchor" );
@@ -564,19 +691,19 @@ namespace cheonsa
 		{
 			sint32_c dummy = 0;
 			_local_anchor = menu_anchor_e_none;
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "left" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "left" ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_left;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "top" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "top" ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_top;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "right" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "right" ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_right;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "bottom" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "bottom" ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_bottom;
 			}
@@ -585,13 +712,13 @@ namespace cheonsa
 		attribute = node->find_attribute( "local_anchor_measures" );
 		if ( attribute )
 		{
-			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_anchor_measures.as_array(), 4 ) );
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, _local_anchor_measures.as_array(), 4 ) );
 		}
 
 		attribute = node->find_attribute( "local_box" );
 		if ( attribute )
 		{
-			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, _local_box.as_array(), 4 ) );
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, _local_box.as_array(), 4 ) );
 		}
 
 		attribute = node->find_attribute( "local_angle" );
@@ -606,7 +733,7 @@ namespace cheonsa
 			ops::convert_string8_to_float32( attribute->get_value(), _local_scale );
 		}
 
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	resource_file_menu_layout_c * menu_control_c::get_menu_layout() const
@@ -930,7 +1057,7 @@ namespace cheonsa
 		_local_box = local_box_around_origin;
 		_local_angle = local_angle;
 		_local_scale = local_scale;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::set_layout_simple( box32x2_c const & local_box, float32_c local_angle, float32_c local_scale )
@@ -943,7 +1070,7 @@ namespace cheonsa
 		_local_scale = local_scale;
 		_local_box.minimum -= _local_origin;
 		_local_box.maximum -= _local_origin;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::set_layout_box_anchor( menu_anchor_e local_anchor, box32x2_c const & local_anchor_measures, float32_c local_angle, float32_c local_scale )
@@ -953,7 +1080,7 @@ namespace cheonsa
 		_local_anchor_measures = local_anchor_measures;
 		_local_angle = local_angle;
 		_local_scale = local_scale;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::set_layout_point_anchor( menu_anchor_e local_anchor, vector32x2_c const & local_anchor_measures, box32x2_c const & local_box, float32_c local_angle, float32_c local_scale )
@@ -965,134 +1092,7 @@ namespace cheonsa
 		_local_box = local_box;
 		_local_angle = local_angle;
 		_local_scale = local_scale;
-		update_transform_and_layout();
-	}
-
-	void_c menu_control_c::update_transform_and_layout()
-	{
-		user_interface_c * user_interface = get_user_interface_root();
-		if ( user_interface == nullptr )
-		{
-			return;
-		}
-
-		// update _local_basis.
-		_local_basis = ops::make_matrix32x2x2_transform( _local_angle, _local_scale );
-
-		// layout _local_box.
-		if ( _layout_mode == menu_layout_mode_e_box_anchor )
-		{
-			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
-			if ( ( _local_anchor & menu_anchor_e_left ) && ( _local_anchor & menu_anchor_e_right ) )
-			{
-				// anchor left and right edges.
-				_local_box.minimum.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
-				_local_box.maximum.a = mother_rectangle.maximum.a - _local_anchor_measures.maximum.a;
-			}
-			else if ( _local_anchor & menu_anchor_e_left )
-			{
-				// anchor left edge.
-				_local_box.minimum.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
-				_local_box.maximum.a = _local_box.minimum.a + _local_anchor_measures.maximum.a;
-			}
-			else if ( _local_anchor & menu_anchor_e_right )
-			{
-				// anchor right edge.
-				_local_box.maximum.a = mother_rectangle.maximum.a - _local_anchor_measures.maximum.a;
-				_local_box.minimum.a = _local_box.maximum.a - _local_anchor_measures.minimum.a;
-			}
-			if ( ( _local_anchor & menu_anchor_e_top ) && ( _local_anchor & menu_anchor_e_bottom ) )
-			{
-				// anchor top and bottom edges.
-				_local_box.minimum.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
-				_local_box.maximum.b = mother_rectangle.maximum.b - _local_anchor_measures.maximum.b;
-			}
-			else if ( _local_anchor & menu_anchor_e_top )
-			{
-				// anchor top edge.
-				_local_box.minimum.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
-				_local_box.maximum.b = _local_box.minimum.b + _local_anchor_measures.maximum.b;
-			}
-			else if ( _local_anchor & menu_anchor_e_bottom )
-			{
-				// anchor bottom edge.
-				_local_box.maximum.b = mother_rectangle.maximum.b - _local_anchor_measures.maximum.b;
-				_local_box.minimum.b = _local_box.maximum.b - _local_anchor_measures.minimum.b;
-			}
-
-			// constrain dimensions such that width and height don't become smaller than zero.
-			if ( _local_box.maximum.a < _local_box.minimum.a )
-			{
-				_local_box.maximum.a = _local_box.minimum.a;
-			}
-			if ( _local_box.maximum.b < _local_box.minimum.b )
-			{
-				_local_box.maximum.b = _local_box.minimum.b;
-			}
-
-			//// if we are scaled differently from our mother then we can factor in corrective adjustments here.
-			//// this keeps the effect of anchor offsets constant even as our local scale changes.
-			//if ( _local_scale != 1.0f )
-			//{
-			//	float32_c local_scale_inverted = 1.0f / _local_scale;
-			//	_local_box.minimum.a *= local_scale_inverted;
-			//	_local_box.minimum.b *= local_scale_inverted;
-			//	_local_box.maximum.a *= local_scale_inverted;
-			//	_local_box.maximum.b *= local_scale_inverted;
-			//}
-
-			// set result_local_origin to center of result_local_box, then translate the result_local_box by the inverted.
-			_local_origin = _local_box.get_center();
-			_local_box.minimum -= _local_origin;
-			_local_box.maximum -= _local_origin;
-		}
-		else if ( _layout_mode == menu_layout_mode_e_point_anchor )
-		{
-			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
-			_local_origin = vector32x2_c();
-			if ( _local_anchor & menu_anchor_e_left )
-			{
-				_local_origin.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
-			}
-			else if ( _local_anchor & menu_anchor_e_right )
-			{
-				_local_origin.a = mother_rectangle.maximum.a - _local_anchor_measures.minimum.a;
-			}
-			if ( _local_anchor & menu_anchor_e_top )
-			{
-				_local_origin.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
-			}
-			else if ( _local_anchor & menu_anchor_e_bottom )
-			{
-				_local_origin.b = mother_rectangle.maximum.b - _local_anchor_measures.minimum.b;
-			}
-		}
-
-		// update _global_origin and _global_basis and _global_basis_inverted.
-		_update_global_space_properties();
-
-		// determine if local layout changed.
-		if ( _old_local_box != _local_box )
-		{
-			_old_local_box = _local_box;
-
-			// invalidate content bounds.
-			//_content_bounds_is_dirty = true;
-		}
-
-		// layout daughter elements.
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
-		{
-			menu_element_c * element = _element_list[ i ];
-			element->update_layout( _local_box );
-		}
-
-		// layout daughter controls.
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-		{
-			menu_control_c * control = _control_list[ i ];
-			control->update_transform_and_layout();
-		}
+		_update_transform_and_layout();
 	}
 
 	vector32x2_c const & menu_control_c::get_local_origin() const
@@ -1103,7 +1103,7 @@ namespace cheonsa
 	void_c menu_control_c::set_local_origin( vector32x2_c const & value )
 	{
 		_local_origin = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	box32x2_c const & menu_control_c::get_local_box() const
@@ -1119,7 +1119,7 @@ namespace cheonsa
 	void_c menu_control_c::set_local_anchor_measures( box32x2_c const & value )
 	{
 		_local_anchor_measures = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	float32_c menu_control_c::get_local_angle() const
@@ -1130,7 +1130,7 @@ namespace cheonsa
 	void_c menu_control_c::set_local_angle( float32_c value )
 	{
 		_local_angle = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	float32_c menu_control_c::get_local_scale() const
@@ -1141,7 +1141,7 @@ namespace cheonsa
 	void_c menu_control_c::set_local_scale( float32_c value )
 	{
 		_local_scale = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	vector32x4_c const & menu_control_c::get_local_color() const
@@ -1152,7 +1152,7 @@ namespace cheonsa
 	void_c menu_control_c::set_local_color( vector32x4_c const & value )
 	{
 		_local_color = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	vector32x2_c const & menu_control_c::get_global_origin() const
@@ -1279,19 +1279,19 @@ namespace cheonsa
 	void_c menu_control_c::set_content_offset( vector32x2_c const & value )
 	{
 		_content_offset = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::set_content_offset_horizontal( float32_c value )
 	{
 		_content_offset.a = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::set_content_offset_vertical( float32_c value )
 	{
 		_content_offset.b = value;
-		update_transform_and_layout();
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::get_control_group_clip_planes( core_list_c< vector32x4_c > & result )

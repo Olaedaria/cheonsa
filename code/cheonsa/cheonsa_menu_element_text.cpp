@@ -3197,9 +3197,9 @@ namespace cheonsa
 				}
 
 				// skip block.
-				if ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_number( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' )
+				if ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_decimal_digit( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' )
 				{
-					while ( ( _cursor_index < end ) && ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_number( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' ) )
+					while ( ( _cursor_index < end ) && ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_decimal_digit( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' ) )
 					{
 						_cursor_index++;
 					}

@@ -154,7 +154,7 @@ namespace cheonsa
 
 	menu_frame_style_c::reference_c::reference_c()
 		: _global_list_node( this )
-		, _key( mode_e_static, "" )
+		, _key( core_list_mode_e_static, "" )
 		, _value( nullptr )
 	{
 		_global_list.insert_at_end( &_global_list_node );
@@ -266,7 +266,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture_map_origin" );
 		if ( attribute )
 		{
-			texture_map_origin_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_origin, 2 ) );
+			texture_map_origin_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( core_list_mode_e_static, texture_map_origin, 2 ) );
 		}
 
 		boolean_c texture_map_edges_is_defined = false;
@@ -274,7 +274,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture_map_edges" );
 		if ( attribute )
 		{
-			texture_map_edges_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_edges, 4 ) );
+			texture_map_edges_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( core_list_mode_e_static, texture_map_edges, 4 ) );
 		}
 
 		boolean_c texture_map_size_is_defined = false;
@@ -282,7 +282,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture_map_size" );
 		if ( attribute )
 		{
-			texture_map_size_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, texture_map_size, 2 ) );
+			texture_map_size_is_defined = ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( core_list_mode_e_static, texture_map_size, 2 ) );
 		}
 
 		attribute = node->find_attribute( "texture_map_mode" );
@@ -401,7 +401,7 @@ namespace cheonsa
 					if ( attribute )
 					{
 						sint16_c state_texture_map_origin[ 2 ] = {};
-						if ( ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, state_texture_map_origin, 2 ) ) )
+						if ( ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( core_list_mode_e_static, state_texture_map_origin, 2 ) ) )
 						{
 							texture_map_origin[ 0 ] = state_texture_map_origin[ 0 ];
 							texture_map_origin[ 1 ] = state_texture_map_origin[ 1 ];
@@ -415,7 +415,7 @@ namespace cheonsa
 					attribute = sub_node->find_attribute( "texture_map_edges" );
 					if ( attribute )
 					{
-						ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( mode_e_static, state.texture_map_edges, 4 ) );
+						ops::convert_string8_to_sint16xn( attribute->get_value(), core_list_c< sint16_c >( core_list_mode_e_static, state.texture_map_edges, 4 ) );
 					}
 
 					// advance to next state index by default.
@@ -439,7 +439,7 @@ namespace cheonsa
 
 	menu_text_style_c::reference_c::reference_c()
 		: _global_list_node( this )
-		, _key( mode_e_static, "" )
+		, _key( core_list_mode_e_static, "" )
 		, _value( nullptr )
 	{
 		_global_list.insert_at_end( &_global_list_node );
@@ -688,7 +688,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "margin" );
 		if ( attribute )
 		{
-			margin_is_defined = ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, margin.as_array(), 4 ) );
+			margin_is_defined = ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, margin.as_array(), 4 ) );
 		}
 
 		sint32_c state_index = 0;
@@ -849,7 +849,7 @@ namespace cheonsa
 	//{
 	//	string8_c result;
 	//	sint32_c index = 0;
-	//	if ( ops::string8_find_index_of( target, string8_c( mode_e_static, ":" ), index ) )
+	//	if ( ops::string8_find_index_of( target, string8_c( core_list_mode_e_static, ":" ), index ) )
 	//	{
 	//		result = ops::string8_sub_string( target, 0, index );
 	//	}
@@ -860,7 +860,7 @@ namespace cheonsa
 	//{
 	//	string8_c result;
 	//	sint32_c index = 0;
-	//	if ( ops::string8_find_index_of( target, string8_c( mode_e_static, ":" ), index ) )
+	//	if ( ops::string8_find_index_of( target, string8_c( core_list_mode_e_static, ":" ), index ) )
 	//	{
 	//		result = ops::string8_sub_string( target, index + 1, target.get_length() - ( index + 1 ) );
 	//	}
@@ -958,19 +958,19 @@ namespace cheonsa
 				//{
 				//	entry->anchor = menu_anchor_e_none;
 				//	sint32_c index_of = 0;
-				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "left" ), index_of ) )
+				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "left" ), index_of ) )
 				//	{
 				//		entry->anchor |= menu_anchor_e_left;
 				//	}
-				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "top" ), index_of ) )
+				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "top" ), index_of ) )
 				//	{
 				//		entry->anchor |= menu_anchor_e_top;
 				//	}
-				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "right" ), index_of ) )
+				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "right" ), index_of ) )
 				//	{
 				//		entry->anchor |= menu_anchor_e_right;
 				//	}
-				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "bottom" ), index_of ) )
+				//	if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "bottom" ), index_of ) )
 				//	{
 				//		entry->anchor |= menu_anchor_e_bottom;
 				//	}
@@ -979,7 +979,7 @@ namespace cheonsa
 				//attribute = sub_node->find_attribute( "anchor_measures" );
 				//if ( attribute )
 				//{
-				//	ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, entry->anchor_measures.as_array(), 4 ) );
+				//	ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, entry->anchor_measures.as_array(), 4 ) );
 				//}
 			}
 			//else if ( sub_node->get_value() == "property" )
@@ -1254,15 +1254,15 @@ namespace cheonsa
 		// add indices.
 		assert( index_list.get_length() < 0xFFFF - 6 ); // if this trips then we should try using 32-bit indices.
 		uint16_c base_vertex = static_cast< uint16_c >( vertex_list.get_length() );
-		index_list.insert_at_end( base_vertex ); // top left
-		index_list.insert_at_end( base_vertex + 1 ); // bottom left
-		index_list.insert_at_end( base_vertex + 2 ); // top right
-		index_list.insert_at_end( base_vertex + 2 ); // top right
-		index_list.insert_at_end( base_vertex + 1 ); // bottom left
-		index_list.insert_at_end( base_vertex + 3 ); // bottom right
+		index_list.insert_at_end( base_vertex ); // top left.
+		index_list.insert_at_end( base_vertex + 1 ); // bottom left.
+		index_list.insert_at_end( base_vertex + 2 ); // top right.
+		index_list.insert_at_end( base_vertex + 2 ); // bottom right.
+		index_list.insert_at_end( base_vertex + 1 ); // top right.
+		index_list.insert_at_end( base_vertex + 3 ); // bottom left.
 
 		// add vertices.
-		video_renderer_vertex_menu_c * vertex = vertex_list.emplace_at_end(); // top left
+		video_renderer_vertex_menu_c * vertex = vertex_list.emplace_at_end(); // top left.
 		vertex->position = vector32x3_c( box.minimum.a, box.minimum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.minimum.a, map.minimum.b, 0.0f );
 		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1278,6 +1278,24 @@ namespace cheonsa
 		vertex->position = vector32x3_c( box.maximum.a, box.maximum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.maximum.a, map.maximum.b, 0.0f );
 		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+	}
+
+	void_c menu_draw_list_c::append_triangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, core_list_c< uint16_c > const & input_index_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture )
+	{
+		draw_c * draw = draw_list.emplace_at_end();
+		draw->pixel_shader = pixel_shader;
+		draw->texture = texture;
+		draw->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+		draw->vertex_start = vertex_list.get_length();
+		draw->vertex_count = input_vertex_list.get_length();
+		draw->index_start = index_list.get_length();
+		draw->index_count = input_index_list.get_length();
+		uint16_c base_vertex = static_cast< uint16_c >( vertex_list.get_length() );
+		for ( sint32_c i = 0; i < input_index_list.get_length(); i++ )
+		{
+			index_list.insert_at_end( base_vertex + input_index_list[ i ] );
+		}
+		vertex_list.insert_at_end( input_vertex_list.get_internal_array(), input_vertex_list.get_length() );
 	}
 
 }

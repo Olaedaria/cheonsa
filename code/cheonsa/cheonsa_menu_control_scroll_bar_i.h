@@ -62,15 +62,13 @@ namespace cheonsa
 		float32_c _dynamic_grip_length; // if _fixed_grip_length < 1 && _mode == mode_e_scroller, then this value is calculated dynamically based on the ratio of _page_size / ( _value_maximum - _value_minimum ). otherwise, it is set to the value in _fixed_grip_length.
 		float32_c _dynamic_grip_position; // the position offset of the grip from the top edge of the scroll bar in pixels.
 
-		boolean_c _mouse_grab; // will be set to true if the mouse was pressed down on the grip.
-		float32_c _mouse_grab_offset; // if the mouse was pressed down on the grip, then this is the offset in pixels from the left edge of the slider to the mouse *.
+		boolean_c _mouse_is_grabbed; // will be set to true if the mouse was pressed down on the grip.
+		float32_c _mouse_is_grabbed_offset; // if the mouse was pressed down on the grip, then this is the offset in pixels from the left edge of the slider to the mouse *.
 
 		virtual void_c _on_is_mouse_focused_changed() override;
-		//virtual void_c _on_is_mouse_focused_gained() override;
-		//virtual void_c _on_is_mouse_focused_lost() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-		virtual void_c update_transform_and_layout() override; // updates layout of elements based on current mode and value.
+		virtual void_c _update_transform_and_layout() override; // updates layout of elements based on current mode and value.
 
 		menu_control_scroll_bar_i( mode_e mode, orientation_e orientation );
 

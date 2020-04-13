@@ -54,7 +54,7 @@ namespace cheonsa
 		typedef boolean_c( *can_load_call_back_f )( string16_c const & folder_or_file_path );
 
 	private:
-		boolean_c _muted; // when true, the _handle_* functions will return immediately. the file picker is in the middle of changing values of controls, so it wants to temporarily ignore any events that are created by those controls.
+		boolean_c _is_muted; // when true, the _handle_* functions will return immediately. the file picker is in the middle of changing values of controls, so it wants to temporarily ignore any events that are created by those controls.
 
 		menu_element_frame_c _frame; // name is "frame", makes the background of this control.
 
@@ -73,8 +73,8 @@ namespace cheonsa
 		void_c _short_cut_list_remove_all(); // clears short cut list.
 		void_c _handle_short_cut_on_clicked( menu_event_information_c event_information );
 
-		menu_control_button_c * _okay_button; // name is "okay_button", save or open button at bottom, right of file name.
 		menu_control_button_c * _cancel_button; // name is "cancel_button", cancel button at bottom, right of file name.
+		menu_control_button_c * _okay_button; // name is "okay_button", save or open button at bottom, right of file name.
 		result_e _result; // holds okay or cancel result.
 
 		mode_e _mode; // if the file picker is being used to load a file or save a file.

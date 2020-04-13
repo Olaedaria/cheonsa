@@ -211,6 +211,15 @@ namespace cheonsa
 		menu_text_flag_e_underline = 0x04,
 	};
 
+	enum menu_dialog_result_e
+	{
+		menu_dialog_result_e_none, // is set when the window is initially shown, and also is set if cancel or close button is clicked. indicates no result.
+		menu_dialog_result_e_cancel,
+		menu_dialog_result_e_okay,
+		menu_dialog_result_e_yes,
+		menu_dialog_result_e_no,
+	};
+
 	enum menu_shared_color_class_e
 	{
 		menu_shared_color_class_e_window,
@@ -686,7 +695,8 @@ namespace cheonsa
 		// resets state, clears all the draw lists.
 		void_c reset();
 
-		// 
+		// clip planes local to the element.
+		// intended to clip pixels of text glyphs that lie out of bounds of the element's rectangle.
 		void_c set_clip_planes( box32x2_c const box, matrix32x2x2_c const & control_group_basis, vector32x2_c const & control_group_origin );
 
 		// interprets the input_vertex_list as a list of quads to build the index_list.
@@ -694,6 +704,9 @@ namespace cheonsa
 
 		// generates vertices and indices for a box.
 		void_c append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] );
+
+		// you can supply your own vertices.
+		void_c append_triangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, core_list_c< uint16_c > const & input_index_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture );
 
 	};
 

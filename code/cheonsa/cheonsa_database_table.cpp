@@ -173,7 +173,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < strings_offsets.get_length(); i++ )
 		{
 			sint32_c string_offset = strings_offsets[ i ];
-			string8_c string_value = string8_c( mode_e_dynamic, &_string_table[ string_offset ] );
+			string8_c string_value = string8_c( core_list_mode_e_dynamic, &_string_table[ string_offset ] );
 			_string_table_map.insert( string_value, string_offset );
 		}
 
@@ -275,13 +275,13 @@ namespace cheonsa
 		sint32_c strings_buffer_offset = _string_table.get_length();
 		char8_c * strings_buffer = _string_table.emplace_range_at_end( value.character_list.get_length() );
 		ops::memory_copy( value.character_list.get_internal_array(), strings_buffer, value.character_list.get_length() );
-		_string_table_map.insert( string8_c( mode_e_dynamic, value.character_list.get_internal_array(), value.character_list.get_length() ), strings_buffer_offset );
+		_string_table_map.insert( string8_c( core_list_mode_e_dynamic, value.character_list.get_internal_array(), value.character_list.get_length() ), strings_buffer_offset );
 		return strings_buffer_offset;
 	}
 
 	string8_c database_table_c::_get_string8( sint32_c offset ) const
 	{
-		return string8_c( mode_e_static_volatile, &_string_table[ offset ] );
+		return string8_c( core_list_mode_e_static_volatile, &_string_table[ offset ] );
 	}
 
 	sint32_c database_table_c::_add_string16( string16_c const & value )
@@ -417,7 +417,7 @@ namespace cheonsa
 							{
 								// add new string.
 								new_record_data[ remap->to->_data_offset ] = static_cast< uint8_c >( database_field_flag_e_is_defined );
-								*reinterpret_cast< sint32_c * >( &new_record_data[ remap->to->_data_offset + 1 ] ) = _add_string8( string8_c( mode_e_static, &old_string_table[ *reinterpret_cast< sint32_c const * >( old_record_data[ remap->from->_data_offset + 1 ] ) ] ) );
+								*reinterpret_cast< sint32_c * >( &new_record_data[ remap->to->_data_offset + 1 ] ) = _add_string8( string8_c( core_list_mode_e_static, &old_string_table[ *reinterpret_cast< sint32_c const * >( old_record_data[ remap->from->_data_offset + 1 ] ) ] ) );
 							}
 							else
 							{

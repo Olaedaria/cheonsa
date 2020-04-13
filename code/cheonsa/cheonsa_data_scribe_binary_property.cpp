@@ -316,7 +316,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -364,7 +364,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -382,7 +382,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -404,7 +404,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -426,7 +426,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -448,7 +448,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -470,7 +470,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -492,7 +492,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -514,7 +514,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -536,7 +536,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -558,7 +558,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -580,7 +580,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -602,7 +602,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -625,7 +625,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -651,7 +651,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -677,7 +677,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -703,7 +703,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -729,7 +729,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -755,7 +755,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -781,7 +781,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -807,7 +807,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -833,7 +833,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}
@@ -859,7 +859,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !_scribe_binary->save_string8( string8_c( mode_e_static, key ) ) )
+		if ( !_scribe_binary->save_string8( string8_c( core_list_mode_e_static, key ) ) )
 		{
 			return false;
 		}

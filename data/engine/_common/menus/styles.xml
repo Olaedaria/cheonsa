@@ -215,16 +215,6 @@
 		texture_map_edges="3 3 3 3"
 		texture_map_fill_middle="true"/>
 
-	<frame
-		key="e_collection_item_icon_frame"
-		pixel_shader="menu_ps_frame_keyed.hlsl"
-		texture="menus/atlas.png"
-		texture_map_mode="scale_to_fit"
-		texture_map_size="24 24"
-		texture_map_edges="4 4 4 4"
-		texture_map_origin="79 28"
-		texture_map_fill_middle="true"/>
-
 	<text
 		key="e_collection_item_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
@@ -237,6 +227,16 @@
 		line_spacing="0.0"
 		glyph_spacing="0.0"/>
 
+	<frame
+		key="e_precision_slider_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_size="3 8"
+		texture_map_edges="1 4 1 4"
+		texture_map_origin="31 11"
+		texture_map_fill_middle="false"/>
+		
 	<map key="e_modal">
 		<entry element_name="frame" style_key="e_modal_frame"/>
 	</map>
@@ -341,7 +341,6 @@
 		<entry element_name="column_frame" style_key="e_collection_column_frame"/>
 		<entry element_name="column_text" style_key="e_collection_column_text"/>
 		<entry element_name="item_selected_frame" style_key="e_collection_item_selected_frame"/>
-		<entry element_name="item_icon_frame" style_key="e_collection_item_icon_frame"/>
 		<entry element_name="item_text" style_key="e_collection_item_text"/>
 	</map>
 

@@ -8,13 +8,13 @@ namespace cheonsa
 
 	// list (and by extension strings) have a layer of complexity called modes.
 	// this is used to avoid allocating memory on the heap, in cases where the block of memory can be referenced from somewhere else (be it the stack or heap).
-	// when copying a mode_e_static mode list, we copy the array reference, which is cheap.
-	// when copying mode_e_static_volatile and mode_e_dynamic, we have to allocate a new array on the heap and then copy the values from the original to it, which is not as cheap.
-	enum mode_e
+	// when copying a core_list_mode_e_static mode list, we copy the array reference, which is cheap.
+	// when copying core_list_mode_e_static_volatile and core_list_mode_e_dynamic, we have to allocate a new array on the heap and then copy the values from the original to it, which is not as cheap.
+	enum core_list_mode_e
 	{
-		mode_e_static_volatile = -2, // this list instance is constructed around a reference to a stack|heap allocated string|array that we can not rely on to remain in scope for the life time of any copies made, so any copies that are made via assignment operator will create their copy on the heap.
-		mode_e_static = -1, // this list instance is constructed around a reference to a stack|heap allocated string|array that we can rely on to remain in scope for the life time of the list instance, so if the list instance is ever copied via assignment operator then the reference is copied to the new instance rather than allocating a new copy on the heap.
-		mode_e_dynamic = 0, // this list instance is volatile and manages its own heap allocated string|array so if the list instance is ever copied via assignment operator then a new copy will be allocated on the heap.
+		core_list_mode_e_static_volatile = -2, // this list instance is constructed around a reference to a stack|heap allocated string|array that we can not rely on to remain in scope for the life time of any copies made, so any copies that are made via assignment operator will create their copy on the heap.
+		core_list_mode_e_static = -1, // this list instance is constructed around a reference to a stack|heap allocated string|array that we can rely on to remain in scope for the life time of the list instance, so if the list instance is ever copied via assignment operator then the reference is copied to the new instance rather than allocating a new copy on the heap.
+		core_list_mode_e_dynamic = 0, // this list instance is volatile and manages its own heap allocated string|array so if the list instance is ever copied via assignment operator then a new copy will be allocated on the heap.
 	};
 
 	// a collection that manages an internal heap allocated array of consecutive values.
@@ -28,7 +28,7 @@ namespace cheonsa
 	private:
 		value_type_c * _array; // heap allocated array of values.
 		sint32_c _array_length_used; // number of value slots used in the array, which is less than or equal to _array_length_allocated.
-		sint32_c _array_length_allocated; // this is the number of value slots allocated in the array. if >= 0 then indicates that this list is dynamic mode. if set to -1 (mode_e_static) or -2 (mode_e_static_volatile) then indicates that this is a static mode list.
+		sint32_c _array_length_allocated; // this is the number of value slots allocated in the array. if >= 0 then indicates that this list is dynamic mode. if set to -1 (core_list_mode_e_static) or -2 (core_list_mode_e_static_volatile) then indicates that this is a static mode list.
 
 		// if this function is defined, then it will be used instead of the type's assignment operator, during internal array resizes/reallocations.
 		// this function is useful if your value_type_c is a class value type (non-pointer), and object instances of that class in turn allocate stuff on the heap (for example if that class contains core_list_c, string8_c, or string16_c instances).
@@ -149,13 +149,13 @@ namespace cheonsa
 
 		// constructs this list as static mode or dynamic mode.
 		// array may be nullptr and array_length may be 0.
-		core_list_c( mode_e mode, value_type_c const * array, sint32_c array_length )
+		core_list_c( core_list_mode_e mode, value_type_c const * array, sint32_c array_length )
 			: _array( nullptr )
 			, _array_length_used( 0 )
 			, _array_length_allocated( 0 )
 			, _move_list_item_function( nullptr )
 		{
-			assert( mode == mode_e_static_volatile || mode == mode_e_static || mode == mode_e_dynamic );
+			assert( mode == core_list_mode_e_static_volatile || mode == core_list_mode_e_static || mode == core_list_mode_e_dynamic );
 			assert( array_length >= 0 );
 			if ( array_length == 0 )
 			{
@@ -196,9 +196,9 @@ namespace cheonsa
 			_move_list_item_function = list_item_move_function;
 		}
 
-		mode_e get_mode()
+		core_list_mode_e get_mode()
 		{
-			return _array_length_allocated >= 0 ? mode_e_dynamic : static_cast< mode_e >( _array_length_allocated );
+			return _array_length_allocated >= 0 ? core_list_mode_e_dynamic : static_cast< mode_e >( _array_length_allocated );
 		}
 
 		boolean_c get_mode_is_static() const
@@ -219,7 +219,7 @@ namespace cheonsa
 			_reallocate( 0 );
 			_array = const_cast< value_type_c * >( array );
 			_array_length_used = array_length;
-			_array_length_allocated = static_cast< sint32_c >( mode_e_static_volatile );
+			_array_length_allocated = static_cast< sint32_c >( core_list_mode_e_static_volatile );
 		}
 
 		// constructs this list as a static mode list.
@@ -229,7 +229,7 @@ namespace cheonsa
 			_reallocate( 0 );
 			_array = const_cast< value_type_c * >( array );
 			_array_length_used = array_length;
-			_array_length_allocated = static_cast< sint32_c >( mode_e_static );
+			_array_length_allocated = static_cast< sint32_c >( core_list_mode_e_static );
 		}
 
 		// constructs dynamic mode list of the given length and allocates the internal array to length_to_allocate.
@@ -281,12 +281,12 @@ namespace cheonsa
 
 		// copies the values from another list into this list.
 		// ensure that value_type_c has an appropriate = operator.
-		// if the other list was mode_e_static, then this list will be static mode wrap around the same data.
-		// if the other list was mode_e_static_volatile, then this list will be a new dynamic mode copy.
-		// if the other list was mode_e_dynamic, then this list will be a new dynamic mode copy.
+		// if the other list was core_list_mode_e_static, then this list will be static mode wrap around the same data.
+		// if the other list was core_list_mode_e_static_volatile, then this list will be a new dynamic mode copy.
+		// if the other list was core_list_mode_e_dynamic, then this list will be a new dynamic mode copy.
 		core_list_c< value_type_c > & operator = ( core_list_c< value_type_c > const & other )
 		{
-			if ( other._array_length_allocated == mode_e_static )
+			if ( other._array_length_allocated == core_list_mode_e_static )
 			{
 				_reallocate( 0 );
 				_array = other._array;
@@ -612,8 +612,8 @@ namespace cheonsa
 			return _array_length_used;
 		}
 
-		// sets the number of values stored.
-		// potentially reallocates internal array if needed.
+		// sets the length.
+		// reallocates internal array to at least the provided length if needed (may allocate extra room for future growth).
 		inline void_c set_length( sint32_c length )
 		{
 			assert( length >= 0 );
@@ -624,8 +624,8 @@ namespace cheonsa
 			_array_length_used = length;
 		}
 
-		// sets the length of the internal array to length, and sets length to length.
-		// if list is static mode then this converts it to dynamic mode.
+		// sets the length.
+		// reallocates length of internal array to exactly length if needed.
 		inline void_c set_length_absolute( sint32_c length )
 		{
 			assert( length >= 0 );

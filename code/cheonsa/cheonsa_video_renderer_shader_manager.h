@@ -77,6 +77,7 @@ namespace cheonsa
 		video_pixel_shader_c * _menu_ps_frame; // "menu_ps_frame.hlsl".
 		video_pixel_shader_c * _menu_ps_frame_keyed; // "menu_ps_frame_keyed.hlsl".
 		video_pixel_shader_c * _menu_ps_solid_color; // "menu_ps_frame_solid_color.hlsl".
+		video_pixel_shader_c * _menu_ps_solid_color_hue_slider; // "menu_ps_frame_solid_color_normalized.hlsl". for hue slider.
 		video_pixel_shader_c * _menu_ps_text; // "menu_ps_text.hlsl".
 		video_vertex_shader_c * _menu2_vs; // "menu2_vs.hlsl".
 		video_vertex_shader_c * _menu2_vs_debug; // "menu2_vs_debug.hlsl".
@@ -148,10 +149,12 @@ namespace cheonsa
 
 		static boolean_c resolve_file_path( string16_c const & relative_file_path, boolean_c is_internal, string16_c & absolute_file_path );
 
+		// these built in shader instances are not persistent between refreshes, so if your program holds references to them, then be sure to get new ones after the refresh.
 		inline video_vertex_shader_c * get_skin_mesh() const { return _skin_mesh; }
 		inline video_pixel_shader_c * get_menu_ps_debug() const { return _menu_ps_debug; }
 		inline video_pixel_shader_c * get_menu_ps_frame() const { return _menu_ps_frame; }
 		inline video_pixel_shader_c * get_menu_ps_solid_color() const { return _menu_ps_solid_color; }
+		inline video_pixel_shader_c * get_menu_ps_solid_color_hue_slider() const { return _menu_ps_solid_color_hue_slider; }
 		inline video_pixel_shader_c * get_menu_ps_text() const { return _menu_ps_text; }
 		inline video_vertex_shader_c * get_menu2_vs() const { return _menu2_vs; }
 		inline video_vertex_shader_c * get_menu2_vs_debug() const { return _menu2_vs_debug; }

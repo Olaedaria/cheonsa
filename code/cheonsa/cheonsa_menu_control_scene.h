@@ -23,7 +23,7 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "scene"; }
 		virtual inline char8_c const * get_type_name() const { return get_type_name_static(); }
 
-	private:
+	protected:
 		menu_element_frame_c _element_frame; // does not have a name.
 		menu_frame_style_c _element_frame_style; // style override for frame element.
 
@@ -34,7 +34,7 @@ namespace cheonsa
 
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-		virtual void_c update_transform_and_layout() override;
+		virtual void_c _update_transform_and_layout() override;
 
 	public:
 		menu_control_scene_c();

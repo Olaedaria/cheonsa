@@ -147,9 +147,9 @@ namespace cheonsa
 		}
 
 		template< typename function_type_c >
-		void_c unsubscribe( function_type_c Function )
+		void_c unsubscribe( function_type_c function )
 		{
-			delegate_method_c * new_delegate = new delegate_function_c( Function );
+			delegate_method_c * new_delegate = new delegate_function_c( function );
 			for ( sint32_c i = 0; i < _delegate_list.get_length(); i++ )
 			{
 				if ( _delegate_list[ i ]->equals( new_delegate ) )

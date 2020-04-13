@@ -147,11 +147,11 @@ namespace cheonsa
 			}
 			if ( property->_type_count == 3 )
 			{
-				ops::convert_float64xn_to_string8( core_list_c< float64_c >( mode_e_static, value_as_color.as_array(), 3 ), value_as_string8 );
+				ops::convert_float64xn_to_string8( core_list_c< float64_c >( core_list_mode_e_static, value_as_color.as_array(), 3 ), value_as_string8 );
 			}
 			else if ( property->_type_count == 4 )
 			{
-				ops::convert_float64xn_to_string8( core_list_c< float64_c >( mode_e_static, value_as_color.as_array(), 4 ), value_as_string8 );
+				ops::convert_float64xn_to_string8( core_list_c< float64_c >( core_list_mode_e_static, value_as_color.as_array(), 4 ), value_as_string8 );
 			}
 			else
 			{
@@ -210,7 +210,7 @@ namespace cheonsa
 			{
 				assert( false );
 			}
-			ops::convert_float32xn_to_string8( core_list_c< float32_c >( mode_e_static, value_as_euler_angles.as_array(), 3 ), value_as_string8 );
+			ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, value_as_euler_angles.as_array(), 3 ), value_as_string8 );
 			value_as_string16 = value_as_string8;
 		}
 		else
@@ -227,51 +227,51 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_uint8 )
 			{
-				ops::convert_uint8xn_to_string8( core_list_c< uint8_c >( mode_e_static, value.uint8, property->_type_count ), value_as_string8 );
+				ops::convert_uint8xn_to_string8( core_list_c< uint8_c >( core_list_mode_e_static, value.uint8, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_sint8 )
 			{
-				ops::convert_sint8xn_to_string8( core_list_c< sint8_c >( mode_e_static, value.sint8, property->_type_count ), value_as_string8 );
+				ops::convert_sint8xn_to_string8( core_list_c< sint8_c >( core_list_mode_e_static, value.sint8, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_uint16 )
 			{
-				ops::convert_uint16xn_to_string8( core_list_c< uint16_c >( mode_e_static, value.uint16, property->_type_count ), value_as_string8 );
+				ops::convert_uint16xn_to_string8( core_list_c< uint16_c >( core_list_mode_e_static, value.uint16, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_sint16 )
 			{
-				ops::convert_sint16xn_to_string8( core_list_c< sint16_c >( mode_e_static, value.sint16, property->_type_count ), value_as_string8 );
+				ops::convert_sint16xn_to_string8( core_list_c< sint16_c >( core_list_mode_e_static, value.sint16, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_uint32 )
 			{
-				ops::convert_uint32xn_to_string8( core_list_c< uint32_c >( mode_e_static, value.uint32, property->_type_count ), value_as_string8 );
+				ops::convert_uint32xn_to_string8( core_list_c< uint32_c >( core_list_mode_e_static, value.uint32, property->_type_count ), value_as_string8 );
 			}
 			else if ( property->_type == data_type_e_sint32 )
 			{
-				ops::convert_sint32xn_to_string8( core_list_c< sint32_c >( mode_e_static, value.sint32, property->_type_count ), value_as_string8 );
+				ops::convert_sint32xn_to_string8( core_list_c< sint32_c >( core_list_mode_e_static, value.sint32, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_uint64 )
 			{
-				ops::convert_uint64xn_to_string8( core_list_c< uint64_c >( mode_e_static, value.uint64, property->_type_count ), value_as_string8 );
+				ops::convert_uint64xn_to_string8( core_list_c< uint64_c >( core_list_mode_e_static, value.uint64, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_sint64 )
 			{
-				ops::convert_sint64xn_to_string8( core_list_c< sint64_c >( mode_e_static, value.sint64, property->_type_count ), value_as_string8 );
+				ops::convert_sint64xn_to_string8( core_list_c< sint64_c >( core_list_mode_e_static, value.sint64, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_float32 )
 			{
-				ops::convert_float32xn_to_string8( core_list_c< float32_c >( mode_e_static, value.float32, property->_type_count ), value_as_string8 );
+				ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, value.float32, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else if ( property->_type == data_type_e_float64 )
 			{
-				ops::convert_float64xn_to_string8( core_list_c< float64_c >( mode_e_static, value.float64, property->_type_count ), value_as_string8 );
+				ops::convert_float64xn_to_string8( core_list_c< float64_c >( core_list_mode_e_static, value.float64, property->_type_count ), value_as_string8 );
 				value_as_string16 = value_as_string8;
 			}
 			else
@@ -345,7 +345,7 @@ namespace cheonsa
 		{
 			vector32x3_c value_as_euler_angles;
 			value_as_string8 = value_as_string16;
-			if ( !ops::convert_string8_to_float32xn( value_as_string8, core_list_c< float32_c >( mode_e_static, value_as_euler_angles.as_array(), 3 ) ) )
+			if ( !ops::convert_string8_to_float32xn( value_as_string8, core_list_c< float32_c >( core_list_mode_e_static, value_as_euler_angles.as_array(), 3 ) ) )
 			{
 				return false;
 			}
@@ -408,70 +408,70 @@ namespace cheonsa
 			}
 			else if ( property->_type == data_type_e_uint8 )
 			{
-				if ( !ops::convert_string8_to_uint8xn( value_as_string8, core_list_c< uint8_c >( mode_e_static, value.uint8, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_uint8xn( value_as_string8, core_list_c< uint8_c >( core_list_mode_e_static, value.uint8, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_sint8 )
 			{
-				if ( !ops::convert_string8_to_sint8xn( value_as_string8, core_list_c< sint8_c >( mode_e_static, value.sint8, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_sint8xn( value_as_string8, core_list_c< sint8_c >( core_list_mode_e_static, value.sint8, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_uint16 )
 			{
-				if ( !ops::convert_string8_to_uint16xn( value_as_string8, core_list_c< uint16_c >( mode_e_static, value.uint16, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_uint16xn( value_as_string8, core_list_c< uint16_c >( core_list_mode_e_static, value.uint16, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_sint16 )
 			{
-				if ( !ops::convert_string8_to_sint16xn( value_as_string8, core_list_c< sint16_c >( mode_e_static, value.sint16, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_sint16xn( value_as_string8, core_list_c< sint16_c >( core_list_mode_e_static, value.sint16, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_uint32 )
 			{
-				if ( !ops::convert_string8_to_uint32xn( value_as_string8, core_list_c< uint32_c >( mode_e_static, value.uint32, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_uint32xn( value_as_string8, core_list_c< uint32_c >( core_list_mode_e_static, value.uint32, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_sint32 )
 			{
-				if ( !ops::convert_string8_to_sint32xn( value_as_string8, core_list_c< sint32_c >( mode_e_static, value.sint32, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_sint32xn( value_as_string8, core_list_c< sint32_c >( core_list_mode_e_static, value.sint32, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_uint64 )
 			{
-				if ( !ops::convert_string8_to_uint64xn( value_as_string8, core_list_c< uint64_c >( mode_e_static, value.uint64, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_uint64xn( value_as_string8, core_list_c< uint64_c >( core_list_mode_e_static, value.uint64, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_sint64 )
 			{
-				if ( !ops::convert_string8_to_sint64xn( value_as_string8, core_list_c< sint64_c >( mode_e_static, value.sint64, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_sint64xn( value_as_string8, core_list_c< sint64_c >( core_list_mode_e_static, value.sint64, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_float32 )
 			{
-				if ( !ops::convert_string8_to_float32xn( value_as_string8, core_list_c< float32_c >( mode_e_static, value.float32, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_float32xn( value_as_string8, core_list_c< float32_c >( core_list_mode_e_static, value.float32, property->_type_count ) ) )
 				{
 					return false;
 				}
 			}
 			else if ( property->_type == data_type_e_float64 )
 			{
-				if ( !ops::convert_string8_to_float64xn( value_as_string8, core_list_c< float64_c >( mode_e_static, value.float64, property->_type_count ) ) )
+				if ( !ops::convert_string8_to_float64xn( value_as_string8, core_list_c< float64_c >( core_list_mode_e_static, value.float64, property->_type_count ) ) )
 				{
 					return false;
 				}

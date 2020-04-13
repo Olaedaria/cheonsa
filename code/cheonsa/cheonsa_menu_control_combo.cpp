@@ -18,7 +18,7 @@ namespace cheonsa
 	menu_control_combo_list_item_text_c::menu_control_combo_list_item_text_c()
 		: menu_control_list_item_text_i()
 	{
-		_name = string8_c( mode_e_static, "combo_list_item" );
+		_name = string8_c( core_list_mode_e_static, "combo_list_item" );
 	}
 
 	void_c menu_control_combo_list_c::_on_selected_item_list_changed()
@@ -38,7 +38,7 @@ namespace cheonsa
 	menu_control_combo_list_c::menu_control_combo_list_c()
 		: menu_control_list_i()
 	{
-		_name = string8_c( mode_e_static, "combo_list" );
+		_name = string8_c( core_list_mode_e_static, "combo_list" );
 		_layer = menu_layer_e_popup;
 		_selected_item_limit = 1;
 		_vertical_size_mode = menu_size_mode_e_fit_content;
@@ -127,13 +127,13 @@ namespace cheonsa
 		: menu_control_button_c()
 		, _combo_list( nullptr )
 	{
-		_name = string8_c( mode_e_static, "combo" );
+		_name = string8_c( core_list_mode_e_static, "combo" );
 
 		_combo_list = new menu_control_combo_list_c();
 		_combo_list->on_selected_item_changed.subscribe( this, &menu_control_combo_c::_handle_on_selected_item_changed );
 		_give_control( _combo_list );
 
-		set_style_map_key( string8_c( mode_e_static, "e_combo" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_combo" ) );
 	}
 
 	void_c menu_control_combo_c::show_combo_list()

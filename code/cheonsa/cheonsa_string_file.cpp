@@ -83,10 +83,10 @@ namespace cheonsa
 			string_c * string = _string_heap.emplace_at_end();
 			sint32_c key_start = offsets[ i ];
 			sint32_c key_end = offsets[ i + 1 ];
-			string->_key = string8_c( mode_e_static, &_byte_heap.get_internal_array()[ key_start ], key_end - key_start );
+			string->_key = string8_c( core_list_mode_e_static, &_byte_heap.get_internal_array()[ key_start ], key_end - key_start );
 			sint32_c value_start = key_end;
 			sint32_c value_end = offsets[ i + 2 ];
-			string->_value = string8_c( mode_e_static, &_byte_heap.get_internal_array()[ value_start ], value_end - value_start );
+			string->_value = string8_c( core_list_mode_e_static, &_byte_heap.get_internal_array()[ value_start ], value_end - value_start );
 			_string_dictionary.insert( string->_key, i );
 		}
 

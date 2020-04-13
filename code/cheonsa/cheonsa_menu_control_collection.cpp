@@ -7,7 +7,7 @@ namespace cheonsa
 {
 
 	menu_control_collection_item_i::value_c::value_c()
-		: display_value( mode_e_static, L"[none]" )
+		: display_value( core_list_mode_e_static, L"[none]" )
 		, absolute_value( 0 )
 	{
 	}
@@ -74,7 +74,7 @@ namespace cheonsa
 				return true;
 			}
 		}
-		display_value = string16_c( mode_e_static, L"[none]" );
+		display_value = string16_c( core_list_mode_e_static, L"[none]" );
 		absolute_value = 0;
 		return false;
 	}
@@ -279,12 +279,12 @@ namespace cheonsa
 				if ( _style_map_reference.get_value() )
 				{
 					menu_style_map_c::entry_c const * style_map_entry = nullptr;
-					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_selected_frame" ) );
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( core_list_mode_e_static, "item_selected_frame" ) );
 					if ( style_map_entry )
 					{
 						item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->get_style_key() );
 					}
-					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_text" ) );
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( core_list_mode_e_static, "item_text" ) );
 					if ( style_map_entry )
 					{
 						item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->get_style_key() );
@@ -296,7 +296,7 @@ namespace cheonsa
 				{
 					menu_element_frame_c * item_selected_frame = new menu_element_frame_c();
 					item_selected_frame->set_mother_control( this );
-					item_selected_frame->set_name( string8_c( mode_e_static, "item_selected_frame" ) );
+					item_selected_frame->set_name( string8_c( core_list_mode_e_static, "item_selected_frame" ) );
 					item_selected_frame->set_shared_color_class( menu_shared_color_class_e_field );
 					item_selected_frame->get_style_reference().set_value( item_selected_frame_style );
 					_item_elements.insert_at_end( item_selected_frame );
@@ -304,7 +304,7 @@ namespace cheonsa
 
 					menu_element_frame_c * item_icon_frame = new menu_element_frame_c();
 					item_icon_frame->set_mother_control( this );
-					item_icon_frame->set_name( string8_c( mode_e_static, "item_icon_frame" ) );
+					item_icon_frame->set_name( string8_c( core_list_mode_e_static, "item_icon_frame" ) );
 					item_icon_frame->set_shared_color_class( menu_shared_color_class_e_field );
 					item_icon_frame->set_override_style( &_item_icon_frame_style );
 					_item_elements.insert_at_end( item_icon_frame );
@@ -312,7 +312,7 @@ namespace cheonsa
 
 					menu_element_text_c * item_text = new menu_element_text_c();
 					item_text->set_mother_control( this );
-					item_text->set_name( string8_c( mode_e_static, "item_text" ) );
+					item_text->set_name( string8_c( core_list_mode_e_static, "item_text" ) );
 					item_text->set_shared_color_class( menu_shared_color_class_e_field );
 					item_text->get_style_reference().set_value( item_text_style );
 					_item_elements.insert_at_end( item_text );
@@ -381,12 +381,12 @@ namespace cheonsa
 				if ( _style_map_reference.get_value() )
 				{
 					menu_style_map_c::entry_c const * style_map_entry = nullptr;
-					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_selected_frame" ) );
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( core_list_mode_e_static, "item_selected_frame" ) );
 					if ( style_map_entry )
 					{
 						item_selected_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->get_style_key() );
 					}
-					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "item_text" ) );
+					style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( core_list_mode_e_static, "item_text" ) );
 					if ( style_map_entry )
 					{
 						item_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->get_style_key() );
@@ -398,7 +398,7 @@ namespace cheonsa
 				{
 					menu_element_frame_c * item_selected_frame = new menu_element_frame_c();
 					item_selected_frame->set_mother_control( this );
-					item_selected_frame->set_name( string8_c( mode_e_static, "item_selected_frame" ) );
+					item_selected_frame->set_name( string8_c( core_list_mode_e_static, "item_selected_frame" ) );
 					item_selected_frame->set_shared_color_class( menu_shared_color_class_e_field );
 					item_selected_frame->get_style_reference().set_value( item_selected_frame_style );
 					_item_elements.insert_at_end( item_selected_frame );
@@ -406,7 +406,7 @@ namespace cheonsa
 
 					menu_element_frame_c * item_icon_frame = new menu_element_frame_c();
 					item_icon_frame->set_mother_control( this );
-					item_icon_frame->set_name( string8_c( mode_e_static, "item_icon_frame" ) );
+					item_icon_frame->set_name( string8_c( core_list_mode_e_static, "item_icon_frame" ) );
 					item_icon_frame->set_shared_color_class( menu_shared_color_class_e_field );
 					item_icon_frame->set_override_style( &_item_icon_frame_style );
 					_item_elements.insert_at_end( item_icon_frame );
@@ -417,7 +417,7 @@ namespace cheonsa
 						column_c * column = _column_list[ j ];
 						menu_element_text_c * item_text = new menu_element_text_c();
 						item_text->set_mother_control( this );
-						item_text->set_name( string8_c( mode_e_static, "item_text" ) );
+						item_text->set_name( string8_c( core_list_mode_e_static, "item_text" ) );
 						item_text->set_shared_color_class( menu_shared_color_class_e_field );
 						item_text->get_style_reference().set_value( item_text_style );
 						_item_elements.insert_at_end( item_text );
@@ -582,6 +582,12 @@ namespace cheonsa
 		refresh();
 	}
 
+	void_c menu_control_collection_c::_update_transform_and_layout()
+	{
+		menu_control_c::_update_transform_and_layout();
+		_update_item_layout();
+	}
+
 	menu_control_collection_c::menu_control_collection_c()
 		: menu_control_c()
 		, _element_frame()
@@ -606,26 +612,26 @@ namespace cheonsa
 		, _item_list()
 		, _selected_item_list()
 	{
-		_element_frame.set_name( string8_c( mode_e_static, "frame" ) );
+		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_add_element( &_element_frame );
 
-		_element_last_selected_frame.set_name( string8_c( mode_e_static, "last_selected_frame" ) );
+		_element_last_selected_frame.set_name( string8_c( core_list_mode_e_static, "last_selected_frame" ) );
 		_element_last_selected_frame.set_is_showed( false );
 		_add_element( &_element_last_selected_frame );
 
-		_element_highlighted_frame.set_name( string8_c( mode_e_static, "highlighted_frame" ) );
+		_element_highlighted_frame.set_name( string8_c( core_list_mode_e_static, "highlighted_frame" ) );
 		_element_highlighted_frame.set_is_showed( false );
 		_add_element( &_element_highlighted_frame );
 
 		_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
-		_vertical_scroll_bar->set_name( string8_c( mode_e_static, "vertical_scroll_bar" ) );
+		_vertical_scroll_bar->set_name( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
 		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_scroll_bar_on_value_changed );
 		_give_control( _vertical_scroll_bar );
 		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility );
 
-		set_style_map_key( string8_c( mode_e_static, "e_collection" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_collection" ) );
 
 		_item_icon_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
 	}
@@ -664,12 +670,6 @@ namespace cheonsa
 				i--;
 			}
 		}
-	}
-
-	void_c menu_control_collection_c::update_transform_and_layout()
-	{
-		menu_control_c::update_transform_and_layout();
-		_update_item_layout();
 	}
 
 	void_c menu_control_collection_c::refresh()
@@ -858,12 +858,12 @@ namespace cheonsa
 		if ( _style_map_reference.get_value() )
 		{
 			menu_style_map_c::entry_c const * style_map_entry = nullptr;
-			style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_frame" ) );
+			style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( core_list_mode_e_static, "column_frame" ) );
 			if ( style_map_entry )
 			{
 				column_frame_style = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( style_map_entry->get_style_key() );
 			}
-			style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( mode_e_static, "column_text" ) );
+			style_map_entry = _style_map_reference.get_value()->find_entry( string8_c( core_list_mode_e_static, "column_text" ) );
 			if ( style_map_entry )
 			{
 				column_text_style = engine_c::get_instance()->get_menu_style_manager()->find_text_style( style_map_entry->get_style_key() );
@@ -882,11 +882,11 @@ namespace cheonsa
 		column->_sort_by = sort_by;
 		column->_is_editable = is_editable;
 		column->_element_frame.set_mother_control( this );
-		column->_element_frame.set_name( string8_c( mode_e_static, "column_frame" ) );
+		column->_element_frame.set_name( string8_c( core_list_mode_e_static, "column_frame" ) );
 		column->_element_frame.set_shared_color_class( menu_shared_color_class_e_button );
 		column->_element_frame.get_style_reference().set_value( column_frame_style );
 		column->_element_text.set_mother_control( this );
-		column->_element_text.set_name( string8_c( mode_e_static, "column_text" ) );
+		column->_element_text.set_name( string8_c( core_list_mode_e_static, "column_text" ) );
 		column->_element_text.set_shared_color_class( menu_shared_color_class_e_button );
 		column->_element_text.get_style_reference().set_value( column_text_style );
 		column->_element_text.set_plain_text_value( display_value );

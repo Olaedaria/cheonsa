@@ -55,7 +55,7 @@ namespace cheonsa
 		, _is_checked( false )
 		, _sub_menu( nullptr )
 	{
-		set_style_map_key( string8_c( mode_e_static, "e_menu_list_item" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_menu_list_item" ) );
 	}
 
 	boolean_c menu_control_menu_list_item_text_c::get_can_be_checked() const
@@ -128,7 +128,7 @@ namespace cheonsa
 		_vertical_size_maximum = 0.0f;
 		set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic );
 		set_is_showed_immediately( false );
-		set_style_map_key( string8_c( mode_e_static, "e_menu_list" ) );
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_menu_list" ) );
 	}
 
 	void_c menu_control_menu_list_c::show_like_context_menu( vector32x2_c const & screen_space_point_to_spawn_pop_up_around )

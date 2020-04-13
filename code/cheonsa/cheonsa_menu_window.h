@@ -22,16 +22,6 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "window"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	public:
-		enum result_e
-		{
-			result_e_none, // is set when the window is initially shown, and also is set if cancel or close button is clicked. indicates no result.
-			result_e_cancel,
-			result_e_okay,
-			result_e_yes,
-			result_e_no,
-		};
-
 	protected:
 		menu_element_text_c _element_text; // name is "text"
 
@@ -60,7 +50,7 @@ namespace cheonsa
 
 		menu_control_c * _modal_screen; // if set, then when this window is responsible for hiding this modal screen when this window is dismissed.
 
-		result_e _result; // optional, used by dialog windows to hold result of dialog interaction.
+		menu_dialog_result_e _result; // optional, used by dialog windows to hold result of dialog interaction.
 
 		void_c _apply_client_margins();
 
@@ -68,11 +58,12 @@ namespace cheonsa
 		virtual void_c _on_is_mouse_focused_changed() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
+		virtual void_c _update_transform_and_layout() override;
+
 	public:
 		menu_window_c();
 
 		virtual void_c update_animations( float32_c time_step ) override;
-		virtual void_c update_transform_and_layout() override;
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
 
 		string16_c get_title() const;
@@ -124,16 +115,14 @@ namespace cheonsa
 		// shows this window like a dialog.
 		// modal_screen is optional, but if it's proivided then this window needs to be responsible for hiding and deleting it with set_is_showed( false, true ).
 		// this modal screen is a root level control, created by the user interface system, provided for us to remember.
-		// invokes on_dialog_showed.
 		virtual void_c show_dialog( menu_control_c * modal_screen );
 
 		// hides this window, does not delete it.
 		// hides and deletes modal screen if one is associated.
-		// invokes on_dialog_hided.
 		virtual void_c hide_dialog();
 
-		result_e get_result() const; // gets the current or last result.
-		core_event_c< void_c, menu_window_c * > on_result;
+		menu_dialog_result_e get_result() const; // gets the current or last result.
+		core_event_c< void_c, menu_window_c * > on_result; // dialog windows are not responsible for calling hide_dialog() on their own.
 
 	};
 

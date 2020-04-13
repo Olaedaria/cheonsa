@@ -620,7 +620,7 @@ namespace cheonsa
 		// extract first path node and see if it matches our name.
 		sint32_c path_end = path.get_length();
 		sint32_c delimiter_index;
-		if ( ops::string8_find_index_of( path, string8_c( mode_e_static, "/" ), delimiter_index ) )
+		if ( ops::string8_find_index_of( path, string8_c( core_list_mode_e_static, "/" ), delimiter_index ) )
 		{
 			path_end = delimiter_index;
 			if ( path_end == 0 )

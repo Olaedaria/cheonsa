@@ -37,19 +37,19 @@ namespace cheonsa
 		if ( attribute )
 		{
 			sint32_c temp = 0;
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "left" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "left" ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_left;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "top" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "top" ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_top;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "right" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "right" ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_right;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( mode_e_static, "bottom" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "bottom" ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_bottom;
 			}
@@ -57,7 +57,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "local_box_anchor_measures" );
 		if ( attribute )
 		{
-			if ( ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, new_local_box_anchor_measures.as_array(), 4 ) ) )
+			if ( ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, new_local_box_anchor_measures.as_array(), 4 ) ) )
 			{
 				set_layout_box_anchor( static_cast< menu_anchor_e >( new_local_box_anchor ), new_local_box_anchor_measures );
 			}
@@ -65,7 +65,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "local_box" );
 		if ( attribute )
 		{
-			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( mode_e_static, new_local_box.as_array(), 4 ) );
+			ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, new_local_box.as_array(), 4 ) );
 			set_layout_simple( new_local_box );
 		}
 

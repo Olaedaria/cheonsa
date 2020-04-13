@@ -680,7 +680,8 @@ namespace cheonsa
 		boolean_c char16_is_printable( char16_c a );
 		boolean_c char16_is_space( char16_c a );
 		boolean_c char16_is_letter( char16_c a );
-		boolean_c char16_is_number( char16_c a );
+		boolean_c char16_is_decimal_digit( char16_c a );
+		boolean_c char16_is_hexadecimal_digit( char16_c a );
 		boolean_c char16_is_punctuation( char16_c a );
 		boolean_c char16_is_control( char16_c a );
 

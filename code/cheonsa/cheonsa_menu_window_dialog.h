@@ -7,8 +7,9 @@
 namespace cheonsa
 {
 
-	// a dialog window or panel, that offers a configurable set of button choices (okay, okay cancel, yes no, yes no cancel).
-	class menu_window_dialog_c : public menu_window_c
+	// a dialog window with message text and a configurable set of button choices.
+	class menu_window_dialog_c
+		: public menu_window_c
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "window_dialog"; }
