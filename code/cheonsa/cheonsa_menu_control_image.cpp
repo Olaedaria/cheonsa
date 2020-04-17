@@ -4,12 +4,11 @@
 namespace cheonsa
 {
 
-	menu_control_image_c::menu_control_image_c()
-		: menu_control_c()
-		, _element_frame()
+	menu_control_image_c::menu_control_image_c( string8_c const & name )
+		: menu_control_c( name )
+		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
 		, _element_frame_style()
 	{
-		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_element_frame.set_override_style( &_element_frame_style );
 		_element_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
@@ -81,7 +80,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture_path" );
 		if ( attribute )
 		{
-			_element_frame_style.texture = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+			_element_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 		}
 	}
 

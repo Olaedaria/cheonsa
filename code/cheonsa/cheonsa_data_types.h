@@ -77,9 +77,6 @@ namespace cheonsa
 		// asserts when used with other types.
 		data_view_e_file_path,
 
-		// for string8 and string16 types, expects a folder path, and provides a button that opens a folder picker dialog.
-		// asserts when used with other types.
-		data_view_e_folder_path,
 	};
 
 	enum data_stream_mode_e

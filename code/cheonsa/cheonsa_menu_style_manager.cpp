@@ -123,7 +123,7 @@ namespace cheonsa
 		set_shared_color_base_notes( shared_color_base_notes );
 
 		// load default font.
-		_default_font = engine_c::get_instance()->get_resource_manager()->load_font( string16_c( core_list_mode_e_static, L"[e]fonts/DXLBaB-KSCpc-EUC-H.ttf" ) );
+		_default_font = engine.get_resource_manager()->load_font( string16_c( core_list_mode_e_static, L"[e]fonts/DXLBaB-KSCpc-EUC-H.ttf" ) );
 		if ( !_default_font.is_reference_set_and_loaded() )
 		{
 			debug_annoy( L"error", L"default_font could not be loaded." );
@@ -132,7 +132,7 @@ namespace cheonsa
 
 		// load default frame style.
 		_default_frame_style.key = string8_c( core_list_mode_e_static, "default" );
-		_default_frame_style.texture = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"[e]menus/atlas.png" ) );
+		_default_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"[e]menus/atlas.png" ) );
 		if ( !_default_frame_style.texture.is_reference_set_and_loaded() )
 		{
 			debug_annoy( L"error", L"default_frame_style.texture could not be loaded." );

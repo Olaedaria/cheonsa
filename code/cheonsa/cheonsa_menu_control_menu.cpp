@@ -4,8 +4,8 @@
 namespace cheonsa
 {
 
-	menu_control_menu_list_item_separator_c::menu_control_menu_list_item_separator_c()
-		: menu_control_list_item_separator_i()
+	menu_control_menu_list_item_separator_c::menu_control_menu_list_item_separator_c( string8_c const & name )
+		: menu_control_list_item_separator_i( name )
 	{
 	}
 
@@ -49,8 +49,8 @@ namespace cheonsa
 		menu_control_list_item_i::_on_clicked( input_event );
 	}
 
-	menu_control_menu_list_item_text_c::menu_control_menu_list_item_text_c()
-		: menu_control_list_item_text_i()
+	menu_control_menu_list_item_text_c::menu_control_menu_list_item_text_c( string8_c const & name )
+		: menu_control_list_item_text_i( name )
 		, _can_be_checked( false )
 		, _is_checked( false )
 		, _sub_menu( nullptr )
@@ -119,8 +119,8 @@ namespace cheonsa
 		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
-	menu_control_menu_list_c::menu_control_menu_list_c()
-		: menu_control_list_i()
+	menu_control_menu_list_c::menu_control_menu_list_c( string8_c const & name )
+		: menu_control_list_i( name )
 	{
 		_layer = menu_layer_e_popup;
 		_selected_item_limit = 0;

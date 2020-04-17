@@ -4,19 +4,17 @@
 namespace cheonsa
 {
 
-	menu_control_button_c::menu_control_button_c()
-		: menu_control_c()
-		, _element_frame()
-		, _element_text()
+	menu_control_button_c::menu_control_button_c( string8_c const & name )
+		: menu_control_c( name )
+		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
+		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_button );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
-		_element_text.set_name( string8_c( core_list_mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_button );
 		_element_text.set_text_format_mode( menu_text_format_mode_e_rich );
 		_element_text.set_text_interact_mode( menu_text_interact_mode_e_static );

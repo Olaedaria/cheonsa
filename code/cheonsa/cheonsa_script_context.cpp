@@ -36,7 +36,7 @@ namespace cheonsa
 
 		data_stream_file_c stream;
 		string16_c absolute_file_path;
-		if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( file_path, absolute_file_path ) )
+		if ( engine.get_content_manager()->resolve_absolute_file_path( file_path, absolute_file_path ) )
 		{
 			if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 			{

@@ -28,7 +28,7 @@ namespace cheonsa
 				resource_manager->_worker_thread_load_queue.remove_at_index( 0 );
 					
 				string16_c absolute_file_path;
-				if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource_file->_relative_file_path, absolute_file_path ) )
+				if ( engine.get_content_manager()->resolve_absolute_file_path( resource_file->_relative_file_path, absolute_file_path ) )
 				{
 					data_stream_file_c stream;
 					if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
@@ -70,7 +70,7 @@ namespace cheonsa
 		string16_c absolute_file_path = resource_file->_absolute_file_path;
 		sint64_c last_write_time = resource_file->_last_write_time;
 
-		if ( !engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( resource_file->_relative_file_path, absolute_file_path ) )
+		if ( !engine.get_content_manager()->resolve_absolute_file_path( resource_file->_relative_file_path, absolute_file_path ) )
 		{
 			return;
 		}
@@ -181,7 +181,7 @@ namespace cheonsa
 		{
 			// load the resource data now on this main thread.
 			string16_c absolute_file_path;
-			if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( relative_file_path, absolute_file_path ) )
+			if ( engine.get_content_manager()->resolve_absolute_file_path( relative_file_path, absolute_file_path ) )
 			{
 				data_stream_file_c stream;
 				if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )

@@ -543,7 +543,7 @@ namespace cheonsa
 				{
 					token_c * last_token = token_list_b[ token_list_b.get_length() - 1 ];
 					script_value_c function_result;
-					if ( !engine_c::get_instance()->get_script_manager()->call_function( this, last_token->string, sub_expression_result, function_result ) )
+					if ( !engine.get_script_manager()->call_function( this, last_token->string, sub_expression_result, function_result ) )
 					{
 						return false;
 					}
@@ -1034,7 +1034,7 @@ namespace cheonsa
 		if ( path_elements.get_length() == 2 )
 		{
 			name = path_elements[ 1 ];
-			return engine_c::get_instance()->get_script_manager()->find_scope( path_elements[ 0 ] );
+			return engine.get_script_manager()->find_scope( path_elements[ 0 ] );
 		}
 		return nullptr;
 	}

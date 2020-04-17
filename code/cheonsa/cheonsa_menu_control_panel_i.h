@@ -51,7 +51,7 @@ namespace cheonsa
 		void_c _remove_and_delete_all_controls_from_client();
 
 	protected:
-		menu_control_panel_i();
+		menu_control_panel_i( string8_c const & name );
 
 		virtual void_c update_animations( float32_c time_step ) override;
 

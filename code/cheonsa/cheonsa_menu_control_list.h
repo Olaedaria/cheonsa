@@ -13,7 +13,7 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
-		menu_control_list_item_separator_c();
+		menu_control_list_item_separator_c( string8_c const & name );
 
 	};
 
@@ -25,7 +25,7 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
-		menu_control_list_item_text_c();
+		menu_control_list_item_text_c( string8_c const & name );
 
 	};
 
@@ -40,7 +40,7 @@ namespace cheonsa
 		virtual void_c _on_selected_item_list_changed() override;
 
 	public:
-		menu_control_list_c();
+		menu_control_list_c( string8_c const & name );
 
 		sint32_c get_item_count() const;
 		menu_control_list_item_i const * get_item( sint32_c item_index ) const;
@@ -58,7 +58,6 @@ namespace cheonsa
 
 		core_list_c< menu_control_list_item_i * > const & get_selected_item_list() const;
 
-	public:
 		core_event_c< void_c, menu_control_list_c * > on_selected_item_list_changed; // occurs when list item selection state changes.
 
 	};

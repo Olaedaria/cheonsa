@@ -28,7 +28,7 @@
 #include "cheonsa_core_event.h"
 #include "cheonsa_core_circle_buffer.h"
 
-#include "cheonsa_game.h"
+#include "cheonsa_game_i.h"
 
 #define debug_key_toggle_console input_keyboard_key_e_grave
 #define debug_key_toggle_stats input_keyboard_key_e_f1
@@ -87,7 +87,7 @@ namespace cheonsa
 	private:
 		friend class engine_members_c;
 
-		game_c * _game; // the game instance.
+		game_i * _game; // the game instance.
 		debug_manager_c * _debug_manager;
 		window_manager_c * _window_manager;
 		content_manager_c * _content_manager;
@@ -112,13 +112,13 @@ namespace cheonsa
 		engine_c();
 		~engine_c();
 
-		boolean_c start( char16_c const * const * arguments, sint32_c arguments_count, game_c * game );
+		boolean_c start( game_i * game, char16_c const * const * arguments, sint32_c arguments_count );
 		void_c stop(); // call at any time while the main loop is running to tell the engine to exit at its convenience.
 
 		boolean_c get_is_running() const;
 
 		// the game instance.
-		inline game_c * get_game() const { return _game; }
+		inline game_i * get_game() const { return _game; }
 		// manages log and console.
 		inline debug_manager_c * get_debug_manager() const { return _debug_manager; }
 		// manages creation of window.
@@ -148,13 +148,8 @@ namespace cheonsa
 		// mediates everything that goes between the user and the computer.
 		inline user_interface_c * get_user_interface() const { return _user_interface; }
 
-	private:
-		static engine_c _instance;
-
-	public:
-		// gets the global singleton engine instance.
-		static inline engine_c * get_instance() { return &_instance; }
-
 	};
+
+	extern engine_c engine;
 
 }

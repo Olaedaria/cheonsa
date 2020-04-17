@@ -156,14 +156,6 @@ namespace cheonsa
 		_additional_options = file_type_filter;
 	}
 
-	void_c reflection_property_c::initialize_basic_view_folder_path()
-	{
-		assert( _view == data_view_e_default );
-		assert( _type == data_type_e_string8 || _type == data_type_e_string16 );
-		assert( _type_count == 1 );
-		_view = data_view_e_folder_path;
-	}
-
 	void_c reflection_property_c::initialize_object( reflection_class_c const * _class, object_getter_f object_getter )
 	{
 		assert( _view == data_view_e_default );

@@ -17,7 +17,7 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
-		menu_control_panel_c();
+		menu_control_panel_c( string8_c const & name );
 
 		menu_visibility_mode_e get_horizontal_scroll_bar_visibility_mode() const;
 		void_c set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value );

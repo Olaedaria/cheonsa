@@ -3,6 +3,7 @@
 #include "cheonsa_database_types.h"
 #include "cheonsa_reflection_types.h"
 #include "cheonsa_menu_control.h"
+#include "cheonsa_menu_control_panel_i.h"
 #include "cheonsa_menu_control_button.h"
 #include "cheonsa_menu_control_combo.h"
 #include "cheonsa_menu_control_list.h"
@@ -11,16 +12,20 @@
 #include "cheonsa_menu_control_scrub_bar_x.h"
 #include "cheonsa_menu_control_label.h"
 #include "cheonsa_menu_control_text.h"
-#include "cheonsa_menu_control_color_picker.h"
-#include "cheonsa_menu_control_file_picker.h"
-#include "cheonsa_menu_window_dialog.h"
+#include "cheonsa_menu_control_window_color_picker.h"
+#include "cheonsa_menu_control_window_file_picker.h"
+#include "cheonsa_menu_control_window_message.h"
+#include "cheonsa_menu_control_window_text_editor.h"
+
 #include "cheonsa_core_event.h"
 
 namespace cheonsa
 {
 
 	// provides an interface to edit data and properties of a reflection_object_c or a database_record_c.
-	class menu_control_property_inspector_c : public menu_control_c
+	// adds controls to itself to reflect the underlying bound data and to enable the user to edit it.
+	class menu_control_property_inspector_c
+		: public menu_control_panel_i
 	{
 	public:
 		static inline char8_c const * get_type_name_static() { return "property_inspector"; }
@@ -46,8 +51,6 @@ namespace cheonsa
 			menu_control_button_c * item_move_up;
 			menu_control_button_c * item_move_down;
 			menu_control_button_c * item_sort;
-
-			menu_control_property_inspector_c * property_inspector; // will be used for data_type_e_object and data_type_e_object_list.
 
 			property_field_c();
 			~property_field_c();
@@ -77,8 +80,6 @@ namespace cheonsa
 			float32_c width_for_property_control_padding; // taken from style map property "width_for_property_control_padding", extra space to insert before property control column.
 		} styled_properties;
 
-		menu_element_frame_c _element_frame; // name is "frame".
-
 		menu_control_property_inspector_c * _mother_property_inspector; // if set then this property inspector is owned and managed by this property inspector.
 		reflection_class_c const * _fixed_reflection_class; // if this is set, then the property editing interface will remain static, even if _reflection_object is set to nullptr, but this also means that _reflection_object type must correspond to _fixed_reflection_class.
 
@@ -87,22 +88,26 @@ namespace cheonsa
 
 		core_list_c< property_field_c * > _property_field_list; // a list of the properties that we are reflecting.
 
-		static property_field_c * _editing_property_field; // if an additional dialog window is open (like a color picker), then this is a pointer to the property that that dialog window is editing.
-		static vector64x4_c _editing_value_as_color_original; // if the user cancels the color pick opreation then we need to revert to this value.
-		static sint32_c _pending_delete_list_item_index; // the index of the list item that we are in the process of asking the user if they are sure they want to delete it.
-		static menu_window_dialog_c * _message_dialog; // reusable dialog for displaying messages, pickers, editors, etc.
-		static menu_control_label_c * _message; // message text inside of _dialog.
-		static menu_window_dialog_c * _color_picker_dialog;
-		static menu_control_color_picker_c * _color_picker; // color picker, used for data_view_e_color.
-		static menu_window_dialog_c * _file_picker_dialog;
-		static menu_control_file_picker_c * _file_picker; // file picker, used for data_view_e_file_picker and data_view_e_folder_picker.
-		static menu_window_dialog_c * _text_editor_dialog;
-		static menu_control_text_c * _text_editor; // text editor, used for data_view_e_text.
+		property_field_c * _editing_property_field; // if an additional dialog window is open (like a color picker), then this is a pointer to the property that that dialog window is editing.
+		vector64x4_c _editing_value_as_color_original; // if the user cancels the color pick opreation then we need to revert to this value.
+		sint32_c _pending_delete_list_item_index; // the index of the list item that we are in the process of asking the user if they are sure they want to delete it.
+
+		menu_control_window_message_c * _message_dialog;
+		menu_control_window_color_picker_c * _color_picker_dialog;
+		menu_control_window_file_picker_c * _file_picker_dialog;
+		menu_control_window_text_editor_c * _text_editor_dialog;
+
+		menu_control_window_c * _property_inspector_window; // will be initialized at the moment that this property inspector needs to open up another property inspector in order to edit data_type_e_object or data_type_e_object_list type properties.
+		menu_control_property_inspector_c * _property_inspector; // is added to _property_inspector_window.
+		menu_control_button_c * _property_inspector_cancel_button;
+		menu_control_button_c * _property_inspector_okay_button;
+		void_c _initialize_property_inspector(); // creates the window (in hidden state) and property inspector. adds it to the user interface if able.
+		void_c _handle_property_inspector_button_on_clicked( menu_event_information_c event_information );
 
 		float32_c _y; // current y offset of the cursor, when appending property menu controls (rows) with _add_row().
 		void_c _layout_controls_for_property( property_field_c * property_field ); // lays out the controls for the given property field.
 
-		boolean_c _mute; // if true then all the _handle_* functions will ignore events from menu controls, because the values of those controls are being updated to sync and match with the data. if false then the opposite is happening, the data is being updated to sync and match with the menu controls.
+		boolean_c _is_muted; // if true then all the _handle_* functions will ignore events from menu controls, because the values of those controls are being updated to sync and match with the data. if false then the opposite is happening, the data is being updated to sync and match with the menu controls.
 		void_c _clear(); // removes and deletes all controls from the property inspector. hides any open dialogs.
 		void_c _add( reflection_class_c const * reflection_class ); // adds property field editor controls for the given reflection class.
 		//void_c _add( database_record_schema_c const * database_record_schema ); // adds property field editor controls for the given database record schema.
@@ -125,17 +130,19 @@ namespace cheonsa
 		void_c _handle_value_combo_on_selected_item_changed_preview( menu_control_combo_list_c * combo_list ); // is called as user mouses over options in combo list.
 		void_c _handle_value_combo_on_selected_item_changed( menu_control_combo_list_c * combo_list ); // is called when user clicks on an option in combo list.
 		void_c _handle_value_edit_on_clicked( menu_event_information_c event_information );
-		void_c _handle_color_picker_on_value_changed( menu_control_color_picker_c * color_picker_panel );
+		void_c _handle_color_picker_on_value_changed( menu_control_window_color_picker_c * color_picker_panel );
 		void_c _handle_item_list_on_selected_item_changed( menu_control_list_c * list );
 		void_c _handle_item_add_on_clicked( menu_event_information_c event_information );
 		void_c _handle_item_remove_on_clicked( menu_event_information_c event_information );
 		void_c _handle_item_move_up_on_clicked( menu_event_information_c event_information );
 		void_c _handle_item_move_down_on_clicked( menu_event_information_c event_information );
 		void_c _handle_item_sort_on_clicked( menu_event_information_c event_information );
-		void_c _handle_dialog_on_result( menu_window_dialog_c * dialog_window );
+		void_c _handle_dialog_on_result( menu_control_window_c * window );
+
+		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ) override;
 
 	public:
-		menu_control_property_inspector_c( menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
+		menu_control_property_inspector_c( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
 		virtual ~menu_control_property_inspector_c() override;
 
 		void_c bind_reflection_object( reflection_object_c * value ); // sets the object that is to be reflected by this property inspector.

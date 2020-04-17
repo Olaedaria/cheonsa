@@ -35,7 +35,7 @@ namespace cheonsa
 
 	void_c menu_color_style_c::reference_c::resolve_value()
 	{
-		_value = engine_c::get_instance()->get_menu_style_manager()->find_color_style( _key );
+		_value = engine.get_menu_style_manager()->find_color_style( _key );
 	}
 
 	string8_c const & menu_color_style_c::reference_c::get_key() const
@@ -175,18 +175,18 @@ namespace cheonsa
 
 	void_c menu_frame_style_c::reference_c::resolve_value()
 	{
-		assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
+		assert( engine.get_menu_style_manager() != nullptr );
 		if ( _key == "[none]" )
 		{
 			_value = nullptr;
 		}
 		else if ( _key == "[default]" )
 		{
-			_value = engine_c::get_instance()->get_menu_style_manager()->get_default_frame_style();
+			_value = engine.get_menu_style_manager()->get_default_frame_style();
 		}
 		else
 		{
-			_value = engine_c::get_instance()->get_menu_style_manager()->find_frame_style( _key );
+			_value = engine.get_menu_style_manager()->find_frame_style( _key );
 		}
 	}
 
@@ -258,7 +258,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture" );
 		if ( attribute )
 		{
-			texture = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+			texture = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 		}
 
 		boolean_c texture_map_origin_is_defined = false;
@@ -319,7 +319,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "pixel_shader" );
 		if ( attribute )
 		{
-			pixel_shader_reference = engine_c::get_instance()->get_video_renderer_shader_manager()->load_pixel_shader( string16_c( attribute->get_value() ) );
+			pixel_shader_reference = engine.get_video_renderer_shader_manager()->load_pixel_shader( string16_c( attribute->get_value() ) );
 		}
 
 		// apply defaults if they were defined.
@@ -461,14 +461,14 @@ namespace cheonsa
 
 	void_c menu_text_style_c::reference_c::resolve_value()
 	{
-		assert( engine_c::get_instance()->get_menu_style_manager() != nullptr );
+		assert( engine.get_menu_style_manager() != nullptr );
 		if ( _key == "[none]" )
 		{
 			_value = nullptr;
 		}
 		else if ( _key == "[default]" )
 		{
-			_value = engine_c::get_instance()->get_menu_style_manager()->get_default_text_style();
+			_value = engine.get_menu_style_manager()->get_default_text_style();
 		}
 		else
 		{
@@ -476,7 +476,7 @@ namespace cheonsa
 			{
 				int halt = 1;
 			}
-			_value = engine_c::get_instance()->get_menu_style_manager()->find_text_style( _key );
+			_value = engine.get_menu_style_manager()->find_text_style( _key );
 		}
 		on_refreshed.invoke( this );
 	}
@@ -580,7 +580,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "font" );
 		if ( attribute )
 		{
-			font = engine_c::get_instance()->get_resource_manager()->load_font( string16_c( attribute->get_value() ) );
+			font = engine.get_resource_manager()->load_font( string16_c( attribute->get_value() ) );
 			font_is_defined = font.is_reference_set_and_loaded();
 		}
 
@@ -788,7 +788,7 @@ namespace cheonsa
 
 	void_c menu_style_map_c::reference_c::resolve_value()
 	{
-		menu_style_map_c const * new_value = engine_c::get_instance()->get_menu_style_manager()->find_style_map( _key );
+		menu_style_map_c const * new_value = engine.get_menu_style_manager()->find_style_map( _key );
 		if ( _value != new_value )
 		{
 			_value = new_value;

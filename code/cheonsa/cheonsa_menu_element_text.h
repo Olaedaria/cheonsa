@@ -291,7 +291,6 @@ namespace cheonsa
 		core_linked_list_c< menu_element_text_c * >::node_c _global_list_node;
 		core_list_c< menu_text_glyph_style_c const * > _text_glyph_style_cache; // text glyph styles are cached in here, so that they can be referenced by any number of glyphs in the text element.
 
-	private:
 		void_c _clear_cached_data(); // resets the glyph style cache. frees data that's no longer in use but cache will have to be rebuilt with the data that is in use.
 		void_c _cache_text_glyph_style( menu_text_glyph_style_c const & value, menu_text_glyph_style_c const * & result_pointer, uint16_c & result_index ); // caches a text glyph style in the text glyph style cache, or gets the equivalent one that was already cached.
 		void_c _handle_text_style_reference_on_refreshed( menu_text_style_c::reference_c const * value ); // is invoked by _style_reference when it refreshes(), just sets _is_glyph_layout_dirty to true.
@@ -335,11 +334,25 @@ namespace cheonsa
 		float32_c _get_style_softness() const;
 		box32x2_c _get_style_margin() const;
 
-	public:
-		menu_element_text_c();
-		virtual ~menu_element_text_c();
+		// handles invalidation of text layout when size of local rectangle changes.
+		// is more expensive if the width changes, is not as expensive if the height changes.
+		// text reflow will be deferred until later, once we encounter a time when it is needed (if hit detection is about to be performed, if element is about to be rendered, etc).
+		virtual void_c _on_local_box_modified() override;
+
+		virtual void_c _build_draw_list() override;
 
 	public:
+		menu_element_text_c( string8_c const & name );
+		virtual ~menu_element_text_c();
+
+		// updates visual state animations, cursor animation, and any in-lined sprite animations.
+		// reflows text if text layout is dirty.
+		virtual void_c update_animations( float32_c time_step ) override;
+
+		// sets the base text style of this text element, this is the text style that will be applied to plain text or otherwise unstyled text.
+		// text_style_key is a text style key that references a text style instance in the menu style manager.
+		virtual void_c set_style_key( string8_c const & text_style_key ) override;
+
 		string16_c get_plain_text_value() const; // returns a copy of the plain text contents of this text element (with the very last internal use terminating new line character omitted).
 		void_c set_plain_text_value( string8_c const & value );
 		void_c set_plain_text_value( string16_c const & value );
@@ -347,7 +360,6 @@ namespace cheonsa
 		void_c set_rich_text_value( string16_c const & value );
 		void_c clear_text_value();
 
-	public:
 		menu_text_format_mode_e get_text_format_mode() const;
 		void_c set_text_format_mode( menu_text_format_mode_e value ); // this also has the side effect of clearing the text value.
 
@@ -392,20 +404,6 @@ namespace cheonsa
 
 		void_c get_cursor_information( sint32_c & result_paragraph_index, sint32_c & result_line_index ) const;
 
-	public:
-		void_c append_line( string16_c const & plain_text ); // appends a line of plain text to the end of the last paragraph. costs more computation time if the last paragraph has a lot of text in it, since all of the text in that paragraph will need to be reflowed.
-		void_c append_paragraph( string16_c const & plain_text ); // appends a line of plain text as a new paragraph. should cost less comptation time than append_line(), but might cost a little more memory than append_line().
-		void_c input_character( char16_c character ); // deletes the currently selected range of text and inserts a printable character (which may be a space or tab). don't use this to insert new lines or paragraphs, use input_return for that instead.
-		void_c input_return( boolean_c shift ); // deletes the currently selected range of text, if shift is false then inserts a new text paragraph else inserts a new line in the existing paragraph/span.
-		void_c input_delete_fore(); // deletes the currently selected range of text or character after the cursor, and merges text paragraphs if needed.
-		void_c input_delete_back(); // deletes the currently selected range of text or deletes the character before the cursor, and merges text paragraphs if needed.
-		void_c input_left( boolean_c shift, boolean_c ctrl ); // moves the cursor to the left one character.
-		void_c input_right( boolean_c shift, boolean_c ctrl ); // moves the cursor to the right one character.
-		void_c input_up( boolean_c shift ); // moves the cursor up one line.
-		void_c input_down( boolean_c shift ); // moves the cursor down one character.
-		void_c input_home( boolean_c shift ); // moves the cursor to the end of the current line.
-		void_c input_end( boolean_c shift ); // moves the cursor to the start of the current line.
-
 		// if no range of text is selected, then this tries to get the text style key of the current span or paragraph that the cursor is in.
 		// if a range of text is selected, then this tries to get the text style key of the current span or paragraph that the selected range of text is in.
 		// if the selected range of text overlaps with the boundaries of a span or paragraph, then this returns false.
@@ -423,23 +421,10 @@ namespace cheonsa
 		// if the operating system clip board contains plain text, then deletes currently selected text and pastes plain text at current cursor index.
 		boolean_c paste_text_from_clip_board();
 
-	private:
-		// handles invalidation of text layout when size of local rectangle changes.
-		// is more expensive if the width changes, is not as expensive if the height changes.
-		// text reflow will be deferred until later, once we encounter a time when it is needed (if hit detection is about to be performed, if element is about to be rendered, etc).
-		virtual void_c _on_local_box_modified() override;
-
-		virtual void_c _build_draw_list() override;
+		core_event_c< void_c, menu_element_text_c * > on_text_value_changed_preview; // occurs whenever the text value changes as the user types.
+		core_event_c< void_c, menu_element_text_c * > on_text_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
 
 	public:
-		// updates visual state animations, cursor animation, and any in-lined sprite animations.
-		// reflows text if text layout is dirty.
-		virtual void_c update_animations( float32_c time_step ) override;
-
-		// sets the base text style of this text element, this is the text style that will be applied to plain text or otherwise unstyled text.
-		// text_style_key is a text style key that references a text style instance in the menu style manager.
-		virtual void_c set_style_key( string8_c const & text_style_key ) override;
-
 		// should be called by text box control when it gains or loses text focus.
 		// when gaining text focus:
 		//     sets _is_text_value_modified to false.
@@ -456,9 +441,18 @@ namespace cheonsa
 		// returns true if input event is handled (consumed), false if otherwise.
 		boolean_c handle_on_input( input_event_c * input_event );
 
-	public:
-		core_event_c< void_c, menu_element_text_c * > on_text_value_changed_preview; // occurs whenever the text value changes as the user types.
-		core_event_c< void_c, menu_element_text_c * > on_text_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
+		void_c append_line( string16_c const & plain_text ); // appends a line of plain text to the end of the last paragraph. costs more computation time if the last paragraph has a lot of text in it, since all of the text in that paragraph will need to be reflowed.
+		void_c append_paragraph( string16_c const & plain_text ); // appends a line of plain text as a new paragraph. should cost less comptation time than append_line(), but might cost a little more memory than append_line().
+		void_c input_character( char16_c character ); // deletes the currently selected range of text and inserts a printable character (which may be a space or tab). don't use this to insert new lines or paragraphs, use input_return for that instead.
+		void_c input_return( boolean_c shift ); // deletes the currently selected range of text, if shift is false then inserts a new text paragraph else inserts a new line in the existing paragraph/span.
+		void_c input_delete_fore(); // deletes the currently selected range of text or character after the cursor, and merges text paragraphs if needed.
+		void_c input_delete_back(); // deletes the currently selected range of text or deletes the character before the cursor, and merges text paragraphs if needed.
+		void_c input_left( boolean_c shift, boolean_c ctrl ); // moves the cursor to the left one character.
+		void_c input_right( boolean_c shift, boolean_c ctrl ); // moves the cursor to the right one character.
+		void_c input_up( boolean_c shift ); // moves the cursor up one line.
+		void_c input_down( boolean_c shift ); // moves the cursor down one character.
+		void_c input_home( boolean_c shift ); // moves the cursor to the end of the current line.
+		void_c input_end( boolean_c shift ); // moves the cursor to the start of the current line.
 
 	};
 

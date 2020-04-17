@@ -15,15 +15,14 @@ namespace cheonsa
 			return;
 		}
 		
-		video_pixel_shader_c * pixel_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color();
+		video_pixel_shader_c * pixel_shader = engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color();
 		_draw_list.append_triangle_list( vertex_list, index_list, pixel_shader, nullptr );
 	}
 
-	menu_element_mesh_c::menu_element_mesh_c()
-		: menu_element_c()
+	menu_element_mesh_c::menu_element_mesh_c( string8_c const & name )
+		: menu_element_c( name )
 		, vertex_list()
 		, index_list()
-		//, pixel_shader( nullptr )
 	{
 	}
 

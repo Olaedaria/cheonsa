@@ -78,11 +78,7 @@
     <ClInclude Include="cheonsa_glyph_manager.h" />
     <ClInclude Include="cheonsa_menu_control_combo.h" />
     <ClInclude Include="cheonsa_menu_control_menu.h" />
-    <ClInclude Include="cheonsa_menu_window.h" />
-    <ClInclude Include="cheonsa_menu_control_color_picker.h" />
-    <ClInclude Include="cheonsa_menu_control_file_picker.h" />
     <ClInclude Include="cheonsa_menu_control_property_inspector.h" />
-    <ClInclude Include="cheonsa_menu_window_dialog.h" />
     <ClInclude Include="cheonsa_core_list.h" />
     <ClInclude Include="cheonsa_core_linked_list.h" />
     <ClInclude Include="cheonsa_core_dictionary.h" />
@@ -103,7 +99,6 @@
     <ClInclude Include="cheonsa_database.h" />
     <ClInclude Include="cheonsa_reflection_types.h" />
     <ClInclude Include="cheonsa_reflection_enumeration.h" />
-    <ClInclude Include="cheonsa_game.h" />
     <ClInclude Include="cheonsa_engine.h" />
     <ClInclude Include="cheonsa_reflection_class.h" />
     <ClInclude Include="cheonsa_reflection_property.h" />
@@ -515,6 +510,12 @@
     <ClInclude Include="cheonsa_menu_control_frame.h" />
     <ClInclude Include="cheonsa_menu_control_color_slider.h" />
     <ClInclude Include="cheonsa_menu_element_mesh.h" />
+    <ClInclude Include="cheonsa_menu_control_window.h" />
+    <ClInclude Include="cheonsa_menu_control_window_color_picker.h" />
+    <ClInclude Include="cheonsa_menu_control_window_file_picker.h" />
+    <ClInclude Include="cheonsa_menu_control_window_message.h" />
+    <ClInclude Include="cheonsa_menu_control_window_text_editor.h" />
+    <ClInclude Include="cheonsa_game_i.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -584,11 +585,7 @@
     <ClCompile Include="cheonsa_glyph_manager.cpp" />
     <ClCompile Include="cheonsa_menu_control_combo.cpp" />
     <ClCompile Include="cheonsa_menu_control_menu.cpp" />
-    <ClCompile Include="cheonsa_menu_window.cpp" />
-    <ClCompile Include="cheonsa_menu_control_color_picker.cpp" />
-    <ClCompile Include="cheonsa_menu_control_file_picker.cpp" />
     <ClCompile Include="cheonsa_menu_control_property_inspector.cpp" />
-    <ClCompile Include="cheonsa_menu_window_dialog.cpp" />
     <ClCompile Include="cheonsa_menu_control_collection.cpp" />
     <ClCompile Include="cheonsa_data_scribe_text.cpp" />
     <ClCompile Include="cheonsa_user_interface.cpp" />
@@ -645,5 +642,10 @@
     <ClCompile Include="cheonsa_menu_control_frame.cpp" />
     <ClCompile Include="cheonsa_menu_element_mesh.cpp" />
     <ClCompile Include="cheonsa_menu_control_color_slider.cpp" />
+    <ClCompile Include="cheonsa_menu_control_window.cpp" />
+    <ClCompile Include="cheonsa_menu_control_window_color_picker.cpp" />
+    <ClCompile Include="cheonsa_menu_control_window_file_picker.cpp" />
+    <ClCompile Include="cheonsa_menu_control_window_message.cpp" />
+    <ClCompile Include="cheonsa_menu_control_window_text_editor.cpp" />
   </ItemGroup>
 </Project>

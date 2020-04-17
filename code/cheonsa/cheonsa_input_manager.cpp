@@ -73,7 +73,7 @@ namespace cheonsa
 			}
 			if ( previous_any_mouse_key_state == false )
 			{
-				SetCapture( static_cast< HWND >( engine_c::get_instance()->get_window_manager()->get_window_handle() ) );
+				SetCapture( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ) );
 			}
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
@@ -173,7 +173,7 @@ namespace cheonsa
 #if defined( cheonsa_platform_windows )
 		_mouse_position = value;
 		RECT window_client_rectangle;
-		GetWindowRect( static_cast< HWND >( engine_c::get_instance()->get_window_manager()->get_window_handle() ), &window_client_rectangle );
+		GetWindowRect( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ), &window_client_rectangle );
 		SetCursorPos( static_cast< int >( value.a + window_client_rectangle.left ), static_cast< int >( value.b + window_client_rectangle.top ) );
 #endif
 	}
@@ -367,7 +367,7 @@ namespace cheonsa
 		boolean_c result = false;
 		if ( IsClipboardFormatAvailable( CF_UNICODETEXT ) )
 		{
-			if ( OpenClipboard( static_cast< HWND >( engine_c::get_instance()->get_window_manager()->get_window_handle() ) ) )
+			if ( OpenClipboard( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ) ) )
 			{
 				HGLOBAL hglobalunculus = GetClipboardData( CF_UNICODETEXT );
 				if ( hglobalunculus )
@@ -389,7 +389,7 @@ namespace cheonsa
 	boolean_c input_manager_c::clip_board_set_plain_text( string16_c const & value )
 	{
 		boolean_c result = false;
-		if ( OpenClipboard( static_cast< HWND >( engine_c::get_instance()->get_window_manager()->get_window_handle() ) ) )
+		if ( OpenClipboard( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ) ) )
 		{
 			EmptyClipboard();
 			HGLOBAL h_what_global_what_tho_hghghghg_win32unnngg = GlobalAlloc( GMEM_MOVEABLE, value.character_list.get_internal_array_size_used() );

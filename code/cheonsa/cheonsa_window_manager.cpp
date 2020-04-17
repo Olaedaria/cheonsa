@@ -42,9 +42,9 @@ namespace cheonsa
 	public:
 		static LRESULT __stdcall WndProc2( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 		{
-			engine_c * engine = engine_c::get_instance(); //reinterpret_cast< engine_c * >( GetWindowLongPtr( hWnd, GWLP_USERDATA ) );
+			//engine_c * engine = engine_c::get_instance(); //reinterpret_cast< engine_c * >( GetWindowLongPtr( hWnd, GWLP_USERDATA ) );
 
-			if ( !engine || !engine->get_is_running() )
+			if ( !engine.get_is_running() )
 			{
 				return DefWindowProc( hWnd, msg, wParam, lParam );
 			}
@@ -54,9 +54,9 @@ namespace cheonsa
 				case WM_KEYDOWN:
 				case WM_SYSKEYDOWN:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_keyboard_key_pressed( get_keyboard_key( wParam, lParam ) );
+						engine.get_input_manager()->push_keyboard_key_pressed( get_keyboard_key( wParam, lParam ) );
 					}
 					//static BYTE KeyboardState[256];
 					//GetKeyboardState( KeyboardState );
@@ -78,9 +78,9 @@ namespace cheonsa
 				case WM_KEYUP:
 				case WM_SYSKEYUP:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_keyboard_key_released( get_keyboard_key( wParam, lParam ) );
+						engine.get_input_manager()->push_keyboard_key_released( get_keyboard_key( wParam, lParam ) );
 					}
 					if ( msg == WM_SYSKEYUP )
 					{
@@ -93,9 +93,9 @@ namespace cheonsa
 				{
 					// only pass through messages for visible characters.
 					// ignore all messages for characters less than 32, as these are for control characters that we can ignore.
-					if ( wParam >= 32 && engine->get_input_manager() != nullptr )
+					if ( wParam >= 32 && engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_character( static_cast< char16_c >( wParam ), static_cast< uint8_c >( lParam & 0xFFFF ) );
+						engine.get_input_manager()->push_character( static_cast< char16_c >( wParam ), static_cast< uint8_c >( lParam & 0xFFFF ) );
 					}
 					return 0;
 				}
@@ -118,90 +118,90 @@ namespace cheonsa
 
 				case WM_MOUSEMOVE:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_move( (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam) );
+						engine.get_input_manager()->push_mouse_move( (int)(short)LOWORD( lParam ), (int)(short)HIWORD( lParam ) );
 					}
 					return 0;
 				}
 
 				case WM_MOUSEWHEEL:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_wheel( static_cast< float32_c >( GET_WHEEL_DELTA_WPARAM( wParam ) ) / 120.0f );
+						engine.get_input_manager()->push_mouse_wheel( static_cast< float32_c >( GET_WHEEL_DELTA_WPARAM( wParam ) ) / 120.0f );
 					}
 					return 0;
 				}
 
 				case WM_LBUTTONDOWN:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_left );
+						engine.get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_left );
 					}
 					return 0;
 				}
 
 				case WM_LBUTTONUP:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_released( input_mouse_key_e_left );
+						engine.get_input_manager()->push_mouse_key_released( input_mouse_key_e_left );
 					}
 					return 0;
 				}
 
 				case WM_RBUTTONDOWN:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_right );
+						engine.get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_right );
 					}
 					return 0;
 				}
 
 				case WM_RBUTTONUP:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_released( input_mouse_key_e_right );
+						engine.get_input_manager()->push_mouse_key_released( input_mouse_key_e_right );
 					}
 					return 0;
 				}
 
 				case WM_MBUTTONDOWN:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_middle );
+						engine.get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_middle );
 					}
 					return 0;
 				}
 
 				case WM_MBUTTONUP:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_released( input_mouse_key_e_middle );
+						engine.get_input_manager()->push_mouse_key_released( input_mouse_key_e_middle );
 					}
 					return 0;
 				}
 
 				case WM_XBUTTONDOWN:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_pressed( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
+						engine.get_input_manager()->push_mouse_key_pressed( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
 					}
 					return 0;
 				}
 
 				case WM_XBUTTONUP:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->push_mouse_key_released( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
+						engine.get_input_manager()->push_mouse_key_released( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
 					}
 					return 0;
 				}
@@ -225,9 +225,9 @@ namespace cheonsa
 
 				case WM_MOVING:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->_release_all_keys();
+						engine.get_input_manager()->_release_all_keys();
 					}
 					return 0;
 				}
@@ -238,15 +238,15 @@ namespace cheonsa
 					//GetClientRect( hWnd, &window_rectangle );
 					if ( wParam == SIZE_MAXIMIZED )
 					{
-						engine->get_window_manager()->_window_state = window_state_e_maximized;
+						engine.get_window_manager()->_window_state = window_state_e_maximized;
 					}
 					else if ( wParam == SIZE_MINIMIZED )
 					{
-						engine->get_window_manager()->_window_state = window_state_e_minimized;
+						engine.get_window_manager()->_window_state = window_state_e_minimized;
 					}
 					else if ( wParam == SIZE_RESTORED )
 					{
-						engine->get_window_manager()->_window_state = window_state_e_normaled;
+						engine.get_window_manager()->_window_state = window_state_e_normaled;
 					}
 					//if ( engine->interfaces._game != nullptr )
 					//{
@@ -257,9 +257,9 @@ namespace cheonsa
 
 				case WM_SIZING:
 				{
-					if ( engine->get_input_manager() != nullptr )
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->_release_all_keys();
+						engine.get_input_manager()->_release_all_keys();
 					}
 
 					LPRECT window_rect = reinterpret_cast< LPRECT >( lParam );
@@ -312,16 +312,16 @@ namespace cheonsa
 
 				case WM_SETFOCUS:
 				{
-					engine->get_window_manager()->_window_is_focused = true;
+					engine.get_window_manager()->_window_is_focused = true;
 					return 0;
 				}
 
 				case WM_KILLFOCUS:
 				{
-					engine->get_window_manager()->_window_is_focused = false;
-					if ( engine->get_input_manager() != nullptr )
+					engine.get_window_manager()->_window_is_focused = false;
+					if ( engine.get_input_manager() != nullptr )
 					{
-						engine->get_input_manager()->_release_all_keys();
+						engine.get_input_manager()->_release_all_keys();
 					}
 					return 0;
 				}
@@ -352,9 +352,9 @@ namespace cheonsa
 					GetWindowRect( hWnd, &window_rectangle );
 
 					LRESULT result = 0;
-					if ( engine->get_user_interface() )
+					if ( engine.get_user_interface() )
 					{
-						menu_non_client_type_e non_client_type = engine->get_user_interface()->perform_non_client_hit_test( vector32x2_c( (float32_c)( x - window_rectangle.left ), (float32_c)( y - window_rectangle.top ) ) );
+						menu_non_client_type_e non_client_type = engine.get_user_interface()->perform_non_client_hit_test( vector32x2_c( (float32_c)( x - window_rectangle.left ), (float32_c)( y - window_rectangle.top ) ) );
 						if ( non_client_type == menu_non_client_type_e_none )
 						{
 							// do nothing, continue with regular non client hit test next.
@@ -414,46 +414,46 @@ namespace cheonsa
 						}
 					}
 
-					if ( x >= window_rectangle.left && x < window_rectangle.left + engine->get_window_manager()->get_window_edge_thickness() && y < window_rectangle.bottom && y >= window_rectangle.bottom - engine->get_window_manager()->get_window_edge_thickness() )
+					if ( x >= window_rectangle.left && x < window_rectangle.left + engine.get_window_manager()->get_window_edge_thickness() && y < window_rectangle.bottom && y >= window_rectangle.bottom - engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTBOTTOMLEFT;
 					}
-					else if ( x < window_rectangle.right && x >= window_rectangle.right - engine->get_window_manager()->get_window_edge_thickness() && y < window_rectangle.bottom && y >= window_rectangle.bottom - engine->get_window_manager()->get_window_edge_thickness() )
+					else if ( x < window_rectangle.right && x >= window_rectangle.right - engine.get_window_manager()->get_window_edge_thickness() && y < window_rectangle.bottom && y >= window_rectangle.bottom - engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTBOTTOMRIGHT;
 					}
-					else if ( x >= window_rectangle.left && x < window_rectangle.left + engine->get_window_manager()->get_window_edge_thickness() && y >= window_rectangle.top && y < window_rectangle.top + engine->get_window_manager()->get_window_edge_thickness() )
+					else if ( x >= window_rectangle.left && x < window_rectangle.left + engine.get_window_manager()->get_window_edge_thickness() && y >= window_rectangle.top && y < window_rectangle.top + engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTTOPLEFT;
 					}
-					else if ( x < window_rectangle.right && x >= window_rectangle.right - engine->get_window_manager()->get_window_edge_thickness() && y >= window_rectangle.top && y < window_rectangle.top + engine->get_window_manager()->get_window_edge_thickness() )
+					else if ( x < window_rectangle.right && x >= window_rectangle.right - engine.get_window_manager()->get_window_edge_thickness() && y >= window_rectangle.top && y < window_rectangle.top + engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTTOPRIGHT;
 					}
-					else if ( x >= window_rectangle.left && x < window_rectangle.left + engine->get_window_manager()->get_window_edge_thickness() )
+					else if ( x >= window_rectangle.left && x < window_rectangle.left + engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTLEFT;
 					}
-					else if ( x < window_rectangle.right && x >= window_rectangle.right - engine->get_window_manager()->get_window_edge_thickness() )
+					else if ( x < window_rectangle.right && x >= window_rectangle.right - engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTRIGHT;
 					}
-					else if ( y < window_rectangle.bottom && y >= window_rectangle.bottom - engine->get_window_manager()->get_window_edge_thickness() )
+					else if ( y < window_rectangle.bottom && y >= window_rectangle.bottom - engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTBOTTOM;
 					}
-					else if ( y >= window_rectangle.top && y < window_rectangle.top + engine->get_window_manager()->get_window_edge_thickness() )
+					else if ( y >= window_rectangle.top && y < window_rectangle.top + engine.get_window_manager()->get_window_edge_thickness() )
 					{
 						result = HTTOP;
 					}
-					else if ( x >= window_rectangle.left && x <= window_rectangle.right && y >= window_rectangle.top && y < window_rectangle.top + engine->get_window_manager()->get_window_edge_thickness() + engine->get_window_manager()->get_window_title_bar_thickness() + ( engine->get_window_manager()->get_window_state() == window_state_e_maximized ? 8 : 0 ) )
+					else if ( x >= window_rectangle.left && x <= window_rectangle.right && y >= window_rectangle.top && y < window_rectangle.top + engine.get_window_manager()->get_window_edge_thickness() + engine.get_window_manager()->get_window_title_bar_thickness() + ( engine.get_window_manager()->get_window_state() == window_state_e_maximized ? 8 : 0 ) )
 					{
 						result = HTCAPTION;
 					}
 
 					if ( result != 0 )
 					{
-						engine->get_user_interface()->let_go_of_mouse_overed();
+						engine.get_user_interface()->let_go_of_mouse_overed();
 						return result;
 					}
 
@@ -462,7 +462,7 @@ namespace cheonsa
 
 				case WM_DESTROY:
 				{
-					engine->stop();
+					engine.stop();
 					return 0;
 				}
 

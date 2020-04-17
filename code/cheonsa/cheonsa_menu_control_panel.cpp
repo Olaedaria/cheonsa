@@ -3,8 +3,8 @@
 namespace cheonsa
 {
 
-	menu_control_panel_c::menu_control_panel_c()
-		: menu_control_panel_i()
+	menu_control_panel_c::menu_control_panel_c( string8_c const & name )
+		: menu_control_panel_i( name )
 	{
 	}
 

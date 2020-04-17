@@ -1117,15 +1117,15 @@ namespace cheonsa
 		// gpus are always little endian as far as i know, we may need to swap endianness.
 		if ( _data.mesh_vertex_list_base.get_length() > 0 )
 		{
-			_data.mesh_vertex_buffer_base = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_base.get_length(), _data.mesh_vertex_list_base.get_internal_array(), _data.mesh_vertex_list_base.get_internal_array_size_used(), false, false, false );
+			_data.mesh_vertex_buffer_base = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_base.get_length(), _data.mesh_vertex_list_base.get_internal_array(), _data.mesh_vertex_list_base.get_internal_array_size_used(), false, false, false );
 		}
 		if ( _data.mesh_vertex_list_bone_weight.get_length() > 0 )
 		{
-			_data.mesh_vertex_buffer_bone_weight = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_bone_weight.get_length(), _data.mesh_vertex_list_bone_weight.get_internal_array(), _data.mesh_vertex_list_bone_weight.get_internal_array_size_used(), false, false, false );
+			_data.mesh_vertex_buffer_bone_weight = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_bone_weight.get_length(), _data.mesh_vertex_list_bone_weight.get_internal_array(), _data.mesh_vertex_list_bone_weight.get_internal_array_size_used(), false, false, false );
 		}
 		if ( _data.mesh_index_list.get_length() > 0 )
 		{
-			_data.mesh_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, _data.mesh_index_list.get_length(), _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
+			_data.mesh_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint16, _data.mesh_index_list.get_length(), _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
 		}
 
 		// done.

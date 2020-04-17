@@ -19,7 +19,7 @@ namespace cheonsa
 		menu_frame_style_c const * frame_style = _override_style != nullptr ? _override_style : _style_reference.get_value();
 		if ( frame_style == nullptr )
 		{
-			frame_style = engine_c::get_instance()->get_menu_style_manager()->get_default_frame_style();
+			frame_style = engine.get_menu_style_manager()->get_default_frame_style();
 		}
 
 		resource_file_texture_c * texture = frame_style->texture;
@@ -41,13 +41,13 @@ namespace cheonsa
 		vector32x4_c draw_color = _local_color;
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
 		menu_color_style_c * shared_color = nullptr;
-		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
+		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
 		assert( shared_color );
 		draw_shared_colors[ 0 ] = shared_color->value;
-		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
+		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
 		assert( shared_color );
 		draw_shared_colors[ 1 ] = shared_color->value;
-		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
+		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
 
@@ -56,7 +56,7 @@ namespace cheonsa
 		float32_c texture_height = static_cast< float32_c >( texture->get_video_texture()->get_height() );
 		float32_c texture_height_inverse = 1.0f / texture_height;
 
-		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference.get_loaded() ? frame_style->pixel_shader_reference.get_pixel_shader() : engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_frame();
+		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference.get_loaded() ? frame_style->pixel_shader_reference.get_pixel_shader() : engine.get_video_renderer_shader_manager()->get_menu_ps_frame();
 		assert( pixel_shader != nullptr );
 
 		float32_c x[ 4 ]; // always from left to right.
@@ -338,8 +338,8 @@ namespace cheonsa
 		_draw_list_is_dirty = false;
 	}
 
-	menu_element_frame_c::menu_element_frame_c()
-		: menu_element_c()
+	menu_element_frame_c::menu_element_frame_c( string8_c const & name )
+		: menu_element_c( name )
 		, _style_reference()
 		, _override_style( nullptr )
 	{

@@ -38,7 +38,7 @@ namespace cheonsa
 			_element_mesh.index_list[  4 ] = 1;
 			_element_mesh.index_list[  5 ] = 3;
 
-			//_element_mesh.pixel_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color();
+			//_element_mesh.pixel_shader = engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color();
 		}
 		else
 		{
@@ -73,7 +73,7 @@ namespace cheonsa
 				_element_mesh.index_list[ i * 6 + 5 ] = j + 3;
 			}
 
-			//_element_mesh.pixel_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color_hue_slider();
+			//_element_mesh.pixel_shader = engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color_hue_slider();
 		}
 		_mesh_box = _local_box;
 	}
@@ -222,20 +222,19 @@ namespace cheonsa
 		_element_slider.set_layout_simple( box32x2_c( _local_box.minimum.a + slider_position - 1, _local_box.minimum.b, _local_box.minimum.a + slider_position + 2, _local_box.maximum.b ) );
 	}
 
-	menu_control_color_slider_c::menu_control_color_slider_c()
-		: menu_control_c()
-		, _element_mesh()
+	menu_control_color_slider_c::menu_control_color_slider_c( string8_c const & name )
+		: menu_control_c( name )
+		, _element_mesh( string8_c( core_list_mode_e_static, "mesh" ) )
+		, _element_slider( string8_c( core_list_mode_e_static, "slider" ) )
 		, _mode( mode_e_red )
 		, _value( 0.0f )
 		, _color()
 		, _mesh_box()
 		, _mouse_is_grabbed( false )
 	{
-		_element_mesh.set_name( string8_c( core_list_mode_e_static, "mesh" ) );
 		_element_mesh.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_mesh );
 
-		_element_slider.set_name( string8_c( core_list_mode_e_static, "slider" ) );
 		_element_slider.set_style_key( string8_c( core_list_mode_e_static, "e_precision_slider_frame" ) );
 		_add_element( &_element_slider );
 	}
@@ -288,6 +287,15 @@ namespace cheonsa
 	void_c menu_control_color_slider_c::set_color( vector32x3_c const & value )
 	{
 		_color = value;
+		if ( _mode == mode_e_saturation || _mode == mode_e_value || _mode == mode_e_swatch )
+		{
+			_update_mesh_colors();
+		}
+	}
+
+	void_c menu_control_color_slider_c::set_color( vector32x4_c const & value )
+	{
+		_color = vector32x3_c( value.a, value.b, value.c );
 		if ( _mode == mode_e_saturation || _mode == mode_e_value || _mode == mode_e_swatch )
 		{
 			_update_mesh_colors();

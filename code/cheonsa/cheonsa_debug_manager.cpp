@@ -86,9 +86,9 @@ namespace cheonsa
 
 	void_c debug_log( log_type_e type, char16_c const * message )
 	{
-		if ( engine_c::get_instance()->get_debug_manager() )
+		if ( engine.get_debug_manager() )
 		{
-			engine_c::get_instance()->get_debug_manager()->log( type, string16_c( core_list_mode_e_static_volatile, message ) );
+			engine.get_debug_manager()->log( type, string16_c( core_list_mode_e_static_volatile, message ) );
 		}
 	}
 

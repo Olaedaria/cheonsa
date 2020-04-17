@@ -16,7 +16,7 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
-		menu_control_menu_list_item_separator_c();
+		menu_control_menu_list_item_separator_c( string8_c const & name );
 
 	};
 
@@ -39,7 +39,7 @@ namespace cheonsa
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
 
 	public:
-		menu_control_menu_list_item_text_c();
+		menu_control_menu_list_item_text_c( string8_c const & name );
 
 		boolean_c get_can_be_checked() const;
 		void_c set_can_be_checked( boolean_c value );
@@ -66,7 +66,7 @@ namespace cheonsa
 		virtual void_c _on_is_deep_text_focused_changed() override;
 
 	public:
-		menu_control_menu_list_c();
+		menu_control_menu_list_c( string8_c const & name );
 
 		void_c show_like_context_menu( vector32x2_c const & screen_space_point_to_spawn_pop_up_around );
 		void_c show_like_sub_menu( menu_control_c * menu_item_to_spawn_pop_up_around );

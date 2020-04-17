@@ -174,7 +174,6 @@ namespace cheonsa
 		void_c initialize_basic_view_euler_angles(); // type must be float32x3 (euler), float32x4 (quaternion), float64x3 (euler), or float64x4 (quaternion).
 		void_c initialize_basic_view_enumeration( reflection_enumeration_c const * enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1.
 		void_c initialize_basic_view_file_path( string8_c file_type_filter ); // enables file picker. file_type_filter is a vertical slash separated list of file extensions, for example "*.txt|*.log".
-		void_c initialize_basic_view_folder_path();
 
 		void_c initialize_object( reflection_class_c const * _class, object_getter_f object_getter );
 

@@ -4,13 +4,13 @@
 namespace cheonsa
 {
 
-	menu_control_list_item_separator_c::menu_control_list_item_separator_c()
-		: menu_control_list_item_separator_i()
+	menu_control_list_item_separator_c::menu_control_list_item_separator_c( string8_c const & name )
+		: menu_control_list_item_separator_i( name )
 	{
 	}
 
-	menu_control_list_item_text_c::menu_control_list_item_text_c()
-		: menu_control_list_item_text_i()
+	menu_control_list_item_text_c::menu_control_list_item_text_c( string8_c const & name )
+		: menu_control_list_item_text_i( name )
 	{
 		_name = string8_c( core_list_mode_e_static, "list_item" );
 	}
@@ -20,8 +20,8 @@ namespace cheonsa
 		on_selected_item_list_changed.invoke( this );
 	}
 
-	menu_control_list_c::menu_control_list_c()
-		: menu_control_list_i()
+	menu_control_list_c::menu_control_list_c( string8_c const & name )
+		: menu_control_list_i( name )
 	{
 		_name = string8_c( core_list_mode_e_static, "list" );
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_list" ) );

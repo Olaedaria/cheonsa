@@ -30,7 +30,7 @@ namespace cheonsa
 
 	void_c string_c::reference_c::resolve_value()
 	{
-		_value = engine_c::get_instance()->get_content_manager()->find_string( _key );
+		_value = engine.get_content_manager()->find_string( _key );
 		on_refreshed.invoke( this );
 	}
 

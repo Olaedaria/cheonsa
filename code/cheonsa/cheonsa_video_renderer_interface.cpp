@@ -851,7 +851,7 @@ namespace cheonsa
 
 	boolean_c video_renderer_interface_c::start()
 	{
-		assert( engine_c::get_instance()->get_video_interface() != nullptr );
+		assert( engine.get_video_interface() != nullptr );
 
 		_views.construct_mode_dynamic( 0, 4 );
 
@@ -861,35 +861,35 @@ namespace cheonsa
 		point_vertex_quad_array[ 1 ].position = vector32x3_c( 1.0f, -1.0f, 0.0f ); // top right.
 		point_vertex_quad_array[ 2 ].position = vector32x3_c( -1.0f, 1.0f, 0.0f ); // bottom left.
 		point_vertex_quad_array[ 3 ].position = vector32x3_c( 1.0f, 1.0f, 0.0f ); // bottom right.
-		_quad_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_point, 4, point_vertex_quad_array, sizeof( point_vertex_quad_array ), false, false, false );
+		_quad_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_point, 4, point_vertex_quad_array, sizeof( point_vertex_quad_array ), false, false, false );
 
 		// create constant buffers.
 		// allocate blocks aligned to multiples of 16 bytes to optimize memcpy or map or something.
 		// "constant buffers without constant pain"
 		// https://developer.nvidia.com/content/constant-buffers-without-constant-pain-0
 		_constant_buffers.shadow_camera_block = reinterpret_cast< shadow_camera_block_c * >( ops::memory_aligned_allocate( sizeof( shadow_camera_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.shadow_camera_block, sizeof( shadow_camera_block_c ) );
-		_constant_buffers.shadow_camera_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( shadow_camera_block_c ) );
+		_constant_buffers.shadow_camera_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( shadow_camera_block_c ) );
 		_constant_buffers.shadow_object_block = reinterpret_cast< shadow_object_block_c * >( ops::memory_aligned_allocate( sizeof( shadow_object_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.shadow_object_block, sizeof( shadow_object_block_c ) );
-		_constant_buffers.shadow_object_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( shadow_object_block_c ) );
+		_constant_buffers.shadow_object_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( shadow_object_block_c ) );
 		_constant_buffers.scene_block = reinterpret_cast< scene_block_c * >( ops::memory_aligned_allocate( sizeof( scene_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.scene_block, sizeof( scene_block_c ) );
-		_constant_buffers.scene_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( scene_block_c ) );
+		_constant_buffers.scene_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( scene_block_c ) );
 		_constant_buffers.camera_block = reinterpret_cast< camera_block_c * >( ops::memory_aligned_allocate( sizeof( camera_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.camera_block, sizeof( camera_block_c ) );
-		_constant_buffers.camera_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( camera_block_c ) );
+		_constant_buffers.camera_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( camera_block_c ) );
 		_constant_buffers.object_block = reinterpret_cast< object_block_c * >( ops::memory_aligned_allocate( sizeof( object_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.object_block, sizeof( object_block_c ) );
-		_constant_buffers.object_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( object_block_c ) );
+		_constant_buffers.object_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( object_block_c ) );
 		_constant_buffers.material_block = reinterpret_cast< material_block_c * >( ops::memory_aligned_allocate( sizeof( material_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.material_block, sizeof( material_block_c ) );
-		_constant_buffers.material_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( material_block_c ) );
+		_constant_buffers.material_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( material_block_c ) );
 		_constant_buffers.menu_block = reinterpret_cast< menu_block_c * >( ops::memory_aligned_allocate( sizeof( menu_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.menu_block, sizeof( menu_block_c ) );
-		_constant_buffers.menu_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( menu_block_c ) );
+		_constant_buffers.menu_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( menu_block_c ) );
 		_constant_buffers.menu_batch_block = reinterpret_cast< menu_batch_block_c * >( ops::memory_aligned_allocate( sizeof( menu_batch_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
-		_constant_buffers.menu_batch_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( menu_batch_block_c ) );
+		_constant_buffers.menu_batch_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( menu_batch_block_c ) );
 		_constant_buffers.menu_draw_block = reinterpret_cast< menu_draw_block_c * >( ops::memory_aligned_allocate( sizeof( menu_draw_block_c ), 16 ) ); ops::memory_zero( _constant_buffers.menu_draw_block, sizeof( menu_draw_block_c ) );
-		_constant_buffers.menu_draw_block_constant_buffer = engine_c::get_instance()->get_video_interface()->create_constant_buffer( sizeof( menu_draw_block_c ) );
+		_constant_buffers.menu_draw_block_constant_buffer = engine.get_video_interface()->create_constant_buffer( sizeof( menu_draw_block_c ) );
 
 		// create texture buffers.
-		_texture_buffers.bones_texture_buffer = engine_c::get_instance()->get_video_interface()->create_texture_buffer( sizeof( matrix32x4x4_c ) * bones_limit );
-		_texture_buffers.lights_texture_buffer = engine_c::get_instance()->get_video_interface()->create_texture_buffer( sizeof( video_renderer_light_c ) * _settings.light_count );
-		_texture_buffers.shadow_views_texture_buffer = engine_c::get_instance()->get_video_interface()->create_texture_buffer( sizeof( video_renderer_shadow_view_c ) * _settings.shadow_view_count );
+		_texture_buffers.bones_texture_buffer = engine.get_video_interface()->create_texture_buffer( sizeof( matrix32x4x4_c ) * bones_limit );
+		_texture_buffers.lights_texture_buffer = engine.get_video_interface()->create_texture_buffer( sizeof( video_renderer_light_c ) * _settings.light_count );
+		_texture_buffers.shadow_views_texture_buffer = engine.get_video_interface()->create_texture_buffer( sizeof( video_renderer_shadow_view_c ) * _settings.shadow_view_count );
 
 		// load default texture that is used to draw materials with textures that coulnd't be loaded.
 		//_scene_default_texture = global_engine_instance.interfaces.resource_manager->load_texture( string16_c( core_list_mode_e_static, L"[e]internal/default.png" ) );
@@ -901,7 +901,7 @@ namespace cheonsa
 			vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0 ),
 			vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0 ),
 			vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0 ) };
-		_light_probe_cube_energy_default = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r32g32b32a32_float, 1, 1, 1, 6, _light_probe_cube_energy_default_data, 4 * 4 * 6, false, false, false, false );
+		_light_probe_cube_energy_default = engine.get_video_interface()->create_texture( video_texture_format_e_r32g32b32a32_float, 1, 1, 1, 6, _light_probe_cube_energy_default_data, 4 * 4 * 6, false, false, false, false );
 
 		// light probe model used to display light probes when light probe visualization is enabled ( global_engine_instance.debug.draw_object_light_probes == true ).
 		//_scene_light_probe_model = global_engine_instance.interfaces.resource_manager->load_model( string16_c( core_list_mode_e_static, L"[e]internal/sphere.model" ) );
@@ -918,7 +918,7 @@ namespace cheonsa
 		constant_buffers_to_bind[ 6 ] = _constant_buffers.menu_block_constant_buffer;
 		constant_buffers_to_bind[ 7 ] = _constant_buffers.menu_batch_block_constant_buffer;
 		constant_buffers_to_bind[ 8 ] = _constant_buffers.menu_draw_block_constant_buffer;
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader_constant_buffers( 0, 9, constant_buffers_to_bind );
+		engine.get_video_interface()->bind_vertex_shader_constant_buffers( 0, 9, constant_buffers_to_bind );
 		// pind ps constant buffers, a few are ommitted.
 		constant_buffers_to_bind[ 0 ] = nullptr;
 		constant_buffers_to_bind[ 1 ] = nullptr;
@@ -929,20 +929,20 @@ namespace cheonsa
 		constant_buffers_to_bind[ 6 ] = nullptr;
 		constant_buffers_to_bind[ 7 ] = _constant_buffers.menu_batch_block_constant_buffer;
 		constant_buffers_to_bind[ 8 ] = _constant_buffers.menu_draw_block_constant_buffer;
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_constant_buffers( 0, 9, constant_buffers_to_bind );
+		engine.get_video_interface()->bind_pixel_shader_constant_buffers( 0, 9, constant_buffers_to_bind );
 
 		// bind texture buffers once and forget about them.
 		// these should remain bound for the life time of the program.
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader_texture_buffers( _texture_bind_index_for_bones_texture_buffer, 1, &_texture_buffers.bones_texture_buffer );
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_texture_buffers( _texture_bind_index_for_bones_texture_buffer, 1, &_texture_buffers.lights_texture_buffer );
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_texture_buffers( _texture_bind_index_for_bones_texture_buffer, 1, &_texture_buffers.shadow_views_texture_buffer );
+		engine.get_video_interface()->bind_vertex_shader_texture_buffers( _texture_bind_index_for_bones_texture_buffer, 1, &_texture_buffers.bones_texture_buffer );
+		engine.get_video_interface()->bind_pixel_shader_texture_buffers( _texture_bind_index_for_bones_texture_buffer, 1, &_texture_buffers.lights_texture_buffer );
+		engine.get_video_interface()->bind_pixel_shader_texture_buffers( _texture_bind_index_for_bones_texture_buffer, 1, &_texture_buffers.shadow_views_texture_buffer );
 
 		uint8_c white[ 4 ] = { 255, 255, 255, 255 };
-		_white_pixel_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, white, 4, false, false, false, false );
+		_white_pixel_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, white, 4, false, false, false, false );
 		_white_pixel_texture_wrapper.set_video_texture( _white_pixel_texture );
 
 		uint8_c green[ 4 ] = { 0, 255, 0, 255 };
-		_green_pixel_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, green, 4, false, false, false, false );
+		_green_pixel_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, green, 4, false, false, false, false );
 		_green_pixel_texture_wrapper.set_video_texture( _green_pixel_texture );
 
 		return true;
@@ -1002,13 +1002,13 @@ namespace cheonsa
 					delete light_probe->_cube_depth_stencil;
 					light_probe->_cube_depth_stencil = nullptr;
 				}
-				light_probe->_cube_color = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r16g16b16a16_float, light_probe_resolution, light_probe_resolution, 1, 6, nullptr, 0, false, false, true, true );
-				light_probe->_cube_depth_stencil = engine_c::get_instance()->get_video_interface()->create_depth_stencil( video_depth_stencil_format_e_d32, light_probe_resolution, light_probe_resolution, 1, 6 );
+				light_probe->_cube_color = engine.get_video_interface()->create_texture( video_texture_format_e_r16g16b16a16_float, light_probe_resolution, light_probe_resolution, 1, 6, nullptr, 0, false, false, true, true );
+				light_probe->_cube_depth_stencil = engine.get_video_interface()->create_depth_stencil( video_depth_stencil_format_e_d32, light_probe_resolution, light_probe_resolution, 1, 6 );
 			}
 
 			// clear render targets (clears all 6 array slices).
-			engine_c::get_instance()->get_video_interface()->clear_depth_stencil( light_probe->_cube_depth_stencil, 1.0f, 0 );
-			engine_c::get_instance()->get_video_interface()->clear_texture( light_probe->_cube_color, 0.0f, 0.0f, 0.0f, 0.0f );
+			engine.get_video_interface()->clear_depth_stencil( light_probe->_cube_depth_stencil, 1.0f, 0 );
+			engine.get_video_interface()->clear_texture( light_probe->_cube_color, 0.0f, 0.0f, 0.0f, 0.0f );
 
 			// render each cube face view.
 			for ( sint32_c cube_face_view_index = 0; cube_face_view_index < 6; cube_face_view_index++ )
@@ -1027,7 +1027,7 @@ namespace cheonsa
 				// bind shadow map texture.
 				textures_to_bind[ 0 ] = _shadow_map_texture2darray;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2darray;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_shadow_map_texture, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_shadow_map_texture, 1, textures_to_bind, textures_to_bind_types );
 
 				// update camera constants.
 				_constant_buffers.camera_block->camera_view_projection_transform = cube_face_view_list_base[ cube_face_view_index ].view_transform * cube_face_projection_transform;
@@ -1045,8 +1045,8 @@ namespace cheonsa
 				// bind render targets (bind 1 array slice for the current cube face).
 				textures_to_bind[ 0 ] = light_probe->_cube_color;
 				textures_slices_to_bind[ 0 ] = cube_face_view_index;
-				engine_c::get_instance()->get_video_interface()->bind_target_texture2darrays_slices( 1, textures_to_bind, textures_slices_to_bind, light_probe->_cube_depth_stencil, cube_face_view_index );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+				engine.get_video_interface()->bind_target_texture2darrays_slices( 1, textures_to_bind, textures_slices_to_bind, light_probe->_cube_depth_stencil, cube_face_view_index );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
 
 				// render sky models for color.
 				for ( sint32_c j = 0; j < _scene->sky_models.get_length(); j++ )
@@ -1059,7 +1059,7 @@ namespace cheonsa
 				}
 
 				// change depth stencil behavior.
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
 
 				// render opaque models for color.
 				for ( sint32_c j = 0; j < _models_to_render.get_length(); j++ )
@@ -1071,7 +1071,7 @@ namespace cheonsa
 				// unbind shadow map texture.
 				textures_to_bind[ 0 ] = nullptr;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_none; // value is irrelevant and not used, but setting anyway.
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_shadow_map_texture, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_shadow_map_texture, 1, textures_to_bind, textures_to_bind_types );
 			}
 			light_probe->_cube_color->generate_mips();
 			light_probe->_is_up_to_date = true;
@@ -1081,10 +1081,10 @@ namespace cheonsa
 		}
 
 		// un-bind resources.
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 18, nullptr, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 0, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
+		engine.get_video_interface()->bind_pixel_shader_textures( 0, 18, nullptr, nullptr );
+		engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+		engine.get_video_interface()->bind_vertex_buffers( 0, nullptr );
+		engine.get_video_interface()->bind_index_buffer( nullptr );
 	}
 
 	void_c video_renderer_interface_c::render_scene( scene_c * scene, scene_camera_c const * camera, video_renderer_canvas_c * canvas )
@@ -1106,8 +1106,8 @@ namespace cheonsa
 		// initialize additional off-screen textures for the scene if needed.
 		if ( _scene->_target_pick_depth == nullptr )
 		{
-			_scene->_target_pick_depth = engine_c::get_instance()->get_video_interface()->create_depth_stencil( video_depth_stencil_format_e_d32, pick_limit, 1, 1, 1 );
-			_scene->_target_pick_depth_readable = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r32_float, pick_limit, 1, 1, 1, nullptr, 0, false, true, false, false );
+			_scene->_target_pick_depth = engine.get_video_interface()->create_depth_stencil( video_depth_stencil_format_e_d32, pick_limit, 1, 1, 1 );
+			_scene->_target_pick_depth_readable = engine.get_video_interface()->create_texture( video_texture_format_e_r32_float, pick_limit, 1, 1, 1, nullptr, 0, false, true, false, false );
 		}
 
 		// add the primary view for the primary camera.
@@ -1197,7 +1197,7 @@ namespace cheonsa
 			// bind shadow map texture.
 			textures_to_bind[ 0 ] = _shadow_map_texture2darray;
 			textures_to_bind_types[ 0 ] = video_texture_type_e_texture2darray;
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_shadow_map_texture, 1, textures_to_bind, textures_to_bind_types );
+			engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_shadow_map_texture, 1, textures_to_bind, textures_to_bind_types );
 
 			// sort object draw lists from near to far, which is optimal for rendering opaque geometry with a z-buffer and depth test.
 			video_renderer_quick_sort_plane = view.world_space_frustum.planes[ frustum_plane_index_e_near ];
@@ -1222,13 +1222,13 @@ namespace cheonsa
 			if ( view_index == 0 )
 			{
 				// add debug lines.
-				if ( engine_c::get_instance()->get_debug_manager()->get_draw_world_axes() )
+				if ( engine.get_debug_manager()->get_draw_world_axes() )
 				{
 					add_debug_axes( true, space_transform_c(), 1.0f, 1.0f );
 				}
-				if ( engine_c::get_instance()->get_debug_manager()->get_draw_world_grid() )
+				if ( engine.get_debug_manager()->get_draw_world_grid() )
 				{
-					vector32x4_c grid_color = engine_c::get_instance()->get_debug_manager()->get_grid_color();
+					vector32x4_c grid_color = engine.get_debug_manager()->get_grid_color();
 					float32_c grid_dimension = 100.0f;
 					float32_c grid_dimension_half = grid_dimension / 2.0f;
 					float32_c grid_interval = 5.0f;
@@ -1240,7 +1240,7 @@ namespace cheonsa
 						add_debug_line( false, vector64x3_c( anchor_a + i, anchor_b - grid_dimension_half, 0.0f ), vector64x3_c( anchor_a + i, anchor_b + grid_dimension_half, 0.0f ), grid_color );
 					}
 				}
-				if ( engine_c::get_instance()->get_debug_manager()->get_draw_object_bones() )
+				if ( engine.get_debug_manager()->get_draw_object_bones() )
 				{
 					for ( sint32_c model_index = 0; model_index < _models_to_render.get_length(); model_index++ )
 					{
@@ -1251,12 +1251,12 @@ namespace cheonsa
 							vector64x3_c world_space_bone_head = ops::make_vector64x3_transformed_point( vector64x3_c( ops::make_vector32x3_transformed_point( vector32x3_c( bone->_source_bone->head_position ), bone->_object_space_skin_matrix ) ), model->get_scene_object()->get_world_space_transform() );
 							vector64x3_c world_space_bone_tail = ops::make_vector64x3_transformed_point( vector64x3_c( ops::make_vector32x3_transformed_point( vector32x3_c( bone->_source_bone->tail_position ), bone->_object_space_skin_matrix ) ), model->get_scene_object()->get_world_space_transform() );
 							space_transform_c world_space_bone_transform = bone->_object_space_transform * model->get_scene_object()->get_world_space_transform();
-							add_debug_line( true, world_space_bone_head, world_space_bone_tail, engine_c::get_instance()->get_debug_manager()->get_bone_color() );
+							add_debug_line( true, world_space_bone_head, world_space_bone_tail, engine.get_debug_manager()->get_bone_color() );
 							add_debug_axes( true, world_space_bone_transform, 0.1f, 0.5f );
 						}
 					}
 				}
-				if ( engine_c::get_instance()->get_debug_manager()->get_draw_object_physics() )
+				if ( engine.get_debug_manager()->get_draw_object_physics() )
 				{
 					_scene->_physics_scene->render(); // bullet will call our add_debug_line functions.
 				}
@@ -1289,7 +1289,7 @@ namespace cheonsa
 					_scene->_gather_pickables_along_segment( pick_segment, pixel_perfect_pick_models, pixel_perfect_pick_sprites ); // this will populate _current_scene->_pick_list_original.
 					if ( _scene->_pick_list_original.get_length() )
 					{
-						engine_c::get_instance()->get_video_interface()->clear_depth_stencil( _scene->_target_pick_depth, 1.0f, 0 );
+						engine.get_video_interface()->clear_depth_stencil( _scene->_target_pick_depth, 1.0f, 0 );
 
 						matrix32x4x4_c pick_view_transform = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), pick_ray_direction, view.world_space_basis.c );
 						matrix32x4x4_c pick_projection_transform = ops::make_matrix32x4x4_projection_orthographic( 0.001f, 0.001f, view.camera_clip_near, view.camera_clip_far ); // a 1mm x 1mm ray.
@@ -1298,16 +1298,16 @@ namespace cheonsa
 						_constant_buffers.camera_block->camera_view_projection_transform = pick_view_projection_transform;
 						_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 
-						engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, _scene->_target_pick_depth, video_texture_type_e_texture2d );
-						engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-						engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
-						engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
-						engine_c::get_instance()->get_video_interface()->bind_pixel_shader( nullptr );
+						engine.get_video_interface()->bind_target_textures( 0, nullptr, _scene->_target_pick_depth, video_texture_type_e_texture2d );
+						engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+						engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
+						engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
+						engine.get_video_interface()->bind_pixel_shader( nullptr );
 
 						for ( sint32_c i = 0; i < _scene->_pick_list_original.get_length(); i++ )
 						{
 							scene_pick_c * pick = &_scene->_pick_list_original[ i ];
-							engine_c::get_instance()->get_video_interface()->bind_rasterizer_view_port_rectangle( i, 0, 1, 1, 0.0f, 1.0f );
+							engine.get_video_interface()->bind_rasterizer_view_port_rectangle( i, 0, 1, 1, 0.0f, 1.0f );
 							if ( pick->component->get_type_code() == scene_component_model_c::get_type_code_static() )
 							{
 								_draw_model_with_no_material( dynamic_cast< scene_component_model_c * >( pick->component ), view.world_space_position );
@@ -1317,22 +1317,22 @@ namespace cheonsa
 								scene_component_sprite_c * sprite = dynamic_cast< scene_component_sprite_c * >( pick->component );
 								//textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ]->_video_texture; // we could do alpha-masking but eh.
 								//textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-								//engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
-								engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+								//engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
+								engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
 								vertex_buffers_to_bind[ 0 ] = _sprite_vertex_buffer;
-								engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-								engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-								engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh() );
-								engine_c::get_instance()->get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
+								engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+								engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+								engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh() );
+								engine.get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
 							}
 						}
 
-						engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+						engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 
 						// read back results and build final pick list.
 						// direct3d documentation recommends waiting for several frames before attempting to map a buffer (read from a texture), otherwise the pipeline might stall.
 						// for now, to remain straight forward, we'll just retreive the results now.
-						engine_c::get_instance()->get_video_interface()->copy_sub_resource( _scene->_target_pick_depth_readable, 0, _scene->_target_pick_depth, 0 );
+						engine.get_video_interface()->copy_sub_resource( _scene->_target_pick_depth_readable, 0, _scene->_target_pick_depth, 0 );
 						float32_c pick_depth_array[ pick_limit ];
 						_scene->_target_pick_depth_readable->get_data( pick_depth_array, pick_limit * sizeof( float32_c ) );
 						for ( sint32_c i = 0; i < _scene->_pick_list_original.get_length(); i++ )
@@ -1377,9 +1377,9 @@ namespace cheonsa
 			/////////////////// normal, depth, and early z pre-pass of opaque models and sprites.
 			textures_to_bind[ 0 ] = view.canvas->_target_normal;
 			textures_to_bind[ 1 ] = view.canvas->_target_depth;
-			engine_c::get_instance()->get_video_interface()->bind_target_textures( 2, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
+			engine.get_video_interface()->bind_target_textures( 2, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
+			engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
+			engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
 			for ( sint32_c model_index = 0; model_index < _models_to_render.get_length(); model_index++ )
 			{
 				scene_component_model_c * model = _models_to_render[ model_index ];
@@ -1388,9 +1388,9 @@ namespace cheonsa
 			if ( _sprites_to_render.get_length() > 0 )
 			{
 				vertex_buffers_to_bind[ 0 ] = _sprite_vertex_buffer;
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+				engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
 				for ( sint32_c sprite_index = 0; sprite_index < _sprites_to_render.get_length(); sprite_index++ )
 				{
 					scene_component_sprite_c * sprite = _sprites_to_render[ sprite_index ];
@@ -1401,14 +1401,14 @@ namespace cheonsa
 						{
 							textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : nullptr;
 							textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-							engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-							engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh_masked() );
+							engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+							engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh_masked() );
 						}
 						else
 						{
-							engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh_masked() );
+							engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh_masked() );
 						}
-						engine_c::get_instance()->get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
+						engine.get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
 					}
 				}
 			}
@@ -1439,8 +1439,8 @@ namespace cheonsa
 			if ( _models_to_render_for_outline.get_length() > 0 || _sprites_to_render_for_outline.get_length() > 0 )
 			{
 				textures_to_bind[ 0 ] = view.canvas->_target_outline;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_equal, false );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_equal, false );
 				for ( sint32_c model_index = 0; model_index < _models_to_render_for_outline.get_length(); model_index++ )
 				{
 					scene_component_model_c * model = _models_to_render_for_outline[ model_index ];
@@ -1450,10 +1450,10 @@ namespace cheonsa
 				if ( _sprites_to_render_for_outline.get_length() > 0 )
 				{
 					vertex_buffers_to_bind[ 0 ] = _sprite_vertex_buffer;
-					engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-					engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
-					engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-					engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+					engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+					engine.get_video_interface()->bind_index_buffer( nullptr );
+					engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+					engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
 					for ( sint32_c sprite_index = 0; sprite_index < _sprites_to_render_for_outline.get_length(); sprite_index++ )
 					{
 						scene_component_sprite_c * sprite = _sprites_to_render_for_outline[ sprite_index ];
@@ -1462,16 +1462,16 @@ namespace cheonsa
 							_bind_mesh_vs_for_color( sprite->_material.is_waved, view.clip_plane_enable );
 							if ( !sprite->_material.is_masked )
 							{
-								engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh() );
+								engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh() );
 							}
 							else
 							{
 								textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : _white_pixel_texture;
 								textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-								engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
-								engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh_masked() );
+								engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
+								engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh_masked() );
 							}
-							engine_c::get_instance()->get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
+							engine.get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
 							view.canvas->_statistic_object_count += 1;
 							view.canvas->_statistic_triangle_count += 2;
 						}
@@ -1505,8 +1505,8 @@ namespace cheonsa
 			if ( _scene->sky_models.get_length() )
 			{
 				textures_to_bind[ 0 ] = view.canvas->_target_color;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
 				for ( sint32_c i = 0; i < _scene->sky_models.get_length(); i++ )
 				{
 					scene_component_model_c * model = _scene->sky_models[ i ];
@@ -1542,8 +1542,8 @@ namespace cheonsa
 			//////////////
 			/////////////////// color pass of opaque models and sprites.
 			textures_to_bind[ 0 ] = view.canvas->_target_color;
-			engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_equal, false );
+			engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
+			engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_equal, false );
 			for ( sint32_c model_index = 0; model_index < _models_to_render.get_length(); model_index++ )
 			{
 				scene_component_model_c * model = _models_to_render[ model_index ];
@@ -1553,10 +1553,10 @@ namespace cheonsa
 			if ( _sprites_to_render.get_length() > 0 )
 			{
 				vertex_buffers_to_bind[ 0 ] = _sprite_vertex_buffer;
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_index_buffer( nullptr );
+				engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+				engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
 				for ( sint32_c sprite_index = 0; sprite_index < _sprites_to_render.get_length(); sprite_index++ )
 				{
 					scene_component_sprite_c * sprite = _sprites_to_render[ sprite_index ];
@@ -1564,7 +1564,7 @@ namespace cheonsa
 					{
 						_bind_mesh_vs_for_color( sprite->_material.is_waved, view.clip_plane_enable );
 						_bind_material_for_color( &sprite->_material );
-						engine_c::get_instance()->get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
+						engine.get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
 						view.canvas->_statistic_object_count += 1;
 						view.canvas->_statistic_triangle_count += 2;
 					}
@@ -1594,7 +1594,7 @@ namespace cheonsa
 			//////////
 			//////////////
 			/////////////////// color pass of transparent models and sprites.
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
+			engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
 			for ( sint32_c model_index = 0; model_index < _models_to_render.get_length(); model_index++ )
 			{
 				scene_component_model_c * model = _models_to_render[ model_index ];
@@ -1604,10 +1604,10 @@ namespace cheonsa
 			if ( _sprites_to_render.get_length() > 0 )
 			{
 				vertex_buffers_to_bind[ 0 ] = _sprite_vertex_buffer;
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_index_buffer( nullptr );
+				engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+				engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
 				for ( sint32_c sprite_index = 0; sprite_index < _sprites_to_render.get_length(); sprite_index++ )
 				{
 					scene_component_sprite_c * sprite = _sprites_to_render[ sprite_index ];
@@ -1615,7 +1615,7 @@ namespace cheonsa
 					{
 						_bind_mesh_vs_for_color( sprite->_material.is_waved, view.clip_plane_enable );
 						_bind_material_for_color( &sprite->_material );
-						engine_c::get_instance()->get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
+						engine.get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
 						view.canvas->_statistic_object_count += 1;
 						view.canvas->_statistic_triangle_count += 2;
 					}
@@ -1658,10 +1658,10 @@ namespace cheonsa
 			textures_to_bind_types[ 2 ] = video_texture_type_e_texture2d;
 			textures_to_bind[ 3 ] = view.canvas->_target_color_copy;
 			textures_to_bind_types[ 3 ] = video_texture_type_e_texture2d;
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures, 4, textures_to_bind, textures_to_bind_types );
+			engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures, 4, textures_to_bind, textures_to_bind_types );
 			textures_to_bind[ 0 ] = view.canvas->_target_color;
-			engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
+			engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
+			engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
 			for ( sint32_c model_index = 0; model_index < _models_to_render.get_length(); model_index++ )
 			{
 				scene_component_model_c * model = _models_to_render[ model_index ];
@@ -1730,23 +1730,23 @@ namespace cheonsa
 							delete _debug_line_list_vertex_buffer;
 							_debug_line_list_vertex_buffer = nullptr;
 						}
-						_debug_line_list_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_debug, _debug_line_list.get_length_allocated(), 0, 0, true, false, false );
+						_debug_line_list_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_debug, _debug_line_list.get_length_allocated(), 0, 0, true, false, false );
 					}
 					_debug_line_list_vertex_buffer->set_data( _debug_line_list.get_internal_array(), _debug_line_list.get_internal_array_size_used() );
 					_debug_line_list.remove_all();
 
 					// draw the line list.
-					engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-					engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( debug_line_blend_type );
-					engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_vs_debug() );
-					engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_ps_debug() );
+					engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+					engine.get_video_interface()->bind_rasterizer_blend_state( debug_line_blend_type );
+					engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_debug() );
+					engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_color_ps_debug() );
 					vertex_buffers_to_bind[ 0 ] = _debug_line_list_vertex_buffer;
-					engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-					engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_line_list );
-					engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
-					engine_c::get_instance()->get_video_interface()->draw( 0, debug_vertex_count );
-					engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-					engine_c::get_instance()->get_video_interface()->draw( debug_vertex_count, debug_vertex_xray_count );
+					engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+					engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_line_list );
+					engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
+					engine.get_video_interface()->draw( 0, debug_vertex_count );
+					engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+					engine.get_video_interface()->draw( debug_vertex_count, debug_vertex_xray_count );
 				}
 
 				// something to think about ...
@@ -1758,13 +1758,13 @@ namespace cheonsa
 
 				// half blur.
 				// prepare render states.
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-				engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
-				engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_vs() );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+				engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+				engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
+				engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_scene_post_vs() );
 				vertex_buffers_to_bind[ 0 ] = _quad_vertex_buffer;
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
 				// prepare constants.
 				_constant_buffers.camera_block->canvas_actual_size.a = static_cast< float32_c >( view.canvas->get_actual_width() / 2 );
 				_constant_buffers.camera_block->canvas_actual_size.b = static_cast< float32_c >( view.canvas->get_actual_height() / 2 );
@@ -1773,20 +1773,20 @@ namespace cheonsa
 				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 				// render blur x.
 				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_x;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
 				textures_to_bind[ 0 ] = view.canvas->_target_color;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->draw( 0, 4 );
 				// render blur xy.
 				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_xy;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
 				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_x;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->draw( 0, 4 );
 
 				// quarter blur.
 				// prepare constants.
@@ -1797,20 +1797,20 @@ namespace cheonsa
 				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 				// render blur x.
 				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_x;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
 				textures_to_bind[ 0 ] = view.canvas->_target_color_half_blurred_xy;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->draw( 0, 4 );
 				// render blur xy.
 				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_xy;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
 				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_x;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->draw( 0, 4 );
 
 				// eighth blur.
 				// prepare constants.
@@ -1821,24 +1821,24 @@ namespace cheonsa
 				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 				// render blur x.
 				textures_to_bind[ 0 ] = view.canvas->_target_color_eighth_blurred_x;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_blur_x() );
 				textures_to_bind[ 0 ] = view.canvas->_target_color_quarter_blurred_xy;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->draw( 0, 4 );
 				// render blur xy.
 				textures_to_bind[ 0 ] = view.canvas->_target_color_eighth_blurred_xy;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_blur_y() );
 				textures_to_bind[ 0 ] = view.canvas->_target_color_eighth_blurred_x;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->draw( 0, 4 );
 
 				// unbind.
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr );
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr );
+				engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 
 				// render post process to final output target.
 				video_texture_c * output_target = view.canvas->_output != nullptr ? view.canvas->_output->get_texture_resource() : view.canvas->_target_color_final;
@@ -1857,11 +1857,11 @@ namespace cheonsa
 				textures_to_bind_types[ 5 ] = video_texture_type_e_texture2d;
 				textures_to_bind[ 6 ] = view.canvas->_target_color_eighth_blurred_xy;
 				textures_to_bind_types[ 6 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures, 7, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures, 7, textures_to_bind, textures_to_bind_types );
 				textures_to_bind[ 0 ] = output_target;
-				engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_process() );
-				engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_process() );
+				engine.get_video_interface()->draw( 0, 4 );
 			}
 			///////////////////
 			//////////////
@@ -1874,10 +1874,10 @@ namespace cheonsa
 		}
 
 		// clear bindings (could be optimized).
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 0, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 18, nullptr, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+		engine.get_video_interface()->bind_index_buffer( nullptr );
+		engine.get_video_interface()->bind_vertex_buffers( 0, nullptr );
+		engine.get_video_interface()->bind_pixel_shader_textures( 0, 18, nullptr, nullptr );
+		engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 		_scene = nullptr;
 	}
 
@@ -2282,9 +2282,9 @@ namespace cheonsa
 		if ( _models_to_skin.get_length() > 0 )
 		{
 			// set render states needed to skin with gpu.
-			engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_point_list );
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader( nullptr );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+			engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_point_list );
+			engine.get_video_interface()->bind_pixel_shader( nullptr );
+			engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
 			// skin models with gpu and cpu.
 			for ( sint32_c i = 0; i < _models_to_skin.get_length(); i++ )
 			{
@@ -2299,23 +2299,23 @@ namespace cheonsa
 				}
 			}
 			// revert render states that were needed to skin with gpu.
-			engine_c::get_instance()->get_video_interface()->bind_target_vertex_buffer( nullptr );
-			engine_c::get_instance()->get_video_interface()->bind_vertex_shader( nullptr );
+			engine.get_video_interface()->bind_target_vertex_buffer( nullptr );
+			engine.get_video_interface()->bind_vertex_shader( nullptr );
 		}
 
 		// render shadow views to shadow maps.
 		if ( _shadow_views.get_length() > 0 )
 		{
-			engine_c::get_instance()->get_video_interface()->clear_texture( _shadow_map_texture2darray, 1.0f, 1.0f, 1.0f, 1.0f );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_back, video_fill_type_e_face );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_min );
+			engine.get_video_interface()->clear_texture( _shadow_map_texture2darray, 1.0f, 1.0f, 1.0f, 1.0f );
+			engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_back, video_fill_type_e_face );
+			engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+			engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_min );
 			for ( sint32_c shadow_view_index = 0; shadow_view_index < _shadow_views.get_length(); shadow_view_index++ )
 			{
 				shadow_view_c * shadow_view = &_shadow_views[ shadow_view_index ];
 				textures_to_bind[ 0 ] = _shadow_map_texture2darray;
 				textures_slices_to_bind[ 0 ] = shadow_view_index;
-				engine_c::get_instance()->get_video_interface()->bind_target_texture2darrays_slices( 1, textures_to_bind, textures_slices_to_bind, nullptr, 0 );
+				engine.get_video_interface()->bind_target_texture2darrays_slices( 1, textures_to_bind, textures_slices_to_bind, nullptr, 0 );
 				_constant_buffers.shadow_camera_block->shadow_camera_view_projection_transform = shadow_view->virtual_space_view_projection_transform;
 				_constant_buffers.shadow_camera_block_constant_buffer->set_data( _constant_buffers.shadow_camera_block, sizeof( shadow_camera_block_c ) );
 				for ( sint32_c model_index = 0; model_index < shadow_view->model_list.get_length(); model_index++ )
@@ -2325,7 +2325,7 @@ namespace cheonsa
 				}
 				shadow_view->model_list.remove_all();
 			}
-			engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none ); // un-bind the shadow map render target, so that it can be later re-bound as a texture input instead.
+			engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none ); // un-bind the shadow map render target, so that it can be later re-bound as a texture input instead.
 		}
 
 		// upload lights.
@@ -2355,7 +2355,7 @@ namespace cheonsa
 					delete _sprite_vertex_buffer;
 					_sprite_vertex_buffer = nullptr;
 				}
-				_sprite_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _sprite_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
+				_sprite_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _sprite_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
 			}
 			_sprite_vertex_buffer->set_data( _sprite_vertex_list.get_internal_array(), _sprite_vertex_list.get_internal_array_size_used() );
 			_sprite_vertex_list.remove_all();
@@ -2411,7 +2411,7 @@ namespace cheonsa
 
 		if ( model->_mesh_vertex_buffer_skinned == nullptr )
 		{
-			model->_mesh_vertex_buffer_skinned = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, true, false, false );
+			model->_mesh_vertex_buffer_skinned = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, true, false, false );
 		}
 
 		// if we can parallelize this it would be better.
@@ -2489,7 +2489,7 @@ namespace cheonsa
 
 		if ( model->_mesh_vertex_buffer_skinned == nullptr )
 		{
-			model->_mesh_vertex_buffer_skinned = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, false, false, true );
+			model->_mesh_vertex_buffer_skinned = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, false, false, true );
 		}
 
 		// skin vertices.
@@ -2500,10 +2500,10 @@ namespace cheonsa
 			bones[ bone_index ] = matrix32x4x4_c( * model->_bone_skin_matrix_list[ bone_index ] ); // we do not transpose these, because each matrix row is treated as a float4 component in the shader and is loaded as such. any transposition that might happen is done by the shader or hardware or whatever when it loads the vectors into a matrix.
 		}
 		_texture_buffers.bones_texture_buffer->set_data( bones, sizeof( matrix32x4x4_c ) * model->_bone_skin_matrix_list.get_length() );
-		engine_c::get_instance()->get_video_interface()->bind_target_vertex_buffer( model->_mesh_vertex_buffer_skinned );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_skin_mesh() );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 0, nullptr );
-		engine_c::get_instance()->get_video_interface()->draw( 0, model->_model_resource->_data.mesh_list.get_length());
+		engine.get_video_interface()->bind_target_vertex_buffer( model->_mesh_vertex_buffer_skinned );
+		engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_skin_mesh() );
+		engine.get_video_interface()->bind_vertex_buffers( 0, nullptr );
+		engine.get_video_interface()->draw( 0, model->_model_resource->_data.mesh_list.get_length());
 	}
 
 	void_c video_renderer_interface_c::_bind_model_properties( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c with_lights, boolean_c with_ambience, boolean_c with_outline )
@@ -2546,7 +2546,7 @@ namespace cheonsa
 				textures_to_bind[ i ] = model->object_textures[ i ].is_reference_set_and_loaded() ? model->object_textures[ i ]->get_video_texture() : nullptr;
 				textures_to_bind_types[ i ] = video_texture_type_e_texture2d;
 			}
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_model_textures, object_textures_count, textures_to_bind, textures_to_bind_types );
+			engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_model_textures, object_textures_count, textures_to_bind, textures_to_bind_types );
 		}
 
 		textures_to_bind[ 0 ] = _light_probe_cube_energy_default;
@@ -2556,7 +2556,7 @@ namespace cheonsa
 			textures_to_bind[ 0 ] = light_probe != nullptr ? light_probe->_cube_color : nullptr;
 			textures_to_bind_types[ 0 ] = video_texture_type_e_texturecube;
 		}
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( video_renderer_interface_c::_texture_bind_index_for_light_probe_texture, 1, textures_to_bind, textures_to_bind_types );
+		engine.get_video_interface()->bind_pixel_shader_textures( video_renderer_interface_c::_texture_bind_index_for_light_probe_texture, 1, textures_to_bind, textures_to_bind_types );
 	}
 
 	void_c video_renderer_interface_c::_bind_mesh_vs_for_normal_and_depth( boolean_c is_waved, boolean_c is_clipped )
@@ -2566,25 +2566,25 @@ namespace cheonsa
 		{
 			if ( !is_clipped )
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh();
 			}
 			else
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_clipped();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_clipped();
 			}
 		}
 		else
 		{
 			if ( !is_clipped )
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved();
 			}
 			else
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved_clipped();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved_clipped();
 			}
 		}
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( vertex_shader );
+		engine.get_video_interface()->bind_vertex_shader( vertex_shader );
 	}
 
 	void_c video_renderer_interface_c::_bind_mesh_vs_for_color( boolean_c is_waved, boolean_c is_clipped )
@@ -2594,25 +2594,25 @@ namespace cheonsa
 		{
 			if ( !is_clipped )
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh();
 			}
 			else
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh_clipped();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh_clipped();
 			}
 		}
 		else
 		{
 			if ( !is_clipped )
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh_waved();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh_waved();
 			}
 			else
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh_waved_clipped();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh_waved_clipped();
 			}
 		}
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( vertex_shader );
+		engine.get_video_interface()->bind_vertex_shader( vertex_shader );
 	}
 
 	void_c video_renderer_interface_c::_bind_material_for_color( scene_material_c * material )
@@ -2621,11 +2621,11 @@ namespace cheonsa
 
 		if ( !material->is_masked )
 		{
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader( material->pixel_shader.get_pixel_shader() );
+			engine.get_video_interface()->bind_pixel_shader( material->pixel_shader.get_pixel_shader() );
 		}
 		else
 		{
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader( material->pixel_shader.get_pixel_shader_masked() );
+			engine.get_video_interface()->bind_pixel_shader( material->pixel_shader.get_pixel_shader_masked() );
 		}
 
 		for ( uint32_c i = 0; i < material_textures_count; i++ )
@@ -2633,7 +2633,7 @@ namespace cheonsa
 			textures_to_bind[ i ] = material->textures[ i ].is_reference_set_and_loaded() ? material->textures[ i ]->get_video_texture() : _white_pixel_texture;
 			textures_to_bind_types[ i ] = video_texture_type_e_texture2d;
 		}
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, material_textures_count, textures_to_bind, textures_to_bind_types );
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, material_textures_count, textures_to_bind, textures_to_bind_types );
 
 		for ( uint32_c i = 0; i < material_colors_count; i++ )
 		{
@@ -2641,8 +2641,8 @@ namespace cheonsa
 		}
 		_constant_buffers.material_block_constant_buffer->set_data( _constant_buffers.material_block, sizeof( material_block_c ) );
 
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( material->cull_mode, video_fill_type_e_face );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( material->blend_type );
+		engine.get_video_interface()->bind_rasterizer_cull_fill_state( material->cull_mode, video_fill_type_e_face );
+		engine.get_video_interface()->bind_rasterizer_blend_state( material->blend_type );
 	}
 
 	void_c video_renderer_interface_c::_draw_model_with_no_material( scene_component_model_c * model, vector64x3_c const & view_position )
@@ -2670,16 +2670,16 @@ namespace cheonsa
 				_constant_buffers.object_block->object_world_transform = ops::make_matrix32x4x4_from_space_transform( model->get_scene_object()->get_world_space_transform(), view_position );
 				_constant_buffers.object_block_constant_buffer->set_data( _constant_buffers.object_block, sizeof( object_block_c ) );
 				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
 				_bind_mesh_vs_for_color( material->is_waved, false );
 			}
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
 				resource_file_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
-				engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
+				engine.get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
+				engine.get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
 		}
 
@@ -2722,9 +2722,9 @@ namespace cheonsa
 				is_model_bound = true;
 				_bind_model_properties( model, vector64x3_c( 0.0f, 0.0f, 0.0f ), false, false, false );
 				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
-				engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh() );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+				engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh() );
 			}
 
 			_bind_material_for_color( mesh_material );
@@ -2732,8 +2732,8 @@ namespace cheonsa
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
 				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
-				engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
+				engine.get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
+				engine.get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
 		}
 
@@ -2776,28 +2776,28 @@ namespace cheonsa
 				is_model_bound = true;
 				_bind_model_properties( model, view_position, false, false, true );
 				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
 				_bind_mesh_vs_for_color( material->is_waved, is_clipped );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
 			}
 
 			if ( !material->is_masked )
 			{
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh() );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh() );
 			}
 			else
 			{
 				textures_to_bind[ 0 ] = material->textures[ 0 ].is_reference_set_and_loaded() ? material->textures[ 0 ]->get_video_texture() : _white_pixel_texture;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh_masked() );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh_masked() );
 			}
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
 				resource_file_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
-				engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
+				engine.get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
+				engine.get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
 		}
 
@@ -2851,9 +2851,9 @@ namespace cheonsa
 				is_model_bound = true;
 				_bind_model_properties( model, view_position, with_lights, with_ambience, false );
 				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
 				_bind_mesh_vs_for_color( material->is_waved, is_clipped );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
 			}
 
 			_bind_material_for_color( material );
@@ -2861,8 +2861,8 @@ namespace cheonsa
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
 				resource_file_model_c::mesh_draw_c const * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
-				engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
+				engine.get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
+				engine.get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
 		}
 
@@ -2903,9 +2903,9 @@ namespace cheonsa
 			{
 				is_model_bound = true;
 				_bind_model_properties( model, view_position, true, false );
-				engine_c::get_instance()->get_video_interface()->bind_vertex_buffer( model->_mesh_vertex_buffer_cpu_skinned, 0 );
+				engine.get_video_interface()->bind_vertex_buffer( model->_mesh_vertex_buffer_cpu_skinned, 0 );
 				_bind_mesh_vs_for_color( material->is_waved, false );
-				engine_c::get_instance()->get_video_interface()->bind_index_buffer( model->_model_resource->_mesh_index_buffer );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_mesh_index_buffer );
 			}
 
 			_bind_material_for_color( material );
@@ -2913,8 +2913,8 @@ namespace cheonsa
 			for ( uint32_c draw_index = mesh->source_mesh->draw_start; draw_index < mesh->source_mesh->draw_end; draw_index++ )
 			{
 				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_header_extras.mesh_draw_list[ draw_index ];
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( static_cast< video_primitive_type_e >( draw->primitive_type ) );
-				engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start );
+				engine.get_video_interface()->bind_primitive_type( static_cast< video_primitive_type_e >( draw->primitive_type ) );
+				engine.get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start );
 			}
 		}
 
@@ -2938,8 +2938,8 @@ namespace cheonsa
 		_constant_buffers.shadow_object_block_constant_buffer->set_data( _constant_buffers.shadow_object_block, sizeof( shadow_object_block_c ) );
 
 		vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+		engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
 
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
 		{
@@ -2960,33 +2960,33 @@ namespace cheonsa
 			video_vertex_shader_c * vertex_shader = nullptr;
 			if ( !material->is_waved )
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_shadow_vs_mesh();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_shadow_vs_mesh();
 			}
 			else
 			{
-				vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_shadow_vs_mesh_waved();
+				vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_shadow_vs_mesh_waved();
 			}
-			engine_c::get_instance()->get_video_interface()->bind_vertex_shader( vertex_shader );
+			engine.get_video_interface()->bind_vertex_shader( vertex_shader );
 
 			if ( material->is_masked && material->textures[ 0 ].is_reference_set_and_loaded() )
 			{
 				textures_to_bind[ 0 ] = material->textures[ 0 ]->get_video_texture();
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_shadow_ps_mesh_masked() );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_shadow_ps_mesh_masked() );
 			}
 			else
 			{
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_shadow_ps_mesh() );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_shadow_ps_mesh() );
 			}
 
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( material->cull_mode, material->fill_mode );
+			engine.get_video_interface()->bind_rasterizer_cull_fill_state( material->cull_mode, material->fill_mode );
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
 				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
-				engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
+				engine.get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
+				engine.get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
 		}
 
@@ -3004,8 +3004,8 @@ namespace cheonsa
 		_constant_buffers.object_block_constant_buffer->set_data( _constant_buffers.object_block, sizeof( object_block_c ) );
 
 		vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+		engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
 
 		boolean_c is_model_bound = false;
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
@@ -3029,45 +3029,45 @@ namespace cheonsa
 			{
 				if ( !material->is_waved )
 				{
-					vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh();
+					vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh();
 				}
 				else
 				{
-					vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved();
+					vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved();
 				}
 			}
 			else
 			{
 				if ( !material->is_masked )
 				{
-					vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_clipped();
+					vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_clipped();
 				}
 				else
 				{
-					vertex_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved_clipped();
+					vertex_shader = engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_vs_mesh_waved_clipped();
 				}
 			}
-			engine_c::get_instance()->get_video_interface()->bind_vertex_shader( vertex_shader );
+			engine.get_video_interface()->bind_vertex_shader( vertex_shader );
 
 			if ( material->is_masked && material->textures[ 0 ].is_reference_set_and_loaded() )
 			{
 				textures_to_bind[ 0 ] = material->textures[ 0 ]->get_video_texture();
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh_masked() );
+				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh_masked() );
 			}
 			else
 			{
-				engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh() );
+				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh() );
 			}
 
-			engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( material->cull_mode, video_fill_type_e_face );
+			engine.get_video_interface()->bind_rasterizer_cull_fill_state( material->cull_mode, video_fill_type_e_face );
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
 				resource_file_model_c::mesh_draw_c * draw = &model->_model_resource->_data.mesh_draw_list[ draw_index ];
-				engine_c::get_instance()->get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
-				engine_c::get_instance()->get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
+				engine.get_video_interface()->bind_primitive_type( draw->get_video_primitive_type() );
+				engine.get_video_interface()->draw_indexed( draw->index_start, draw->index_end - draw->index_start, 0 );
 			}
 		}
 
@@ -3156,27 +3156,27 @@ namespace cheonsa
 		assert( output->get_multi_sample_count() == 1 );
 
 		textures_to_bind[ 0 ] = output;
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_vs() );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, &_quad_vertex_buffer );
+		engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+		engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+		engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+		engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
+		engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_scene_post_vs() );
+		engine.get_video_interface()->bind_vertex_buffers( 1, &_quad_vertex_buffer );
 		if ( input->get_width() == output->get_width() && input->get_height() == output->get_height() )
 		{
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_resolve_native() );
+			engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_resolve_native() );
 		}
 		else
 		{
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_resolve_scaled() );
+			engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_resolve_scaled() );
 		}
 		textures_to_bind[ 0 ] = input;
 		textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-		engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-		engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr);
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+		engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+		engine.get_video_interface()->draw( 0, 4 );
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr);
+		engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 	}
 
 	/*
@@ -3192,22 +3192,22 @@ namespace cheonsa
 		_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 
 		textures_to_bind[ 0 ] = output;
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_vs() );
+		engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+		engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+		engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+		engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_set );
+		engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_scene_post_vs() );
 		vertex_buffers_to_bind[ 0 ] = _quad_vertex_buffer;
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_scene_post_ps_resolve_quarter() );
+		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+		engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_post_ps_resolve_quarter() );
 		textures_to_bind[ 0 ] = input;
 		textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
-		engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
-		engine_c::get_instance()->get_video_interface()->draw( 0, 4 );
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
+		engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_strip );
+		engine.get_video_interface()->draw( 0, 4 );
 
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, nullptr, nullptr );
+		engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 	}
 	*/
 
@@ -3406,7 +3406,7 @@ namespace cheonsa
 				delete _menu_vertex_buffer;
 				_menu_vertex_buffer = nullptr;
 			}
-			_menu_vertex_buffer = engine_c::get_instance()->get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, _menu_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
+			_menu_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, _menu_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
 		}
 		_menu_vertex_buffer->set_data( _menu_vertex_list.get_internal_array(), _menu_vertex_list.get_internal_array_size_used() );
 
@@ -3418,25 +3418,25 @@ namespace cheonsa
 				delete _menu_index_buffer;
 				_menu_index_buffer = nullptr;
 			}
-			_menu_index_buffer = engine_c::get_instance()->get_video_interface()->create_index_buffer( video_index_format_e_uint16, _menu_index_list.get_length_allocated(), nullptr, 0, true, false );
+			_menu_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint16, _menu_index_list.get_length_allocated(), nullptr, 0, true, false );
 		}
 		_menu_index_buffer->set_data( _menu_index_list.get_internal_array(), _menu_index_list.get_internal_array_size_used() );
 
 		// update and bind glyph map texture.
-		engine_c::get_instance()->get_glyph_manager()->update_glyph_map_texture();
-		textures_to_bind[ 0 ] = engine_c::get_instance()->get_glyph_manager()->_glyph_atlas_texture;
+		engine.get_glyph_manager()->update_glyph_map_texture();
+		textures_to_bind[ 0 ] = engine.get_glyph_manager()->_glyph_atlas_texture;
 		textures_to_bind_types[ 0 ] = video_texture_type_e_texture2darray;
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_glyph_atlas_texture, 1, textures_to_bind, textures_to_bind_types );
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_glyph_atlas_texture, 1, textures_to_bind, textures_to_bind_types );
 
 		// bind render states.
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_mix );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu2_vs() );
+		engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_mix );
+		engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+		engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+		engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_menu2_vs() );
 		vertex_buffers_to_bind[ 0 ] = _menu_vertex_buffer;
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( _menu_index_buffer );
-		engine_c::get_instance()->get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_list );
+		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+		engine.get_video_interface()->bind_index_buffer( _menu_index_buffer );
+		engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_triangle_list );
 
 		// render control groups, in reverse order, so that it goes depth first.
 		// so that deeper level control groups finish rendering first.
@@ -3448,10 +3448,10 @@ namespace cheonsa
 		}
 
 		// unbind any residual states.
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 1, nullptr, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 0, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
+		engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, nullptr, nullptr );
+		engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+		engine.get_video_interface()->bind_vertex_buffers( 0, nullptr );
+		engine.get_video_interface()->bind_index_buffer( nullptr );
 	}
 
 	void_c video_renderer_interface_c::_render_control_for_control_group( menu_control_c * control )
@@ -3465,9 +3465,9 @@ namespace cheonsa
 		if ( control->_control_group_is_root )
 		{
 			assert( control->_control_group_texture != nullptr );
-			engine_c::get_instance()->get_video_interface()->clear_texture( control->_control_group_texture, 1.0f, 1.0f, 1.0f, 0.0f );
+			engine.get_video_interface()->clear_texture( control->_control_group_texture, 1.0f, 1.0f, 1.0f, 0.0f );
 			textures_to_bind[ 0 ] = control->_control_group_texture;
-			engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+			engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
 			_constant_buffers.menu_block->menu_target_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( control->_control_group_texture->get_width() ), 1.0f / static_cast< float32_c >( control->_control_group_texture->get_height() ) );
 			_constant_buffers.menu_block->menu_target_offset = -control->_local_box.minimum;
 			_constant_buffers.menu_block_constant_buffer->set_data( _constant_buffers.menu_block, sizeof( menu_block_c ) );
@@ -3526,7 +3526,7 @@ namespace cheonsa
 		// unbind control group target texture, so that it can be bound as input at later stage.
 		if ( control->_control_group_is_root )
 		{
-			engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_texture2d );
+			engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_texture2d );
 		}
 	}
 
@@ -3545,11 +3545,11 @@ namespace cheonsa
 			_constant_buffers.menu_draw_block->menu_draw_shared_colors[ 2 ] = draw.shared_colors[ 2 ];
 			_constant_buffers.menu_draw_block_constant_buffer->set_data( _constant_buffers.menu_draw_block, sizeof( menu_draw_block_c ) );
 			assert( draw.pixel_shader );
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader( draw.pixel_shader );
+			engine.get_video_interface()->bind_pixel_shader( draw.pixel_shader );
 			textures_to_bind[ 0 ] = draw.texture ? draw.texture->get_video_texture() : _white_pixel_texture;
 			textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
-			engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
-			engine_c::get_instance()->get_video_interface()->draw_indexed( draw_list.index_base + draw.index_start, draw.index_count, draw_list.vertex_base );
+			engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
+			engine.get_video_interface()->draw_indexed( draw_list.index_base + draw.index_start, draw.index_count, draw_list.vertex_base );
 		}
 	}
 
@@ -3569,14 +3569,14 @@ namespace cheonsa
 		_constant_buffers.menu_block_constant_buffer->set_data( _constant_buffers.menu_block, sizeof( menu_block_c ) );
 
 		textures_to_bind[ 0 ] = output_target;
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_mix );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
-		engine_c::get_instance()->get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_shader( engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu2_vs() );
+		engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
+		engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_mix );
+		engine.get_video_interface()->bind_rasterizer_cull_fill_state( video_cull_type_e_none, video_fill_type_e_face );
+		engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
+		engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_menu2_vs() );
 		vertex_buffers_to_bind[ 0 ] = _menu_vertex_buffer;
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( _menu_index_buffer );
+		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+		engine.get_video_interface()->bind_index_buffer( _menu_index_buffer );
 		for ( sint32_c i = 0; i < user_interface->_control_list.get_length(); i++ )
 		{
 			menu_control_c * control = user_interface->_control_list[ i ];
@@ -3595,10 +3595,10 @@ namespace cheonsa
 		}
 
 		// unbind.
-		engine_c::get_instance()->get_video_interface()->bind_pixel_shader_textures( 0, 1, nullptr, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
-		engine_c::get_instance()->get_video_interface()->bind_vertex_buffers( 0, nullptr );
-		engine_c::get_instance()->get_video_interface()->bind_index_buffer( nullptr );
+		engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, nullptr, nullptr );
+		engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
+		engine.get_video_interface()->bind_vertex_buffers( 0, nullptr );
+		engine.get_video_interface()->bind_index_buffer( nullptr );
 	}
 
 	void_c video_renderer_interface_c::set_settings( settings_c const & desired_settings )
@@ -3655,7 +3655,7 @@ namespace cheonsa
 				delete _texture_buffers.lights_texture_buffer;
 				_texture_buffers.lights_texture_buffer = nullptr;
 			}
-			_texture_buffers.lights_texture_buffer = engine_c::get_instance()->get_video_interface()->create_texture_buffer( sizeof( video_renderer_light_c ) * light_count );
+			_texture_buffers.lights_texture_buffer = engine.get_video_interface()->create_texture_buffer( sizeof( video_renderer_light_c ) * light_count );
 			assert( _texture_buffers.lights_texture_buffer );
 			_settings.light_count = settings.light_count;
 		}
@@ -3677,7 +3677,7 @@ namespace cheonsa
 				delete _texture_buffers.shadow_views_texture_buffer;
 				_texture_buffers.shadow_views_texture_buffer = nullptr;
 			}
-			_texture_buffers.shadow_views_texture_buffer = engine_c::get_instance()->get_video_interface()->create_texture_buffer( sizeof( shadow_view_c ) * shadow_view_count );
+			_texture_buffers.shadow_views_texture_buffer = engine.get_video_interface()->create_texture_buffer( sizeof( shadow_view_c ) * shadow_view_count );
 			assert( _texture_buffers.shadow_views_texture_buffer );
 			_settings.shadow_view_count = settings.shadow_view_count;
 		}
@@ -3691,7 +3691,7 @@ namespace cheonsa
 				_shadow_map_texture2darray = nullptr;
 			}
 			sint32_c shadow_view_limit = settings_c::get_shadow_view_count( settings.shadow_view_count );
-			_shadow_map_texture2darray = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r32_float, shadow_resolution, shadow_resolution, 1, shadow_view_limit, 0, 0, false, false, true, false );
+			_shadow_map_texture2darray = engine.get_video_interface()->create_texture( video_texture_format_e_r32_float, shadow_resolution, shadow_resolution, 1, shadow_view_limit, 0, 0, false, false, true, false );
 			assert( _shadow_map_texture2darray );
 			_settings.shadow_resolution = settings.shadow_resolution;
 		}

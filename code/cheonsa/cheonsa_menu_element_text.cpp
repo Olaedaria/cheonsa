@@ -22,7 +22,7 @@ namespace cheonsa
 		menu_text_style_c const * text_style = _text_style_reference.get_value();
 		if ( !text_style )
 		{
-			text_style = engine_c::get_instance()->get_menu_style_manager()->get_default_text_style();
+			text_style = engine.get_menu_style_manager()->get_default_text_style();
 		}
 
 		// last moment text reflow.
@@ -40,13 +40,13 @@ namespace cheonsa
 		vector32x4_c draw_color = _local_color;
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
 		menu_color_style_c * shared_color = nullptr;
-		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
+		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
 		assert( shared_color );
 		draw_shared_colors[ 0 ] = shared_color->value;
-		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
+		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
 		assert( shared_color );
 		draw_shared_colors[ 1 ] = shared_color->value;
-		shared_color = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
+		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
 
@@ -124,7 +124,7 @@ namespace cheonsa
 							float32_c selection_top = line_top;
 							float32_c selection_bottom = line_bottom;
 
-							menu_color_style_c const * selection_color_style = engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
+							menu_color_style_c const * selection_color_style = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
 							assert( selection_color_style );
 							vector32x4_c selection_color = selection_color_style->value;
 							selection_color.d *= 0.25f;
@@ -279,7 +279,7 @@ namespace cheonsa
 			boolean_c do_cursor = false;
 			float32_c cursor_left;
 
-			menu_color_style_c const * cursor_color_style =  engine_c::get_instance()->get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
+			menu_color_style_c const * cursor_color_style =  engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
 			assert( cursor_color_style );
 			vector32x4_c cursor_color = cursor_color_style->value;
 			if ( !_cursor_is_on_previous_line )
@@ -337,15 +337,15 @@ namespace cheonsa
 		// stitch the various draw lists together.
 		if ( vertex_list_for_selection.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_selection, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, draw_color, draw_shared_colors );
+			_draw_list.append_rectangle_list( vertex_list_for_selection, engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, draw_color, draw_shared_colors );
 		}
 		if ( vertex_list_for_glyphs.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_glyphs, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_text(), nullptr, draw_color, draw_shared_colors );
+			_draw_list.append_rectangle_list( vertex_list_for_glyphs, engine.get_video_renderer_shader_manager()->get_menu_ps_text(), nullptr, draw_color, draw_shared_colors );
 		}
 		if ( vertex_list_for_cursor.get_length() > 0 )
 		{
-			_draw_list.append_rectangle_list( vertex_list_for_cursor, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, draw_color, draw_shared_colors );
+			_draw_list.append_rectangle_list( vertex_list_for_cursor, engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color(), nullptr, draw_color, draw_shared_colors );
 		}
 		vertex_list_for_selection.remove_all();
 		vertex_list_for_glyphs.remove_all();
@@ -802,7 +802,7 @@ namespace cheonsa
 			if ( current_code_point != L'\n' && current_code_point != L' ' && current_code_point != L'\t' && ( current_code_point & 0xF000 ) != 0xF000 )
 			{
 				// this character is displayable.
-				glyph_c const * glyph = engine_c::get_instance()->get_glyph_manager()->load_quantized_glyph( current_text_glyph_style.font, current_text_glyph_style_in_cache->size, current_code_point );
+				glyph_c const * glyph = engine.get_glyph_manager()->load_quantized_glyph( current_text_glyph_style.font, current_text_glyph_style_in_cache->size, current_code_point );
 				if ( !glyph )
 				{
 					// the glyph cache filled up.
@@ -2516,8 +2516,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->text_align_vertical;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_vertical_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_vertical;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->text_align_vertical_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->text_align_vertical;
 	}
 
 	menu_text_align_horizontal_e menu_element_text_c::_get_style_text_align_horizontal() const
@@ -2533,8 +2533,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->text_align_horizontal;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_horizontal_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->text_align_horizontal;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->text_align_horizontal_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->text_align_horizontal;
 	}
 
 	float32_c menu_element_text_c::_get_style_paragraph_spacing() const
@@ -2546,8 +2546,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->paragraph_spacing;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->paragraph_spacing_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->paragraph_spacing;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->paragraph_spacing_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->paragraph_spacing;
 	}
 
 	float32_c menu_element_text_c::_get_style_line_spacing() const
@@ -2559,8 +2559,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->line_spacing;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->line_spacing_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->line_spacing;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->line_spacing_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->line_spacing;
 	}
 
 	float32_c menu_element_text_c::_get_style_glyph_spacing() const
@@ -2572,8 +2572,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->glyph_spacing;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->glyph_spacing_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->glyph_spacing;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->glyph_spacing_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->glyph_spacing;
 	}
 
 	resource_file_font_c * menu_element_text_c::_get_style_font() const
@@ -2586,9 +2586,9 @@ namespace cheonsa
 				return _text_style_reference.get_value()->font;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font_is_defined );
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font.is_reference_set_and_loaded() );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->font;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->font_is_defined );
+		assert( engine.get_menu_style_manager()->get_default_text_style()->font.is_reference_set_and_loaded() );
+		return engine.get_menu_style_manager()->get_default_text_style()->font;
 	}
 
 	vector32x4_c menu_element_text_c::_get_style_color() const
@@ -2604,13 +2604,13 @@ namespace cheonsa
 				return _text_style_reference.get_value()->color;
 			}
 		}
-		/*if ( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style_is_defined )
+		/*if ( engine.get_menu_style_manager()->get_default_text_style()->color_style_is_defined )
 		{
-			assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value() );
-			return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_style.get_value()->value;
+			assert( engine.get_menu_style_manager()->get_default_text_style()->color_style.get_value() );
+			return engine.get_menu_style_manager()->get_default_text_style()->color_style.get_value()->value;
 		}*/
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->color;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->color_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->color;
 	}
 
 	float32_c menu_element_text_c::_get_style_size() const
@@ -2622,8 +2622,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->size;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->size_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->size;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->size_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->size;
 	}
 
 	float32_c menu_element_text_c::_get_style_skew() const
@@ -2635,8 +2635,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->skew;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->skew_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->skew;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->skew_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->skew;
 	}
 
 	float32_c menu_element_text_c::_get_style_weight() const
@@ -2648,8 +2648,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->weight;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->weight_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->weight;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->weight_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->weight;
 	}
 
 	float32_c menu_element_text_c::_get_style_softness() const
@@ -2661,8 +2661,8 @@ namespace cheonsa
 				return _text_style_reference.get_value()->softness;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->softness_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->softness;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->softness_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->softness;
 	}
 
 	box32x2_c menu_element_text_c::_get_style_margin() const
@@ -2674,12 +2674,26 @@ namespace cheonsa
 				return _text_style_reference.get_value()->margin;
 			}
 		}
-		assert( engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->margin_is_defined );
-		return engine_c::get_instance()->get_menu_style_manager()->get_default_text_style()->margin;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->margin_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->margin;
 	}
 
-	menu_element_text_c::menu_element_text_c()
-		: menu_element_c()
+	void_c menu_element_text_c::_on_local_box_modified()
+	{
+		vector32x2_c size = _local_box.get_size();
+		if ( _laid_out_width != size.a )
+		{
+			_invalidate_glyph_layout_in_all_paragraphs();
+			_laid_out_width = size.a;
+		}
+		else
+		{
+			_update_vertical_layout_of_all_paragraphs();
+		}
+	}
+
+	menu_element_text_c::menu_element_text_c( string8_c const & name )
+		: menu_element_c( name )
 		, _plain_text()
 		, _paragraph_list()
 		, _text_format_mode( menu_text_format_mode_e_plain )
@@ -2718,6 +2732,35 @@ namespace cheonsa
 	{
 		_global_list.remove( &_global_list_node );
 		_paragraph_list.remove_and_delete_all();
+	}
+
+	void_c menu_element_text_c::update_animations( float32_c time_step )
+	{
+		if ( _is_glyph_layout_dirty )
+		{
+			_do_glyph_layout();
+		}
+
+		_cursor_time += static_cast< float32_c >( time_step );
+
+		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
+		{
+			text_paragraph_c * paragraph = _paragraph_list[ i ];
+			for( sint32_c j = 0; j < paragraph->_entity_list.get_length(); j++ )
+			{
+				menu_text_entity_c * entity = paragraph->_entity_list[ j ];
+				if ( entity->type_code == menu_text_entity_sprite_c::type_code_static() )
+				{
+					menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
+					entity_sprite->value.update( time_step );
+				}
+			}
+		}	
+	}
+
+	void_c menu_element_text_c::set_style_key( string8_c const & text_style_key )
+	{
+		_text_style_reference.set_key( text_style_key );
 	}
 
 	menu_text_style_c::reference_c const & menu_element_text_c::get_style_reference() const
@@ -2980,6 +3023,241 @@ namespace cheonsa
 	void_c menu_element_text_c::clear_text_value()
 	{
 		_clear_text_value();
+	}
+
+	boolean_c menu_element_text_c::get_text_style_key_at_cursor( string8_c & result_text_style_key )
+	{
+		sint32_c selected_character_start = 0;
+		sint32_c selected_character_count = 0;
+		get_selected_text_range( selected_character_start, selected_character_count );
+		text_paragraph_c * selected_paragraph = nullptr;
+		text_span_c * selected_span = nullptr;
+		_get_thing_at_character_range( selected_character_start, selected_character_count <= 0 ? 1 : selected_character_count, selected_paragraph, selected_span );
+		if ( selected_paragraph )
+		{
+			result_text_style_key = selected_paragraph->_text_style_reference.get_key();
+			return true;
+		}
+		else if ( selected_span )
+		{
+			result_text_style_key = selected_span->_text_style_reference.get_key();
+			return true;
+		}
+		return false;
+	}
+
+	boolean_c menu_element_text_c::set_text_style_key_at_cursor( string8_c const & text_style_key )
+	{
+		sint32_c selected_character_start = 0;
+		sint32_c selected_character_count = 0;
+		get_selected_text_range( selected_character_start, selected_character_count );
+		if ( selected_character_count == 0 )
+		{
+			// no selection, this means that we want to replace the text style key of the single paragraph or span that already exists at the cursor index.
+			assert( selected_character_start == _cursor_index );
+			text_paragraph_c * selected_paragraph = nullptr;
+			text_span_c * selected_span = nullptr;
+			_get_thing_at_character_range( selected_character_start, 1, selected_paragraph, selected_span );
+			if ( selected_paragraph )
+			{
+				selected_paragraph->_text_style_reference.set_key( text_style_key );
+				return true;
+			}
+			else if ( selected_span )
+			{
+				selected_span->_text_style_reference.set_key( text_style_key );
+				return true;
+			}
+			assert( false ); // shouldn't be possible for the cursor to not intersect with something.
+		}
+		else
+		{
+			// a range of characters are selected, this means that we want to clip out any spans in that range.
+			_remove_spans_in_character_range( selected_character_start, selected_character_count );
+			if ( text_style_key.get_length() > 0 )
+			{
+				// if the text style key is set then we also want to create new spans with the given text style.
+				_create_spans_in_character_range( selected_character_start, selected_character_count, text_style_key );
+			}
+		}
+		return true;
+	}
+
+	boolean_c menu_element_text_c::copy_text_to_clip_board()
+	{
+		assert( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable );
+		sint32_c selected_character_start;
+		sint32_c selected_character_count;
+		if ( get_selected_text_range( selected_character_start, selected_character_count ) )
+		{
+			string16_c clip = ops::string16_sub_string( _plain_text, selected_character_start, selected_character_count );
+			return engine.get_input_manager()->clip_board_set_plain_text( clip );
+		}
+		return false;
+	}
+
+	boolean_c menu_element_text_c::paste_text_from_clip_board()
+	{
+		assert( _text_interact_mode == menu_text_interact_mode_e_editable );
+		string16_c clip;
+		if ( engine.get_input_manager()->clip_board_get_plain_text( clip ) )
+		{
+			if ( has_selected_text_range() )
+			{
+				_delete_selected_text();
+			}
+			_input_plain_text( clip );
+			_cursor_index += clip.get_length();
+			_is_text_value_modified = true;
+			on_text_value_changed_preview.invoke( this );
+			return true;
+		}
+		return false;
+	}
+
+	void_c menu_element_text_c::handle_on_is_text_focused_changed( boolean_c value )
+	{
+		if ( value )
+		{
+			_is_text_value_modified = false;
+			_is_text_focused = true;
+		}
+		else
+		{
+			if ( _is_text_value_modified )
+			{
+				_is_text_value_modified = false;
+				on_text_value_changed.invoke( this );
+			}
+			_is_text_focused = false;
+		}
+	}
+
+	boolean_c menu_element_text_c::handle_on_multi_clicked( input_event_c * input_event )
+	{
+		vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
+		if ( input_event->multi_click_count == 2 )
+		{
+			_text_select_mode = menu_text_select_mode_e_word;
+		}
+		else if ( input_event->multi_click_count == 3 )
+		{
+			_text_select_mode = menu_text_select_mode_e_paragraph;
+		}
+		_place_cursor_at_local_point( local_mouse_position, false );
+		_cursor_time = 0.0f;
+		return true;
+	}
+
+	boolean_c menu_element_text_c::handle_on_input( input_event_c * input_event )
+	{
+		if ( _text_interact_mode == menu_text_interact_mode_e_static )
+		{
+			return false;
+		}
+
+		if ( input_event->type == input_event_c::type_e_character )
+		{
+			if ( _text_interact_mode == menu_text_interact_mode_e_editable )
+			{
+				input_character( input_event->character );
+				return true;
+			}
+		}
+		else if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
+		{
+			if ( input_event->keyboard_key == input_keyboard_key_e_left )
+			{
+				input_left( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0, ( input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) != 0 );
+				return true;
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_right )
+			{
+				input_right( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0, ( input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) != 0 );
+				return true;
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_up )
+			{
+				input_up( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				return true;
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_down )
+			{
+				input_down( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				return true;
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_home )
+			{
+				input_home( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				return true;
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_end )
+			{
+				input_end( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				return true;
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_back_space )
+			{
+				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
+				{
+					input_delete_back();
+					return true;
+				}
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_delete )
+			{
+				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
+				{
+					input_delete_fore();
+					return true;
+				}
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_enter )
+			{
+				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
+				{
+					input_return( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+					return true;
+				}
+			}
+		}
+		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
+		{
+			assert( _mother_control );
+			vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
+			if ( input_event->mouse_key == input_mouse_key_e_left && ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) )
+			{
+				_text_select_mode = menu_text_select_mode_e_character;
+				_place_cursor_at_local_point( local_mouse_position, ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				_cursor_time = 0.0f;
+				return true;
+			}
+			else if ( input_event->mouse_key == input_mouse_key_e_right )
+			{
+				// if the mouse pointer is not intersecting with the currently selected range of text, then place the cursor where the mouse pointer is.
+				_place_cursor_at_local_point( local_mouse_position, false );
+				return true;
+			}
+		}
+		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
+		{
+			if ( input_event->mouse_key == input_mouse_key_e_right )
+			{
+				// open context menu.
+			}
+		}
+		else if ( input_event->type == input_event_c::type_e_mouse_move )
+		{
+			if ( ( input_event->mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) != 0 )
+			{
+				assert( _mother_control );
+				vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
+				_place_cursor_at_local_point( local_mouse_position, true );
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	void_c menu_element_text_c::append_line( string16_c const & plain_text )
@@ -3417,284 +3695,6 @@ namespace cheonsa
 			_text_select_anchor_index_start = _cursor_index;
 			_text_select_anchor_index_end = _cursor_index;
 		}
-	}
-
-	boolean_c menu_element_text_c::get_text_style_key_at_cursor( string8_c & result_text_style_key )
-	{
-		sint32_c selected_character_start = 0;
-		sint32_c selected_character_count = 0;
-		get_selected_text_range( selected_character_start, selected_character_count );
-		text_paragraph_c * selected_paragraph = nullptr;
-		text_span_c * selected_span = nullptr;
-		_get_thing_at_character_range( selected_character_start, selected_character_count <= 0 ? 1 : selected_character_count, selected_paragraph, selected_span );
-		if ( selected_paragraph )
-		{
-			result_text_style_key = selected_paragraph->_text_style_reference.get_key();
-			return true;
-		}
-		else if ( selected_span )
-		{
-			result_text_style_key = selected_span->_text_style_reference.get_key();
-			return true;
-		}
-		return false;
-	}
-
-	boolean_c menu_element_text_c::set_text_style_key_at_cursor( string8_c const & text_style_key )
-	{
-		sint32_c selected_character_start = 0;
-		sint32_c selected_character_count = 0;
-		get_selected_text_range( selected_character_start, selected_character_count );
-		if ( selected_character_count == 0 )
-		{
-			// no selection, this means that we want to replace the text style key of the single paragraph or span that already exists at the cursor index.
-			assert( selected_character_start == _cursor_index );
-			text_paragraph_c * selected_paragraph = nullptr;
-			text_span_c * selected_span = nullptr;
-			_get_thing_at_character_range( selected_character_start, 1, selected_paragraph, selected_span );
-			if ( selected_paragraph )
-			{
-				selected_paragraph->_text_style_reference.set_key( text_style_key );
-				return true;
-			}
-			else if ( selected_span )
-			{
-				selected_span->_text_style_reference.set_key( text_style_key );
-				return true;
-			}
-			assert( false ); // shouldn't be possible for the cursor to not intersect with something.
-		}
-		else
-		{
-			// a range of characters are selected, this means that we want to clip out any spans in that range.
-			_remove_spans_in_character_range( selected_character_start, selected_character_count );
-			if ( text_style_key.get_length() > 0 )
-			{
-				// if the text style key is set then we also want to create new spans with the given text style.
-				_create_spans_in_character_range( selected_character_start, selected_character_count, text_style_key );
-			}
-		}
-		return true;
-	}
-
-	boolean_c menu_element_text_c::copy_text_to_clip_board()
-	{
-		assert( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable );
-		sint32_c selected_character_start;
-		sint32_c selected_character_count;
-		if ( get_selected_text_range( selected_character_start, selected_character_count ) )
-		{
-			string16_c clip = ops::string16_sub_string( _plain_text, selected_character_start, selected_character_count );
-			return engine_c::get_instance()->get_input_manager()->clip_board_set_plain_text( clip );
-		}
-		return false;
-	}
-
-	boolean_c menu_element_text_c::paste_text_from_clip_board()
-	{
-		assert( _text_interact_mode == menu_text_interact_mode_e_editable );
-		string16_c clip;
-		if ( engine_c::get_instance()->get_input_manager()->clip_board_get_plain_text( clip ) )
-		{
-			if ( has_selected_text_range() )
-			{
-				_delete_selected_text();
-			}
-			_input_plain_text( clip );
-			_cursor_index += clip.get_length();
-			_is_text_value_modified = true;
-			on_text_value_changed_preview.invoke( this );
-			return true;
-		}
-		return false;
-	}
-
-	void_c menu_element_text_c::_on_local_box_modified()
-	{
-		vector32x2_c size = _local_box.get_size();
-		if ( _laid_out_width != size.a )
-		{
-			_invalidate_glyph_layout_in_all_paragraphs();
-			_laid_out_width = size.a;
-		}
-		else
-		{
-			_update_vertical_layout_of_all_paragraphs();
-		}
-	}
-
-	void_c menu_element_text_c::update_animations( float32_c time_step )
-	{
-		if ( _is_glyph_layout_dirty )
-		{
-			_do_glyph_layout();
-		}
-
-		_cursor_time += static_cast< float32_c >( time_step );
-
-		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
-		{
-			text_paragraph_c * paragraph = _paragraph_list[ i ];
-			for( sint32_c j = 0; j < paragraph->_entity_list.get_length(); j++ )
-			{
-				menu_text_entity_c * entity = paragraph->_entity_list[ j ];
-				if ( entity->type_code == menu_text_entity_sprite_c::type_code_static() )
-				{
-					menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
-					entity_sprite->value.update( time_step );
-				}
-			}
-		}	
-	}
-
-	void_c menu_element_text_c::set_style_key( string8_c const & text_style_key )
-	{
-		_text_style_reference.set_key( text_style_key );
-	}
-
-	void_c menu_element_text_c::handle_on_is_text_focused_changed( boolean_c value )
-	{
-		if ( value )
-		{
-			_is_text_value_modified = false;
-			_is_text_focused = true;
-		}
-		else
-		{
-			if ( _is_text_value_modified )
-			{
-				_is_text_value_modified = false;
-				on_text_value_changed.invoke( this );
-			}
-			_is_text_focused = false;
-		}
-	}
-
-	boolean_c menu_element_text_c::handle_on_multi_clicked( input_event_c * input_event )
-	{
-		vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
-		if ( input_event->multi_click_count == 2 )
-		{
-			_text_select_mode = menu_text_select_mode_e_word;
-		}
-		else if ( input_event->multi_click_count == 3 )
-		{
-			_text_select_mode = menu_text_select_mode_e_paragraph;
-		}
-		_place_cursor_at_local_point( local_mouse_position, false );
-		_cursor_time = 0.0f;
-		return true;
-	}
-
-	boolean_c menu_element_text_c::handle_on_input( input_event_c * input_event )
-	{
-		if ( _text_interact_mode == menu_text_interact_mode_e_static )
-		{
-			return false;
-		}
-
-		if ( input_event->type == input_event_c::type_e_character )
-		{
-			if ( _text_interact_mode == menu_text_interact_mode_e_editable )
-			{
-				input_character( input_event->character );
-				return true;
-			}
-		}
-		else if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
-		{
-			if ( input_event->keyboard_key == input_keyboard_key_e_left )
-			{
-				input_left( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0, ( input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) != 0 );
-				return true;
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_right )
-			{
-				input_right( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0, ( input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) != 0 );
-				return true;
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_up )
-			{
-				input_up( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
-				return true;
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_down )
-			{
-				input_down( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
-				return true;
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_home )
-			{
-				input_home( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
-				return true;
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_end )
-			{
-				input_end( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
-				return true;
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_back_space )
-			{
-				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
-				{
-					input_delete_back();
-					return true;
-				}
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_delete )
-			{
-				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
-				{
-					input_delete_fore();
-					return true;
-				}
-			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_enter )
-			{
-				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
-				{
-					input_return( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
-					return true;
-				}
-			}
-		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
-		{
-			assert( _mother_control );
-			vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
-			if ( input_event->mouse_key == input_mouse_key_e_left && ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) )
-			{
-				_text_select_mode = menu_text_select_mode_e_character;
-				_place_cursor_at_local_point( local_mouse_position, ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
-				_cursor_time = 0.0f;
-				return true;
-			}
-			else if ( input_event->mouse_key == input_mouse_key_e_right )
-			{
-				// if the mouse pointer is not intersecting with the currently selected range of text, then place the cursor where the mouse pointer is.
-				_place_cursor_at_local_point( local_mouse_position, false );
-				return true;
-			}
-		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
-		{
-			if ( input_event->mouse_key == input_mouse_key_e_right )
-			{
-				// open context menu.
-			}
-		}
-		else if ( input_event->type == input_event_c::type_e_mouse_move )
-		{
-			if ( ( input_event->mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) != 0 )
-			{
-				assert( _mother_control );
-				vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
-				_place_cursor_at_local_point( local_mouse_position, true );
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 }

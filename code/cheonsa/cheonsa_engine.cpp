@@ -18,7 +18,7 @@ namespace cheonsa
 
 
 
-	engine_c engine_c::_instance; // global instance.
+	engine_c engine;
 
 
 
@@ -68,7 +68,7 @@ namespace cheonsa
 	{
 	}
 	
-	boolean_c engine_c::start( char16_c const * const * arguments, sint32_c arguments_count, game_c * game )
+	boolean_c engine_c::start( game_i * game, char16_c const * const * arguments, sint32_c arguments_count )
 	{
 		assert( game != nullptr );
 		

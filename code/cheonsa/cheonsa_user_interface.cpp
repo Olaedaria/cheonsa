@@ -343,7 +343,7 @@ namespace cheonsa
 			height = 100;
 		}
 		box32x2_c local_box = box32x2_c( 0.0f, 0.0f, static_cast< float32_c >( width ), static_cast< float32_c >( height ) );
-		if ( engine_c::get_instance()->get_window_manager()->get_window_state() == window_state_e_maximized )
+		if ( engine.get_window_manager()->get_window_state() == window_state_e_maximized )
 		{
 			sint32_c compensate = 8; // for some reason, when windows are maximized in windows, their area is virtually 8 pixels larger than the screen.
 			local_box.minimum.a += compensate;
@@ -373,7 +373,7 @@ namespace cheonsa
 
 		// process input events.
 		boolean_c wants_to_refresh_resources = false;
-		core_list_c< input_event_c > & input_events = engine_c::get_instance()->get_input_manager()->get_events();
+		core_list_c< input_event_c > & input_events = engine.get_input_manager()->get_events();
 		for ( sint32_c i = 0; i < input_events.get_length(); i++ )
 		{
 			input_event_c & input_event = input_events[ i ];
@@ -383,15 +383,15 @@ namespace cheonsa
 			{
 				if ( input_event.keyboard_key == debug_key_toggle_console )
 				{
-					engine_c::get_instance()->get_debug_manager()->set_console_is_showing( !engine_c::get_instance()->get_debug_manager()->get_console_is_showing() );
+					engine.get_debug_manager()->set_console_is_showing( !engine.get_debug_manager()->get_console_is_showing() );
 				}
 				else if ( input_event.keyboard_key == debug_key_toggle_stats )
 				{
-					engine_c::get_instance()->get_debug_manager()->set_statistics_is_showing( !engine_c::get_instance()->get_debug_manager()->get_statistics_is_showing() );
+					engine.get_debug_manager()->set_statistics_is_showing( !engine.get_debug_manager()->get_statistics_is_showing() );
 				}
 				else if ( input_event.keyboard_key == debug_key_toggle_menu_bounds )
 				{
-					engine_c::get_instance()->get_debug_manager()->set_draw_menu_bounds( !engine_c::get_instance()->get_debug_manager()->get_draw_menu_bounds() );
+					engine.get_debug_manager()->set_draw_menu_bounds( !engine.get_debug_manager()->get_draw_menu_bounds() );
 				}
 				else if ( input_event.keyboard_key == debug_key_refresh_resources )
 				{
@@ -403,15 +403,15 @@ namespace cheonsa
 			_process_input_event( &input_event );
 
 			// let the game process the input event.
-			engine_c::get_instance()->get_game()->process_input_event( &input_event );
+			engine.get_game()->process_input_event( &input_event );
 		}
 
 		// reload resources.
 		if ( wants_to_refresh_resources )
 		{
-			engine_c::get_instance()->get_video_renderer_shader_manager()->refresh();
-			engine_c::get_instance()->get_resource_manager()->refresh();
-			engine_c::get_instance()->get_menu_style_manager()->refresh();
+			engine.get_video_renderer_shader_manager()->refresh();
+			engine.get_resource_manager()->refresh();
+			engine.get_menu_style_manager()->refresh();
 		}
 
 		// update animations of controls, and delete any that want to be deleted.
@@ -435,16 +435,16 @@ namespace cheonsa
 		_canvas_and_output->clear();
 
 		// pre-render menus.
-		engine_c::get_instance()->get_video_renderer_interface()->pre_render_menus( this );
+		engine.get_video_renderer_interface()->pre_render_menus( this );
 
 		// render 3d scene and 3d menu controls to canvas.
 		if ( _scene )
 		{
-			engine_c::get_instance()->get_video_renderer_interface()->render_scene( _scene, &_scene->get_scene_camera(), _canvas_and_output );
+			engine.get_video_renderer_interface()->render_scene( _scene, &_scene->get_scene_camera(), _canvas_and_output );
 		}
 
 		// render 2d menus to canvas.
-		engine_c::get_instance()->get_video_renderer_interface()->render_2d_menus( this );
+		engine.get_video_renderer_interface()->render_2d_menus( this );
 
 		// flip canvas back buffer to output window.
 		_canvas_and_output->present();
@@ -465,7 +465,7 @@ namespace cheonsa
 		// remove controls from old scene.
 		if ( _scene )
 		{
-			engine_c::get_instance()->get_audio_interface()->remove_scene( _scene->get_audio_scene() );
+			engine.get_audio_interface()->remove_scene( _scene->get_audio_scene() );
 			core_linked_list_c< scene_object_c * >::node_c const * scene_object_list_node = _scene->get_scene_object_list().get_first();
 			while ( scene_object_list_node )
 			{
@@ -507,7 +507,7 @@ namespace cheonsa
 					}
 				}
 			}
-			engine_c::get_instance()->get_audio_interface()->add_scene( _scene->get_audio_scene() );
+			engine.get_audio_interface()->add_scene( _scene->get_audio_scene() );
 		}
 	}
 
@@ -982,26 +982,10 @@ namespace cheonsa
 
 	menu_control_c * user_interface_c::open_modal_screen()
 	{
-		menu_control_frame_c * result = new menu_control_frame_c();
-		result->set_name( string8_c( core_list_mode_e_static, "modal_screen" ) );
+		menu_control_frame_c * result = new menu_control_frame_c( string8_c( core_list_mode_e_static, "modal_screen" ) );
 		result->set_style_map_key( string8_c( core_list_mode_e_static, "e_modal" ) );
 		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
 		give_control( result );
-		return result;
-	}
-
-	menu_window_dialog_c * user_interface_c::open_window_dialog( menu_window_dialog_c::mode_e mode, string16_c const & title, string16_c message, menu_control_c * modal_screen )
-	{
-		menu_window_dialog_c * result = new menu_window_dialog_c();
-		result->set_name( string8_c( core_list_mode_e_static, "window_dialog" ) );
-		result->set_title( title );
-		result->set_message( message );
-		result->set_mode( mode );
-		float32_c width = 600.0f;
-		float32_c height = 400.0f;
-		result->set_layout_simple( _local_box.get_center(), box32x2_c( width * -0.5f, height * -0.5f, width * 0.5f, height * 0.5f ) );
-		give_control( result );
-		result->show_dialog( modal_screen );
 		return result;
 	}
 

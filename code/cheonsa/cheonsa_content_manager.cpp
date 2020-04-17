@@ -111,7 +111,7 @@ namespace cheonsa
 			}
 		}
 		result += '/';
-		result += engine_c::get_instance()->get_game()->get_user_data_folder_name();
+		result += engine.get_game()->get_user_data_folder_name();
 		result += '/';
 #else
 	#error get_user_data_folder_path() is not implemented.
@@ -165,7 +165,7 @@ namespace cheonsa
 
 		assert( ops::file_system_is_path_formatted_for_cheonsa( relative_file_path, ops::file_system_path_type_e_file ) );
 
-		locale_c const * locale = engine_c::get_instance()->get_content_manager()->get_actual_locale();
+		locale_c const * locale = engine.get_content_manager()->get_actual_locale();
 
 		// search both paths by default, except if specified otherwise.
 		string16_c potential_result;
@@ -194,7 +194,7 @@ namespace cheonsa
 		// search game data folders.
 		if ( search_game_path )
 		{
-			core_list_c< string16_c > const & game_data_folder_path_list = engine_c::get_instance()->get_content_manager()->get_game_data_folder_path_list();
+			core_list_c< string16_c > const & game_data_folder_path_list = engine.get_content_manager()->get_game_data_folder_path_list();
 			for ( sint32_c i = game_data_folder_path_list.get_length() - 1; i >= 0; i-- )
 			{
 				for ( sint32_c j = locale != nullptr ? 1 : 0; j >= 0; j-- )
@@ -237,7 +237,7 @@ namespace cheonsa
 		{
 			for ( sint32_c j = locale ? 1 : 0; j >= 0; j-- )
 			{
-				string16_c scan_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
+				string16_c scan_path = engine.get_content_manager()->get_engine_data_folder_path();
 				if ( j == 0 )
 				{
 #if defined( cheonsa_platform_windows )
@@ -294,7 +294,7 @@ namespace cheonsa
 
 	void_c content_manager_c::apply_changes()
 	{
-		assert( engine_c::get_instance()->get_resource_manager() != nullptr );
+		assert( engine.get_resource_manager() != nullptr );
 
 		// detect supported locales.
 		// scan sub folders, each sub folder should be another supported locale.
@@ -429,8 +429,8 @@ namespace cheonsa
 		}
 
 		// propagate changes.
-		engine_c::get_instance()->get_resource_manager()->refresh();
-		engine_c::get_instance()->get_menu_style_manager()->refresh();
+		engine.get_resource_manager()->refresh();
+		engine.get_menu_style_manager()->refresh();
 	}
 
 	string_c const * content_manager_c::find_string( string8_c const & key ) const

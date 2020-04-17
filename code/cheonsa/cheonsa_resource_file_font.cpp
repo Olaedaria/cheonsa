@@ -116,7 +116,7 @@ namespace cheonsa
 		_file = new uint8_c[ _file_size ];
 		stream->load( _file, _file_size );
 
-		FT_Error free_type_error = FT_New_Memory_Face( reinterpret_cast< FT_Library >( engine_c::get_instance()->get_glyph_manager()->_free_type_library_handle ), reinterpret_cast< FT_Byte * >( _file ), static_cast< FT_Long >( _file_size ), 0, reinterpret_cast< FT_Face * >( &_free_type_face_handle ) );
+		FT_Error free_type_error = FT_New_Memory_Face( reinterpret_cast< FT_Library >( engine.get_glyph_manager()->_free_type_library_handle ), reinterpret_cast< FT_Byte * >( _file ), static_cast< FT_Long >( _file_size ), 0, reinterpret_cast< FT_Face * >( &_free_type_face_handle ) );
 		if ( free_type_error )
 		{
 			goto cancel;

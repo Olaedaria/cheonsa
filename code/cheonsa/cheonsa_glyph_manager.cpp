@@ -1052,14 +1052,14 @@ namespace cheonsa
 			return false;
 		}
 
-		_glyph_atlas_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, glyph_manager_c::glyph_atlas_array_slice_count, nullptr, 0, false, false, false, false );
+		_glyph_atlas_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, glyph_manager_c::glyph_atlas_array_slice_count, nullptr, 0, false, false, false, false );
 		if ( _glyph_atlas_texture == nullptr )
 		{
 			debug_annoy( L"error", L"glyph atlas texture creation failed." );
 			return false;
 		}
 
-		_glyph_atlas_staging_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, 1, nullptr, 0, true, false, false, false );
+		_glyph_atlas_staging_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8_unorm, glyph_manager_c::glyph_atlas_width, glyph_manager_c::glyph_atlas_height, 1, 1, nullptr, 0, true, false, false, false );
 		if ( _glyph_atlas_staging_texture == nullptr )
 		{
 			debug_annoy( L"error", L"glyph atlas staging texture creation failed." );
@@ -1290,7 +1290,7 @@ namespace cheonsa
 			if ( glyph_atlas->_needs_upload )
 			{
 				_glyph_atlas_staging_texture->set_data( glyph_atlas->_texture_data, glyph_atlas->_texture_data_size );
-				engine_c::get_instance()->get_video_interface()->copy_sub_resource( _glyph_atlas_texture, i, _glyph_atlas_staging_texture, 0 );
+				engine.get_video_interface()->copy_sub_resource( _glyph_atlas_texture, i, _glyph_atlas_staging_texture, 0 );
 				glyph_atlas->_needs_upload = false;
 			}
 		}
@@ -1301,7 +1301,7 @@ namespace cheonsa
 
 	boolean_c glyph_manager_c::save_to_disk()
 	{
-		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
+		string16_c folder_path = engine.get_content_manager()->get_engine_data_folder_path();
 #if defined( cheonsa_platform_windows )
 		folder_path += "_common\\fonts\\cache\\";
 #else
@@ -1486,7 +1486,7 @@ namespace cheonsa
 	{
 		assert( _glyph_dictionary.get_length() == 0 );
 
-		string16_c folder_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
+		string16_c folder_path = engine.get_content_manager()->get_engine_data_folder_path();
 #if defined( cheonsa_platform_windows )
 		folder_path += "_common\\fonts\\cache\\";
 #else

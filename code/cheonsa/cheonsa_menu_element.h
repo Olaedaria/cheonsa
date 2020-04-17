@@ -22,8 +22,6 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "element"; }
 		virtual inline char8_c const * get_type_name() const { return get_type_name_static(); }
 
-		static menu_element_c * make_new_instance( string8_c const & type );
-
 	protected:
 		friend class menu_control_c;
 		friend class video_renderer_interface_c;
@@ -55,7 +53,7 @@ namespace cheonsa
 		virtual void_c _load_properties( data_scribe_markup_c::node_c const * node );
 
 	public:
-		menu_element_c();
+		menu_element_c( string8_c const & name );
 
 		virtual void_c update_animations( float32_c time_step ) = 0;
 
@@ -71,7 +69,7 @@ namespace cheonsa
 		void_c set_mother_control( menu_control_c * value ); // the need for this is very specific, generally you don't need to use this directly.
 
 		string8_c const & get_name() const;
-		void_c set_name( string8_c const & value );
+		//void_c set_name( string8_c const & value );
 
 		vector32x4_c const & get_local_color() const;
 		void_c set_local_color( vector32x4_c const & value );

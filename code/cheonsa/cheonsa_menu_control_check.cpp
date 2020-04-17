@@ -10,28 +10,25 @@ namespace cheonsa
 		set_is_checked( !_is_checked );
 	}
 
-	menu_control_check_c::menu_control_check_c()
-		: menu_control_c()
+	menu_control_check_c::menu_control_check_c( string8_c const & name )
+		: menu_control_c( name )
 		, _mode( mode_e_normal )
 		, _is_checked( false )
-		, _element_box()
-		, _element_mark()
-		, _element_text()
+		, _element_box( string8_c( core_list_mode_e_static, "box_frame" ) )
+		, _element_mark( string8_c( core_list_mode_e_static, "mark_frame" ) )
+		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_element_box.set_name( string8_c( core_list_mode_e_static, "box_frame" ) );
 		_element_box.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_box.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
 		_add_element( &_element_box );
 
-		_element_mark.set_name( string8_c( core_list_mode_e_static, "mark_frame" ) );
 		_element_mark.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_mark.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
 		_element_mark.set_is_showed( _is_checked );
 		_add_element( &_element_mark );
 
-		_element_text.set_name( string8_c( core_list_mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 18.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_text );

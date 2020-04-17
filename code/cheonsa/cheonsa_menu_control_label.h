@@ -22,9 +22,10 @@ namespace cheonsa
 		menu_element_text_c _element_text; // name is "text".
 
 	public:
-		menu_control_label_c();
+		menu_control_label_c( string8_c const & name );
 
-	public:
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
+
 		string16_c get_plain_text_value() const;
 		void_c set_plain_text_value( string8_c const & plain_text );
 		void_c set_plain_text_value( string16_c const & plain_text );
@@ -43,9 +44,6 @@ namespace cheonsa
 
 		menu_text_align_vertical_e get_text_align_vertical() const;
 		void_c set_text_align_vertical( menu_text_align_vertical_e value );
-
-	public:
-		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

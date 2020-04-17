@@ -38,10 +38,9 @@ namespace cheonsa
 		void_c _handle_on_value_changed( menu_element_text_c * text );
 
 	public:
-		menu_control_text_c(); // defaults to single line, plain text, editable, no scroll bars.
+		menu_control_text_c( string8_c const & name ); // defaults to single line, plain text, editable, no scroll bars.
 		~menu_control_text_c();
 
-	public:
 		string16_c get_place_holder_text_value() const;
 		void_c set_place_holder_plain_text_value( string8_c const & plain_text );
 		void_c set_place_holder_plain_text_value( string16_c const & plain_text );

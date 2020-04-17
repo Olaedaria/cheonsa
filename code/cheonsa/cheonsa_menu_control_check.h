@@ -35,7 +35,7 @@ namespace cheonsa
 		menu_element_text_c _element_text; // name is "text".
 
 	public:
-		menu_control_check_c();
+		menu_control_check_c( string8_c const & name );
 
 	public:
 		string16_c get_plain_text_value() const;

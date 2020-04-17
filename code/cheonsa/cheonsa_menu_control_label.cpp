@@ -3,17 +3,15 @@
 namespace cheonsa
 {
 
-	menu_control_label_c::menu_control_label_c()
-		: menu_control_c()
-		, _element_frame()
-		, _element_text()
+	menu_control_label_c::menu_control_label_c( string8_c const & name )
+		: menu_control_c( name )
+		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
+		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
 	{
-		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
-		_element_text.set_name( string8_c( core_list_mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_text.set_multi_line( true );
 		_element_text.set_text_format_mode( menu_text_format_mode_e_rich );
@@ -22,6 +20,25 @@ namespace cheonsa
 		_add_element( &_element_text );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_label" ) );
+	}
+
+	void_c menu_control_label_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
+	{
+		menu_control_c::load_static_data_properties( node );
+
+		data_scribe_markup_c::attribute_c const * attribute = nullptr;
+
+		attribute = node->find_attribute( "plain_text_value" );
+		if ( attribute )
+		{
+			set_plain_text_value( attribute->get_value() );
+		}
+
+		attribute = node->find_attribute( "rich_text_value" );
+		if ( attribute )
+		{
+			set_rich_text_value( attribute->get_value() );
+		}
 	}
 
 	string16_c menu_control_label_c::get_plain_text_value() const
@@ -92,25 +109,6 @@ namespace cheonsa
 	void_c menu_control_label_c::set_text_align_vertical( menu_text_align_vertical_e value )
 	{
 		_element_text.set_text_align_vertical( value );
-	}
-
-	void_c menu_control_label_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )
-	{
-		menu_control_c::load_static_data_properties( node );
-
-		data_scribe_markup_c::attribute_c const * attribute = nullptr;
-
-		attribute = node->find_attribute( "plain_text_value" );
-		if ( attribute )
-		{
-			set_plain_text_value( attribute->get_value() );
-		}
-
-		attribute = node->find_attribute( "rich_text_value" );
-		if ( attribute )
-		{
-			set_rich_text_value( attribute->get_value() );
-		}
 	}
 
 }

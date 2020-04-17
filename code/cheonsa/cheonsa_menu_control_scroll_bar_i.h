@@ -7,8 +7,8 @@ namespace cheonsa
 {
 
 	// base interface and private implementation for scroll_bar_x, scroll_bar_y, scrub_bar_x, and scrub_bar_y.
-	// it has one design flaw right now, i don't know a good way to implement a dynamic scroll bar thickness variable.
-	// preferred thickness is related to layout, so when it changes, on_preferred_thickness_changed event is invoked which lets the mother control reset the anchor layout of the scroll bar.
+	// preferred thickness property is provided, but is not really respected unless you implement code to re-set the box layout of the scroll bar in response to it changing, so a on_preferred_thickness_changed event is provided.
+	// the scroll bar does not control its own layout.
 	class menu_control_scroll_bar_i
 		: public menu_control_c
 	{
@@ -70,7 +70,7 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override; // updates layout of elements based on current mode and value.
 
-		menu_control_scroll_bar_i( mode_e mode, orientation_e orientation );
+		menu_control_scroll_bar_i( string8_c const & name, mode_e mode, orientation_e orientation );
 
 	public:
 		virtual void_c update_animations( float32_c time_step ) override; // updates scrubber, updates smooth scroll, which may invoke a layout of daughter elements and controls.

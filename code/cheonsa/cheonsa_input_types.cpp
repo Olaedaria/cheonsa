@@ -77,7 +77,7 @@ namespace cheonsa
 	void_c input_action_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
-		_value = engine_c::get_instance()->get_input_manager()->find_action( _key );
+		_value = engine.get_input_manager()->find_action( _key );
 		on_refreshed.invoke( this );
 	}
 

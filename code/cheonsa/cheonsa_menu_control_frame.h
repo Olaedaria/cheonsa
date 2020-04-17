@@ -17,7 +17,7 @@ namespace cheonsa
 		menu_element_frame_c _element_frame; // name is "frame".
 
 	public:
-		menu_control_frame_c();
+		menu_control_frame_c( string8_c const & name );
 
 	};
 

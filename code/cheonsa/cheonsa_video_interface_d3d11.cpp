@@ -2396,7 +2396,7 @@ namespace cheonsa
 		//
 		// load the d3dcompiler dll file and aquire the pointer to the D3DCompile function.
 		string16_c library_file_path;
-		library_file_path = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
+		library_file_path = engine.get_content_manager()->get_engine_data_folder_path();
 		library_file_path += "d3dcompiler_47.dll";
 		HMODULE module_handle = LoadLibraryW( library_file_path.character_list.get_internal_array() );
 		if ( !module_handle )

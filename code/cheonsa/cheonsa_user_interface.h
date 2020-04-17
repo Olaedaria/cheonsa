@@ -7,7 +7,6 @@
 #include "cheonsa_menu_control_scene.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_scene_object.h"
-#include "cheonsa_menu_window_dialog.h"
 
 namespace cheonsa
 {
@@ -52,7 +51,7 @@ namespace cheonsa
 
 		scene_c * _scene; // this scene needs to be set by the game. it will be the world that the user experiences.
 
-		core_list_c< menu_control_c * > _control_list; // list of root level daughter menu controls. this contains 2d and 3d controls. for 2d controls, controls that appear near the end of the list appear layered in front of controls that come before. for 3d controls, order is irrelevant.
+		core_list_c< menu_control_c * > _control_list; // list of root level menu controls. this contains 2d and 3d controls. for 2d controls, controls that are placed towards the end of the list appear layered in front of controls that come before. for 3d controls, they may appear anywhere in the list and order is irrelevant.
 
 		menu_control_c * _mouse_overed; // this is the control that the mouse is over, regardless of if any control has trapped mouse input focus or not.
 		menu_control_c * _mouse_focused; // this is the control that has mouse input focus and which will receieve mouse events. controls will trap mouse input focus temporarily if the user initiates a click on them and then drags the mouse, so that the control will continue to receive mouse input events even if the mouse is dragged off of it.
@@ -131,12 +130,8 @@ namespace cheonsa
 		// opens a new modal screen to block the user's ability to interact with anything behind it.
 		// after opening a modal screen, the next controls that are added or brought to front will appear over the modal screen.
 		// it forces the user to interact only with the controls that are over the modal screen.
-		// when the modal is ready to be dismissed, call set_is_showed( false, true ), this will make it fade out and delete itself.
+		// when the modal screen is ready to be dismissed, call set_is_showed( false, true ) on it to make it fade out and delete.
 		menu_control_c * open_modal_screen();
-
-		// opens a new window dialog to ask the user a question about something.
-		// modal_screen is optional, but if you want a modal window dialog then pass in the result of open_modal_screen().
-		menu_window_dialog_c * open_window_dialog( menu_window_dialog_c::mode_e mode, string16_c const & title, string16_c message, menu_control_c * modal_screen );
 
 		// input events that bubble to the top without being handled invoke this event.
 		// this lets the game do something with them if it wants to.

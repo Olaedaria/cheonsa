@@ -19,7 +19,12 @@ namespace cheonsa
 	// a control is a rectangular thing made up of one or more rectangular elements that the user can interact with in a certain way.
 	// a control can be added to as a daughter to the engine's user interface (a root level control), or it can be added as a daughter to another control (a non-root level control).
 	// this class can be inherited from to create everything from simple buttons to complex color pickers and property inspectors.
-	// cheonsa menus are 2d by nature, but can be placed in 3d space when _scene_component is linked (but it will still be flat/planar).
+	// cheonsa menus are 2d by nature, but can be placed in 3d space when _scene_component is linked (but it will still be a flat plane in 3d space).
+	//
+	// controls must be newed on the heap.
+	// controls have an "owner".
+	// the language of "give" and "take" is used to tell the programmer when ownership is being transferred.
+	// it is always the responsibility of the owner to delete its controls at the end of its life to avoid leaks.
 	//
 	// controls have many properties, which can be classified into categories as a way to make it easier to think about and understand.
 	//   static data properties:
@@ -36,8 +41,6 @@ namespace cheonsa
 	public:
 		static inline char8_c const * get_type_name_static() { return "control"; }
 		virtual inline char8_c const * get_type_name() const { return get_type_name_static(); }
-
-		static menu_control_c * make_new_instance( string8_c const & type );
 
 	protected:
 		friend class user_interface_c;
@@ -157,7 +160,7 @@ namespace cheonsa
 		virtual void_c _update_transform_and_layout(); // updates global space properties based on inheritance and local space properties.
 
 	public:
-		menu_control_c();
+		menu_control_c( string8_c const & name );
 		virtual ~menu_control_c();
 
 		// gets called once per frame.
@@ -199,7 +202,7 @@ namespace cheonsa
 		void_c set_style_map_key( string8_c const & value );
 
 		string8_c const & get_name() const;
-		void_c set_name( string8_c const & value );
+		//void_c set_name( string8_c const & value );
 
 		sint32_c get_index() const; // gets the index of this control within it's mother's daughter list.
 

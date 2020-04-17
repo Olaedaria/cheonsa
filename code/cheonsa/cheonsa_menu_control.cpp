@@ -1,22 +1,4 @@
 ﻿#include "cheonsa_menu_control.h"
-#include "cheonsa_menu_control_button.h"
-#include "cheonsa_menu_control_check.h"
-#include "cheonsa_menu_control_collection.h"
-#include "cheonsa_menu_control_color_picker.h"
-#include "cheonsa_menu_control_combo.h"
-#include "cheonsa_menu_control_file_picker.h"
-#include "cheonsa_menu_control_image.h"
-#include "cheonsa_menu_control_label.h"
-#include "cheonsa_menu_control_list.h"
-#include "cheonsa_menu_control_menu.h"
-#include "cheonsa_menu_control_panel.h"
-#include "cheonsa_menu_control_property_inspector.h"
-#include "cheonsa_menu_control_scene.h"
-#include "cheonsa_menu_control_scroll_bar_x.h"
-#include "cheonsa_menu_control_scroll_bar_y.h"
-#include "cheonsa_menu_control_scrub_bar_x.h"
-#include "cheonsa_menu_control_scrub_bar_y.h"
-#include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_element.h"
 #include "cheonsa_user_interface.h"
 #include "cheonsa__ops.h"
@@ -26,80 +8,6 @@ namespace cheonsa
 {
 
 	core_linked_list_c< menu_control_c * > menu_control_c::_global_list;
-
-	menu_control_c * menu_control_c::make_new_instance( string8_c const & type )
-	{
-		if ( type == menu_control_button_c::get_type_name_static() )
-		{
-			return new menu_control_button_c();
-		}
-		else if ( type == menu_control_check_c::get_type_name_static() )
-		{
-			return new menu_control_check_c();
-		}
-		else if ( type == menu_control_collection_c::get_type_name_static() )
-		{
-			return new menu_control_collection_c();
-		}
-		else if ( type == menu_control_color_picker_c::get_type_name_static() )
-		{
-			return new menu_control_color_picker_c();
-		}
-		else if ( type == menu_control_combo_c::get_type_name_static() )
-		{
-			return new menu_control_combo_c();
-		}
-		else if ( type == menu_control_file_picker_c::get_type_name_static() )
-		{
-			return new menu_control_file_picker_c();
-		}
-		else if ( type == menu_control_image_c::get_type_name_static() )
-		{
-			return new menu_control_image_c();
-		}
-		else if ( type == menu_control_label_c::get_type_name_static() )
-		{
-			return new menu_control_label_c();
-		}
-		else if ( type == menu_control_list_c::get_type_name_static() )
-		{
-			return new menu_control_list_c();
-		}
-		else if ( type == menu_control_menu_list_c::get_type_name_static() )
-		{
-			return new menu_control_menu_list_c();
-		}
-		else if ( type == menu_control_property_inspector_c::get_type_name_static() )
-		{
-			return new menu_control_property_inspector_c( nullptr, nullptr );
-		}
-		else if ( type == menu_control_scene_c::get_type_name_static() )
-		{
-			return new menu_control_scene_c();
-		}
-		else if ( type == menu_control_scroll_bar_x_c::get_type_name_static() )
-		{
-			return new menu_control_scroll_bar_x_c();
-		}
-		else if ( type == menu_control_scroll_bar_y_c::get_type_name_static() )
-		{
-			return new menu_control_scroll_bar_y_c();
-		}
-		else if ( type == menu_control_scrub_bar_x_c::get_type_name_static() )
-		{
-			return new menu_control_scrub_bar_x_c();
-		}
-		else if ( type == menu_control_scrub_bar_y_c::get_type_name_static() )
-		{
-			return new menu_control_scrub_bar_y_c();
-		}
-		else if ( type == menu_control_text_c::get_type_name_static() )
-		{
-			return new menu_control_text_c();
-		}
-		
-		return nullptr;
-	}
 
 	void_c menu_control_c::_handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value )
 	{
@@ -513,10 +421,10 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_c::menu_control_c()
+	menu_control_c::menu_control_c( string8_c const & name )
 		: _global_list_node( this )
 		, _style_map_reference()
-		, _name()
+		, _name( name )
 		, _user_interface( nullptr )
 		, _mother_control( nullptr )
 		, _index( -1 )
@@ -584,7 +492,7 @@ namespace cheonsa
 
 	void_c menu_control_c::update_animations( float32_c time_step )
 	{
-		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
+		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
 		boolean_c is_selected = is_ascendant_of( get_user_interface_root()->get_mouse_overed() );
@@ -843,10 +751,10 @@ namespace cheonsa
 		return _name;
 	}
 
-	void_c menu_control_c::set_name( string8_c const & value )
-	{
-		_name = value;
-	}
+	//void_c menu_control_c::set_name( string8_c const & value )
+	//{
+	//	_name = value;
+	//}
 
 	sint32_c menu_control_c::get_index() const
 	{
@@ -1386,7 +1294,7 @@ namespace cheonsa
 					_control_group_texture = nullptr;
 				}
 				assert( needed_width <= 4096 && needed_height <= 4096 );
-				_control_group_texture = engine_c::get_instance()->get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
+				_control_group_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
 				assert( _control_group_texture != nullptr );
 				_control_group_texture_wrapper.set_video_texture( _control_group_texture );
 			}
@@ -1403,7 +1311,7 @@ namespace cheonsa
 			map.maximum.a = static_cast< float32_c >( _local_box.get_width() ) / static_cast< float32_c >( _control_group_texture->get_width() );
 			map.maximum.b = static_cast< float32_c >( _local_box.get_height() ) / static_cast< float32_c >( _control_group_texture->get_height() );
 			box32x2_c box = _local_box;
-			_control_group_draw_list.append_rectangle( box, map, engine_c::get_instance()->get_video_renderer_shader_manager()->get_menu_ps_frame(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), nullptr );
+			_control_group_draw_list.append_rectangle( box, map, engine.get_video_renderer_shader_manager()->get_menu_ps_frame(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), nullptr );
 			draw_list_list.insert_at_end( &_control_group_draw_list );
 		}
 		else

@@ -9,8 +9,8 @@ namespace cheonsa
 	boolean_c menu_style_file_c::_refresh()
 	{
 		// try to open new data.
-		assert( engine_c::get_instance()->get_content_manager() != nullptr );
-		if ( !engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( _relative_file_path, _absolute_file_path ) )
+		assert( engine.get_content_manager() != nullptr );
+		if ( !engine.get_content_manager()->resolve_absolute_file_path( _relative_file_path, _absolute_file_path ) )
 		{
 			return false;
 		}

@@ -15,10 +15,9 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_combo_list_item_text_c::menu_control_combo_list_item_text_c()
-		: menu_control_list_item_text_i()
+	menu_control_combo_list_item_text_c::menu_control_combo_list_item_text_c( string8_c const & name )
+		: menu_control_list_item_text_i( name )
 	{
-		_name = string8_c( core_list_mode_e_static, "combo_list_item" );
 	}
 
 	void_c menu_control_combo_list_c::_on_selected_item_list_changed()
@@ -35,10 +34,9 @@ namespace cheonsa
 		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
 	}
 
-	menu_control_combo_list_c::menu_control_combo_list_c()
-		: menu_control_list_i()
+	menu_control_combo_list_c::menu_control_combo_list_c( string8_c const & name )
+		: menu_control_list_i( name )
 	{
-		_name = string8_c( core_list_mode_e_static, "combo_list" );
 		_layer = menu_layer_e_popup;
 		_selected_item_limit = 1;
 		_vertical_size_mode = menu_size_mode_e_fit_content;
@@ -123,13 +121,13 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_combo_c::menu_control_combo_c()
-		: menu_control_button_c()
+	menu_control_combo_c::menu_control_combo_c( string8_c const & name )
+		: menu_control_button_c( name )
 		, _combo_list( nullptr )
 	{
 		_name = string8_c( core_list_mode_e_static, "combo" );
 
-		_combo_list = new menu_control_combo_list_c();
+		_combo_list = new menu_control_combo_list_c( string8_c( core_list_mode_e_static, "combo_list" ) );
 		_combo_list->on_selected_item_changed.subscribe( this, &menu_control_combo_c::_handle_on_selected_item_changed );
 		_give_control( _combo_list );
 

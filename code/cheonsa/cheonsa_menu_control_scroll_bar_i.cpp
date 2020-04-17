@@ -163,10 +163,10 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_scroll_bar_i::menu_control_scroll_bar_i( mode_e mode, orientation_e orientation )
-		: menu_control_c()
-		, _rail_element()
-		, _grip_element()
+	menu_control_scroll_bar_i::menu_control_scroll_bar_i( string8_c const & name, mode_e mode, orientation_e orientation )
+		: menu_control_c( name )
+		, _rail_element( string8_c( core_list_mode_e_static, "rail_frame" ) )
+		, _grip_element( string8_c( core_list_mode_e_static, "grip_frame" ) )
 		, _mode( mode )
 		, _orientation( orientation )
 		, _page_size( 0.0 )
@@ -193,11 +193,9 @@ namespace cheonsa
 			_fixed_grip_length = 10.0f;
 		}
 
-		_rail_element.set_name( string8_c( core_list_mode_e_static, "rail_frame" ) );
 		_rail_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_element( &_rail_element );
 
-		_grip_element.set_name( string8_c( core_list_mode_e_static, "grip_frame" ) );
 		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_element( &_grip_element );
 
@@ -272,7 +270,7 @@ namespace cheonsa
 			on_smooth_value_changed.invoke( this );
 		}
 
-		float32_c transition_step = engine_c::get_instance()->get_menu_style_manager()->get_shared_transition_speed() * time_step;
+		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
 		boolean_c is_selected = is_ascendant_of( get_user_interface_root()->get_mouse_overed() );

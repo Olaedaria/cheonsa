@@ -1,62 +1,54 @@
 ﻿#pragma once
 
-#include "cheonsa_menu_control.h"
+#include "cheonsa_menu_control_window.h"
 #include "cheonsa_menu_control_button.h"
 #include "cheonsa_menu_control_text.h"
 #include "cheonsa_menu_control_list.h"
 #include "cheonsa_menu_control_collection.h"
+#include "cheonsa_menu_control_window_message.h"
 #include "cheonsa_menu_element_frame.h"
-#include "cheonsa_menu_window_dialog.h"
 
 namespace cheonsa
 {
 
-	class menu_control_file_picker_item_c
-		: public menu_control_collection_item_i
-	{
-		friend class menu_control_file_picker_c;
-
-	private:
-		string16_c _path; // absolute path of file or folder.
-		uint64_c _creation_time;
-		uint64_c _last_write_time;
-		boolean_c _is_folder;
-
-	public:
-		menu_control_file_picker_item_c( ops::file_system_file_information_c const & file_information );
-
-		virtual resource_file_texture_c * get_icon_texture() const override;
-		virtual boolean_c get_value( string8_c const & key, string16_c & display_value, sint64_c & absolute_value ) const override;
-
-	};
-
-	class menu_control_file_picker_c
-		: public menu_control_c
+	// a dialog window with a file picker.
+	class menu_control_window_file_picker_c
+		: public menu_control_window_c
 	{
 	public:
-		static inline char8_c const * get_type_name_static() { return "file_picker"; }
+		static inline char8_c const * get_type_name_static() { return "window_file_picker"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	public:
-		enum result_e
-		{
-			result_e_none,
-			result_e_cancel,
-			result_e_okay,
-		};
+		static vector32x2_c default_size; // new file picker windows will be set to this size by default.
 
+	public:
 		enum mode_e
 		{
 			mode_e_load, // select a file to load.
 			mode_e_save, // select a file to save.
 		};
 
-		typedef boolean_c( *can_load_call_back_f )( string16_c const & folder_or_file_path );
+		class item_c
+			: public menu_control_collection_c::item_i
+		{
+			friend class menu_control_window_file_picker_c;
+
+		private:
+			string16_c _path; // absolute path of file or folder.
+			uint64_c _creation_time;
+			uint64_c _last_write_time;
+			boolean_c _is_folder;
+
+		public:
+			item_c( ops::file_system_file_information_c const & file_information );
+
+			virtual resource_file_texture_c * get_icon_texture() const override;
+			virtual boolean_c get_value( string8_c const & key, string16_c & display_value, sint64_c & absolute_value ) const override;
+
+		};
 
 	private:
 		boolean_c _is_muted; // when true, the _handle_* functions will return immediately. the file picker is in the middle of changing values of controls, so it wants to temporarily ignore any events that are created by those controls.
-
-		menu_element_frame_c _frame; // name is "frame", makes the background of this control.
 
 		menu_control_text_c * _folder_path_text; // name is "folder_path_text", address bar at top. this path will be formatted with the operating system's file system path format.
 		menu_control_text_c * _file_name_text; // name is "file_name_text", file name at bottom.
@@ -75,23 +67,25 @@ namespace cheonsa
 
 		menu_control_button_c * _cancel_button; // name is "cancel_button", cancel button at bottom, right of file name.
 		menu_control_button_c * _okay_button; // name is "okay_button", save or open button at bottom, right of file name.
-		result_e _result; // holds okay or cancel result.
 
 		mode_e _mode; // if the file picker is being used to load a file or save a file.
 		void_c _try_to_okay(); // tries to pick the currently selected file, which means that if mode is load then it checks if the file can be opened, if mode is save then it warns on overwrite.
 
-		boolean_c _sub_dialog_is_asking_for_over_write;
-		menu_window_dialog_c * _sub_dialog; // used to ask the user if they want to overwrite an existing file or not.
-		void_c _sub_dialog_handle_on_result( menu_window_c * window_dialog );
+		boolean_c _message_dialog_is_asking_for_over_write;
+		menu_control_window_message_c * _message_dialog; // used to ask the user if they want to overwrite an existing file or not.
 
+		void_c _handle_on_dialog_result( menu_control_window_c * window_dialog );
 		void_c _handle_button_on_clicked( menu_event_information_c event_information );
 		void_c _handle_text_on_value_changed( menu_control_text_c * control );
 		void_c _handle_file_collection_on_selected_items_changed( menu_control_collection_c * collection );
 		void_c _handle_file_collection_on_selected_items_invoked( menu_control_collection_c * collection );
+
+		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 	public:
-		menu_control_file_picker_c();
+		menu_control_window_file_picker_c( string8_c const & name );
+		virtual ~menu_control_window_file_picker_c() override;
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );
@@ -113,11 +107,7 @@ namespace cheonsa
 
 		void_c refresh_files_collection(); // scans file system state and refreshes file collection view.
 
-		result_e get_result() const;
-
-		core_event_c< boolean_c, menu_control_file_picker_c * > can_load; // is invoked each time a file is selected if mode is load.
-
-		core_event_c< void_c, menu_control_file_picker_c * > on_result; // is called when dialog is canceled or okayed.
+		core_event_c< boolean_c, menu_control_window_file_picker_c * > can_load; // is invoked each time a file is selected if mode is load, and when okay is pressed. the invoked function or method should check the file at get_file_path() and return true if it can load it, or false if not. this will dynamically control the is enabled state of the okay button.
 
 	};
 

@@ -5,8 +5,8 @@
 namespace cheonsa
 {
 
-	menu_control_list_item_i::menu_control_list_item_i()
-		: menu_control_c()
+	menu_control_list_item_i::menu_control_list_item_i( string8_c const & name )
+		: menu_control_c( name )
 		, _can_be_selected( false )
 		, _is_selected( false )
 	{
@@ -96,9 +96,9 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_list_item_separator_i::menu_control_list_item_separator_i()
-		: menu_control_list_item_i()
-		, _element_frame()
+	menu_control_list_item_separator_i::menu_control_list_item_separator_i( string8_c const & name )
+		: menu_control_list_item_i( name )
+		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
 		, _height( 10.0f )
 	{
 	}
@@ -196,12 +196,12 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_list_item_text_i::menu_control_list_item_text_i()
-		: menu_control_list_item_i()
-		, _element_frame()
-		, _element_selected_frame()
-		, _element_highlighted_frame()
-		, _element_text()
+	menu_control_list_item_text_i::menu_control_list_item_text_i( string8_c const & name )
+		: menu_control_list_item_i( name )
+		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
+		, _element_selected_frame( string8_c( core_list_mode_e_static, "selected_frame" ) )
+		, _element_highlighted_frame( string8_c( core_list_mode_e_static, "highlighted_frame" ) )
+		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
 	{
 		_can_be_selected = true;
 
@@ -210,21 +210,17 @@ namespace cheonsa
 
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_add_element( &_element_frame );
 
-		_element_selected_frame.set_name( string8_c( core_list_mode_e_static, "selected_frame" ) );
 		_element_selected_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_selected_frame.set_is_showed( false );
 		_add_element( &_element_selected_frame );
 
-		_element_highlighted_frame.set_name( string8_c( core_list_mode_e_static, "highlighted_frame" ) );
 		_element_highlighted_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_highlighted_frame.set_is_showed( false );
 		_add_element( &_element_highlighted_frame );
 
-		_element_text.set_name( string8_c( core_list_mode_e_static, "text" ) );
 		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_text.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
 		_add_element( &_element_text );
@@ -512,9 +508,9 @@ namespace cheonsa
 		_on_selected_item_list_changed();
 	}
 
-	menu_control_list_i::menu_control_list_i()
-		: menu_control_c()
-		, _element_frame()
+	menu_control_list_i::menu_control_list_i( string8_c const & name )
+		: menu_control_c( name )
+		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
 		, _client( nullptr )
 		, _item_origins_are_dirty( false )
 		, _vertical_size_mode( menu_size_mode_e_fixed )
@@ -528,20 +524,17 @@ namespace cheonsa
 		_vertical_size_mode = menu_size_mode_e_fixed;
 		_vertical_size_maximum = 0.0f;
 
-		_element_frame.set_name( string8_c( core_list_mode_e_static, "frame" ) );
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
 
-		_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
-		_vertical_scroll_bar->set_name( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
+		_vertical_scroll_bar = new menu_control_scroll_bar_y_c( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 0.0f, 0.0f, 0.0f ) );
 		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_list_i::_handle_vertical_scroll_bar_on_value_changed );
 		_vertical_scroll_bar->on_preferred_thickness_changed.subscribe( this, &menu_control_list_i::_handle_vertical_scroll_bar_on_preferred_thickness_changed );
 		_give_control( _vertical_scroll_bar );
 
-		_client = new menu_control_c();
-		_client->set_name( string8_c( core_list_mode_e_static, "client" ) );
+		_client = new menu_control_c( string8_c( core_list_mode_e_static, "client" ) );
 		_client->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 8.0f, 8.0f, 8.0f, 8.0f ) );
 		_give_control( _client );
 

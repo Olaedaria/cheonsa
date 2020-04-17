@@ -50,7 +50,7 @@ namespace cheonsa
 		virtual void_c _update_transform_and_layout() override; // updates layout of elements based on current mode and value.
 
 	public:
-		menu_control_color_slider_c();
+		menu_control_color_slider_c( string8_c const & name );
 
 		virtual void_c update_animations( float32_c time_step ) override;
 
@@ -62,6 +62,7 @@ namespace cheonsa
 
 		vector32x3_c const & get_color() const;
 		void_c set_color( vector32x3_c const & value );
+		void_c set_color( vector32x4_c const & value );
 
 		core_event_c< void_c, menu_control_color_slider_c * > on_value_changed;
 

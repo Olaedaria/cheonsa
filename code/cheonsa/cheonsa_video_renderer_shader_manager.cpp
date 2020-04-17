@@ -498,7 +498,7 @@ namespace cheonsa
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
 		ops::convert_string16_to_string8( shader_variations->source_file.absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
-		video_vertex_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->input_vertex_layout );
+		video_vertex_shader_c * shader = engine.get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->input_vertex_layout );
 		if ( shader )
 		{
 			if ( shader_variations->output_vertex_format && variation == variation_e_vs )
@@ -527,7 +527,7 @@ namespace cheonsa
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
 		ops::convert_string16_to_string8( shader_variations->source_file.absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
-		video_pixel_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ) );
+		video_pixel_shader_c * shader = engine.get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ) );
 		if ( shader )
 		{
 			void_c const * compiled_code;
@@ -650,7 +650,7 @@ namespace cheonsa
 			}
 			stream.close();
 
-			video_vertex_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size, vertex_layout );
+			video_vertex_shader_c * shader = engine.get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size, vertex_layout );
 			if ( shader != nullptr )
 			{
 				if ( *result != nullptr)
@@ -693,7 +693,7 @@ namespace cheonsa
 			}
 			stream.close();
 
-			video_pixel_shader_c * shader = engine_c::get_instance()->get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size );
+			video_pixel_shader_c * shader = engine.get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size );
 			if ( shader != nullptr )
 			{
 				if ( *result != nullptr )
@@ -713,7 +713,6 @@ namespace cheonsa
 		, _menu_ps_frame( nullptr )
 		, _menu_ps_frame_keyed( nullptr )
 		, _menu_ps_solid_color( nullptr )
-		, _menu_ps_solid_color_hue_slider( nullptr )
 		, _menu_ps_text( nullptr )
 		, _menu2_vs( nullptr )
 		, _menu2_vs_debug( nullptr )
@@ -786,10 +785,6 @@ namespace cheonsa
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_solid_color.hlsl" ), true );
 		shader_variations->ps = &_menu_ps_solid_color;
-		_shader_variations_list.insert_at_end( shader_variations );
-
-		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_solid_color_hue_slider.hlsl" ), true );
-		shader_variations->ps = &_menu_ps_solid_color_hue_slider;
 		_shader_variations_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_text.hlsl" ), true );
@@ -919,8 +914,8 @@ namespace cheonsa
 
 	boolean_c video_renderer_shader_manager_c::refresh()
 	{
-		assert( engine_c::get_instance()->get_resource_manager() != nullptr );
-		assert( engine_c::get_instance()->get_video_interface() != nullptr );
+		assert( engine.get_resource_manager() != nullptr );
+		assert( engine.get_video_interface() != nullptr );
 
 		for ( sint32_c i = 0; i < _material_pixel_shader_list.get_length(); i++ )
 		{
@@ -1058,7 +1053,7 @@ namespace cheonsa
 		// scan game data folders.
 		if ( is_internal == false )
 		{
-			core_list_c< string16_c > const & game_data_folder_path_list = engine_c::get_instance()->get_content_manager()->get_game_data_folder_path_list();
+			core_list_c< string16_c > const & game_data_folder_path_list = engine.get_content_manager()->get_game_data_folder_path_list();
 			for ( sint32_c i = game_data_folder_path_list.get_length() - 1; i >= 0; i-- )
 			{
 				result = game_data_folder_path_list[ i ];
@@ -1078,7 +1073,7 @@ namespace cheonsa
 		}
 
 		// scan engine data folder.
-		result = engine_c::get_instance()->get_content_manager()->get_engine_data_folder_path();
+		result = engine.get_content_manager()->get_engine_data_folder_path();
 #if defined( cheonsa_platform_windows )
 		result += "_common\\shaders\\";
 #else

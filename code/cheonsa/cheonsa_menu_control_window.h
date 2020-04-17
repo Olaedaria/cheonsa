@@ -15,7 +15,7 @@ namespace cheonsa
 	// it has a title bar along the top edge.
 	// it has options to be movable and resizable by the user.
 	// unlike other controls, its local origin is located as its top left corner.
-	class menu_window_c
+	class menu_control_window_c
 		: public menu_control_panel_i
 	{
 	public:
@@ -29,8 +29,8 @@ namespace cheonsa
 		float32_c _top_bar_size; // extra thickness of top edge, for title bar, for hit testing, user can grab this to move the window.
 		float32_c _bottom_bar_size; // extra thickness of bottom edge, for additional dialog buttons.
 
-		boolean_c _user_can_resize; // if true then the user can resize the panel like it's a window. in order for this to work, this panel must be a root level control in the mother menu context.
-		boolean_c _user_can_move; // if true then the user can move the panel around like it's a window. in order fot this to work, this panel must be a root level control in the mother menu context.
+		boolean_c _user_can_move; // if true then the user can move and resize the window. the window must be a root level control.
+		boolean_c _user_can_resize; // if true then the user can move and resize the window. the window must be a root level control.
 
 		vector32x2_c _minimum_size; // minimum size that user can size this control to, <= (0, 0) then a default will be used.
 		vector32x2_c _maximum_size; // maximum size that the user can size this control to, if <= (0, 0) then a default maximum will be used, which will be quite generous and might as well be unlimited.
@@ -50,7 +50,7 @@ namespace cheonsa
 
 		menu_control_c * _modal_screen; // if set, then when this window is responsible for hiding this modal screen when this window is dismissed.
 
-		menu_dialog_result_e _result; // optional, used by dialog windows to hold result of dialog interaction.
+		menu_dialog_result_e _dialog_result; // optional, used by dialog windows to hold result of dialog interaction.
 
 		void_c _apply_client_margins();
 
@@ -61,15 +61,15 @@ namespace cheonsa
 		virtual void_c _update_transform_and_layout() override;
 
 	public:
-		menu_window_c();
+		menu_control_window_c( string8_c const & name );
 
 		virtual void_c update_animations( float32_c time_step ) override;
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
 
-		string16_c get_title() const;
-		void_c set_title( string8_c const & plain_text );
-		void_c set_title( string16_c const & plain_text );
-		void_c clear_title();
+		string16_c get_title_text_value() const;
+		void_c set_title_text_value( string8_c const & plain_text );
+		void_c set_title_text_value( string16_c const & plain_text );
+		void_c clear_title_text_value();
 
 		boolean_c get_user_can_move() const;
 		void_c set_user_can_move( boolean_c value );
@@ -112,6 +112,9 @@ namespace cheonsa
 		menu_control_c * take_control_from_client( sint32_c control_index );
 		void_c remove_and_delete_all_controls_from_client();
 
+		// centers this window in the user interface, preserves current size.
+		void_c center();
+
 		// shows this window like a dialog.
 		// modal_screen is optional, but if it's proivided then this window needs to be responsible for hiding and deleting it with set_is_showed( false, true ).
 		// this modal screen is a root level control, created by the user interface system, provided for us to remember.
@@ -121,8 +124,8 @@ namespace cheonsa
 		// hides and deletes modal screen if one is associated.
 		virtual void_c hide_dialog();
 
-		menu_dialog_result_e get_result() const; // gets the current or last result.
-		core_event_c< void_c, menu_window_c * > on_result; // dialog windows are not responsible for calling hide_dialog() on their own.
+		menu_dialog_result_e get_dialog_result() const; // gets the current or last result.
+		core_event_c< void_c, menu_control_window_c * > on_dialog_result; // dialog windows are not responsible for calling hide_dialog() on their own.
 
 	};
 

@@ -25,7 +25,7 @@ namespace cheonsa
 		un_load();
 #if defined( cheonsa_platform_windows )
 		string16_c absolute_file_path;
-		if ( engine_c::get_instance()->get_content_manager()->resolve_absolute_file_path( relative_file_path, absolute_file_path ) )
+		if ( engine.get_content_manager()->resolve_absolute_file_path( relative_file_path, absolute_file_path ) )
 		{
 			icon_handle = static_cast< void_c * >( LoadImageW( NULL, absolute_file_path.character_list.get_internal_array(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE ) );
 		}

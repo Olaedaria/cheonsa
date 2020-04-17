@@ -15,13 +15,12 @@ namespace cheonsa
 	public:
 		core_list_c< video_renderer_vertex_menu_c > vertex_list;
 		core_list_c< uint16_c > index_list;
-		//video_pixel_shader_c * pixel_shader;
 
 	protected:
 		virtual void_c _build_draw_list() override;
 
 	public:
-		menu_element_mesh_c();
+		menu_element_mesh_c( string8_c const & name );
 
 		virtual void_c update_animations( float32_c time_step ) override;
 

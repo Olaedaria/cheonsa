@@ -31,7 +31,7 @@ namespace cheonsa
 		menu_frame_style_c _element_frame_style;
 
 	public:
-		menu_control_image_c();
+		menu_control_image_c( string8_c const & name );
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e mode );

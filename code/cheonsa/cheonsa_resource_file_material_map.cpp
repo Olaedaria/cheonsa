@@ -46,7 +46,7 @@ namespace cheonsa
 				attribute = sub_node->find_attribute( "pixel_shader" );
 				if ( attribute )
 				{
-					thing->material.pixel_shader = engine_c::get_instance()->get_video_renderer_shader_manager()->load_pixel_shader( string16_c( attribute->get_value() ) );
+					thing->material.pixel_shader = engine.get_video_renderer_shader_manager()->load_pixel_shader( string16_c( attribute->get_value() ) );
 				}
 
 				attribute = sub_node->find_attribute( "is_waved" );
@@ -149,25 +149,25 @@ namespace cheonsa
 				attribute = sub_node->find_attribute( "texture[0]" );
 				if ( attribute )
 				{
-					thing->material.textures[ 0 ] = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->material.textures[ 0 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 				}
 
 				attribute = sub_node->find_attribute( "texture[1]" );
 				if ( attribute )
 				{
-					thing->material.textures[ 1 ] = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->material.textures[ 1 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 				}
 
 				attribute = sub_node->find_attribute( "texture[2]" );
 				if ( attribute )
 				{
-					thing->material.textures[ 2 ] = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->material.textures[ 2 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 				}
 
 				attribute = sub_node->find_attribute( "texture[3]" );
 				if ( attribute )
 				{
-					thing->material.textures[ 3 ] = engine_c::get_instance()->get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->material.textures[ 3 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
 				}
 			}
 			sub_node = sub_node->get_next_sister();

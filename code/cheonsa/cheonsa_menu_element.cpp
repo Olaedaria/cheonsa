@@ -7,19 +7,6 @@
 namespace cheonsa
 {
 
-	menu_element_c * menu_element_c::make_new_instance( string8_c const & type )
-	{
-		if ( type == menu_element_frame_c::get_type_name_static() )
-		{
-			return new menu_element_frame_c();
-		}
-		else if ( type == menu_element_text_c::get_type_name_static() )
-		{
-			return new menu_element_text_c();
-		}
-		return nullptr;
-	}
-
 	void_c menu_element_c::_on_local_box_modified()
 	{
 	}
@@ -78,9 +65,9 @@ namespace cheonsa
 		set_style_key( new_style_key );
 	}
 
-	menu_element_c::menu_element_c()
+	menu_element_c::menu_element_c( string8_c const & name )
 		: _mother_control( nullptr )
-		, _name()
+		, _name( name )
 		, _shared_color_class( menu_shared_color_class_e_window )
 		, _local_color( 1.0f, 1.0f, 1.0f, 1.0f )
 		, _local_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom )
@@ -188,10 +175,10 @@ namespace cheonsa
 		return _name;
 	}
 
-	void_c menu_element_c::set_name( string8_c const & value )
-	{
-		_name = value;
-	}
+	//void_c menu_element_c::set_name( string8_c const & value )
+	//{
+	//	_name = value;
+	//}
 
 	vector32x4_c const & menu_element_c::get_local_color() const
 	{

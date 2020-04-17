@@ -25,7 +25,7 @@ namespace cheonsa
 		virtual void_c _build_draw_list() override;
 
 	public:
-		menu_element_frame_c();
+		menu_element_frame_c( string8_c const & name );
 		~menu_element_frame_c();
 
 		virtual void_c update_animations( float32_c time_step ) override;
