@@ -677,9 +677,9 @@ namespace cheonsa
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
 
-		boolean_c char16_is_printable( char16_c a );
+		boolean_c char16_is_printable( char16_c a ); // any printable character.
 		boolean_c char16_is_space( char16_c a );
-		boolean_c char16_is_letter( char16_c a );
+		boolean_c char16_is_latin_letter( char16_c a );
 		boolean_c char16_is_decimal_digit( char16_c a );
 		boolean_c char16_is_hexadecimal_digit( char16_c a );
 		boolean_c char16_is_punctuation( char16_c a );
@@ -741,12 +741,11 @@ namespace cheonsa
 		boolean_c string16_ends_with( char16_c const * a, char8_c const * b );
 		boolean_c string16_ends_with( char16_c const * a, char16_c const * b );
 
-		sint32_c string8_sort_compare( string8_c const & a, string8_c const & b ); // returns 0 if a and b are equal. returns > 0 if a goes after b. returns < 0 if a goes before b. use with core_list_c< string16_c >::insertion_sort( &string_sort_compare );
-		sint32_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b ); // returns 0 if a and b are equal. returns > 0 if a goes after b. returns < 0 if a goes before b. use with core_list_c< string16_c >::insertion_sort( &string_sort_compare_case_insensitive );
+		boolean_c string8_sort_compare( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
+		boolean_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
 
-		boolean_c string16_sort_compare_is_b_less_than_a( string16_c const & a, string16_c const & b );
-		sint32_c string16_sort_compare( string16_c const & a, string16_c const & b ); // returns 0 if a and b are equal. returns > 0 if a goes after b. returns < 0 if a goes before b. use with core_list_c< string16_c >::insertion_sort( &string_sort_compare );
-		sint32_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b ); // returns 0 if a and b are equal. returns > 0 if a goes after b. returns < 0 if a goes before b. use with core_list_c< string16_c >::insertion_sort( &string_sort_compare_case_insensitive );
+		boolean_c string16_sort_compare( string16_c const & a, string16_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
+		boolean_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
 
 		boolean_c string8_compare( char8_c const * a, char8_c const * b );
 		boolean_c string8_compare_case_insensitive( char8_c const * a, char8_c const * b );

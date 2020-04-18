@@ -196,6 +196,8 @@ namespace cheonsa
 		, _grabbed_point_local( 0.0f, 0.0f )
 		, _modal_screen( nullptr )
 	{
+		set_size( vector32x2_c( 500, 500 ) );
+
 		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
 		_add_element( &_element_text );

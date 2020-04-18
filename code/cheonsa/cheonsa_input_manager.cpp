@@ -362,7 +362,7 @@ namespace cheonsa
 		return false;
 	}
 
-	boolean_c input_manager_c::clip_board_get_plain_text( string16_c & value )
+	boolean_c input_manager_c::get_plain_text_clip_board_value( string16_c & value )
 	{
 		boolean_c result = false;
 		if ( IsClipboardFormatAvailable( CF_UNICODETEXT ) )
@@ -386,7 +386,7 @@ namespace cheonsa
 		return result;
 	}
 
-	boolean_c input_manager_c::clip_board_set_plain_text( string16_c const & value )
+	boolean_c input_manager_c::set_plain_text_clip_board_value( string16_c const & value )
 	{
 		boolean_c result = false;
 		if ( OpenClipboard( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ) ) )

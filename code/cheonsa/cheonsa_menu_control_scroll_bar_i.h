@@ -8,7 +8,6 @@ namespace cheonsa
 
 	// base interface and private implementation for scroll_bar_x, scroll_bar_y, scrub_bar_x, and scrub_bar_y.
 	// preferred thickness property is provided, but is not really respected unless you implement code to re-set the box layout of the scroll bar in response to it changing, so a on_preferred_thickness_changed event is provided.
-	// the scroll bar does not control its own layout.
 	class menu_control_scroll_bar_i
 		: public menu_control_c
 	{

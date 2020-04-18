@@ -128,7 +128,7 @@ namespace cheonsa
 
 	boolean_c menu_control_collection_c::item_i::relative_compare( item_i * const & a, item_i * const & b )
 	{
-		return ops::string16_sort_compare_case_insensitive( a->_value_cache[ a->_mother_collection->_sort_index ].display_value, b->_value_cache[ a->_mother_collection->_sort_index ].display_value ) > 0;
+		return ops::string16_sort_compare_case_insensitive( a->_value_cache[ a->_mother_collection->_sort_index ].display_value, b->_value_cache[ a->_mother_collection->_sort_index ].display_value );
 	}
 
 	uint64_c menu_control_collection_c::item_i::absolute_value( item_i * const & a )

@@ -417,6 +417,8 @@ namespace cheonsa
 		boolean_c set_text_style_key_at_cursor( string8_c const & text_style_key );
 
 		// copies the currently selected plain text to the operating system clip board.
+		boolean_c cut_text_to_clip_board();
+		// copies the currently selected plain text to the operating system clip board.
 		boolean_c copy_text_to_clip_board();
 		// if the operating system clip board contains plain text, then deletes currently selected text and pastes plain text at current cursor index.
 		boolean_c paste_text_from_clip_board();
@@ -431,7 +433,7 @@ namespace cheonsa
 		//     sets _is_text_focused to true, which enables display of the cursor.
 		// when losing text focus:
 		//     if _is_text_value_modified is true then
-		//         invokes on_value_changed_commit event.
+		//         invokes on_text_value_changed event.
 		//     sets _is_text_focused to false, which disables display of the cursor.
 		void_c handle_on_is_text_focused_changed( boolean_c value );
 

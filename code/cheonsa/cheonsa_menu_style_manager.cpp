@@ -181,7 +181,7 @@ namespace cheonsa
 		_default_text_style.size_is_defined = true;
 		_default_text_style.size = 16;
 		_default_text_style.color_is_defined = true;
-		_default_text_style.color = vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f );
+		_default_text_style.color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		_default_text_style.skew_is_defined = true;
 		_default_text_style.skew = 0;
 		_default_text_style.weight_is_defined = true;

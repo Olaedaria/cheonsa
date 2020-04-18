@@ -138,7 +138,7 @@ namespace cheonsa
 		, _time( 0.0f )
 		, _time_to_bind_type( time_to_bind_type_e_seconds )
 		, _time_to_bind( 0.0f )
-		, _time_from_other( nullptr )
+		//, _time_from_other( nullptr )
 	{
 		assert( _model != nullptr );
 		_model->_on_animation_resources_updated.subscribe( this, &animation_player_c::_handle_on_animation_resources_updated );
@@ -158,7 +158,7 @@ namespace cheonsa
 			return;
 		}
 
-		if ( _time_from_other == nullptr )
+		//if ( _time_from_other == nullptr )
 		{
 			if ( _loop_count_target > 0 && _loop_count_current >= _loop_count_target )
 			{
@@ -251,10 +251,10 @@ namespace cheonsa
 				}
 			}
 		}
-		else
-		{
-			set_time( _time_from_other->get_time() );
-		}
+		//else
+		//{
+		//	set_time( _time_from_other->get_time() );
+		//}
 	}
 
 	void_c scene_component_model_c::animation_player_c::play( sint32_c loop_count )
@@ -330,7 +330,7 @@ namespace cheonsa
 
 	void_c scene_component_model_c::animation_player_c::set_time( float32_c value )
 	{
-		_time_from_other = nullptr;
+		//_time_from_other = nullptr;
 		_time_to_bind_type = time_to_bind_type_e_seconds;
 		if ( _source_animation != nullptr )
 		{
@@ -369,7 +369,7 @@ namespace cheonsa
 
 	void_c scene_component_model_c::animation_player_c::set_time_percent( float32_c value )
 	{
-		_time_from_other = nullptr;
+		//_time_from_other = nullptr;
 		_time_to_bind_type = time_to_bind_type_e_percent;
 		if ( _source_animation != nullptr )
 		{
@@ -381,10 +381,10 @@ namespace cheonsa
 		}
 	}
 
-	void_c scene_component_model_c::animation_player_c::set_to_use_time_from_other( animation_player_c * other )
-	{
-		_time_from_other = other;
-	}
+	//void_c scene_component_model_c::animation_player_c::set_to_use_time_from_other( animation_player_c * other )
+	//{
+	//	_time_from_other = other;
+	//}
 
 	void_c scene_component_model_c::animation_player_c::sample_property_player( animation_player_c::object_player_c::property_player_c * property_player, vector32x4_c & result )
 	{

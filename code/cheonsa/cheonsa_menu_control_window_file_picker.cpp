@@ -4,7 +4,7 @@
 namespace cheonsa
 {
 
-	vector32x2_c menu_control_window_file_picker_c::default_size = vector32x2_c( 800, 600 );
+	vector32x2_c menu_control_window_file_picker_c::default_size = vector32x2_c( 1000, 600 );
 
 	menu_control_window_file_picker_c::item_c::item_c( ops::file_system_file_information_c const & file_information )
 		: item_i()

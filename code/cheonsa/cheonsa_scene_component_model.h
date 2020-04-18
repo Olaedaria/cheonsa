@@ -39,6 +39,7 @@ namespace cheonsa
 		};
 
 		// drives animation for a list of animatable objects.
+		// the game manages how animations are layered and mixed by adding instances of these in the model instance's animation_player_list.
 		class animation_player_c
 		{
 		public:
@@ -98,8 +99,8 @@ namespace cheonsa
 
 			core_list_c< animation_player_c::object_player_c > _object_player_list; // animation players for each animated object in _animation.
 
-			blend_type_e _blend_type; // how to make_matrix_blended this animation with previous animations in the stack.
-			float32_c _blend_weight; // weight to make_matrix_blended this animation with previous animations.
+			blend_type_e _blend_type; // how to blend this animation with previous animations in the stack.
+			float32_c _blend_weight; // weight to blend this animation with previous animations.
 
 			sint32_c _loop_count_current; // keeps track of how many times animation has looped.
 			sint32_c _loop_count_target; // keeps track of how many times animation wants to loop before it stops playing, or 0 to loop forever.
@@ -109,7 +110,7 @@ namespace cheonsa
 			float32_c _time; // current play time of current animation.
 			time_to_bind_type_e _time_to_bind_type;
 			float32_c _time_to_bind; // if the user tries to get or set the play time of this player before an animation is bound to it then we have to remember that value so we can put it in effect once the animation does get bound.
-			animation_player_c * _time_from_other; // if this is set then the time percent of this animation player will be taken from the time percent of the other animation player.
+			//animation_player_c * _time_from_other; // if this is set then the time of this animation player will be taken from the other animation player.
 
 			// evaluates _model and _animation_name and resolves _source_model and _source_animation.
 			// this method is subscribed to the on_load and on_unload events of the bound _model_resource and _animations_resource.
@@ -130,8 +131,8 @@ namespace cheonsa
 			void_c set_animation( string8_c const & value );
 			void_c clear_animation();
 
-			blend_type_e get_blend_type(); // gets make_matrix_blended mode that determines how this animation player blends with existing pose.
-			void_c set_blend_type( blend_type_e value ); // sets make_matrix_blended mode that determines how this animation player blends with existing pose.
+			blend_type_e get_blend_type(); // gets blend mode that determines how this animation player blends with existing pose.
+			void_c set_blend_type( blend_type_e value ); // sets blend mode that determines how this animation player blends with existing pose.
 
 			float32_c get_blend_weight(); // gets influence of this animation player on previous animation players in the animation player stack.
 			void_c set_blend_weight( float32_c value ); // sets influence of this animation player on previous animation players in the animation player stack.
@@ -148,7 +149,7 @@ namespace cheonsa
 			float32_c get_time_percent(); // gets the current animation time in range 0 to 1.
 			void_c set_time_percent( float32_c value ); // sets the current animation time in range 0 to 1.
 
-			void_c set_to_use_time_from_other( animation_player_c * other ); // this sets this animation player to call set_time( other->get_time() ) during each update(). this is useful for creating gait (like walk and run) animations that make_matrix_blended seamlessly together.
+			//void_c set_to_use_time_from_other( animation_player_c * other ); // this sets this animation player to call set_time( other->get_time() ) during each update(). this is useful for creating gait (like walk and run) animations that stay in phase so that they blend between each other seamlessly.
 
 			void_c sample_property_player( animation_player_c::object_player_c::property_player_c * property_player, vector32x4_c & result ); // samples current value from an arbitrary property player.
 			boolean_c sample_position( sint32_c object_player_index, vector32x3_c & result ); // samples current position from this animation. returns false if the animation does not animate the position property.
@@ -218,7 +219,7 @@ namespace cheonsa
 
 			boolean_c _render_enable; // set to true to enable this mesh instance to be rendered.
 			bone_c * _mother_bone; // when set, then this unskinned vertices in this mesh will inherit from the world space transform of this bone instance, otherwise the unskinned vertices in this mesh will inherit from the world space transform of the model instance.
-			resource_file_model_c::mesh_c const * _source_mesh; // a pointer to the original mesh in the model resource that this mesh is an instance of. this is depracated in order to allow for _explicit_mode, which needs to work in such a way that it does not need to point to a model resource.
+			resource_file_model_c::mesh_c const * _source_mesh; // a pointer to the original mesh in the model resource that this mesh is an instance of.
 			material_assignment_c * _material_assignment; // if set then this defines the material that is assigned to this mesh.
 
 		public:

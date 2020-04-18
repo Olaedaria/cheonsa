@@ -261,6 +261,8 @@ namespace cheonsa
 		vector32x4_c const & get_local_color() const;
 		void_c set_local_color( vector32x4_c const & value );
 
+		void_c set_shared_color_class( menu_shared_color_class_e value ); // sets the color class of all elements, so that they might express a different set of colors than default.
+
 		vector32x2_c const & get_global_origin() const;
 		matrix32x2x2_c const & get_global_basis() const;
 		matrix32x2x2_c const & get_global_basis_inverted() const;

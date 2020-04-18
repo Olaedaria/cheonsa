@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <chrono> // for random number generation.
 #include <cassert>
-#include <cctype> // for isprint
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX // silly windows, leave us alone.
@@ -3811,7 +3810,7 @@ namespace cheonsa
 			// check for colon.
 			if ( path.character_list[ i + 1 ] == ':' )
 			{
-				if ( !char16_is_letter( path.character_list[ i ] ) )
+				if ( !char16_is_latin_letter( path.character_list[ i ] ) )
 				{
 					goto done;
 				}
@@ -3938,7 +3937,7 @@ namespace cheonsa
 			{
 				return false;
 			}
-			if ( char16_is_letter( path.character_list[ i ] ) )
+			if ( char16_is_latin_letter( path.character_list[ i ] ) )
 			{
 				// check for colon.
 				if ( path.character_list[ i + 1 ] == ':' )
@@ -5280,13 +5279,11 @@ namespace cheonsa
 		boolean_c char16_is_space( char16_c a )
 		{
 			return ( a == ' ' ) || ( a == '\t' );
-			//return isspace( a ) != 0;
 		}
 
-		boolean_c char16_is_letter( char16_c a )
+		boolean_c char16_is_latin_letter( char16_c a )
 		{
-			//return ( ( a >= 'a' ) && ( a <= 'z' ) ) || ( ( a >= 'A' && a <= 'Z' ) );
-			return isalpha( a ) != 0;
+			return ( ( a >= 'a' ) && ( a <= 'z' ) ) || ( ( a >= 'A' && a <= 'Z' ) );
 		}
 
 		boolean_c char16_is_decimal_digit( char16_c a )
@@ -5301,13 +5298,12 @@ namespace cheonsa
 
 		boolean_c char16_is_punctuation( char16_c a )
 		{
-			//return
-			//	( a >= 0x0021 && a <= 0x002F ) ||
-			//	( a >= 0x003A && a <= 0x0040 ) ||
-			//	( a >= 0x005B && a <= 0x0060 ) ||
-			//	( a >= 0x007B && a <= 0x007E ) ||
-			//	( a >= 0x3000 && a <= 0x303F ); // "CJK Symbols and Punctuation"
-			return ispunct( a ) != 0;
+			return
+				( a >= 0x0021 && a <= 0x002F ) ||
+				( a >= 0x003A && a <= 0x0040 ) ||
+				( a >= 0x005B && a <= 0x0060 ) ||
+				( a >= 0x007B && a <= 0x007E ) ||
+				( a >= 0x3000 && a <= 0x303F ); // "CJK Symbols and Punctuation"
 		}
 
 		boolean_c char16_is_control( char16_c a )
@@ -5960,29 +5956,24 @@ namespace cheonsa
 			return _string_ends_with< char16_c >( a, b );
 		}
 
-		sint32_c string8_sort_compare( string8_c const & a, string8_c const & b )
+		boolean_c string8_sort_compare( string8_c const & a, string8_c const & b )
 		{
-			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false );
+			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false ) > 0;
 		}
 
-		sint32_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b )
+		boolean_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b )
 		{
-			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true );
+			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true ) > 0;
 		}
 
-		boolean_c string16_sort_compare_is_b_less_than_a( string16_c const & a, string16_c const & b )
+		boolean_c string16_sort_compare( string16_c const & a, string16_c const & b )
 		{
 			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false ) > 0;
 		}
 
-		sint32_c string16_sort_compare( string16_c const & a, string16_c const & b )
+		boolean_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b )
 		{
-			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false );
-		}
-
-		sint32_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b )
-		{
-			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true );
+			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true ) > 0;
 		}
 
 		boolean_c string8_compare( char8_c const * a, char8_c const * b )

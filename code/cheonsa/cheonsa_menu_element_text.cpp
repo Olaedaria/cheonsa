@@ -1609,21 +1609,31 @@ namespace cheonsa
 
 	void_c menu_element_text_c::_get_word_at_character_index( sint32_c character_index, sint32_c & character_start, sint32_c & character_end )
 	{
-		sint8_c word_type = 0; // letter.
+		enum word_type_e
+		{
+			word_type_e_word,
+			word_type_e_number,
+			word_type_e_space,
+			word_type_e_punctuation,
+		};
+
+		word_type_e word_type = word_type_e_word;
+
 		assert( character_index < _plain_text.character_list.get_length() - 2 );
-		//if ( character_index > 0 && character_index == _plain_text.character_list.get_length() - 2 )
-		//{
-		//	character_index--; // bias, so that word can still be selected even if cursor is at very end of text.
-		//}
 		char16_c previous_character = character_index > 0 ? _plain_text.character_list[ character_index - 1 ] : 0;
 		char16_c character = _plain_text.character_list[ character_index ];
-		if ( ops::char16_is_space( character ) )
+
+		if ( ops::char16_is_decimal_digit( character ) )
+		{
+			word_type = word_type_e_number;
+		}
+		else if ( ops::char16_is_space( character ) )
 		{
 			if ( ops::char16_is_space( previous_character ) )
 			{
 				// current character is space and previous character is space.
 				// select the connected block of space.
-				word_type = 1; // space.
+				word_type = word_type_e_space; // space.
 			}
 			else
 			{
@@ -1632,15 +1642,48 @@ namespace cheonsa
 				character_index--;
 				if ( ops::char16_is_punctuation( previous_character ) )
 				{
-					word_type = 2; // punctuation.
+					word_type = word_type_e_punctuation; // punctuation.
 				}
 			}
 		}
-		else
+		else if ( ops::char16_is_punctuation( character ) )
 		{
-			if ( ops::char16_is_punctuation( character ) )
+			word_type = word_type_e_punctuation; // punctuation.
+			if ( character == '.' )
 			{
-				word_type = 2; // punctuation.
+				if ( character_index > 0 )
+				{
+					if ( character_index + 1 < _plain_text.character_list.get_length() - 2 )
+					{
+						char16_c next_character = _plain_text.character_list[ character_index + 1 ];
+						if ( ops::char16_is_decimal_digit( next_character ) )
+						{
+							word_type = word_type_e_number;
+						}
+					}
+				}
+			}
+			else if ( character == '-' )
+			{
+				if ( character_index + 1 < _plain_text.character_list.get_length() - 2 )
+				{
+					char16_c next_character = _plain_text.character_list[ character_index + 1 ];
+					if ( ops::char16_is_decimal_digit( next_character ) )
+					{
+						word_type = word_type_e_number;
+					}
+					else if ( next_character == '.' )
+					{
+						if ( character_index + 2 < _plain_text.character_list.get_length() - 2 )
+						{
+							char16_c next_next_character = _plain_text.character_list[ character_index + 2 ];
+							if ( ops::char16_is_decimal_digit( next_next_character ) )
+							{
+								word_type = word_type_e_number;
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -1650,7 +1693,7 @@ namespace cheonsa
 		while ( start > 0 )
 		{
 			character = _plain_text.character_list[ start ];
-			if ( word_type == 0 )
+			if ( word_type == word_type_e_word )
 			{
 				if ( ops::char16_is_space( character ) || ops::char16_is_punctuation( character ) )
 				{
@@ -1658,7 +1701,15 @@ namespace cheonsa
 					break;
 				}
 			}
-			else if ( word_type == 1 )
+			else if ( word_type == word_type_e_number )
+			{
+				if ( !( ops::char16_is_decimal_digit( character ) || character == '.' || character == '-' ) )
+				{
+					character_start = start + 1;
+					break;
+				}
+			}
+			else if ( word_type == word_type_e_space )
 			{
 				if ( !ops::char16_is_space( character ) )
 				{
@@ -1666,7 +1717,7 @@ namespace cheonsa
 					break;
 				}
 			}
-			else if ( word_type == 2 )
+			else if ( word_type == word_type_e_punctuation )
 			{
 				if ( !ops::char16_is_punctuation( character ) )
 				{
@@ -1677,26 +1728,33 @@ namespace cheonsa
 			start--;
 		}
 		// scan ahead.
-		sint32_c count = _plain_text.character_list.get_length() - 1;
+		sint32_c count = _plain_text.character_list.get_length() - 2;  // - 2 to exclude trailing new line character.
 		sint32_c end = character_index;
 		while ( end < count )
 		{
 			character = _plain_text.character_list[ end ];
-			if ( word_type == 0 )
+			if ( word_type == word_type_e_word )
 			{
 				if ( ops::char16_is_space( character ) || ops::char16_is_punctuation( character ) )
 				{
 					break;
 				}
 			}
-			else if ( word_type == 1 )
+			else if ( word_type == word_type_e_number )
+			{
+				if ( !( ops::char16_is_decimal_digit( character ) || character == '.' || character == '-' ) )
+				{
+					break;
+				}
+			}
+			else if ( word_type == word_type_e_space )
 			{
 				if ( !ops::char16_is_space( character ) )
 				{
 					break;
 				}
 			}
-			else if ( word_type == 2 )
+			else if ( word_type == word_type_e_punctuation )
 			{
 				if ( !ops::char16_is_punctuation( character ) )
 				{
@@ -2944,14 +3002,8 @@ namespace cheonsa
 
 	void_c menu_element_text_c::set_cursor_index( sint32_c value )
 	{
-		if ( value < 0 )
-		{
-			value = 0;
-		}
-		else if ( value > _plain_text.character_list.get_length() )
-		{
-			value = _plain_text.character_list.get_length();
-		}
+		assert( _plain_text.get_length() >= 1 );
+		assert( value >= 0 && value < _plain_text.get_length() );
 		_cursor_index = value;
 		_cursor_is_on_previous_line = false;
 		_text_select_anchor_index_start = value;
@@ -3083,6 +3135,17 @@ namespace cheonsa
 		return true;
 	}
 
+	boolean_c menu_element_text_c::cut_text_to_clip_board()
+	{
+		assert( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable );
+		if ( copy_text_to_clip_board() )
+		{
+			_delete_selected_text();
+			return true;
+		}
+		return false;
+	}
+
 	boolean_c menu_element_text_c::copy_text_to_clip_board()
 	{
 		assert( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable );
@@ -3091,7 +3154,7 @@ namespace cheonsa
 		if ( get_selected_text_range( selected_character_start, selected_character_count ) )
 		{
 			string16_c clip = ops::string16_sub_string( _plain_text, selected_character_start, selected_character_count );
-			return engine.get_input_manager()->clip_board_set_plain_text( clip );
+			return engine.get_input_manager()->set_plain_text_clip_board_value( clip );
 		}
 		return false;
 	}
@@ -3100,14 +3163,13 @@ namespace cheonsa
 	{
 		assert( _text_interact_mode == menu_text_interact_mode_e_editable );
 		string16_c clip;
-		if ( engine.get_input_manager()->clip_board_get_plain_text( clip ) )
+		if ( engine.get_input_manager()->get_plain_text_clip_board_value( clip ) )
 		{
 			if ( has_selected_text_range() )
 			{
 				_delete_selected_text();
 			}
 			_input_plain_text( clip );
-			_cursor_index += clip.get_length();
 			_is_text_value_modified = true;
 			on_text_value_changed_preview.invoke( this );
 			return true;
@@ -3219,6 +3281,25 @@ namespace cheonsa
 					input_return( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
 					return true;
 				}
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_a && input_event->check_modifier_key_states( false, true, false ) )
+			{
+				_text_select_mode = menu_text_select_mode_e_character;
+				set_cursor_index( _plain_text.character_list.get_length() - 2 );  // - 2 to exclude trailing new line character.
+				_text_select_anchor_index_start = 0;
+				//_text_select_anchor_index_end = _plain_text.get_length();
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_x && input_event->check_modifier_key_states( false, true, false ) )
+			{
+				cut_text_to_clip_board();
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_c && input_event->check_modifier_key_states( false, true, false ) )
+			{
+				copy_text_to_clip_board();
+			}
+			else if ( input_event->keyboard_key == input_keyboard_key_e_v && input_event->check_modifier_key_states( false, true, false ) )
+			{
+				paste_text_from_clip_board();
 			}
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
@@ -3407,9 +3488,9 @@ namespace cheonsa
 				// skip block.
 				if ( _cursor_index > 0 )
 				{
-					if ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index - 1 ] ) || _plain_text.character_list[ _cursor_index - 1 ] == '_' )
+					if ( ops::char16_is_latin_letter( _plain_text.character_list[ _cursor_index - 1 ] ) || _plain_text.character_list[ _cursor_index - 1 ] == '_' )
 					{
-						while ( _cursor_index > 0 && ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index - 1 ] ) || _plain_text.character_list[ _cursor_index - 1 ] == '_' ) )
+						while ( _cursor_index > 0 && ( ops::char16_is_latin_letter( _plain_text.character_list[ _cursor_index - 1 ] ) || _plain_text.character_list[ _cursor_index - 1 ] == '_' ) )
 						{
 							_cursor_index--;
 						}
@@ -3475,9 +3556,9 @@ namespace cheonsa
 				}
 
 				// skip block.
-				if ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_decimal_digit( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' )
+				if ( ops::char16_is_latin_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_decimal_digit( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' )
 				{
-					while ( ( _cursor_index < end ) && ( ops::char16_is_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_decimal_digit( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' ) )
+					while ( ( _cursor_index < end ) && ( ops::char16_is_latin_letter( _plain_text.character_list[ _cursor_index ] ) || ops::char16_is_decimal_digit( _plain_text.character_list[ _cursor_index ] ) || _plain_text.character_list[ _cursor_index ] == '_' ) )
 					{
 						_cursor_index++;
 					}

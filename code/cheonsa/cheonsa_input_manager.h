@@ -129,9 +129,9 @@ namespace cheonsa
 
 	public:
 		// gets the operating system's clip board value if it is a plain text value.
-		static boolean_c clip_board_get_plain_text( string16_c & value );
+		static boolean_c get_plain_text_clip_board_value( string16_c & value );
 		// sets the operating system's clip board value to a plain text value.
-		static boolean_c clip_board_set_plain_text( string16_c const & value );
+		static boolean_c set_plain_text_clip_board_value( string16_c const & value );
 
 	};
 

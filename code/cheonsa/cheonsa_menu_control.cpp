@@ -1063,6 +1063,14 @@ namespace cheonsa
 		_update_transform_and_layout();
 	}
 
+	void_c menu_control_c::set_shared_color_class( menu_shared_color_class_e value )
+	{
+		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		{
+			_element_list[ i ]->set_shared_color_class( value );
+		}
+	}
+
 	vector32x2_c const & menu_control_c::get_global_origin() const
 	{
 		return _global_origin;
