@@ -16,10 +16,10 @@ namespace cheonsa
 
 	video_blend_type_e debug_line_blend_type = video_blend_type_e_add; // add blend mode is nice because lines will contribute to blurring even when there is over draw.
 
-	static video_vertex_buffer_c * vertex_buffers_to_bind[ 4 ] = {};
-	static video_texture_c * textures_to_bind[ 8 ] = {};
-	static video_texture_type_e textures_to_bind_types[ 8 ] = {};
-	static sint32_c textures_slices_to_bind[ 8 ] = {};
+	video_vertex_buffer_c * vertex_buffers_to_bind[ 4 ] = {};
+	video_texture_c * textures_to_bind[ 8 ] = {};
+	video_texture_type_e textures_to_bind_types[ 8 ] = {};
+	sint32_c textures_slices_to_bind[ 8 ] = {};
 
 	// initialize static constants.
 
@@ -727,8 +727,6 @@ namespace cheonsa
 		, _scene( nullptr )
 		, _white_pixel_texture()
 		, _white_pixel_texture_wrapper( true )
-		, _green_pixel_texture()
-		, _green_pixel_texture_wrapper( true )
 		, _scene_default_material()
 		, _scene_light_probe_object( nullptr )
 		, _scene_light_probe_model()
@@ -762,10 +760,6 @@ namespace cheonsa
 		_white_pixel_texture_wrapper.set_video_texture( nullptr );
 		delete _white_pixel_texture;
 		_white_pixel_texture = nullptr;
-
-		_green_pixel_texture_wrapper.set_video_texture( nullptr );
-		delete _green_pixel_texture;
-		_green_pixel_texture = nullptr;
 
 		delete _scene_light_probe_object;
 		_scene_light_probe_object = nullptr;
@@ -940,10 +934,6 @@ namespace cheonsa
 		uint8_c white[ 4 ] = { 255, 255, 255, 255 };
 		_white_pixel_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, white, 4, false, false, false, false );
 		_white_pixel_texture_wrapper.set_video_texture( _white_pixel_texture );
-
-		uint8_c green[ 4 ] = { 0, 255, 0, 255 };
-		_green_pixel_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, 1, 1, 1, 1, green, 4, false, false, false, false );
-		_green_pixel_texture_wrapper.set_video_texture( _green_pixel_texture );
 
 		return true;
 	}
@@ -1904,8 +1894,8 @@ namespace cheonsa
 			light->_shadow_view_start = _shadow_views.get_length();
 			light->_shadow_view_count = 4;
 
-			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_b();
-			vector32x3_c light_up = -light->get_world_space_transform().get_unscaled_basis_c();
+			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_c();
+			vector32x3_c light_up = -light->get_world_space_transform().get_unscaled_basis_b();
 
 			// figure out the size in meters of each shadow slice.
 			float32_c first_cascade_size = 5.0f;
@@ -1987,8 +1977,8 @@ namespace cheonsa
 			light->_shadow_view_start = _shadow_views.get_length();
 			light->_shadow_view_count = 1;
 
-			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_b();
-			vector32x3_c light_up = light->get_world_space_transform().get_unscaled_basis_c();
+			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_c();
+			vector32x3_c light_up = -light->get_world_space_transform().get_unscaled_basis_b();
 
 			// build virtual space view projection transform.
 			vector32x3_c virtual_space_position = vector32x3_c( light->get_world_space_transform().position - view_position );
@@ -3379,7 +3369,7 @@ namespace cheonsa
 		// gather control groups.
 		for ( sint32_c i = 0; i < user_interface->_control_list.get_length(); i++ )
 		{
-			user_interface->_control_list[ i ]->_compile_control_groups( _menu_root_control_group_list, _menu_draw_list_list );
+			user_interface->_control_list[ i ]->_compile_control_groups_and_draw_lists( _menu_root_control_group_list, _menu_draw_list_list );
 		}
 
 		// compile big lists and base offsets.
@@ -3454,11 +3444,28 @@ namespace cheonsa
 		engine.get_video_interface()->bind_index_buffer( nullptr );
 	}
 
+	void_c video_renderer_interface_c::_bind_constants_for_control( menu_control_c * control, matrix32x2x2_c const & control_group_basis, vector32x2_c const & control_group_origin )
+	{
+		static core_list_c< vector32x4_c > clip_planes;
+
+		// bind constants.
+		clip_planes.remove_all();
+		control->get_control_group_clip_planes( clip_planes );
+		_constant_buffers.menu_batch_block->menu_basis = control_group_basis.as_vector32x4();
+		_constant_buffers.menu_batch_block->menu_origin = control_group_origin;
+		_constant_buffers.menu_batch_block->menu_color = control->_control_group_color;
+		_constant_buffers.menu_batch_block->menu_saturation = 1.0f;
+		_constant_buffers.menu_batch_block->menu_clip_plane_stack_length = ops::math_minimum( clip_planes.get_length(), menu_clip_plane_stack_count );
+		for ( sint32_c i = 0; i < _constant_buffers.menu_batch_block->menu_clip_plane_stack_length; i++ )
+		{
+			_constant_buffers.menu_batch_block->menu_clip_plane_stack[ i ] = clip_planes[ i ];
+		}
+		_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
+	}
+
 	void_c video_renderer_interface_c::_render_control_for_control_group( menu_control_c * control )
 	{
 		assert( control && control->_is_showed_weight >= 0.0f && control->_local_color.d >= 0.0f );
-
-		static core_list_c< vector32x4_c > clip_planes;
 
 		// clear and bind control group texture as target if this control is a root of a control group.
 		// as this function recurses, this render state will be preserved.
@@ -3473,39 +3480,37 @@ namespace cheonsa
 			_constant_buffers.menu_block_constant_buffer->set_data( _constant_buffers.menu_block, sizeof( menu_block_c ) );
 		}
 
-		// bind constants.
-		clip_planes.remove_all();
-		control->get_control_group_clip_planes( clip_planes );
 		matrix32x2x2_c control_group_basis = control->get_control_group_basis();
 		vector32x2_c control_group_origin = control->get_control_group_origin();
-		_constant_buffers.menu_batch_block->menu_basis = control_group_basis.as_vector32x4();
-		_constant_buffers.menu_batch_block->menu_origin = control_group_origin;
-		_constant_buffers.menu_batch_block->menu_color = control->_control_group_color;
-		_constant_buffers.menu_batch_block->menu_saturation = 1.0f;
-		_constant_buffers.menu_batch_block->menu_clip_plane_stack_length = ops::math_minimum( clip_planes.get_length(), menu_clip_plane_stack_count );
-		for ( sint32_c i = 0; i < _constant_buffers.menu_batch_block->menu_clip_plane_stack_length; i++ )
-		{
-			_constant_buffers.menu_batch_block->menu_clip_plane_stack[ i ] = clip_planes[ i ];
-		}
-		_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
+		_bind_constants_for_control( control, control_group_basis, control_group_origin );
 
 		// render elements that are part of this control group.
+		core_list_c< menu_element_c const * > overlay_element_list;
 		for ( sint32_c i = 0; i < control->_element_list.get_length(); i++ )
 		{
 			menu_element_c const * element = control->_element_list[ i ];
 			if ( element->_is_showed && element->_is_showed_from_style )
 			{
-				menu_draw_list_c const & draw_list = element->get_draw_list();
-				_render_menu_draw_list( draw_list );
+				if ( element->_is_overlay == false )
+				{
+					menu_draw_list_c const & draw_list = element->get_draw_list();
+					_render_menu_draw_list( draw_list );
+				}
+				else
+				{
+					overlay_element_list.insert_at_end( element );
+				}
 			}
 		}
 
 		// render daughter controls that are part of this control group.
+		boolean_c render_state_needs_reset = false;
 		for ( sint32_c i = 0; i < control->_control_list.get_length(); i++ )
 		{
 			menu_control_c * daughter_control = control->_control_list[ i ];
 			if ( daughter_control->_is_showed_weight > 0.0f && daughter_control->_local_color.d > 0.0f )
 			{
+				render_state_needs_reset = true;
 				if ( !daughter_control->_control_group_is_root )
 				{
 					_render_control_for_control_group( daughter_control );
@@ -3519,7 +3524,22 @@ namespace cheonsa
 					_constant_buffers.menu_batch_block->menu_clip_plane_stack_length = 0;
 					_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
 					_render_menu_draw_list( daughter_control->_control_group_draw_list );
+					render_state_needs_reset = true;
 				}
+			}
+		}
+
+		if ( overlay_element_list.get_length() > 0 )
+		{
+			if ( render_state_needs_reset )
+			{
+				_bind_constants_for_control( control, control_group_basis, control_group_origin );
+			}
+			for ( sint32_c i = 0; i < overlay_element_list.get_length(); i++ )
+			{
+				menu_element_c const * element = overlay_element_list[ i ];
+				menu_draw_list_c const & draw_list = element->get_draw_list();
+				_render_menu_draw_list( draw_list );
 			}
 		}
 

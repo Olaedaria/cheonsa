@@ -936,7 +936,7 @@ namespace cheonsa
 		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
 		while ( sub_node != nullptr )
 		{
-			if ( sub_node->get_value() == "entry" )
+			if ( sub_node->get_value() == "item" )
 			{
 				entry_c * entry = new entry_c();
 				_entry_list.insert_at_end( entry );

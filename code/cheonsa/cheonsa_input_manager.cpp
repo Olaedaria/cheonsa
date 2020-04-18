@@ -12,66 +12,46 @@
 namespace cheonsa
 {
 
-	boolean_c input_manager_c::_is_any_mouse_key_on()
-	{
-		return ( _mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) || ( _mouse_keys_state[ input_mouse_key_e_right ] & input_key_state_bit_e_on ) || ( _mouse_keys_state[ input_mouse_key_e_middle ] & input_key_state_bit_e_on ) || ( _mouse_keys_state[ input_mouse_key_e_extra1 ] & input_key_state_bit_e_on ) || ( _mouse_keys_state[ input_mouse_key_e_extra2 ] & input_key_state_bit_e_on );
-	}
-
-	void_c input_manager_c::_update_keys_states( input_key_state_bit_e * states, sint32_c count )
-	{
-		for ( sint32_c i = 1; i < count; i++ )
-		{
-			if ( ( states[ i ] & input_key_state_bit_e_released ) != 0 )
-			{
-				states[ i ] = input_key_state_bit_e_off;
-			}
-			else if ( ( states[ i ] & input_key_state_bit_e_pressed ) != 0 )
-			{
-				states[ i ] = input_key_state_bit_e_on;
-			}
-		}
-	}
-
 	input_event_c * input_manager_c::_emplace_input_event()
 	{
-		input_event_c * input_event = _next_events->emplace_at_end();
+		input_event_c * input_event = _events_next->emplace_at_end();
 		ops::memory_zero( input_event, sizeof( input_event_c ) );
 		return input_event;
 	}
 
 	void_c input_manager_c::_finalize_input_event( input_event_c * input_event )
 	{
+		// update "living" snapshots of key states.
 		if ( input_event->type == input_event_c::type_e_mouse_move )
 		{
-			input_event->mouse_position_delta = input_event->mouse_position - _mouse_position;
-
-			_mouse_position = input_event->mouse_position;
+			input_event->mouse_position_delta = input_event->mouse_position - _event_snapshot_mouse_position;
+			_event_snapshot_mouse_position = input_event->mouse_position;
 		}
 		else if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
 		{
-			assert( input_event->keyboard_key >= 0 && input_event->keyboard_key < input_keyboard_key_e_count_ );
+			assert( input_event->keyboard_key > 0 && input_event->keyboard_key < input_keyboard_key_e_count_ );
 			if ( input_event->keyboard_key > 0 && input_event->keyboard_key < input_keyboard_key_e_count_ )
 			{
-				_keyboard_keys_state[ input_event->keyboard_key ] = input_key_state_bit_e_on | input_key_state_bit_e_pressed;
+				_event_snapshot_keyboard_keys_state[ input_event->keyboard_key ] = true;
 			}
 		}
 		else if ( input_event->type == input_event_c::type_e_keyboard_key_released )
 		{
-			assert( input_event->keyboard_key >= 0 && input_event->keyboard_key < input_keyboard_key_e_count_ );
+			assert( input_event->keyboard_key > 0 && input_event->keyboard_key < input_keyboard_key_e_count_ );
 			if ( input_event->keyboard_key > 0 && input_event->keyboard_key < input_keyboard_key_e_count_ )
 			{
-				_keyboard_keys_state[ input_event->keyboard_key ] = input_key_state_bit_e_released;
+				_event_snapshot_keyboard_keys_state[ input_event->keyboard_key ] = false;
 			}
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
 		{
 			assert( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ );
-			boolean_c previous_any_mouse_key_state = _is_any_mouse_key_on();
+			boolean_c was_any_mouse_key_down = _event_snapshot_mouse_keys_state[ input_mouse_key_e_left ] || _event_snapshot_mouse_keys_state[ input_mouse_key_e_right ] || _event_snapshot_mouse_keys_state[ input_mouse_key_e_middle ];
 			if ( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ )
 			{
-				_mouse_keys_state[ input_event->mouse_key ] = input_key_state_bit_e_on | input_key_state_bit_e_pressed;
+				_event_snapshot_mouse_keys_state[ input_event->mouse_key ] = true;
 			}
-			if ( previous_any_mouse_key_state == false )
+			if ( !was_any_mouse_key_down && ( input_event->mouse_key == input_mouse_key_e_left || input_event->mouse_key == input_mouse_key_e_right || input_event->mouse_key == input_mouse_key_e_middle ) )
 			{
 				SetCapture( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ) );
 			}
@@ -81,41 +61,75 @@ namespace cheonsa
 			assert( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ );
 			if ( input_event->mouse_key > 0 && input_event->mouse_key < input_mouse_key_e_count_ )
 			{
-				_mouse_keys_state[ input_event->mouse_key ] = input_key_state_bit_e_released;
+				_event_snapshot_mouse_keys_state[ input_event->mouse_key ] = false;
 			}
-			if ( _is_any_mouse_key_on() == false )
+			boolean_c is_any_mouse_key_down = _event_snapshot_mouse_keys_state[ input_mouse_key_e_left ] || _event_snapshot_mouse_keys_state[ input_mouse_key_e_right ] || _event_snapshot_mouse_keys_state[ input_mouse_key_e_middle ];
+			if ( !is_any_mouse_key_down )
 			{
 				ReleaseCapture();
 			}
 		}
-
+		else if ( input_event->type == input_event_c::type_e_gamepad_key_pressed )
+		{
+			assert( input_event->gamepad_key > 0 && input_event->gamepad_key < input_gamepad_key_e_count_ );
+			if ( input_event->gamepad_key > 0 && input_event->gamepad_key < input_gamepad_key_e_count_ )
+			{
+				_event_snapshot_gamepad_keys_state[ input_event->gamepad_key ] = true;
+			}
+		}
+		else if ( input_event->type == input_event_c::type_e_gamepad_key_released )
+		{
+			assert( input_event->gamepad_key > 0 && input_event->gamepad_key < input_gamepad_key_e_count_ );
+			if ( input_event->gamepad_key > 0 && input_event->gamepad_key < input_gamepad_key_e_count_ )
+			{
+				_event_snapshot_gamepad_keys_state[ input_event->gamepad_key ] = false;
+			}
+		}
 		if ( input_event->type == input_event_c::type_e_keyboard_key_pressed || input_event->type == input_event_c::type_e_keyboard_key_released )
 		{
-			_modifier_keys_state[ input_modifier_key_e_shift ] = ( ( _keyboard_keys_state[ input_keyboard_key_e_l_shift ] & input_key_state_bit_e_on ) != 0 || ( _keyboard_keys_state[ input_keyboard_key_e_r_shift ] & input_key_state_bit_e_on ) != 0 ) ? input_key_state_bit_e_on : input_key_state_bit_e_off;
-			_modifier_keys_state[ input_modifier_key_e_ctrl ] = ( ( _keyboard_keys_state[ input_keyboard_key_e_l_ctrl ] & input_key_state_bit_e_on ) != 0 || ( _keyboard_keys_state[ input_keyboard_key_e_r_ctrl ] & input_key_state_bit_e_on ) != 0 ) ? input_key_state_bit_e_on : input_key_state_bit_e_off;
-			_modifier_keys_state[ input_modifier_key_e_alt ] = ( ( _keyboard_keys_state[ input_keyboard_key_e_l_alt ] & input_key_state_bit_e_on ) != 0 || ( _keyboard_keys_state[ input_keyboard_key_e_r_alt ] & input_key_state_bit_e_on ) != 0 ) ? input_key_state_bit_e_on : input_key_state_bit_e_off;
+			_event_snapshot_modifier_keys_state[ input_modifier_key_e_shift ] = _event_snapshot_keyboard_keys_state[ input_keyboard_key_e_l_shift ] || _event_snapshot_keyboard_keys_state[ input_keyboard_key_e_r_shift ];
+			_event_snapshot_modifier_keys_state[ input_modifier_key_e_ctrl ] = _event_snapshot_keyboard_keys_state[ input_keyboard_key_e_l_ctrl ] || _event_snapshot_keyboard_keys_state[ input_keyboard_key_e_r_ctrl ];
+			_event_snapshot_modifier_keys_state[ input_modifier_key_e_alt ] = _event_snapshot_keyboard_keys_state[ input_keyboard_key_e_l_alt ] || _event_snapshot_keyboard_keys_state[ input_keyboard_key_e_r_alt ];
 		}
 
-		input_event->mouse_position = _mouse_position;
-		assert( sizeof( input_event->modifier_keys_state ) == sizeof ( _modifier_keys_state ) );
-		ops::memory_copy( _modifier_keys_state, input_event->modifier_keys_state, sizeof( _modifier_keys_state ) );
-		assert( sizeof( input_event->mouse_keys_state ) == sizeof( _mouse_keys_state ) );
-		ops::memory_copy( _mouse_keys_state, input_event->mouse_keys_state, sizeof( _mouse_keys_state ) );
-		assert( sizeof( input_event->keyboard_keys_state ) == sizeof( _keyboard_keys_state ) );
-		ops::memory_copy( _keyboard_keys_state, input_event->keyboard_keys_state, sizeof( _keyboard_keys_state ) );
+		// copy "living" snapshots to input event, so that the program has access to all key states at the time that the event occurred.
+		// it might be too much but it can be nice to have sometimes.
+		static_assert( sizeof( input_event->modifier_keys_state ) == sizeof( _event_snapshot_modifier_keys_state ), "just checking" );
+		static_assert( sizeof( input_event->mouse_keys_state ) == sizeof( _event_snapshot_mouse_keys_state ), "just checking" );
+		static_assert( sizeof( input_event->keyboard_keys_state ) == sizeof( _event_snapshot_keyboard_keys_state ), "just checking" );
+		static_assert( sizeof( input_event->gamepad_keys_state ) == sizeof( _event_snapshot_gamepad_keys_state ), "just checking" );
+		input_event->mouse_position = _event_snapshot_mouse_position;
+		ops::memory_copy( _event_snapshot_modifier_keys_state, input_event->modifier_keys_state, sizeof( input_event->modifier_keys_state ) );
+		ops::memory_copy( _event_snapshot_mouse_keys_state, input_event->mouse_keys_state, sizeof( input_event->mouse_keys_state ) );
+		ops::memory_copy( _event_snapshot_keyboard_keys_state, input_event->keyboard_keys_state, sizeof( input_event->keyboard_keys_state ) );
+		ops::memory_copy( _event_snapshot_gamepad_keys_state, input_event->gamepad_keys_state, sizeof( input_event->gamepad_keys_state ) );
 	}
 
 	input_manager_c::input_manager_c()
-		: _events( nullptr )
-		, _next_events( nullptr )
-		, _mouse_position()
-		, _modifier_keys_state{}
-		, _mouse_keys_state{}
-		, _keyboard_keys_state{}
-		, _events_a()
-		, _events_b()
+		: _events_current( nullptr )
+		, _events_next( nullptr )
+		, _events_ping()
+		, _events_pong()
+		, _event_snapshot_modifier_keys_state{}
+		, _event_snapshot_mouse_position()
+		, _event_snapshot_mouse_keys_state{}
+		, _event_snapshot_keyboard_keys_state{}
+		, _event_snapshot_gamepad_keys_state{}
+		, _frame_snapshot_modifier_keys_state{}
+		, _frame_snapshot_mouse_position_last()
+		, _frame_snapshot_mouse_position()
+		, _frame_snapshot_mouse_position_delta()
+		, _frame_snapshot_mouse_keys_state{}
+		, _frame_snapshot_keyboard_keys_state{}
+		, _frame_snapshot_gamepad_state()
 		, _mouse_pointer_visibility( true )
+		, _drag_drop_is_in_progress( false )
+		, _drag_drop_payload()
+		, _action_context()
+		, _action_list()
 	{
+		_events_current = &_events_ping;
+		_events_next = &_events_pong;
 	}
 
 	input_manager_c::~input_manager_c()
@@ -124,20 +138,139 @@ namespace cheonsa
 
 	boolean_c input_manager_c::start()
 	{
-		_events = &_events_a;
-		_next_events = &_events_b;
 		return true;
 	}
 
 	void_c input_manager_c::update()
 	{
-		_update_keys_states( _modifier_keys_state, input_modifier_key_e_count_ );
-		_update_keys_states( _mouse_keys_state, input_mouse_key_e_count_ );
-		_update_keys_states( _keyboard_keys_state, input_keyboard_key_e_count_ );
-		core_list_c< input_event_c > * temp = _events;
-		_events = _next_events;
-		_next_events = temp;
-		_next_events->remove_all();
+		static_assert( XUSER_MAX_COUNT == 4, "just checking, because _gamepad_states in header has its length set to 4, and does not have access to xinput.h." );
+		XINPUT_KEYSTROKE xinput_keystroke;
+		DWORD xinput_result;
+		while ( true )
+		{
+			xinput_result = XInputGetKeystroke( 0, 0, &xinput_keystroke );
+			if ( xinput_result != ERROR_SUCCESS )
+			{
+				break;
+			}
+			input_gamepad_key_e gamepad_key = input_convert_xinput_virtual_key_code_to_cheonsa_gamepad_key_code( xinput_keystroke.VirtualKey );
+			if ( gamepad_key != 0 )
+			{
+				if ( xinput_keystroke.Flags == XINPUT_KEYSTROKE_KEYDOWN || xinput_keystroke.Flags == XINPUT_KEYSTROKE_REPEAT )
+				{
+					_push_gamepad_key_pressed( gamepad_key );
+				}
+				else if ( xinput_keystroke.Flags == XINPUT_KEYSTROKE_KEYUP )
+				{
+					_push_gamepad_key_released( gamepad_key );
+				}
+			}
+		}
+
+		XINPUT_STATE xinput_state;
+		if ( XInputGetState( 0, &xinput_state ) == ERROR_SUCCESS )
+		{
+			_frame_snapshot_gamepad_state._index = 0;
+			_frame_snapshot_gamepad_state._is_connected	= true;
+			_frame_snapshot_gamepad_state._button_states = 0;
+			// since cheonsa's flags currently match xinput's flags exactly, we could just say:
+			_frame_snapshot_gamepad_state._button_states = xinput_state.Gamepad.wButtons;
+			// instead of wasting time:
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_dpad_up;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_dpad_down;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_dpad_left;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_dpad_right;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_START )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_menu;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_view;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_left_stick;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_right_stick;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_left_bumper;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_right_bumper;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_A )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_a;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_b;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_X )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_x;
+			//}
+			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y )
+			//{
+			//	_frame_snapshot_gamepad_state._button_states |= input_gamepad_button_e_y;
+			//}
+			// convert analog input integer values to float values.
+			// map triggers values to range 0 to 1.
+			_frame_snapshot_gamepad_state._left_trigger_state = static_cast< float32_c >( xinput_state.Gamepad.bLeftTrigger ) / 255.0f;
+			_frame_snapshot_gamepad_state._right_trigger_state = static_cast< float32_c >( xinput_state.Gamepad.bRightTrigger ) / 255.0f;
+			// xinput documentation states that range of thumb stick values is between -32768 and 32767.
+			// this is asymmetrical.
+			// why?
+			// thanks.
+			// i hate it.
+			// map thumb stick values to range -1 to 1.
+			_frame_snapshot_gamepad_state._left_stick_state.a = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbLX ) / 32767.0f, -1.0f, 1.0f );
+			_frame_snapshot_gamepad_state._left_stick_state.b = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbLY ) / -32767.0f, -1.0f, 1.0f );
+			_frame_snapshot_gamepad_state._right_stick_state.a = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbRX ) / 32767.0f, -1.0f, 1.0f );
+			_frame_snapshot_gamepad_state._right_stick_state.a = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbRY ) / -32767.0f, -1.0f, 1.0f );
+		}
+		else
+		{
+			_frame_snapshot_gamepad_state._is_connected = false;
+			_frame_snapshot_gamepad_state._button_states = 0;
+			_frame_snapshot_gamepad_state._left_trigger_state = 0.0f;
+			_frame_snapshot_gamepad_state._right_trigger_state = 0.0f;
+			_frame_snapshot_gamepad_state._left_stick_state.a = 0.0f;
+			_frame_snapshot_gamepad_state._left_stick_state.b = 0.0f;
+			_frame_snapshot_gamepad_state._right_stick_state.a = 0.0f;
+			_frame_snapshot_gamepad_state._right_stick_state.b = 0.0f;
+		}
+
+		_frame_snapshot_mouse_position_last = _frame_snapshot_mouse_position;
+		_frame_snapshot_mouse_position = _event_snapshot_mouse_position;
+		_frame_snapshot_mouse_position_delta = _frame_snapshot_mouse_position - _frame_snapshot_mouse_position_last;
+		static_assert( sizeof( _event_snapshot_mouse_keys_state ) == sizeof( _frame_snapshot_mouse_keys_state ), "just checking" );
+		static_assert( sizeof( _event_snapshot_keyboard_keys_state ) == sizeof( _frame_snapshot_keyboard_keys_state ), "just checking" );
+		ops::memory_copy( _event_snapshot_mouse_keys_state, _frame_snapshot_mouse_keys_state, sizeof( _frame_snapshot_mouse_keys_state ) );
+		ops::memory_copy( _event_snapshot_keyboard_keys_state, _frame_snapshot_keyboard_keys_state, sizeof( _frame_snapshot_keyboard_keys_state ) );
+
+		core_list_c< input_event_c > * temp = _events_current;
+		_events_current = _events_next;
+		_events_next = temp;
+		_events_next->remove_all();
 	}
 
 	boolean_c input_manager_c::get_mouse_pointer_visibility()
@@ -156,47 +289,29 @@ namespace cheonsa
 #endif
 	}
 
-	vector32x2_c input_manager_c::get_mouse_pointer_position()
-	{
-#if defined( cheonsa_platform_windows )
-		//POINT cursor_position;
-		//GetCursorPos( &cursor_position );
-		//RECT window_client_rectangle;
-		//GetClientRect( static_cast< HWND >( global_engine_instance.environment.get_window_handle() ), &window_client_rectangle );
-		//return vector32x2_c( static_cast< float32_c >( cursor_position.x - window_client_rectangle.left ), static_cast< float32_c >( cursor_position.y - window_client_rectangle.top ) );
-#endif
-		return _mouse_position;
-	}
+//	vector32x2_c input_manager_c::get_mouse_pointer_position()
+//	{
+//#if defined( cheonsa_platform_windows )
+//		//POINT cursor_position;
+//		//GetCursorPos( &cursor_position );
+//		//RECT window_client_rectangle;
+//		//GetClientRect( static_cast< HWND >( global_engine_instance.environment.get_window_handle() ), &window_client_rectangle );
+//		//return vector32x2_c( static_cast< float32_c >( cursor_position.x - window_client_rectangle.left ), static_cast< float32_c >( cursor_position.y - window_client_rectangle.top ) );
+//#endif
+//		return _mouse_position;
+//	}
 
 	void_c input_manager_c::set_mouse_pointer_position( vector32x2_c value )
 	{
 #if defined( cheonsa_platform_windows )
-		_mouse_position = value;
+		_event_snapshot_mouse_position = value;
 		RECT window_client_rectangle;
 		GetWindowRect( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ), &window_client_rectangle );
 		SetCursorPos( static_cast< int >( value.a + window_client_rectangle.left ), static_cast< int >( value.b + window_client_rectangle.top ) );
 #endif
 	}
 
-	void_c input_manager_c::_release_all_keys()
-	{
-		for ( sint32_c i = 0; i < input_mouse_key_e_count_; i++ )
-		{
-			if ( ( _mouse_keys_state[ i ] & input_key_state_bit_e_on ) != 0 )
-			{
-				push_mouse_key_released( static_cast< input_mouse_key_e >( i ) );
-			}
-		}
-		for ( sint32_c i = 0; i < input_keyboard_key_e_count_; i++ )
-		{
-			if ( ( _keyboard_keys_state[ i ] & input_key_state_bit_e_on ) != 0 )
-			{
-				push_keyboard_key_released( static_cast< input_keyboard_key_e >( i ) );
-			}
-		}
-	}
-
-	void_c input_manager_c::push_keyboard_key_pressed( input_keyboard_key_e keyboard_key )
+	void_c input_manager_c::_push_keyboard_key_pressed( input_keyboard_key_e keyboard_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_keyboard_key_pressed;
@@ -204,7 +319,7 @@ namespace cheonsa
 		_finalize_input_event( input_event );
 	}
 
-	void_c input_manager_c::push_keyboard_key_released( input_keyboard_key_e keyboard_key )
+	void_c input_manager_c::_push_keyboard_key_released( input_keyboard_key_e keyboard_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_keyboard_key_released;
@@ -213,7 +328,7 @@ namespace cheonsa
 		_finalize_input_event( input_event );
 	}
 
-	void_c input_manager_c::push_character( char16_c character, uint8_c character_repeat_count )
+	void_c input_manager_c::_push_character( char16_c character, uint8_c character_repeat_count )
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_character;
@@ -223,7 +338,7 @@ namespace cheonsa
 		_finalize_input_event( input_event );
 	}
 
-	void_c input_manager_c::push_mouse_move( sint32_c mouse_position_x, sint32_c mouse_position_y )
+	void_c input_manager_c::_push_mouse_move( sint32_c mouse_position_x, sint32_c mouse_position_y )
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_move;
@@ -233,7 +348,7 @@ namespace cheonsa
 		_finalize_input_event( input_event );
 	}
 
-	void_c input_manager_c::push_mouse_wheel( float32_c mouse_wheel_delta )
+	void_c input_manager_c::_push_mouse_wheel( float32_c mouse_wheel_delta )
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_wheel;
@@ -242,7 +357,7 @@ namespace cheonsa
 		_finalize_input_event( input_event );
 	}
 
-	void_c input_manager_c::push_mouse_key_pressed( input_mouse_key_e mouse_key )
+	void_c input_manager_c::_push_mouse_key_pressed( input_mouse_key_e mouse_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_key_pressed;
@@ -251,7 +366,7 @@ namespace cheonsa
 		_finalize_input_event( input_event );
 	}
 
-	void_c input_manager_c::push_mouse_key_released( input_mouse_key_e mouse_key )
+	void_c input_manager_c::_push_mouse_key_released( input_mouse_key_e mouse_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
 		input_event->type = input_event_c::type_e_mouse_key_released;
@@ -260,21 +375,105 @@ namespace cheonsa
 		_finalize_input_event( input_event );
 	}
 
+	void_c input_manager_c::_push_gamepad_key_pressed( input_gamepad_key_e gamepad_key )
+	{
+		input_event_c * input_event = _emplace_input_event();
+		input_event->type = input_event_c::type_e_gamepad_key_pressed;
+		input_event->time = ops::time_get_high_resolution_timer_count();
+		input_event->gamepad_key = gamepad_key;
+		_finalize_input_event( input_event );
+	}
+
+	void_c input_manager_c::_push_gamepad_key_released( input_gamepad_key_e gamepad_key )
+	{
+		input_event_c * input_event = _emplace_input_event();
+		input_event->type = input_event_c::type_e_gamepad_key_released;
+		input_event->time = ops::time_get_high_resolution_timer_count();
+		input_event->gamepad_key = gamepad_key;
+		_finalize_input_event( input_event );
+	}
+
+	void_c input_manager_c::_release_all_keys()
+	{
+		for ( sint32_c i = 1; i < input_mouse_key_e_count_; i++ )
+		{
+			if ( _event_snapshot_mouse_keys_state[ i ] )
+			{
+				_push_mouse_key_released( static_cast< input_mouse_key_e >( i ) );
+			}
+		}
+		for ( sint32_c i = 1; i < input_keyboard_key_e_count_; i++ )
+		{
+			if ( _event_snapshot_keyboard_keys_state[ i ] )
+			{
+				_push_keyboard_key_released( static_cast< input_keyboard_key_e >( i ) );
+			}
+		}
+		for ( sint32_c i = 1; i < input_gamepad_key_e_count_; i++ )
+		{
+			if ( _event_snapshot_gamepad_keys_state[ i ] )
+			{
+				_push_gamepad_key_released( static_cast< input_gamepad_key_e >( i ) );
+			}
+		}
+	}
+
 	core_list_c< input_event_c > & input_manager_c::get_events() const
 	{
-		return *_events;
+		return *_events_current;
 	}
 
-	input_key_state_bit_e input_manager_c::get_keyboard_key_state( input_keyboard_key_e key ) const
+	//input_key_state_bit_e input_manager_c::get_keyboard_key_state( input_keyboard_key_e key ) const
+	//{
+	//	assert( key >= 0 && key < input_keyboard_key_e_count_ );
+	//	return _keyboard_keys_state[ key ];
+	//}
+
+	//boolean_c input_manager_c::get_mouse_key_is_pressed( input_mouse_key_e key ) const
+	//{
+	//	assert( key > input_mouse_key_e_none && key < input_mouse_key_e_count_ );
+	//	return ( _mouse_keys_state[ key ] & input_key_state_bit_e_on ) != 0;
+	//}
+
+	//boolean_c input_manager_c::get_keyboard_key_is_pressed( input_keyboard_key_e key ) const
+	//{
+	//	assert( key > input_keyboard_key_e_none && key < input_keyboard_key_e_count_ );
+	//	return ( _keyboard_keys_state[ key ] & input_key_state_bit_e_on ) != 0;
+	//}
+
+	vector32x2_c input_manager_c::get_frame_snapshot_mouse_position() const
 	{
-		assert( key >= 0 && key < input_keyboard_key_e_count_ );
-		return _keyboard_keys_state[ key ];
+		return _frame_snapshot_mouse_position;
 	}
 
-	boolean_c input_manager_c::get_keyboard_key_is_pressed( input_keyboard_key_e key ) const
+	vector32x2_c input_manager_c::get_frame_snapshot_mouse_position_delta() const
 	{
-		assert( key >= 0 && key < input_keyboard_key_e_count_ );
-		return ( _keyboard_keys_state[ key ] & input_key_state_bit_e_on ) != 0;
+		return _frame_snapshot_mouse_position_delta;
+	}
+
+	boolean_c input_manager_c::get_frame_snapshot_mouse_key_state( input_mouse_key_e mouse_key ) const
+	{
+		assert( mouse_key > input_mouse_key_e_none && mouse_key < input_mouse_key_e_count_ );
+		return _frame_snapshot_mouse_keys_state[ mouse_key ];
+	}
+
+	boolean_c input_manager_c::get_frame_snapshot_keyboard_key_state( input_keyboard_key_e keyboard_key ) const
+	{
+		assert( keyboard_key > input_keyboard_key_e_none && keyboard_key < input_keyboard_key_e_count_ );
+		return _frame_snapshot_keyboard_keys_state[ keyboard_key ];
+	}
+
+	input_gamepad_state_c const & input_manager_c::get_frame_snapshot_gamepad_state() const
+	{
+		return _frame_snapshot_gamepad_state;
+	}
+
+	void_c input_manager_c::set_gamepad_vibration( float32_c left_motor_speed, float32_c right_motor_speed ) const
+	{
+		XINPUT_VIBRATION xinput_vibration;
+		xinput_vibration.wLeftMotorSpeed = static_cast< WORD >( ops::math_saturate( left_motor_speed ) * 65535.0f );
+		xinput_vibration.wRightMotorSpeed = static_cast< WORD >( ops::math_saturate( right_motor_speed ) * 65535.0f );
+		XInputSetState( 0, &xinput_vibration );
 	}
 
 	input_action_c * input_manager_c::create_action( string8_c const & key, string8_c const & context )
@@ -306,61 +505,47 @@ namespace cheonsa
 		_action_context = value;
 	}
 
-	input_action_c * input_manager_c::invoke_action_with_shortcut( input_shortcut_c const & shortcut )
-	{
-		if ( shortcut.type != input_shortcut_c::type_e_none )
-		{
-			for ( sint32_c i = _action_list.get_length() - 1; i >= 0; i-- )
-			{
-				input_action_c * action = _action_list[ i ];
-				if ( ops::string8_starts_with( _action_context.character_list.get_internal_array(), action->get_context().character_list.get_internal_array() ) )
-				{
-					if ( action->get_shortcut().type != input_shortcut_c::type_e_none )
-					{
-						if ( action->get_shortcut() == shortcut )
-						{
-							action->on_invoked.invoke( action );
-							return action;
-						}
-					}
-				}
-			}
-		}
-		return nullptr;
-	}
+	//input_action_c * input_manager_c::invoke_action_with_shortcut( input_shortcut_c const & shortcut )
+	//{
+	//	if ( shortcut._mouse_key != 0 || shortcut._keyboard_key != 0 || shortcut._gamepad_button != 0 )
+	//	{
+	//		for ( sint32_c i = _action_list.get_length() - 1; i >= 0; i-- )
+	//		{
+	//			input_action_c * action = _action_list[ i ];
+	//			if ( ops::string8_starts_with( _action_context.character_list.get_internal_array(), action->get_context().character_list.get_internal_array() ) )
+	//			{
+	//				if ( action->get_shortcut() == shortcut )
+	//				{
+	//					action->on_invoked.invoke( action );
+	//					return action;
+	//				}
+	//			}
+	//		}
+	//	}
+	//	return nullptr;
+	//}
 
-	boolean_c input_manager_c::is_shortcut_pressed( input_shortcut_c const & shortcut ) const
-	{
-		if ( shortcut.type == input_shortcut_c::type_e_keyboard )
-		{
-			if ( !( _keyboard_keys_state[ shortcut.keyboard.key ] & input_key_state_bit_e_on ) )
-			{
-				return false;
-			}
-			if ( ( shortcut.keyboard.modifier & input_modifier_flag_e_shift ) && !( _modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) )
-			{
-				return false;
-			}
-			if ( ( shortcut.keyboard.modifier & input_modifier_flag_e_ctrl ) && !( _modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) )
-			{
-				return false;
-			}
-			if ( ( shortcut.keyboard.modifier & input_modifier_flag_e_alt ) && !( _modifier_keys_state[ input_modifier_key_e_alt ] & input_key_state_bit_e_on ) )
-			{
-				return false;
-			}
-			return true;
-		}
-		else if ( shortcut.type == input_shortcut_c::type_e_mouse )
-		{
-			return ( _mouse_keys_state[ shortcut.mouse.key ] & input_key_state_bit_e_on );
-		}
-		else if ( shortcut.type == input_shortcut_c::type_e_gamepad )
-		{
-			return ( _gamepad_keys_state[ shortcut.gamepad.key ] & input_key_state_bit_e_on );
-		}
-		return false;
-	}
+	//boolean_c input_manager_c::is_shortcut_pressed( input_shortcut_c const & shortcut ) const
+	//{
+	//	if ( _frame_snapshot_modifier_keys_state[ input_modifier_key_e_shift ] == ( ( shortcut._modifier_flags & input_modifier_flag_e_shift ) != 0 ) &&
+	//		_frame_snapshot_modifier_keys_state[ input_modifier_key_e_ctrl ] == ( ( shortcut._modifier_flags & input_modifier_flag_e_ctrl ) != 0 ) &&
+	//		_frame_snapshot_modifier_keys_state[ input_modifier_key_e_alt ] == ( ( shortcut._modifier_flags & input_modifier_flag_e_alt ) != 0 ) )
+	//	{
+	//		if ( shortcut._mouse_key != 0 )
+	//		{
+	//			return _frame_snapshot_mouse_keys_state[ shortcut._mouse_key ];
+	//		}
+	//		else if ( shortcut._keyboard_key != 0 )
+	//		{
+	//			return _frame_snapshot_keyboard_keys_state[ shortcut._keyboard_key ];
+	//		}
+	//		else if ( shortcut._gamepad_button != 0 )
+	//		{
+	//			return _frame_snapshot_gamepad_state.get_button_state( shortcut._gamepad_button );
+	//		}
+	//	}
+	//	return false;
+	//}
 
 	boolean_c input_manager_c::get_plain_text_clip_board_value( string16_c & value )
 	{

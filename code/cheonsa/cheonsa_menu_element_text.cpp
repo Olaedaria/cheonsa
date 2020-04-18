@@ -1542,73 +1542,83 @@ namespace cheonsa
 		}
 		else if ( _text_select_mode == menu_text_select_mode_e_word )
 		{
-			sint32_c word_start;
-			sint32_c word_end;
-			sint32_c character_index = glyph_information.cursor_index;
-			if ( glyph_information.cursor_is_on_previous_line || _plain_text.character_list[ character_index ] == L'\n' )
+			if ( _plain_text.character_list.get_length() > 2 )
 			{
-				// this bias will ensure that the last word on the current line is selected, rather than the first word on the next line.
-				// and also ensure that the terminating new line remains unselectable.
-				assert( character_index > 0 );
-				character_index--;
-			}
-			_get_word_at_character_index( character_index, word_start, word_end );
-			if ( !shift )
-			{
-				_text_select_anchor_index_start = word_start;
-				_text_select_anchor_index_end = word_end;
-				_cursor_index = word_end;
-			}
-			else
-			{
-				if ( word_start < _text_select_anchor_index_start )
+				sint32_c word_start;
+				sint32_c word_end;
+				sint32_c character_index = glyph_information.cursor_index;
+				if ( ( glyph_information.cursor_is_on_previous_line || _plain_text.character_list[ character_index ] == L'\n' ) && ( character_index > 0 ) )
 				{
-					_cursor_index = word_start;
+					// this bias will ensure that the last word on the current line is selected, rather than the first word on the next line.
+					// and also ensure that the terminating new line remains unselectable.
+					character_index--;
+				}
+				_get_word_at_character_index( character_index, word_start, word_end );
+				if ( !shift )
+				{
+					_text_select_anchor_index_start = word_start;
+					_text_select_anchor_index_end = word_end;
+					_cursor_index = word_end;
 				}
 				else
 				{
-					_cursor_index = word_end;
+					if ( word_start < _text_select_anchor_index_start )
+					{
+						_cursor_index = word_start;
+					}
+					else
+					{
+						_cursor_index = word_end;
+					}
 				}
+				_cursor_is_on_previous_line = false;
+				_update_cursor_sticky_x();
 			}
-			_cursor_is_on_previous_line = false;
-			_update_cursor_sticky_x();
 		}
 		else if ( _text_select_mode == menu_text_select_mode_e_paragraph )
 		{
-			text_paragraph_c * paragraph = _get_paragraph_at_character_index( glyph_information.cursor_index, nullptr );
-			assert( paragraph );
-			if ( !shift )
+			if ( _plain_text.character_list.get_length() > 2 )
 			{
-				_text_select_anchor_index_start = paragraph->_character_start;
-				_text_select_anchor_index_end = paragraph->_character_end;
-				if ( _text_select_anchor_index_end > _plain_text.character_list.get_length() - 2 ) // don't allow selection of terminating new line character.
+				text_paragraph_c * paragraph = _get_paragraph_at_character_index( glyph_information.cursor_index, nullptr );
+				assert( paragraph );
+				if ( !shift )
 				{
-					_text_select_anchor_index_end = _plain_text.character_list.get_length() - 2;
-				}
-				_cursor_index = _text_select_anchor_index_end;
-			}
-			else
-			{
-				if ( paragraph->_character_start < _text_select_anchor_index_start )
-				{
-					_cursor_index = paragraph->_character_start;
+					_text_select_anchor_index_start = paragraph->_character_start;
+					_text_select_anchor_index_end = paragraph->_character_end;
+					if ( _text_select_anchor_index_end > _plain_text.character_list.get_length() - 2 ) // don't allow selection of terminating new line character.
+					{
+						_text_select_anchor_index_end = _plain_text.character_list.get_length() - 2;
+					}
+					_cursor_index = _text_select_anchor_index_end;
 				}
 				else
 				{
-					_cursor_index = paragraph->_character_end;
-					if ( _cursor_index > _plain_text.character_list.get_length() - 2 ) // don't allow selection of terminating new line character.
+					if ( paragraph->_character_start < _text_select_anchor_index_start )
 					{
-						_cursor_index = _plain_text.character_list.get_length() - 2;
+						_cursor_index = paragraph->_character_start;
+					}
+					else
+					{
+						_cursor_index = paragraph->_character_end;
+						if ( _cursor_index > _plain_text.character_list.get_length() - 2 ) // don't allow selection of terminating new line character.
+						{
+							_cursor_index = _plain_text.character_list.get_length() - 2;
+						}
 					}
 				}
+				_cursor_is_on_previous_line = false;
+				_update_cursor_sticky_x();
 			}
-			_cursor_is_on_previous_line = false;
-			_update_cursor_sticky_x();
 		}
 	}
 
 	void_c menu_element_text_c::_get_word_at_character_index( sint32_c character_index, sint32_c & character_start, sint32_c & character_end )
 	{
+		if ( _plain_text.character_list.get_length() == 2 )
+		{
+			return;
+		}
+
 		enum word_type_e
 		{
 			word_type_e_word,
@@ -3230,32 +3240,32 @@ namespace cheonsa
 		{
 			if ( input_event->keyboard_key == input_keyboard_key_e_left )
 			{
-				input_left( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0, ( input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) != 0 );
+				input_left( input_event->modifier_keys_state[ input_modifier_key_e_shift ], input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] );
 				return true;
 			}
 			else if ( input_event->keyboard_key == input_keyboard_key_e_right )
 			{
-				input_right( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0, ( input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) != 0 );
+				input_right( input_event->modifier_keys_state[ input_modifier_key_e_shift ], input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] );
 				return true;
 			}
 			else if ( input_event->keyboard_key == input_keyboard_key_e_up )
 			{
-				input_up( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				input_up( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
 				return true;
 			}
 			else if ( input_event->keyboard_key == input_keyboard_key_e_down )
 			{
-				input_down( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				input_down( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
 				return true;
 			}
 			else if ( input_event->keyboard_key == input_keyboard_key_e_home )
 			{
-				input_home( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				input_home( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
 				return true;
 			}
 			else if ( input_event->keyboard_key == input_keyboard_key_e_end )
 			{
-				input_end( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				input_end( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
 				return true;
 			}
 			else if ( input_event->keyboard_key == input_keyboard_key_e_back_space )
@@ -3278,7 +3288,7 @@ namespace cheonsa
 			{
 				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
-					input_return( ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+					input_return( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
 					return true;
 				}
 			}
@@ -3309,7 +3319,7 @@ namespace cheonsa
 			if ( input_event->mouse_key == input_mouse_key_e_left && ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) )
 			{
 				_text_select_mode = menu_text_select_mode_e_character;
-				_place_cursor_at_local_point( local_mouse_position, ( input_event->modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 );
+				_place_cursor_at_local_point( local_mouse_position, input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
 				_cursor_time = 0.0f;
 				return true;
 			}
@@ -3329,7 +3339,7 @@ namespace cheonsa
 		}
 		else if ( input_event->type == input_event_c::type_e_mouse_move )
 		{
-			if ( ( input_event->mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) != 0 )
+			if ( input_event->mouse_keys_state[ input_mouse_key_e_left ] )
 			{
 				assert( _mother_control );
 				vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 

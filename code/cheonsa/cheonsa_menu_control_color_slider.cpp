@@ -226,6 +226,7 @@ namespace cheonsa
 		: menu_control_c( name )
 		, _element_mesh( string8_c( core_list_mode_e_static, "mesh" ) )
 		, _element_slider( string8_c( core_list_mode_e_static, "slider" ) )
+		, _element_border_frame( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _mode( mode_e_red )
 		, _value( 0.0f )
 		, _color()
@@ -237,6 +238,11 @@ namespace cheonsa
 
 		_element_slider.set_style_key( string8_c( core_list_mode_e_static, "e_precision_slider_frame" ) );
 		_add_element( &_element_slider );
+
+		_element_border_frame.set_is_overlay( true );
+		_add_element( &_element_border_frame );
+
+		set_style_map_key( string8_c( core_list_mode_e_static, "e_color_slider" ) );
 	}
 
 	void_c menu_control_color_slider_c::update_animations( float32_c time_step )

@@ -2383,7 +2383,6 @@ namespace cheonsa
 
 		vector32x4_c adjust_color_brightness( vector32x4_c const & color, float32_c amount )
 		{
-			amount = math_saturate( amount );
 			vector32x4_c result;
 			result.a = math_saturate( color.a + amount );
 			result.b = math_saturate( color.b + amount );
@@ -2394,7 +2393,7 @@ namespace cheonsa
 
 		vector32x4_c adjust_color_contrast( vector32x4_c const & color, float32_c amount )
 		{
-			amount = 1.0f + math_saturate( amount );
+			amount = 1.0f + amount;
 			vector32x4_c result;
 			result.a = math_saturate( color.a * amount );
 			result.b = math_saturate( color.b * amount );

@@ -78,6 +78,7 @@ namespace cheonsa
 		, _is_enabled( true )
 		, _is_selected( false )
 		, _is_pressed( false )
+		, _is_overlay( false )
 	{
 	}
 
@@ -238,6 +239,16 @@ namespace cheonsa
 	void_c menu_element_c::set_is_pressed( boolean_c value )
 	{
 		_is_pressed = value;
+	}
+
+	boolean_c menu_element_c::get_is_overlay() const
+	{
+		return _is_overlay;
+	}
+
+	void_c menu_element_c::set_is_overlay( boolean_c value )
+	{
+		_is_overlay = value;
 	}
 
 	menu_draw_list_c & menu_element_c::get_draw_list() const

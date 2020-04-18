@@ -1180,6 +1180,7 @@ namespace cheonsa
 		// in Blender, the bone's main axis is along the y axis of the matrix.
 		// but in cheonsa, the bone's main axis is along the z axis of the matrix.
 		// this is the difference and it can cause some confusion.
+		// this is also why quaternions exported from blender are swizzled, so that they define an orientation in this space.
 		space_transform_c result;
 		vector32x3_c axis = ops::make_vector32x3_normalized( vector32x3_c( bone_tail - bone_head ) ); // this is the axis of the bone from head to tail.
 		vector32x3_c tangent = ops::make_vector32x3_cross_product( global_up, axis ); // this is the axis that the bone_rotation will be around.

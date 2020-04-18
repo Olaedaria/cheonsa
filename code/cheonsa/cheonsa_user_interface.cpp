@@ -178,8 +178,8 @@ namespace cheonsa
 		// update mouse overed and mouse focused.
 		menu_control_c * original_mouse_focused = _mouse_focused;
 		_pick_control( input_event, _mouse_overed );
-		boolean_c mouse_keys_are_up = ( input_event->mouse_keys_state[ input_mouse_key_e_left ] & input_key_state_bit_e_on ) == 0 && ( input_event->mouse_keys_state[ input_mouse_key_e_right ] & input_key_state_bit_e_on ) == 0 && ( input_event->mouse_keys_state[ input_mouse_key_e_middle ] & input_key_state_bit_e_on ) == 0;
-		if ( mouse_keys_are_up )
+		boolean_c is_any_mouse_key_down = input_event->mouse_keys_state[ input_mouse_key_e_left ] || input_event->mouse_keys_state[ input_mouse_key_e_right ] || input_event->mouse_keys_state[ input_mouse_key_e_middle ];
+		if ( !is_any_mouse_key_down )
 		{
 			_pick_control( input_event, _mouse_overed );
 			if ( _mouse_focused != _mouse_overed )

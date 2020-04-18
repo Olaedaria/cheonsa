@@ -77,7 +77,6 @@ namespace cheonsa
 		core_list_c< menu_element_c * > _element_list; // private daughter elements are added by this control's private implementation.
 		void_c _add_element( menu_element_c * element );
 		void_c _remove_element( menu_element_c * element );
-		menu_element_c * _find_element( string8_c const & name, string8_c const & type );
 		void_c _find_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result ); // searches private daughter elements for all elements that match the given name.
 
 		menu_style_map_c::reference_c _style_map_reference; // the style map that is currently applied to this control.
@@ -134,6 +133,7 @@ namespace cheonsa
 		matrix32x2x2_c _control_group_basis; // is identity for root control of control group, is mother control's _control_group_basis times _local_basis if otherwise.
 		vector32x4_c _control_group_color; // is _local_color for root, is inherited for daughters.
 		menu_draw_list_c _control_group_draw_list; // used on root control of control groups. this contains the draw lists to copy the _control_group_texture to another control group, or to the canvas output.
+		void_c _compile_control_groups_and_draw_lists( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list ); // used by the menu renderer to recursively compile the control group state for this control and all daughter controls, in preparation to render the menus for a given frame.
 
 		scene_component_menu_control_c * _scene_component; // if set then this menu control is in a 3d scene.
 
@@ -293,7 +293,6 @@ namespace cheonsa
 		void_c get_control_group_clip_planes( core_list_c< vector32x4_c > & result );
 		matrix32x2x2_c get_control_group_basis() const;
 		vector32x2_c get_control_group_origin() const;
-		void_c _compile_control_groups( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list ); // used by the menu renderer to recursively compile the control group state for this control and all daughter controls, in preparation to render the menus for a given frame.
 
 	public:
 		core_event_c< void_c, user_interface_c * > on_user_interface_association_changed;

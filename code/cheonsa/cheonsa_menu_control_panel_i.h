@@ -21,6 +21,7 @@ namespace cheonsa
 	
 	protected:
 		menu_element_frame_c _element_frame; // name is "frame", draws the background of this panel.
+		menu_element_frame_c _element_border_frame; // name is "border_frame".
 		
 		menu_control_c * _client; // name is "client". panel control that makes up the client area and publicly accessable controls, and for the scroll bars to plug their values into.
 

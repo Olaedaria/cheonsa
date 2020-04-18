@@ -99,6 +99,9 @@ namespace cheonsa
 
 	};
 
+	// +z axis is forward.
+	// +y axis is down.
+	// +x axis is right.
 	class scene_camera_c
 	{
 	private:
@@ -164,6 +167,9 @@ namespace cheonsa
 	// we need a unified way to spatially partition them, gather them, and feed them to the renderer.
 	// when the light is added to the scene, it will be placed in either the scene's _local_lights_tree if it's local effect (point, cone), or it will be placed in the scene's _global_lights_list if it's global effect (direction).
 	// data is private because the interdependencies are particular, so setter functions are provided that will automatically manage shared state with scene if needed.
+	// +z axis is forward.
+	// +y axis is down.
+	// +x axis is right.
 	class scene_light_c
 	{
 	private:

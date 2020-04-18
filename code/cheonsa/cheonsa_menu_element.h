@@ -43,6 +43,7 @@ namespace cheonsa
 		boolean_c _is_enabled; // if _control->_is_enabled is false then it overrides this value.
 		boolean_c _is_selected;
 		boolean_c _is_pressed;
+		boolean_c _is_overlay; // if true then this element will be rendered after and layered over after the other elements.
 
 		menu_draw_list_c _draw_list; // used to build render procedure for this element.
 		boolean_c _draw_list_is_dirty; // if true then _draw_unit needs to be rebuilt.
@@ -88,6 +89,9 @@ namespace cheonsa
 
 		boolean_c get_is_pressed() const;
 		void_c set_is_pressed( boolean_c value );
+
+		boolean_c get_is_overlay() const;
+		void_c set_is_overlay( boolean_c value );
 
 		menu_draw_list_c & get_draw_list() const;
 

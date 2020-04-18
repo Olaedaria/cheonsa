@@ -4,7 +4,7 @@
 namespace cheonsa
 {
 
-	vector32x2_c menu_control_window_color_picker_c::default_size = vector32x2_c( 400, 550 );
+	vector32x2_c menu_control_window_color_picker_c::default_size = vector32x2_c( 500, 650 );
 
 	void_c menu_control_window_color_picker_c::_update_rgb_from_hsv()
 	{
@@ -273,10 +273,10 @@ namespace cheonsa
 
 		// labels.
 		float32_c label_left = 8;
-		float32_c label_width = 50;
+		float32_c label_width = 80;
 
 		// sliders.
-		float32_c slider_left = 66;
+		float32_c slider_left = 96;
 		float32_c slider_right = 116;
 
 		// texts.
@@ -289,9 +289,9 @@ namespace cheonsa
 
 		_swatch = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "swatch" ) );
 		_swatch->set_mode( menu_control_color_slider_c::mode_e_swatch );
-		_swatch->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( label_left, row_top, text_right, 100 ) );
+		_swatch->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( label_left, row_top, text_right, 200 ) );
 		_give_control_to_client( _swatch );
-		row_top += 100 + 8;
+		row_top += 200 + 8;
 
 		_h_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "h_label" ) );
 		_h_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"h" ) );

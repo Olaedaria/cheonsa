@@ -23,6 +23,7 @@ namespace cheonsa
 		menu_element_text_c _element_text; // name is "text".
 		menu_element_text_c * _element_place_holder_text; // name is "place_holder_text". this element is only newed if a placeholder is enabled, and is deleted if it is disabled.
 		string8_c _place_holder_text_style_key; // place holder style key, stored separately from element because element may not be persistent.
+		menu_element_frame_c _element_border_frame; // name is "border_frame".
 
 		menu_visibility_mode_e _horizontal_scroll_bar_visibility_mode;
 		menu_control_scroll_bar_x_c * _horizontal_scroll_bar;
@@ -40,6 +41,8 @@ namespace cheonsa
 	public:
 		menu_control_text_c( string8_c const & name ); // defaults to single line, plain text, editable, no scroll bars.
 		~menu_control_text_c();
+
+		virtual void_c update_animations( float32_c time_step ) override;
 
 		string16_c get_place_holder_text_value() const;
 		void_c set_place_holder_plain_text_value( string8_c const & plain_text );
@@ -87,10 +90,6 @@ namespace cheonsa
 		menu_visibility_mode_e get_vertical_scroll_visibility_mode() const;
 		void_c set_vertical_scroll_visibility_mode( menu_visibility_mode_e value );
 
-	public:
-		virtual void_c update_animations( float32_c time_step ) override;
-
-	public:
 		core_event_c< void_c, menu_control_text_c * > on_value_changed_preview; // occurs whenever the text value changes as the user types.
 		core_event_c< void_c, menu_control_text_c * > on_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
 

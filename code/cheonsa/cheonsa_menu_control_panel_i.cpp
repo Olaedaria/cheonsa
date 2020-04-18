@@ -60,6 +60,7 @@ namespace cheonsa
 	menu_control_panel_i::menu_control_panel_i( string8_c const & name )
 		: menu_control_c( name )
 		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
+		, _element_border_frame( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _client()
 		, _horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
 		, _horizontal_scroll_bar( nullptr )
@@ -67,8 +68,10 @@ namespace cheonsa
 		, _vertical_scroll_bar( nullptr )
 	{
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_window );
-		_element_frame.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_element( &_element_frame );
+
+		_element_border_frame.set_is_overlay( true );
+		_add_element( &_element_border_frame );
 
 		_client = new menu_control_c( string8_c( core_list_mode_e_static, "client" ) );
 		_client->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );

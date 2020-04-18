@@ -10,20 +10,20 @@
 namespace cheonsa
 {
 
-	// used to update frame interval (frame rate dependent) sampling of inputs.
-	// in the case that some games want to process inputs once per frame instead of once per input event.
-	enum input_key_state_bit_e : uint8_c
-	{
-		input_key_state_bit_e_off = 0x00, // key is off; not pressed, not held, or not released.
-		input_key_state_bit_e_on = 0x01, // key is on; pressed or held, and not released.
-		input_key_state_bit_e_pressed = 0x04, // this bit is set for the input event that the key state changes from off to on. when this bit is set, then the on bit will be set.
-		input_key_state_bit_e_released = 0x08 // this bit is set for the input event that the key state changes from on to off. when this bit is set, then the on bit will not be changed until the next frame where it will be unset.
-	};
+	//// used to update frame interval (frame rate dependent) sampling of inputs.
+	//// in the case that some games want to process inputs once per frame instead of once per input event.
+	//enum input_key_state_bit_e : uint8_c
+	//{
+	//	input_key_state_bit_e_off = 0x00, // key is off; not pressed, not held, or not released.
+	//	input_key_state_bit_e_on = 0x01, // key is on; pressed or held, and not released.
+	//	input_key_state_bit_e_pressed = 0x04, // this bit is set for the input event that the key state changes from off to on. when this bit is set, then the on bit will be set.
+	//	input_key_state_bit_e_released = 0x08 // this bit is set for the input event that the key state changes from on to off. when this bit is set, then the on bit will not be changed until the next frame where it will be unset.
+	//};
 
-	inline input_key_state_bit_e operator | ( input_key_state_bit_e a, input_key_state_bit_e b )
-	{
-		return static_cast< input_key_state_bit_e >( static_cast< uint8_c >( a ) | static_cast< uint8_c >( b ) );
-	}
+	//inline input_key_state_bit_e operator | ( input_key_state_bit_e a, input_key_state_bit_e b )
+	//{
+	//	return static_cast< input_key_state_bit_e >( static_cast< uint8_c >( a ) | static_cast< uint8_c >( b ) );
+	//}
 
 	enum input_mouse_mode_e : uint8_c
 	{
@@ -205,85 +205,122 @@ namespace cheonsa
 		input_keyboard_key_e_count_
 	};
 
+	// maps to virtual keys in xinput input events.
+	// a little redundant with input_gamepad_button_e.
+	// these are used with input events.
 	enum input_gamepad_key_e
 	{
 		input_gamepad_key_e_none = 0x00,
-		input_gamepad_key_e_d_left, // directional pad left.
-		input_gamepad_key_e_d_right, // directional pad right.
-		input_gamepad_key_e_d_up, // directional pad up.
-		input_gamepad_key_e_d_down, // directional pad down.
+
+		input_gamepad_key_e_dpad_left, // directional pad left.
+		input_gamepad_key_e_dpad_right, // directional pad right.
+		input_gamepad_key_e_dpad_up, // directional pad up.
+		input_gamepad_key_e_dpad_down, // directional pad down.
 		input_gamepad_key_e_menu,	// start/menu/options button.
 		input_gamepad_key_e_view,	// select/back/view/share button.
-		input_gamepad_key_e_ls, // left stick depress.
-		input_gamepad_key_e_rs, // right stick depress.
-		input_gamepad_key_e_lb, // left bumper.
-		input_gamepad_key_e_rb, // right bumper.
-		input_gamepad_key_e_lt, // simulated button, when left analog trigger is pressed.
-		input_gamepad_key_e_rt, // simulated button, when right analog trigger is pressed.
+		input_gamepad_key_e_left_stick, // left stick depress.
+		input_gamepad_key_e_right_stick, // right stick depress.
+		input_gamepad_key_e_left_bumper, // left bumper.
+		input_gamepad_key_e_right_bumper, // right bumper.
+		input_gamepad_key_e_left_trigger, // simulated button, when left analog trigger is pressed.
+		input_gamepad_key_e_right_trigger, // simulated button, when right analog trigger is pressed.
 		input_gamepad_key_e_a,	// a/cross button.
 		input_gamepad_key_e_b,	// b/circle button.
 		input_gamepad_key_e_x,	// x/square button.
 		input_gamepad_key_e_y,	// y/triangle button.
-		//input_gamepad_key_e_ls_up,	// simulated button, when left analog stick is pressed up.
-		//input_gamepad_key_e_ls_down,	// simulated button, when left analog stick is pressed down.
-		//input_gamepad_key_e_ls_right,	// simulated button, when left analog stick is pressed right.
-		//input_gamepad_key_e_ls_left,	// simulated button, when left analog stick is pressed left.
-		//input_gamepad_key_e_ls_upleft,	// simulated button, when left analog stick is pressed up-left.
-		//input_gamepad_key_e_ls_upright,	// simulated button, when left analog stick is pressed up-right.
-		//input_gamepad_key_e_ls_downright,	// simulated button, when left analog stick is pressed down-right.
-		//input_gamepad_key_e_ls_downleft,	// simulated button, when left analog stick is pressed down-left.
-		//input_gamepad_key_e_rs_up,	// simulated button, when right analog stick is pressed up.
-		//input_gamepad_key_e_rs_down,	// simulated button, when right analog stick is pressed down.
-		//input_gamepad_key_e_rs_right,	// simulated button, when right analog stick is pressed right.
-		//input_gamepad_key_e_rs_left,	// simulated button, when right analog stick is pressed left.
-		//input_gamepad_key_e_rs_upleft,	// simulated button, when right analog stick is pressed up-left.
-		//input_gamepad_key_e_rs_upright,	// simulated button, when right analog stick is pressed up-right.
-		//input_gamepad_key_e_rs_downright,	// simulated button, when right analog stick is pressed down-right.
-		//input_gamepad_key_e_rs_downleft,	// simulated button, when right analog stick is pressed down-left.
+		input_gamepad_key_e_left_stick_up,	// simulated button, when left analog stick is pressed up.
+		input_gamepad_key_e_left_stick_down,	// simulated button, when left analog stick is pressed down.
+		input_gamepad_key_e_left_stick_right,	// simulated button, when left analog stick is pressed right.
+		input_gamepad_key_e_left_stick_left,	// simulated button, when left analog stick is pressed left.
+		input_gamepad_key_e_left_stick_up_left,	// simulated button, when left analog stick is pressed up-left.
+		input_gamepad_key_e_left_stick_up_right,	// simulated button, when left analog stick is pressed up-right.
+		input_gamepad_key_e_left_stick_down_right,	// simulated button, when left analog stick is pressed down-right.
+		input_gamepad_key_e_left_stick_down_left,	// simulated button, when left analog stick is pressed down-left.
+		input_gamepad_key_e_right_stick_up,	// simulated button, when right analog stick is pressed up.
+		input_gamepad_key_e_right_stick_down,	// simulated button, when right analog stick is pressed down.
+		input_gamepad_key_e_right_stick_right,	// simulated button, when right analog stick is pressed right.
+		input_gamepad_key_e_right_stick_left,	// simulated button, when right analog stick is pressed left.
+		input_gamepad_key_e_right_stick_up_left,	// simulated button, when right analog stick is pressed up-left.
+		input_gamepad_key_e_right_stick_up_right,	// simulated button, when right analog stick is pressed up-right.
+		input_gamepad_key_e_right_stick_down_right,	// simulated button, when right analog stick is pressed down-right.
+		input_gamepad_key_e_right_stick_down_left,	// simulated button, when right analog stick is pressed down-left.
+
 		input_gamepad_key_e_count_
 	};
 
+	// binary inputs only.
+	// a little redundant with input_gamepad_key_e.
+	// these are used with frame snapshots of input state.
+	enum input_gamepad_button_e : uint16_c
+	{
+		input_gamepad_button_e_dpad_up = 0x0001,
+		input_gamepad_button_e_dpad_down = 0x0002,
+		input_gamepad_button_e_dpad_left = 0x0004,
+		input_gamepad_button_e_dpad_right = 0x0008,
+		input_gamepad_button_e_menu = 0x0010,
+		input_gamepad_button_e_view = 0x0020,
+		input_gamepad_button_e_left_stick = 0x0040,
+		input_gamepad_button_e_right_stick = 0x0080,
+		input_gamepad_button_e_left_bumper = 0x0100,
+		input_gamepad_button_e_right_bumper = 0x0200,
+		input_gamepad_button_e_a = 0x0400,
+		input_gamepad_button_e_b = 0x0800,
+		input_gamepad_button_e_x = 0x1000,
+		input_gamepad_button_e_y = 0x2000,
+	};
+
+	// mirror of XINPUT_GAMEPAD, because other APIs are ugly and i won't interface with them directly in public.
+	class input_gamepad_state_c
+	{
+		friend class input_manager_c;
+
+	private:
+		uint16_c _index;
+		boolean_c _is_connected;
+		uint16_c _button_states;
+		float32_c _left_trigger_state;
+		float32_c _right_trigger_state;
+		vector32x2_c _left_stick_state;
+		vector32x2_c _right_stick_state;
+
+	public:
+		input_gamepad_state_c();
+
+		uint16_c get_index() const;
+
+		boolean_c get_is_connected() const;
+
+		boolean_c get_button_state( input_gamepad_button_e button ) const;
+
+		float32_c get_left_trigger_state() const;
+		float32_c get_right_trigger_state() const;
+		vector32x2_c get_left_stick_state() const;
+		vector32x2_c get_right_stick_state() const;
+
+	};
+
+	// can be bound to an action in order to invoke that action when the shortcut is triggered.
 	// input actions can be given shortcuts so that they can be invoked at the user's convenience of a key stroke.
 	class input_shortcut_c
 	{
-	public:
-		enum type_e
-		{
-			type_e_none,
-			type_e_keyboard,
-			type_e_mouse,
-			type_e_gamepad,
-		};
+		friend class input_manager_c;
 
-		type_e type;
-
-		union
-		{
-			struct
-			{
-				input_keyboard_key_e key;
-				input_modifier_flag_e modifier;
-			} keyboard;
-			struct
-			{
-				input_mouse_key_e key;
-			} mouse;
-			struct
-			{
-				input_gamepad_key_e key;
-			} gamepad;
-		};
+	private:		
+		input_modifier_flag_e _modifier_flags;
+		input_mouse_key_e _mouse_key;
+		input_keyboard_key_e _keyboard_key;
+		input_gamepad_key_e _gamepad_key;
 
 	public:
 		input_shortcut_c();
 		input_shortcut_c( input_shortcut_c const & ) = delete;
 		input_shortcut_c & operator = ( input_shortcut_c const & ) = delete;
 
-		void_c clear();
+		void_c clear(); // resets this shortcut to nothing.
 
-		void_c set_keyboard_shortcut( input_keyboard_key_e key, input_modifier_flag_e modifier );
-		void_c set_mouse_shortcut( input_mouse_key_e key );
-		void_c set_gamepad_shortcut( input_gamepad_key_e key );
+		void_c set_mouse_shortcut( input_mouse_key_e key, input_modifier_flag_e modifier_flags );
+		void_c set_keyboard_shortcut( input_keyboard_key_e key, input_modifier_flag_e modifier_flags );
+		void_c set_gamepad_shortcut( input_gamepad_key_e key, input_modifier_flag_e modifier_flags );
 
 		boolean_c operator == ( input_shortcut_c const & other ) const;
 
@@ -294,6 +331,8 @@ namespace cheonsa
 	// this makes it possible for different actions to use the same shortcut and only one of them to be invoked depending on the context.
 	class input_action_c
 	{
+		friend class input_manager_c;
+
 	public:
 		// menu controls and other things can hold references to input actions.
 		// those things can then invoke the action when they are clicked or activated by the user.
@@ -310,7 +349,7 @@ namespace cheonsa
 			void_c clear(); // clears _key and _value and invokes on_refreshed.
 
 			string8_c const & get_key() const;
-			void_c set_key( string8_c const & value ); // sets the key and invokes on_refreshed.
+			void_c set_key( string8_c const & value ); // sets the key, tries to resolve value with key, and invokes on_refreshed.
 
 			input_action_c const * get_value() const;
 
@@ -347,7 +386,6 @@ namespace cheonsa
 	};
 
 	// represents an input event produced by the user.
-	// what's potentially missing from this is timing of when the event occured, which would be needed if timing was important.
 	class input_event_c
 	{
 	public:
@@ -361,32 +399,32 @@ namespace cheonsa
 			type_e_keyboard_key_pressed,
 			type_e_keyboard_key_released,
 			type_e_character,
+			type_e_gamepad_key_pressed,
+			type_e_gamepad_key_released,
 		};
 
 	public:
 		type_e type; // what kind of event occurred, and which data in this structure is relevant to it.
 
-		sint64_c time; // when this event was recorded (don't expect it to be perfect, but it should be very close to when it actually happened), via call to ops::time_get_high_resolution_timer_count().
+		sint64_c time; // when this event was recorded (don't expect it to be perfect, but it should be very close to when it actually happened), via call to ops::time_get_high_resolution_timer_count(). used for multi-click detection.
 
 		input_mouse_key_e mouse_key; // the mouse key which's state was changed. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
-		input_key_state_bit_e mouse_key_state; // will be either input_key_state_bit_e_pressed or input_key_state_bit_e_released. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
-
 		vector32x2_c mouse_position; // current position of mouse in the game window's client area.
 		vector32x2_c mouse_position_delta; // delta position of mouse relative to last mouse_move input event. only used when event_type is input_event_type_e_mouse_move.
-
 		float32_c mouse_wheel_delta; // delta position of mouse wheel relative to last mouse_wheel input event. only used when event_type is input_event_type_e_mouse_wheel.
-
 		sint32_c multi_click_count;
 
 		input_keyboard_key_e keyboard_key; // only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
-		input_key_state_bit_e keyboard_key_state; // will be either input_key_state_bit_e_pressed or input_key_state_bit_e_released. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
 
 		char16_c character; // the character that is being inputted. only used when event_type is input_event_type_e_character.
 		uint8_c character_repeat_count; // the number of times that the character repeats itself, if the engine is running at a smooth frame rate though then it's highly unlikely that this value will ever be greater than 1, but it is here in case it is needed. only used when event_type is input_event_type_e_character.
 
-		input_key_state_bit_e modifier_keys_state[ input_modifier_key_e_count_ ]; // modifier keys state snapshot at the time of this input event. only the down state is tracked for the modifier keys, not pressed or released states.
-		input_key_state_bit_e mouse_keys_state[ input_mouse_key_e_count_ ]; // mouse keys state snapshot at the time of this input event.
-		input_key_state_bit_e keyboard_keys_state[ input_keyboard_key_e_count_ ]; // keyboard keys state snapshot at the time of this input event.
+		input_gamepad_key_e gamepad_key;
+
+		boolean_c modifier_keys_state[ input_modifier_key_e_count_ ]; // modifier keys state snapshot at the time of this input event. only the down state is tracked for the modifier keys, not pressed or released states.
+		boolean_c mouse_keys_state[ input_mouse_key_e_count_ ]; // mouse keys state snapshot at the time of this input event.
+		boolean_c keyboard_keys_state[ input_keyboard_key_e_count_ ]; // keyboard keys state snapshot at the time of this input event.
+		boolean_c gamepad_keys_state[ input_gamepad_key_e_count_ ]; // snapshot of gamepad keys state at time that event occurred.
 
 		vector32x2_c menu_global_mouse_position; // 2d mouse position in menu space. for 2d user interfaces this is basically screen space. for 3d user interfaces this is in local 2d space of the root intersected 3d menu.
 

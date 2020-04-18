@@ -46,9 +46,19 @@
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
-		texture_map_origin="1 21"
+		texture_map_origin="1 1"
 		texture_map_size="8 8"
 		texture_map_edges="3 3 3 3"/>
+
+	<frame
+		key="e_field_border_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_origin="36 11"
+		texture_map_size="8 8"
+		texture_map_edges="3 3 3 3"
+		texture_map_fill_middle="false"/>
 
 	<text
 		key="e_field_text"
@@ -238,114 +248,122 @@
 		texture_map_fill_middle="false"/>
 		
 	<map key="e_modal">
-		<entry element_name="frame" style_key="e_modal_frame"/>
+		<item element_name="frame" style_key="e_modal_frame"/>
 	</map>
 
 	<map key="e_window">
-		<entry element_name="frame" style_key="e_window_frame"/>
-		<entry element_name="text" style_key="e_window_text"/>
-		<entry element_name="client_panel" style_key=""/>
+		<item element_name="frame" style_key="e_window_frame"/>
+		<item element_name="text" style_key="e_window_text"/>
+		<item element_name="client_panel" style_key=""/>
 	</map>
 
 	<map key="e_panel">
-		<entry element_name="frame" style_key="e_panel_frame"/>
+		<item element_name="frame" style_key="e_panel_frame"/>
+		<item element_name="border_frame" style_key="e_field_border_frame"/>
 	</map>
 
 	<map key="e_label">
-		<entry element_name="frame" style_key=""/>
-		<entry element_name="text" style_key="e_label_text"/>
+		<item element_name="frame" style_key=""/>
+		<item element_name="text" style_key="e_label_text"/>
 	</map>
 
 	<map key="e_text">
-		<entry element_name="frame" style_key="e_field_frame"/>
-		<entry element_name="text" style_key="e_field_text" anchor_measures="4 4 4 4"/>
+		<item element_name="frame" style_key="e_field_frame"/>
+		<item element_name="text" style_key="e_field_text" anchor_measures="4 4 4 4"/>
+		<item element_name="border_frame" style_key="e_field_border_frame"/>
 	</map>
 
 	<map key="e_button">
-		<entry element_name="frame" style_key="e_button_frame"/>
-		<entry element_name="text" style_key="e_button_text"/>
+		<item element_name="frame" style_key="e_button_frame"/>
+		<item element_name="text" style_key="e_button_text"/>
 	</map>
 
 	<map key="e_button_frameless">
-		<entry element_name="frame" style_key=""/>
-		<entry element_name="text" style_key="e_button_text"/>
+		<item element_name="frame" style_key=""/>
+		<item element_name="text" style_key="e_button_text"/>
 	</map>
 
 	<map key="e_button_frameless_small">
-		<entry element_name="frame" style_key=""/>
-		<entry element_name="text" style_key="e_button_text_small"/>
+		<item element_name="frame" style_key=""/>
+		<item element_name="text" style_key="e_button_text_small"/>
 	</map>
 
 	<map key="e_button_priority">
-		<entry element_name="frame" style_key="e_button_priority_frame"/>
-		<entry element_name="text" style_key="e_button_priority_text"/>
+		<item element_name="frame" style_key="e_button_priority_frame"/>
+		<item element_name="text" style_key="e_button_priority_text"/>
 	</map>
 
 	<map key="e_check">
-		<entry element_name="box_frame" style_key="e_field_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
-		<entry element_name="mark_frame" style_key="e_check_mark_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
-		<entry element_name="text" style_key="e_field_text_p" anchor="top right bottom" anchor_measures="28 0 0 0"/>
+		<item element_name="box_frame" style_key="e_field_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
+		<item element_name="mark_frame" style_key="e_check_mark_frame" anchor="left top bottom" anchor_measures="0 0 24 0"/>
+		<item element_name="text" style_key="e_field_text_p" anchor="top right bottom" anchor_measures="28 0 0 0"/>
 	</map>
 
 	<map key="e_list">
-		<entry element_name="frame" style_key="e_field_frame"/>
+		<item element_name="frame" style_key="e_field_frame"/>
+		<item element_name="border_frame" style_key="e_field_border_frame"/>
 	</map>
 
 	<map key="e_list_item">
-		<entry element_name="frame" style_key="e_list_item_frame"/>
-		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry element_name="highlighted_frame" style_key="e_list_item_highlighted_frame"/>
-		<entry element_name="text" style_key="e_list_item_text"/>
+		<item element_name="frame" style_key=""/>
+		<item element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<item element_name="highlighted_frame" style_key="e_list_item_highlighted_frame"/>
+		<item element_name="text" style_key="e_list_item_text"/>
 	</map>
 
 	<map key="e_menu_list">
-		<entry element_name="frame" style_key="e_field_frame"/>
+		<item element_name="frame" style_key="e_field_frame"/>
 	</map>
 
 	<map key="e_menu_list_item">
-		<entry element_name="frame" style_key=" "/>
-		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry element_name="highlighted_frame" style_key="e_list_item_selected_frame"/>
-		<entry element_name="text" style_key="e_list_item_text"/>
+		<item element_name="frame" style_key=" "/>
+		<item element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<item element_name="highlighted_frame" style_key="e_list_item_selected_frame"/>
+		<item element_name="text" style_key="e_list_item_text"/>
 	</map>
 
 	<map key="e_combo">
-		<entry element_name="frame" style_key="e_combo_frame"/>
-		<entry element_name="text" style_key="e_field_text"/>
+		<item element_name="frame" style_key="e_combo_frame"/>
+		<item element_name="text" style_key="e_field_text"/>
 	</map>
 
 	<map key="e_combo_list">
-		<entry element_name="frame" style_key="e_field_frame"/>
+		<item element_name="frame" style_key="e_field_frame"/>
 	</map>
 
 	<map key="e_combo_list_item">
-		<entry element_name="frame" style_key="e_list_item_frame"/>
-		<entry element_name="selected_frame" style_key="e_list_item_selected_frame"/>
-		<entry element_name="mouse_selected_frame" style_key="e_list_item_highlighted_frame"/>
-		<entry element_name="text" style_key="e_list_item_text"/>
+		<item element_name="frame" style_key="e_list_item_frame"/>
+		<item element_name="selected_frame" style_key="e_list_item_selected_frame"/>
+		<item element_name="mouse_selected_frame" style_key="e_list_item_highlighted_frame"/>
+		<item element_name="text" style_key="e_list_item_text"/>
 	</map>
 
 	<map key="e_scroll">
-		<entry element_name="rail_frame" style_key="e_scroll_rail_frame"/>
-		<entry element_name="grip_frame" style_key="e_scroll_grip_frame"/>
+		<item element_name="rail_frame" style_key="e_scroll_rail_frame"/>
+		<item element_name="grip_frame" style_key="e_scroll_grip_frame"/>
 	</map>
 
 	<map key="e_file_picker">
-		<entry element_name="frame" style_key=""/>
+		<item element_name="frame" style_key=""/>
 	</map>
 
 	<map key="e_collection">
-		<entry element_name="frame" style_key="e_field_frame"/>
-		<entry element_name="last_selected_frame" style_key="e_list_item_outlined_frame"/>
-		<entry element_name="highlighted_frame" style_key="e_list_item_outlined_frame"/>
-		<entry element_name="column_frame" style_key="e_collection_column_frame"/>
-		<entry element_name="column_text" style_key="e_collection_column_text"/>
-		<entry element_name="item_selected_frame" style_key="e_collection_item_selected_frame"/>
-		<entry element_name="item_text" style_key="e_collection_item_text"/>
+		<item element_name="frame" style_key=""/>
+		<item element_name="border_frame" style_key="e_field_border_frame"/>
+		<item element_name="last_selected_frame" style_key="e_list_item_outlined_frame"/>
+		<item element_name="highlighted_frame" style_key="e_list_item_outlined_frame"/>
+		<item element_name="column_frame" style_key="e_collection_column_frame"/>
+		<item element_name="column_text" style_key="e_collection_column_text"/>
+		<item element_name="item_selected_frame" style_key="e_collection_item_selected_frame"/>
+		<item element_name="item_text" style_key="e_collection_item_text"/>
 	</map>
 
 	<map key="e_property_inspector">
-		<entry element_name="frame" style_key="e_field_frame"/>
+		<item element_name="frame" style_key="e_field_frame"/>
+	</map>
+
+	<map key="e_color_slider">
+		<item element_name="border_frame" style_key="e_field_border_frame"/>
 	</map>
 
 </styles>

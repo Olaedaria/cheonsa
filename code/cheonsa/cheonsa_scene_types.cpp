@@ -176,7 +176,7 @@ namespace cheonsa
 	matrix32x4x4_c scene_camera_c::make_view_transform_relative_to_origin( vector64x3_c origin ) const
 	{
 		matrix32x4x4_c result;
-		result = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( _world_space_transform.position - origin ), _world_space_transform.get_unscaled_basis_b(), _world_space_transform.get_unscaled_basis_c() );
+		result = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( _world_space_transform.position - origin ), _world_space_transform.get_unscaled_basis_c(), -_world_space_transform.get_unscaled_basis_b() );
 		return result;
 	}
 

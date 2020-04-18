@@ -56,7 +56,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_keyboard_key_pressed( get_keyboard_key( wParam, lParam ) );
+						engine.get_input_manager()->_push_keyboard_key_pressed( get_keyboard_key( wParam, lParam ) );
 					}
 					//static BYTE KeyboardState[256];
 					//GetKeyboardState( KeyboardState );
@@ -80,7 +80,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_keyboard_key_released( get_keyboard_key( wParam, lParam ) );
+						engine.get_input_manager()->_push_keyboard_key_released( get_keyboard_key( wParam, lParam ) );
 					}
 					if ( msg == WM_SYSKEYUP )
 					{
@@ -95,7 +95,7 @@ namespace cheonsa
 					// ignore all messages for characters less than 32, as these are for control characters that we can ignore.
 					if ( wParam >= 32 && engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_character( static_cast< char16_c >( wParam ), static_cast< uint8_c >( lParam & 0xFFFF ) );
+						engine.get_input_manager()->_push_character( static_cast< char16_c >( wParam ), static_cast< uint8_c >( lParam & 0xFFFF ) );
 					}
 					return 0;
 				}
@@ -120,7 +120,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_move( (int)(short)LOWORD( lParam ), (int)(short)HIWORD( lParam ) );
+						engine.get_input_manager()->_push_mouse_move( (int)(short)LOWORD( lParam ), (int)(short)HIWORD( lParam ) );
 					}
 					return 0;
 				}
@@ -129,7 +129,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_wheel( static_cast< float32_c >( GET_WHEEL_DELTA_WPARAM( wParam ) ) / 120.0f );
+						engine.get_input_manager()->_push_mouse_wheel( static_cast< float32_c >( GET_WHEEL_DELTA_WPARAM( wParam ) ) / 120.0f );
 					}
 					return 0;
 				}
@@ -138,7 +138,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_left );
+						engine.get_input_manager()->_push_mouse_key_pressed( input_mouse_key_e_left );
 					}
 					return 0;
 				}
@@ -147,7 +147,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_released( input_mouse_key_e_left );
+						engine.get_input_manager()->_push_mouse_key_released( input_mouse_key_e_left );
 					}
 					return 0;
 				}
@@ -156,7 +156,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_right );
+						engine.get_input_manager()->_push_mouse_key_pressed( input_mouse_key_e_right );
 					}
 					return 0;
 				}
@@ -165,7 +165,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_released( input_mouse_key_e_right );
+						engine.get_input_manager()->_push_mouse_key_released( input_mouse_key_e_right );
 					}
 					return 0;
 				}
@@ -174,7 +174,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_pressed( input_mouse_key_e_middle );
+						engine.get_input_manager()->_push_mouse_key_pressed( input_mouse_key_e_middle );
 					}
 					return 0;
 				}
@@ -183,7 +183,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_released( input_mouse_key_e_middle );
+						engine.get_input_manager()->_push_mouse_key_released( input_mouse_key_e_middle );
 					}
 					return 0;
 				}
@@ -192,7 +192,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_pressed( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
+						engine.get_input_manager()->_push_mouse_key_pressed( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
 					}
 					return 0;
 				}
@@ -201,7 +201,7 @@ namespace cheonsa
 				{
 					if ( engine.get_input_manager() != nullptr )
 					{
-						engine.get_input_manager()->push_mouse_key_released( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
+						engine.get_input_manager()->_push_mouse_key_released( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
 					}
 					return 0;
 				}

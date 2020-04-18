@@ -173,24 +173,9 @@ namespace cheonsa
 	{
 		assert( element != nullptr );
 		assert( element->_mother_control == this );
+
 		_element_list.remove( element );
 		element->_mother_control = nullptr;
-	}
-
-	menu_element_c * menu_control_c::_find_element( string8_c const & name, string8_c const & type )
-	{
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
-		{
-			menu_element_c * element = _element_list[ i ];
-			if ( type == element->get_type_name() )
-			{
-				if ( name.get_length() == 0 || name == element->get_name() )
-				{
-					return element;
-				}
-			}
-		}
-		return nullptr;
 	}
 
 	void_c menu_control_c::_find_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result )
@@ -198,10 +183,10 @@ namespace cheonsa
 		result.construct_mode_dynamic( 0 );
 		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
 		{
-			menu_element_c * daughter = _element_list[ i ];
-			if ( daughter->get_name() == name )
+			menu_element_c * element = _element_list[ i ];
+			if ( element->get_name() == name )
 			{
-				result.insert_at_end( daughter );
+				result.insert_at_end( element );
 			}
 		}
 	}
@@ -1257,7 +1242,7 @@ namespace cheonsa
 		return _control_group_origin;
 	}
 
-	void_c menu_control_c::_compile_control_groups( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list )
+	void_c menu_control_c::_compile_control_groups_and_draw_lists( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list )
 	{
 		if ( _scene_component != nullptr )
 		{
@@ -1358,7 +1343,7 @@ namespace cheonsa
 		// compile daughter controls.
 		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 		{
-			_control_list[ i ]->_compile_control_groups( control_group_list, draw_list_list );
+			_control_list[ i ]->_compile_control_groups_and_draw_lists( control_group_list, draw_list_list );
 		}
 	}
 

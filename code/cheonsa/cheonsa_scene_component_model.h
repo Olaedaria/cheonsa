@@ -406,7 +406,6 @@ namespace cheonsa
 
 			space_transform_c const & get_local_space_transform() const;
 			space_transform_c const & get_object_space_transform() const;
-			
 			space_transform_c const & get_world_space_transform() const;
 			space_transform_c & get_world_space_transform();
 

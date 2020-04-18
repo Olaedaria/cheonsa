@@ -1,6 +1,7 @@
 ﻿#include "cheonsa_menu_control_text.h"
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_user_interface.h"
+#include "cheonsa_engine.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -46,6 +47,8 @@ namespace cheonsa
 		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
 		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
 		, _element_place_holder_text( nullptr )
+		, _place_holder_text_style_key()
+		, _element_border_frame( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
 		, _horizontal_scroll_bar( nullptr )
 		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
@@ -64,6 +67,9 @@ namespace cheonsa
 		_element_text.on_text_value_changed.subscribe( this, &menu_control_text_c::_handle_on_value_changed );
 		_add_element( &_element_text );
 
+		_element_border_frame.set_is_overlay( true );
+		_add_element( &_element_border_frame );
+
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_text" ) );
 	}
 
@@ -75,6 +81,35 @@ namespace cheonsa
 			delete _element_place_holder_text;
 			_element_place_holder_text = nullptr;
 		}
+	}
+
+	void_c menu_control_text_c::update_animations( float32_c time_step )
+	{
+		menu_control_c::update_animations( time_step );
+
+		vector32x2_c content_offset = vector32x2_c( 0.0f, 0.0f );
+		if ( _horizontal_scroll_bar )
+		{
+			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_width(), _local_box.get_width() );
+			_horizontal_scroll_bar->update_visibility( _horizontal_scroll_bar_visibility_mode );
+			content_offset.a = static_cast< float32_c >( _horizontal_scroll_bar->get_value() );
+		}
+		if ( _vertical_scroll_bar )
+		{
+			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_height(), _local_box.get_height() );
+			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+			content_offset.b = static_cast< float32_c >( _vertical_scroll_bar->get_value() );
+		}
+		_element_text.set_content_offset( content_offset );
+		_element_text.update_animations( time_step );
+
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( get_user_interface_root()->get_mouse_focused() );
+
+		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_frame.set_is_pressed( false );
+
+		_element_text.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_element_text.set_is_pressed( false );
 	}
 
 	string16_c menu_control_text_c::get_place_holder_text_value() const
@@ -307,35 +342,6 @@ namespace cheonsa
 			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text.get_content_height(), _local_box.get_height() );
 			_vertical_scroll_bar->update_visibility( value );
 		}
-	}
-
-	void_c menu_control_text_c::update_animations( float32_c time_step )
-	{
-		menu_control_c::update_animations( time_step );
-
-		vector32x2_c content_offset = vector32x2_c( 0.0f, 0.0f );
-		if ( _horizontal_scroll_bar )
-		{
-			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_width(), _local_box.get_width() );
-			_horizontal_scroll_bar->update_visibility( _horizontal_scroll_bar_visibility_mode );
-			content_offset.a = static_cast< float32_c >( _horizontal_scroll_bar->get_value() );
-		}
-		if ( _vertical_scroll_bar )
-		{
-			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text .get_content_height(), _local_box.get_height() );
-			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
-			content_offset.b = static_cast< float32_c >( _vertical_scroll_bar->get_value() );
-		}
-		_element_text.set_content_offset( content_offset );
-		_element_text.update_animations( time_step );
-
-		boolean_c is_descendant_mouse_focused = is_ascendant_of( get_user_interface_root()->get_mouse_focused() );
-
-		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_frame.set_is_pressed( _is_pressed );
-
-		_element_text.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_text.set_is_pressed( _is_pressed );
 	}
 
 }

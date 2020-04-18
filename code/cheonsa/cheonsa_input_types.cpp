@@ -5,55 +5,95 @@
 namespace cheonsa
 {
 
+	input_gamepad_state_c::input_gamepad_state_c()
+		: _index( 0 )
+		, _is_connected( false )
+		, _button_states( 0 )
+		, _left_trigger_state( 0.0f )
+		, _right_trigger_state( 0.0f )
+		, _left_stick_state()
+		, _right_stick_state()
+	{
+	}
+
+	uint16_c input_gamepad_state_c::get_index() const
+	{
+		return _index;
+	}
+
+	boolean_c input_gamepad_state_c::get_is_connected() const
+	{
+		return _is_connected;
+	}
+
+	boolean_c input_gamepad_state_c::get_button_state( input_gamepad_button_e button ) const
+	{
+		return ( _button_states & button ) != 0;
+	}
+
+	float32_c input_gamepad_state_c::get_left_trigger_state() const
+	{
+		return _left_trigger_state;
+	}
+
+	float32_c input_gamepad_state_c::get_right_trigger_state() const
+	{
+		return _right_trigger_state;
+	}
+
+	vector32x2_c input_gamepad_state_c::get_left_stick_state() const
+	{
+		return _left_stick_state;
+	}
+
+	vector32x2_c input_gamepad_state_c::get_right_stick_state() const
+	{
+		return _right_stick_state;
+	}
+
 	input_shortcut_c::input_shortcut_c()
+		: _modifier_flags( input_modifier_flag_e_none )
+		, _mouse_key( input_mouse_key_e_none )
+		, _keyboard_key( input_keyboard_key_e_none )
+		, _gamepad_key( input_gamepad_key_e_none )
 	{
 	}
 
 	void_c input_shortcut_c::clear()
 	{
-		type = type_e_none;
-		keyboard.key = input_keyboard_key_e_none;
-		keyboard.modifier = input_modifier_flag_e_none;
+		_modifier_flags = input_modifier_flag_e_none;
+		_mouse_key = input_mouse_key_e_none;
+		_keyboard_key = input_keyboard_key_e_none;
+		_gamepad_key = input_gamepad_key_e_none;
 	}
 
-	void_c input_shortcut_c::set_keyboard_shortcut( input_keyboard_key_e key, input_modifier_flag_e modifier )
+	void_c input_shortcut_c::set_mouse_shortcut( input_mouse_key_e key, input_modifier_flag_e modifier_flags )
 	{
-		type = type_e_keyboard;
-		keyboard.key = key;
-		keyboard.modifier = modifier;
+		_modifier_flags = modifier_flags;
+		_mouse_key = key;
+		_keyboard_key = input_keyboard_key_e_none;
+		_gamepad_key = input_gamepad_key_e_none;
 	}
 
-	void_c input_shortcut_c::set_mouse_shortcut( input_mouse_key_e key )
+	void_c input_shortcut_c::set_keyboard_shortcut( input_keyboard_key_e key, input_modifier_flag_e modifier_flags )
 	{
-		type = type_e_mouse;
-		mouse.key = key;
+		_modifier_flags = modifier_flags;
+		_mouse_key = input_mouse_key_e_none;
+		_keyboard_key = key;
+		_gamepad_key = input_gamepad_key_e_none;
 	}
 
-	void_c input_shortcut_c::set_gamepad_shortcut( input_gamepad_key_e key )
+	void_c input_shortcut_c::set_gamepad_shortcut( input_gamepad_key_e key, input_modifier_flag_e modifier_flags )
 	{
-		type = type_e_gamepad;
-		gamepad.key = key;
+		_modifier_flags = modifier_flags;
+		_mouse_key = input_mouse_key_e_none;
+		_keyboard_key = input_keyboard_key_e_none;
+		_gamepad_key = key;
 	}
 
 	boolean_c input_shortcut_c::operator == ( input_shortcut_c const & other ) const
 	{
-		if ( type != other.type )
-		{
-			return false;
-		}
-		if ( type == type_e_keyboard )
-		{
-			return keyboard.key == other.keyboard.key && keyboard.modifier == other.keyboard.modifier;
-		}
-		else if ( type == type_e_mouse )
-		{
-			return mouse.key == other.mouse.key;
-		}
-		else if ( type == type_e_gamepad )
-		{
-			return gamepad.key == other.gamepad.key;
-		}
-		return false;
+		return ( _modifier_flags == other._modifier_flags ) && ( _mouse_key == other._mouse_key ) && ( _keyboard_key == other._keyboard_key ) && ( _gamepad_key == other._gamepad_key );
 	}
 
 	input_action_c::reference_c::reference_c()
@@ -132,26 +172,26 @@ namespace cheonsa
 		: type( type_e_none )
 		, time( 0 )
 		, mouse_key( input_mouse_key_e_none )
-		, mouse_key_state( input_key_state_bit_e_off )
 		, mouse_position( 0.0f, 0.0f )
 		, mouse_position_delta( 0.0f, 0.0f )
 		, mouse_wheel_delta( 0.0f )
 		, multi_click_count( 0 )
 		, keyboard_key( input_keyboard_key_e_none )
-		, keyboard_key_state( input_key_state_bit_e_off )
 		, character( 0 )
 		, character_repeat_count( 0 )
-		, menu_global_mouse_position( 0.0f, 0.0f )
+		, gamepad_key( input_gamepad_key_e_none )
 		, modifier_keys_state{}
 		, mouse_keys_state{}
 		, keyboard_keys_state{}
+		, gamepad_keys_state{}
+		, menu_global_mouse_position( 0.0f, 0.0f )
 		, was_handled( false )
 	{
 	}
 
 	boolean_c input_event_c::check_modifier_key_states( boolean_c shift, boolean_c ctrl, boolean_c alt ) const
 	{
-		return ( ( ( modifier_keys_state[ input_modifier_key_e_shift ] & input_key_state_bit_e_on ) != 0 ) == shift ) && ( ( ( modifier_keys_state[ input_modifier_key_e_ctrl ] & input_key_state_bit_e_on ) != 0 ) == ctrl ) && ( ( ( modifier_keys_state[ input_modifier_key_e_alt ] & input_key_state_bit_e_on ) != 0 ) == alt );
+		return ( modifier_keys_state[ input_modifier_key_e_shift ] == shift ) && ( modifier_keys_state[ input_modifier_key_e_ctrl ] == ctrl ) && ( modifier_keys_state[ input_modifier_key_e_alt ] == alt );
 	}
 
 	input_drag_drop_payload_c::input_drag_drop_payload_c()
@@ -440,10 +480,10 @@ namespace cheonsa
 			input_gamepad_key_e_b, // 0x5801 VK_PAD_B
 			input_gamepad_key_e_x, // 0x5802 VK_PAD_X
 			input_gamepad_key_e_y, // 0x5803 VK_PAD_Y
-			input_gamepad_key_e_rb, // 0x5804 VK_PAD_RSHOULDER
-			input_gamepad_key_e_lb, // 0x5805 VK_PAD_LSHOULDER
-			input_gamepad_key_e_lt, // 0x5806 VK_PAD_LTRIGGER
-			input_gamepad_key_e_rt, // 0x5807 VK_PAD_RTRIGGER
+			input_gamepad_key_e_right_bumper, // 0x5804 VK_PAD_RSHOULDER
+			input_gamepad_key_e_left_bumper, // 0x5805 VK_PAD_LSHOULDER
+			input_gamepad_key_e_left_trigger, // 0x5806 VK_PAD_LTRIGGER
+			input_gamepad_key_e_right_trigger, // 0x5807 VK_PAD_RTRIGGER
 			0, // 0x5808
 			0, // 0x5809
 			0, // 0x580A
@@ -453,14 +493,14 @@ namespace cheonsa
 			0, // 0x580E
 			0, // 0x580F
 
-			input_gamepad_key_e_d_up, // 0x5810 VK_PAD_DPAD_UP
-			input_gamepad_key_e_d_down, // 0x5811 VK_PAD_DPAD_DOWN
-			input_gamepad_key_e_d_left, // 0x5812 VK_PAD_DPAD_LEFT
-			input_gamepad_key_e_d_right, // 0x5813 VK_PAD_DPAD_RIGHT
+			input_gamepad_key_e_dpad_up, // 0x5810 VK_PAD_DPAD_UP
+			input_gamepad_key_e_dpad_down, // 0x5811 VK_PAD_DPAD_DOWN
+			input_gamepad_key_e_dpad_left, // 0x5812 VK_PAD_DPAD_LEFT
+			input_gamepad_key_e_dpad_right, // 0x5813 VK_PAD_DPAD_RIGHT
 			input_gamepad_key_e_menu, // 0x5814 VK_PAD_START
 			input_gamepad_key_e_view, // 0x5815 VK_PAD_BACK
-			input_gamepad_key_e_ls, // 0x5816 VK_PAD_LTHUMB_PRESS
-			input_gamepad_key_e_rs, // 0x5817 VK_PAD_RTHUMB_PRESS
+			input_gamepad_key_e_left_stick, // 0x5816 VK_PAD_LTHUMB_PRESS
+			input_gamepad_key_e_right_stick, // 0x5817 VK_PAD_RTHUMB_PRESS
 			0, // 0x5818
 			0, // 0x5819
 			0, // 0x581A
@@ -470,14 +510,14 @@ namespace cheonsa
 			0, // 0x581E
 			0, // 0x581F
 
-			0, //input_gamepad_key_e_LS_Up, // 0x5820 VK_PAD_LTHUMB_UP
-			0, //input_gamepad_key_e_LS_Down, // 0x5821 VK_PAD_LTHUMB_DOWN
-			0, //input_gamepad_key_e_LS_Right, // 0x5822 VK_PAD_LTHUMB_RIGHT
-			0, //input_gamepad_key_e_LS_Left, // 0x5823 VK_PAD_LTHUMB_LEFT
-			0, //input_gamepad_key_e_LS_UpLeft, // 0x5824 VK_PAD_LTHUMB_UPLEFT
-			0, //input_gamepad_key_e_LS_UpRight, // 0x5825 VK_PAD_LTHUMB_UPRIGHT
-			0, //input_gamepad_key_e_LS_DownRight, // 0x5826 VK_PAD_LTHUMB_DOWNRIGHT
-			0, //input_gamepad_key_e_LS_DownLeft, // 0x5827 VK_PAD_LTHUMB_DOWNLEFT
+			input_gamepad_key_e_left_stick_up, // 0x5820 VK_PAD_LTHUMB_UP
+			input_gamepad_key_e_left_stick_down, // 0x5821 VK_PAD_LTHUMB_DOWN
+			input_gamepad_key_e_left_stick_right, // 0x5822 VK_PAD_LTHUMB_RIGHT
+			input_gamepad_key_e_left_stick_left, // 0x5823 VK_PAD_LTHUMB_LEFT
+			input_gamepad_key_e_left_stick_up_left, // 0x5824 VK_PAD_LTHUMB_UPLEFT
+			input_gamepad_key_e_left_stick_up_right, // 0x5825 VK_PAD_LTHUMB_UPRIGHT
+			input_gamepad_key_e_left_stick_down_right, // 0x5826 VK_PAD_LTHUMB_DOWNRIGHT
+			input_gamepad_key_e_left_stick_down_left, // 0x5827 VK_PAD_LTHUMB_DOWNLEFT
 			0, // 0x5828
 			0, // 0x5829
 			0, // 0x582A
@@ -487,14 +527,14 @@ namespace cheonsa
 			0, // 0x582E
 			0, // 0x582F
 
-			0, //input_gamepad_key_e_RS_Up, // 0x5830 VK_PAD_RTHUMB_UP
-			0, //input_gamepad_key_e_RS_Down, // 0x5831 VK_PAD_RTHUMB_DOWN
-			0, //input_gamepad_key_e_RS_Right, // 0x5832 VK_PAD_RTHUMB_RIGHT
-			0, //input_gamepad_key_e_RS_Left, // 0x5833 VK_PAD_RTHUMB_LEFT
-			0, //input_gamepad_key_e_RS_UpLeft, // 0x5834 VK_PAD_RTHUMB_UPLEFT
-			0, //input_gamepad_key_e_RS_UpRight, // 0x5835 VK_PAD_RTHUMB_UPRIGHT
-			0, //input_gamepad_key_e_RS_DownRight, // 0x5836 VK_PAD_RTHUMB_DOWNRIGHT
-			0, //input_gamepad_key_e_RS_DownLeft, // 0x5837 VK_PAD_RTHUMB_DOWNLEFT
+			input_gamepad_key_e_right_stick_up, // 0x5830 VK_PAD_RTHUMB_UP
+			input_gamepad_key_e_right_stick_down, // 0x5831 VK_PAD_RTHUMB_DOWN
+			input_gamepad_key_e_right_stick_right, // 0x5832 VK_PAD_RTHUMB_RIGHT
+			input_gamepad_key_e_right_stick_left, // 0x5833 VK_PAD_RTHUMB_LEFT
+			input_gamepad_key_e_right_stick_up_left, // 0x5834 VK_PAD_RTHUMB_UPLEFT
+			input_gamepad_key_e_right_stick_up_right, // 0x5835 VK_PAD_RTHUMB_UPRIGHT
+			input_gamepad_key_e_right_stick_down_right, // 0x5836 VK_PAD_RTHUMB_DOWNRIGHT
+			input_gamepad_key_e_right_stick_down_left, // 0x5837 VK_PAD_RTHUMB_DOWNLEFT
 			0, // 0x5838
 			0, // 0x5839
 			0, // 0x583A

@@ -240,7 +240,7 @@ namespace cheonsa
 			_update_sort();
 		}
 
-		if ( _element_list.get_length() == 3 )
+		if ( _element_list.get_length() == 4 )
 		{
 			// (re)add supplemental elements for column(s).
 			// add directly, rather than with _add_element(), to avoid (re)resolving style assignment from mother control's style map.
@@ -506,7 +506,7 @@ namespace cheonsa
 	{
 		vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
 		item_i * picked_item = _pick_item_at_local_point( local_mouse_position );
-		if ( ( ( input_event->modifier_keys_state[ input_modifier_flag_e_ctrl ] & input_key_state_bit_e_on ) != 0 ) && ( _select_mode == select_mode_e_multiple ) )
+		if ( input_event->check_modifier_key_states( false, true, false ) && ( _select_mode == select_mode_e_multiple ) )
 		{
 			if ( picked_item )
 			{
@@ -587,6 +587,7 @@ namespace cheonsa
 		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
 		, _element_last_selected_frame( string8_c( core_list_mode_e_static, "last_selected_frame" ) )
 		, _element_highlighted_frame( string8_c( core_list_mode_e_static, "highlighted_frame" ) )
+		, _element_border_frame( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _last_selected_item( nullptr )
 		, _mouse_selected_item( nullptr )
 		, _vertical_scroll_bar_visibility( menu_visibility_mode_e_automatic )
@@ -614,6 +615,10 @@ namespace cheonsa
 
 		_element_highlighted_frame.set_is_showed( false );
 		_add_element( &_element_highlighted_frame );
+
+		_element_border_frame.set_is_overlay( true );
+		_element_border_frame.set_shared_color_class( menu_shared_color_class_e_field );
+		_add_element( &_element_border_frame );
 
 		_vertical_scroll_bar = new menu_control_scroll_bar_y_c( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
@@ -644,7 +649,7 @@ namespace cheonsa
 			menu_element_c * element = _element_list[ i ];
 			element->set_is_enabled( _is_enabled );
 			element->set_is_selected( _is_mouse_focused || is_selected );
-			element->set_is_pressed( i < 3 && _is_pressed && _is_mouse_overed );
+			//element->set_is_pressed( i < 3 && _is_pressed && _is_mouse_overed );
 			element->update_animations( time_step );
 		}
 
@@ -745,7 +750,7 @@ namespace cheonsa
 		{
 			_display_mode = value;
 			_item_layout_is_dirty = true;
-			_element_list.set_length( 3 );
+			_element_list.set_length( 4 );
 			_item_elements.remove_and_delete_all();
 		}
 	}
@@ -839,7 +844,7 @@ namespace cheonsa
 	void_c menu_control_collection_c::remove_all_columns()
 	{
 		_column_list.remove_and_delete_all();
-		_element_list.set_length( 3 );
+		_element_list.set_length( 4 );
 		_item_elements.remove_and_delete_all();
 		_value_cache_is_dirty = true;
 		_item_layout_is_dirty = true;
@@ -890,7 +895,7 @@ namespace cheonsa
 		column->_element_text.set_plain_text_value( display_value );
 		_column_list.insert_at_end( column );
 
-		_element_list.set_length( 3 );
+		_element_list.set_length( 4 );
 		_item_elements.remove_and_delete_all();
 		_value_cache_is_dirty = true;
 		_item_layout_is_dirty = true;

@@ -20,7 +20,7 @@ namespace cheonsa
 		menu_element_frame_c _element_frame; // name is "frame".
 		menu_element_text_c _element_text; // name is "text".
 
-		input_action_c::reference_c _input_action; // if this reference is set, then this is the action that will be invoked when this control is activated.
+		//input_action_c::reference_c _input_action; // if this reference is set, then this is the action that will be invoked when this control is activated.
 
 	public:
 		menu_control_button_c( string8_c const & name );

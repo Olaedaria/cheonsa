@@ -282,17 +282,20 @@ namespace cheonsa
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_accent );
 		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_accent, 0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_primary, -0.1f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_primary, 0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_secondary, -0.1f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_secondary, 0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_accent, -0.1f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_accent, 0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.window_primary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.window_primary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.window_secondary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.window_secondary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.window_secondary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.window_secondary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		// button
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_primary );
 		_shared_color_style_list[ shared_color_style_index ].value = values.button_primary;
@@ -313,11 +316,14 @@ namespace cheonsa
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_accent );
 		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_accent, -0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.button_primary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_primary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.button_secondary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_secondary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.button_secondary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_secondary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		// field
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_primary );
 		_shared_color_style_list[ shared_color_style_index ].value = values.field_primary;
@@ -338,11 +344,14 @@ namespace cheonsa
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_accent );
 		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_accent, -0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.field_primary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_primary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.field_secondary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_secondary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( ops::adjust_color_saturation( values.field_secondary, 0.2f ), -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_secondary, -0.25f );
+		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
 	}
 
 	void_c menu_style_manager_c::get_shared_color_base_notes( menu_shared_color_base_notes_c & values )

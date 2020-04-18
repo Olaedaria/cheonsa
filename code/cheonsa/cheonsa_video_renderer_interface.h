@@ -73,6 +73,7 @@ namespace cheonsa
 		video_vertex_buffer_c * _menu_vertex_buffer;
 		video_index_buffer_c * _menu_index_buffer;
 		video_vertex_buffer_c * _menu_debug_vertex_buffer;
+		void_c _bind_constants_for_control( menu_control_c * control, matrix32x2x2_c const & control_group_basis, vector32x2_c const & control_group_origin );
 		void_c _render_control_for_control_group( menu_control_c * control_group );
 		void_c _render_menu_draw_list( menu_draw_list_c const & draw_list );
 
@@ -302,9 +303,6 @@ namespace cheonsa
 
 		video_texture_c * _white_pixel_texture; // white pixel.
 		resource_file_texture_c _white_pixel_texture_wrapper;
-
-		video_texture_c * _green_pixel_texture; // green pixel for pointing out missing textures.
-		resource_file_texture_c _green_pixel_texture_wrapper;
 
 		scene_material_c _scene_default_material;
 
