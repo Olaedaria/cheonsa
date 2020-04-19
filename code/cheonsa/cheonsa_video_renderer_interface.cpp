@@ -1008,7 +1008,7 @@ namespace cheonsa
 				view.world_space_frustum = ops::make_frustum64_perspective3( light_probe->get_scene_object()->get_world_space_transform().position, vector64x3_c( video_renderer_interface_c::cube_face_view_list_base[ cube_face_view_index ].forward ), vector64x3_c( video_renderer_interface_c::cube_face_view_list_base[ cube_face_view_index ].up ), cube_face_field_of_view, cube_face_field_of_view, static_cast< float64_c >( _scene->_light_probe_clip_near ), static_cast< float64_c >( _scene->_light_probe_clip_far ) );
 
 				// gather and prepare data for render.
-				_just_do_everything_for_me( view );
+				_prepare_to_render_view( view );
 
 				// sort object draw lists from near to far.
 				video_renderer_quick_sort_plane = view.world_space_frustum.planes[ frustum_plane_index_e_near ];
@@ -1182,7 +1182,7 @@ namespace cheonsa
 			view_c const & view = _views[ view_index ];
 
 			// gather and prepare data for render.
-			_just_do_everything_for_me( view );
+			_prepare_to_render_view( view );
 
 			// bind shadow map texture.
 			textures_to_bind[ 0 ] = _shadow_map_texture2darray;
@@ -2029,7 +2029,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c video_renderer_interface_c::_just_do_everything_for_me( view_c const & view )
+	void_c video_renderer_interface_c::_prepare_to_render_view( view_c const & view )
 	{
 		// clear all the lists.
 		_shadow_views.remove_all();
@@ -2281,6 +2281,7 @@ namespace cheonsa
 				scene_component_model_c * model = _models_to_skin[ i ];
 				if ( model->_vertex_skin_mode == scene_component_model_c::vertex_skin_mode_e_cpu )
 				{
+					// todo: move cpu skinning to additional threads.
 					_skin_model_vertices_with_cpu( model );
 				}
 				else if ( model->_vertex_skin_mode == scene_component_model_c::vertex_skin_mode_e_gpu )
@@ -2291,6 +2292,7 @@ namespace cheonsa
 			// revert render states that were needed to skin with gpu.
 			engine.get_video_interface()->bind_target_vertex_buffer( nullptr );
 			engine.get_video_interface()->bind_vertex_shader( nullptr );
+			// todo: wait for cpu skinning threads to finish.
 		}
 
 		// render shadow views to shadow maps.

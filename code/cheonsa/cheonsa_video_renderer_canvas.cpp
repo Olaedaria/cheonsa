@@ -237,16 +237,16 @@ namespace cheonsa
 		return true;
 	}
 
-	void_c video_renderer_canvas_c::clear()
+	void_c video_renderer_canvas_c::clear( vector32x4_c const & clear_color )
 	{
 		// clear render targets.
 		engine.get_video_interface()->clear_depth_stencil( _target_depth_stencil, 1.0f, 0 );
 		engine.get_video_interface()->clear_texture( _target_normal, 0.0f, 0.0f, 0.0f, 0.0f );
 		engine.get_video_interface()->clear_texture( _target_depth, constants< float32_c >::maximum(), 0.0f, 0.0f, 0.0f ); // float32_maximum or view->clip_far?
-		engine.get_video_interface()->clear_texture( _target_color, 0.0f, 0.0f, 0.0f, 0.0f );
+		engine.get_video_interface()->clear_texture( _target_color, clear_color.a, clear_color.b, clear_color.c, clear_color.d );
 		if ( _output != nullptr )
 		{
-			engine.get_video_interface()->clear_texture( _output, 0.0f, 0.0f, 0.0f, 0.0f );
+			engine.get_video_interface()->clear_texture( _output, clear_color.a, clear_color.b, clear_color.c, clear_color.d );
 		}
 	}
 

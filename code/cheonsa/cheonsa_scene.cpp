@@ -23,6 +23,7 @@ namespace cheonsa
 
 	scene_c::scene_c()
 		: _user_interface( nullptr )
+		, _clear_color( 0.0f, 0.0f, 0.0f, 0.0f )
 		, _scene_camera()
 		, _scene_object_list()
 		, _scene_component_tree()
@@ -70,6 +71,21 @@ namespace cheonsa
 
 		delete _physics_scene;
 		_physics_scene = nullptr;
+	}
+
+	vector32x4_c const & scene_c::get_clear_color() const
+	{
+		return _clear_color;
+	}
+
+	void_c scene_c::set_clear_color( vector32x4_c const & value )
+	{
+		_clear_color = value;
+	}
+
+	void_c scene_c::reset_clear_color()
+	{
+		_clear_color = vector32x4_c( 0.0f, 0.0f, 0.0f, 0.0f );
 	}
 
 	scene_camera_c & scene_c::get_scene_camera()

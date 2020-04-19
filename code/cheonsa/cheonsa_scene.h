@@ -47,6 +47,9 @@ namespace cheonsa
 		// there is only one user interface per game client, and at most only one scene can be associated with it at a time.
 		user_interface_c * _user_interface;
 
+		// the color that the canvas will be cleared to before rendering to it.
+		vector32x4_c _clear_color;
+
 		// the point of view that this scene will be experienced from when it visuals are rendered and its audio is mixed.
 		scene_camera_c _scene_camera;
 
@@ -115,6 +118,10 @@ namespace cheonsa
 	public:
 		scene_c();
 		virtual ~scene_c();
+
+		vector32x4_c const & get_clear_color() const;
+		void_c set_clear_color( vector32x4_c const & value );
+		void_c reset_clear_color();
 
 		scene_camera_c & get_scene_camera();
 

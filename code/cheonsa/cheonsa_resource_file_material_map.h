@@ -14,7 +14,7 @@ namespace cheonsa
 		typedef resource_file_reference_c< resource_file_material_map_c > reference_c;
 
 	public:
-		static char8_c const * get_type_static() { return "model_materials"; }
+		static char8_c const * get_type_static() { return "material_map"; }
 		virtual char8_c const * get_type() const override { return get_type_static(); }
 
 	public:
@@ -23,7 +23,8 @@ namespace cheonsa
 		{
 		public:
 			string8_c target_name; // the name of the object to apply the material to. the object may contain more than one instance of a thing with this name, the material will be applied to all of them.
-			scene_material_c material; // the material to apply to the object.
+			scene_material_c material; // the material to apply to the thing.
+
 		};
 
 		core_list_c< thing_c * > things; // a collection of objects to apply different materials to.

@@ -263,8 +263,8 @@ namespace cheonsa
 	enum video_cull_type_e
 	{
 		video_cull_type_e_none, // no primitives will be culled.
-		video_cull_type_e_front, // front facing primitives will be culled.
-		video_cull_type_e_back, // back facing primitives will be culled.
+		video_cull_type_e_front, // front facing primitives will not be rendered.
+		video_cull_type_e_back, // back facing primitives will not be rendered.
 		video_cull_type_e_count_
 	};
 

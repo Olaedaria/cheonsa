@@ -522,7 +522,7 @@ namespace cheonsa
 		// uploads _gpu_lights data to _texture_buffers.lights_texture_buffer.
 		// uploads _gpu_shadow_views data to to _texture_buffers.shadow_views_texture_buffer.
 		// uploads _sprite_vertex_list data to _sprite_vertex_buffer.
-		void_c _just_do_everything_for_me( view_c const & view );
+		void_c _prepare_to_render_view( view_c const & view );
 
 		// scene debug drawing
 		core_list_c< video_renderer_vertex_debug_64_c > _debug_line_list_64; // debug vertices in world space.

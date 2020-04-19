@@ -487,7 +487,6 @@
     <ClInclude Include="cheonsa_audio2.h" />
     <ClInclude Include="cheonsa_resource_file.h" />
     <ClInclude Include="cheonsa_resource_file_font.h" />
-    <ClInclude Include="cheonsa_resource_file_material_map.h" />
     <ClInclude Include="cheonsa_resource_file_menu_layout.h" />
     <ClInclude Include="cheonsa_resource_file_model.h" />
     <ClInclude Include="cheonsa_resource_file_sprite_set.h" />
@@ -516,6 +515,7 @@
     <ClInclude Include="cheonsa_menu_control_window_message.h" />
     <ClInclude Include="cheonsa_menu_control_window_text_editor.h" />
     <ClInclude Include="cheonsa_game_i.h" />
+    <ClInclude Include="cheonsa_resource_file_material_map.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />

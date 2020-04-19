@@ -77,7 +77,7 @@ namespace cheonsa
 		boolean_c update();
 
 		// clears all the render targets in this canvas.
-		void_c clear();
+		void_c clear( vector32x4_c const & clear_color );
 
 		// if this canvas is associated with an output window, then this function will present the backbuffer to the window.
 		void_c present();

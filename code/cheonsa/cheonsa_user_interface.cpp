@@ -431,11 +431,17 @@ namespace cheonsa
 
 	void_c user_interface_c::render_and_present( float32_c time_step )
 	{
-		// clear the canvas.
-		_canvas_and_output->clear();
-
 		// pre-render menus.
+		// this has to be done before rendering the 3d scene, in case some of the menus are 3d.
 		engine.get_video_renderer_interface()->pre_render_menus( this );
+
+		// clear the canvas.
+		vector32x4_c clear_color = vector32x4_c( 0.0f, 0.0f, 0.0f, 0.0f );
+		if ( _scene )
+		{
+			clear_color = _scene->get_clear_color();
+		}
+		_canvas_and_output->clear( clear_color );
 
 		// render 3d scene and 3d menu controls to canvas.
 		if ( _scene )
