@@ -262,6 +262,11 @@
 		<item element_name="border_frame" style_key="e_field_border_frame"/>
 	</map>
 
+	<map key="e_panel_borderless">
+		<item element_name="frame" style_key="e_panel_frame"/>
+		<item element_name="border_frame" style_key=""/>
+	</map>
+
 	<map key="e_label">
 		<item element_name="frame" style_key=""/>
 		<item element_name="text" style_key="e_label_text"/>

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_element_frame.h"
@@ -17,12 +17,16 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "label"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	private:
+	protected:
 		menu_element_frame_c _element_frame; // name is "frame".
 		menu_element_text_c _element_text; // name is "text".
 
-	public:
 		menu_control_label_c( string8_c const & name );
+
+	public:
+		virtual ~menu_control_label_c() override;
+
+		static menu_control_label_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_string16.h"
@@ -235,9 +235,9 @@ namespace cheonsa
 
 	enum video_compare_function_e
 	{
-		video_compare_function_e_disable, // disables depth stencil test, the pixels will always be written.
+		video_compare_function_e_disable, // disables depth stencil test, the pixels will always be written. basically same as "always".
 		video_compare_function_e_never, // always fail the depth test.
-		video_compare_function_e_always, // always pass the depth test.
+		video_compare_function_e_always, // always pass the depth test. basically same as "disable".
 		video_compare_function_e_equal, // depth test passes if the depth of the pixel being written is equal to the depth that is already there.
 		video_compare_function_e_not_equal, // depth test passes if the depth of the pixel being written is not equal to the depth that is already there.
 		video_compare_function_e_less, // depth test passes if the depth of the pixel being written is less than the depth that is already there.

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control.h"
+#include "cheonsa_menu_control.h"
 #include "cheonsa_menu_element.h"
 #include "cheonsa_user_interface.h"
 #include "cheonsa__ops.h"
@@ -9,148 +9,80 @@ namespace cheonsa
 
 	core_linked_list_c< menu_control_c * > menu_control_c::_global_list;
 
-	void_c menu_control_c::_handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value )
+	void_c menu_control_c::_handle_style_map_reference_on_resolved( menu_style_map_c::reference_c const * resource )
 	{
-		if ( _style_map_reference.get_value() )
+		for ( sint32_c i = 0; i < _style_map_reference.get_value()->_entry_list.get_length(); i++ )
 		{
-			// resolves styles for elements.
-			for ( sint32_c i = 0; i < _style_map_reference.get_value()->_entry_list.get_length(); i++ )
+			menu_style_map_c::entry_c * entry = _style_map_reference.get_value()->_entry_list[ i ];
+			core_list_c< menu_element_c * > daughter_element_list;
+			_find_daughter_elements_with_name( entry->get_element_name(), daughter_element_list );
+			for ( sint32_c j = 0; j < daughter_element_list.get_length(); j++ )
 			{
-				menu_style_map_c::entry_c * entry = _style_map_reference.get_value()->_entry_list[ i ];
-				core_list_c< menu_element_c * > element_list;
-				_find_elements_with_name( entry->get_element_name(), element_list );
-				for ( sint32_c j = 0; j < element_list.get_length(); j++ )
+				menu_element_c * daughter_element = daughter_element_list[ j ];
+				if ( entry->get_style_key() == "" )
 				{
-					menu_element_c * element = element_list[ j ];
-					if ( entry->get_style_key() == "" )
-					{
-						element->_is_showed_from_style = false;
-						element->set_style_key( string8_c() );
-					}
-					else
-					{
-						element->_is_showed_from_style = true;
-						element->set_style_key( entry->get_style_key() );
-					}
+					daughter_element->_is_showed_from_style = false;
+					daughter_element->set_style_key( string8_c() );
+				}
+				else
+				{
+					daughter_element->_is_showed_from_style = true;
+					daughter_element->set_style_key( entry->get_style_key() );
 				}
 			}
 		}
-		else
-		{
-			// release style references from daughter elements.
-			for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
-			{
-				menu_element_c * element = _element_list[ i ];
-				element->set_style_key( string8_c() );
-			}
-		}
 	}
 
-	sint32_c menu_control_c::_give_control( menu_control_c * control, sint32_c index )
+	void_c menu_control_c::_handle_style_map_reference_on_unresolved( menu_style_map_c::reference_c const * resource )
 	{
-		assert( control );
-		assert( control != this );
-		assert( control->_user_interface == nullptr );
-		assert( control->_mother_control == nullptr );
-		assert( control->_index == -1 );
-		assert( index >= -1 && index <= _control_list.get_length() );
-
-		// update relationships.
-		if ( index == -1 )
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			index = _control_list.get_length();
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			_daughter_element_list[ i ]->set_style_key( string8_c() );
 		}
-		control->_mother_control = this;
-		control->_index = index;
-		_control_list.insert_at_index( index, control );
-		for ( sint32_c i = index + 1; i < _control_list.get_length(); i++ )
-		{
-			_control_list[ i ]->_index = i;
-		}
-
-		// update style map if possible.
-		if ( _style_map_reference.get_value() )
-		{
-			if ( control->get_name().get_length() > 0 )
-			{
-				string8_c target;
-				target += "control:";
-				target += control->get_name();
-				menu_style_map_c::entry_c const * style_map_entry = _style_map_reference.get_value()->find_entry( target );
-				if ( style_map_entry )
-				{
-					control->set_style_map_key( style_map_entry->get_style_key() );
-				}
-			}
-		}
-
-		// update layout.
-		//_content_bounds_is_dirty = true;
-		control->_update_transform_and_layout();
-
-		return index;
 	}
 
-	menu_control_c * menu_control_c::_take_control( sint32_c control_index )
+	void_c menu_control_c::_set_user_interface_recursive( user_interface_c * value )
 	{
-		assert( control_index >= 0 && control_index < _control_list.get_length() );
-		user_interface_c * user_interface = get_user_interface_root();
-		menu_control_c * control = _control_list[ control_index ];
-		assert( control->_user_interface == nullptr );
-		assert( control->_mother_control == this );
-		assert( control->_index == control_index );
-		if ( user_interface )
+		_user_interface = value;
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			user_interface->_suspend_control( control );
+			daughter_control_list_node->get_value()->_set_user_interface_recursive( value );
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
-		_control_list.remove( control );
-		control->_mother_control = nullptr;
-		control->_index = -1;
-		for ( sint32_c i = control_index; i < _control_list.get_length(); i++ )
-		{
-			_control_list[ i ]->_index = i;
-		}
-		//_content_bounds_is_dirty = true;
-		return control;
 	}
 
-	void_c menu_control_c::_remove_and_delete_all_controls()
+	void_c menu_control_c::_update_daughter_control_animations( float32_c time_step )
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		sint32_c index = 0;
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			menu_control_c * daughter_control = _control_list[ i ];
-			if ( user_interface )
+			core_linked_list_c< menu_control_c * >::node_c const * next = daughter_control_list_node->get_next();
+			menu_control_c * daughter_control = daughter_control_list_node->get_value();
+			daughter_control->update_animations( time_step );
+			if ( daughter_control->get_wants_to_be_deleted() && daughter_control->get_is_showed_weight() <= 0.0f )
 			{
-				user_interface->_suspend_control( daughter_control );
+				remove_daughter_control( daughter_control );
 			}
-			delete daughter_control;
+			else
+			{
+				daughter_control->_index = index;
+				index++;
+			}
+			daughter_control_list_node = next;
 		}
-		_control_list.remove_all();
-		//_content_bounds_is_dirty = true;
 	}
 
-	menu_control_c * menu_control_c::_find_control( string8_c const & name, string8_c const & type )
-	{
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-		{
-			menu_control_c * control = _control_list[ i ];
-			if ( type == control->get_type_name() && name == control->get_name() )
-			{
-				return control;
-			}
-		}
-		return nullptr;
-	}
-
-	void_c menu_control_c::_add_element( menu_element_c * element )
+	void_c menu_control_c::_add_daughter_element( menu_element_c * element )
 	{
 		assert( element );
 		assert( element->_mother_control == nullptr );
 
 		// update relationships.
 		element->_mother_control = this;
-		_element_list.insert_at_end( element );
+		_daughter_element_list.insert( -1, element );
 
 		// update layout.
 		element->update_layout( _local_box );
@@ -169,24 +101,24 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_c::_remove_element( menu_element_c * element )
+	void_c menu_control_c::_remove_daughter_element( menu_element_c * element )
 	{
 		assert( element != nullptr );
 		assert( element->_mother_control == this );
 
-		_element_list.remove( element );
+		_daughter_element_list.remove_value( element );
 		element->_mother_control = nullptr;
 	}
 
-	void_c menu_control_c::_find_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result )
+	void_c menu_control_c::_find_daughter_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result )
 	{
 		result.construct_mode_dynamic( 0 );
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			menu_element_c * element = _element_list[ i ];
-			if ( element->get_name() == name )
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			if ( daughter_element->get_name() == name )
 			{
-				result.insert_at_end( element );
+				result.insert( -1, daughter_element );
 			}
 		}
 	}
@@ -196,7 +128,7 @@ namespace cheonsa
 		// update _global_origin and _global_basis and _global_basis_inverted.
 		if ( _mother_control != nullptr )
 		{
-			_global_origin = ops::make_vector32x2_transformed_point( _local_origin + _mother_control->_content_offset, _mother_control->_global_basis ) + _mother_control->_global_origin;
+			_global_origin = ops::rotate_and_scale_vector32x2( _local_origin + _mother_control->_content_offset, _mother_control->_global_basis ) + _mother_control->_global_origin;
 			_global_basis = _mother_control->_global_basis * _local_basis;
 			_global_color = _mother_control->_global_color * _local_color;
 		}
@@ -206,27 +138,30 @@ namespace cheonsa
 			_global_basis = _local_basis;
 			_global_color = _local_color;
 		}
-		_global_basis_inverted = ops::make_matrix32x2x2_inverted( _global_basis );
+		_global_basis_inverted = ops::invert_matrix32x2x2( _global_basis );
 	}
 
-	void_c menu_control_c::_handle_resource_file_menu_on_load( resource_file_c * resource_file )
+	void_c menu_control_c::_handle_menu_layout_resource_on_loaded( resource_file_c * resource_file )
 	{
 		assert( resource_file != nullptr );
 		assert( resource_file->get_is_loaded() );
-		assert( _resource_file_menu == resource_file );
-		load_static_data_properties_recursive( _resource_file_menu->get_markup().get_node( 1 ) );
+		assert( _menu_layout_resource == resource_file );
+		load_static_data_properties_recursive( _menu_layout_resource->get_markup().get_node( 1 ) );
 	}
 
-	void_c menu_control_c::_handle_resource_file_menu_on_unload( resource_file_c * resource_file )
+	void_c menu_control_c::_handle_menu_layout_resource_on_unloaded( resource_file_c * resource_file )
 	{
 		assert( resource_file != nullptr );
 		assert( resource_file->get_is_loaded() );
 		load_static_data_properties_recursive( nullptr );
 	}
 
-	void_c menu_control_c::_on_user_interface_association_changed( user_interface_c * user_interface )
+	void_c menu_control_c::_handle_after_added_to_user_interface()
 	{
-		on_user_interface_association_changed.invoke( user_interface );
+	}
+
+	void_c menu_control_c::_handle_before_removed_from_user_interface()
+	{
 	}
 
 	void_c menu_control_c::_on_is_showed_changed()
@@ -266,13 +201,19 @@ namespace cheonsa
 
 	void_c menu_control_c::_on_clicked( input_event_c * input_event )
 	{
-		get_user_interface_root()->reset_multi_click_detection();
-		on_clicked.invoke( menu_event_information_c( this, input_event ) );
+		if ( _is_enabled )
+		{
+			get_user_interface()->reset_multi_click_detection();
+			on_clicked.invoke( menu_event_information_c( this, input_event ) );
+		}
 	}
 
 	void_c menu_control_c::_on_multi_clicked( input_event_c * input_event )
 	{
-		on_multi_clicked.invoke( menu_event_information_c( this, input_event ) );
+		if ( _is_enabled )
+		{
+			on_multi_clicked.invoke( menu_event_information_c( this, input_event ) );
+		}
 	}
 
 	void_c menu_control_c::_on_input( input_event_c * input_event )
@@ -281,19 +222,18 @@ namespace cheonsa
 
 	void_c menu_control_c::_update_transform_and_layout()
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		if ( user_interface == nullptr )
+		if ( _user_interface == nullptr )
 		{
 			return;
 		}
 
 		// update _local_basis.
-		_local_basis = ops::make_matrix32x2x2_transform( _local_angle, _local_scale );
+		_local_basis = ops::basis_matrix32x2x2_from_angle_scale( _local_angle, _local_scale );
 
 		// layout _local_box.
 		if ( _layout_mode == menu_layout_mode_e_box_anchor )
 		{
-			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : _user_interface->get_local_box();
 			if ( ( _local_anchor & menu_anchor_e_left ) && ( _local_anchor & menu_anchor_e_right ) )
 			{
 				// anchor left and right edges.
@@ -359,7 +299,7 @@ namespace cheonsa
 		}
 		else if ( _layout_mode == menu_layout_mode_e_point_anchor )
 		{
-			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : user_interface->get_local_box();
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : _user_interface->get_local_box();
 			_local_origin = vector32x2_c();
 			if ( _local_anchor & menu_anchor_e_left )
 			{
@@ -392,32 +332,35 @@ namespace cheonsa
 		}
 
 		// layout daughter elements.
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			menu_element_c * element = _element_list[ i ];
-			element->update_layout( _local_box );
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			daughter_element->update_layout( _local_box );
 		}
 
 		// layout daughter controls.
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			menu_control_c * control = _control_list[ i ];
-			control->_update_transform_and_layout();
+			daughter_control_list_node->get_value()->_update_transform_and_layout();
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 	}
 
 	menu_control_c::menu_control_c( string8_c const & name )
 		: _global_list_node( this )
-		, _style_map_reference()
 		, _name( name )
 		, _user_interface( nullptr )
 		, _mother_control( nullptr )
+		, _daughter_control_list()
+		, _daughter_control_list_node( this )
+		, _daughter_element_list()
 		, _index( -1 )
 		, _content_offset( 0.0f, 0.0f )
 		, _content_bounds( 0.0f, 0.0f, 0.0f, 0.0f )
 		, _content_bounds_is_dirty( true )
-		, _element_list()
-		, _control_list()
+		, _is_supplemental( false )
+		, _style_map_reference()
 		, _layer( menu_layer_e_undefined )
 		, _select_mode( menu_select_mode_e_mouse )
 		, _wants_to_be_deleted( false )
@@ -453,14 +396,18 @@ namespace cheonsa
 		, _control_group_draw_list()
 		, _scene_component( nullptr )
 		, _non_client_type( menu_non_client_type_e_none )
+		, _reference_count( 0 )
 		, _user_pointer( nullptr )
 	{
 		_global_list.insert_at_end( &_global_list_node );
-		_style_map_reference.on_refreshed.subscribe( this, &menu_control_c::_handle_style_map_reference_on_refreshed );
+		_style_map_reference.on_resolved.subscribe( this, &menu_control_c::_handle_style_map_reference_on_resolved );
+		_style_map_reference.on_unresolved.subscribe( this, &menu_control_c::_handle_style_map_reference_on_unresolved );
 	}
 
 	menu_control_c::~menu_control_c()
 	{
+		assert( _reference_count == 0 );
+
 		_global_list.remove( &_global_list_node );
 
 		if ( _control_group_texture != nullptr )
@@ -470,38 +417,48 @@ namespace cheonsa
 			_control_group_texture = nullptr;
 		}
 
-		//assert( get_user_interface() == nullptr );
+		// release controls.
+		remove_all_daughter_controls();
+	}
 
-		_control_list.remove_and_delete_all();
+	menu_control_c * menu_control_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_c( name );
+	}
+
+	void_c menu_control_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c menu_control_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+		}
 	}
 
 	void_c menu_control_c::update_animations( float32_c time_step )
 	{
+		assert( _user_interface );
+
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_selected = is_ascendant_of( get_user_interface_root()->get_mouse_overed() );
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( _user_interface->get_mouse_overed() );
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			menu_element_c * element = _element_list[ i ];
-			element->set_is_enabled( _is_enabled );
-			element->set_is_selected( is_selected );
-			element->set_is_pressed( _is_pressed && _is_mouse_overed );
-			element->update_animations( time_step );
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_selected( is_descendant_mouse_focused );
+			daughter_element->set_is_pressed( _is_pressed && _is_mouse_overed );
+			daughter_element->update_animations( time_step );
 		}
 
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-		{
-			menu_control_c * control = _control_list[ i ];
-			assert( control->get_index() == i );
-			control->update_animations( time_step );
-			if ( control->get_wants_to_be_deleted() && control->get_is_showed_weight() <= 0.0f )
-			{
-				_take_control( i );
-				delete control;
-				i--;
-			}
-		}
+		_update_daughter_control_animations( time_step );
 	}
 
 	void_c menu_control_c::load_static_data_properties_recursive( data_scribe_markup_c::node_c const * node )
@@ -527,11 +484,10 @@ namespace cheonsa
 				data_scribe_markup_c::attribute_c const * name_attribute = sub_node->find_attribute( "name" );
 				if ( type_attribute && name_attribute )
 				{
-					menu_control_c * control = nullptr;
-					control = _find_control( name_attribute->get_value(), type_attribute->get_value() );
-					if ( control != nullptr )
+					menu_control_c * daughter_control = find_daughter_control( name_attribute->get_value(), type_attribute->get_value() );
+					if ( daughter_control != nullptr )
 					{
-						control->load_static_data_properties_recursive( sub_node );
+						daughter_control->load_static_data_properties_recursive( sub_node );
 					}
 				}
 			}
@@ -629,30 +585,30 @@ namespace cheonsa
 		_update_transform_and_layout();
 	}
 
-	resource_file_menu_layout_c * menu_control_c::get_menu_layout() const
+	resource_file_menu_layout_c * menu_control_c::get_menu_layout_resource() const
 	{
-		return _resource_file_menu;
+		return _menu_layout_resource;
 	}
 
-	void_c menu_control_c::set_menu_layout( resource_file_menu_layout_c * value )
+	void_c menu_control_c::set_menu_layout_resource( resource_file_menu_layout_c * value )
 	{
-		if ( _resource_file_menu.is_reference_set() )
+		if ( _menu_layout_resource.get_is_value_set() )
 		{
-			if ( _resource_file_menu->get_is_loaded() )
+			if ( _menu_layout_resource->get_is_loaded() )
 			{
-				_handle_resource_file_menu_on_unload( _resource_file_menu );
+				_handle_menu_layout_resource_on_unloaded( _menu_layout_resource );
 			}
-			_resource_file_menu->on_load.unsubscribe( this, &menu_control_c::_handle_resource_file_menu_on_load );
-			_resource_file_menu->on_unload.unsubscribe( this, &menu_control_c::_handle_resource_file_menu_on_unload );
+			_menu_layout_resource->on_loaded.unsubscribe( this, &menu_control_c::_handle_menu_layout_resource_on_loaded );
+			_menu_layout_resource->on_unloaded.unsubscribe( this, &menu_control_c::_handle_menu_layout_resource_on_unloaded );
 		}
-		_resource_file_menu = value;
-		if ( _resource_file_menu.is_reference_set() )
+		_menu_layout_resource = value;
+		if ( _menu_layout_resource.get_is_value_set() )
 		{
-			_resource_file_menu->on_load.subscribe( this, &menu_control_c::_handle_resource_file_menu_on_load );
-			_resource_file_menu->on_unload.subscribe( this, &menu_control_c::_handle_resource_file_menu_on_unload );
-			if ( _resource_file_menu->get_is_loaded() )
+			_menu_layout_resource->on_loaded.subscribe( this, &menu_control_c::_handle_menu_layout_resource_on_loaded );
+			_menu_layout_resource->on_unloaded.subscribe( this, &menu_control_c::_handle_menu_layout_resource_on_unloaded );
+			if ( _menu_layout_resource->get_is_loaded() )
 			{
-				_handle_resource_file_menu_on_load( _resource_file_menu );
+				_handle_menu_layout_resource_on_loaded( _menu_layout_resource );
 			}
 		}
 	}
@@ -672,21 +628,22 @@ namespace cheonsa
 		}
 
 		// test daughter controls.
-		menu_control_c * best_pick = nullptr;
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		menu_control_c * best_pick_control = nullptr;
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			menu_control_c * daughter = _control_list[ i ];
-			menu_control_c * pick = daughter->pick_control_with_global_point( global_point, layer );
-			if ( pick != nullptr )
+			menu_control_c * pick_control = daughter_control_list_node->get_value()->pick_control_with_global_point( global_point, layer );
+			if ( pick_control != nullptr )
 			{
-				best_pick = pick;
+				best_pick_control = pick_control;
 			}
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 
 		// return daughter if we found one.
-		if ( best_pick != nullptr )
+		if ( best_pick_control != nullptr )
 		{
-			return best_pick;
+			return best_pick_control;
 		}
 
 		// finally, test against this.
@@ -702,12 +659,12 @@ namespace cheonsa
 
 	vector32x2_c menu_control_c::transform_global_point_to_local_point( vector32x2_c const & global_point ) const
 	{
-		return ops::make_vector32x2_transformed_point( global_point - _global_origin, _global_basis_inverted );
+		return ops::rotate_and_scale_vector32x2( global_point - _global_origin, _global_basis_inverted );
 	}
 
 	vector32x2_c menu_control_c::transform_local_point_to_global_point( vector32x2_c const & local_point ) const
 	{
-		return ops::make_vector32x2_transformed_point( local_point, _global_basis ) + _global_origin;
+		return ops::rotate_and_scale_vector32x2( local_point, _global_basis ) + _global_origin;
 	}
 
 	boolean_c menu_control_c::contains_global_point( vector32x2_c const & global_point ) const
@@ -741,14 +698,29 @@ namespace cheonsa
 	//	_name = value;
 	//}
 
+	boolean_c menu_control_c::get_is_supplemental() const
+	{
+		return _is_supplemental;
+	}
+
+	void_c menu_control_c::_set_is_supplemental( boolean_c value )
+	{
+		_is_supplemental = value;
+	}
+
 	sint32_c menu_control_c::get_index() const
 	{
 		return _index;
 	}
 
-	user_interface_c * menu_control_c::get_user_interface_root()
+	//user_interface_c * menu_control_c::get_user_interface_root()
+	//{
+	//	return get_root_mother_control()->_user_interface;
+	//}
+
+	user_interface_c * menu_control_c::get_user_interface() const
 	{
-		return get_root_mother_control()->_user_interface;
+		return _user_interface;
 	}
 
 	menu_control_c * menu_control_c::get_root_mother_control()
@@ -766,14 +738,123 @@ namespace cheonsa
 		return _mother_control;
 	}
 
-	sint32_c menu_control_c::get_control_count() const
+	core_linked_list_c< menu_control_c * > const & menu_control_c::get_daughter_control_list() const
 	{
-		return _control_list.get_length();
+		return _daughter_control_list;
 	}
 
-	menu_control_c * menu_control_c::get_control( sint32_c control_index ) const
+	void_c menu_control_c::add_daughter_control( menu_control_c * control, sint32_c index )
 	{
-		return _control_list[ control_index ];
+		assert( control );
+		assert( control != this );
+		assert( control->_user_interface == nullptr );
+		assert( control->_mother_control == nullptr );
+		assert( control->_index == -1 );
+		assert( index >= -1 && index <= _daughter_control_list.get_length() );
+
+		// update relationships, insert in list.
+		control->add_reference();
+		control->_mother_control = this;
+		control->_index = index < 0 ? _daughter_control_list.get_length() : index;
+		control->_set_user_interface_recursive( _user_interface );
+		_daughter_control_list.insert_at_index( &control->_daughter_control_list_node, control->_index );
+
+		// reindex controls after insertion point.
+		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
+		sint32_c reindex_index = control->_index + 1;
+		while ( reindex_node )
+		{
+			reindex_node->get_value()->_index = reindex_index;
+			reindex_index++;
+			reindex_node = reindex_node->get_next();
+		}
+
+		// update style map if possible.
+		if ( _style_map_reference.get_value() )
+		{
+			if ( control->get_name().get_length() > 0 )
+			{
+				string8_c target;
+				target += "control:";
+				target += control->get_name();
+				menu_style_map_c::entry_c const * style_map_entry = _style_map_reference.get_value()->find_entry( target );
+				if ( style_map_entry )
+				{
+					control->set_style_map_key( style_map_entry->get_style_key() );
+				}
+			}
+		}
+
+		// update layout.
+		//_content_bounds_is_dirty = true;
+		control->_update_transform_and_layout();
+		if ( _user_interface )
+		{
+			control->_handle_after_added_to_user_interface();
+		}
+	}
+
+	void_c menu_control_c::remove_daughter_control( menu_control_c * control )
+	{
+		assert( control->_user_interface == _user_interface );
+		assert( control->_mother_control == this );
+
+		// suspend control from user interface.
+		if ( _user_interface )
+		{
+			control->_handle_before_removed_from_user_interface();
+			_user_interface->_suspend_control( control );
+		}
+
+		// reindex controls after removal point.
+		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
+		sint32_c reindex_index = control->_index;
+		while ( reindex_node )
+		{
+			reindex_node->get_value()->_index = reindex_index;
+			reindex_index++;
+			reindex_node = reindex_node->get_next();
+		}
+
+		// update relationships and remove control from list.
+		control->_mother_control = nullptr;
+		control->_index = -1;
+		control->_set_user_interface_recursive( nullptr );
+		_daughter_control_list.remove( &control->_daughter_control_list_node );
+		control->remove_reference();
+	}
+
+	void_c menu_control_c::remove_all_daughter_controls()
+	{
+		while ( core_linked_list_c< menu_control_c * >::node_c * daughter_control_list_node = _daughter_control_list.get_first() )
+		{
+			menu_control_c * daughter_control = daughter_control_list_node->get_value();
+			if ( _user_interface )
+			{
+				_user_interface->_suspend_control( daughter_control );
+			}
+			daughter_control->_mother_control = nullptr;
+			daughter_control->_index = -1;
+			daughter_control->_set_user_interface_recursive( nullptr );
+			_daughter_control_list.remove( daughter_control_list_node );
+			daughter_control->remove_reference();
+		}
+		//_content_bounds_is_dirty = true;
+	}
+
+	menu_control_c * menu_control_c::find_daughter_control( string8_c const & name, string8_c const & type )
+	{
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
+		{
+			menu_control_c * control = daughter_control_list_node->get_value();
+			if ( type == control->get_type_name() && name == control->get_name() )
+			{
+				return control;
+			}
+			daughter_control_list_node = daughter_control_list_node->get_next();
+		}
+		return nullptr;
 	}
 
 	boolean_c menu_control_c::is_ascendant_of( menu_control_c * control )
@@ -846,9 +927,9 @@ namespace cheonsa
 				_is_showed = false;
 				_wants_to_be_deleted = and_wants_to_be_deleted;
 				_on_is_showed_changed();
-				if ( user_interface_c * user_interface = get_user_interface_root() )
+				if ( _user_interface )
 				{
-					user_interface->_suspend_control( this );
+					_user_interface->_suspend_control( this );
 				}
 			}
 		}
@@ -869,9 +950,9 @@ namespace cheonsa
 			_is_showed_weight = 0.0f;
 			_wants_to_be_deleted = false;
 			_on_is_showed_changed();
-			if ( user_interface_c * user_interface = get_user_interface_root() )
+			if ( _user_interface )
 			{
-				user_interface->_suspend_control( this );
+				_user_interface->_suspend_control( this );
 			}
 		}
 	}
@@ -887,9 +968,9 @@ namespace cheonsa
 		_on_is_enabled_changed();
 		if ( value == false )
 		{
-			if ( user_interface_c * user_interface = get_user_interface_root() )
+			if ( _user_interface )
 			{
-				user_interface->_suspend_control( this );
+				_user_interface->_suspend_control( this );
 			}
 		}
 	}
@@ -1004,6 +1085,11 @@ namespace cheonsa
 		return _local_box;
 	}
 
+	box32x2_c & menu_control_c::get_local_box()
+	{
+		return _local_box;
+	}
+
 	box32x2_c const & menu_control_c::get_local_anchor_measures() const
 	{
 		return _local_anchor_measures;
@@ -1050,9 +1136,9 @@ namespace cheonsa
 
 	void_c menu_control_c::set_shared_color_class( menu_shared_color_class_e value )
 	{
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			_element_list[ i ]->set_shared_color_class( value );
+			_daughter_element_list[ i ]->set_shared_color_class( value );
 		}
 	}
 
@@ -1114,22 +1200,24 @@ namespace cheonsa
 		}
 		else if ( _mother_control )
 		{
-			assert( _mother_control->_control_list[ _index ] == this );
-			_mother_control->_control_list.remove_at_index( _index );
-			_mother_control->_control_list.insert_at_index( 0, this );
-			for ( sint32_c i = 0; i < _mother_control->_control_list.get_length(); i++ )
+			_mother_control->_daughter_control_list.remove( &this->_daughter_control_list_node );
+			_mother_control->_daughter_control_list.insert_at_front( &this->_daughter_control_list_node );
+			sint32_c index = 0;
+			core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _mother_control->_daughter_control_list.get_first();
+			while ( daughter_control_list_node )
 			{
-				_mother_control->_control_list[ i ]->_index = i;
+				daughter_control_list_node->get_value()->_index = index;
+				index++;
+				daughter_control_list_node = daughter_control_list_node->get_next();
 			}
 		}
 	}
 
 	void_c menu_control_c::give_text_focus()
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		if ( user_interface )
+		if ( _user_interface )
 		{
-			user_interface->set_text_focused( this );
+			_user_interface->set_text_focused( this );
 		}
 	}
 
@@ -1140,32 +1228,33 @@ namespace cheonsa
 			_content_bounds_is_dirty = false;
 			_content_bounds = box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f );
 			boolean_c first = true;
-			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+			core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+			while ( daughter_control_list_node )
 			{
-				menu_control_c const * control = _control_list[ i ];
-				box32x2_c control_box = ops::make_aabb_from_obb( control->_local_box, vector32x2_c(), control->_local_basis );
-				if ( first )
+				menu_control_c const * daughter_control = daughter_control_list_node->get_value();
+				box32x2_c daughter_control_box = ops::make_aabb_from_obb( daughter_control->_local_box, vector32x2_c(), daughter_control->_local_basis );
+				if ( first == false )
 				{
-					first = false;
-					_content_bounds = control_box;
+					_content_bounds.accumulate_bounds( daughter_control_box );
 				}
 				else
 				{
-					_content_bounds.accumulate_bounds( control_box );
+					first = false;
+					_content_bounds = daughter_control_box;
 				}
 			}
-			for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+			for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 			{
-				menu_element_c const * element = _element_list[ i ];
-				box32x2_c const & element_box = element->_local_box;
+				menu_element_c const * daughter_element = _daughter_element_list[ i ];
+				box32x2_c const & daughter_element_box = daughter_element->_local_box;
 				if ( first )
 				{
 					first = false;
-					_content_bounds = element_box;
+					_content_bounds = daughter_element_box;
 				}
 				else
 				{
-					_content_bounds.accumulate_bounds( element_box );
+					_content_bounds.accumulate_bounds( daughter_element_box );
 				}
 			}
 		}
@@ -1202,31 +1291,31 @@ namespace cheonsa
 		{
 			matrix32x2x2_c control_group_basis = control->get_control_group_basis();
 			vector32x2_c control_group_origin = control->get_control_group_origin();
-			vector32x2_c minimum = ops::make_vector32x2_transformed_point( control->_local_box.minimum, control_group_basis ) + control_group_origin;
-			vector32x2_c maximum = ops::make_vector32x2_transformed_point( control->_local_box.maximum, control_group_basis ) + control_group_origin;
-			vector32x2_c normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 1.0f, 0.0f ), control_group_basis ) );
-			vector32x4_c * plane = result.emplace_at_end();
+			vector32x2_c minimum = ops::rotate_and_scale_vector32x2( control->_local_box.minimum, control_group_basis ) + control_group_origin;
+			vector32x2_c maximum = ops::rotate_and_scale_vector32x2( control->_local_box.maximum, control_group_basis ) + control_group_origin;
+			vector32x2_c normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( 1.0f, 0.0f ), control_group_basis ) );
+			vector32x4_c * plane = result.emplace( -1, 1 );
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->c = -ops::dot_product_float32( normal, minimum );
 			plane->d = 0.0f;
-			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, 1.0f ), control_group_basis ) );
-			plane = result.emplace_at_end();
+			normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( 0.0f, 1.0f ), control_group_basis ) );
+			plane = result.emplace( -1, 1 );
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->c = -ops::dot_product_float32( normal, minimum );
 			plane->d = 0.0f;
-			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( -1.0f, 0.0f ), control_group_basis ) );
-			plane = result.emplace_at_end();
+			normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( -1.0f, 0.0f ), control_group_basis ) );
+			plane = result.emplace( -1, 1 );
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->c = -ops::dot_product_float32( normal, maximum );
 			plane->d = 0.0f;
-			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, -1.0f ), control_group_basis ) );
-			plane = result.emplace_at_end();
+			normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( 0.0f, -1.0f ), control_group_basis ) );
+			plane = result.emplace( -1, 1 );
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->c = -ops::dot_product_float32( normal, maximum );
 			plane->d = 0.0f;
 			control = control->_mother_control;
 		}
@@ -1269,12 +1358,12 @@ namespace cheonsa
 			}
 			if ( _control_group_is_root )
 			{
-				_control_group_mother->_control_group_daughter_list.insert_at_end( this );
+				_control_group_mother->_control_group_daughter_list.insert( -1, this );
 			}
 		}
 		if ( _control_group_is_root )
 		{
-			control_group_list.insert_at_end( this );
+			control_group_list.insert( -1, this );
 
 			// create or recreate control group texture target.
 			sint32_c needed_width = ops::math_maximum( 16, static_cast< sint32_c >( _local_box.get_width() + 0.5f ) );
@@ -1305,7 +1394,7 @@ namespace cheonsa
 			map.maximum.b = static_cast< float32_c >( _local_box.get_height() ) / static_cast< float32_c >( _control_group_texture->get_height() );
 			box32x2_c box = _local_box;
 			_control_group_draw_list.append_rectangle( box, map, engine.get_video_renderer_shader_manager()->get_menu_ps_frame(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), nullptr );
-			draw_list_list.insert_at_end( &_control_group_draw_list );
+			draw_list_list.insert( -1, &_control_group_draw_list );
 		}
 		else
 		{
@@ -1321,29 +1410,31 @@ namespace cheonsa
 
 			// control group spatial transform.
 			_control_group_basis = _mother_control->_control_group_basis * _local_basis;
-			_control_group_origin = ops::make_vector32x2_transformed_point( _local_origin, _mother_control->_control_group_basis ) + _mother_control->_control_group_origin;
+			_control_group_origin = ops::rotate_and_scale_vector32x2( _local_origin, _mother_control->_control_group_basis ) + _mother_control->_control_group_origin;
 			_control_group_color = _mother_control->_control_group_color * _local_color;
 		}
 
 		// compile daughter elements.
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			menu_element_c * element = _element_list[ i ];
-			element->_draw_list_is_dirty = true; // for now always force rebuild.
-			if ( element->_draw_list_is_dirty )
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			daughter_element->_draw_list_is_dirty = true; // for now always force rebuild.
+			if ( daughter_element->_draw_list_is_dirty )
 			{
-				element->_build_draw_list();
+				daughter_element->_build_draw_list();
 			}
-			if ( element->_is_showed && element->_is_showed_from_style )
+			if ( daughter_element->_is_showed && daughter_element->_is_showed_from_style )
 			{
-				draw_list_list.insert_at_end( &element->_draw_list );
+				draw_list_list.insert( -1, &daughter_element->_draw_list );
 			}
 		}
 
 		// compile daughter controls.
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			_control_list[ i ]->_compile_control_groups_and_draw_lists( control_group_list, draw_list_list );
+			daughter_control_list_node->get_value()->_compile_control_groups_and_draw_lists( control_group_list, draw_list_list );
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 	}
 

@@ -1,41 +1,60 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_physics_shape.h"
 
 namespace cheonsa
 {
 
-	//typedef void_c( *physics_body_scene_transform_f )( void_c * object, matrix32x4x4_c * value );
-
-
-	class physics_body_c
+	// a rigid body in the physics simulation.
+	// has a simple reference count system.
+	class physics_rigid_body_c
 	{
-	public:
-		//physics_scene_c * _scene; // the physics scene this object belongs to if any.
+		friend class physics_constraint_c;
+		friend class physics_scene_c;
+
+	private:
 		btMotionState * _bullet_motion_state;
 		btRigidBody * _bullet_rigid_body;
 		physics_shape_c * _shape;
 		uint32_c _layer;
 		uint32_c _layer_mask;
+		sint32_c _reference_count;
+
+		physics_rigid_body_c();
 
 	public:
-		physics_body_c();
-		~physics_body_c();
+		~physics_rigid_body_c();
 
-		void_c release();
+		static physics_rigid_body_c * make_new_instance(); // creates a new instance with a reference count of 0.
+
+		void_c add_reference(); // adds a reference count.
+		void_c remove_reference(); // removes a reference count, and if it reaches 0 then deletes this instance.
 
 		void_c initialize(
+			// a pointer to the game object instance that we want to link with this physics rigid body.
+			// this can be any type of object with spatial properties.
 			void_c * object,
+			// the physics simulation engine calls this function when it wants to take the world space transform from the linked game object instance and assign it to its linked physics rigid body.
+			// this function should copy the requested world_space_position and world_space_basis properties from the game object instance.
 			void_c ( *copy_world_space_transform_from_game_to_physics )( void_c * object, vector64x3_c & world_space_position, matrix32x3x3_c & world_space_basis ),
+			// the physics simulation engine calls this function when it wants update the world space transform of the game object to match the world space transform of the linked physics rigid body.
+			// this function should copy the provided world_space_position and world_space_basis properties to the game object instance.
 			void_c ( *copy_world_space_transform_from_physics_to_game )( void_c * object, vector64x3_c const & world_space_position, matrix32x3x3_c const & world_space_basis ),
+			// a shape to link with this physics body.
+			// this shape will not be owned by the physics body.
+			// it will be the user's responsibility to delete the shape instance if needed when it's no longer in use so as to not leak memory.
 			physics_shape_c * shape,
 			float64_c mass,
 			boolean_c kinematic,
 			uint32_c layer,
 			uint32_c layer_mask );
 
-		void_c get_world_space_transform( space_transform_c & world_space_transform ) const; // gets world space position and rotation of physics body, and scale of physics shape.
-		void_c set_world_space_transform( space_transform_c const & world_space_transform ); // sets world space position and rotation of physics body, and scale of physics shape.
+		void_c uninitialize();
+
+		boolean_c get_is_initialized() const;
+
+		void_c get_world_space_transform( transform3d_c & world_space_transform ) const; // gets world space position and rotation of physics body, and scale of physics shape.
+		void_c set_world_space_transform( transform3d_c const & world_space_transform ); // sets world space position and rotation of physics body, and scale of physics shape.
 		void_c set_world_space_position( vector64x3_c const & world_position ); // sets position of body.
 		void_c clear_forces_and_velocities();
 
@@ -90,7 +109,7 @@ namespace cheonsa
 		void_c apply_angular_impulse( const vector64x3_c & angular_impulse );
 
 		boolean_c get_kinematic() const;
-		void_c set_kinematic( boolean_c value ); // don't change this if this physics body was initialized with scene_component_body_c, not unless you also update the scene object's _scene_transform_is_set_directly_by_some_thing_else property.
+		void_c set_kinematic( boolean_c value ); // don't change this if this physics body was initialized with scene_component_ridgid_body_c, not unless you also update the scene object's _scene_transform_is_set_directly_by_some_thing_else property.
 
 		boolean_c get_collision_response() const;
 		void_c set_collision_response( boolean_c value ); // if set to false, the physics object will remain in the physics scene but it will be like a ghost.

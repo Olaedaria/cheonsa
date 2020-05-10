@@ -1,4 +1,4 @@
-﻿#include "cheonsa_database_stack.h"
+#include "cheonsa_database_stack.h"
 #include "cheonsa_database_stack_record.h"
 #include "cheonsa_database.h"
 #include "cheonsa_database_table.h"
@@ -18,7 +18,7 @@ namespace cheonsa
 		assert( database );
 		assert( database->_database_stack == nullptr );
 		database->_database_stack = this;
-		_database_stack.insert_at_end( database );
+		_database_stack.insert( -1, database );
 	}
 
 	boolean_c database_stack_c::get_record_stack( database_record_address_c const & record_address, database_stack_record_c & record_stack )
@@ -35,7 +35,7 @@ namespace cheonsa
 		{
 			database_c * database = _database_stack[ i ];
 			database_record_c const * record = database->get_record( record_address );
-			record_stack._record_stack.insert_at_end( record );
+			record_stack._record_stack.insert( -1, record );
 			if ( record )
 			{
 				result = true;

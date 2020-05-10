@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include <cassert>
@@ -42,7 +42,7 @@ namespace cheonsa
 		// can be used to convert from static mode to dynamic mode.
 		// if length_to_allocate is 0 then _array_length_used's value is set to 0.
 		// if length_to_allocate is greater than 0 then _array_length_used must be less than or equal to length_to_allocate and _array_length_used's value is preserved.
-		void_c _reallocate( sint32_c length_to_allocate )
+		void_c _reallocate_to_exact_length( sint32_c length_to_allocate )
 		{
 			assert( length_to_allocate >= 0 );
 			if ( length_to_allocate > 0 )
@@ -82,21 +82,16 @@ namespace cheonsa
 			}
 		}
 
-		// scales up the internal allocated array if needed, preserves existing contents.
-		// converts from static to dynamic.
-		void_c _reallocate_if_needed( sint32_c required_length )
+		// resizes internal array if needed, and probably with extra slots so there is room for insertions to happen before another resize is forced.
+		// if the list is currently in static mode, then this will convert it to dynamic mode.
+		inline void_c _reallocate_to_fuzzy_length( sint32_c length_required )
 		{
-			// this allocation strategy is taken from python.
-			// growth pattern: 0, 4, 8, 16, 25, 35, 46, 58, 72, 88...
-			if ( required_length > _array_length_allocated )
+			if ( length_required > 0 && length_required > _array_length_allocated )
 			{
-				sint32_c length_to_allocate = 0;
-				if ( required_length > 0 )
-				{
-					length_to_allocate = ( required_length >> 3 ) + ( required_length < 9 ? 3 : 6 ) + required_length; // python list growth pattern.
-					//length_to_allocate = ops::math_next_power_of_two( required_length );
-				}
-				_reallocate( length_to_allocate );
+				// this allocation strategy is taken from python's list growth pattern.
+				// growth pattern: 0, 4, 8, 16, 24, 32, 40, 52, 64, 76, ...
+				uint32_c new_length = ( (uint32_c)length_required + ( length_required >> 3 ) + 6 ) & ~(uint32_c)3;
+				_reallocate_to_exact_length( new_length );
 			}
 		}
 
@@ -105,9 +100,10 @@ namespace cheonsa
 		// if amount is negative then elements will be shifted up, towards the start of the list.
 		void_c _shift( sint32_c index, sint32_c amount )
 		{
+			assert( index >= 0 && index < _array_length_used );
 			if ( amount < 0 )
 			{
-				assert( index < _array_length_used );
+				assert( index - amount >= 0 );
 				value_type_c * in = &_array[ index ];
 				value_type_c * out = &_array[ index + amount ];
 				for ( sint32_c i = index; i < _array_length_used; i++ )
@@ -117,7 +113,7 @@ namespace cheonsa
 			}
 			else if ( amount > 0 )
 			{
-				assert( index < _array_length_used );
+				assert( index + amount < _array_length_allocated );
 				value_type_c * in = &_array[ _array_length_used - 1 - amount ];
 				value_type_c * out = &_array[ _array_length_used - 1 ];
 				for ( sint32_c i = _array_length_used - amount; i > index; i-- )
@@ -173,7 +169,7 @@ namespace cheonsa
 			}
 			else if ( mode >= 0 )
 			{
-				_reallocate_if_needed( array_length );
+				_reallocate_to_fuzzy_length( array_length );
 				_array_length_used = array_length;
 				for ( sint32_c i = 0; i < array_length; i++ )
 				{
@@ -185,7 +181,7 @@ namespace cheonsa
 		// release memory if needed.
 		~core_list_c()
 		{
-			_reallocate( 0 );
+			_reallocate_to_exact_length( 0 );
 			_array = nullptr;
 			_array_length_used = 0;
 			_array_length_allocated = 0;
@@ -216,7 +212,7 @@ namespace cheonsa
 		// volatile means that if the list is copied with the assignment operator then the copy will be a new dynamic mode copy.
 		void_c construct_mode_static_volatile_from_array( value_type_c const * array, sint32_c array_length )
 		{
-			_reallocate( 0 );
+			_reallocate_to_exact_length( 0 );
 			_array = const_cast< value_type_c * >( array );
 			_array_length_used = array_length;
 			_array_length_allocated = static_cast< sint32_c >( core_list_mode_e_static_volatile );
@@ -226,7 +222,7 @@ namespace cheonsa
 		// static means that it wraps an existing array rather than copying it.
 		void_c construct_mode_static_from_array( value_type_c const * array, sint32_c array_length )
 		{
-			_reallocate( 0 );
+			_reallocate_to_exact_length( 0 );
 			_array = const_cast< value_type_c * >( array );
 			_array_length_used = array_length;
 			_array_length_allocated = static_cast< sint32_c >( core_list_mode_e_static );
@@ -243,13 +239,13 @@ namespace cheonsa
 			assert( length_to_allocate < 0 || length_to_allocate >= length );
 			if ( length_to_allocate < 0 )
 			{
-				_reallocate( 0 );
-				_reallocate_if_needed( length );
+				_reallocate_to_exact_length( 0 );
+				_reallocate_to_fuzzy_length( length );
 			}
 			else
 			{
-				_reallocate( 0 );
-				_reallocate( length_to_allocate );
+				_reallocate_to_exact_length( 0 );
+				_reallocate_to_exact_length( length_to_allocate );
 			}
 			_array_length_used = length;
 		}
@@ -262,7 +258,7 @@ namespace cheonsa
 			assert( array_length > 0 );
 			if ( array_length > _array_length_allocated )
 			{
-				_reallocate_if_needed( array_length );
+				_reallocate_to_fuzzy_length( array_length );
 			}
 			for ( sint32_c i = 0; i < array_length; i++ )
 			{
@@ -276,7 +272,7 @@ namespace cheonsa
 		void_c convert_from_static_to_dynamic()
 		{
 			assert( _array_length_allocated < 0 );
-			_reallocate( _array_length_used );
+			_reallocate_to_exact_length( _array_length_used );
 		}
 
 		// copies the values from another list into this list.
@@ -288,14 +284,14 @@ namespace cheonsa
 		{
 			if ( other._array_length_allocated == core_list_mode_e_static )
 			{
-				_reallocate( 0 );
+				_reallocate_to_exact_length( 0 );
 				_array = other._array;
 				_array_length_used = other._array_length_used;
 				_array_length_allocated = other._array_length_allocated;
 			}
 			else
 			{
-				_reallocate_if_needed( other._array_length_used );
+				_reallocate_to_fuzzy_length( other._array_length_used );
 				_array_length_used = other._array_length_used;
 				for ( sint32_c i = 0; i < _array_length_used; i++ )
 				{
@@ -353,34 +349,18 @@ namespace cheonsa
 			return _array[ index ];
 		}
 
-		// inserts value at the end of the list.
-		void_c insert_at_end( value_type_c const & value )
-		{
-			assert( _array_length_allocated >= 0 );
-			_reallocate_if_needed( _array_length_used + 1 );
-			_array[ _array_length_used ] = value;
-			_array_length_used++;
-		}
-
-		// inserts a number of values at the end of the list.
-		void_c insert_at_end( value_type_c const * values, sint32_c values_count )
-		{
-			assert( _array_length_allocated >= 0 );
-			_reallocate_if_needed( _array_length_used + values_count );
-			for ( sint32_c i = 0; i < values_count; i++ )
-			{
-				_array[ _array_length_used + i ] = values[ i ];
-			}
-			_array_length_used += values_count;
-		}
-
 		// inserts a value at index.
-		void_c insert_at_index( sint32_c index, value_type_c const & value )
+		// if index == -1, then inserts the value at the end of the list.
+		void_c insert( sint32_c index, value_type_c const & value )
 		{
 			assert( _array_length_allocated >= 0 );
-			assert( index <= _array_length_used );
-			_reallocate_if_needed( _array_length_used + 1 );
-			_array_length_used++; // set this before calling _shift().
+			assert( index >= -1 && index <= _array_length_used );
+			if ( index == -1 )
+			{
+				index = _array_length_used;
+			}
+			_reallocate_to_fuzzy_length( _array_length_used + 1 );
+			_array_length_used++;
 			if ( index < _array_length_used )
 			{
 				_shift( index, 1 );
@@ -388,70 +368,46 @@ namespace cheonsa
 			_array[ index ] = value;
 		}
 
-		// inserts a number of values at index and returns the pointer to the first inserted value.
-		void_c insert_at_index( sint32_c index, value_type_c const * values, sint32_c values_count ) // inserts a range of values at index.
+		// inserts a range of values at index and returns the pointer to the first inserted value.
+		// if index == -1, then inserts the values at the end of the list.
+		void_c insert( sint32_c index, value_type_c const * values, sint32_c values_count )
 		{
 			assert( _array_length_allocated >= 0 );
-			assert( index <= _array_length_used );
+			assert( index >= -1 && index <= _array_length_used );
 			assert( values_count > 0 );
-			_reallocate_if_needed( _array_length_used + values_count );
-			_array_length_used += values_count; // set this before calling _shift().
+			if ( index == -1 )
+			{
+				index = _array_length_used;
+			}
+			_reallocate_to_fuzzy_length( _array_length_used + values_count );
+			_array_length_used += values_count;
 			if ( index < _array_length_used )
 			{
 				_shift( index, values_count );
 			}
 			for ( sint32_c i = 0; i < values_count; i++ )
 			{
-				_array[ index + i ] = values[ i ];
+				_array[ i + index ] = values[ i ];
 			}
-		}
-
-		// inserts a value at the end of the list and returns the pointer to it.
-		value_type_c * emplace_at_end()
-		{
-			assert( _array_length_allocated >= 0 );
-			_reallocate_if_needed( _array_length_used + 1 );
-			value_type_c * result = &_array[ _array_length_used ];
-			_array_length_used++;
-			return result;
-		}
-
-		// inserts a number of values at the end of the list and returns the pointer to the first inserted value.
-		value_type_c * emplace_range_at_end( sint32_c length )
-		{
-			assert( _array_length_allocated >= 0 );
-			_reallocate_if_needed( _array_length_used + length );
-			value_type_c * result = &_array[ _array_length_used ];
-			_array_length_used += length;
-			return result;
-		}
-
-		// inserts a new value at index and returns the pointer to it.
-		value_type_c * emplace_at_index( sint32_c index )
-		{
-			assert( _array_length_allocated >= 0 );
-			assert( index <= _array_length_used );
-			_reallocate_if_needed( _array_length_used + 1 );
-			value_type_c * result = &_array[ index ];
-			_array_length_used++; // set this before calling _shift().
-			if ( index < _array_length_used )
-			{
-				_shift( index, 1 );
-			}
-			return result;
 		}
 
 		// inserts a number of values at index and returns the pointer to the first inserted value.
-		value_type_c * emplace_range_at_index( sint32_c index, sint32_c length ) // inserts a range of values at index.
+		// if index == -1, then inserts the values at the end of the list.
+		value_type_c * emplace( sint32_c index, sint32_c values_count )
 		{
 			assert( _array_length_allocated >= 0 );
-			assert( index <= _array_length_used );
-			_reallocate_if_needed( _array_length_used + length );
+			assert( index >= -1 && index <= _array_length_used );
+			assert( values_count > 0 );
+			if ( index == -1 )
+			{
+				index = _array_length_used;
+			}
+			_reallocate_to_fuzzy_length( _array_length_used + values_count );
 			value_type_c * result = &_array[ index ];
-			_array_length_used += length; // set this before calling _shift().
+			_array_length_used += values_count;
 			if ( index < _array_length_used )
 			{
-				_shift( index, length );
+				_shift( index, values_count );
 			}
 			return result;
 		}
@@ -469,6 +425,62 @@ namespace cheonsa
 			return -1;
 		}
 
+		// removes the first occurrence of value.
+		// do not expect destructors of removed item object instances to be called.
+		boolean_c remove_value( value_type_c const value )
+		{
+			assert( _array_length_allocated >= 0 );
+			sint32_c index = find_index_of( value );
+			if ( index >= 0 )
+			{
+				remove( index, 1 );
+				return true;
+			}
+			return false;
+		}
+
+		// removes a range of values starting at index.
+		// if index == -1, then removes the values at the end of the list.
+		// do not expect destructors of removed item object instances to be called.
+		void_c remove( sint32_c index, sint32_c values_count )
+		{
+			assert( _array_length_allocated >= 0 );
+			assert( index >= -1 && index + values_count <= _array_length_used );
+			assert( values_count > 0 );
+			if ( index == -1 )
+			{
+				index = _array_length_used - values_count;
+			}
+			if ( index + values_count < _array_length_used )
+			{
+				_shift( index + values_count, -values_count );
+			}
+			_array_length_used -= values_count;
+		}
+
+		// removes and deletes a range of values starting at index.
+		// if index == -1, then removes the values at the end of the list.
+		void_c remove_and_delete( sint32_c index, sint32_c values_count )
+		{
+			assert( _array_length_allocated >= 0 );
+			assert( index >= -1 && index + values_count <= _array_length_used );
+			assert( values_count > 0 );
+			if ( index == -1 )
+			{
+				index = _array_length_used - values_count;
+			}
+			for ( sint32_c i = index; i < index + values_count; i++ )
+			{
+				delete _array[ i ];
+				_array[ i ] = nullptr;
+			}	
+			if ( index + values_count < _array_length_used )
+			{
+				_shift( index + values_count, -values_count );
+			}
+			_array_length_used -= values_count;
+		}
+
 		// removes all values from this list, keeps the current allocated length.
 		// if list is static mode then this converts it to dynamic mode.
 		// destructors of removed values are not called.
@@ -476,7 +488,7 @@ namespace cheonsa
 		{
 			if ( _array_length_allocated < 0 )
 			{
-				_reallocate( 0 );
+				_reallocate_to_exact_length( 0 );
 			}
 			_array_length_used = 0;
 		}
@@ -496,78 +508,9 @@ namespace cheonsa
 			}
 			if ( _array_length_allocated < 0 )
 			{
-				_reallocate( 0 );
+				_reallocate_to_exact_length( 0 );
 			}
 			_array_length_used = 0;
-		}
-
-		// removes the first occurrence of value.
-		// do not expect destructors of removed item object instances to be called.
-		boolean_c remove( value_type_c const value )
-		{
-			assert( _array_length_allocated >= 0 );
-			for ( sint32_c i = 0; i < _array_length_used; i++ )
-			{
-				if ( _array[ i ] == value )
-				{
-					remove_at_index( i );
-					return true;
-				}
-			}
-			return false;
-		}
-
-		// removes the last value.
-		// do not expect destructors of removed item object instances to be called.
-		inline void_c remove_at_end()
-		{
-			assert( _array_length_allocated >= 0 );
-			assert( _array_length_used > 0 );
-			_array_length_used--;
-		}
-
-		// removes count number of values from the end of the list.
-		// do not expect destructors of removed item object instances to be called.
-		void_c remove_at_end( sint32_c values_count )
-		{
-			assert( _array_length_allocated >= 0 );
-			assert( values_count >= 0 && values_count <= _array_length_used );
-			if ( values_count == 0 )
-			{
-				return;
-			}
-			_array_length_used -= values_count;
-		}
-
-		// removes a single value at index.
-		// do not expect destructors of removed item object instances to be called.
-		void_c remove_at_index( sint32_c index )
-		{
-			assert( _array_length_allocated >= 0 );
-			assert( index < _array_length_used );
-			if ( index + 1 < _array_length_used )
-			{
-				_shift( index + 1, -1 );
-			}
-			_array_length_used--;
-		}
-
-		// removes a number of values starting at index.
-		// do not expect destructors of removed item object instances to be called.
-		void_c remove_at_index( sint32_c index, sint32_c values_count )
-		{
-			assert( _array_length_allocated >= 0 );
-			assert( values_count >= 0 );
-			if ( values_count == 0 )
-			{
-				return;
-			}
-			assert( index + values_count <= _array_length_used );
-			if ( index + values_count < _array_length_used )
-			{
-				_shift( index + values_count, -values_count );
-			}
-			_array_length_used -= values_count;
 		}
 
 		// gets the internal array used to store values.
@@ -584,7 +527,7 @@ namespace cheonsa
 
 		// gets size in bytes of the used portion of the internal array, which is sizeof( value_type_c ) * _array_length_used.
 		// this should only be called on dynamic mode lists.
-		inline sint32_c get_internal_array_size_used() const
+		inline sint32_c get_internal_array_size() const
 		{
 			return sizeof( value_type_c ) * _array_length_used;
 		}
@@ -619,32 +562,21 @@ namespace cheonsa
 			assert( length >= 0 );
 			if ( length > _array_length_allocated )
 			{
-				_reallocate_if_needed( length );
+				_reallocate_to_fuzzy_length( length );
 			}
 			_array_length_used = length;
 		}
 
 		// sets the length.
-		// reallocates length of internal array to exactly length if needed.
+		// reallocates length of internal array to exactly length, and sets the length used to exactly length.
+		// if sizing larger, then all existing values up to current length will be preserved.
+		// if sizing smaller, then all existing values after the new length will be lost.
 		inline void_c set_length_absolute( sint32_c length )
 		{
 			assert( length >= 0 );
-			if ( length > _array_length_allocated )
-			{
-				_reallocate( length );
-			}
+			_reallocate_to_exact_length( length );
 			_array_length_used = length;
 		}
-
-		//// sets the internal _array_length_used value directly, and doesn't try to resize the internal _array or anything.
-		//// the need for this is rare, but it is needed if you want to construct the contents of the list before knowing the final length.
-		//// but it can be used to trim the length down to size if you allocated the list with construct_mode_dynamic() with more than enough length.
-		//inline void_c set_internal_array_length_used( sint32_c length )
-		//{
-		//	assert( _array_length_allocated >= 0 );
-		//	assert( length >= 0 && length <= _array_length_allocated );
-		//	_array_length_used = length;
-		//}
 
 		// sets a range of values in this list. overwrites whatever is in those slots.
 		void_c set_range_at_index( sint32_c index, sint32_c length, value_type_c * values )

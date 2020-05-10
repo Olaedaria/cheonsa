@@ -1,4 +1,4 @@
-﻿#include "cheonsa_video_renderer_interface.h"
+#include "cheonsa_video_renderer_interface.h"
 #include "cheonsa_scene.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene_component.h"
@@ -25,20 +25,20 @@ namespace cheonsa
 
 	// video_renderer_interface_c::_cube_map_view_transforms
 	video_renderer_interface_c::cube_face_view_c const video_renderer_interface_c::cube_face_view_list_base[ 6 ] = {
-		cube_face_view_c{ vector32x3_c( -1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c( -1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // -x.
-		cube_face_view_c{ vector32x3_c(  1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // +x.
-		cube_face_view_c{ vector32x3_c(  0.0f, -1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f, -1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // -y.
-		cube_face_view_c{ vector32x3_c(  0.0f,  1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // +y.
-		cube_face_view_c{ vector32x3_c(  0.0f,  0.0f, -1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ), ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f,  0.0f, -1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ) ) }, // -z.
-		cube_face_view_c{ vector32x3_c(  0.0f,  0.0f,  1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ), ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ) ) } }; // +z.
+		cube_face_view_c{ vector32x3_c( -1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c( -1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // -x.
+		cube_face_view_c{ vector32x3_c(  1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  1.0f,  0.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // +x.
+		cube_face_view_c{ vector32x3_c(  0.0f, -1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f, -1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // -y.
+		cube_face_view_c{ vector32x3_c(  0.0f,  1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ) ) }, // +y.
+		cube_face_view_c{ vector32x3_c(  0.0f,  0.0f, -1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ), ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f,  0.0f, -1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ) ) }, // -z.
+		cube_face_view_c{ vector32x3_c(  0.0f,  0.0f,  1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ), ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), vector32x3_c(  0.0f,  0.0f,  1.0f ), vector32x3_c(  0.0f,  1.0f,  0.0f ) ) } }; // +z.
 
 	matrix32x4x4_c video_renderer_interface_c::get_cube_map_view_transform( sint32_c face_index, vector32x3_c const & position )
 	{
 		assert( face_index >= 0 && face_index < 6 );
 		matrix32x4x4_c result = cube_face_view_list_base[ face_index ].view_transform;
-		result.d.a = -ops::make_float32_dot_product( vector32x3_c( result.a.a, result.b.a, result.c.a ), position );
-		result.d.b = -ops::make_float32_dot_product( vector32x3_c( result.a.b, result.b.b, result.c.b ), position );
-		result.d.c = -ops::make_float32_dot_product( vector32x3_c( result.a.c, result.c.b, result.c.c ), position );
+		result.d.a = -ops::dot_product_float32( vector32x3_c( result.a.a, result.b.a, result.c.a ), position );
+		result.d.b = -ops::dot_product_float32( vector32x3_c( result.a.b, result.b.b, result.c.b ), position );
+		result.d.c = -ops::dot_product_float32( vector32x3_c( result.a.c, result.c.b, result.c.c ), position );
 		return result;
 	}
 
@@ -669,42 +669,14 @@ namespace cheonsa
 	{
 	}
 
-	void_c video_renderer_interface_c::view_c::initialize_for_camera( scene_camera_c const * camera, vector64x3_c primary_view_world_space_position )
+	void_c video_renderer_interface_c::view_c::initialize_for_camera( scene_camera_c const * camera, vector64x3_c primary_view_origin )
 	{
 		world_space_position = camera->_world_space_transform.position;
 		world_space_basis = camera->_world_space_transform.get_unscaled_basis();
-		if ( camera->_projection_type == scene_projection_type_e_perspective )
-		{
-			float32_c aspect_ratio = static_cast< float32_c >( canvas->get_apparent_width() ) / static_cast< float32_c >( canvas->get_apparent_height() );
-			float32_c fov_a = camera->get_perspective_field_of_view();
-			float32_c fov_b = ops::make_float32_fov_b( fov_a, aspect_ratio );
-			world_space_frustum = ops::make_frustum64_perspective3( 
-				camera->_world_space_transform.position,
-				vector64x3_c( camera->_world_space_transform.get_unscaled_basis_b() ),
-				vector64x3_c( camera->_world_space_transform.get_unscaled_basis_c() ),
-				fov_a,
-				fov_b,
-				camera->get_perspective_clip_near(),
-				camera->get_perspective_clip_far() );
-		}
-		else
-		{
-			float64_c aspect_ratio = static_cast< float32_c >( canvas->get_apparent_width() ) / canvas->get_apparent_height();
-			float64_c fov_b = camera->_orthographic_field_of_view;
-			float64_c fov_a = fov_b / aspect_ratio;
-			world_space_frustum = ops::make_frustum64_orthographic3(
-				camera->_world_space_transform.position,
-				vector64x3_c( camera->_world_space_transform.get_unscaled_basis_b() ),
-				vector64x3_c( camera->_world_space_transform.get_unscaled_basis_c() ),
-				fov_b,
-				fov_a,
-				camera->_orthographic_clip_near,
-				camera->_orthographic_clip_far );
-		}
-
-		matrix32x4x4_c camera_view_transform = camera->make_view_transform_relative_to_origin( primary_view_world_space_position );
+		matrix32x4x4_c camera_view_transform = camera->make_view_transform_relative_to_origin( primary_view_origin );
 		matrix32x4x4_c camera_projection_transform = camera->make_projection_transform( canvas->get_apparent_width(), canvas->get_apparent_height() );
 		camera_view_projection_transform = camera_view_transform * camera_projection_transform;
+		world_space_frustum = ops::make_frustum64_from_view_projection( camera_view_projection_transform );
 	}
 
 	video_renderer_interface_c::shadow_view_c::shadow_view_c()
@@ -956,7 +928,7 @@ namespace cheonsa
 	{
 		sint32_c const light_probe_resolution = settings_c::get_light_probe_resolution( _settings.light_probe_resolution );
 		float32_c const cube_face_field_of_view = constants< float32_c >::pi() / 2.0f;
-		matrix32x4x4_c const cube_face_projection_transform = ops::make_matrix32x4x4_projection_perspective( cube_face_field_of_view, 1.0f, _scene->_light_probe_clip_near, _scene->_light_probe_clip_far );
+		matrix32x4x4_c const cube_face_projection_transform = ops::projection_perspective_matrix32x4x4( cube_face_field_of_view, 1.0f, _scene->_light_probe_clip_near, _scene->_light_probe_clip_far );
 
 		// update scene constant buffer.
 		_constant_buffers.scene_block->scene_time_counter = 0.0f;
@@ -1032,30 +1004,38 @@ namespace cheonsa
 				_constant_buffers.camera_block->camera_clip_far = _scene->_light_probe_clip_far;
 				_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 
-				// bind render targets (bind 1 array slice for the current cube face).
+				// render sky models.
 				textures_to_bind[ 0 ] = light_probe->_cube_color;
 				textures_slices_to_bind[ 0 ] = cube_face_view_index;
-				engine.get_video_interface()->bind_target_texture2darrays_slices( 1, textures_to_bind, textures_slices_to_bind, light_probe->_cube_depth_stencil, cube_face_view_index );
-				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_disable, false );
-
-				// render sky models for color.
-				for ( sint32_c j = 0; j < _scene->sky_models.get_length(); j++ )
+				engine.get_video_interface()->bind_target_textures_slices( 1, textures_to_bind, textures_slices_to_bind, light_probe->_cube_depth_stencil, cube_face_view_index );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
+				for ( sint32_c j = 0; j < _scene->_sky_model_list.get_length(); j++ )
 				{
-					scene_component_model_c * model = _scene->sky_models[ j ];
-					if ( model->_render_enable && model->get_model_resource_is_bound() )
+					scene_component_model_c * model = _scene->_sky_model_list[ j ];
+					if ( model->_render_enabled && model->get_model_resource_is_bound() && model->_opacity > 0.0f )
 					{
-						_draw_model_for_sky( model );
+						_draw_model_for_sky( model, true, false );
 					}
 				}
-
-				// change depth stencil behavior.
-				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
+				for ( sint32_c j = 0; j < _scene->_sky_model_list.get_length(); j++ )
+				{
+					scene_component_model_c * model = _scene->_sky_model_list[ j ];
+					if ( model->_render_enabled && model->get_model_resource_is_bound() && model->_opacity > 0.0f )
+					{
+						_draw_model_for_sky( model, false, true );
+					}
+				}
+				engine.get_video_interface()->clear_depth_stencil_slice( light_probe->_cube_depth_stencil, 1.0f, 0, cube_face_view_index );
 
 				// render opaque models for color.
 				for ( sint32_c j = 0; j < _models_to_render.get_length(); j++ )
 				{
 					scene_component_model_c * model = _models_to_render[ j ];
-					_draw_model_for_color( model, view.world_space_position, false, true, false, false, true, false );
+					if ( model->_render_enabled && model->get_model_resource_is_bound() )
+					{
+						_draw_model_for_color( model, view.world_space_position, false, true, false, false, true, false );
+					}
 				}
 
 				// unbind shadow map texture.
@@ -1102,7 +1082,7 @@ namespace cheonsa
 
 		// add the primary view for the primary camera.
 		_views.remove_all();
-		view_c * view = _views.emplace_at_end();
+		view_c * view = _views.emplace( -1, 1 );
 		view->canvas = canvas;
 		view->camera = camera;
 		view->initialize_for_camera( camera, camera->_world_space_transform.position );
@@ -1172,7 +1152,8 @@ namespace cheonsa
 		_constant_buffers.scene_block->scene_light_probe_mip_count = 1.0f;
 		for ( sint32_c i = 0; i < scene_colors_count; i++ )
 		{
-			_constant_buffers.scene_block->scene_colors[ i ] = _scene->colors[ i ];
+			static_assert( sizeof( _constant_buffers.scene_block->scene_colors ) == sizeof( _scene->_color_array ), "just checking" );
+			_constant_buffers.scene_block->scene_colors[ i ] = _scene->_color_array[ i ];
 		}
 		_constant_buffers.scene_block_constant_buffer->set_data( _constant_buffers.scene_block, sizeof( scene_block_c ) );
 
@@ -1214,7 +1195,7 @@ namespace cheonsa
 				// add debug lines.
 				if ( engine.get_debug_manager()->get_draw_world_axes() )
 				{
-					add_debug_axes( true, space_transform_c(), 1.0f, 1.0f );
+					add_debug_axes( true, transform3d_c(), 1.0f, 1.0f );
 				}
 				if ( engine.get_debug_manager()->get_draw_world_grid() )
 				{
@@ -1238,11 +1219,10 @@ namespace cheonsa
 						for ( sint32_c bone_index = 0; bone_index < model->_bone_list.get_length(); bone_index++ )
 						{
 							scene_component_model_c::bone_c * bone = &model->_bone_list[ bone_index ];
-							vector64x3_c world_space_bone_head = ops::make_vector64x3_transformed_point( vector64x3_c( ops::make_vector32x3_transformed_point( vector32x3_c( bone->_source_bone->head_position ), bone->_object_space_skin_matrix ) ), model->get_scene_object()->get_world_space_transform() );
-							vector64x3_c world_space_bone_tail = ops::make_vector64x3_transformed_point( vector64x3_c( ops::make_vector32x3_transformed_point( vector32x3_c( bone->_source_bone->tail_position ), bone->_object_space_skin_matrix ) ), model->get_scene_object()->get_world_space_transform() );
-							space_transform_c world_space_bone_transform = bone->_object_space_transform * model->get_scene_object()->get_world_space_transform();
+							vector64x3_c world_space_bone_head = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( ops::rotate_scale_and_translate_vector32x3( vector32x3_c( bone->_source_bone->head_position ), bone->_object_space_skin_matrix ) ), model->get_scene_object()->get_world_space_transform() );
+							vector64x3_c world_space_bone_tail = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( ops::rotate_scale_and_translate_vector32x3( vector32x3_c( bone->_source_bone->tail_position ), bone->_object_space_skin_matrix ) ), model->get_scene_object()->get_world_space_transform() );
 							add_debug_line( true, world_space_bone_head, world_space_bone_tail, engine.get_debug_manager()->get_bone_color() );
-							add_debug_axes( true, world_space_bone_transform, 0.1f, 0.5f );
+							add_debug_axes( true, bone->_world_space_transform, 0.1f, 0.5f );
 						}
 					}
 				}
@@ -1275,14 +1255,14 @@ namespace cheonsa
 					assert( view.camera && view.canvas );
 					_scene->_pick_on_next_render = false;
 					segment64_c pick_segment = view.camera->build_segment_through_canvas( _scene->_pick_canvas_coordinates, view.canvas->get_actual_width(), view.canvas->get_actual_height() );
-					vector32x3_c pick_ray_direction = vector32x3_c( ops::make_vector64x3_normalized( pick_segment.point_b - pick_segment.point_a ) );
+					vector32x3_c pick_ray_direction = vector32x3_c( ops::normal_vector64x3( pick_segment.point_b - pick_segment.point_a ) );
 					_scene->_gather_pickables_along_segment( pick_segment, pixel_perfect_pick_models, pixel_perfect_pick_sprites ); // this will populate _current_scene->_pick_list_original.
 					if ( _scene->_pick_list_original.get_length() )
 					{
 						engine.get_video_interface()->clear_depth_stencil( _scene->_target_pick_depth, 1.0f, 0 );
 
-						matrix32x4x4_c pick_view_transform = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), pick_ray_direction, view.world_space_basis.c );
-						matrix32x4x4_c pick_projection_transform = ops::make_matrix32x4x4_projection_orthographic( 0.001f, 0.001f, view.camera_clip_near, view.camera_clip_far ); // a 1mm x 1mm ray.
+						matrix32x4x4_c pick_view_transform = ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), pick_ray_direction, view.world_space_basis.c );
+						matrix32x4x4_c pick_projection_transform = ops::projection_orthographic_matrix32x4x4( 0.001f, 0.001f, view.camera_clip_near, view.camera_clip_far ); // a 1mm x 1mm ray.
 						matrix32x4x4_c pick_view_projection_transform = pick_view_transform * pick_projection_transform;
 
 						_constant_buffers.camera_block->camera_view_projection_transform = pick_view_projection_transform;
@@ -1331,7 +1311,7 @@ namespace cheonsa
 							pick->depth = pick_depth_array[ i ];
 							if ( pick->depth < 1.0f )
 							{
-								_scene->_pick_list_final.insert_at_end( *pick );
+								_scene->_pick_list_final.insert( -1, *pick );
 							}
 						}
 						_scene->_pick_list_final.quick_sort( &scene_pick_c::quick_sort_function, false );
@@ -1352,7 +1332,62 @@ namespace cheonsa
 			_constant_buffers.camera_block->camera_clip_far = view.camera_clip_far;
 			_constant_buffers.camera_block_constant_buffer->set_data( _constant_buffers.camera_block, sizeof( camera_block_c ) );
 
-			
+
+			// =w=
+
+			//
+			//
+			//
+			//
+			//
+			//
+			////
+			/////
+			///////
+			//////////
+			//////////////
+			/////////////////// color pass of sky models.
+			if ( _scene->_sky_model_list.get_length() )
+			{
+				textures_to_bind[ 0 ] = view.canvas->_target_color;
+				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, view.canvas->_target_depth_stencil, video_texture_type_e_texture2d );
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, true );
+				for ( sint32_c i = 0; i < _scene->_sky_model_list.get_length(); i++ )
+				{
+					scene_component_model_c * model = _scene->_sky_model_list[ i ];
+					if ( model->_render_enabled && model->get_model_resource_is_bound() && model->_opacity > 0.0f )
+					{
+						_draw_model_for_sky( model, true, false );
+						view.canvas->_statistic_object_count += 1;
+					}
+				}
+				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
+				for ( sint32_c i = 0; i < _scene->_sky_model_list.get_length(); i++ )
+				{
+					scene_component_model_c * model = _scene->_sky_model_list[ i ];
+					if ( model->_render_enabled && model->get_model_resource_is_bound() && model->_opacity > 0.0f )
+					{
+						_draw_model_for_sky( model, false, true );
+						view.canvas->_statistic_object_count += 1;
+					}
+				}
+				engine.get_video_interface()->clear_depth_stencil( view.canvas->_target_depth_stencil, 1.0f, 0 );
+			}
+			///////////////////
+			//////////////
+			//////////
+			///////
+			/////
+			////
+			//
+			//
+			//
+			//
+			//
+			//
+
+			// =w=
+
 			//
 			//
 			//
@@ -1389,7 +1424,7 @@ namespace cheonsa
 						_bind_mesh_vs_for_normal_and_depth( sprite->_material.is_waved, view.clip_plane_enable );
 						if ( sprite->_material.is_masked )
 						{
-							textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : nullptr;
+							textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].get_is_value_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : nullptr;
 							textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 							engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 							engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_normal_and_depth_ps_mesh_masked() );
@@ -1414,6 +1449,9 @@ namespace cheonsa
 			//
 			//
 			//
+
+			// =w=
+
 			//
 			//
 			//
@@ -1456,7 +1494,7 @@ namespace cheonsa
 							}
 							else
 							{
-								textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].is_reference_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : _white_pixel_texture;
+								textures_to_bind[ 0 ] = sprite->_material.textures[ 0 ].get_is_value_set_and_loaded() ? sprite->_material.textures[ 0 ]->get_video_texture() : _white_pixel_texture;
 								textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 								engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, textures_to_bind, textures_to_bind_types );
 								engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh_masked() );
@@ -1480,45 +1518,9 @@ namespace cheonsa
 			//
 			//
 			//
-			//
-			//
-			//
-			//
-			//
-			//
-			////
-			/////
-			///////
-			//////////
-			//////////////
-			/////////////////// color pass of sky models.
-			if ( _scene->sky_models.get_length() )
-			{
-				textures_to_bind[ 0 ] = view.canvas->_target_color;
-				engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-				engine.get_video_interface()->bind_rasterizer_depth_stencil_state( video_compare_function_e_less_equal, false );
-				for ( sint32_c i = 0; i < _scene->sky_models.get_length(); i++ )
-				{
-					scene_component_model_c * model = _scene->sky_models[ i ];
-					if ( model->_render_enable && model->get_model_resource_is_bound() )
-					{
-						_draw_model_for_sky( model );
-						view.canvas->_statistic_object_count += 1;
-					}
-				}
-			}
-			///////////////////
-			//////////////
-			//////////
-			///////
-			/////
-			////
-			//
-			//
-			//
-			//
-			//
-			//
+
+			// =w=
+
 			//
 			//
 			//
@@ -1550,10 +1552,10 @@ namespace cheonsa
 				for ( sint32_c sprite_index = 0; sprite_index < _sprites_to_render.get_length(); sprite_index++ )
 				{
 					scene_component_sprite_c * sprite = _sprites_to_render[ sprite_index ];
-					if ( sprite->_material.blend_type == video_blend_type_e_set )
+					if ( sprite->_opacity == 1.0f && sprite->_material.blend_type == video_blend_type_e_set )
 					{
 						_bind_mesh_vs_for_color( sprite->_material.is_waved, view.clip_plane_enable );
-						_bind_material_for_color( &sprite->_material );
+						_bind_material_for_color( &sprite->_material, sprite->_opacity );
 						engine.get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
 						view.canvas->_statistic_object_count += 1;
 						view.canvas->_statistic_triangle_count += 2;
@@ -1572,6 +1574,9 @@ namespace cheonsa
 			//
 			//
 			//
+
+			// =w=
+
 			//
 			//
 			//
@@ -1601,10 +1606,10 @@ namespace cheonsa
 				for ( sint32_c sprite_index = 0; sprite_index < _sprites_to_render.get_length(); sprite_index++ )
 				{
 					scene_component_sprite_c * sprite = _sprites_to_render[ sprite_index ];
-					if ( sprite->_material.blend_type != video_blend_type_e_set )
+					if ( sprite->_opacity > 0.0f && ( sprite->_material.blend_type != video_blend_type_e_set || sprite->_opacity < 1.0f ) )
 					{
 						_bind_mesh_vs_for_color( sprite->_material.is_waved, view.clip_plane_enable );
-						_bind_material_for_color( &sprite->_material );
+						_bind_material_for_color( &sprite->_material, sprite->_opacity );
 						engine.get_video_interface()->draw( sprite->_renderer_vertex_start, 4 );
 						view.canvas->_statistic_object_count += 1;
 						view.canvas->_statistic_triangle_count += 2;
@@ -1722,7 +1727,7 @@ namespace cheonsa
 						}
 						_debug_line_list_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_debug, _debug_line_list.get_length_allocated(), 0, 0, true, false, false );
 					}
-					_debug_line_list_vertex_buffer->set_data( _debug_line_list.get_internal_array(), _debug_line_list.get_internal_array_size_used() );
+					_debug_line_list_vertex_buffer->set_data( _debug_line_list.get_internal_array(), _debug_line_list.get_internal_array_size() );
 					_debug_line_list.remove_all();
 
 					// draw the line list.
@@ -1875,7 +1880,7 @@ namespace cheonsa
 	{
 		static core_list_c< scene_component_c * > gathered_components;
 
-		assert( light->_shadow_cast_enable == true );
+		assert( light->_shadow_cast_enabled == true );
 
 		vector64x3_c view_position = camera_view.world_space_position;
 		sint32_c shadow_view_start = _shadow_views.get_length();
@@ -1894,8 +1899,8 @@ namespace cheonsa
 			light->_shadow_view_start = _shadow_views.get_length();
 			light->_shadow_view_count = 4;
 
-			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_c();
-			vector32x3_c light_up = -light->get_world_space_transform().get_unscaled_basis_b();
+			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_z();
+			vector32x3_c light_up = -light->get_world_space_transform().get_unscaled_basis_y();
 
 			// figure out the size in meters of each shadow slice.
 			float32_c first_cascade_size = 5.0f;
@@ -1910,7 +1915,7 @@ namespace cheonsa
 
 				// build initial view matrix that isn't clamped, but will help us to figure out how to build one that is clamped
 				vector32x3_c view_up = vector32x3_c( 0.0f, 0.0f, 1.0f );
-				if ( ops::math_absolute_value( ops::make_float32_dot_product( light_forward, view_up ) ) > 0.9f )
+				if ( ops::math_absolute_value( ops::dot_product_float32( light_forward, view_up ) ) > 0.9f )
 				{
 					view_up = vector32x3_c( 0.0f, 1.0f, 0.0f ); // choose a different up since shadow caster is pointing up or down
 				}
@@ -1918,16 +1923,17 @@ namespace cheonsa
 				// clamp cascade to world texel increments so shadow doesn't flicker as the primary camera moves.
 				sint32_c shadow_resolution = settings_c::get_shadow_resolution( _settings.shadow_resolution );
 				float64_c world_space_texel_size = slice_width_and_height / ( static_cast< float32_c >( shadow_resolution ) / 4.0f ); // we don't know exactly what fraction of the shadow map we will be partitioned to so we don't know what resolution we'll end up with, but taking the shadow map atlas texture resolution and dividing it by 4 is a safe bet (we'll be compatible with partitions that take up a fractioal size of 1/1, 1/2, and 1/4).
-				matrix32x4x4_c virtual_space_view_transform = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), light_forward, view_up );
-				vector64x3_c slice_origin_quantized = ops::make_vector64x3_transformed_point( slice_origin, virtual_space_view_transform ); // transform from world space to view space so we can clamp coordinates.
-				slice_origin_quantized.a = ops::math_remainder( slice_origin_quantized.a, world_space_texel_size );
-				slice_origin_quantized.b = ops::math_remainder( slice_origin_quantized.b, world_space_texel_size );
-				slice_origin_quantized.c = ops::math_remainder( slice_origin_quantized.c, world_space_texel_size );
-				slice_origin_quantized = ops::make_vector64x3_transformed_point( slice_origin_quantized, ops::make_matrix32x4x4_inverted_fast( virtual_space_view_transform ) ); // transform from view space back to world space.
-				matrix32x4x4_c projection_transform = ops::make_matrix32x4x4_projection_orthographic( slice_width_and_height, slice_width_and_height, 1.0f, slice_depth );
+				matrix32x4x4_c virtual_space_view_transform = ops::view_matrix32x4x4_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), light_forward, view_up );
+
+				vector64x3_c slice_origin_quantized = ops::rotate_scale_and_translate_vector64x3( slice_origin, virtual_space_view_transform ); // transform from world space to view space so we can clamp coordinates.
+				slice_origin_quantized.a = ops::math_modulo( slice_origin_quantized.a, world_space_texel_size );
+				slice_origin_quantized.b = ops::math_modulo( slice_origin_quantized.b, world_space_texel_size );
+				slice_origin_quantized.c = ops::math_modulo( slice_origin_quantized.c, world_space_texel_size );
+				slice_origin_quantized = ops::rotate_scale_and_translate_vector64x3( slice_origin_quantized, ops::invert_matrix32x4x4_fast( virtual_space_view_transform ) ); // transform from view space back to world space.
+				matrix32x4x4_c projection_transform = ops::projection_orthographic_matrix32x4x4( slice_width_and_height, slice_width_and_height, 1.0f, slice_depth );
 
 				// add shadow view.
-				shadow_view_c * shadow_view = _shadow_views.emplace_at_end();
+				shadow_view_c * shadow_view = _shadow_views.emplace( -1, 1 );
 				shadow_view->world_space_position = light->get_world_space_transform().position + slice_origin_quantized;
 				shadow_view->world_space_frustum = ops::make_frustum64_orthographic3( shadow_view->world_space_position, vector64x3_c( light_forward ), vector64x3_c( light_up ), slice_width_and_height, slice_width_and_height, 1.0f, slice_depth );
 				shadow_view->virtual_space_position = vector32x3_c( 0.0f, 0.0f, 0.0f ); // only used by point light shadows.
@@ -1950,7 +1956,7 @@ namespace cheonsa
 
 			float32_c clip_near = 0.05f * light->_range;
 			float32_c cube_face_field_of_view = constants< float32_c >::pi() / 2.0f;
-			matrix32x4x4_c cube_face_projection_transform = ops::make_matrix32x4x4_projection_perspective( cube_face_field_of_view, 1.0f, clip_near, light->_range );
+			matrix32x4x4_c cube_face_projection_transform = ops::projection_perspective_matrix32x4x4( cube_face_field_of_view, 1.0f, clip_near, light->_range );
 
 			for ( sint32_c i = 0; i < 6; i++ )
 			{
@@ -1959,7 +1965,7 @@ namespace cheonsa
 				matrix32x4x4_c virtual_space_view_transform = get_cube_map_view_transform( i, virtual_space_position );
 
 				// add shadow view.
-				shadow_view_c * shadow_view = _shadow_views.emplace_at_end();
+				shadow_view_c * shadow_view = _shadow_views.emplace( -1, 1 );
 				shadow_view->world_space_position = light->get_world_space_transform().position;
 				shadow_view->world_space_frustum = ops::make_frustum64_perspective3( shadow_view->world_space_position, vector64x3_c( cube_face_view_list_base[ i ].forward ), vector64x3_c( cube_face_view_list_base[ i ].up ), cube_face_field_of_view, cube_face_field_of_view, clip_near, light->get_range() );
 				shadow_view->virtual_space_position = virtual_space_position;
@@ -1977,19 +1983,19 @@ namespace cheonsa
 			light->_shadow_view_start = _shadow_views.get_length();
 			light->_shadow_view_count = 1;
 
-			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_c();
-			vector32x3_c light_up = -light->get_world_space_transform().get_unscaled_basis_b();
+			vector32x3_c light_forward = light->get_world_space_transform().get_unscaled_basis_z();
+			vector32x3_c light_up = -light->get_world_space_transform().get_unscaled_basis_y();
 
 			// build virtual space view projection transform.
 			vector32x3_c virtual_space_position = vector32x3_c( light->get_world_space_transform().position - view_position );
-			matrix32x4x4_c virtual_space_view_transform = ops::make_matrix32x4x4_view_from_look_at( virtual_space_position, light_forward, light_up );
+			matrix32x4x4_c virtual_space_view_transform = ops::view_matrix32x4x4_from_look_at( virtual_space_position, light_forward, light_up );
 
 			// add shadow view.
-			shadow_view_c * shadow_view = _shadow_views.emplace_at_end();
+			shadow_view_c * shadow_view = _shadow_views.emplace( -1, 1 );
 			shadow_view->world_space_position = light->get_world_space_transform().position;
 			shadow_view->world_space_frustum = ops::make_frustum64_perspective3( light->get_world_space_transform().position, vector64x3_c( light_forward ), vector64x3_c( light_up ), light->_cone_angle, light->_cone_angle, 0.001, light->_range );
 			shadow_view->virtual_space_position	= virtual_space_position;
-			shadow_view->virtual_space_view_projection_transform = virtual_space_view_transform * ops::make_matrix32x4x4_projection_perspective( light->get_cone_angle(), 1.0f, 0.05f, light->get_range() );
+			shadow_view->virtual_space_view_projection_transform = virtual_space_view_transform * ops::projection_perspective_matrix32x4x4( light->get_cone_angle(), 1.0f, 0.05f, light->get_range() );
 		}
 
 		// do additional processing for the shadow views that were just added.
@@ -2005,15 +2011,15 @@ namespace cheonsa
 				if ( component->get_type_code() == scene_component_model_c::get_type_code_static() )
 				{
 					scene_component_model_c * model = dynamic_cast< scene_component_model_c * >( component );
-					if ( model->_shadow_cast_enable && model->_opacity == 1.0f )
+					if ( model->_shadow_cast_enabled && model->_opacity == 1.0f )
 					{
-						shadow_view->model_list.insert_at_end( model );
+						shadow_view->model_list.insert( -1, model );
 						if ( model->_render_frame_last != _scene->_render_frame )
 						{
 							model->_render_frame_last = _scene->_render_frame;
 							if ( model->_bone_skin_matrix_list.get_length() > 0 )
 							{
-								_models_to_skin.insert_at_end( model );
+								_models_to_skin.insert( -1, model );
 							}
 						}
 					}
@@ -2022,7 +2028,7 @@ namespace cheonsa
 			gathered_components.remove_all();
 
 			// add gpu shadow view.
-			video_renderer_shadow_view_c * gpu_shadow_view = _texture_buffers.shadow_views.emplace_at_end();
+			video_renderer_shadow_view_c * gpu_shadow_view = _texture_buffers.shadow_views.emplace( -1, 1 );
 			gpu_shadow_view->view_projection_transform = shadow_view->virtual_space_view_projection_transform;
 			gpu_shadow_view->position = shadow_view->virtual_space_position;
 			gpu_shadow_view->unused = 0.0f;
@@ -2048,7 +2054,7 @@ namespace cheonsa
 		// gather lights.
 		for ( sint32_c global_light_index = 0; global_light_index < _scene->_global_lights_list.get_length(); global_light_index++ )
 		{
-			_gathered_lights.insert_at_end( _scene->_global_lights_list[ global_light_index ] );
+			_gathered_lights.insert( -1, _scene->_global_lights_list[ global_light_index ] );
 		}
 		_scene->_local_lights_tree.gather_items_in_frustum( _gathered_lights, view.world_space_frustum );
 
@@ -2063,7 +2069,7 @@ namespace cheonsa
 			scene_light_c * light = _gathered_lights[ i ];
 
 			// skip this light if it's basically turned off.
-			if ( !light->_render_enable || light->_color == vector32x3_c( 0.0f, 0.0f, 0.0f ) || light->_brightness == 0.0f )
+			if ( !light->_render_enabled || light->_color == vector32x3_c( 0.0f, 0.0f, 0.0f ) || light->_strength == 0.0f )
 			{
 				continue;
 			}
@@ -2072,10 +2078,10 @@ namespace cheonsa
 			light->_render_score = constants< float64_c >::maximum(); // default to maximum.
 			if ( light->_type != scene_light_type_e_direction )
 			{
-				float64_c distance_squared = ops::make_float64_length_squared( light->get_world_space_transform().position - view.world_space_position );
+				float64_c distance_squared = ops::length_squared_float64( light->get_world_space_transform().position - view.world_space_position );
 				if ( distance_squared > constants< float64_c >::division_near_zero() )
 				{
-					light->_render_score = ( 1.0 / distance_squared ) * light->get_brightness();
+					light->_render_score = ( 1.0 / distance_squared ) * light->_strength;
 					if ( light->_render_score < score_cut_off )
 					{
 						continue;
@@ -2099,30 +2105,30 @@ namespace cheonsa
 			// add shadow views for the light.
 			light->_shadow_view_start = 0;
 			light->_shadow_view_count = 0;
-			if ( light->_shadow_cast_enable )
+			if ( light->_shadow_cast_enabled )
 			{
 				_add_shadow_views( light, view );
 			}
 			
 			// translate to gpu compatible data structure.
-			vector32x3_c light_position = vector32x3_c( light->get_world_space_transform().position - view.world_space_position );
-			vector32x3_c light_direction = light->get_world_space_transform().get_unscaled_basis_b();
-			video_renderer_light_c * gpu_light = _texture_buffers.lights.emplace_at_end();
-			gpu_light->light_type = static_cast< float32_c >( light->get_type() );
+			vector32x3_c light_position = vector32x3_c( light->_world_space_transform.position - view.world_space_position );
+			vector32x3_c light_direction = light->_world_space_transform.get_unscaled_basis_y();
+			video_renderer_light_c * gpu_light = _texture_buffers.lights.emplace( -1, 1 );
+			gpu_light->light_type = static_cast< float32_c >( light->_type );
 			gpu_light->shadow_view_start = static_cast< float32_c >( light->_shadow_view_start );
 			gpu_light->shadow_view_count = static_cast< float32_c >( light->_shadow_view_count );
 			gpu_light->unused = 0.0f;
 			gpu_light->position_range.a = light_position.a;
 			gpu_light->position_range.b = light_position.b;
 			gpu_light->position_range.c = light_position.c;
-			gpu_light->position_range.d = light->get_range();
+			gpu_light->position_range.d = light->_range;
 			gpu_light->direction_angle.a = light_direction.a;
 			gpu_light->direction_angle.b = light_direction.b;
 			gpu_light->direction_angle.c = light_direction.c;
-			gpu_light->direction_angle.d = light->get_cone_angle();
-			gpu_light->energy_unused.a = light->get_color().a * light->get_brightness();
-			gpu_light->energy_unused.b = light->get_color().b * light->get_brightness();
-			gpu_light->energy_unused.c = light->get_color().c * light->get_brightness();
+			gpu_light->direction_angle.d = light->_cone_angle;
+			gpu_light->energy_unused.a = light->_color.a * light->_strength;
+			gpu_light->energy_unused.b = light->_color.b * light->_strength;
+			gpu_light->energy_unused.c = light->_color.c * light->_strength;
 			gpu_light->energy_unused.d = 0.0f;
 		}
 
@@ -2134,27 +2140,27 @@ namespace cheonsa
 			if ( component->get_type_code() == scene_component_model_c::get_type_code_static() )
 			{
 				scene_component_model_c * model = dynamic_cast< scene_component_model_c * >( component );
-				_models_to_render.insert_at_end( model );
+				_models_to_render.insert( -1, model );
 				if ( model->get_scene_object()->get_outline_color_index() != 0 )
 				{
-					_models_to_render_for_outline.insert_at_end( model );
+					_models_to_render_for_outline.insert( -1, model );
 				}
 				if ( model->_render_frame_last != _scene->_render_frame )
 				{
 					model->_render_frame_last = _scene->_render_frame;
 					if ( model->_bone_skin_matrix_list.get_length() > 0 )
 					{
-						_models_to_skin.insert_at_end( model );
+						_models_to_skin.insert( -1, model );
 					}
 				}
 			}
 			else if ( component->get_type_code() == scene_component_sprite_c::get_type_code_static() )
 			{
 				scene_component_sprite_c * sprite = dynamic_cast< scene_component_sprite_c * >( component );
-				_sprites_to_render.insert_at_end( sprite );
+				_sprites_to_render.insert( -1, sprite );
 				if ( sprite->get_scene_object()->get_outline_color_index() != 0 )
 				{
-					_sprites_to_render_for_outline.insert_at_end( sprite );
+					_sprites_to_render_for_outline.insert( -1, sprite );
 				}
 				if ( sprite->_last_render_frame != _scene->_render_frame )
 				{
@@ -2162,68 +2168,70 @@ namespace cheonsa
 
 					sprite->_renderer_vertex_start = _sprite_vertex_list.get_length();
 
-					vector32x3_c sprite_axis_a; // right. breaking convention...
-					vector32x3_c sprite_axis_b; // up.
-					vector32x3_c sprite_axis_c; // forward.
-
+					// sprite basis will be oriented to face view:
+					// x is right, from the sprite's point of view.
+					// y is forward, from the sprite's point of view, usually points from sprite towards view.
+					// z is up, from the sprite's point of view.
+					matrix32x3x3_c sprite_basis;
 					if ( sprite->get_sprite_type() == scene_sprite_type_e_face_camera_global_up )
 					{
-						sprite_axis_b = vector32x3_c( _scene->_physics_scene->sample_up( sprite->get_scene_object()->get_world_space_transform().position ) );
-						sprite_axis_a = ops::make_vector32x3_normalized( ops::make_vector32x3_cross_product( vector32x3_c( sprite->get_scene_object()->get_world_space_transform().position - view.world_space_position ), sprite_axis_b ) );
-						sprite_axis_c = ops::make_vector32x3_cross_product( sprite_axis_a, sprite_axis_b );
+						sprite_basis.c = vector32x3_c( 0.0f, 0.0f, 1.0f );
+						sprite_basis.a = ops::normal_vector32x3( ops::cross_product_vector32x3( sprite_basis.c, vector32x3_c( view.world_space_position - sprite->get_scene_object()->get_world_space_transform().position ) ) );
+						sprite_basis.b = ops::cross_product_vector32x3( sprite_basis.a, sprite_basis.c );
 					}
 					else if ( sprite->get_sprite_type() == scene_sprite_type_e_face_camera_view_up )
 					{
-						sprite_axis_a = vector32x3_c( view.world_space_basis.a );
-						sprite_axis_b = vector32x3_c( view.world_space_basis.b );
-						sprite_axis_c = ops::make_vector32x3_cross_product( sprite_axis_a, sprite_axis_b );
+						sprite_basis.b = ops::normal_vector32x3( vector32x3_c( sprite->get_scene_object()->get_world_space_transform().position - view.world_space_position ) );
+						sprite_basis = ops::joint_rotate_basis_matrix32x3x3_y( view.world_space_basis, sprite_basis.b );
+						sprite_basis.b = -sprite_basis.b;
+						sprite_basis.a = -sprite_basis.a;
 					}
-					else if ( sprite->get_sprite_type() == scene_sprite_type_e_real )
+					else if ( sprite->get_sprite_type() == scene_sprite_type_e_fixed )
 					{
-						sprite_axis_a = vector32x3_c( sprite->get_scene_object()->get_world_space_transform().get_unscaled_basis_a() );
-						sprite_axis_b = vector32x3_c( sprite->get_scene_object()->get_world_space_transform().get_unscaled_basis_b() );
-						sprite_axis_c = ops::make_vector32x3_cross_product( sprite_axis_a, sprite_axis_b );
+						sprite_basis.a = sprite->get_scene_object()->get_world_space_transform().get_unscaled_basis_x();
+						sprite_basis.b = sprite->get_scene_object()->get_world_space_transform().get_unscaled_basis_y();
+						sprite_basis.c = ops::cross_product_vector32x3( sprite_basis.a, sprite_basis.b );
 					}
 
 					vector32x3_c sprite_position = vector32x3_c( sprite->get_scene_object()->get_world_space_transform().position - view.world_space_position ); // relative to camera origin.
 
-					// top left vertex.
-					video_renderer_vertex_mesh_base_c * vertex = _sprite_vertex_list.emplace_at_end();
-					vertex->position = sprite_position + ( -sprite_axis_a + sprite_axis_b ) * sprite->_radius;
-					vertex->normal = sprite_axis_c;
-					vertex->normal_u = sprite_axis_a;
-					vertex->normal_v = sprite_axis_b;
+					// top left vertex (from view's perspective).
+					video_renderer_vertex_mesh_base_c * vertex = _sprite_vertex_list.emplace( -1, 1 );
+					vertex->position = sprite_position + ( ( sprite_basis.a + sprite_basis.c ) * sprite->_size );
+					vertex->normal = sprite_basis.b;
+					vertex->normal_u = -sprite_basis.a;
+					vertex->normal_v = -sprite_basis.c;
 					vertex->texture = vector32x4_c( 0.0f, 0.0f, 0.0f, 0.0f );
 
-					// bottom left vertex.
-					vertex = _sprite_vertex_list.emplace_at_end();
-					vertex->position = sprite_position + ( -sprite_axis_a - sprite_axis_b ) * sprite->_radius;
-					vertex->normal = sprite_axis_c;
-					vertex->normal_u = sprite_axis_a;
-					vertex->normal_v = sprite_axis_b;
+					// bottom left vertex (from view's perspective).
+					vertex = _sprite_vertex_list.emplace( -1, 1 );
+					vertex->position = sprite_position + ( ( sprite_basis.a - -sprite_basis.c ) * sprite->_size );
+					vertex->normal = sprite_basis.b;
+					vertex->normal_u = -sprite_basis.a;
+					vertex->normal_v = -sprite_basis.c;
 					vertex->texture = vector32x4_c( 0.0f, 1.0f, 0.0f, 0.0f );
 
-					// top right vertex.
-					vertex = _sprite_vertex_list.emplace_at_end();
-					vertex->position = sprite_position + ( sprite_axis_a + sprite_axis_b ) * sprite->_radius;
-					vertex->normal = sprite_axis_c;
-					vertex->normal_u = sprite_axis_a;
-					vertex->normal_v = sprite_axis_b;
+					// top right vertex (from view's perspective).
+					vertex = _sprite_vertex_list.emplace( -1, 1 );
+					vertex->position = sprite_position + ( ( -sprite_basis.a + sprite_basis.c ) * sprite->_size );
+					vertex->normal = sprite_basis.b;
+					vertex->normal_u = -sprite_basis.a;
+					vertex->normal_v = -sprite_basis.c;
 					vertex->texture = vector32x4_c( 1.0f, 0.0f, 0.0f, 0.0f );
 
-					// bottom right vertex.
-					vertex = _sprite_vertex_list.emplace_at_end();
-					vertex->position = sprite_position + ( sprite_axis_a - sprite_axis_b ) * sprite->_radius;
-					vertex->normal = sprite_axis_c;
-					vertex->normal_u = sprite_axis_a;
-					vertex->normal_v = sprite_axis_b;
+					// bottom right vertex (from view's perspective).
+					vertex = _sprite_vertex_list.emplace( -1, 1 );
+					vertex->position = sprite_position + ( ( -sprite_basis.a - -sprite_basis.c ) * sprite->_size );
+					vertex->normal = sprite_basis.b;
+					vertex->normal_u = -sprite_basis.a;
+					vertex->normal_v = -sprite_basis.c;
 					vertex->texture = vector32x4_c( 1.0f, 1.0f, 0.0f, 0.0f );
 				}
 			}
 			else if ( component->get_type_code() == scene_component_menu_control_c::get_type_code_static() )
 			{
 				scene_component_menu_control_c * menu_control = dynamic_cast< scene_component_menu_control_c * >( component );
-				_menu_controls_to_render.insert_at_end( menu_control );
+				_menu_controls_to_render.insert( -1, menu_control );
 			}
 		}
 
@@ -2242,10 +2250,10 @@ namespace cheonsa
 				light->_render_score = constants< float64_c >::maximum(); // default to maximum.
 				if ( light->_type != scene_light_type_e_direction )
 				{
-					float64_c distance_squared = ops::make_float64_length_squared( light->get_world_space_transform().position - ops::nearest_point_on_box( light->get_world_space_transform().position, model->_world_space_aabb ) );
+					float64_c distance_squared = ops::length_squared_float64( light->get_world_space_transform().position - ops::nearest_point_on_box( light->get_world_space_transform().position, model->_world_space_aabb ) );
 					if ( distance_squared > constants< float64_c >::division_near_zero() )
 					{
-						light->_render_score = ( 1.0 / distance_squared ) * light->get_brightness();
+						light->_render_score = ( 1.0 / distance_squared ) * light->get_strength();
 						if ( light->_render_score < score_cut_off )
 						{
 							continue;
@@ -2281,8 +2289,9 @@ namespace cheonsa
 				scene_component_model_c * model = _models_to_skin[ i ];
 				if ( model->_vertex_skin_mode == scene_component_model_c::vertex_skin_mode_e_cpu )
 				{
-					// todo: move cpu skinning to additional threads.
+					// todo: start cpu skinning on other threads.
 					_skin_model_vertices_with_cpu( model );
+					// copy to gpu.
 				}
 				else if ( model->_vertex_skin_mode == scene_component_model_c::vertex_skin_mode_e_gpu )
 				{
@@ -2307,7 +2316,7 @@ namespace cheonsa
 				shadow_view_c * shadow_view = &_shadow_views[ shadow_view_index ];
 				textures_to_bind[ 0 ] = _shadow_map_texture2darray;
 				textures_slices_to_bind[ 0 ] = shadow_view_index;
-				engine.get_video_interface()->bind_target_texture2darrays_slices( 1, textures_to_bind, textures_slices_to_bind, nullptr, 0 );
+				engine.get_video_interface()->bind_target_textures_slices( 1, textures_to_bind, textures_slices_to_bind, nullptr, 0 );
 				_constant_buffers.shadow_camera_block->shadow_camera_view_projection_transform = shadow_view->virtual_space_view_projection_transform;
 				_constant_buffers.shadow_camera_block_constant_buffer->set_data( _constant_buffers.shadow_camera_block, sizeof( shadow_camera_block_c ) );
 				for ( sint32_c model_index = 0; model_index < shadow_view->model_list.get_length(); model_index++ )
@@ -2323,7 +2332,7 @@ namespace cheonsa
 		// upload lights.
 		if ( _texture_buffers.lights.get_length() > 0 )
 		{
-			_texture_buffers.lights_texture_buffer->set_data( _texture_buffers.lights.get_internal_array(), _texture_buffers.lights.get_internal_array_size_used() );
+			_texture_buffers.lights_texture_buffer->set_data( _texture_buffers.lights.get_internal_array(), _texture_buffers.lights.get_internal_array_size() );
 			_texture_buffers.lights.remove_all();
 			_lights.remove_all();
 		}
@@ -2332,7 +2341,7 @@ namespace cheonsa
 		// upload shadow views.
 		if ( _texture_buffers.shadow_views.get_length() > 0 )
 		{
-			_texture_buffers.shadow_views_texture_buffer->set_data( _texture_buffers.shadow_views.get_internal_array(), _texture_buffers.shadow_views.get_internal_array_size_used() );
+			_texture_buffers.shadow_views_texture_buffer->set_data( _texture_buffers.shadow_views.get_internal_array(), _texture_buffers.shadow_views.get_internal_array_size() );
 			_texture_buffers.shadow_views.remove_all();
 			_shadow_views.remove_all();
 		}
@@ -2349,7 +2358,7 @@ namespace cheonsa
 				}
 				_sprite_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _sprite_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
 			}
-			_sprite_vertex_buffer->set_data( _sprite_vertex_list.get_internal_array(), _sprite_vertex_list.get_internal_array_size_used() );
+			_sprite_vertex_buffer->set_data( _sprite_vertex_list.get_internal_array(), _sprite_vertex_list.get_internal_array_size() );
 			_sprite_vertex_list.remove_all();
 		}
 	}
@@ -2374,7 +2383,7 @@ namespace cheonsa
 				}
 				else
 				{
-					scored_lights.insert_at_index( i_median, light );
+					scored_lights.insert( i_median, light );
 					return;
 				}
 				i_median = ( i_low + i_high ) / 2;
@@ -2383,11 +2392,11 @@ namespace cheonsa
 			{
 				i_median++;
 			}
-			scored_lights.insert_at_index( i_median, light );
+			scored_lights.insert( i_median, light );
 		}
 		else
 		{
-			scored_lights.insert_at_end( light );
+			scored_lights.insert( -1, light );
 		}
 	}
 
@@ -2401,35 +2410,44 @@ namespace cheonsa
 			return;
 		}
 
-		if ( model->_mesh_vertex_buffer_skinned == nullptr )
+		video_renderer_vertex_mesh_base_c const * input_cpu_vertex_buffer_mesh_base = nullptr;
+		if ( model->_cpu_vertex_buffer_mesh_base_shape_transformed.get_length() )
 		{
-			model->_mesh_vertex_buffer_skinned = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, true, false, false );
+			assert( model->_model_resource->_data.mesh_vertex_list_base.get_length() == model->_cpu_vertex_buffer_mesh_base_shape_transformed.get_length() );
+			input_cpu_vertex_buffer_mesh_base  = model->_cpu_vertex_buffer_mesh_base_shape_transformed.get_internal_array();
 		}
+		else
+		{
+			assert( model->_model_resource->_data.mesh_vertex_list_base.get_length() == model->_model_resource->_data._cpu_vertex_buffer_mesh_base.get_length() );
+			input_cpu_vertex_buffer_mesh_base  = model->_model_resource->_data._cpu_vertex_buffer_mesh_base.get_internal_array();
+		}
+		assert( model->_model_resource->_data.mesh_vertex_list_base.get_length() == model->_model_resource->_data._cpu_vertex_buffer_mesh_bone_weight.get_length() );
+		video_renderer_vertex_mesh_bone_weight_c const * input_cpu_vertex_buffer_mesh_bone_weight = model->_model_resource->_data._cpu_vertex_buffer_mesh_bone_weight.get_internal_array();
+
+		video_renderer_vertex_mesh_base_c * output_cpu_vertex_buffer_mesh_base = model->_cpu_vertex_buffer_mesh_base_shape_and_bone_transformed.get_internal_array();
 
 		// if we can parallelize this it would be better.
-		// be respectful, don't soak up all of the CPU, leave resources for other programs, user likely has other programs besides ours.
-		// pick and choose to skin only the vertices that are a part of meshes that are visible.
 		for ( sint32_c i = 0; i < model->_mesh_list.get_length(); i++ )
 		{
 			scene_component_model_c::mesh_c & mesh = model->_mesh_list[ i ];
-			if ( mesh._render_enable == true )
+			if ( mesh._render_enabled == true ) // only process vertices that are a part of visible meshes.
 			{
 				for ( uint32_c j = mesh._source_mesh->draw_start; j < mesh._source_mesh->draw_end; j++ )
 				{
 					resource_file_model_c::mesh_draw_c const & source_mesh_draw = model->_model_resource->_data.mesh_draw_list[ j ];
 					for ( uint32_c k = source_mesh_draw.vertex_start; k < source_mesh_draw.vertex_end; k++ )
 					{
-						resource_file_model_c::mesh_vertex_base_c source_vertex_base = model->_model_resource->_data.mesh_vertex_list_base[ k ];
-						resource_file_model_c::mesh_vertex_bone_weight_c source_vertex_bone_weight = model->_model_resource->_data.mesh_vertex_list_bone_weight[ k ];
-						video_renderer_vertex_mesh_base_c & skinned_vertex = model->_mesh_vertex_list_cpu_skinned[ k ];
+						video_renderer_vertex_mesh_base_c const & input_vertex_base = input_cpu_vertex_buffer_mesh_base[ k ];
+						video_renderer_vertex_mesh_bone_weight_c const & input_vertex_bone_weight = input_cpu_vertex_buffer_mesh_bone_weight[ k ];
+						video_renderer_vertex_mesh_base_c & output_vertex = output_cpu_vertex_buffer_mesh_base[ k ];
 						matrix32x4x4_c bone_skin_matrix_blended = matrix32x4x4_c();
-						if ( source_vertex_bone_weight.bone_weights[ 0 ] > 0 )
+						if ( input_vertex_bone_weight.bone_weights[ 0 ] > 0 )
 						{
 							sint32_c l = 0;
-							while ( l < 4 && source_vertex_bone_weight.bone_weights[ l ] > 0 ) // bone influences are sorted by weight, so if we encounter a 0 weight then we can break the loop early.
+							while ( l < 4 && input_vertex_bone_weight.bone_weights[ l ] > 0 ) // bone influences are sorted by weight, so if we encounter a 0 weight then we can break the loop early.
 							{
-								float32_c bone_weight = static_cast< float32_c >( source_vertex_bone_weight.bone_weights[ l ] ) / 65535.0f;
-								matrix32x4x4_c bone_skin_matrix = *model->_bone_skin_matrix_list[ source_vertex_bone_weight.bone_indices[ l ] ];
+								float32_c bone_weight = static_cast< float32_c >( input_vertex_bone_weight.bone_weights[ l ] ) / 65535.0f;
+								matrix32x4x4_c bone_skin_matrix = *model->_bone_skin_matrix_list[ input_vertex_bone_weight.bone_indices[ l ] ];
 								bone_skin_matrix_blended.a.a += bone_skin_matrix.a.a * bone_weight;
 								bone_skin_matrix_blended.a.b += bone_skin_matrix.a.b * bone_weight;
 								bone_skin_matrix_blended.a.c += bone_skin_matrix.a.c * bone_weight;
@@ -2448,25 +2466,33 @@ namespace cheonsa
 								//bone_skin_matrix_blended.d.d += bone_skin_matrix.d.d * bone_weight;
 								l++;
 							}
-							skinned_vertex.position = ops::make_vector32x3_transformed_point( *reinterpret_cast< vector32x3_c * >( source_vertex_base.position ), bone_skin_matrix_blended );
-							skinned_vertex.normal = ops::make_vector32x3_normalized( ops::make_vector32x3_transformed_vector( *reinterpret_cast< vector32x3_c * >( source_vertex_base.normal ), bone_skin_matrix_blended ) );
-							skinned_vertex.normal_u = ops::make_vector32x3_normalized( ops::make_vector32x3_transformed_vector( *reinterpret_cast< vector32x3_c * >( source_vertex_base.normal_u ), bone_skin_matrix_blended ) );
-							skinned_vertex.normal_v = ops::make_vector32x3_normalized( ops::make_vector32x3_transformed_vector( *reinterpret_cast< vector32x3_c * >( source_vertex_base.normal_v ), bone_skin_matrix_blended ) );
-							skinned_vertex.texture = vector32x4_c( source_vertex_base.texture );
+							output_vertex.position = ops::rotate_scale_and_translate_vector32x3( input_vertex_base.position, bone_skin_matrix_blended );
+							output_vertex.normal = ops::normal_vector32x3( ops::rotate_and_scale_vector32x3( input_vertex_base.normal, bone_skin_matrix_blended ) );
+							output_vertex.normal_u = ops::normal_vector32x3( ops::rotate_and_scale_vector32x3( input_vertex_base.normal_u, bone_skin_matrix_blended ) );
+							output_vertex.normal_v = ops::normal_vector32x3( ops::rotate_and_scale_vector32x3( input_vertex_base.normal_v, bone_skin_matrix_blended ) );
+							output_vertex.texture = vector32x4_c( input_vertex_base.texture );
 						}
 						else
 						{
-							skinned_vertex.position = vector32x3_c( source_vertex_base.position );
-							skinned_vertex.normal = vector32x3_c( source_vertex_base.normal );
-							skinned_vertex.normal_u = vector32x3_c( source_vertex_base.normal_u );
-							skinned_vertex.normal_u = vector32x3_c( source_vertex_base.normal_v );
-							skinned_vertex.texture = vector32x4_c( source_vertex_base.texture );
+							output_vertex.position = vector32x3_c( input_vertex_base.position );
+							output_vertex.normal = vector32x3_c( input_vertex_base.normal );
+							output_vertex.normal_u = vector32x3_c( input_vertex_base.normal_u );
+							output_vertex.normal_u = vector32x3_c( input_vertex_base.normal_v );
+							output_vertex.texture = vector32x4_c( input_vertex_base.texture );
 						}
 					}
 				}
 			}
 		}
-		model->_mesh_vertex_buffer_skinned->set_data( model->_mesh_vertex_list_cpu_skinned.get_internal_array(), model->_mesh_vertex_list_cpu_skinned.get_internal_array_size_used() );
+
+		// create gpu vertex buffer if needed.
+		if ( model->_gpu_vertex_buffer_mesh_base_shape_and_bone_transformed == nullptr )
+		{
+			model->_gpu_vertex_buffer_mesh_base_shape_and_bone_transformed = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, true, false, false );
+		}
+
+		// copy from cpu vertex buffer to gpu vertex buffer.
+		model->_gpu_vertex_buffer_mesh_base_shape_and_bone_transformed->set_data( model->_cpu_vertex_buffer_mesh_base_shape_and_bone_transformed.get_internal_array(), model->_cpu_vertex_buffer_mesh_base_shape_and_bone_transformed.get_internal_array_size() );
 	}
 
 	void_c video_renderer_interface_c::_skin_model_vertices_with_gpu( scene_component_model_c * model )
@@ -2479,9 +2505,21 @@ namespace cheonsa
 			return;
 		}
 
-		if ( model->_mesh_vertex_buffer_skinned == nullptr )
+		video_vertex_buffer_c * input_gpu_vertex_buffer_mesh_base = nullptr;
+		if ( model->_gpu_vertex_buffer_mesh_base_shape_transformed )
 		{
-			model->_mesh_vertex_buffer_skinned = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, false, false, true );
+			input_gpu_vertex_buffer_mesh_base = model->_gpu_vertex_buffer_mesh_base_shape_transformed;
+		}
+		else
+		{
+			assert( model->_model_resource->_data._gpu_vertex_buffer_mesh_base );
+			input_gpu_vertex_buffer_mesh_base = model->_model_resource->_data._gpu_vertex_buffer_mesh_base;
+		}
+
+
+		if ( model->_gpu_vertex_buffer_mesh_base_shape_and_bone_transformed == nullptr )
+		{
+			model->_gpu_vertex_buffer_mesh_base_shape_and_bone_transformed = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, model->_model_resource->_data.mesh_vertex_list_base.get_length(), nullptr, 0, false, false, true );
 		}
 
 		// skin vertices.
@@ -2492,20 +2530,20 @@ namespace cheonsa
 			bones[ bone_index ] = matrix32x4x4_c( * model->_bone_skin_matrix_list[ bone_index ] ); // we do not transpose these, because each matrix row is treated as a float4 component in the shader and is loaded as such. any transposition that might happen is done by the shader or hardware or whatever when it loads the vectors into a matrix.
 		}
 		_texture_buffers.bones_texture_buffer->set_data( bones, sizeof( matrix32x4x4_c ) * model->_bone_skin_matrix_list.get_length() );
-		engine.get_video_interface()->bind_target_vertex_buffer( model->_mesh_vertex_buffer_skinned );
+		engine.get_video_interface()->bind_target_vertex_buffer( model->_gpu_vertex_buffer_mesh_base_shape_and_bone_transformed );
 		engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_skin_mesh() );
 		engine.get_video_interface()->bind_vertex_buffers( 0, nullptr );
 		engine.get_video_interface()->draw( 0, model->_model_resource->_data.mesh_list.get_length());
 	}
 
-	void_c video_renderer_interface_c::_bind_model_properties( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c with_lights, boolean_c with_ambience, boolean_c with_outline )
+	void_c video_renderer_interface_c::_bind_model_properties( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c with_lights, boolean_c with_ambience, boolean_c with_outline )
 	{
 		if ( model->_mother_model != nullptr )
 		{
 			return; // model properties would already be bound.
 		}
 
-		_constant_buffers.object_block->object_world_transform = ops::make_matrix32x4x4_from_space_transform( model->get_scene_object()->get_world_space_transform(), view_position );
+		_constant_buffers.object_block->object_world_transform = ops::transform_matrix32x4x4_c_from_transform3d( model->get_scene_object()->get_world_space_transform(), view_position );
 		if ( with_lights )
 		{
 			for ( sint32_c i = 0; i < 16; i++ )
@@ -2522,20 +2560,20 @@ namespace cheonsa
 			ops::memory_zero( _constant_buffers.object_block->object_colors, sizeof( _constant_buffers.object_block->object_colors ) );
 			_constant_buffers.object_block->object_colors[ 0 ].a = static_cast< float32_c >( model->get_scene_object()->get_outline_color_index() );
 		}
-		else if ( model->object_colors_enable )
+		else if ( model->_custom_object_colors_enabled )
 		{
 			for ( sint32_c i = 0; i < object_colors_count; i++ )
 			{
-				_constant_buffers.object_block->object_colors[ i ] = model->object_colors[ i ];
+				_constant_buffers.object_block->object_colors[ i ] = model->_custom_object_colors[ i ];
 			}
 		}
 		_constant_buffers.object_block_constant_buffer->set_data( &_constant_buffers.object_block, sizeof( object_block_c ) );
 
-		if ( model->object_textures_enable )
+		if ( model->_custom_object_textures_enabled )
 		{
 			for ( sint32_c i = 0; i < object_textures_count; i++ )
 			{
-				textures_to_bind[ i ] = model->object_textures[ i ].is_reference_set_and_loaded() ? model->object_textures[ i ]->get_video_texture() : nullptr;
+				textures_to_bind[ i ] = model->_custom_object_textures[ i ].get_is_value_set_and_loaded() ? model->_custom_object_textures[ i ]->get_video_texture() : nullptr;
 				textures_to_bind_types[ i ] = video_texture_type_e_texture2d;
 			}
 			engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_model_textures, object_textures_count, textures_to_bind, textures_to_bind_types );
@@ -2607,22 +2645,23 @@ namespace cheonsa
 		engine.get_video_interface()->bind_vertex_shader( vertex_shader );
 	}
 
-	void_c video_renderer_interface_c::_bind_material_for_color( scene_material_c * material )
+	void_c video_renderer_interface_c::_bind_material_for_color( scene_material_c const * material, float32_c model_opacity )
 	{
 		assert( material );
+		assert( material->pixel_shader.get_value_is_set_and_loaded() );
 
 		if ( !material->is_masked )
 		{
-			engine.get_video_interface()->bind_pixel_shader( material->pixel_shader.get_pixel_shader() );
+			engine.get_video_interface()->bind_pixel_shader( material->pixel_shader->get_ps_masked() );
 		}
 		else
 		{
-			engine.get_video_interface()->bind_pixel_shader( material->pixel_shader.get_pixel_shader_masked() );
+			engine.get_video_interface()->bind_pixel_shader( material->pixel_shader->get_ps() );
 		}
 
 		for ( uint32_c i = 0; i < material_textures_count; i++ )
 		{
-			textures_to_bind[ i ] = material->textures[ i ].is_reference_set_and_loaded() ? material->textures[ i ]->get_video_texture() : _white_pixel_texture;
+			textures_to_bind[ i ] = material->textures[ i ].get_is_value_set_and_loaded() ? material->textures[ i ]->get_video_texture() : _white_pixel_texture;
 			textures_to_bind_types[ i ] = video_texture_type_e_texture2d;
 		}
 		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, material_textures_count, textures_to_bind, textures_to_bind_types );
@@ -2634,10 +2673,18 @@ namespace cheonsa
 		_constant_buffers.material_block_constant_buffer->set_data( _constant_buffers.material_block, sizeof( material_block_c ) );
 
 		engine.get_video_interface()->bind_rasterizer_cull_fill_state( material->cull_mode, video_fill_type_e_face );
-		engine.get_video_interface()->bind_rasterizer_blend_state( material->blend_type );
+
+		if ( material->blend_type == video_blend_type_e_set && model_opacity < 1.0f )
+		{
+			engine.get_video_interface()->bind_rasterizer_blend_state( video_blend_type_e_mix );
+		}
+		else
+		{
+			engine.get_video_interface()->bind_rasterizer_blend_state( material->blend_type );
+		}
 	}
 
-	void_c video_renderer_interface_c::_draw_model_with_no_material( scene_component_model_c * model, vector64x3_c const & view_position )
+	void_c video_renderer_interface_c::_draw_model_with_no_material( scene_component_model_c const * model, vector64x3_c const & view_position )
 	{
 		if ( model->get_model_resource_is_bound() == false )
 		{
@@ -2647,23 +2694,23 @@ namespace cheonsa
 		boolean_c is_model_bound = false;
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
 		{
-			scene_component_model_c::mesh_c * mesh = &model->_mesh_list[ mesh_index ];
+			scene_component_model_c::mesh_c const * mesh = &model->_mesh_list[ mesh_index ];
 
-			if ( mesh->_render_enable == false )
+			if ( mesh->_render_enabled == false )
 			{
 				continue;
 			}
 
-			scene_material_c * material = mesh->_material_assignment != nullptr ? &mesh->_material_assignment->_material : &_scene_default_material;
+			scene_material_c const * material = mesh->_source_material_map_thing ? &mesh->_source_material_map_thing->get_material() : &_scene_default_material;
 
 			if ( !is_model_bound )
 			{
 				is_model_bound = true;
-				_constant_buffers.object_block->object_world_transform = ops::make_matrix32x4x4_from_space_transform( model->get_scene_object()->get_world_space_transform(), view_position );
+				_constant_buffers.object_block->object_world_transform = ops::transform_matrix32x4x4_c_from_transform3d( model->get_scene_object()->get_world_space_transform(), view_position );
 				_constant_buffers.object_block_constant_buffer->set_data( _constant_buffers.object_block, sizeof( object_block_c ) );
-				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
+				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_mesh_base_for_rendering();
 				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data._gpu_mesh_index_buffer );
 				_bind_mesh_vs_for_color( material->is_waved, false );
 			}
 
@@ -2675,15 +2722,13 @@ namespace cheonsa
 			}
 		}
 
-		core_linked_list_c< scene_component_model_c * >::node_c const * daughter_model_list_node = model->_daughter_model_list.get_first();
-		while ( daughter_model_list_node != nullptr )
+		for( sint32_c i = 0; i < model->_daughter_model_list.get_length(); i++ )
 		{
-			_draw_model_with_no_material( daughter_model_list_node->get_value(), view_position );
-			daughter_model_list_node = daughter_model_list_node->get_next();
+			_draw_model_with_no_material( model->_daughter_model_list[ i ], view_position );
 		}
 	}
 
-	void_c video_renderer_interface_c::_draw_model_for_sky( scene_component_model_c * model )
+	void_c video_renderer_interface_c::_draw_model_for_sky( scene_component_model_c const * model, boolean_c do_opaque, boolean_c do_transparent )
 	{
 		if ( model->get_model_resource_is_bound() == false )
 		{
@@ -2693,18 +2738,26 @@ namespace cheonsa
 		boolean_c is_model_bound = false;
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
 		{
-			scene_component_model_c::mesh_c * mesh = &model->_mesh_list[ mesh_index ];
+			scene_component_model_c::mesh_c const * mesh = &model->_mesh_list[ mesh_index ];
 
-			if ( mesh->_render_enable == false )
+			if ( mesh->_render_enabled == false )
 			{
 				continue;
 			}
 
-			scene_material_c * mesh_material = mesh->_material_assignment != nullptr ? &mesh->_material_assignment->_material : &_scene_default_material;
+			scene_material_c const * material = mesh->_source_material_map_thing ? &mesh->_source_material_map_thing->get_material() : &_scene_default_material;
 
-			boolean_c is_opaque = ( mesh_material->blend_type == video_blend_type_e_set ) && ( model->get_opacity() == 1.0f );
+			boolean_c is_opaque = ( material->blend_type == video_blend_type_e_set ) && ( model->get_opacity() == 1.0f );
 
-			if ( mesh_material->is_overlay )
+			if ( material->is_overlay )
+			{
+				continue;
+			}
+			else if ( !do_opaque && is_opaque )
+			{
+				continue;
+			}
+			else if ( !do_transparent && !is_opaque )
 			{
 				continue;
 			}
@@ -2713,13 +2766,13 @@ namespace cheonsa
 			{
 				is_model_bound = true;
 				_bind_model_properties( model, vector64x3_c( 0.0f, 0.0f, 0.0f ), false, false, false );
-				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
+				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_mesh_base_for_rendering();
 				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data._gpu_mesh_index_buffer );
 				engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_color_vs_mesh() );
 			}
 
-			_bind_material_for_color( mesh_material );
+			_bind_material_for_color( material, model->get_opacity() );
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
@@ -2729,15 +2782,13 @@ namespace cheonsa
 			}
 		}
 
-		core_linked_list_c< scene_component_model_c * >::node_c const * daughter_model_list_node = model->_daughter_model_list.get_first();
-		while ( daughter_model_list_node != nullptr )
+		for ( sint32_c i = 0; i < model->_daughter_model_list.get_length(); i++ )
 		{
-			_draw_model_for_sky( daughter_model_list_node->get_value() );
-			daughter_model_list_node = daughter_model_list_node->get_next();
+			_draw_model_for_sky( model->_daughter_model_list[ i ], do_opaque, do_transparent );
 		}
 	}
 
-	void_c video_renderer_interface_c::_draw_model_for_outline( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c is_clipped )
+	void_c video_renderer_interface_c::_draw_model_for_outline( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c is_clipped )
 	{
 		if ( model->get_model_resource_is_bound() == false )
 		{
@@ -2747,14 +2798,14 @@ namespace cheonsa
 		boolean_c is_model_bound = false;
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
 		{
-			scene_component_model_c::mesh_c * mesh = &model->_mesh_list[ mesh_index ];
+			scene_component_model_c::mesh_c const * mesh = &model->_mesh_list[ mesh_index ];
 
-			if ( mesh->_render_enable == false )
+			if ( mesh->_render_enabled == false )
 			{
 				continue;
 			}
 
-			scene_material_c * material = mesh->_material_assignment != nullptr ? &mesh->_material_assignment->_material : &_scene_default_material;
+			scene_material_c const * material = mesh->_source_material_map_thing ? &mesh->_source_material_map_thing->get_material() : &_scene_default_material;
 
 			boolean_c is_opaque = ( material->blend_type == video_blend_type_e_set ) && ( model->get_opacity() == 1.0f );
 
@@ -2767,10 +2818,10 @@ namespace cheonsa
 			{
 				is_model_bound = true;
 				_bind_model_properties( model, view_position, false, false, true );
-				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
+				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_mesh_base_for_rendering();
 				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data._gpu_mesh_index_buffer );
 				_bind_mesh_vs_for_color( material->is_waved, is_clipped );
-				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
 			}
 
 			if ( !material->is_masked )
@@ -2779,7 +2830,7 @@ namespace cheonsa
 			}
 			else
 			{
-				textures_to_bind[ 0 ] = material->textures[ 0 ].is_reference_set_and_loaded() ? material->textures[ 0 ]->get_video_texture() : _white_pixel_texture;
+				textures_to_bind[ 0 ] = material->textures[ 0 ].get_is_value_set_and_loaded() ? material->textures[ 0 ]->get_video_texture() : _white_pixel_texture;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
 				engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_material_textures, 1, textures_to_bind, textures_to_bind_types );
 				engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_scene_camera_outline_ps_mesh_masked() );
@@ -2793,15 +2844,13 @@ namespace cheonsa
 			}
 		}
 
-		core_linked_list_c< scene_component_model_c * >::node_c const * daughter_model_list_node = model->_daughter_model_list.get_first();
-		while ( daughter_model_list_node != nullptr )
+		for ( sint32_c i = 0; i < model->_daughter_model_list.get_length(); i++ )
 		{
-			_draw_model_for_outline( daughter_model_list_node->get_value(), view_position, is_clipped );
-			daughter_model_list_node = daughter_model_list_node->get_next();
+			_draw_model_for_outline( model->_daughter_model_list[ i ], view_position, is_clipped );
 		}
 	}
 
-	void_c video_renderer_interface_c::_draw_model_for_color( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c is_clipped, boolean_c do_opaque, boolean_c do_transparent, boolean_c do_overlay, boolean_c with_lights, boolean_c with_ambience )
+	void_c video_renderer_interface_c::_draw_model_for_color( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c is_clipped, boolean_c do_opaque, boolean_c do_transparent, boolean_c do_overlay, boolean_c with_lights, boolean_c with_ambience )
 	{
 		if ( model->get_model_resource_is_bound() == false )
 		{
@@ -2811,14 +2860,14 @@ namespace cheonsa
 		boolean_c is_model_bound = false;
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
 		{
-			scene_component_model_c::mesh_c * mesh = &model->_mesh_list[ mesh_index ];
+			scene_component_model_c::mesh_c const * mesh = &model->_mesh_list[ mesh_index ];
 
-			if ( mesh->_render_enable == false )
+			if ( mesh->_render_enabled == false )
 			{
 				continue;
 			}
 
-			scene_material_c * material = mesh->_material_assignment != nullptr ? &mesh->_material_assignment->_material : &_scene_default_material;
+			scene_material_c const * material = mesh->_source_material_map_thing ? &mesh->_source_material_map_thing->get_material() : &_scene_default_material;
 
 			boolean_c is_opaque = ( material->blend_type == video_blend_type_e_set ) && ( model->get_opacity() == 1.0f );
 
@@ -2842,13 +2891,13 @@ namespace cheonsa
 			{
 				is_model_bound = true;
 				_bind_model_properties( model, view_position, with_lights, with_ambience, false );
-				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
+				vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_mesh_base_for_rendering();
 				engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
 				_bind_mesh_vs_for_color( material->is_waved, is_clipped );
-				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+				engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data._gpu_mesh_index_buffer );
 			}
 
-			_bind_material_for_color( material );
+			_bind_material_for_color( material, model->get_opacity() );
 
 			for ( uint32_c draw_index = mesh->_source_mesh->draw_start; draw_index < mesh->_source_mesh->draw_end; draw_index++ )
 			{
@@ -2858,11 +2907,9 @@ namespace cheonsa
 			}
 		}
 
-		core_linked_list_c< scene_component_model_c * >::node_c const * daughter_model_list_node = model->_daughter_model_list.get_first();
-		while ( daughter_model_list_node != nullptr )
+		for ( sint32_c i = 0; i < model->_daughter_model_list.get_length(); i++ )
 		{
-			_draw_model_for_color( daughter_model_list_node->get_value(), view_position, is_clipped, do_opaque, do_transparent, do_overlay, with_lights, with_ambience );
-			daughter_model_list_node = daughter_model_list_node->get_next();
+			_draw_model_for_color( model->_daughter_model_list[ i ], view_position, is_clipped, do_opaque, do_transparent, do_overlay, with_lights, with_ambience );
 		}
 	}
 
@@ -2919,30 +2966,30 @@ namespace cheonsa
 	}
 	*/
 
-	void_c video_renderer_interface_c::_draw_model_for_shadow( scene_component_model_c * model, vector64x3_c const & view_position )
+	void_c video_renderer_interface_c::_draw_model_for_shadow( scene_component_model_c const * model, vector64x3_c const & view_position )
 	{
 		if ( !model->get_model_resource_is_bound() )
 		{
 			return;
 		}
 
-		_constant_buffers.shadow_object_block->shadow_object_world_transform = ops::make_matrix32x4x4_from_space_transform( model->get_scene_object()->get_world_space_transform(), view_position );
+		_constant_buffers.shadow_object_block->shadow_object_world_transform = ops::transform_matrix32x4x4_c_from_transform3d( model->get_scene_object()->get_world_space_transform(), view_position );
 		_constant_buffers.shadow_object_block_constant_buffer->set_data( _constant_buffers.shadow_object_block, sizeof( shadow_object_block_c ) );
 
-		vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
+		vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_mesh_base_for_rendering();
 		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-		engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+		engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data._gpu_mesh_index_buffer );
 
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
 		{
-			scene_component_model_c::mesh_c * mesh = &model->_mesh_list[mesh_index];
+			scene_component_model_c::mesh_c const * mesh = &model->_mesh_list[mesh_index];
 
-			if ( mesh->_render_enable == false )
+			if ( mesh->_render_enabled == false )
 			{
 				continue;
 			}
 
-			scene_material_c * material = mesh->_material_assignment ? &mesh->_material_assignment->_material : &_scene_default_material;
+			scene_material_c const * material = mesh->_source_material_map_thing ? &mesh->_source_material_map_thing->get_material() : &_scene_default_material;
 
 			if ( material->blend_type != video_blend_type_e_set && material->blend_type != video_blend_type_e_mix )
 			{
@@ -2960,7 +3007,7 @@ namespace cheonsa
 			}
 			engine.get_video_interface()->bind_vertex_shader( vertex_shader );
 
-			if ( material->is_masked && material->textures[ 0 ].is_reference_set_and_loaded() )
+			if ( material->is_masked && material->textures[ 0 ].get_is_value_set_and_loaded() )
 			{
 				textures_to_bind[ 0 ] = material->textures[ 0 ]->get_video_texture();
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
@@ -2982,34 +3029,32 @@ namespace cheonsa
 			}
 		}
 
-		core_linked_list_c< scene_component_model_c * >::node_c const * daughter_model_list_node = model->_daughter_model_list.get_first();
-		while ( daughter_model_list_node != nullptr )
+		for ( sint32_c i = 0; i < model->_daughter_model_list.get_length(); i++ )
 		{
-			_draw_model_for_shadow( daughter_model_list_node->get_value(), view_position );
-			daughter_model_list_node = daughter_model_list_node->get_next();
+			_draw_model_for_shadow( model->_daughter_model_list[ i ], view_position );
 		}
 	}
 
-	void_c video_renderer_interface_c::_draw_model_for_normal_and_depth( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c is_clipped )
+	void_c video_renderer_interface_c::_draw_model_for_normal_and_depth( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c is_clipped )
 	{
-		_constant_buffers.object_block->object_world_transform = ops::make_matrix32x4x4_from_space_transform( model->get_scene_object()->get_world_space_transform(), view_position );
+		_constant_buffers.object_block->object_world_transform = ops::transform_matrix32x4x4_c_from_transform3d( model->get_scene_object()->get_world_space_transform(), view_position );
 		_constant_buffers.object_block_constant_buffer->set_data( _constant_buffers.object_block, sizeof( object_block_c ) );
 
-		vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_for_rendering();
+		vertex_buffers_to_bind[ 0 ] = model->_get_vertex_buffer_mesh_base_for_rendering();
 		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
-		engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data.mesh_index_buffer );
+		engine.get_video_interface()->bind_index_buffer( model->_model_resource->_data._gpu_mesh_index_buffer );
 
 		boolean_c is_model_bound = false;
 		for ( sint32_c mesh_index = 0; mesh_index < model->_mesh_list.get_length(); mesh_index++ )
 		{
-			scene_component_model_c::mesh_c * mesh = &model->_mesh_list[mesh_index];
+			scene_component_model_c::mesh_c const * mesh = &model->_mesh_list[mesh_index];
 
-			if ( mesh->_render_enable == false )
+			if ( mesh->_render_enabled == false )
 			{
 				continue;
 			}
 
-			scene_material_c * material = mesh->_material_assignment != nullptr ? &mesh->_material_assignment->_material : &_scene_default_material;
+			scene_material_c const * material = mesh->_source_material_map_thing ? &mesh->_source_material_map_thing->get_material() : &_scene_default_material;
 
 			if ( material->is_overlay || material->blend_type != video_blend_type_e_set || model->get_opacity() != 1.0f )
 			{
@@ -3041,7 +3086,7 @@ namespace cheonsa
 			}
 			engine.get_video_interface()->bind_vertex_shader( vertex_shader );
 
-			if ( material->is_masked && material->textures[ 0 ].is_reference_set_and_loaded() )
+			if ( material->is_masked && material->textures[ 0 ].get_is_value_set_and_loaded() )
 			{
 				textures_to_bind[ 0 ] = material->textures[ 0 ]->get_video_texture();
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
@@ -3063,11 +3108,9 @@ namespace cheonsa
 			}
 		}
 
-		core_linked_list_c< scene_component_model_c * >::node_c const * daughter_model_list_node = model->_daughter_model_list.get_first();
-		while ( daughter_model_list_node != nullptr )
+		for ( sint32_c i = 0; i < model->_daughter_model_list.get_length(); i++ )
 		{
-			_draw_model_for_shadow( daughter_model_list_node->get_value(), view_position );
-			daughter_model_list_node = daughter_model_list_node->get_next();
+			_draw_model_for_shadow( model->_daughter_model_list[ i ], view_position );
 		}
 	}
 
@@ -3216,11 +3259,11 @@ namespace cheonsa
 		video_renderer_vertex_debug_64_c * vertices;
 		if ( xray )
 		{
-			vertices = _debug_line_list_xray_64.emplace_range_at_end( 2 );
+			vertices = _debug_line_list_xray_64.emplace( -1, 2 );
 		}
 		else
 		{
-			vertices = _debug_line_list_64.emplace_range_at_end( 2 );
+			vertices = _debug_line_list_64.emplace( -1, 2 );
 		}
 		vertices[ 0 ].position = a_position;
 		vertices[ 0 ].color = a_and_b_color;
@@ -3233,11 +3276,11 @@ namespace cheonsa
 		video_renderer_vertex_debug_64_c * vertices;
 		if ( xray )
 		{
-			vertices = _debug_line_list_xray_64.emplace_range_at_end( 2 );
+			vertices = _debug_line_list_xray_64.emplace( -1, 2 );
 		}
 		else
 		{
-			vertices = _debug_line_list_64.emplace_range_at_end( 2 );
+			vertices = _debug_line_list_64.emplace( -1, 2 );
 		}
 		vertices[ 0 ].position = a_position;
 		vertices[ 0 ].color = a_color;
@@ -3272,17 +3315,17 @@ namespace cheonsa
 		add_debug_line( xray, maximum_minimum_minimum, maximum_maximum_minimum, color );
 	}
 
-	void_c video_renderer_interface_c::add_debug_box( boolean_c xray, box64x3_c const & box, space_transform_c & box_transform, vector32x4_c const & color )
+	void_c video_renderer_interface_c::add_debug_box( boolean_c xray, box64x3_c const & box, transform3d_c & box_transform, vector32x4_c const & color )
 	{
 		
-		vector64x3_c minimum_minimum_minimum = ops::make_vector64x3_transformed_point( box.minimum, box_transform );;
-		vector64x3_c minimum_minimum_maximum = ops::make_vector64x3_transformed_point( vector64x3_c( box.minimum.a, box.minimum.b, box.maximum.c ), box_transform );
-		vector64x3_c minimum_maximum_minimum = ops::make_vector64x3_transformed_point( vector64x3_c( box.minimum.a, box.maximum.b, box.minimum.c ), box_transform );
-		vector64x3_c minimum_maximum_maximum = ops::make_vector64x3_transformed_point( vector64x3_c( box.minimum.a, box.maximum.b, box.maximum.c ), box_transform );
-		vector64x3_c maximum_minimum_minimum = ops::make_vector64x3_transformed_point( vector64x3_c( box.maximum.a, box.minimum.b, box.minimum.c ), box_transform );
-		vector64x3_c maximum_minimum_maximum = ops::make_vector64x3_transformed_point( vector64x3_c( box.maximum.a, box.minimum.b, box.maximum.c ), box_transform );
-		vector64x3_c maximum_maximum_minimum = ops::make_vector64x3_transformed_point( vector64x3_c( box.maximum.a, box.maximum.b, box.minimum.c ), box_transform );
-		vector64x3_c maximum_maximum_maximum = ops::make_vector64x3_transformed_point( box.maximum, box_transform );
+		vector64x3_c minimum_minimum_minimum = ops::rotate_scale_and_translate_vector64x3( box.minimum, box_transform );;
+		vector64x3_c minimum_minimum_maximum = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( box.minimum.a, box.minimum.b, box.maximum.c ), box_transform );
+		vector64x3_c minimum_maximum_minimum = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( box.minimum.a, box.maximum.b, box.minimum.c ), box_transform );
+		vector64x3_c minimum_maximum_maximum = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( box.minimum.a, box.maximum.b, box.maximum.c ), box_transform );
+		vector64x3_c maximum_minimum_minimum = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( box.maximum.a, box.minimum.b, box.minimum.c ), box_transform );
+		vector64x3_c maximum_minimum_maximum = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( box.maximum.a, box.minimum.b, box.maximum.c ), box_transform );
+		vector64x3_c maximum_maximum_minimum = ops::rotate_scale_and_translate_vector64x3( vector64x3_c( box.maximum.a, box.maximum.b, box.minimum.c ), box_transform );
+		vector64x3_c maximum_maximum_maximum = ops::rotate_scale_and_translate_vector64x3( box.maximum, box_transform );
 
 		add_debug_line( xray, minimum_minimum_minimum, minimum_minimum_maximum, color );
 		add_debug_line( xray, minimum_minimum_maximum, maximum_minimum_maximum, color );
@@ -3300,14 +3343,14 @@ namespace cheonsa
 		add_debug_line( xray, maximum_minimum_minimum, maximum_maximum_minimum, color );
 	}
 
-	void_c video_renderer_interface_c::add_debug_axes( boolean_c xray, scene_matrix_c & transform, float32_c scale, float32_c alpha )
+	void_c video_renderer_interface_c::add_debug_axes( boolean_c xray, basis_position_c & transform, float32_c scale, float32_c alpha )
 	{
 		add_debug_line( xray, transform.position, transform.position + vector64x3_c( transform.basis.a ) * scale, vector32x4_c( 1.000f, 0.279f, 0.000f, alpha ) );
 		add_debug_line( xray, transform.position, transform.position + vector64x3_c( transform.basis.b ) * scale, vector32x4_c( 0.671f, 1.000f, 0.000f, alpha ) );
 		add_debug_line( xray, transform.position, transform.position + vector64x3_c( transform.basis.c ) * scale, vector32x4_c( 0.000f, 0.893f, 1.000f, alpha ) );
 	}
 
-	void_c video_renderer_interface_c::add_debug_axes( boolean_c xray, space_transform_c & transform, float32_c scale, float32_c alpha )
+	void_c video_renderer_interface_c::add_debug_axes( boolean_c xray, transform3d_c & transform, float32_c scale, float32_c alpha )
 	{
 		vector64x3_c position = transform.position;
 		matrix32x3x3_c basis = transform.get_scaled_basis();
@@ -3369,9 +3412,11 @@ namespace cheonsa
 		// the elements that will render are ones that have ( element->_is_showing && element->_is_showing_from_style ).
 
 		// gather control groups.
-		for ( sint32_c i = 0; i < user_interface->_control_list.get_length(); i++ )
+		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = user_interface->_control_list.get_first();
+		while ( control_list_node )
 		{
-			user_interface->_control_list[ i ]->_compile_control_groups_and_draw_lists( _menu_root_control_group_list, _menu_draw_list_list );
+			control_list_node->get_value()->_compile_control_groups_and_draw_lists( _menu_root_control_group_list, _menu_draw_list_list );
+			control_list_node = control_list_node->get_next();
 		}
 
 		// compile big lists and base offsets.
@@ -3379,9 +3424,9 @@ namespace cheonsa
 		{
 			menu_draw_list_c * draw_list = _menu_draw_list_list[ i ];
 			draw_list->vertex_base = _menu_vertex_list.get_length();
-			_menu_vertex_list.insert_at_end( draw_list->vertex_list.get_internal_array(), draw_list->vertex_list.get_length() );
+			_menu_vertex_list.insert( -1, draw_list->vertex_list.get_internal_array(), draw_list->vertex_list.get_length() );
 			draw_list->index_base = _menu_index_list.get_length();
-			_menu_index_list.insert_at_end( draw_list->index_list.get_internal_array(), draw_list->index_list.get_length() );
+			_menu_index_list.insert( -1, draw_list->index_list.get_internal_array(), draw_list->index_list.get_length() );
 		}
 
 		// if there's nothing going on then we can return now.
@@ -3400,7 +3445,7 @@ namespace cheonsa
 			}
 			_menu_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, _menu_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
 		}
-		_menu_vertex_buffer->set_data( _menu_vertex_list.get_internal_array(), _menu_vertex_list.get_internal_array_size_used() );
+		_menu_vertex_buffer->set_data( _menu_vertex_list.get_internal_array(), _menu_vertex_list.get_internal_array_size() );
 
 		// upload indices to index buffer.
 		if ( _menu_index_buffer == nullptr || _menu_index_list.get_length() > _menu_index_buffer->get_index_count() )
@@ -3412,7 +3457,7 @@ namespace cheonsa
 			}
 			_menu_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint16, _menu_index_list.get_length_allocated(), nullptr, 0, true, false );
 		}
-		_menu_index_buffer->set_data( _menu_index_list.get_internal_array(), _menu_index_list.get_internal_array_size_used() );
+		_menu_index_buffer->set_data( _menu_index_list.get_internal_array(), _menu_index_list.get_internal_array_size() );
 
 		// update and bind glyph map texture.
 		engine.get_glyph_manager()->update_glyph_map_texture();
@@ -3486,30 +3531,31 @@ namespace cheonsa
 		vector32x2_c control_group_origin = control->get_control_group_origin();
 		_bind_constants_for_control( control, control_group_basis, control_group_origin );
 
-		// render elements that are part of this control group.
+		// render elements that are part of this control.
 		core_list_c< menu_element_c const * > overlay_element_list;
-		for ( sint32_c i = 0; i < control->_element_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < control->_daughter_element_list.get_length(); i++ )
 		{
-			menu_element_c const * element = control->_element_list[ i ];
-			if ( element->_is_showed && element->_is_showed_from_style )
+			menu_element_c const * daughter_element = control->_daughter_element_list[ i ];
+			if ( daughter_element->_is_showed && daughter_element->_is_showed_from_style )
 			{
-				if ( element->_is_overlay == false )
+				if ( daughter_element->_is_overlay == false )
 				{
-					menu_draw_list_c const & draw_list = element->get_draw_list();
+					menu_draw_list_c const & draw_list = daughter_element->get_draw_list();
 					_render_menu_draw_list( draw_list );
 				}
 				else
 				{
-					overlay_element_list.insert_at_end( element );
+					overlay_element_list.insert( -1, daughter_element );
 				}
 			}
 		}
 
 		// render daughter controls that are part of this control group.
 		boolean_c render_state_needs_reset = false;
-		for ( sint32_c i = 0; i < control->_control_list.get_length(); i++ )
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = control->_daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			menu_control_c * daughter_control = control->_control_list[ i ];
+			menu_control_c * daughter_control = daughter_control_list_node->get_value();
 			if ( daughter_control->_is_showed_weight > 0.0f && daughter_control->_local_color.d > 0.0f )
 			{
 				render_state_needs_reset = true;
@@ -3529,8 +3575,10 @@ namespace cheonsa
 					render_state_needs_reset = true;
 				}
 			}
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 
+		// render extra elements that are part of this control.
 		if ( overlay_element_list.get_length() > 0 )
 		{
 			if ( render_state_needs_reset )
@@ -3539,8 +3587,8 @@ namespace cheonsa
 			}
 			for ( sint32_c i = 0; i < overlay_element_list.get_length(); i++ )
 			{
-				menu_element_c const * element = overlay_element_list[ i ];
-				menu_draw_list_c const & draw_list = element->get_draw_list();
+				menu_element_c const * daughter_element = overlay_element_list[ i ];
+				menu_draw_list_c const & draw_list = daughter_element->get_draw_list();
 				_render_menu_draw_list( draw_list );
 			}
 		}
@@ -3599,9 +3647,10 @@ namespace cheonsa
 		vertex_buffers_to_bind[ 0 ] = _menu_vertex_buffer;
 		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
 		engine.get_video_interface()->bind_index_buffer( _menu_index_buffer );
-		for ( sint32_c i = 0; i < user_interface->_control_list.get_length(); i++ )
+		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = user_interface->_control_list.get_first();
+		while ( control_list_node )
 		{
-			menu_control_c * control = user_interface->_control_list[ i ];
+			menu_control_c * control = control_list_node->get_value();
 			if ( control->_scene_component == nullptr && control->_is_showed_weight > 0.0f && control->_local_color.d > 0.0f )
 			{
 				assert( control->_control_group_draw_list.draw_list.get_length() == 1 );
@@ -3614,6 +3663,7 @@ namespace cheonsa
 				_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
 				_render_menu_draw_list( control->_control_group_draw_list );
 			}
+			control_list_node = control_list_node->get_next();
 		}
 
 		// unbind.
@@ -3843,7 +3893,7 @@ namespace cheonsa
 	void_c video_renderer_interface_c::initialize_mirror_perspective(
 		plane64_c const & world_space_mirror_plane, // world-space reflection plane, that is facing the primary view.
 		box64x3_c const & world_space_mirror_aabb, // world-space axis aligned bounding box of the mirror model, the plane itself is infinite, this box confines it.
-		space_transform_c & at_transform, // the scene transform of the bounding box.
+		transform3d_c & at_transform, // the scene transform of the bounding box.
 		view_c * result )
 	{
 		// how this works:
@@ -3885,7 +3935,7 @@ namespace cheonsa
 		for ( int i = 0; i < 8; i++ )
 		{
 			vector64x3_c & at_point = at_points[ i ];
-			at_points_view[ i ] = ops::make_vector32x4_transformed_point( vector64x4_c( at_point.a, at_point.b, at_point.c, 1.0 ), _current_view_primary->real_view_projection_transform );
+			at_points_view[ i ] = ops::transformed_point_vector32x4( vector64x4_c( at_point.a, at_point.b, at_point.c, 1.0 ), _current_view_primary->real_view_projection_transform );
 			at_points_view[ i ].a /= at_points_view[ i ].d;
 			at_points_view[ i ].b /= at_points_view[ i ].d;
 			at_points_view[ i ].c /= at_points_view[ i ].d;

@@ -1,6 +1,6 @@
-﻿#include "cheonsa_physics_scene.h"
+#include "cheonsa_physics_scene.h"
 #include "cheonsa_physics_shape.h"
-#include "cheonsa_physics_body.h"
+#include "cheonsa_physics_ridgid_body.h"
 #include "cheonsa_physics_constraint.h"
 #include "cheonsa_physics_bullet_debug_drawer.h"
 #include "cheonsa__ops.h"
@@ -9,31 +9,6 @@
 
 namespace cheonsa
 {
-
-	vector64x3_c physics_scene_c::sample_wind_displacement( vector64x3_c const & point, float64_c wave_frequency, float64_c wave_weight )
-	{
-		float64_c rolling_distance = ops::make_float64_dot_product( wind_direction, point ) + static_cast< float32_c >( wind_offset ); // planar distance equation
-		float64_c rolling_weight = ( ( ( ops::math_sine( rolling_distance / wind_period * constants< float64_c >::pi() * 2.0 ) * 0.5 + 0.5 ) * ( 1.0 - wind_period_weight_minimum ) ) + wind_period_weight_minimum ) * ops::math_saturate( wind_speed ) * wave_weight;
-		float64_c d = rolling_distance * wave_frequency;
-		return ( vector64x3_c( ops::math_sine( d ), ops::math_cosine( d ), ops::math_sine( d * 0.25 ) ) * rolling_weight ) + ( wind_direction * rolling_weight ); // push and wiggle.
-	}
-
-	vector64x3_c physics_scene_c::sample_wind_force( vector64x3_c const & point )
-	{
-		return wind_direction * wind_speed;
-	}
-
-	vector64x3_c physics_scene_c::sample_gravity_force( vector64x3_c const & point )
-	{
-		return gravity;
-	}
-
-	vector64x3_c physics_scene_c::sample_up( vector64x3_c const & point )
-	{
-		// at some point we can a planet or planets to do the gravity calculation.
-		// for now though the world is flat.
-		return ops::make_vector64x3_normalized( -gravity );
-	}
 
 	//float32_c physics_scene_c::get_wind_displacement( vector32x3_c& position, float32_c WindPushInfluence, float32_c WindTurbulenceInfluence, float32_c WindTurbulenceFrequency )
 	//{
@@ -45,18 +20,19 @@ namespace cheonsa
 	//}
 
 	physics_scene_c::physics_scene_c()
-		: gravity( 0.0f, 0.0f, -9.81f )
-		, wind_direction( 0.0f, -1.0f, 0.0f )
-		, wind_speed( 1.0f )
-		, wind_offset( 0.0f )
-		, wind_period( 6.0f )
-		, wind_period_weight_minimum( 0.5f )
+		: _gravity( 0.0f, 0.0f, -9.81f )
+		, _wind_direction( 0.0f, -1.0f, 0.0f )
+		, _wind_speed( 1.0f )
+		, _wind_offset( 0.0f )
+		, _wind_period( 6.0f )
+		, _wind_period_weight_minimum( 0.5f )
 		, _bullet_dynamic_world( nullptr )
 		, _bullet_dynamic_configuration( nullptr )
 		, _bullet_dynamic_solver( nullptr )
 		, _bullet_collision_broad_phase( nullptr )
 		, _bullet_collision_dispatcher( nullptr )
 		, _bullet_debug_drawer( nullptr )
+		, _reference_count( 0 )
 	{
 		_bullet_collision_broad_phase = new btDbvtBroadphase(); //_bullet_collision_broad_phase->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() ); // i don't remember what this does
 		_bullet_dynamic_configuration = new btDefaultCollisionConfiguration();
@@ -70,7 +46,8 @@ namespace cheonsa
 
 	physics_scene_c::~physics_scene_c()
 	{
-		_bullet_dynamic_world->setDebugDrawer( 0 );
+		assert( _reference_count == 0 );
+		_bullet_dynamic_world->setDebugDrawer( nullptr );
 		delete _bullet_dynamic_world;
 		delete _bullet_dynamic_solver;
 		delete _bullet_collision_dispatcher;
@@ -79,14 +56,34 @@ namespace cheonsa
 		delete _bullet_debug_drawer;
 	}
 
+	physics_scene_c * physics_scene_c::make_new_instance()
+	{
+		return new physics_scene_c();
+	}
+
+	void_c physics_scene_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c physics_scene_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+		}
+	}
+
 	void_c physics_scene_c::copy_properties_from( physics_scene_c * other )
 	{
-		gravity = other->gravity;
-		wind_direction = other->wind_direction;
-		wind_speed = other->wind_speed;
-		wind_offset = other->wind_offset;
-		wind_period = other->wind_period;
-		wind_period_weight_minimum = other->wind_period_weight_minimum;
+		_gravity = other->_gravity;
+		_wind_direction = other->_wind_direction;
+		_wind_speed = other->_wind_speed;
+		_wind_offset = other->_wind_offset;
+		_wind_period = other->_wind_period;
+		_wind_period_weight_minimum = other->_wind_period_weight_minimum;
 	}
 
 	void_c physics_scene_c::update( float32_c update_time_step )
@@ -97,8 +94,8 @@ namespace cheonsa
 		//_WindDirection.Z = 0.0f;
 		//_WindOffset += _WindWaveSpeed * time_step;
 
-		wind_offset += wind_speed * update_time_step;
-		_bullet_dynamic_world->setGravity( btVector3( gravity.a, gravity.b, gravity.c ) );
+		_wind_offset += _wind_speed * update_time_step;
+		_bullet_dynamic_world->setGravity( btVector3( _gravity.a, _gravity.b, _gravity.c ) );
 		_bullet_dynamic_world->stepSimulation( update_time_step, 0 ); // this stepSimulation makes bullet update the physics simulation by time_step amount. this is a fixed time step update, as indicated by passing 0 for maxSubSteps.
 	}
 
@@ -131,31 +128,37 @@ namespace cheonsa
 		_bullet_dynamic_world->updateAabbs();
 	}
 
-	void_c physics_scene_c::add_body( physics_body_c * object )
+	void_c physics_scene_c::add_rigid_body( physics_rigid_body_c * rigid_body )
 	{
-		assert( object );
-		assert( object->_bullet_rigid_body );
-		_bullet_dynamic_world->addRigidBody( object->_bullet_rigid_body, (int)object->_layer, (int)object->_layer_mask );
+		assert( rigid_body );
+		assert( rigid_body->_bullet_rigid_body );
+		assert( rigid_body->_bullet_rigid_body->getWorldArrayIndex() == -1 );
+		rigid_body->add_reference();
+		_bullet_dynamic_world->addRigidBody( rigid_body->_bullet_rigid_body, (int)rigid_body->_layer, (int)rigid_body->_layer_mask );
 	}
 
-	void_c physics_scene_c::remove_body( physics_body_c * object )
+	void_c physics_scene_c::remove_rigid_body( physics_rigid_body_c * rigid_body )
 	{
-		assert( object );
-		assert( object->_bullet_rigid_body );
-		_bullet_dynamic_world->removeRigidBody( object->_bullet_rigid_body );
+		assert( rigid_body );
+		assert( rigid_body->_bullet_rigid_body );
+		assert( rigid_body->_bullet_rigid_body->getWorldArrayIndex() >= 0 );
+		rigid_body->remove_reference();
+		_bullet_dynamic_world->removeRigidBody( rigid_body->_bullet_rigid_body );
 	}
 
 	void_c physics_scene_c::add_constraint( physics_constraint_c * constraint )
 	{
-		assert( constraint->_scene == nullptr );
-		constraint->_scene = this;
+		assert( constraint );
+		assert( constraint->_bullet_constraint );
+		constraint->add_reference();
 		_bullet_dynamic_world->addConstraint( constraint->_bullet_constraint );
 	}
 
 	void_c physics_scene_c::remove_constraint( physics_constraint_c * constraint )
 	{
-		assert( constraint->_scene == this );
-		constraint->_scene = nullptr;
+		assert( constraint );
+		assert( constraint->_bullet_constraint );
+		constraint->remove_reference();
 		_bullet_dynamic_world->removeConstraint( constraint->_bullet_constraint );
 	}
 
@@ -176,7 +179,7 @@ namespace cheonsa
 			hit.position = vector64x3_c( BulletVector3.x(), BulletVector3.y(), BulletVector3.z() );
 			BulletVector3 = bullet_ray_result.m_hitNormalWorld[i];
 			hit.normal = vector64x3_c( BulletVector3.x(), BulletVector3.y(), BulletVector3.z() );
-			result.hit_list.insert_at_end( hit );
+			result.hit_list.insert( -1, hit );
 		}
 	}
 
@@ -191,11 +194,11 @@ namespace cheonsa
 		if ( bullet_ray_result.hasHit() )
 		{
 			physics_sweep_test_result_c::hit_c hit;
-			hit.object = reinterpret_cast< physics_body_c * >( bullet_ray_result.m_collisionObject->getUserPointer() );
+			hit.object = reinterpret_cast< physics_rigid_body_c * >( bullet_ray_result.m_collisionObject->getUserPointer() );
 			hit.fraction = bullet_ray_result.m_closestHitFraction;
 			hit.position = vector64x3_c( bullet_ray_result.m_hitPointWorld.x(), bullet_ray_result.m_hitPointWorld.y(), bullet_ray_result.m_hitPointWorld.z() );
 			hit.normal = vector64x3_c( bullet_ray_result.m_hitNormalWorld.x(), bullet_ray_result.m_hitNormalWorld.y(), bullet_ray_result.m_hitNormalWorld.z() );
-			result.hit_list.insert_at_end( hit );
+			result.hit_list.insert( -1, hit );
 		}
 	}
 
@@ -217,11 +220,11 @@ namespace cheonsa
 		if ( bullet_convex_result.hasHit() )
 		{
 			physics_sweep_test_result_c::hit_c hit;
-			hit.object = reinterpret_cast<physics_body_c *>( bullet_convex_result.m_hitCollisionObject->getUserPointer() );
+			hit.object = reinterpret_cast<physics_rigid_body_c *>( bullet_convex_result.m_hitCollisionObject->getUserPointer() );
 			hit.fraction = bullet_convex_result.m_closestHitFraction;
 			hit.position = vector64x3_c( bullet_convex_result.m_hitPointWorld.x(), bullet_convex_result.m_hitPointWorld.y(), bullet_convex_result.m_hitPointWorld.z() );
 			hit.normal = vector64x3_c( bullet_convex_result.m_hitNormalWorld.x(), bullet_convex_result.m_hitNormalWorld.y(), bullet_convex_result.m_hitNormalWorld.z() );
-			result.hit_list.insert_at_end( hit );
+			result.hit_list.insert( -1, hit );
 		}
 	}
 
@@ -232,5 +235,30 @@ namespace cheonsa
 	//	float32_c Wave = sine( WaveInput ) * 0.5f + 0.5f;
 	//	return Wave * ( _WindSpeedMaximum - _WindSpeedMinimum ) + _WindSpeedMinimum;
 	//}
+
+	vector64x3_c physics_scene_c::sample_wind_displacement( vector64x3_c const & point, float64_c wave_frequency, float64_c wave_weight )
+	{
+		float64_c rolling_distance = ops::dot_product_float64( _wind_direction, point ) + static_cast< float32_c >( _wind_offset ); // planar distance equation
+		float64_c rolling_weight = ( ( ( ops::math_sine( rolling_distance / _wind_period * constants< float64_c >::pi() * 2.0 ) * 0.5 + 0.5 ) * ( 1.0 - _wind_period_weight_minimum ) ) + _wind_period_weight_minimum ) * ops::math_saturate( _wind_speed ) * wave_weight;
+		float64_c d = rolling_distance * wave_frequency;
+		return ( vector64x3_c( ops::math_sine( d ), ops::math_cosine( d ), ops::math_sine( d * 0.25 ) ) * rolling_weight ) + ( _wind_direction * rolling_weight ); // push and wiggle.
+	}
+
+	vector64x3_c physics_scene_c::sample_wind_force( vector64x3_c const & point )
+	{
+		return _wind_direction * _wind_speed;
+	}
+
+	vector64x3_c physics_scene_c::sample_gravity_force( vector64x3_c const & point )
+	{
+		return _gravity;
+	}
+
+	vector64x3_c physics_scene_c::sample_up( vector64x3_c const & point )
+	{
+		// at some point we can a planet or planets to do the gravity calculation.
+		// for now though the world is flat.
+		return ops::normal_vector64x3( -_gravity );
+	}
 
 }

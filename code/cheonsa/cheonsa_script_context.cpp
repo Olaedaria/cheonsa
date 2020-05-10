@@ -1,4 +1,4 @@
-﻿#include "cheonsa_script_context.h"
+#include "cheonsa_script_context.h"
 #include "cheonsa_script_instance.h"
 #include "cheonsa_engine.h"
 
@@ -36,7 +36,7 @@ namespace cheonsa
 
 		data_stream_file_c stream;
 		string16_c absolute_file_path;
-		if ( engine.get_content_manager()->resolve_absolute_file_path( file_path, absolute_file_path ) )
+		if ( engine.get_content_manager()->resolve_absolute_file_path( file_path, absolute_file_path, true, false ) )
 		{
 			if ( stream.open( absolute_file_path, data_stream_mode_e_read ) )
 			{
@@ -44,7 +44,7 @@ namespace cheonsa
 				if ( result->load( file_path, &stream ) )
 				{
 					result->_serial_index = _next_script_serial_index++;
-					_scripts.insert_at_end( result );
+					_scripts.insert( -1, result );
 					return result;
 				}
 				else
@@ -72,7 +72,7 @@ namespace cheonsa
 	void_c script_context_c::delete_script( script_instance_c * script )
 	{
 		assert( script->_context == this );
-		_scripts.remove( script );
+		_scripts.remove_value( script );
 		delete script;
 	}
 
@@ -127,7 +127,7 @@ namespace cheonsa
 				{
 					script_instance_c * script = new script_instance_c( this );
 					script->serial_load( scribe );
-					_scripts.insert_at_end( script );
+					_scripts.insert( -1, script );
 				}
 				scribe.loaded_list_exit();
 			}

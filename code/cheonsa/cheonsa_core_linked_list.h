@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include <cassert>
@@ -77,15 +77,15 @@ namespace cheonsa
 			{
 				if ( _first != _last )
 				{
-					node->next = _first;
-					_first->previous = node;
+					node->_next = _first;
+					_first->_previous = node;
 					_first = node;
 				}
 				else
 				{
 					_first = node;
-					_first->next = _last;
-					_last->previous = _first;
+					_first->_next = _last;
+					_last->_previous = _first;
 				}
 			}
 			else
@@ -123,7 +123,31 @@ namespace cheonsa
 			_length++;
 		}
 
-		void insert_before( node_c * node, node_c * before )
+		void_c insert_at_index( node_c * node, sint32_c index )
+		{
+			assert( node != nullptr );
+			assert( node->_previous == nullptr && node->_next == nullptr );
+			assert( index >= 0 && index < _length );
+			if ( index == 0 )
+			{
+				insert_at_front( node );
+			}
+			else if ( index == _length )
+			{
+				insert_at_end( node );
+			}
+			else
+			{
+				node_c * after_node = _first;
+				for ( sint32_c i = 0; i < index - 1; i++ )
+				{
+					after_node = after_node->get_next();
+				}
+				insert_after( node, after_node );
+			}
+		}
+
+		void_c insert_before( node_c * node, node_c * before )
 		{
 			assert( _first != nullptr && _last != nullptr );
 			assert( node != nullptr && before != nullptr );
@@ -152,10 +176,11 @@ namespace cheonsa
 			_length++;
 		}
 
-		void_c insert_after( node_c * value, node_c * after )
+		void_c insert_after( node_c * node, node_c * after )
 		{
 			assert( _first != nullptr && _last != nullptr );
 			assert( node != nullptr && after != nullptr );
+			assert( node != after );
 			if ( _first != _last )
 			{
 				node->_previous = after;
@@ -213,6 +238,28 @@ namespace cheonsa
 			node->_next = nullptr;
 			node->_previous = nullptr;
 			_length--;
+		}
+
+		void_c remove_at_index( sint32_c index )
+		{
+			assert( index >= 0 && index < _length );
+			node_c * node = _first;
+			for ( sint32_c i = 0; i < index; i++ )
+			{
+				node = node->get_next();
+			}
+			remove( node );
+		}
+
+		node_c * get_at_index( sint32_c index ) const
+		{
+			assert( index >= 0 && index < _length );
+			node_c * node = _first;
+			for ( sint32_c i = 0; i < index; i++ )
+			{
+				node = node->get_next();
+			}
+			return node;
 		}
 
 		node_c * get_first() const

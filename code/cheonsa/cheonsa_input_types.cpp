@@ -5,6 +5,30 @@
 namespace cheonsa
 {
 
+	void_c input_gamepad_state_c::_make_dead_zone()
+	{
+		float32_c dead_zone_size = 0.1f;
+		float32_c length = ops::length_float32( _left_stick_state );
+		if ( length > dead_zone_size )
+		{
+			_left_stick_state_with_dead_zone = ( _left_stick_state / length ) * ( ( length - dead_zone_size ) * ( 1.0f + dead_zone_size ) );
+		}
+		else
+		{
+			_left_stick_state_with_dead_zone = vector32x2_c( 0.0f, 0.0f );
+		}
+
+		length = ops::length_float32( _right_stick_state );
+		if ( length > dead_zone_size )
+		{
+			_right_stick_state_with_dead_zone = ( _right_stick_state / length ) * ( ( length - dead_zone_size ) * ( 1.0f + dead_zone_size ) );
+		}
+		else
+		{
+			_right_stick_state_with_dead_zone = vector32x2_c( 0.0f, 0.0f );
+		}
+	}
+
 	input_gamepad_state_c::input_gamepad_state_c()
 		: _index( 0 )
 		, _is_connected( false )
@@ -13,6 +37,8 @@ namespace cheonsa
 		, _right_trigger_state( 0.0f )
 		, _left_stick_state()
 		, _right_stick_state()
+		, _left_stick_state_with_dead_zone()
+		, _right_stick_state_with_dead_zone()
 	{
 	}
 
@@ -41,13 +67,21 @@ namespace cheonsa
 		return _right_trigger_state;
 	}
 
-	vector32x2_c input_gamepad_state_c::get_left_stick_state() const
+	vector32x2_c input_gamepad_state_c::get_left_stick_state( boolean_c with_dead_zone ) const
 	{
+		if ( with_dead_zone )
+		{
+			return _left_stick_state_with_dead_zone;
+		}
 		return _left_stick_state;
 	}
 
-	vector32x2_c input_gamepad_state_c::get_right_stick_state() const
+	vector32x2_c input_gamepad_state_c::get_right_stick_state( boolean_c with_dead_zone ) const
 	{
+		if ( with_dead_zone )
+		{
+			return _right_stick_state_with_dead_zone;
+		}
 		return _right_stick_state;
 	}
 
@@ -544,6 +578,7 @@ namespace cheonsa
 			0, // 0x583E
 			0, // 0x583F
 		};
+		xinput_virtual_key_code -= 0x5800;
 		assert( xinput_virtual_key_code >= 0 && xinput_virtual_key_code < 64 );
 		return static_cast< input_gamepad_key_e >( map[ xinput_virtual_key_code ] );
 	}

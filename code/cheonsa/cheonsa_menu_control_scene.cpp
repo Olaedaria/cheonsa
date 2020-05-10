@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_scene.h"
+#include "cheonsa_menu_control_scene.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -40,7 +40,7 @@ namespace cheonsa
 		_element_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_stretch;
 		_element_frame_style.texture = &_canvas_wrapper;
 		_element_frame.set_override_style( &_element_frame_style );
-		_add_element( &_element_frame );
+		_add_daughter_element( &_element_frame );
 	}
 
 	menu_control_scene_c::~menu_control_scene_c()
@@ -48,6 +48,11 @@ namespace cheonsa
 		_canvas_wrapper.set_video_texture( nullptr );
 		delete _canvas;
 		_canvas = nullptr;
+	}
+
+	menu_control_scene_c * menu_control_scene_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_scene_c( name );
 	}
 
 	scene_c * menu_control_scene_c::get_scene() const
@@ -63,16 +68,6 @@ namespace cheonsa
 	video_renderer_canvas_c * menu_control_scene_c::get_canvas() const
 	{
 		return _canvas;
-	}
-
-	void_c menu_control_scene_c::give_control( menu_control_c * control )
-	{
-		_give_control( control );
-	}
-
-	menu_control_c * menu_control_scene_c::take_control( menu_control_c * control )
-	{
-		return _take_control( control->get_index() );
 	}
 
 }

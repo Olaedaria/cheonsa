@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_types.h" 
+#include "cheonsa_menu_types.h" 
 #include "cheonsa_menu_control.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
@@ -28,16 +28,6 @@ namespace cheonsa
 		_global_list.remove( &_global_list_node );
 	}
 
-	void_c menu_color_style_c::reference_c::release_value()
-	{
-		_value = nullptr;
-	}
-
-	void_c menu_color_style_c::reference_c::resolve_value()
-	{
-		_value = engine.get_menu_style_manager()->find_color_style( _key );
-	}
-
 	string8_c const & menu_color_style_c::reference_c::get_key() const
 	{
 		return _key;
@@ -46,12 +36,26 @@ namespace cheonsa
 	void_c menu_color_style_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
-		resolve_value();
+		resolve();
 	}
 
 	menu_color_style_c const * menu_color_style_c::reference_c::get_value() const
 	{
 		return _value;
+	}
+
+	void_c menu_color_style_c::reference_c::resolve()
+	{
+		menu_color_style_c const * new_value = engine.get_menu_style_manager()->find_color_style( _key );
+		if ( _value != new_value )
+		{
+			_value = new_value;
+		}
+	}
+
+	void_c menu_color_style_c::reference_c::unresolve()
+	{
+		_value = nullptr;
 	}
 
 
@@ -64,8 +68,7 @@ namespace cheonsa
 	//
 
 	menu_color_style_c::menu_color_style_c()
-		: index( -1 )
-		, key()
+		: key()
 		, value( 1.0f, 1.0f, 1.0f, 1.0f )
 	{
 	}
@@ -73,7 +76,6 @@ namespace cheonsa
 	void_c menu_color_style_c::reset()
 	{
 		key = string8_c();
-		index = -1;
 		value = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 	}
 
@@ -98,9 +100,11 @@ namespace cheonsa
 
 	void_c menu_color_style_c::initialize( sint32_c index, string8_c const & key )
 	{
-		this->index = index;
+		//this->_index = index;
 		this->key = key;
 	}
+
+
 
 
 	//
@@ -165,31 +169,6 @@ namespace cheonsa
 		_global_list.remove( &_global_list_node );
 	}
 
-	void_c menu_frame_style_c::reference_c::release_value()
-	{
-		if ( _value )
-		{
-			_value = nullptr;
-		}
-	}
-
-	void_c menu_frame_style_c::reference_c::resolve_value()
-	{
-		assert( engine.get_menu_style_manager() != nullptr );
-		if ( _key == "[none]" )
-		{
-			_value = nullptr;
-		}
-		else if ( _key == "[default]" )
-		{
-			_value = engine.get_menu_style_manager()->get_default_frame_style();
-		}
-		else
-		{
-			_value = engine.get_menu_style_manager()->find_frame_style( _key );
-		}
-	}
-
 	string8_c const & menu_frame_style_c::reference_c::get_key() const
 	{
 		return _key;
@@ -198,7 +177,7 @@ namespace cheonsa
 	void_c menu_frame_style_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
-		resolve_value();
+		resolve();
 	}
 
 	menu_frame_style_c const * menu_frame_style_c::reference_c::get_value() const
@@ -208,8 +187,37 @@ namespace cheonsa
 
 	void_c menu_frame_style_c::reference_c::set_value( menu_frame_style_c const * value )
 	{
-		_key = value ? value->key : string8_c();
-		_value = value;
+		if ( _value != value )
+		{
+			if ( _value )
+			{
+				//on_unloaded.invoke( this );
+			}
+			_value = value;
+			if ( _value )
+			{
+				_key = _value->key;
+				//on_loaded.invoke( this );
+			}
+			else
+			{
+				_key = string8_c();
+			}
+		}
+	}
+
+	void_c menu_frame_style_c::reference_c::resolve()
+	{
+		menu_frame_style_c const * new_value = engine.get_menu_style_manager()->find_frame_style( _key );
+		if ( _value != new_value )
+		{
+			_value = new_value;
+		}
+	}
+
+	void_c menu_frame_style_c::reference_c::unresolve()
+	{
+		_value = nullptr;
 	}
 
 
@@ -237,6 +245,7 @@ namespace cheonsa
 		texture = nullptr;
 		texture_map_mode = texture_map_mode_e_stretch;
 		texture_map_fill_middle = true;
+		pixel_shader_reference = nullptr;
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 		{
 			state_list[ i ].reset();
@@ -319,7 +328,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "pixel_shader" );
 		if ( attribute )
 		{
-			pixel_shader_reference = engine.get_video_renderer_shader_manager()->load_pixel_shader( string16_c( attribute->get_value() ) );
+			pixel_shader_reference = engine.get_video_renderer_shader_manager()->load_ps( string16_c( attribute->get_value() ) );
 		}
 
 		// apply defaults if they were defined.
@@ -450,37 +459,6 @@ namespace cheonsa
 		_global_list.remove( &_global_list_node );
 	}
 
-	void_c menu_text_style_c::reference_c::release_value()
-	{
-		if ( _value )
-		{
-			_value = nullptr;
-			on_refreshed.invoke( this );
-		}
-	}
-
-	void_c menu_text_style_c::reference_c::resolve_value()
-	{
-		assert( engine.get_menu_style_manager() != nullptr );
-		if ( _key == "[none]" )
-		{
-			_value = nullptr;
-		}
-		else if ( _key == "[default]" )
-		{
-			_value = engine.get_menu_style_manager()->get_default_text_style();
-		}
-		else
-		{
-			if ( _key == "e_window_text_p" )
-			{
-				int halt = 1;
-			}
-			_value = engine.get_menu_style_manager()->find_text_style( _key );
-		}
-		on_refreshed.invoke( this );
-	}
-
 	string8_c const & menu_text_style_c::reference_c::get_key() const
 	{
 		return _key;
@@ -489,7 +467,7 @@ namespace cheonsa
 	void_c menu_text_style_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
-		resolve_value();
+		resolve();
 	}
 
 	menu_text_style_c const * menu_text_style_c::reference_c::get_value() const
@@ -499,9 +477,49 @@ namespace cheonsa
 
 	void_c menu_text_style_c::reference_c::set_value( menu_text_style_c const * value )
 	{
-		_key = value ? value->key : string8_c();
-		_value = value;
-		on_refreshed.invoke( this );
+		if ( _value != value )
+		{
+			if ( _value )
+			{
+				on_unresolved.invoke( this );
+			}
+			_value = value;
+			if ( _value )
+			{
+				_key = _value->key;
+				on_resolved.invoke( this );
+			}
+			else
+			{
+				_key = string8_c();
+			}
+		}
+	}
+
+	void_c menu_text_style_c::reference_c::resolve()
+	{
+		menu_text_style_c const * new_value = engine.get_menu_style_manager()->find_text_style( _key );
+		if ( _value != new_value )
+		{
+			if ( _value )
+			{
+				on_unresolved.invoke( this );
+			}
+			_value = new_value;
+			if ( _value )
+			{
+				on_resolved.invoke( this );
+			}
+		}
+	}
+
+	void_c menu_text_style_c::reference_c::unresolve()
+	{
+		if ( _value )
+		{
+			on_unresolved.invoke( this );
+			_value = nullptr;
+		}
 	}
 
 	menu_text_style_c::state_c::state_c()
@@ -511,17 +529,9 @@ namespace cheonsa
 
 	void_c menu_text_style_c::state_c::reset()
 	{
-		//color_style.set_key( string8_c() );
-		//color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		saturation = 1.0f;
 		apparent_scale = 1.0f;
 	}
-
-	//vector32x4_c menu_text_style_c::state_c::get_expressed_color() const
-	//{
-	//	//return color_style.get_value() ? color_style.get_value()->value * color : color;
-	//	return color;
-	//}
 
 	menu_text_style_c::menu_text_style_c()
 	{
@@ -535,8 +545,6 @@ namespace cheonsa
 		font = nullptr;
 		size_is_defined = false;
 		size = 0;
-		//color_style_is_defined = false;
-		//color_style.set_key( string8_c() );
 		color_is_defined = false;
 		color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		skew_is_defined = false;
@@ -581,7 +589,7 @@ namespace cheonsa
 		if ( attribute )
 		{
 			font = engine.get_resource_manager()->load_font( string16_c( attribute->get_value() ) );
-			font_is_defined = font.is_reference_set_and_loaded();
+			font_is_defined = font.get_is_value_set_and_loaded();
 		}
 
 		attribute = node->find_attribute( "size" );
@@ -589,13 +597,6 @@ namespace cheonsa
 		{
 			size_is_defined = ops::convert_string8_to_float32( attribute->get_value(), size );
 		}
-
-		//attribute = node->find_attribute( "color_style" );
-		//if ( attribute )
-		//{
-		//	color_style_is_defined = true;
-		//	color_style.set_key( attribute->get_value() );
-		//}
 
 		attribute = node->find_attribute( "color" );
 		if ( attribute )
@@ -722,18 +723,6 @@ namespace cheonsa
 				{
 					state_c & state = state_list[ state_index ];
 
-					//attribute = sub_node->find_attribute( "color" );
-					//if ( attribute )
-					//{
-					//	ops::convert_string8_to_rgba( attribute->get_value(), state.color );
-					//}
-
-					//attribute = sub_node->find_attribute( "color_style" );
-					//if ( attribute )
-					//{
-					//	state.color_style.set_key( attribute->get_value() );
-					//}
-
 					attribute = sub_node->find_attribute( "saturation" );
 					if ( attribute )
 					{
@@ -777,30 +766,14 @@ namespace cheonsa
 		_global_list.remove( &_global_list_node );
 	}
 
-	void_c menu_style_map_c::reference_c::release_value()
+	void_c menu_style_map_c::reference_c::clear()
 	{
 		if ( _value )
 		{
+			on_unresolved.invoke( this );
 			_value = nullptr;
-			on_refreshed.invoke( this );
+			_key = string8_c();
 		}
-	}
-
-	void_c menu_style_map_c::reference_c::resolve_value()
-	{
-		menu_style_map_c const * new_value = engine.get_menu_style_manager()->find_style_map( _key );
-		if ( _value != new_value )
-		{
-			_value = new_value;
-			on_refreshed.invoke( this );
-		}
-	}
-
-	void_c menu_style_map_c::reference_c::clear()
-	{
-		_key = string8_c();
-		_value = nullptr;
-		on_refreshed.invoke( this );
 	}
 
 	string8_c const & menu_style_map_c::reference_c::get_key() const
@@ -811,7 +784,7 @@ namespace cheonsa
 	void_c menu_style_map_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
-		resolve_value();
+		resolve();
 	}
 
 	menu_style_map_c const * menu_style_map_c::reference_c::get_value() const
@@ -821,9 +794,49 @@ namespace cheonsa
 
 	void_c menu_style_map_c::reference_c::set_value( menu_style_map_c const * value )
 	{
-		_key = value ? value->_key : string8_c();
-		_value = value;
-		on_refreshed.invoke( this );
+		if ( _value != value )
+		{
+			if ( _value )
+			{
+				on_unresolved.invoke( this );
+			}
+			_value = value;
+			if ( _value )
+			{
+				_key = _value->get_key();
+				on_resolved.invoke( this );
+			}
+			else
+			{
+				_key = string8_c();
+			}
+		}
+	}
+
+	void_c menu_style_map_c::reference_c::resolve()
+	{
+		menu_style_map_c const * new_value = engine.get_menu_style_manager()->find_style_map( _key );
+		if ( _value != new_value )
+		{
+			if ( _value )
+			{
+				on_unresolved.invoke( this );
+			}
+			_value = new_value;
+			if ( _value )
+			{
+				on_resolved.invoke( this );
+			}
+		}
+	}
+
+	void_c menu_style_map_c::reference_c::unresolve()
+	{
+		if ( _value )
+		{
+			on_unresolved.invoke( this );
+			_value = nullptr;
+		}
 	}
 
 
@@ -939,7 +952,7 @@ namespace cheonsa
 			if ( sub_node->get_value() == "item" )
 			{
 				entry_c * entry = new entry_c();
-				_entry_list.insert_at_end( entry );
+				_entry_list.insert( -1, entry );
 
 				attribute = sub_node->find_attribute( "element_name" );
 				if ( attribute )
@@ -1168,38 +1181,38 @@ namespace cheonsa
 
 	void_c menu_draw_list_c::set_clip_planes( box32x2_c const box, matrix32x2x2_c const & control_group_basis, vector32x2_c const & control_group_origin )
 	{
-			vector32x2_c minimum = ops::make_vector32x2_transformed_point( box.minimum, control_group_basis ) + control_group_origin;
-			vector32x2_c maximum = ops::make_vector32x2_transformed_point( box.maximum, control_group_basis ) + control_group_origin;
-			vector32x2_c normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 1.0f, 0.0f ), control_group_basis ) );
+			vector32x2_c minimum = ops::rotate_and_scale_vector32x2( box.minimum, control_group_basis ) + control_group_origin;
+			vector32x2_c maximum = ops::rotate_and_scale_vector32x2( box.maximum, control_group_basis ) + control_group_origin;
+			vector32x2_c normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( 1.0f, 0.0f ), control_group_basis ) );
 			vector32x4_c * plane = &clip_planes[ 0 ];
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->c = -ops::dot_product_float32( normal, minimum );
 			plane->d = 0.0f;
-			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, 1.0f ), control_group_basis ) );
+			normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( 0.0f, 1.0f ), control_group_basis ) );
 			plane = &clip_planes[ 1 ];
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, minimum );
+			plane->c = -ops::dot_product_float32( normal, minimum );
 			plane->d = 0.0f;
-			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( -1.0f, 0.0f ), control_group_basis ) );
+			normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( -1.0f, 0.0f ), control_group_basis ) );
 			plane = &clip_planes[ 2 ];
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->c = -ops::dot_product_float32( normal, maximum );
 			plane->d = 0.0f;
-			normal = ops::make_vector32x2_normalized( ops::make_vector32x2_transformed_point( vector32x2_c( 0.0f, -1.0f ), control_group_basis ) );
+			normal = ops::normal_vector32x2( ops::rotate_and_scale_vector32x2( vector32x2_c( 0.0f, -1.0f ), control_group_basis ) );
 			plane = &clip_planes[ 3 ];
 			plane->a = normal.a;
 			plane->b = normal.b;
-			plane->c = -ops::make_float32_dot_product( normal, maximum );
+			plane->c = -ops::dot_product_float32( normal, maximum );
 			plane->d = 0.0f;
 	}
 
 	void_c menu_draw_list_c::append_rectangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] )
 	{
 		// add draw.
-		draw_c * draw = draw_list.emplace_at_end();
+		draw_c * draw = draw_list.emplace( -1, 1 );
 		draw->pixel_shader = pixel_shader;
 		draw->texture = texture;
 		draw->color = color;
@@ -1220,23 +1233,23 @@ namespace cheonsa
 		sint32_c rectangle_count = input_vertex_list.get_length() / 4;
 		for ( sint32_c i = 0; i < rectangle_count; i++ )
 		{
-			index_list.insert_at_end( base_vertex ); // top left.
-			index_list.insert_at_end( base_vertex + 1 ); // bottom left.
-			index_list.insert_at_end( base_vertex + 2 ); // top right.
-			index_list.insert_at_end( base_vertex + 2 ); // top right.
-			index_list.insert_at_end( base_vertex + 1 ); // bottom left.
-			index_list.insert_at_end( base_vertex + 3 ); // bottom right.
+			index_list.insert( -1, base_vertex ); // top left.
+			index_list.insert( -1, base_vertex + 1 ); // bottom left.
+			index_list.insert( -1, base_vertex + 2 ); // top right.
+			index_list.insert( -1, base_vertex + 2 ); // top right.
+			index_list.insert( -1, base_vertex + 1 ); // bottom left.
+			index_list.insert( -1, base_vertex + 3 ); // bottom right.
 			base_vertex += 4;
 		}
 
 		// add vertices.
-		vertex_list.insert_at_end( input_vertex_list.get_internal_array(), input_vertex_list.get_length() );
+		vertex_list.insert( -1, input_vertex_list.get_internal_array(), input_vertex_list.get_length() );
 	}
 
 	void_c menu_draw_list_c::append_rectangle( box32x2_c const & box, box32x2_c const & map, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture, vector32x4_c const & color, vector32x4_c const shared_colors[ 3 ] )
 	{
 		// add draw.
-		draw_c * draw = draw_list.emplace_at_end();
+		draw_c * draw = draw_list.emplace( -1, 1 );
 		draw->pixel_shader = pixel_shader;
 		draw->texture = texture;
 		draw->color = color;
@@ -1254,27 +1267,27 @@ namespace cheonsa
 		// add indices.
 		assert( index_list.get_length() < 0xFFFF - 6 ); // if this trips then we should try using 32-bit indices.
 		uint16_c base_vertex = static_cast< uint16_c >( vertex_list.get_length() );
-		index_list.insert_at_end( base_vertex ); // top left.
-		index_list.insert_at_end( base_vertex + 1 ); // bottom left.
-		index_list.insert_at_end( base_vertex + 2 ); // top right.
-		index_list.insert_at_end( base_vertex + 2 ); // bottom right.
-		index_list.insert_at_end( base_vertex + 1 ); // top right.
-		index_list.insert_at_end( base_vertex + 3 ); // bottom left.
+		index_list.insert( -1, base_vertex ); // top left.
+		index_list.insert( -1, base_vertex + 1 ); // bottom left.
+		index_list.insert( -1, base_vertex + 2 ); // top right.
+		index_list.insert( -1, base_vertex + 2 ); // bottom right.
+		index_list.insert( -1, base_vertex + 1 ); // top right.
+		index_list.insert( -1, base_vertex + 3 ); // bottom left.
 
 		// add vertices.
-		video_renderer_vertex_menu_c * vertex = vertex_list.emplace_at_end(); // top left.
+		video_renderer_vertex_menu_c * vertex = vertex_list.emplace( -1, 1 ); // top left.
 		vertex->position = vector32x3_c( box.minimum.a, box.minimum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.minimum.a, map.minimum.b, 0.0f );
 		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		vertex = vertex_list.emplace_at_end(); // bottom left
+		vertex = vertex_list.emplace( -1, 1 ); // bottom left
 		vertex->position = vector32x3_c( box.minimum.a, box.maximum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.minimum.a, map.maximum.b, 0.0f );
 		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		vertex = vertex_list.emplace_at_end(); // top right
+		vertex = vertex_list.emplace( -1, 1 ); // top right
 		vertex->position = vector32x3_c( box.maximum.a, box.minimum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.maximum.a, map.minimum.b, 0.0f );
 		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		vertex = vertex_list.emplace_at_end(); // bottom right
+		vertex = vertex_list.emplace( -1, 1 ); // bottom right
 		vertex->position = vector32x3_c( box.maximum.a, box.maximum.b, 0.0f );
 		vertex->texture = vector32x3_c( map.maximum.a, map.maximum.b, 0.0f );
 		vertex->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1282,7 +1295,7 @@ namespace cheonsa
 
 	void_c menu_draw_list_c::append_triangle_list( core_list_c< video_renderer_vertex_menu_c > const & input_vertex_list, core_list_c< uint16_c > const & input_index_list, video_pixel_shader_c * pixel_shader, resource_file_texture_c * texture )
 	{
-		draw_c * draw = draw_list.emplace_at_end();
+		draw_c * draw = draw_list.emplace( -1, 1 );
 		draw->pixel_shader = pixel_shader;
 		draw->texture = texture;
 		draw->color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1293,9 +1306,9 @@ namespace cheonsa
 		uint16_c base_vertex = static_cast< uint16_c >( vertex_list.get_length() );
 		for ( sint32_c i = 0; i < input_index_list.get_length(); i++ )
 		{
-			index_list.insert_at_end( base_vertex + input_index_list[ i ] );
+			index_list.insert( -1, base_vertex + input_index_list[ i ] );
 		}
-		vertex_list.insert_at_end( input_vertex_list.get_internal_array(), input_vertex_list.get_length() );
+		vertex_list.insert( -1, input_vertex_list.get_internal_array(), input_vertex_list.get_length() );
 	}
 
 }

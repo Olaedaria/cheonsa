@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_data_stream_file.h"
@@ -115,11 +115,11 @@ namespace cheonsa
 		boolean_c get_console_is_showing();
 		void_c set_console_is_showing( boolean_c value );
 
-		void_c log( log_type_e type, string16_c const & message );
+		void_c _log( log_type_e type, string16_c const & message ); // don't call this directly, prefer to call debug_log() instead.
 
 	};
 
-	void_c debug_log( log_type_e type, char16_c const * message ); // if debugging then writes a message to the debugger's output. if the debug manager is started then it also writes a message to the engine's log file and console.
+	void_c debug_log( log_type_e type, char16_c const * message ); // if debugging then writes a message to the debug output in the ide. if the debug manager is started then it also writes a message to the engine's log file and console.
 	void_c debug_annoy( char16_c const * title, char16_c const * message ); // this will open up an operating system message box pop up window with an OK button, it blocks execution until the user dismisses it.
 
 }

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_database_types.h"
 #include "cheonsa_core_list.h"
@@ -10,18 +10,16 @@ namespace cheonsa
 {
 
 	// holds tables, which in turn hold records, which in turn hold fields and values.
-	// when databases are loaded their data is in native [ byte order | endianness ].
-	// when databases are saved their data may be converted to match _endianness if it is non-native [ byte order | endianness ].
 	// this isn't as bloated or as robust as sqlite or whatever.
 	// all databases are in memory all the time.
 	class database_c
 	{
-	private:
 		friend class database_stack_c;
 
-		database_stack_c * _database_stack; // if this database is in a stack, so that we can invoke on_modified events at the stack level.
-		string16_c _file_path; // absolute path to database file.
-		string8_c _name; // just a name to describe this database. it's not used to reference this database.
+	private:
+		database_stack_c * _database_stack; // will be set if this database is in a stack, so that we can invoke the stack's on_modified event when we are modified.
+		string16_c _file_path_absolute; // absolute file path of database file.
+		string8_c _name; // just a friendly name for the human designer to use to describe this database. it's not used by code to identify this database.
 		uint16_c _id; // used to uniquely identify this database. for the master game database, may be set to something deliberate. for user-made mods, may be set to something randomly generated so that it avoids collision with other user-made mods.
 		uint8_c _flags; // interpret as database_flag_e.
 		core_list_c< uint16_c > _dependency_ids; // list of ids that this database is dependent on, in the case that this database is a mod.
@@ -32,8 +30,8 @@ namespace cheonsa
 
 		database_stack_c const * get_database_stack() const;
 
-		string16_c const & get_file_path() const; // gets absolute file path of where file was loaded from or saved to.
-		void_c set_file_path( string16_c const & value ); // sets absolute file path of where to load file from or save file to.
+		string16_c const & get_file_path_absolute() const; // gets absolute file path of where file was loaded from or saved to.
+		void_c set_file_path_absolute( string16_c const & value ); // sets absolute file path of where to load file from or save file to.
 
 		string8_c const & get_name() const;
 		void_c set_name( string8_c const & value );
@@ -41,8 +39,8 @@ namespace cheonsa
 		uint16_c get_id() const;
 		void_c set_id( uint16_c value );
 
-		uint8_c get_flags() const;
-		void_c set_flags( uint8_c value );
+		database_flag_e get_flags() const;
+		void_c set_flags( database_flag_e value );
 
 		database_table_c * add_table( uint16_c id ); // adds a new table to the database. you will have to call initialize_schema() on the table before you can use it.
 		database_table_c const * get_table( uint16_c id ) const;

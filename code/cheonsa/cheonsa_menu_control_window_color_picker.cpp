@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_window_color_picker.h"
+#include "cheonsa_menu_control_window_color_picker.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -287,40 +287,40 @@ namespace cheonsa
 		float32_c row_top = 8;
 		float32_c row_height = 30;
 
-		_swatch = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "swatch" ) );
+		_swatch = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "swatch" ) );
 		_swatch->set_mode( menu_control_color_slider_c::mode_e_swatch );
 		_swatch->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( label_left, row_top, text_right, 200 ) );
-		_give_control_to_client( _swatch );
+		add_daughter_control_to_client( _swatch );
 		row_top += 200 + 8;
 
-		_h_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "h_label" ) );
+		_h_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "h_label" ) );
 		_h_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"h" ) );
 		_h_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _h_label );
-		_h_color_slider = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "h_color_slider" ) );
+		add_daughter_control_to_client( _h_label );
+		_h_color_slider = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "h_color_slider" ) );
 		_h_color_slider->set_mode( menu_control_color_slider_c::mode_e_hue );
 		_h_color_slider->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, slider_right, row_height ) );
 		_h_color_slider->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_color_slider_on_value_changed );
-		_give_control_to_client( _h_color_slider );
-		_h_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "h_text" ) );
+		add_daughter_control_to_client( _h_color_slider );
+		_h_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "h_text" ) );
 		_h_text->set_multi_line( false );
 		_h_text->set_word_wrap( false );
 		_h_text->set_text_value_length_limit( 50 );
 		_h_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
 		_h_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _h_text );
+		add_daughter_control_to_client( _h_text );
 		row_top += row_height + 8;
 
-		_s_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "s_label" ) );
+		_s_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "s_label" ) );
 		_s_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"s" ) );
 		_s_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) ) ;
-		_give_control_to_client( _s_label );
-		_s_color_slider = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "s_color_slider" ) );
+		add_daughter_control_to_client( _s_label );
+		_s_color_slider = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "s_color_slider" ) );
 		_s_color_slider->set_mode( menu_control_color_slider_c::mode_e_saturation );
 		_s_color_slider->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, slider_right, row_height ) );
 		_s_color_slider->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_color_slider_on_value_changed );
-		_give_control_to_client( _s_color_slider );
-		_s_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "s_text" ) );
+		add_daughter_control_to_client( _s_color_slider );
+		_s_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "s_text" ) );
 		_s_text->set_multi_line( false );
 		_s_text->set_word_wrap( false );
 		_s_text->set_text_value_length_limit( 50 );
@@ -328,19 +328,19 @@ namespace cheonsa
 		_s_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_s_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
 		_s_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _s_text );
+		add_daughter_control_to_client( _s_text );
 		row_top += row_height + 8;
 
-		_v_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "v_label" ) );
+		_v_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "v_label" ) );
 		_v_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"v" ) );
 		_v_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _v_label );
-		_v_color_slider = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "v_color_slider" ) );
+		add_daughter_control_to_client( _v_label );
+		_v_color_slider = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "v_color_slider" ) );
 		_v_color_slider->set_mode( menu_control_color_slider_c::mode_e_value );
 		_v_color_slider->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, slider_right, row_height ) );
 		_v_color_slider->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_color_slider_on_value_changed );
-		_give_control_to_client( _v_color_slider );
-		_v_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "v_text" ) );
+		add_daughter_control_to_client( _v_color_slider );
+		_v_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "v_text" ) );
 		_v_text->set_multi_line( false );
 		_v_text->set_word_wrap( false );
 		_v_text->set_text_value_length_limit( 50 );
@@ -348,19 +348,19 @@ namespace cheonsa
 		_v_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_v_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
 		_v_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _v_text );
+		add_daughter_control_to_client( _v_text );
 		row_top += row_height + 8;
 
-		_r_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "r_label" ) );
+		_r_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "r_label" ) );
 		_r_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"r" ) );
 		_r_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _r_label );
-		_r_color_slider = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "r_color_slider" ) );
+		add_daughter_control_to_client( _r_label );
+		_r_color_slider = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "r_color_slider" ) );
 		_r_color_slider->set_mode( menu_control_color_slider_c::mode_e_red );
 		_r_color_slider->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, slider_right, row_height ) );
 		_r_color_slider->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_color_slider_on_value_changed );
-		_give_control_to_client( _r_color_slider );
-		_r_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "r_text" ) );
+		add_daughter_control_to_client( _r_color_slider );
+		_r_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "r_text" ) );
 		_r_text->set_multi_line( false );
 		_r_text->set_word_wrap( false );
 		_r_text->set_text_value_length_limit( 50 );
@@ -368,19 +368,19 @@ namespace cheonsa
 		_r_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_r_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
 		_r_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _r_text );
+		add_daughter_control_to_client( _r_text );
 		row_top += row_height + 8;
 
-		_g_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "g_label" ) );
+		_g_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "g_label" ) );
 		_g_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"g" ) );
 		_g_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _g_label );
-		_g_color_slider = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "g_color_slider" ) );
+		add_daughter_control_to_client( _g_label );
+		_g_color_slider = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "g_color_slider" ) );
 		_g_color_slider->set_mode( menu_control_color_slider_c::mode_e_green );
 		_g_color_slider->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, slider_right, row_height ) );
 		_g_color_slider->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_color_slider_on_value_changed );
-		_give_control_to_client( _g_color_slider );
-		_g_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "g_text" ) );
+		add_daughter_control_to_client( _g_color_slider );
+		_g_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "g_text" ) );
 		_g_text->set_multi_line( false );
 		_g_text->set_word_wrap( false );
 		_g_text->set_text_value_length_limit( 50 );
@@ -388,19 +388,19 @@ namespace cheonsa
 		_g_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_g_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
 		_g_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _g_text );
+		add_daughter_control_to_client( _g_text );
 		row_top += row_height + 8;
 
-		_b_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "b_label" ) );
+		_b_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "b_label" ) );
 		_b_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"b" ) );
 		_b_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _b_label );
-		_b_color_slider = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "b_color_slider" ) );
+		add_daughter_control_to_client( _b_label );
+		_b_color_slider = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "b_color_slider" ) );
 		_b_color_slider->set_mode( menu_control_color_slider_c::mode_e_blue );
 		_b_color_slider->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, slider_right, row_height ) );
 		_b_color_slider->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_color_slider_on_value_changed );
-		_give_control_to_client( _b_color_slider );
-		_b_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "b_text" ) );
+		add_daughter_control_to_client( _b_color_slider );
+		_b_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "b_text" ) );
 		_b_text->set_multi_line( false );
 		_b_text->set_word_wrap( false );
 		_b_text->set_text_value_length_limit( 50 );
@@ -408,19 +408,19 @@ namespace cheonsa
 		_b_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_b_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
 		_b_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _b_text );
+		add_daughter_control_to_client( _b_text );
 		row_top += row_height + 8;
 
-		_a_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "a_label" ) );
+		_a_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "a_label" ) );
 		_a_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"a" ) );
 		_a_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _a_label );
-		_a_color_slider = new menu_control_color_slider_c( string8_c( core_list_mode_e_static, "a_color_slider" ) );
+		add_daughter_control_to_client( _a_label );
+		_a_color_slider = menu_control_color_slider_c::make_new_instance( string8_c( core_list_mode_e_static, "a_color_slider" ) );
 		_a_color_slider->set_mode( menu_control_color_slider_c::mode_e_alpha );
 		_a_color_slider->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, slider_right, row_height ) );
 		_a_color_slider->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_color_slider_on_value_changed );
-		_give_control_to_client( _a_color_slider );
-		_a_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "a_text" ) );
+		add_daughter_control_to_client( _a_color_slider );
+		_a_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "a_text" ) );
 		_a_text->set_multi_line( false );
 		_a_text->set_word_wrap( false );
 		_a_text->set_text_value_length_limit( 50 );
@@ -428,50 +428,59 @@ namespace cheonsa
 		_a_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_a_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
 		_a_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _a_text );
+		add_daughter_control_to_client( _a_text );
 		row_top += row_height + 8;
 
-		_rgba_hex_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "rgba_hex_label" ) );
+		_rgba_hex_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "rgba_hex_label" ) );
 		_rgba_hex_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"rgba hex" ) );
 		_rgba_hex_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _rgba_hex_label );
-		_rgba_hex_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "rgba_hex_text" ) );
+		add_daughter_control_to_client( _rgba_hex_label );
+		_rgba_hex_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "rgba_hex_text" ) );
 		_rgba_hex_text->set_multi_line( false );
 		_rgba_hex_text->set_word_wrap( false );
 		_rgba_hex_text->set_text_value_length_limit( 16 );
 		_rgba_hex_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_rgba_hex_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, text_right, row_height) );
 		_rgba_hex_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _rgba_hex_text );
+		add_daughter_control_to_client( _rgba_hex_text );
 		row_top += row_height + 8;
 
-		_rgba_float_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "rgba_float_label" ) );
+		_rgba_float_label = menu_control_label_c::make_new_instance( string8_c( core_list_mode_e_static, "rgba_float_label" ) );
 		_rgba_float_label->set_plain_text_value( string16_c( core_list_mode_e_static, L"rgba float" ) );
 		_rgba_float_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( label_left, row_top, label_width, row_height ) );
-		_give_control_to_client( _rgba_float_label );
-		_rgba_float_text = new menu_control_text_c( string8_c( core_list_mode_e_static, "rgba_float_text" ) );
+		add_daughter_control_to_client( _rgba_float_label );
+		_rgba_float_text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "rgba_float_text" ) );
 		_rgba_float_text->set_multi_line( false );
 		_rgba_float_text->set_word_wrap( false );
 		_rgba_float_text->set_text_value_length_limit( 64 );
 		_rgba_float_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_rgba_float_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, text_right, row_height ) );
 		_rgba_float_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
-		_give_control_to_client( _rgba_float_text );
+		add_daughter_control_to_client( _rgba_float_text );
 		row_top += row_height + 8;
 
-		_cancel_button = new menu_control_button_c( string8_c( core_list_mode_e_static, "cancel_button" ) );
+		_cancel_button = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "cancel_button" ) );
 		_cancel_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"cancel" ) );
 		_cancel_button->on_clicked.subscribe( this, &menu_control_window_color_picker_c::_handle_button_on_clicked );
 		_cancel_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 116, 8 ) );
-		_give_control_to_client( _cancel_button );
+		add_daughter_control_to_client( _cancel_button );
 
-		_okay_button = new menu_control_button_c( string8_c( core_list_mode_e_static, "okay_button" ) );
+		_okay_button = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "okay_button" ) );
 		_okay_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"okay" ) );
 		_okay_button->on_clicked.subscribe( this, &menu_control_window_color_picker_c::_handle_button_on_clicked );
 		_okay_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
-		_give_control_to_client( _okay_button );
+		add_daughter_control_to_client( _okay_button );
 
 		_sync_control_values();
+	}
+
+	menu_control_window_color_picker_c::~menu_control_window_color_picker_c()
+	{
+	}
+
+	menu_control_window_color_picker_c * menu_control_window_color_picker_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_window_color_picker_c( name );
 	}
 
 	vector64x3_c menu_control_window_color_picker_c::get_rgb() const

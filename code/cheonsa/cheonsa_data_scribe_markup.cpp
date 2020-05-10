@@ -1,4 +1,4 @@
-﻿#include "cheonsa_data_scribe_markup.h"
+#include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_string16.h"
 #include "cheonsa__ops.h"
 #include <cassert>
@@ -146,7 +146,7 @@ namespace cheonsa
 			{
 				if ( node->_value == name )
 				{
-					result.insert_at_end( node );
+					result.insert( -1, node );
 				}
 			}
 			node_index = node->_next_sister;
@@ -273,7 +273,7 @@ namespace cheonsa
 		assert( _node_heap.get_length() == 0 );
 
 		// open virtual root tag.
-		node_c * virtual_root_tag = _node_heap.emplace_at_end();
+		node_c * virtual_root_tag = _node_heap.emplace( -1, 1 );
 		virtual_root_tag->reset( this );
 		virtual_root_tag->_type = node_c::type_e_tag;
 		virtual_root_tag->_tag_type = node_c::tag_type_e_open;
@@ -284,7 +284,7 @@ namespace cheonsa
 
 		// parse nodes until end of document.
 		core_list_c< sint32_c > node_stack; // tracks our stack state with indices to nodes in the _node_heap.
-		node_stack.insert_at_end( 0 ); // psuh the virtual root node onto the stack.
+		node_stack.insert( -1, 0 ); // psuh the virtual root node onto the stack.
 
 		_current = _text_with_mark_up.get_internal_array();
 
@@ -317,7 +317,7 @@ namespace cheonsa
 		{
 			sint32_c new_node_index = _node_heap.get_length();
 
-			node_c * new_node = _node_heap.emplace_at_end();
+			node_c * new_node = _node_heap.emplace( -1, 1 );
 			new_node->reset( this );
 			new_node->_index = _node_heap.get_length() - 1;
 			new_node->_depth = node_stack.get_length();
@@ -360,7 +360,7 @@ namespace cheonsa
 					top_node->_first_daughter = new_node_index;
 					top_node->_daughter_count = 1;
 					new_node->_mother = top_node_index;
-					node_stack.insert_at_end( new_node_index );
+					node_stack.insert( -1, new_node_index );
 					top_node->_is_open = false;
 				}
 				else
@@ -393,8 +393,7 @@ namespace cheonsa
 						// encountered too many close tags.
 						return false;
 					}
-					node_stack.remove_at_end();
-					_node_heap.remove_at_end(); // recycle, reuse.
+					node_stack.remove( -1, 2 ); // recycle, reuse.
 				}
 			}
 
@@ -503,7 +502,7 @@ namespace cheonsa
 				break;
 			}
 
-			attribute_c * new_attribute = _attribute_heap.emplace_at_end(); // create new attribute.
+			attribute_c * new_attribute = _attribute_heap.emplace( -1, 1 ); // create new attribute.
 			if ( !_parse_generic_name( new_attribute->_name ) ) // parse attribute name.
 			{
 				_error_message = "expected attribute name.";
@@ -861,12 +860,10 @@ namespace cheonsa
 	boolean_c data_scribe_markup_c::parse( string8_c const & document_string )
 	{
 		reset();
-		_text_with_mark_up.insert_at_end( document_string.character_list.get_internal_array(), document_string.character_list.get_length() );
-		_text_with_mark_up.insert_at_end( 0 ); // we add a bunch of terminating zeros so that the parser can scan without needing to check if it will go out of bounds.
-		_text_with_mark_up.insert_at_end( 0 );
-		_text_with_mark_up.insert_at_end( 0 );
-		_text_with_mark_up.insert_at_end( 0 );
-		_text_with_mark_up.insert_at_end( 0 );
+		_text_with_mark_up.insert( -1, document_string.character_list.get_internal_array(), document_string.character_list.get_length() );
+		// add a bunch of terminating zeros so that the parser has room to scan ahead safely without worrying about checking if it will go out of bounds.
+		char8_c values[] = { '\0', '\0', '\0', '\0', '\0' };
+		_text_with_mark_up.insert( -1, values, 5 );
 		return _parse();
 	}
 
@@ -973,7 +970,7 @@ namespace cheonsa
 
 		assert( _current[ 0 ] == _bracket_open );
 
-		node_c * new_node = _node_heap.emplace_at_end();
+		node_c * new_node = _node_heap.emplace( -1, 1 );
 		new_node->reset( this );
 
 		_current[ 0 ] = 0; // we don't need to do this here but it's not a big deal.

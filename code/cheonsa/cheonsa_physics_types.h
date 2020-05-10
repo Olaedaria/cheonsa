@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
@@ -27,7 +27,7 @@ namespace cheonsa
 
 	class physics_scene_c;
 	class physics_shape_c;
-	class physics_body_c;
+	class physics_rigid_body_c;
 	class physics_constraint_c;
 
 	enum physics_shape_type_e
@@ -51,6 +51,13 @@ namespace cheonsa
 		physics_constraint_type_e_hinge, // connects two ojbects together at a given frame, and both objects are free to rotate around the frame's x axis (with optional limits).
 		physics_constraint_type_e_cone, // connects two objects together at a given frame, and both objects are free to rotate (swing) around the frame's y and z axes, and twist around the remaining axis.
 		physics_constraint_type_e_generic, // connects two objects together at a given frame, and both objects are free to rotate and translate around each of the frame's three axes (with optional limits for angular and linear motion).
+	};
+
+	enum physics_dynamics_type_e
+	{
+		physics_dynamics_type_e_static, // rigid body will be forced to have 0 mass in the simulation, which makes it unmovable.
+		physics_dynamics_type_e_dynamic, // rigid body will simulate like normal.
+		physics_dynamics_type_e_dynamic_kinematic, // rigid body will have its transform driven by the game, it can interact one-way to influence other dynamic type rigid bodies in the simulation.
 	};
 
 	enum physics_layer_e
@@ -104,7 +111,7 @@ namespace cheonsa
 		class hit_c
 		{
 		public:
-			physics_body_c * object;
+			physics_rigid_body_c * object;
 			float64_c fraction;
 			vector64x3_c position;
 			vector64x3_c normal;
@@ -119,7 +126,7 @@ namespace cheonsa
 		core_list_c< hit_c > hit_list;
 	};
 
-	void_c physics_make_btTransform_from_space_transform( space_transform_c const & in_transform, btMatrix3x3 & out_basis, btVector3 & out_origin ); // creates out_basis (unscaled) and out_origin from in_transform.
-	void_c physics_make_space_transform_from_btTransform( btMatrix3x3 const & in_basis, btVector3 const & in_position, space_transform_c & out_transform );
+	void_c physics_make_btTransform_from_space_transform( transform3d_c const & in_transform, btMatrix3x3 & out_basis, btVector3 & out_origin ); // creates out_basis (unscaled) and out_origin from in_transform.
+	void_c physics_make_space_transform_from_btTransform( btMatrix3x3 const & in_basis, btVector3 const & in_position, transform3d_c & out_transform );
 
 }

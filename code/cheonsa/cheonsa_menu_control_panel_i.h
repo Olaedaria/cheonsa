@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_scroll_bar_x.h"
@@ -40,20 +40,14 @@ namespace cheonsa
 		void_c _set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value );
 		void_c _lay_out_vertical_scroll_bar();
 
+		void_c _update_scroll_bar_visibility(); // evaluates content size and updates visibility of scroll bars accordingly.
+
 		void_c _handle_scroll_bar_on_value_changed( menu_control_scroll_bar_i * scroll_bar );
 		void_c _handle_scroll_bar_on_preferred_thickness_changed( menu_control_scroll_bar_i * scroll_bar );
 
-		sint32_c _get_controls_in_client_count() const;
-		menu_control_c const * _get_control_in_client( sint32_c control_index ) const;
-		menu_control_c * _get_control_in_client( sint32_c control_index );
-
-		sint32_c _give_control_to_client( menu_control_c * control, sint32_c index = -1 );
-		menu_control_c * _take_control_from_client( sint32_c control_index );
-		void_c _remove_and_delete_all_controls_from_client();
-
-	protected:
 		menu_control_panel_i( string8_c const & name );
 
+	public:
 		virtual void_c update_animations( float32_c time_step ) override;
 
 	};

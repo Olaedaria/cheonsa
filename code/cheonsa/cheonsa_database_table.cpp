@@ -1,4 +1,4 @@
-﻿#include "cheonsa_database_table.h"
+#include "cheonsa_database_table.h"
 #include "cheonsa_database_field_schema.h"
 #include "cheonsa_database_record.h"
 #include "cheonsa_database.h"
@@ -22,7 +22,7 @@ namespace cheonsa
 	boolean_c database_table_c::_save( data_scribe_binary_c & scribe )
 	{
 		// save meta.
-		if ( !scribe.save_string8( _name ) )
+		if ( !scribe.save_string8( _key ) )
 		{
 			return false;
 		}
@@ -44,7 +44,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		if ( !scribe.get_stream()->save( _string_table.get_internal_array(), _string_table.get_internal_array_size_used() ) )
+		if ( !scribe.get_stream()->save( _string_table.get_internal_array(), _string_table.get_internal_array_size() ) )
 		{
 			return false;
 		}
@@ -71,15 +71,15 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _record_schema._fields.get_length(); i++ )
 		{
 			database_field_schema_c const & field_schema = _record_schema._fields[ i ];
-			if ( !scribe.save_string8( field_schema.name ) )
+			if ( !scribe.save_string8( field_schema._key) )
 			{
 				return false;
 			}
-			if ( !scribe.save_uint8( static_cast< uint8_c >( field_schema.type ) ) )
+			if ( !scribe.save_uint8( static_cast< uint8_c >( field_schema._type ) ) )
 			{
 				return false;
 			}
-			if ( !scribe.save_uint8( field_schema.type_count ) )
+			if ( !scribe.save_uint8( field_schema._type_count ) )
 			{
 				return false;
 			}
@@ -96,7 +96,7 @@ namespace cheonsa
 		}
 		if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 		{
-			if ( !scribe.get_stream()->save( _record_buffer.get_internal_array(), _record_buffer.get_internal_array_size_used() ) )
+			if ( !scribe.get_stream()->save( _record_buffer.get_internal_array(), _record_buffer.get_internal_array_size() ) )
 			{
 				return false;
 			}
@@ -115,7 +115,7 @@ namespace cheonsa
 	boolean_c database_table_c::_load( data_scribe_binary_c & scribe )
 	{
 		// reset.
-		_name = string8_c();
+		_key = string8_c();
 		_id = 0;
 		_flags = 0;
 		_next_record_id = 0;
@@ -128,7 +128,7 @@ namespace cheonsa
 
 		// load meta.
 		core_list_c< sint32_c > strings_offsets;
-		if ( !scribe.load_string8( _name ) )
+		if ( !scribe.load_string8( _key ) )
 		{
 			goto cancel;
 		}
@@ -159,7 +159,7 @@ namespace cheonsa
 			{
 				goto cancel;
 			}
-			strings_offsets.insert_at_end( string_offset );
+			strings_offsets.insert( -1, string_offset );
 		}
 		assert( strings_offsets[ 0 ] == 0 );
 		if ( !scribe.load_sint32( count ) )
@@ -168,7 +168,7 @@ namespace cheonsa
 		}
 		assert( count > 0 );
 		_string_table.set_length( count );
-		scribe.get_stream()->load( _string_table.get_internal_array(), _string_table.get_internal_array_size_used() );
+		scribe.get_stream()->load( _string_table.get_internal_array(), _string_table.get_internal_array_size() );
 		assert( _string_table[ 0 ] == 0 );
 		for ( sint32_c i = 0; i < strings_offsets.get_length(); i++ )
 		{
@@ -218,7 +218,7 @@ namespace cheonsa
 		_record_buffer.set_length( records_buffer_length );
 		if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 		{
-			if ( !scribe.get_stream()->load( _record_buffer.get_internal_array(), _record_buffer.get_internal_array_size_used() ) )
+			if ( !scribe.get_stream()->load( _record_buffer.get_internal_array(), _record_buffer.get_internal_array_size() ) )
 			{
 				goto cancel;
 			}
@@ -251,7 +251,7 @@ namespace cheonsa
 		return true;
 
 	cancel:
-		_name = string8_c();
+		_key = string8_c();
 		_id = 0;
 		_flags = 0;
 		_next_record_id = 0;
@@ -273,7 +273,7 @@ namespace cheonsa
 			return *buffer_offset_pointer;
 		}
 		sint32_c strings_buffer_offset = _string_table.get_length();
-		char8_c * strings_buffer = _string_table.emplace_range_at_end( value.character_list.get_length() );
+		char8_c * strings_buffer = _string_table.emplace( -1, value.character_list.get_length() );
 		ops::memory_copy( value.character_list.get_internal_array(), strings_buffer, value.character_list.get_length() );
 		_string_table_map.insert( string8_c( core_list_mode_e_dynamic, value.character_list.get_internal_array(), value.character_list.get_length() ), strings_buffer_offset );
 		return strings_buffer_offset;
@@ -296,7 +296,7 @@ namespace cheonsa
 
 	database_table_c::database_table_c()
 		: _database( nullptr )
-		, _name()
+		, _key()
 		, _id( 0 )
 		, _flags( 0 )
 		, _next_record_id( 0 )
@@ -309,14 +309,14 @@ namespace cheonsa
 	{
 	}
 
-	string8_c const & database_table_c::get_name() const
+	string8_c const & database_table_c::get_key() const
 	{
-		return _name;
+		return _key;
 	}
 
-	void_c database_table_c::set_name( string8_c const & value )
+	void_c database_table_c::set_key( string8_c const & value )
 	{
-		_name = value;
+		_key = value;
 	}
 
 	uint16_c database_table_c::get_id() const
@@ -375,7 +375,7 @@ namespace cheonsa
 			{
 				remap_c * remap = &remaps[ i ];
 				remap->to = &value._fields[ i ];
-				remap->from = _record_schema.get_field( remap->to->name, remap->to->type, remap->to->type_count );
+				remap->from = _record_schema.get_field( remap->to->_key, remap->to->_type, remap->to->_type_count );
 			}
 
 			// copy existing buffers to temporaries so we can rebuild new buffers in their place.
@@ -391,7 +391,7 @@ namespace cheonsa
 			core_dictionary_c< uint32_c, database_record_c * > old_records_map;
 			_record_map.transfer_to( old_records_map );
 			_record_mod_map.remove_all();
-			// go through each old record and determine if it needs to be converted or deleted.
+			// go through each old record and determine if it needs to be converted or deleted (ignored).
 			sint32_c new_record_size = _record_schema.get_size();
 			core_list_c< uint32_c > record_ids = old_records_map.get_key_list();
 			record_ids.quick_sort( &absolute_value_uint32, false );
@@ -404,7 +404,7 @@ namespace cheonsa
 				if ( ( old_record_header->flags & database_record_flag_e_is_deleted ) != 0 )
 				{
 					sint32_c new_record_offset = _record_buffer.get_length();
-					uint8_c * new_record_data = _record_buffer.emplace_range_at_end( new_record_size );
+					uint8_c * new_record_data = _record_buffer.emplace( -1, new_record_size );
 					ops::memory_copy( old_record_data, new_record_data, sizeof( database_record_header_c ) );
 					for ( sint32_c j = 0; j < remaps.get_length(); j++ )
 					{
@@ -413,7 +413,7 @@ namespace cheonsa
 						{
 							// remapped field.
 							database_field_schema_c const & old_field_schema = old_records_schema._fields[ remap->from->_index ];
-							if ( old_field_schema.type == data_type_e_string8 || old_field_schema.type == data_type_e_string16 )
+							if ( old_field_schema._type == data_type_e_string8 || old_field_schema._type == data_type_e_string16 )
 							{
 								// add new string.
 								new_record_data[ remap->to->_data_offset ] = static_cast< uint8_c >( database_field_flag_e_is_defined );
@@ -487,7 +487,7 @@ namespace cheonsa
 		record->_table = this;
 		record->_data_offset = _record_buffer.get_length();
 		sint32_c record_size = _record_schema.get_size();
-		uint8_c * record_data = _record_buffer.emplace_range_at_end( record_size );
+		uint8_c * record_data = _record_buffer.emplace( -1, record_size );
 		ops::memory_zero( record_data, record_size );
 		database_record_header_c * record_header = reinterpret_cast< database_record_header_c * >( record_data );
 		record_header->id = record_id;

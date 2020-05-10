@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_types.h"
 #include "cheonsa_platform_pointer.h"
@@ -14,15 +14,15 @@ namespace cheonsa
 	class scene_c;
 	class scene_object_c;
 
-	// the user interfaces is the highest level interface between the user and the game.
+	// the user interfaces is the highest level interface between the human user and the game.
 	//
 	// it manages a canvas (collection of texture render targets) which is associated with the client window.
 	//
-	// it contains at most one 3d scene.
-	// it may contain any number of 3d objects and 3d menu controls (2d menu controls positioned in 3d space).
+	// it can associate with one 3d scene at a time.
+	// the 3d scene may contain any number of 3d objects and 3d menu controls (2d menu controls positioned in 3d space).
 	//
-	// it contains any number of root level 2d menu controls.
-	// these 2d menu controls may in turn contain other 2d menu controls and 3d scenes.
+	// it can contain any number of root level 2d menu controls.
+	// these 2d menu controls may in turn contain other 2d menu controls.
 	//
 	// it delegates:
 	//     routing user input events to 2d and 3d menu controls and to the game.
@@ -42,16 +42,16 @@ namespace cheonsa
 	// and when rendering controls, the list is walked from back to front several times, once for each layer.
 	class user_interface_c
 	{
-	protected:
 		friend class video_renderer_interface_c;
 
+	protected:
 		box32x2_c _local_box; // used to lay out root controls that use anchor layout, because they need a rectangle to anchor to. minimum will always be (0, 0). maximum will be (width, height). this is the "window" area of the user interface.
 
 		video_renderer_canvas_c * _canvas_and_output; // canvas and output associated with operating system window that this user interface will render to.
 
 		scene_c * _scene; // this scene needs to be set by the game. it will be the world that the user experiences.
 
-		core_list_c< menu_control_c * > _control_list; // list of root level menu controls. this contains 2d and 3d controls. for 2d controls, controls that are placed towards the end of the list appear layered in front of controls that come before. for 3d controls, they may appear anywhere in the list and order is irrelevant.
+		core_linked_list_c< menu_control_c * > _control_list; // list of root level menu controls. this contains 2d and 3d controls. for 2d controls, controls that are placed towards the end of the list appear layered in front of controls that come before. for 3d controls, they may appear anywhere in the list and order is irrelevant.
 
 		menu_control_c * _mouse_overed; // this is the control that the mouse is over, regardless of if any control has trapped mouse input focus or not.
 		menu_control_c * _mouse_focused; // this is the control that has mouse input focus and which will receieve mouse events. controls will trap mouse input focus temporarily if the user initiates a click on them and then drags the mouse, so that the control will continue to receive mouse input events even if the mouse is dragged off of it.
@@ -96,10 +96,9 @@ namespace cheonsa
 		scene_c * get_scene() const; // gets the scene that is associated with this user interface.
 		void_c set_scene( scene_c * scene ); // sets the scene to associate with this user interface. if the current scene has any 3d menu controls, then they will be removed from this user interface. if the new scene has any 3d menu controls, then they will be added to this user interface. you can set it to nullptr to disassociate.
 
-		void_c give_control( menu_control_c * control, sint32_c index = -1 ); // adds a control to this user interface, also transfers ownership of a menu control to this user interface (which means that you aren't responsible for deleting it).
-		void_c take_control( menu_control_c * control ); // removes a control from this user interface, also takes ownership of a control away from this user interface (which means that you are now responsible for deleting it.
+		void_c add_control( menu_control_c * control, sint32_c index = -1 ); // adds a control to this user interface, also transfers ownership of a menu control to this user interface (which means that you aren't responsible for deleting it).
+		void_c remove_control( menu_control_c * control ); // removes a control from this user interface, also takes ownership of a control away from this user interface (which means that you are now responsible for deleting it.
 		void_c bring_control_to_front( menu_control_c * control ); // moves the given control (which is already in the user interface) to front (layered above all other controls in the user interface).
-		core_list_c< menu_control_c * > const & get_control_list() const;
 
 		// controls that do not respond to multi-clicks should call this in their _on_clicked() method.
 		// controls that do respond to multi-clicks should call this in their _on_multi_clicked() method when the multi-click count is equal to the maximum multi-click count that the control is programmed to respond to.

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_string8.h"
+#include "cheonsa_string8.h"
 #include "cheonsa__ops.h"
 #include <cassert>
 
@@ -16,16 +16,16 @@ namespace cheonsa
 		*this = other;
 	}
 
+	string8_c::string8_c( string16_c const & other )
+		: character_list( core_list_mode_e_static, nullptr, 0 )
+	{
+		*this = other;
+	}
+
 	string8_c::string8_c( char16_c const * other )
 		: character_list( core_list_mode_e_static, nullptr, 0 )
 	{
 		assert( other != nullptr );
-		*this = other;
-	}
-
-	string8_c::string8_c( string16_c const & other )
-		: character_list( core_list_mode_e_static, nullptr, 0 )
-	{
 		*this = other;
 	}
 
@@ -38,6 +38,11 @@ namespace cheonsa
 		: character_list( mode, other, other_length_with_null_terminator )
 	{
 		assert( other[ other_length_with_null_terminator - 1 ] == 0 );
+	}
+
+	boolean_c string8_c::is_set() const
+	{
+		return character_list.get_length() > 1;
 	}
 
 	sint32_c string8_c::get_length() const
@@ -95,9 +100,9 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
-		character_list.insert_at_end( other );
-		character_list.insert_at_end( 0 );
+		character_list[ character_list.get_length() - 1 ] = other;
+		character_list.insert( -1, '\0' );
+
 		return *this;
 	}
 
@@ -107,12 +112,12 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
+		character_list.remove( -1, 1 );
 		char8_c buffer[ 4 ];
 		char8_c * buffer_pointer = buffer;
 		sint8_c bytes = ops::convert_char16_to_utf8( other, buffer_pointer );
 		buffer[ bytes ] = 0;
-		character_list.insert_at_end( buffer, bytes + 1 );
+		character_list.insert( -1, buffer, bytes + 1 );
 		return *this;
 	}
 
@@ -123,8 +128,8 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
-		character_list.insert_at_end( other, ops::string8_find_length( other ) + 1 );
+		character_list.remove( -1, 1 );
+		character_list.insert( -1, other, ops::string8_find_length( other ) + 1 );
 		return *this;
 	}
 
@@ -135,7 +140,7 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
+		character_list.remove( -1, 1 );
 		ops::convert_string16_to_string8( core_list_c< char16_c >( core_list_mode_e_static, other, ops::string16_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
@@ -146,8 +151,8 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
-		character_list.insert_at_end( other.character_list.get_internal_array(), other.character_list.get_length() );
+		character_list.remove( -1, 1 );
+		character_list.insert( -1, other.character_list.get_internal_array(), other.character_list.get_length() );
 		return *this;
 	}
 
@@ -157,7 +162,7 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
+		character_list.remove( -1, 1 );
 		ops::convert_string16_to_string8( other.character_list, character_list );
 		return *this;
 	}

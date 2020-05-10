@@ -1,4 +1,4 @@
-﻿#include "cheonsa_data_scribe_text.h"
+#include "cheonsa_data_scribe_text.h"
 #include <cassert>
 
 namespace cheonsa
@@ -40,7 +40,7 @@ namespace cheonsa
 
 		if ( stream_position == stream_size )
 		{
-			result.character_list.insert_at_end( '\0' );
+			result.character_list.insert( -1, '\0' );
 			return false;
 		}
 
@@ -52,7 +52,7 @@ namespace cheonsa
 			{
 				bytes_to_load = chunk_size;
 			}
-			char8_c * result_buffer = result.character_list.emplace_range_at_end( bytes_to_load );
+			char8_c * result_buffer = result.character_list.emplace( -1, bytes_to_load );
 			_stream->load( result_buffer, bytes_to_load );
 			stream_position += bytes_to_load;
 			for ( sint32_c i = 0; i < bytes_to_load; i++ )
@@ -77,7 +77,7 @@ namespace cheonsa
 		}
 		else
 		{
-			result.character_list.insert_at_end( '\0' );
+			result.character_list.insert( -1, '\0' );
 			return true;
 		}
 		goto load_chunk;

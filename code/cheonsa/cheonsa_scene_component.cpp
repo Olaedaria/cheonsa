@@ -1,45 +1,10 @@
-﻿#include "cheonsa_scene_component.h"
-#include "cheonsa_scene_component_light.h"
-#include "cheonsa_scene_component_light_probe.h"
-#include "cheonsa_scene_component_menu_control.h"
-#include "cheonsa_scene_component_model.h"
-#include "cheonsa_scene_component_sound.h"
-#include "cheonsa_scene_component_sprite.h"
+#include "cheonsa_scene_component.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
 {
-
-	scene_component_c * scene_component_c::make_new_instance( uint8_c type_code )
-	{
-		if ( type_code == scene_component_light_c::get_type_code_static() )
-		{
-			return new scene_component_light_c();
-		}
-		else if ( type_code == scene_component_light_probe_c::get_type_code_static() )
-		{
-			return new scene_component_light_probe_c();
-		}
-		else if ( type_code == scene_component_menu_control_c::get_type_code_static() )
-		{
-			return new scene_component_menu_control_c();
-		}
-		else if ( type_code == scene_component_model_c::get_type_code_static() )
-		{
-			return new scene_component_model_c();
-		}
-		else if ( type_code == scene_component_sound_c::get_type_code_static() )
-		{
-			return new scene_component_sound_c();
-		}
-		else if ( type_code == scene_component_sprite_c::get_type_code_static() )
-		{
-			return new scene_component_sprite_c();
-		}
-		return nullptr;
-	}
 
 	void_c scene_component_c::_reset_local_space_obb()
 	{
@@ -55,28 +20,6 @@ namespace cheonsa
 	{
 		assert( _scene_object );
 		_world_space_aabb = ops::make_aabb_from_obb( box64x3_c( _local_space_obb ), _scene_object->get_world_space_transform() );
-	}
-
-	void_c scene_component_c::_handle_after_added_to_scene()
-	{
-		_insert_or_update_component_tree();
-	}
-
-	void_c scene_component_c::_handle_before_removed_from_scene()
-	{
-		_remove_from_component_tree();
-	}
-
-	void_c scene_component_c::_handle_before_property_modified( scene_object_property_e property )
-	{
-	}
-
-	void_c scene_component_c::_handle_after_property_modified( scene_object_property_e property )
-	{
-		if ( property & scene_object_property_e_position || property & scene_object_property_e_scale || property & scene_object_property_e_scale )
-		{
-			_insert_or_update_component_tree();
-		}
 	}
 
 	void_c scene_component_c::_insert_or_update_component_tree()
@@ -95,20 +38,66 @@ namespace cheonsa
 		}
 	}
 
+	void_c scene_component_c::_handle_after_added_to_user_interface()
+	{
+	}
+
+	void_c scene_component_c::_handle_before_removed_from_user_interface()
+	{
+	}
+
+	void_c scene_component_c::_handle_after_added_to_scene()
+	{
+		assert( _scene_object );
+		assert( _scene_object->get_scene() );
+		_insert_or_update_component_tree();
+	}
+
+	void_c scene_component_c::_handle_before_removed_from_scene()
+	{
+		assert( _scene_object );
+		assert( _scene_object->get_scene() );
+		_remove_from_component_tree();
+	}
+
+	void_c scene_component_c::_handle_on_world_space_transform_changed( transform3d_c const & old_world_space_transform, transform3d_c const & new_world_space_transform )
+	{
+		assert( _scene_object );
+	}
+
 	scene_component_c::scene_component_c()
 		: _scene_object( nullptr )
-		, _component_list_node( this )
+		, _scene_component_list_node( this )
 		, _scene_tree_leaf_node()
 		, _scene_tree_list_node( this )
 		, _local_space_obb()
 		, _world_space_aabb()
+		, _reference_count( 0 )
 	{
 		_reset_local_space_obb();
 	}
 
 	scene_component_c::~scene_component_c()
 	{
+		assert( _reference_count == 0 );
 		_remove_from_component_tree();
+	}
+
+	void_c scene_component_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	boolean_c scene_component_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+			return true;
+		}
+		return false;
 	}
 
 	scene_object_c * scene_component_c::get_scene_object() const
@@ -126,7 +115,7 @@ namespace cheonsa
 		return _world_space_aabb;
 	}
 
-	space_transform_c const & scene_component_c::get_world_space_transform() const
+	transform3d_c const & scene_component_c::get_world_space_transform() const
 	{
 		assert( _scene_object );
 		return _scene_object->get_world_space_transform();

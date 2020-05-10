@@ -177,7 +177,7 @@ namespace cheonsa
 					value_as_quaternion.b = value.float32[ 1 ];
 					value_as_quaternion.c = value.float32[ 2 ];
 					value_as_quaternion.d = value.float32[ 3 ];
-					value_as_euler_angles = ops::make_euler_angles_from_quaternion32( quaternion32_c( value.float32 ) );
+					value_as_euler_angles = ops::euler_angles_from_rotation_quaternion32( quaternion32_c( value.float32 ) );
 				}
 				else
 				{
@@ -199,7 +199,7 @@ namespace cheonsa
 					value_as_quaternion.b = static_cast< float32_c >( value.float64[ 1 ] );
 					value_as_quaternion.c = static_cast< float32_c >( value.float64[ 2 ] );
 					value_as_quaternion.d = static_cast< float32_c >( value.float64[ 3 ] );
-					value_as_euler_angles = ops::make_euler_angles_from_quaternion32( value_as_quaternion );
+					value_as_euler_angles = ops::euler_angles_from_rotation_quaternion32( value_as_quaternion );
 				}
 				else
 				{
@@ -359,7 +359,7 @@ namespace cheonsa
 				}
 				else if ( property->_type_count == 4 )
 				{
-					quaternion32_c value_as_quaternion = ops::make_quaternion32_from_euler_angles( vector32x3_c( value_as_euler_angles ) );
+					quaternion32_c value_as_quaternion = ops::rotation_quaternion32_from_euler_angles( vector32x3_c( value_as_euler_angles ) );
 					value.float32[ 0 ] = value_as_quaternion.a;
 					value.float32[ 1 ] = value_as_quaternion.b;
 					value.float32[ 2 ] = value_as_quaternion.c;
@@ -380,7 +380,7 @@ namespace cheonsa
 				}
 				else if ( property->_type_count == 4 )
 				{
-					quaternion32_c quaternion = ops::make_quaternion32_from_euler_angles( vector32x3_c( value_as_euler_angles ) );
+					quaternion32_c quaternion = ops::rotation_quaternion32_from_euler_angles( vector32x3_c( value_as_euler_angles ) );
 					value.float64[ 0 ] = static_cast< float64_c >( quaternion.a );
 					value.float64[ 1 ] = static_cast< float64_c >( quaternion.b );
 					value.float64[ 2 ] = static_cast< float64_c >( quaternion.c );
@@ -620,7 +620,7 @@ namespace cheonsa
 				value_as_quaternion.b = value.float32[ 1 ];
 				value_as_quaternion.c = value.float32[ 2 ];
 				value_as_quaternion.d = value.float32[ 3 ];
-				value_as_euler_angles = ops::make_euler_angles_from_quaternion32( value_as_quaternion );
+				value_as_euler_angles = ops::euler_angles_from_rotation_quaternion32( value_as_quaternion );
 			}
 			else
 			{
@@ -642,7 +642,7 @@ namespace cheonsa
 				value_as_quaternion.b = static_cast< float32_c >( value.float64[ 1 ] );
 				value_as_quaternion.c = static_cast< float32_c >( value.float64[ 2 ] );
 				value_as_quaternion.d = static_cast< float32_c >( value.float64[ 3 ] );
-				value_as_euler_angles = ops::make_euler_angles_from_quaternion32( value_as_quaternion );
+				value_as_euler_angles = ops::euler_angles_from_rotation_quaternion32( value_as_quaternion );
 			}
 			else
 			{
@@ -670,7 +670,7 @@ namespace cheonsa
 			}
 			else if ( property->_type_count == 4 )
 			{
-				quaternion32_c value_as_quaternion = ops::make_quaternion32_from_euler_angles( value_as_euler_angles );
+				quaternion32_c value_as_quaternion = ops::rotation_quaternion32_from_euler_angles( value_as_euler_angles );
 				value.float32[ 0 ] = value_as_quaternion.a;
 				value.float32[ 1 ] = value_as_quaternion.b;
 				value.float32[ 2 ] = value_as_quaternion.c;
@@ -691,7 +691,7 @@ namespace cheonsa
 			}
 			else if ( property->_type_count == 4 )
 			{
-				quaternion32_c value_as_quaternion = ops::make_quaternion32_from_euler_angles( value_as_euler_angles );
+				quaternion32_c value_as_quaternion = ops::rotation_quaternion32_from_euler_angles( value_as_euler_angles );
 				value.float64[ 0 ] = static_cast< float64_c >( value_as_quaternion.a );
 				value.float64[ 1 ] = static_cast< float64_c >( value_as_quaternion.b );
 				value.float64[ 2 ] = static_cast< float64_c >( value_as_quaternion.c );

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 
@@ -281,32 +281,33 @@ namespace cheonsa
 			reference_c();
 			~reference_c();
 
-			void_c release_value();
-			void_c resolve_value();
-
 			string8_c const & get_key() const;
 			void_c set_key( string8_c const & value );
 
 			menu_color_style_c const * get_value() const;
 
+			void_c resolve();
+			void_c unresolve();
+
 		};
 
 	public:
-		sint32_c index;
 		string8_c key;
-		vector32x4_c value;
+		vector32x4_c value; 
 
 	public:
 		menu_color_style_c();
 
 		void_c reset();
 		void_c load( data_scribe_markup_c::node_c const * node );
+
 		void_c initialize( sint32_c index, string8_c const & key );
 
 	};
 
 	// defines how to render a frame element.
 	// frame styles can be defined by "styles.xml".
+	// or they can be hard coded into existence.
 	class menu_frame_style_c
 	{
 	public:
@@ -325,14 +326,14 @@ namespace cheonsa
 			reference_c();
 			~reference_c();
 
-			void_c release_value(); // releases _value but keeps _key.
-			void_c resolve_value(); // looks up _value with _key.
-
 			string8_c const & get_key() const;
 			void_c set_key( string8_c const & value );
 
 			menu_frame_style_c const * get_value() const;
 			void_c set_value( menu_frame_style_c const * value ); // a little more optimal than set_key() since it avoids doing a look up.
+
+			void_c resolve();
+			void_c unresolve();
 
 		};
 
@@ -344,7 +345,7 @@ namespace cheonsa
 			texture_map_mode_e_scale_to_fill, // scales a texture over a rectangle to completely cover it, preserves aspect ratio of the texture. some of the texture might be cut off if its aspect ratio is different from the rectangle.
 			texture_map_mode_e_nine_slice_stretch, // nine slice, with the texture stretched over the edges and the middle.
 			texture_map_mode_e_nine_slice_tile, // nine slice, with the texture tiled over the edges and the middle.
-			texture_map_mode_e_center, // single instance texture_map, centered, will be clipped if it's larger than dimensions of element.
+			texture_map_mode_e_center, // single instance texture_map, centered, never scaled (each pixel in texture (texel) maps 1:1 to each pixel in render target), will be clipped if it's larger than dimensions of element.
 		};
 
 		// element appearance properties that can be defined for each visual state.
@@ -403,16 +404,17 @@ namespace cheonsa
 			reference_c();
 			~reference_c();
 
-			void_c release_value();
-			void_c resolve_value();
-
 			string8_c const & get_key() const;
 			void_c set_key( string8_c const & value );
 
 			menu_text_style_c const * get_value() const;
 			void_c set_value( menu_text_style_c const * value ); // a little more optimal than set_key() since it avoids doing a look up.
 
-			core_event_c< void_c, reference_c const * > on_refreshed; // is invoked whenever _value changes. text elements that reference the style should invalidate their text layout.
+			void_c resolve();
+			void_c unresolve();
+
+			core_event_c< void_c, reference_c const * > on_resolved;
+			core_event_c< void_c, reference_c const * > on_unresolved;
 
 		};
 
@@ -420,8 +422,6 @@ namespace cheonsa
 		class state_c
 		{
 		public:
-			//menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
-			//vector32x4_c color; // color tint, multiplied with texture.
 			float32_c saturation; // multiplicative color saturation.
 			float32_c apparent_scale; // multiplicative apparent element scale.
 
@@ -429,7 +429,6 @@ namespace cheonsa
 			state_c();
 
 			void_c reset();
-			//vector32x4_c get_expressed_color() const; // if element_color_style is resolved then returns that color, otherwise returns element_color.
 
 		};
 
@@ -441,9 +440,6 @@ namespace cheonsa
 
 		boolean_c size_is_defined;
 		float32_c size; // size of font in pixels.
-
-		//boolean_c color_style_is_defined;
-		//menu_color_style_c::reference_c color_style; // color style defined color of font.
 
 		boolean_c color_is_defined;
 		vector32x4_c color; // color of font.
@@ -509,9 +505,6 @@ namespace cheonsa
 			reference_c();
 			~reference_c();
 			
-			void_c release_value();
-			void_c resolve_value();
-
 			void_c clear();
 
 			string8_c const & get_key() const;
@@ -520,7 +513,11 @@ namespace cheonsa
 			menu_style_map_c const * get_value() const;
 			void_c set_value( menu_style_map_c const * value );
 
-			core_event_c< void_c, reference_c const * > on_refreshed;
+			void_c resolve();
+			void_c unresolve();
+
+			core_event_c< void_c, reference_c const * > on_resolved;
+			core_event_c< void_c, reference_c const * > on_unresolved;
 
 		};
 

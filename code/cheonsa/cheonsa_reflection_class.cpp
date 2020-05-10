@@ -1,4 +1,4 @@
-﻿#include "cheonsa_reflection_class.h"
+#include "cheonsa_reflection_class.h"
 #include "cheonsa_reflection_property.h"
 #include "cheonsa__ops.h"
 #include <cassert>
@@ -42,7 +42,7 @@ namespace cheonsa
 	{
 		assert( ops::string8_is_valid_for_key( name ) );
 		reflection_property_c * new_property = new reflection_property_c( this, name, description );
-		_property_list.insert_at_end( new_property );
+		_property_list.insert( -1, new_property );
 		return new_property;
 	}
 

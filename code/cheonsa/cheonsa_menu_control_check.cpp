@@ -1,6 +1,7 @@
-﻿#include "cheonsa_menu_control_check.h"
+#include "cheonsa_menu_control_check.h"
 #include "cheonsa_user_interface.h"
 #include "cheonsa__ops.h"
+#include "cheonsa_engine.h"
 
 namespace cheonsa
 {
@@ -22,18 +23,27 @@ namespace cheonsa
 
 		_element_box.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_box.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
-		_add_element( &_element_box );
+		_add_daughter_element( &_element_box );
 
 		_element_mark.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_mark.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
 		_element_mark.set_is_showed( _is_checked );
-		_add_element( &_element_mark );
+		_add_daughter_element( &_element_mark );
 
 		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
 		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 18.0f, 0.0f, 0.0f, 0.0f ) );
-		_add_element( &_element_text );
+		_add_daughter_element( &_element_text );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_check" ) );
+	}
+
+	menu_control_check_c::~menu_control_check_c()
+	{
+	}
+
+	menu_control_check_c * menu_control_check_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_check_c( name );
 	}
 
 	string16_c menu_control_check_c::get_plain_text_value() const
@@ -89,13 +99,16 @@ namespace cheonsa
 			{
 				if ( _mode == mode_e_single && _mother_control != nullptr )
 				{
-					for ( sint32_c i = 0; i < _mother_control->get_control_count(); i++ )
+					// un-check all other related single mode check boxes.
+					core_linked_list_c< menu_control_c * >::node_c const * check_list_node = _mother_control->get_daughter_control_list().get_first();
+					while ( check_list_node )
 					{
-						menu_control_check_c * other_check = dynamic_cast< menu_control_check_c * >( _mother_control->get_control( i ) );
+						menu_control_check_c * other_check = dynamic_cast< menu_control_check_c * >( check_list_node->get_value() );
 						if ( other_check != nullptr && other_check != this && other_check->_mode == mode_e_single )
 						{
 							other_check->set_is_checked( false );
 						}
+						check_list_node = check_list_node->get_next();
 					}
 				}
 				_is_checked = true;
@@ -113,14 +126,19 @@ namespace cheonsa
 
 	void_c menu_control_check_c::update_animations( float32_c time_step )
 	{
-		boolean_c is_descendant_mouse_focused = is_ascendant_of( get_user_interface_root()->get_mouse_focused() );
+		assert( _user_interface );
+		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
+		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
+
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( _user_interface->get_mouse_focused() );
 		_element_box.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_box.set_is_pressed( _is_pressed );
 		_element_mark.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_mark.set_is_pressed( _is_pressed );
 		_element_text.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_text.set_is_pressed( _is_pressed );
-		menu_control_c::update_animations( time_step );
+
+		_update_daughter_control_animations( time_step );
 	}
 
 	void_c menu_control_check_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_combo.h"
+#include "cheonsa_menu_control_combo.h"
 #include "cheonsa_user_interface.h"
 
 namespace cheonsa
@@ -18,6 +18,20 @@ namespace cheonsa
 	menu_control_combo_list_item_text_c::menu_control_combo_list_item_text_c( string8_c const & name )
 		: menu_control_list_item_text_i( name )
 	{
+	}
+
+	menu_control_combo_list_item_text_c::~menu_control_combo_list_item_text_c()
+	{
+	}
+
+	menu_control_combo_list_item_text_c * menu_control_combo_list_item_text_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_combo_list_item_text_c( name );
+	}
+
+	void_c menu_control_combo_list_item_text_c::select()
+	{
+		_set_is_selected( true, false );
 	}
 
 	void_c menu_control_combo_list_c::_on_selected_item_list_changed()
@@ -44,44 +58,44 @@ namespace cheonsa
 		set_is_showed_immediately( false ); // start hidden.
 	}
 
+	menu_control_combo_list_c::~menu_control_combo_list_c()
+	{
+	}
+
+	menu_control_combo_list_c * menu_control_combo_list_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_combo_list_c( name );
+	}
+
 	sint32_c menu_control_combo_list_c::get_item_count() const
 	{
-		return _get_item_count();
+		return _client->get_daughter_control_list().get_length();
 	}
 
-	menu_control_list_item_i const * menu_control_combo_list_c::get_item( sint32_c item_index ) const
+	menu_control_list_item_i const * menu_control_combo_list_c::get_item_at_index( sint32_c item_index ) const
 	{
-		return _get_item( item_index );
+		return static_cast< menu_control_list_item_i const * >( _client->get_daughter_control_list().get_at_index( item_index )->get_value() );
 	}
 
-	menu_control_list_item_i * menu_control_combo_list_c::get_item( sint32_c item_index )
+	menu_control_list_item_i * menu_control_combo_list_c::get_item_at_index( sint32_c item_index )
 	{
-		return _get_item( item_index );
+		return static_cast< menu_control_list_item_i * >( _client->get_daughter_control_list().get_at_index( item_index )->get_value() );
 	}
 
-	sint32_c menu_control_combo_list_c::give_item( menu_control_list_item_i * item, sint32_c index )
+	void_c menu_control_combo_list_c::add_item( menu_control_list_item_i * item, sint32_c index )
 	{
-		return _give_item( item, index );
+		assert( dynamic_cast< menu_control_combo_list_item_text_c * >( item ) != nullptr );
+		_add_item( item, index );
 	}
 
-	menu_control_list_item_i * menu_control_combo_list_c::take_item( sint32_c item_index )
+	void_c menu_control_combo_list_c::remove_item( menu_control_list_item_i * item )
 	{
-		return _take_item( item_index );
+		_remove_item( item );
 	}
 
-	void_c menu_control_combo_list_c::remove_and_delete_all_items()
+	void_c menu_control_combo_list_c::remove_all_items()
 	{
-		_remove_and_delete_all_items();
-	}
-
-	sint32_c menu_control_combo_list_c::get_selected_item_index() const
-	{
-		return _get_selected_item_index();
-	}
-
-	void_c menu_control_combo_list_c::set_selected_item_index( sint32_c item_index )
-	{
-		_set_selected_item_index( item_index );
+		_remove_all_items();
 	}
 
 	menu_control_list_item_i * menu_control_combo_list_c::get_selected_item() const
@@ -92,6 +106,16 @@ namespace cheonsa
 	void_c menu_control_combo_list_c::set_selected_item( menu_control_list_item_i * item )
 	{
 		_set_selected_item( item );
+	}
+
+	sint32_c menu_control_combo_list_c::get_selected_item_index() const
+	{
+		return _get_selected_item_index();
+	}
+
+	void_c menu_control_combo_list_c::set_selected_item_index( sint32_c item_index )
+	{
+		_set_selected_item_index( item_index );
 	}
 
 	void_c menu_control_combo_c::_on_clicked( input_event_c * input_event )
@@ -127,18 +151,26 @@ namespace cheonsa
 	{
 		_name = string8_c( core_list_mode_e_static, "combo" );
 
-		_combo_list = new menu_control_combo_list_c( string8_c( core_list_mode_e_static, "combo_list" ) );
+		_combo_list = menu_control_combo_list_c::make_new_instance( string8_c( core_list_mode_e_static, "combo_list" ) );
 		_combo_list->on_selected_item_changed.subscribe( this, &menu_control_combo_c::_handle_on_selected_item_changed );
-		_give_control( _combo_list );
+		add_daughter_control( _combo_list );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_combo" ) );
 	}
 
+	menu_control_combo_c::~menu_control_combo_c()
+	{
+	}
+
+	menu_control_combo_c * menu_control_combo_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_combo_c( name );
+	}
+
 	void_c menu_control_combo_c::show_combo_list()
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		assert( user_interface );
-		_combo_list->set_layout_simple( user_interface->find_combo_list_pop_up_box( this, _combo_list->get_local_box().get_size(), false ) );
+		assert( _user_interface );
+		_combo_list->set_layout_simple( _user_interface->find_combo_list_pop_up_box( this, _combo_list->get_local_box().get_size(), false ) );
 		_combo_list->set_is_showed_immediately( true );
 		_combo_list->give_text_focus();
 	}

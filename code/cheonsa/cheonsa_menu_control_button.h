@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_element_frame.h"
@@ -22,10 +22,11 @@ namespace cheonsa
 
 		//input_action_c::reference_c _input_action; // if this reference is set, then this is the action that will be invoked when this control is activated.
 
-	public:
 		menu_control_button_c( string8_c const & name );
 
 	public:
+		static menu_control_button_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
+
 		string16_c get_plain_text_value() const;
 		void_c set_plain_text_value( string8_c const & plain_text );
 		void_c set_plain_text_value( string16_c const & plain_text );
@@ -33,8 +34,6 @@ namespace cheonsa
 		void_c set_rich_text_value( string16_c const & plain_text_with_mark_up );
 		void_c clear_text_value();
 
-	public:
-		virtual void_c update_animations( float32_c time_step ) override;
 		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};

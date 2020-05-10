@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_video_types.h"
@@ -40,9 +40,10 @@ namespace cheonsa
 		virtual void_c clear_texture( video_output_c * texture, float32_c red, float32_c green, float32_c blue, float32_c alpha ) = 0; // clears an output texture.
 		virtual void_c clear_texture( video_texture_c * texture, float32_c red, float32_c green, float32_c blue, float32_c alpha ) = 0; // clears all of the array slices in a render target texture.
 		virtual void_c clear_depth_stencil( video_depth_stencil_c * depth_stencil, float32_c depth, sint32_c stencil ) = 0; // clears all of the array slices in a render target depth stencil texture.
+		virtual void_c clear_depth_stencil_slice( video_depth_stencil_c * depth_stencil, float32_c depth, sint32_c stencil, sint32_c slice_index ) = 0;
 		virtual void_c bind_target_vertex_buffer( video_vertex_buffer_c * vertex_buffer ) = 0; // if a target vertex buffer is set, then the output of the vertex shader (or geometry shader) will be written to this buffer (a feature known as "stream output" in Direct3D and "transform feedback" in openGL).
 		virtual void_c bind_target_textures( sint32_c textures_count, video_texture_c * * textures, video_depth_stencil_c * depth_stencil, video_texture_type_e texture_type ) = 0; // all render targets must have the same width, height, and multi sample count. essentially binds just the first slice of each render target.
-		virtual void_c bind_target_texture2darrays_slices( sint32_c textures_count, video_texture_c * * textures, sint32_c * textures_slices, video_depth_stencil_c * depth_stencil, sint32_c depth_stencil_slice ) = 0; // all render targets must have the same width, height, and multi sample count. binds just a single array slice of each render target so that it can be rendered to as though it is a regular texture2d and not a texture2darray.
+		virtual void_c bind_target_textures_slices( sint32_c textures_count, video_texture_c * * textures, sint32_c * textures_slices, video_depth_stencil_c * depth_stencil, sint32_c depth_stencil_slice ) = 0; // all render targets must have the same width, height, and multi sample count. binds just a single array slice of each render target so that it can be rendered to as though it is a regular texture2d and not a texture2darray.
 		virtual void_c bind_rasterizer_view_port_rectangle( sint32_c x, sint32_c y, sint32_c width, sint32_c height, float32_c depth_minimum, float32_c depth_maximum ) = 0; // sets the view port rectangle, which defines a rectangular sub area of the target that will be rendered to. the output is scaled to fit in this rectangle, so aspect ratio of the projection matrix and this should at least match.
 		virtual void_c bind_rasterizer_cull_fill_state( video_cull_type_e video_cull_type_e, video_fill_type_e video_fill_mode ) = 0; // sets the cull mode and fill mode for the rasterizer.
 		virtual void_c bind_rasterizer_depth_stencil_state( video_compare_function_e depth_compare_mode, boolean_c depth_write_enable ) = 0; // sets the depth stencil mode for the rasterizer.

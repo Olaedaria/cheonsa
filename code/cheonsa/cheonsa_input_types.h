@@ -282,6 +282,10 @@ namespace cheonsa
 		float32_c _right_trigger_state;
 		vector32x2_c _left_stick_state;
 		vector32x2_c _right_stick_state;
+		vector32x2_c _left_stick_state_with_dead_zone;
+		vector32x2_c _right_stick_state_with_dead_zone;
+
+		void_c _make_dead_zone();
 
 	public:
 		input_gamepad_state_c();
@@ -294,8 +298,8 @@ namespace cheonsa
 
 		float32_c get_left_trigger_state() const;
 		float32_c get_right_trigger_state() const;
-		vector32x2_c get_left_stick_state() const;
-		vector32x2_c get_right_stick_state() const;
+		vector32x2_c get_left_stick_state( boolean_c with_dead_zone ) const;
+		vector32x2_c get_right_stick_state( boolean_c with_dead_zone ) const;
 
 	};
 

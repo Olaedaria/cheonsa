@@ -1,4 +1,4 @@
-﻿#include "cheonsa_video_renderer_shader_manager.h"
+#include "cheonsa_video_renderer_shader_manager.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_video_renderer_interface.h"
 #include "cheonsa__ops.h"
@@ -7,12 +7,15 @@
 namespace cheonsa
 {
 
-	video_renderer_pixel_shader_c::video_renderer_pixel_shader_c()
-		: _ps( nullptr )
+	video_renderer_pixel_shader_c::video_renderer_pixel_shader_c( string16_c const & file_name )
+		: _shader_variations( nullptr )
+		, _ps( nullptr )
 		, _ps_masked( nullptr )
-		, _shader_variations( nullptr )
 		, _reference_count( 0 )
 	{
+		_shader_variations = new video_renderer_shader_manager_c::shader_variations_c( file_name, false );
+		_shader_variations->_ps = &_ps;
+		_shader_variations->_ps_masked = &_ps_masked;
 	}
 
 	video_renderer_pixel_shader_c::~video_renderer_pixel_shader_c()
@@ -21,6 +24,31 @@ namespace cheonsa
 		assert( _shader_variations );
 		delete _shader_variations;
 		_shader_variations = nullptr;
+	}
+
+	void_c video_renderer_pixel_shader_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c video_renderer_pixel_shader_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+		}
+	}
+
+	video_pixel_shader_c * video_renderer_pixel_shader_c::get_ps() const
+	{
+		return _ps;
+	}
+
+	video_pixel_shader_c * video_renderer_pixel_shader_c::get_ps_masked() const
+	{
+		return _ps_masked;
 	}
 
 	video_renderer_pixel_shader_c::reference_c::reference_c()
@@ -39,29 +67,35 @@ namespace cheonsa
 
 	video_renderer_pixel_shader_c::reference_c & video_renderer_pixel_shader_c::reference_c::operator = ( video_renderer_pixel_shader_c::reference_c const & other )
 	{
-		if ( other._value != nullptr )
+		if ( other._value != _value )
 		{
-			other._value->_reference_count++;
+			if ( other._value )
+			{
+				other._value->add_reference();
+			}
+			if ( _value )
+			{
+				_value->remove_reference();
+			}
+			_value = other._value;
 		}
-		if ( _value != nullptr )
-		{
-			_value->_reference_count--;
-		}
-		_value = other._value;
 		return *this;
 	}
 
 	video_renderer_pixel_shader_c::reference_c & video_renderer_pixel_shader_c::reference_c::operator = ( video_renderer_pixel_shader_c * other )
 	{
-		if ( other != nullptr )
+		if ( other != _value )
 		{
-			other->_reference_count++;
+			if ( other != nullptr )
+			{
+				other->add_reference();
+			}
+			if ( _value != nullptr )
+			{
+				_value->remove_reference();
+			}
+			_value = other;
 		}
-		if ( _value != nullptr )
-		{
-			_value->_reference_count--;
-		}
-		_value = other;
 		return *this;
 	}
 
@@ -75,63 +109,61 @@ namespace cheonsa
 		return _value != other._value;
 	}
 
-	boolean_c video_renderer_pixel_shader_c::reference_c::get_loaded() const
+	video_renderer_pixel_shader_c * video_renderer_pixel_shader_c::reference_c::operator -> () const
 	{
-		return _value != nullptr && _value->_ps;
+		assert( _value );
+		return _value;
 	}
 
-	video_pixel_shader_c * video_renderer_pixel_shader_c::reference_c::get_pixel_shader() const
+	video_renderer_pixel_shader_c::reference_c::operator video_renderer_pixel_shader_c * () const
 	{
-		if ( _value )
-		{
-			return _value->_ps;
-		}
-		return nullptr;
+		return _value;
 	}
 
-	video_pixel_shader_c * video_renderer_pixel_shader_c::reference_c::get_pixel_shader_masked() const
+	boolean_c video_renderer_pixel_shader_c::reference_c::get_value_is_set() const
 	{
-		if ( _value )
-		{
-			return _value->_ps_masked;
-		}
-		return nullptr;
+		return _value != nullptr;
+	}
+
+	boolean_c video_renderer_pixel_shader_c::reference_c::get_value_is_set_and_loaded() const
+	{
+		return _value != nullptr && _value->_ps != nullptr;
 	}
 
 	video_renderer_shader_manager_c::file_dependency_c::file_dependency_c()
-		: file_name()
-		, absolute_file_path()
-		, last_write_time( 0 )
+		: _file_name()
+		, _absolute_file_path()
+		, _last_write_time( 0 )
 	{
 	}
 
 	video_renderer_shader_manager_c::file_dependency_c & video_renderer_shader_manager_c::file_dependency_c::operator = ( file_dependency_c const & other )
 	{
-		file_name = other.file_name;
-		absolute_file_path = other.absolute_file_path;
-		last_write_time = other.last_write_time;
+		_file_name = other._file_name;
+		_absolute_file_path = other._absolute_file_path;
+		_last_write_time = other._last_write_time;
 		return *this;
 	}
 
 	boolean_c video_renderer_shader_manager_c::file_dependency_c::operator == ( file_dependency_c const & other ) const
 	{
-		return file_name == other.file_name && last_write_time == other.last_write_time;
+		return _file_name == other._file_name && _last_write_time == other._last_write_time;
 	}
 
 	boolean_c video_renderer_shader_manager_c::file_dependency_c::operator != ( file_dependency_c const & other ) const
 	{
-		return file_name != other.file_name || last_write_time != other.last_write_time;
+		return _file_name != other._file_name || _last_write_time != other._last_write_time;
 	}
 
 	void_c video_renderer_shader_manager_c::_resolve_cache_file_path_absolute( file_dependency_c const & source_file_dependency, variation_e variation, string16_c & result )
 	{
-		result = ops::path_get_mother( source_file_dependency.absolute_file_path );
+		result = ops::path_get_folder_path( source_file_dependency._absolute_file_path );
 #if defined( cheonsa_platform_windows )
 		result += "cache\\";
 #else
 #error
 #endif
-		result += ops::path_get_file_name_without_extension( source_file_dependency.file_name );
+		result += ops::path_get_file_or_folder_name_without_extension( source_file_dependency._file_name );
 		result += get_variation_suffix( variation );
 		result += ".so";
 	}
@@ -165,53 +197,53 @@ namespace cheonsa
 	}
 
 	video_renderer_shader_manager_c::shader_variations_c::shader_variations_c( string16_c const & file_name, boolean_c is_internal )
-		: is_internal( is_internal )
-		, source_file()
-		, source_file_dependency_list()
-		, input_vertex_layout( nullptr )
-		, output_vertex_format( nullptr )
-		, vs( nullptr )
-		, vs_waved( nullptr )
-		, vs_clipped( nullptr )
-		, vs_waved_clipped( nullptr )
-		, ps( nullptr )
-		, ps_masked( nullptr )
+		: _is_internal( is_internal )
+		, _source_file()
+		, _source_file_dependency_list()
+		, _input_vertex_layout( nullptr )
+		, _output_vertex_format( nullptr )
+		, _vs( nullptr )
+		, _vs_waved( nullptr )
+		, _vs_clipped( nullptr )
+		, _vs_waved_clipped( nullptr )
+		, _ps( nullptr )
+		, _ps_masked( nullptr )
 	{
-		source_file.file_name = file_name;
-		resolve_file_path( source_file.file_name, is_internal, source_file.absolute_file_path );
+		_source_file._file_name = file_name;
+		resolve_file_path( _source_file._file_name, is_internal, _source_file._absolute_file_path );
 	}
 
 	video_renderer_shader_manager_c::shader_variations_c::~shader_variations_c()
 	{
-		if ( vs && *vs )
+		if ( _vs && *_vs )
 		{
-			delete *vs;
-			const_cast< video_vertex_shader_c const * >( *vs ) = nullptr;
+			delete *_vs;
+			const_cast< video_vertex_shader_c const * >( *_vs ) = nullptr;
 		}
-		if ( vs_waved && *vs_waved )
+		if ( _vs_waved && *_vs_waved )
 		{
-			delete *vs_waved;
-			const_cast< video_vertex_shader_c const * >( *vs_waved ) = nullptr;
+			delete *_vs_waved;
+			const_cast< video_vertex_shader_c const * >( *_vs_waved ) = nullptr;
 		}
-		if ( vs_clipped && *vs_clipped )
+		if ( _vs_clipped && *_vs_clipped )
 		{
-			delete *vs_clipped;
-			const_cast< video_vertex_shader_c const * >( *vs_clipped ) = nullptr;
+			delete *_vs_clipped;
+			const_cast< video_vertex_shader_c const * >( *_vs_clipped ) = nullptr;
 		}
-		if ( vs_waved_clipped && *vs_waved_clipped )
+		if ( _vs_waved_clipped && *_vs_waved_clipped )
 		{
-			delete *vs_waved_clipped;
-			const_cast< video_vertex_shader_c const * >( *vs_waved_clipped ) = nullptr;
+			delete *_vs_waved_clipped;
+			const_cast< video_vertex_shader_c const * >( *_vs_waved_clipped ) = nullptr;
 		}
-		if ( ps && *ps )
+		if ( _ps && *_ps )
 		{
-			delete *ps;
-			const_cast< video_pixel_shader_c const * >( *ps ) = nullptr;
+			delete *_ps;
+			const_cast< video_pixel_shader_c const * >( *_ps ) = nullptr;
 		}
-		if ( ps_masked && *ps_masked )
+		if ( _ps_masked && *_ps_masked )
 		{
-			delete *ps_masked;
-			const_cast< video_pixel_shader_c const * >( *ps_masked ) = nullptr;
+			delete *_ps_masked;
+			const_cast< video_pixel_shader_c const * >( *_ps_masked ) = nullptr;
 		}
 	}
 
@@ -220,29 +252,29 @@ namespace cheonsa
 		switch ( variation )
 		{
 		case variation_e_vs:
-			return vs != nullptr;
+			return _vs != nullptr;
 		case variation_e_vs_waved:
-			return vs_waved != nullptr;
+			return _vs_waved != nullptr;
 		case variation_e_vs_clipped:
-			return vs_clipped != nullptr;
+			return _vs_clipped != nullptr;
 		case variation_e_vs_waved_clipped:
-			return vs_waved_clipped != nullptr;
+			return _vs_waved_clipped != nullptr;
 		case variation_e_ps:
-			return ps != nullptr;
+			return _ps != nullptr;
 		case variation_e_ps_masked:
-			return ps_masked != nullptr;
+			return _ps_masked != nullptr;
 		}
 		return false;
 	}
 
 	boolean_c video_renderer_shader_manager_c::_load_source_dependency_information( shader_variations_c * shader_variations )
 	{
-		shader_variations->source_file_dependency_list.remove_all();
-		if ( !ops::file_system_get_file_or_folder_last_write_time( shader_variations->source_file.absolute_file_path, shader_variations->source_file.last_write_time ) )
+		shader_variations->_source_file_dependency_list.remove_all();
+		if ( !ops::file_system_get_file_or_folder_last_write_time( shader_variations->_source_file._absolute_file_path, shader_variations->_source_file._last_write_time ) )
 		{
 			return false;
 		}
-		return __load_source_dependency_list_recursive( shader_variations->source_file, shader_variations->is_internal, shader_variations->source_file_dependency_list );
+		return __load_source_dependency_list_recursive( shader_variations->_source_file, shader_variations->_is_internal, shader_variations->_source_file_dependency_list );
 	}
 
 	// given file_name that references a shader file, recursively scans for additional file names referenced by #include directives in that shader file.
@@ -251,7 +283,7 @@ namespace cheonsa
 	{
 		// load the whole file into memory.
 		data_stream_file_c stream;
-		if ( !stream.open( source_file_dependency.absolute_file_path, data_stream_mode_e_read ) )
+		if ( !stream.open( source_file_dependency._absolute_file_path, data_stream_mode_e_read ) )
 		{
 			return false;
 		}
@@ -312,7 +344,7 @@ namespace cheonsa
 				boolean_c already_in_result = false;
 				for ( sint32_c j = 0; j < result.get_length(); j++ )
 				{
-					if ( result[ j ].file_name == file_name )
+					if ( result[ j ]._file_name == file_name )
 					{
 						already_in_result = true;
 						break;
@@ -320,10 +352,10 @@ namespace cheonsa
 				}
 				if ( already_in_result == false )
 				{
-					video_renderer_shader_manager_c::file_dependency_c & sub_file_dependency = *result.emplace_at_end();
-					sub_file_dependency.file_name = file_name;
-					resolve_file_path( sub_file_dependency.file_name, is_internal, sub_file_dependency.absolute_file_path );
-					ops::file_system_get_file_or_folder_last_write_time( sub_file_dependency.absolute_file_path, sub_file_dependency.last_write_time );
+					video_renderer_shader_manager_c::file_dependency_c & sub_file_dependency = *result.emplace( -1, 1 );
+					sub_file_dependency._file_name = file_name;
+					resolve_file_path( sub_file_dependency._file_name, is_internal, sub_file_dependency._absolute_file_path );
+					ops::file_system_get_file_or_folder_last_write_time( sub_file_dependency._absolute_file_path, sub_file_dependency._last_write_time );
 					__load_source_dependency_list_recursive( sub_file_dependency, is_internal, result ); // recurse.
 				}
 			}
@@ -336,13 +368,13 @@ namespace cheonsa
 	{
 		file_last_write_time = 0;
 		file_dependency_list.remove_all();
-		absolute_file_path = ops::path_get_mother( shader_variations->source_file.absolute_file_path );
+		absolute_file_path = ops::path_get_folder_path( shader_variations->_source_file._absolute_file_path );
 #if defined( cheonsa_platform_windows )
 		absolute_file_path += "cache\\";
 #else
 #error
 #endif
-		absolute_file_path += ops::path_get_file_name_without_extension( shader_variations->source_file.file_name );
+		absolute_file_path += ops::path_get_file_or_folder_name_without_extension( shader_variations->_source_file._file_name );
 		absolute_file_path += get_variation_suffix( variation );
 		absolute_file_path += ".so";
 
@@ -378,8 +410,8 @@ namespace cheonsa
 			{
 				return false;
 			}
-			file_dependency.file_name = file_dependency_file_name_string8;
-			if ( !scribe_binary.load_sint64( file_dependency.last_write_time ) )
+			file_dependency._file_name = file_dependency_file_name_string8;
+			if ( !scribe_binary.load_sint64( file_dependency._last_write_time ) )
 			{
 				return false;
 			}
@@ -391,8 +423,8 @@ namespace cheonsa
 
 	void_c video_renderer_shader_manager_c::_refresh_shader_variations( shader_variations_c * shader_variations )
 	{
-		assert( shader_variations->source_file.file_name.get_length() > 0 );
-		assert( shader_variations->source_file.absolute_file_path.get_length() > 0 );
+		assert( shader_variations->_source_file._file_name.get_length() > 0 );
+		assert( shader_variations->_source_file._absolute_file_path.get_length() > 0 );
 
 		// parse source file for "#include"s and build an up to date source_file_dependency_list.
 		_load_source_dependency_information( shader_variations );
@@ -410,7 +442,7 @@ namespace cheonsa
 				boolean_c has_cached = _load_cached_dependency_information( shader_variations, variation, cache_file_path_absolute, cache_file_last_write_time, cache_file_dependency_list );
 
 				// compare for differences between source file and cache file.
-				if ( has_cached == false || shader_variations->source_file.last_write_time != cache_file_last_write_time || shader_variations->source_file_dependency_list != cache_file_dependency_list )
+				if ( has_cached == false || shader_variations->_source_file._last_write_time != cache_file_last_write_time || shader_variations->_source_file_dependency_list != cache_file_dependency_list )
 				{
 					// cache file is out of sync, need to recompile and recache this shader.
 					_compile_and_save_to_cache( shader_variations, variation );
@@ -433,7 +465,7 @@ namespace cheonsa
 		data_stream_file_c stream;
 
 		string16_c cache_folder_path;
-		cache_folder_path = ops::path_get_mother( shader_variations->source_file.absolute_file_path );
+		cache_folder_path = ops::path_get_folder_path( shader_variations->_source_file._absolute_file_path );
 #if defined( cheonsa_platform_windows )
 		cache_folder_path += "cache\\";
 #else
@@ -445,7 +477,7 @@ namespace cheonsa
 			ops::file_system_create_folder( cache_folder_path );
 		}
 
-		if ( !stream.open( shader_variations->source_file.absolute_file_path, data_stream_mode_e_read ) )
+		if ( !stream.open( shader_variations->_source_file._absolute_file_path, data_stream_mode_e_read ) )
 		{
 			return false;
 		}
@@ -459,33 +491,33 @@ namespace cheonsa
 
 		if ( variation == variation_e_vs )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs );
-			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs );
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs );
+			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size() - 1, shader_variations->_vs );
 		}
 		else if ( variation == variation_e_vs_waved )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs_waved );
-			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs_waved );
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs_waved );
+			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size() - 1, shader_variations->_vs_waved );
 		}
 		else if ( variation == variation_e_vs_clipped )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
-			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs_clipped );
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs_clipped );
+			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size() - 1, shader_variations->_vs_clipped );
 		}
 		else if ( variation == variation_e_vs_waved_clipped )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
-			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->vs_waved_clipped );
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs_clipped );
+			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size() - 1, shader_variations->_vs_waved_clipped );
 		}
 		else if ( variation == variation_e_ps )
 		{
-			assert( shader_variations->ps );
-			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->ps );
+			assert( shader_variations->_ps );
+			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size() - 1, shader_variations->_ps );
 		}
 		else if ( variation == variation_e_ps_masked )
 		{
-			assert( shader_variations->ps_masked );
-			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size_used() - 1, shader_variations->ps_masked );
+			assert( shader_variations->_ps_masked );
+			return __compile_and_save_to_cache( shader_variations, variation, data.get_internal_array(), data.get_internal_array_size() - 1, shader_variations->_ps_masked );
 		}
 		return false;
 	}
@@ -493,17 +525,17 @@ namespace cheonsa
 	boolean_c video_renderer_shader_manager_c::__compile_and_save_to_cache( shader_variations_c * shader_variations, variation_e variation, char8_c const * source_code, sint32_c source_code_size, video_vertex_shader_c const * const * result )
 	{
 		string16_c cache_file_path_absolute;
-		_resolve_cache_file_path_absolute( shader_variations->source_file, variation, cache_file_path_absolute );
-		string16_c cache_file_name = ops::path_get_file_name( cache_file_path_absolute );
+		_resolve_cache_file_path_absolute( shader_variations->_source_file, variation, cache_file_path_absolute );
+		string16_c cache_file_name = ops::path_get_file_or_folder_name( cache_file_path_absolute );
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
-		ops::convert_string16_to_string8( shader_variations->source_file.absolute_file_path.character_list, source_file_path_absolute );
+		ops::convert_string16_to_string8( shader_variations->_source_file._absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
-		video_vertex_shader_c * shader = engine.get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->input_vertex_layout );
+		video_vertex_shader_c * shader = engine.get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->_input_vertex_layout );
 		if ( shader )
 		{
-			if ( shader_variations->output_vertex_format && variation == variation_e_vs )
+			if ( shader_variations->_output_vertex_format && variation == variation_e_vs )
 			{
-				shader->enable_stream_out( shader_variations->output_vertex_format );
+				shader->enable_stream_out( shader_variations->_output_vertex_format );
 			}
 			void_c const * compiled_code;
 			sint32_c compiled_code_size;
@@ -522,10 +554,10 @@ namespace cheonsa
 	boolean_c video_renderer_shader_manager_c::__compile_and_save_to_cache( shader_variations_c * shader_variations, variation_e variation, char8_c const * source_code, sint32_c source_code_size, video_pixel_shader_c const * const * result )
 	{
 		string16_c cache_file_path_absolute;
-		_resolve_cache_file_path_absolute( shader_variations->source_file, variation, cache_file_path_absolute );
-		string16_c cache_file_name = ops::path_get_file_name( cache_file_path_absolute );
+		_resolve_cache_file_path_absolute( shader_variations->_source_file, variation, cache_file_path_absolute );
+		string16_c cache_file_name = ops::path_get_file_or_folder_name( cache_file_path_absolute );
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
-		ops::convert_string16_to_string8( shader_variations->source_file.absolute_file_path.character_list, source_file_path_absolute );
+		ops::convert_string16_to_string8( shader_variations->_source_file._absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
 		video_pixel_shader_c * shader = engine.get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ) );
 		if ( shader )
@@ -555,14 +587,14 @@ namespace cheonsa
 
 			sint32_c compiled_code_position = 0;
 			scribe_binary.save_sint32( 0 ); // place holder for where we will save the location of compiled code.
-			scribe_binary.save_sint64( shader_variations->source_file.last_write_time );
-			assert( shader_variations->source_file_dependency_list.get_length() < 0xFF );
-			scribe_binary.save_uint8( static_cast< uint8_c >( shader_variations->source_file_dependency_list.get_length() ) );
-			for ( sint32_c i = 0; i < shader_variations->source_file_dependency_list.get_length(); i++ )
+			scribe_binary.save_sint64( shader_variations->_source_file._last_write_time );
+			assert( shader_variations->_source_file_dependency_list.get_length() < 0xFF );
+			scribe_binary.save_uint8( static_cast< uint8_c >( shader_variations->_source_file_dependency_list.get_length() ) );
+			for ( sint32_c i = 0; i < shader_variations->_source_file_dependency_list.get_length(); i++ )
 			{
-				file_dependency_c & file_dependency = shader_variations->source_file_dependency_list[i];
-				scribe_binary.save_string8( string8_c( file_dependency.file_name ) );
-				scribe_binary.save_sint64( file_dependency.last_write_time );
+				file_dependency_c & file_dependency = shader_variations->_source_file_dependency_list[i];
+				scribe_binary.save_string8( string8_c( file_dependency._file_name ) );
+				scribe_binary.save_sint64( file_dependency._last_write_time );
 			}
 			compiled_code_position = stream.get_position();
 			scribe_binary.save_sint32( compiled_code_size );
@@ -576,51 +608,51 @@ namespace cheonsa
 	boolean_c video_renderer_shader_manager_c::_load_from_cache( shader_variations_c * shader_variations, variation_e variation )
 	{
 		string16_c cache_file_path_absolute;
-		_resolve_cache_file_path_absolute( shader_variations->source_file, variation, cache_file_path_absolute );
+		_resolve_cache_file_path_absolute( shader_variations->_source_file, variation, cache_file_path_absolute );
 		if ( variation == variation_e_vs )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs );
-			if ( !__load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) ) )
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs );
+			if ( !__load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->_vs ), const_cast< video_vertex_layout_c * >( shader_variations->_input_vertex_layout ) ) )
 			{
 				return false;
 			}
-			if ( shader_variations->output_vertex_format )
+			if ( shader_variations->_output_vertex_format )
 			{
-				const_cast< video_vertex_shader_c * >( *shader_variations->vs )->enable_stream_out( shader_variations->output_vertex_format );
+				const_cast< video_vertex_shader_c * >( *shader_variations->_vs )->enable_stream_out( shader_variations->_output_vertex_format );
 			}
 			return true;
 		}
 		else if ( variation == variation_e_vs_waved )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs_waved );
-			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs_waved ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) );
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs_waved );
+			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->_vs_waved ), const_cast< video_vertex_layout_c * >( shader_variations->_input_vertex_layout ) );
 		}
 		else if ( variation == variation_e_vs_clipped )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs_clipped );
-			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs_clipped ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) );
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs_clipped );
+			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->_vs_clipped ), const_cast< video_vertex_layout_c * >( shader_variations->_input_vertex_layout ) );
 		}
 		else if ( variation == variation_e_vs_waved_clipped )
 		{
-			assert( shader_variations->input_vertex_layout && shader_variations->vs_waved_clipped );
-			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->vs_waved_clipped ), const_cast< video_vertex_layout_c * >( shader_variations->input_vertex_layout ) );
+			assert( shader_variations->_input_vertex_layout && shader_variations->_vs_waved_clipped );
+			return __load_from_cache( cache_file_path_absolute, const_cast< video_vertex_shader_c * * >( shader_variations->_vs_waved_clipped ), const_cast< video_vertex_layout_c * >( shader_variations->_input_vertex_layout ) );
 		}
 		else if ( variation == variation_e_ps )
 		{
-			assert( shader_variations->ps );
-			return __load_from_cache( cache_file_path_absolute, const_cast< video_pixel_shader_c * * >( shader_variations->ps ) );
+			assert( shader_variations->_ps );
+			return __load_from_cache( cache_file_path_absolute, const_cast< video_pixel_shader_c * * >( shader_variations->_ps ) );
 		}
 		else if ( variation == variation_e_ps_masked )
 		{
-			assert( shader_variations->ps_masked );
-			return __load_from_cache( cache_file_path_absolute, const_cast< video_pixel_shader_c * * >( shader_variations->ps_masked ) );
+			assert( shader_variations->_ps_masked );
+			return __load_from_cache( cache_file_path_absolute, const_cast< video_pixel_shader_c * * >( shader_variations->_ps_masked ) );
 		}
 		return false;
 	}
 
 	boolean_c video_renderer_shader_manager_c::__load_from_cache( string16_c const & cache_file_path_absolute, video_vertex_shader_c * * result, video_vertex_layout_c const * vertex_layout )
 	{
-		string16_c cache_file_name = ops::path_get_file_name( cache_file_path_absolute );
+		string16_c cache_file_name = ops::path_get_file_or_folder_name( cache_file_path_absolute );
 
 		data_stream_file_c stream;
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
@@ -666,7 +698,7 @@ namespace cheonsa
 
 	boolean_c video_renderer_shader_manager_c::__load_from_cache( string16_c const & cache_file_path_absolute, video_pixel_shader_c * * result )
 	{
-		string16_c cache_file_name = ops::path_get_file_name( cache_file_path_absolute );
+		string16_c cache_file_name = ops::path_get_file_or_folder_name( cache_file_path_absolute );
 
 		data_stream_file_c stream;
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
@@ -744,21 +776,27 @@ namespace cheonsa
 		, _scene_post_ps_process( nullptr )
 		, _scene_post_vs( nullptr )
 		, _scene_camera_color_ps_mesh( nullptr )
-		, _shader_variations_list()
-		, _material_pixel_shader_list()
+		, _internal_shader_list()
+		, _external_shader_list()
 	{
 	}
 
 	video_renderer_shader_manager_c::~video_renderer_shader_manager_c()
 	{
-		_shader_variations_list.remove_and_delete_all();
+		_internal_shader_list.remove_and_delete_all();
 
 		if ( _scene_camera_color_ps_mesh != nullptr )
 		{
-			_scene_camera_color_ps_mesh->_reference_count--; // remove the fake user.
+			_scene_camera_color_ps_mesh->remove_reference();
+			_scene_camera_color_ps_mesh = nullptr;
 		}
 
-		_material_pixel_shader_list.remove_and_delete_all();
+		//_external_shader_list.remove_and_delete_all();
+		for ( sint32_c i = 0; i < _external_shader_list.get_length(); i++ )
+		{
+			_external_shader_list[ i ]->remove_reference();
+		}
+		_external_shader_list.remove_all();
 	}
 
 	boolean_c video_renderer_shader_manager_c::start()
@@ -766,132 +804,132 @@ namespace cheonsa
 		shader_variations_c * shader_variations = nullptr;
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"skin_mesh.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base_and_bone_weight;
-		shader_variations->output_vertex_format = &video_renderer_interface_c::vertex_format_mesh_base;
-		shader_variations->vs = &_skin_mesh;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base_and_bone_weight;
+		shader_variations->_output_vertex_format = &video_renderer_interface_c::vertex_format_mesh_base;
+		shader_variations->_vs = &_skin_mesh;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_debug.hlsl" ), true );
-		shader_variations->ps = &_menu_ps_debug;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_menu_ps_debug;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_frame.hlsl" ), true );
-		shader_variations->ps = &_menu_ps_frame;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_menu_ps_frame;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_frame_keyed.hlsl" ), true );
-		shader_variations->ps = &_menu_ps_frame_keyed;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_menu_ps_frame_keyed;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_solid_color.hlsl" ), true );
-		shader_variations->ps = &_menu_ps_solid_color;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_menu_ps_solid_color;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_text.hlsl" ), true );
-		shader_variations->ps = &_menu_ps_text;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_menu_ps_text;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu2_vs.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
-		shader_variations->vs = &_menu2_vs;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
+		shader_variations->_vs = &_menu2_vs;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu2_vs_debug.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
-		shader_variations->vs = &_menu2_vs_debug;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
+		shader_variations->_vs = &_menu2_vs_debug;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu3_vs.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
-		shader_variations->vs = &_menu3_vs;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_menu;
+		shader_variations->_vs = &_menu3_vs;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu3_vs_debug.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
-		shader_variations->vs = &_menu3_vs_debug;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
+		shader_variations->_vs = &_menu3_vs_debug;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_normal_and_depth_ps_mesh.hlsl" ), true );
-		shader_variations->ps = &_scene_camera_normal_and_depth_ps_mesh;
-		shader_variations->ps_masked = &_scene_camera_normal_and_depth_ps_mesh_masked;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_camera_normal_and_depth_ps_mesh;
+		shader_variations->_ps_masked = &_scene_camera_normal_and_depth_ps_mesh_masked;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_normal_and_depth_vs_mesh.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
-		shader_variations->vs = &_scene_camera_normal_and_depth_vs_mesh;
-		shader_variations->vs_waved = &_scene_camera_normal_and_depth_vs_mesh_waved;
-		shader_variations->vs_clipped = &_scene_camera_normal_and_depth_vs_mesh_clipped;
-		shader_variations->vs_waved_clipped = &_scene_camera_normal_and_depth_vs_mesh_waved_clipped;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
+		shader_variations->_vs = &_scene_camera_normal_and_depth_vs_mesh;
+		shader_variations->_vs_waved = &_scene_camera_normal_and_depth_vs_mesh_waved;
+		shader_variations->_vs_clipped = &_scene_camera_normal_and_depth_vs_mesh_clipped;
+		shader_variations->_vs_waved_clipped = &_scene_camera_normal_and_depth_vs_mesh_waved_clipped;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_outline_ps_mesh.hlsl" ), true );
-		shader_variations->ps = &_scene_camera_outline_ps_mesh;
-		shader_variations->ps_masked = &_scene_camera_outline_ps_mesh_masked;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_camera_outline_ps_mesh;
+		shader_variations->_ps_masked = &_scene_camera_outline_ps_mesh_masked;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_color_ps_debug.hlsl" ), true );
-		shader_variations->ps = &_scene_camera_color_ps_debug;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_camera_color_ps_debug;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_color_vs_debug.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
-		shader_variations->vs = &_scene_camera_color_vs_debug;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_debug;
+		shader_variations->_vs = &_scene_camera_color_vs_debug;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_camera_color_vs_mesh.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
-		shader_variations->vs = &_scene_camera_color_vs_mesh;
-		shader_variations->vs_waved = &_scene_camera_color_vs_mesh_waved;
-		shader_variations->vs_clipped = &_scene_camera_color_vs_mesh_clipped;
-		shader_variations->vs_waved_clipped = &_scene_camera_color_vs_mesh_waved_clipped;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
+		shader_variations->_vs = &_scene_camera_color_vs_mesh;
+		shader_variations->_vs_waved = &_scene_camera_color_vs_mesh_waved;
+		shader_variations->_vs_clipped = &_scene_camera_color_vs_mesh_clipped;
+		shader_variations->_vs_waved_clipped = &_scene_camera_color_vs_mesh_waved_clipped;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_shadow_ps_mesh.hlsl" ), true );
-		shader_variations->ps = &_scene_shadow_ps_mesh;
-		shader_variations->ps_masked = &_scene_shadow_ps_mesh_masked;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_shadow_ps_mesh;
+		shader_variations->_ps_masked = &_scene_shadow_ps_mesh_masked;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_shadow_vs_mesh.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
-		shader_variations->vs = &_scene_shadow_vs_mesh;
-		shader_variations->vs_waved = &_scene_shadow_vs_mesh_waved;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_mesh_base;
+		shader_variations->_vs = &_scene_shadow_vs_mesh;
+		shader_variations->_vs_waved = &_scene_shadow_vs_mesh_waved;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_blur_x.hlsl" ), true );
-		shader_variations->ps = &_scene_post_ps_blur_x;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_post_ps_blur_x;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_blur_y.hlsl" ), true );
-		shader_variations->ps = &_scene_post_ps_blur_y;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_post_ps_blur_y;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_resolve_native.hlsl" ), true );
-		shader_variations->ps = &_scene_post_ps_resolve_native;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_post_ps_resolve_native;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_resolve_scaled.hlsl" ), true );
-		shader_variations->ps = &_scene_post_ps_resolve_scaled;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_post_ps_resolve_scaled;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		//shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_resolve_quarter.hlsl" ), true );
 		//shader_variations->ps = &_scene_post_ps_resolve_quarter;
-		//_shader_variations_list.insert_at_end( shader_variations );
+		//_internal_shader_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_ps_process.hlsl" ), true );
-		shader_variations->ps = &_scene_post_ps_process;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_ps = &_scene_post_ps_process;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		//shader_variations = new shader_variations_c( "scene_post_ps_resolve.hlsl", true );
 		//shader_variations->ps_msaa_count_1 = &scene_post_ps_resolve_msaa_count_1;
 		//shader_variations->ps_msaa_count_2 = &scene_post_ps_resolve_msaa_count_2;
 		//shader_variations->ps_msaa_count_4 = &scene_post_ps_resolve_msaa_count_4;
 		//shader_variations->ps_msaa_count_8 = &scene_post_ps_resolve_msaa_count_8;
-		//_shader_variations_list.insert_at_end( shader_variations );
+		//_internal_shader_list.insert_at_end( shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"scene_post_vs.hlsl" ), true );
-		shader_variations->input_vertex_layout = &video_renderer_interface_c::vertex_layout_point;
-		shader_variations->vs = &_scene_post_vs;
-		_shader_variations_list.insert_at_end( shader_variations );
+		shader_variations->_input_vertex_layout = &video_renderer_interface_c::vertex_layout_point;
+		shader_variations->_vs = &_scene_post_vs;
+		_internal_shader_list.insert( -1, shader_variations );
 
 		// load built in shaders.
 		if ( !refresh() )
@@ -901,13 +939,13 @@ namespace cheonsa
 		}
 
 		// load built in mesh material shader.
-		_scene_camera_color_ps_mesh = load_pixel_shader( string16_c( "scene_camera_color_ps_mesh.hlsl" ) );
+		_scene_camera_color_ps_mesh = load_ps( string16_c( "scene_camera_color_ps_mesh.hlsl" ) );
 		if ( !_scene_camera_color_ps_mesh )
 		{
 			debug_annoy( L"error", L"could not load a built in material shader." );
 			return false;
 		}
-		_scene_camera_color_ps_mesh->_reference_count++; // add one fake user to keep this shader loaded at all times, it's basically built in.
+		_scene_camera_color_ps_mesh->add_reference(); // add one fake user to keep this shader loaded at all times, it's basically built in.
 
 		return true;
 	}
@@ -917,47 +955,47 @@ namespace cheonsa
 		assert( engine.get_resource_manager() != nullptr );
 		assert( engine.get_video_interface() != nullptr );
 
-		for ( sint32_c i = 0; i < _material_pixel_shader_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _external_shader_list.get_length(); i++ )
 		{
-			_refresh_shader_variations( _material_pixel_shader_list[ i ]->_shader_variations );
+			_refresh_shader_variations( _external_shader_list[ i ]->_shader_variations );
 		}
 
-		for ( sint32_c i = 0; i < _shader_variations_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _internal_shader_list.get_length(); i++ )
 		{
-			_refresh_shader_variations( _shader_variations_list[ i ] );
+			_refresh_shader_variations( _internal_shader_list[ i ] );
 		}
 
 		// check that all required internal shaders are loaded.
 		// otherwise if a shader fails to load during run time, then the shader that is already loaded and working continues to be the one that is used.
-		for ( sint32_c i = 0; i < _shader_variations_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _internal_shader_list.get_length(); i++ )
 		{
-			shader_variations_c * shader_variations = _shader_variations_list[ i ];
-			if ( shader_variations->input_vertex_layout )
+			shader_variations_c * shader_variations = _internal_shader_list[ i ];
+			if ( shader_variations->_input_vertex_layout )
 			{
-				if ( shader_variations->vs != nullptr )
+				if ( shader_variations->_vs != nullptr )
 				{
-					if ( *shader_variations->vs == nullptr )
+					if ( *shader_variations->_vs == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->vs_waved != nullptr )
+				if ( shader_variations->_vs_waved != nullptr )
 				{
-					if ( *shader_variations->vs_waved == nullptr )
+					if ( *shader_variations->_vs_waved == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->vs_clipped != nullptr )
+				if ( shader_variations->_vs_clipped != nullptr )
 				{
-					if ( *shader_variations->vs_clipped == nullptr )
+					if ( *shader_variations->_vs_clipped == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->vs_waved_clipped != nullptr )
+				if ( shader_variations->_vs_waved_clipped != nullptr )
 				{
-					if ( *shader_variations->vs_waved_clipped == nullptr )
+					if ( *shader_variations->_vs_waved_clipped == nullptr )
 					{
 						return false;
 					}
@@ -965,16 +1003,16 @@ namespace cheonsa
 			}
 			else
 			{
-				if ( shader_variations->ps != nullptr )
+				if ( shader_variations->_ps != nullptr )
 				{
-					if ( *shader_variations->ps == nullptr )
+					if ( *shader_variations->_ps == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->ps_masked != nullptr )
+				if ( shader_variations->_ps_masked != nullptr )
 				{
-					if ( *shader_variations->ps_masked == nullptr )
+					if ( *shader_variations->_ps_masked == nullptr )
 					{
 						return false;
 					}
@@ -1004,44 +1042,42 @@ namespace cheonsa
 	void_c video_renderer_shader_manager_c::collect_garbage()
 	{
 		// delete any material pixel shaders that have a & count of 0.
-		for ( sint32_c i = 0; i < _material_pixel_shader_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _external_shader_list.get_length(); i++ )
 		{
-			video_renderer_pixel_shader_c * material_pixel_shader = _material_pixel_shader_list[ i ];
+			video_renderer_pixel_shader_c * material_pixel_shader = _external_shader_list[ i ];
 			if ( material_pixel_shader->_reference_count == 0 )
 			{
 				shader_variations_c * shader_variations = material_pixel_shader->_shader_variations;
-				_shader_variations_list.remove( shader_variations );
+				_internal_shader_list.remove_value( shader_variations );
 				delete shader_variations;
-				_material_pixel_shader_list.remove_at_index( i );
+				_external_shader_list.remove( i, 1 );
 				delete material_pixel_shader;
 				i--;
 			}
 		}
 	}
 
-	video_renderer_pixel_shader_c * video_renderer_shader_manager_c::load_pixel_shader( string16_c const & file_name )
+	video_renderer_pixel_shader_c * video_renderer_shader_manager_c::load_ps( string16_c const & file_name )
 	{
-		if ( file_name.get_length() == 0 )
+		if ( !file_name.is_set() )
 		{
 			return nullptr;
 		}
 
 		// search for existing.
-		for ( sint32_c i = 0; i < _material_pixel_shader_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _external_shader_list.get_length(); i++ )
 		{
-			shader_variations_c * shader_variations = _material_pixel_shader_list[ i ]->_shader_variations;
-			if ( shader_variations->source_file.file_name == file_name )
+			shader_variations_c * shader_variations = _external_shader_list[ i ]->_shader_variations;
+			if ( shader_variations->_source_file._file_name == file_name )
 			{
-				return _material_pixel_shader_list[ i ];
+				return _external_shader_list[ i ];
 			}
 		}
 
 		// create new.
-		video_renderer_pixel_shader_c * renderer_pixel_shader = new video_renderer_pixel_shader_c();
-		_material_pixel_shader_list.insert_at_end( renderer_pixel_shader );
-		renderer_pixel_shader->_shader_variations = new shader_variations_c( file_name, false );
-		renderer_pixel_shader->_shader_variations->ps = &renderer_pixel_shader->_ps;
-		renderer_pixel_shader->_shader_variations->ps_masked = &renderer_pixel_shader->_ps_masked;
+		video_renderer_pixel_shader_c * renderer_pixel_shader = new video_renderer_pixel_shader_c( file_name );
+		renderer_pixel_shader->add_reference(); // add ourselves as a "fake" user so that the instance doesn't inadvertently delete itself
+		_external_shader_list.insert( -1, renderer_pixel_shader );
 		_refresh_shader_variations( renderer_pixel_shader->_shader_variations );
 		return renderer_pixel_shader;
 	}

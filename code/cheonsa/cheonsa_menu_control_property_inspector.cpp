@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_property_inspector.h"
+#include "cheonsa_menu_control_property_inspector.h"
 #include "cheonsa_user_interface.h"
 #include "cheonsa_reflection_enumeration.h"
 #include "cheonsa_reflection_class.h"
@@ -80,29 +80,29 @@ namespace cheonsa
 	{
 		assert( _property_inspector_window == nullptr );
 
-		_property_inspector_window = new menu_control_window_c( string8_c( core_list_mode_e_static, "property_inspector_window" ) );
+		_property_inspector_window = menu_control_window_c::make_new_instance( string8_c( core_list_mode_e_static, "property_inspector_window" ) );
+		_property_inspector_window->_set_is_supplemental( true );
 		_property_inspector_window->set_layout_simple( box32x2_c( 0, 0, 300, 800 ) );
 		_property_inspector_window->set_is_showed_immediately( false );
-		_property_inspector_cancel_button = new menu_control_button_c( string8_c( core_list_mode_e_static, "cancel_button" ) );
+		_property_inspector_cancel_button = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "cancel_button" ) );
 		_property_inspector_cancel_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 116, 8 ) );
 		_property_inspector_cancel_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"cancel" ) );
 		_property_inspector_cancel_button->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_property_inspector_button_on_clicked );
-		_property_inspector_window->give_control_to_client( _property_inspector_cancel_button );
+		_property_inspector_window->add_daughter_control_to_client( _property_inspector_cancel_button );
 
-		_property_inspector_okay_button = new menu_control_button_c( string8_c( core_list_mode_e_static, "okay_button" ) );
+		_property_inspector_okay_button = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "okay_button" ) );
 		_property_inspector_okay_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
 		_property_inspector_okay_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"okay" ) );
 		_property_inspector_okay_button->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_property_inspector_button_on_clicked );
-		_property_inspector_window->give_control_to_client( _property_inspector_okay_button );
+		_property_inspector_window->add_daughter_control_to_client( _property_inspector_okay_button );
 
-		_property_inspector = new menu_control_property_inspector_c( string8_c( core_list_mode_e_static, "property_inspector" ), this, nullptr );
+		_property_inspector = menu_control_property_inspector_c::make_new_instance( string8_c( core_list_mode_e_static, "property_inspector" ), this, nullptr );
 		_property_inspector->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0, 0, 0, 46 ) );
-		_property_inspector_window->give_control_to_client( _property_inspector );
+		_property_inspector_window->add_daughter_control_to_client( _property_inspector );
 
-		user_interface_c * my_user_interface = get_user_interface_root();
-		if ( my_user_interface != nullptr )
+		if ( _user_interface )
 		{
-			my_user_interface->give_control( _property_inspector_window );
+			_user_interface->add_control( _property_inspector_window );
 			_property_inspector_window->center();
 		}
 	}
@@ -221,7 +221,7 @@ namespace cheonsa
 		// [remove and delete] or [disable] all property fields and controls.
 		if ( _fixed_reflection_class == nullptr )
 		{
-			_remove_and_delete_all_controls();
+			remove_all_daughter_controls();
 			_property_field_list.remove_and_delete_all();
 		}
 		else
@@ -258,42 +258,42 @@ namespace cheonsa
 		{
 			property_field_c * property_field = new property_field_c();
 			reflection_property_c const * property = property_field->bound_reflection_property;
-			_property_field_list.insert_at_end( property_field );
+			_property_field_list.insert( -1, property_field );
 			property = reflection_class->get_property( i );
 			if ( property->_type == data_type_e_category_label )
 			{
-				property_field->label = new menu_control_text_c( string8_c( core_list_mode_e_static, "category_label" ) );
+				property_field->label = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "category_label" ) );
 				property_field->label->set_user_pointer( property_field );
 				property_field->label->set_plain_text_value( string16_c( property->_name ) );
-				_give_control( property_field->label );
+				add_daughter_control( property_field->label );
 			}
 			else
 			{
-				property_field->label = new menu_control_text_c( string8_c( core_list_mode_e_static, "property_label" ) );
+				property_field->label = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "property_label" ) );
 				property_field->label->set_user_pointer( property_field );
 				property_field->label->set_plain_text_value( string16_c( property->_name ) );
-				_give_control( property_field->label );
+				add_daughter_control( property_field->label );
 
 				// create text control if needed.
 				if ( property->_type >= data_type_e_string8 && property->_type <= data_type_e_float64 )
 				{
-					property_field->text = new menu_control_text_c( string8_c( core_list_mode_e_static, "property_value_text" ) );
+					property_field->text = menu_control_text_c::make_new_instance( string8_c( core_list_mode_e_static, "property_value_text" ) );
 					property_field->text->set_user_pointer( property_field );
 					if ( property->_view == data_view_e_text )
 					{
 						property_field->text->set_text_interact_mode( menu_text_interact_mode_e_static );
 					}
-					_give_control( property_field->text );
+					add_daughter_control( property_field->text );
 				}
 
 				// create button control if needed.
 				if ( property->_view == data_view_e_color || property->_view == data_view_e_text || property->_view == data_view_e_file_path || property->_type == data_type_e_object )
 				{
-					property_field->button = new menu_control_button_c( string8_c( core_list_mode_e_static, "property_value_button" ) );
+					property_field->button = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "property_value_button" ) );
 					property_field->button->set_user_pointer( property_field );
 					property_field->button->set_plain_text_value( string16_c( core_list_mode_e_static, L"..." ) );
 					property_field->button->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_value_edit_on_clicked );
-					_give_control( property_field->button );
+					add_daughter_control( property_field->button );
 				}
 
 				// create scroll control if needed.
@@ -316,18 +316,18 @@ namespace cheonsa
 					assert( value_minimum < value_maximum );
 					if ( property->_view == data_view_e_scroll_bar )
 					{
-						property_field->scroll = new menu_control_scroll_bar_x_c( string8_c( core_list_mode_e_static, "property_value_scroll_bar" ) );
+						property_field->scroll = menu_control_scroll_bar_x_c::make_new_instance( string8_c( core_list_mode_e_static, "property_value_scroll_bar" ) );
 					}
 					else
 					{
-						property_field->scroll = new menu_control_scrub_bar_x_c( string8_c( core_list_mode_e_static, "property_value_scrub_bar" ) );
+						property_field->scroll = menu_control_scrub_bar_x_c::make_new_instance( string8_c( core_list_mode_e_static, "property_value_scrub_bar" ) );
 					}
 					property_field->scroll->set_user_pointer( property_field );
 					property_field->scroll->set_value_minimum( value_minimum );
 					property_field->scroll->set_value_maximum( value_maximum );
 					property_field->scroll->on_value_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_scroll_on_value_changed_preview );
 					property_field->scroll->on_value_changed.subscribe( this, &menu_control_property_inspector_c::_handle_value_scroll_on_value_changed );
-					_give_control( property_field->scroll );
+					add_daughter_control( property_field->scroll );
 				}
 
 				// create combo control if needed.
@@ -335,55 +335,55 @@ namespace cheonsa
 				{
 					reflection_enumeration_c const * enumeration = property->_enumeration;
 					assert( enumeration );
-					property_field->combo = new menu_control_combo_c( string8_c( core_list_mode_e_static, "property_value_combo" ) );
+					property_field->combo = menu_control_combo_c::make_new_instance( string8_c( core_list_mode_e_static, "property_value_combo" ) );
 					//property_field->combo->get_combo_list()->on_selection_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_combo_on_selection_changed_preview );
 					property_field->combo->get_combo_list()->on_selected_item_changed.subscribe( this, &menu_control_property_inspector_c::_handle_value_combo_on_selected_item_changed );
 					for ( sint32_c j = 0; j < enumeration->get_value_count(); j++ ) // populate combo control.
 					{
-						menu_control_combo_list_item_text_c * list_item = new menu_control_combo_list_item_text_c( string8_c( core_list_mode_e_static, "list_item" ) );
-						list_item->set_plain_text_value( string16_c( enumeration->get_value( j )->get_name() ) );
-						property_field->combo->get_combo_list()->give_item( list_item );
+						menu_control_combo_list_item_text_c * item = menu_control_combo_list_item_text_c::make_new_instance( string8_c( core_list_mode_e_static, "list_item" ) );
+						item->set_plain_text_value( string16_c( enumeration->get_value( j )->get_name() ) );
+						property_field->combo->get_combo_list()->add_item( item );
 					}
-					_give_control( property_field->combo );
+					add_daughter_control( property_field->combo );
 				}
 
 				// create list and button controls if needed.
 				if ( property->_type == data_type_e_object_list )
 				{
-					property_field->item_list = new menu_control_list_c( string8_c( core_list_mode_e_static, "item_list" ) );
+					property_field->item_list = menu_control_list_c::make_new_instance( string8_c( core_list_mode_e_static, "item_list" ) );
 					property_field->item_list->set_user_pointer( property_field );
 					property_field->item_list->on_selected_item_list_changed.subscribe( this, &menu_control_property_inspector_c::_handle_item_list_on_selected_item_changed );
-					_give_control( property_field->item_list );
+					add_daughter_control( property_field->item_list );
 
-					property_field->item_add = new menu_control_button_c( string8_c( core_list_mode_e_static, "item_add_button" ) );
+					property_field->item_add = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "item_add_button" ) );
 					property_field->item_add->set_user_pointer( property_field );
 					property_field->item_add->set_plain_text_value( string16_c( core_list_mode_e_static, L"+" ) );
 					property_field->item_add->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_add_on_clicked );
-					_give_control( property_field->item_add );
+					add_daughter_control( property_field->item_add );
 
-					property_field->item_remove = new menu_control_button_c( string8_c( core_list_mode_e_static, "item_remove_button" ) );
+					property_field->item_remove = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "item_remove_button" ) );
 					property_field->item_remove->set_user_pointer( property_field );
 					property_field->item_remove->set_plain_text_value( string16_c( core_list_mode_e_static, L"-" ) );
 					property_field->item_remove->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_remove_on_clicked );
-					_give_control( property_field->item_remove );
+					add_daughter_control( property_field->item_remove );
 
-					property_field->item_move_up = new menu_control_button_c( string8_c( core_list_mode_e_static, "item_move_up_button" ) );
+					property_field->item_move_up = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "item_move_up_button" ) );
 					property_field->item_move_up->set_user_pointer( property_field );
 					property_field->item_move_up->set_plain_text_value( string16_c( core_list_mode_e_static, L"" ) );
 					property_field->item_move_up->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_move_up_on_clicked );
-					_give_control( property_field->item_move_up );
+					add_daughter_control( property_field->item_move_up );
 
-					property_field->item_move_down = new menu_control_button_c( string8_c( core_list_mode_e_static, "item_move_down_button" ) );
+					property_field->item_move_down = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "item_move_down_button" ) );
 					property_field->item_move_down->set_user_pointer( property_field );
 					property_field->item_move_down->set_plain_text_value( string16_c( core_list_mode_e_static, L"" ) );
 					property_field->item_move_down->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_move_down_on_clicked );
-					_give_control( property_field->item_move_down );
+					add_daughter_control( property_field->item_move_down );
 
-					property_field->item_sort = new menu_control_button_c( string8_c( core_list_mode_e_static, "item_sort_button" ) );
+					property_field->item_sort = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "item_sort_button" ) );
 					property_field->item_sort->set_user_pointer( property_field );
 					property_field->item_sort->set_plain_text_value( string16_c( core_list_mode_e_static, L"sort" ) );
 					property_field->item_sort->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_item_sort_on_clicked );
-					_give_control( property_field->item_sort );
+					add_daughter_control( property_field->item_sort );
 				}
 			}
 			_layout_controls_for_property( property_field );
@@ -423,7 +423,7 @@ namespace cheonsa
 			}
 			if ( property_field->item_list )
 			{
-				property_field->item_list->remove_and_delete_all_items();
+				property_field->item_list->remove_all_items();
 				property_field->item_list->set_is_enabled( false );
 				property_field->item_add->set_is_enabled( false );
 				property_field->item_remove->set_is_enabled( false );
@@ -494,7 +494,7 @@ namespace cheonsa
 			}
 			sint32_c enum_index = -1;
 			property->_enumeration->find_index_with_value( enum_index, enum_value ); // if this returns false then enum_index will be set to -1, which is still valid to set no selection in the combo list.
-			property_field->combo->get_combo_list()->set_selected_item( property_field->combo->get_combo_list()->get_item( enum_index ) );
+			property_field->combo->get_combo_list()->set_selected_item_index( enum_index );
 		}
 		else if ( property->_type == data_type_e_object )
 		{
@@ -503,14 +503,14 @@ namespace cheonsa
 		{
 			assert( property_field->item_list );
 
-			property_field->item_list->remove_and_delete_all_items();
+			property_field->item_list->remove_all_items();
 			sint32_c item_count = property->_accessors._object_list_item_count_getter( _bound_reflection_object );
 			for ( sint32_c i = 0; i < item_count; i++ )
 			{
 				reflection_object_c * object = property->_accessors._object_list_item_getter( _bound_reflection_object, i );
-				menu_control_list_item_text_c * list_item = new menu_control_list_item_text_c( string8_c( core_list_mode_e_static, "list_item" ) );
-				list_item->set_plain_text_value( object->get_reflection_display_name() );
-				property_field->item_list->give_item( list_item );
+				menu_control_list_item_text_c * item = menu_control_list_item_text_c::make_new_instance( string8_c( core_list_mode_e_static, "list_item" ) );
+				item->set_plain_text_value( object->get_reflection_display_name() );
+				property_field->item_list->add_item( item );
 			}
 
 			if ( property_field->item_add && property_field->item_remove )
@@ -773,8 +773,8 @@ namespace cheonsa
 			{
 				_editing_property_field->bound_reflection_property->_accessors._value_getter( _bound_reflection_object, &value_as_string16 );
 			}
-			string16_c folder_path = ops::path_get_mother( value_as_string16 );
-			string16_c file_name = ops::path_get_file_name( value_as_string16 );
+			string16_c folder_path = ops::path_get_folder_path( value_as_string16 );
+			string16_c file_name = ops::path_get_file_or_folder_name( value_as_string16 );
 			_file_picker_dialog->set_mode( menu_control_window_file_picker_c::mode_e_load );
 			_file_picker_dialog->clear_history();
 			_file_picker_dialog->go_to_folder_path( folder_path );
@@ -818,11 +818,11 @@ namespace cheonsa
 		}
 
 		reflection_object_c * new_reflection_object = property_field->bound_reflection_property->_accessors._object_list_item_adder( _bound_reflection_object, at_index );
-		menu_control_list_item_text_c * list_item = new menu_control_list_item_text_c( string8_c( core_list_mode_e_static, "list_item" ) );
-		list_item->set_user_pointer( new_reflection_object );
-		list_item->set_plain_text_value( new_reflection_object->get_reflection_display_name() );
-		property_field->item_list->give_item( list_item, at_index );
-		property_field->item_list->set_selected_item( list_item );
+		menu_control_list_item_text_c * item = menu_control_list_item_text_c::make_new_instance( string8_c( core_list_mode_e_static, "list_item" ) );
+		item->set_user_pointer( new_reflection_object );
+		item->set_plain_text_value( new_reflection_object->get_reflection_display_name() );
+		property_field->item_list->add_item( item, at_index );
+		property_field->item_list->set_selected_item( item );
 	}
 
 	void_c menu_control_property_inspector_c::_handle_item_remove_on_clicked( menu_event_information_c event_information )
@@ -850,11 +850,11 @@ namespace cheonsa
 			int at_index = property_field->item_list->get_selected_item_index();
 			if ( property_field->bound_reflection_property->_accessors._object_list_item_mover( _bound_reflection_object, at_index, at_index - 1 ) )
 			{
-				menu_control_list_item_i * list_item = property_field->item_list->get_item( at_index );
-				property_field->item_list->set_selected_item_index( -1 );
-				property_field->item_list->take_item( at_index );
-				property_field->item_list->give_item( list_item, at_index - 1 );
-				property_field->item_list->set_selected_item_index( at_index - 1 );
+				menu_control_list_item_i * item = property_field->item_list->get_item_at_index( at_index );
+				item->add_reference(); // we don't want it to die on us when we remove it from the list.
+				property_field->item_list->remove_item( item );
+				property_field->item_list->add_item( item, at_index - 1 );
+				item->remove_reference();
 			}
 		}
 	}
@@ -867,11 +867,11 @@ namespace cheonsa
 			int at_index = property_field->item_list->get_selected_item_index();
 			if ( property_field->bound_reflection_property->_accessors._object_list_item_mover( _bound_reflection_object, at_index, at_index + 1 ) )
 			{
-				menu_control_list_item_i * list_item = property_field->item_list->get_item( at_index );
-				property_field->item_list->set_selected_item_index( -1 );
-				property_field->item_list->take_item( at_index );
-				property_field->item_list->give_item( list_item, at_index + 1 );
-				property_field->item_list->set_selected_item_index( at_index + 1 );
+				menu_control_list_item_i * item = property_field->item_list->get_item_at_index( at_index );
+				item->add_reference(); // we don't want it to die on us when we remove it from the list.
+				property_field->item_list->remove_item( item );
+				property_field->item_list->add_item( item, at_index + 1 );
+				item->remove_reference();
 			}
 		}
 	}
@@ -940,30 +940,29 @@ namespace cheonsa
 		window->hide_dialog();
 	}
 
-	void_c menu_control_property_inspector_c::_on_user_interface_association_changed( user_interface_c * user_interface )
+	void_c menu_control_property_inspector_c::_handle_after_added_to_user_interface()
 	{
-		user_interface_c * my_user_interface = get_user_interface_root();
-		if ( my_user_interface != nullptr )
+		assert( _user_interface );
+		_user_interface->add_control( _message_dialog );
+		_user_interface->add_control( _color_picker_dialog );
+		_user_interface->add_control( _file_picker_dialog );
+		_user_interface->add_control( _text_editor_dialog );
+		if ( _property_inspector != nullptr )
 		{
-			my_user_interface->give_control( _message_dialog );
-			my_user_interface->give_control( _color_picker_dialog );
-			my_user_interface->give_control( _file_picker_dialog );
-			my_user_interface->give_control( _text_editor_dialog );
-			if ( _property_inspector != nullptr )
-			{
-				my_user_interface->give_control( _property_inspector ); // this should recurse as needed.
-			}
+			_user_interface->add_control( _property_inspector ); // this should recurse as needed.
 		}
-		else
+	}
+
+	void_c menu_control_property_inspector_c::_handle_before_removed_from_user_interface()
+	{
+		assert( _user_interface );
+		_user_interface->remove_control( _message_dialog );
+		_user_interface->remove_control( _color_picker_dialog );
+		_user_interface->remove_control( _file_picker_dialog );
+		_user_interface->remove_control( _text_editor_dialog );
+		if ( _property_inspector != nullptr )
 		{
-			user_interface->take_control( _message_dialog );
-			user_interface->take_control( _color_picker_dialog );
-			user_interface->take_control( _file_picker_dialog );
-			user_interface->take_control( _text_editor_dialog );
-			if ( _property_inspector != nullptr )
-			{
-				user_interface->take_control( _property_inspector ); // this should recurse as needed.
-			}
+			_user_interface->remove_control( _property_inspector ); // this should recurse as needed.
 		}
 	}
 
@@ -986,10 +985,17 @@ namespace cheonsa
 		, _y( 0.0f )
 		, _is_muted( false )
 	{
-		_message_dialog = new menu_control_window_message_c( string8_c( core_list_mode_e_static, "message_dialog" ) );
-		_color_picker_dialog = new menu_control_window_color_picker_c( string8_c( core_list_mode_e_static, "color_picker_dialog" ) );
-		_file_picker_dialog = new menu_control_window_file_picker_c( string8_c( core_list_mode_e_static, "file_picker_dialog" ) );
-		_text_editor_dialog = new menu_control_window_text_editor_c( string8_c( core_list_mode_e_static, "text_editor_dialog" ) );
+		_message_dialog = menu_control_window_message_c::make_new_instance( string8_c( core_list_mode_e_static, "message_dialog" ) );
+		_message_dialog->add_reference();
+
+		_color_picker_dialog = menu_control_window_color_picker_c::make_new_instance( string8_c( core_list_mode_e_static, "color_picker_dialog" ) );
+		_color_picker_dialog->add_reference();
+
+		_file_picker_dialog = menu_control_window_file_picker_c::make_new_instance( string8_c( core_list_mode_e_static, "file_picker_dialog" ) );
+		_file_picker_dialog->add_reference();
+
+		_text_editor_dialog = menu_control_window_text_editor_c::make_new_instance( string8_c( core_list_mode_e_static, "text_editor_dialog" ) );
+		_text_editor_dialog->add_reference();
 
 		//if ( _fixed_reflection_class )
 		//{
@@ -1001,26 +1007,33 @@ namespace cheonsa
 
 	menu_control_property_inspector_c::~menu_control_property_inspector_c()
 	{
+		assert( _user_interface == nullptr );
+
 		_clear();
 
-		user_interface_c * my_user_interface = get_user_interface_root();
-		if ( my_user_interface == nullptr )
+		_message_dialog->remove_reference();
+		_message_dialog = nullptr;
+
+		_color_picker_dialog->remove_reference();
+		_color_picker_dialog = nullptr;
+
+		_file_picker_dialog->remove_reference();
+		_file_picker_dialog = nullptr;
+
+		_text_editor_dialog->remove_reference();
+		_text_editor_dialog = nullptr;
+
+		if ( _property_inspector_window )
 		{
-			delete _message_dialog;
-			_message_dialog = nullptr;
-			delete _color_picker_dialog;
-			_color_picker_dialog = nullptr;
-			delete _file_picker_dialog;
-			_file_picker_dialog = nullptr;
-			delete _text_editor_dialog;
-			_text_editor_dialog = nullptr;
-			if ( _property_inspector_window )
-			{
-				delete _property_inspector_window; // this will also delete _property_inspector because it "owns" it after we gave it to it.
-				_property_inspector_window = nullptr;
-				_property_inspector = nullptr;
-			}
-		}		
+			_property_inspector_window->remove_reference(); // this will also remove the reference on _property_inspector.
+			_property_inspector_window = nullptr;
+			_property_inspector = nullptr;
+		}
+	}
+
+	menu_control_property_inspector_c * menu_control_property_inspector_c::make_new_instance( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class )
+	{
+		return new menu_control_property_inspector_c( name, mother_property_inspector, fixed_reflection_class );
 	}
 
 	void_c menu_control_property_inspector_c::bind_reflection_object( reflection_object_c * value )

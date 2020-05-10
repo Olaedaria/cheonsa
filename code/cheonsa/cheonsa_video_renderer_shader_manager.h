@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_string16.h"
 #include "cheonsa_video_interface.h"
@@ -15,18 +15,27 @@ namespace cheonsa
 	// this shader cache will automatically recompile and recache shaders if their source files are detected to be modified.
 	class video_renderer_shader_manager_c
 	{
-	public:
-		// tracks the state of a file that is depended upon by a shader, so that the shader can be recompiled from the source code if if dependencies don't match what's in the cache.
+		friend class video_renderer_pixel_shader_c;
+
+	private:
+		// tracks the state of a file that is depended upon by a shader, so that the shader can be recompiled from the source code if it is detected that dependencies don't match what's in the cache.
 		class file_dependency_c
 		{
+			friend class video_renderer_shader_manager_c;
+
+		private:
+			string16_c _file_name; // file name, if referencing hlsl then includes file extension, otherwise if referencing cached shader object then excludes file extension (just to make it easier to search for shader object variants, since more than one shader object may be generated from a single compiled hlsl file).
+			string16_c _absolute_file_path; // resolved file_name to an absolute file path using resolve_shader_file_path_absolute().
+			sint64_c _last_write_time; // milliseconds since epoch that tells us when the file was last modified.
+
 		public:
-			string16_c file_name; // file name, if referencing hlsl then includes file extension, otherwise if referencing cached shader object then excludes file extension (just to make it easier to search for shader object variants, since more than one shader object may be generated from a single compiled hlsl file).
-			string16_c absolute_file_path; // resolved file_name to an absolute file path using resolve_shader_file_path_absolute().
-			sint64_c last_write_time; // milliseconds since epoch that tells us when the file was last modified.
 			file_dependency_c();
+
 			file_dependency_c & operator = ( file_dependency_c const & other );
+
 			boolean_c operator == ( file_dependency_c const & other ) const;
 			boolean_c operator != ( file_dependency_c const & other ) const;
+
 		};
 
 		// each combination of material flags means compiling the shader from the same source file multiple times with different defines active, resulting in different variations or versions of that one shader.
@@ -46,20 +55,23 @@ namespace cheonsa
 		// this acts as a bucket for that one shader file and its multiple compiled results.
 		class shader_variations_c
 		{
-		public:
-			boolean_c is_internal; // if true then this variation won't be deleted even if it has no references.
+			friend class video_renderer_shader_manager_c;
+			friend class video_renderer_pixel_shader_c;
 
-			file_dependency_c source_file; // uses file_name (with file extension) and absolute_file_path.
-			core_list_c< file_dependency_c > source_file_dependency_list; // uses relative path.
+		private:
+			boolean_c _is_internal; // if true then this variation won't be deleted even if it has no references.
 
-			video_vertex_layout_c const * input_vertex_layout; // input vertex layout expected by vertex shader.
-			video_vertex_format_c const * output_vertex_format; // optional, vertex format of output, for stream output enabled vertex shader.
-			video_vertex_shader_c const * const * vs; // if set, compile "vs_main" with no additional defines.
-			video_vertex_shader_c const * const * vs_waved; // if set, compile "vs_main" with "#define waved".
-			video_vertex_shader_c const * const * vs_clipped; // if set, compile "vs_main" with "#define clipped".
-			video_vertex_shader_c const * const * vs_waved_clipped; // if set, compile "vs_main" with "#define waved" and "#define clipped".
-			video_pixel_shader_c const * const * ps; // if set, compile "ps_main" with no additional defines.
-			video_pixel_shader_c const * const * ps_masked; // if set, compile "ps_main" with "#define masked".
+			file_dependency_c _source_file; // uses file_name (with file extension) and absolute_file_path.
+			core_list_c< file_dependency_c > _source_file_dependency_list; // uses relative path.
+
+			video_vertex_layout_c const * _input_vertex_layout; // input vertex layout expected by vertex shader.
+			video_vertex_format_c const * _output_vertex_format; // optional, vertex format of output, for stream output enabled vertex shader.
+			video_vertex_shader_c const * const * _vs; // if set, compile "vs_main" with no additional defines.
+			video_vertex_shader_c const * const * _vs_waved; // if set, compile "vs_main" with "#define waved".
+			video_vertex_shader_c const * const * _vs_clipped; // if set, compile "vs_main" with "#define clipped".
+			video_vertex_shader_c const * const * _vs_waved_clipped; // if set, compile "vs_main" with "#define waved" and "#define clipped".
+			video_pixel_shader_c const * const * _ps; // if set, compile "ps_main" with no additional defines.
+			video_pixel_shader_c const * const * _ps_masked; // if set, compile "ps_main" with "#define masked".
 
 		public:
 			shader_variations_c( string16_c const & file_name, boolean_c is_internal );
@@ -113,10 +125,11 @@ namespace cheonsa
 		video_pixel_shader_c * _scene_post_ps_process; // "scene_post_ps_process.hlsl".
 		video_vertex_shader_c * _scene_post_vs; // "scene_post_vs.hlsl".
 
-		video_renderer_pixel_shader_c * _scene_camera_color_ps_mesh;
+		video_renderer_pixel_shader_c * _scene_camera_color_ps_mesh; // internal (built-in) default pixel shader for rendering meshes, but we create it with the game's load_pixel_shader() interface so that it behaves like an external pixel shader.
 
-		core_list_c< shader_variations_c * > _shader_variations_list; // built-in shaders.
-		core_list_c< video_renderer_pixel_shader_c * > _material_pixel_shader_list; // material (data driven, run time) defined pixel shaders.
+		core_list_c< shader_variations_c * > _internal_shader_list; // internal vertex shaders and pixel shaders.
+
+		core_list_c< video_renderer_pixel_shader_c * > _external_shader_list; // external pixel shaders, requested by and instanced for game at run time.
 
 		static void_c _resolve_cache_file_path_absolute( file_dependency_c const & source_file_dependency, variation_e variation, string16_c & result );
 		static char8_c const * get_variation_suffix( video_renderer_shader_manager_c::variation_e variation );
@@ -144,7 +157,7 @@ namespace cheonsa
 		boolean_c refresh(); // detects source file modifications and data directory changes, and re-compiles and re-caches shaders from source code needed, or loads shaders from cached files if they are already in sync with the source files.
 		void_c collect_garbage(); // deletes any material pixel shaders that have no references.
 
-		video_renderer_pixel_shader_c * load_pixel_shader( string16_c const & file_name ); // loads a game defined pixel shader for use with custom materials.
+		video_renderer_pixel_shader_c * load_ps( string16_c const & file_name ); // the game's interface to compile and load game defined pixel shader files from the game's content folder(s).
 
 		static boolean_c resolve_file_path( string16_c const & relative_file_path, boolean_c is_internal, string16_c & absolute_file_path );
 
@@ -188,19 +201,27 @@ namespace cheonsa
 	};
 
 	// holds a couple of pixel shader instances of different variations and a reference count, and a pointer to the shader_variations_c instance that manages _ps and _ps_masked.
+	// this is used to load pixel shaders for menus and scenes.
 	class video_renderer_pixel_shader_c
 	{
-	private:
 		friend class video_renderer_shader_manager_c;
 
+	private:
+		video_renderer_shader_manager_c::shader_variations_c * _shader_variations; // to hold pointers to _ps and _ps_masked, to work with shader loader.
 		video_pixel_shader_c * _ps;
-		video_pixel_shader_c * _ps_masked; // this can be somewhat wasteful, because in the case that _ps and _ps_masked compile exactly the same code paths, two different but equivalent pixel shader instances are still compiled and saved.
-		video_renderer_shader_manager_c::shader_variations_c * _shader_variations;
+		video_pixel_shader_c * _ps_masked; // this can be somewhat wasteful, because in the case that _ps and _ps_masked compile exactly the same code paths, then two different but equivalent pixel shader instances are compiled and saved.
 		sint32_c _reference_count;
 
+		video_renderer_pixel_shader_c( string16_c const & file_name );
+
 	public:
-		video_renderer_pixel_shader_c();
 		~video_renderer_pixel_shader_c();
+
+		void_c add_reference();
+		void_c remove_reference();
+
+		video_pixel_shader_c * get_ps() const;
+		video_pixel_shader_c * get_ps_masked() const;
 
 	public:
 		class reference_c
@@ -218,10 +239,12 @@ namespace cheonsa
 			boolean_c operator == ( reference_c const & other ) const;
 			boolean_c operator != ( reference_c const & other ) const;
 
-			boolean_c get_loaded() const;
+			video_renderer_pixel_shader_c * operator -> () const;
+			operator video_renderer_pixel_shader_c * () const;
 
-			video_pixel_shader_c * get_pixel_shader() const;
-			video_pixel_shader_c * get_pixel_shader_masked() const;
+			boolean_c get_value_is_set() const;
+			boolean_c get_value_is_set_and_loaded() const;
+
 		};
 
 	};

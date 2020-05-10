@@ -1,4 +1,4 @@
-﻿#include "cheonsa_scene_component_menu_control.h"
+#include "cheonsa_scene_component_menu_control.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
 #include "cheonsa_user_interface.h"
@@ -6,72 +6,96 @@
 namespace cheonsa
 {
 
-	void_c scene_component_menu_control_c::_give_control_to_user_interface()
+	void_c scene_component_menu_control_c::_handle_before_removed_from_user_interface()
 	{
-		if ( _control && _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
+		if ( _control )
 		{
-			_scene_object->get_scene()->get_user_interface()->give_control( _control );
+			assert( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() );
+			_scene_object->get_scene()->get_user_interface()->remove_control( _control );
 		}
 	}
 
-	void_c scene_component_menu_control_c::_take_control_from_user_interface()
+	void_c scene_component_menu_control_c::_handle_after_added_to_user_interface()
 	{
-		if ( _control && _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
+		if ( _control )
 		{
-			_scene_object->get_scene()->get_user_interface()->take_control( _control );
+			assert( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() );
+			_scene_object->get_scene()->get_user_interface()->add_control( _control );
+		}
+	}
+
+	void_c scene_component_menu_control_c::_handle_before_removed_from_scene()
+	{
+		scene_component_c::_handle_before_removed_from_scene();
+		if ( _control && _scene_object->get_scene()->get_user_interface() )
+		{
+			_scene_object->get_scene()->get_user_interface()->remove_control( _control );
 		}
 	}
 
 	void_c scene_component_menu_control_c::_handle_after_added_to_scene()
 	{
-		_give_control_to_user_interface();
-	}
-
-	void_c scene_component_menu_control_c::_handle_before_removed_from_scene()
-	{
-		_take_control_from_user_interface();
+		scene_component_c::_handle_after_added_to_scene();
+		if ( _control && _scene_object->get_scene()->get_user_interface() )
+		{
+			_scene_object->get_scene()->get_user_interface()->add_control( _control );
+		}
 	}
 
 	scene_component_menu_control_c::scene_component_menu_control_c()
 		: scene_component_c()
-		, _control_is_ours( false )
 		, _control( nullptr )
-		, _last_render_frame( 0 )
 	{
 	}
 
 	scene_component_menu_control_c::~scene_component_menu_control_c()
 	{
-		_take_control_from_user_interface();
-		if ( _control && _control_is_ours )
+		if ( _control )
 		{
-			delete _control;
+			if ( _scene_object && _scene_object->get_scene() && _control->get_user_interface() )
+			{
+				_scene_object->get_scene()->get_user_interface()->remove_control( _control );
+			}
+			_control->remove_reference();
+			_control = nullptr;
 		}
-		_control = nullptr;
-		_control_is_ours = false;
 	}
 
-	void_c scene_component_menu_control_c::set_control( menu_control_c * control, boolean_c and_transfer_ownership )
+	scene_component_menu_control_c * scene_component_menu_control_c::make_new_instance()
 	{
-		if ( _control )
+		return new scene_component_menu_control_c();
+	}
+
+	menu_control_c * scene_component_menu_control_c::get_control() const
+	{
+		return _control;
+	}
+
+	void_c scene_component_menu_control_c::set_control( menu_control_c * control )
+	{
+		if ( _control != control )
 		{
-			assert( _control->get_scene_component() == this );
-			_take_control_from_user_interface();
-			_control->set_scene_component( nullptr );
-			if ( _control_is_ours )
+			if ( _control )
 			{
-				delete _control;
+				if ( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
+				{
+					_scene_object->get_scene()->get_user_interface()->remove_control( _control );
+				}
+				_control->set_scene_component( nullptr );
+				_control->remove_reference();
 			}
-		}
 
-		_control = control;
-		_control_is_ours = and_transfer_ownership;
+			_control = control;
 
-		if ( _control )
-		{
-			assert( _control->get_scene_component() == nullptr );
-			_control->set_scene_component( this );
-			_give_control_to_user_interface();
+			if ( _control )
+			{
+				_control->add_reference();
+				_control->set_scene_component( this );
+				if ( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
+				{
+					_scene_object->get_scene()->get_user_interface()->add_control( _control );
+				}
+			}
 		}
 	}
 

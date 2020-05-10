@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_element_frame.h"
@@ -26,20 +26,23 @@ namespace cheonsa
 			mode_e_scale_to_fill,
 		};
 
-	private:
+	protected:
 		menu_element_frame_c _element_frame; // name is "frame".
 		menu_frame_style_c _element_frame_style;
 
-	public:
 		menu_control_image_c( string8_c const & name );
+
+	public:
+		virtual ~menu_control_image_c() override;
+
+		static menu_control_image_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
+
+		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e mode );
 
 		void_c set_image( resource_file_texture_c * value );
-
-	public:
-		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};
 

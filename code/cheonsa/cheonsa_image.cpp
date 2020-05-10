@@ -1,4 +1,4 @@
-﻿#include "cheonsa_image.h"
+#include "cheonsa_image.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
@@ -180,7 +180,7 @@ namespace cheonsa
 		sint32_c stream_size = stream->get_size();
 		while ( stream->get_position() + 8 <= stream_size );
 		{
-			image_png_chunk_c * chunk = extra_chunk_list.emplace_at_end();
+			image_png_chunk_c * chunk = extra_chunk_list.emplace( -1, 1 );
 			if ( !scribe.load_uint32( chunk->data_size ) )
 			{
 				return false;
@@ -253,7 +253,7 @@ namespace cheonsa
 				{
 					extra_chunks_data = lodepng::lodepng_chunk_next( extra_chunks_data );
 				}
-				image_png_chunk_c * chunk = extra_chunk_list->emplace_at_end();
+				image_png_chunk_c * chunk = extra_chunk_list->emplace( -1, 1 );
 				chunk->data_size = lodepng::lodepng_chunk_length( extra_chunks_data );
 				ops::memory_copy( &extra_chunks_data[ 4 ], chunk->type, 4 );
 				chunk->data_is_ours = false;

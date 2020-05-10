@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_resource_file.h"
@@ -17,12 +17,8 @@ namespace cheonsa
 		typedef resource_file_reference_c< resource_file_font_c > reference_c;
 
 	public:
-		static char8_c const * get_type_static() { return "font"; }
-		virtual char8_c const * get_type() const override { return get_type_static(); }
-
-	//public:
-	//	static core_linked_list_c< resource_file_font_c * > _global_list;
-	//	core_linked_list_c< resource_file_font_c * >::node_c _global_list_node;
+		static char8_c const * get_resource_file_type_static() { return "font"; }
+		virtual char8_c const * get_resource_file_type() const override { return get_resource_file_type_static(); }
 
 	public:
 		// caches some info about a given font size...
@@ -52,11 +48,11 @@ namespace cheonsa
 
 		size_metrics_c _quantized_size_metrics[ glyph_manager_c::quantized_count ];
 
-		virtual boolean_c _load( data_stream_c * stream ) override;
+		virtual void_c _load( data_stream_c * stream ) override;
 		virtual void_c _unload() override;
 
 	public:
-		resource_file_font_c();
+		resource_file_font_c( string16_c const & file_path );
 		resource_file_font_c( resource_file_font_c const & ) = delete;
 		~resource_file_font_c();
 		resource_file_font_c & operator = ( resource_file_font_c const & ) = delete;

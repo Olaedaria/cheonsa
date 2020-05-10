@@ -1,6 +1,8 @@
+# mainly just created this file for the sole purpose to tell the GitHub website that tabs should display as 4 spaces long.
+
 root = true
 
-[*.{h,cpp,py}]
+[*.{h,cpp,py,xml}]
 charset = utf-8
 indent_style = tab
 indent_size = 4

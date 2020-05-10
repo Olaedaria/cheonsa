@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_element.h"
 #include "cheonsa_resource_file_font.h"
@@ -163,7 +163,8 @@ namespace cheonsa
 			sint32_c _character_end; // index of last character within _plain_text that belongs to this paragraph, including this paragraph's terminating new line character. in the case that the paragraph only contains the (bare minimum) new line character, then _character_start will equal _character_end.
 
 			menu_text_style_c::reference_c _text_style_reference; // a reference of the text style to apply to text in this paragraph. if it is not defined, then the _style_reference from the text element will be used.
-			void_c _handle_text_style_reference_on_refreshed( menu_text_style_c::reference_c const * text_style_reference );
+			void_c _handle_text_style_reference_on_resolved( menu_text_style_c::reference_c const * text_style_reference );
+			void_c _handle_text_style_reference_on_unresolved( menu_text_style_c::reference_c const * text_style_reference );
 
 			core_list_c< text_span_c * > _span_list; // all of the root level spans in this paragraph. will always be empty if in plain text mode (so that we don't have to worry about maintaining them, because only plain text mode can be edited).
 			text_span_c const * _find_span( sint32_c character_index ) const;
@@ -293,7 +294,8 @@ namespace cheonsa
 
 		void_c _clear_cached_data(); // resets the glyph style cache. frees data that's no longer in use but cache will have to be rebuilt with the data that is in use.
 		void_c _cache_text_glyph_style( menu_text_glyph_style_c const & value, menu_text_glyph_style_c const * & result_pointer, uint16_c & result_index ); // caches a text glyph style in the text glyph style cache, or gets the equivalent one that was already cached.
-		void_c _handle_text_style_reference_on_refreshed( menu_text_style_c::reference_c const * value ); // is invoked by _style_reference when it refreshes(), just sets _is_glyph_layout_dirty to true.
+		void_c _handle_text_style_reference_on_resolved( menu_text_style_c::reference_c const * value ); // is invoked by _style_reference when it refreshes(), just sets _is_glyph_layout_dirty to true.
+		void_c _handle_text_style_reference_on_unresolved( menu_text_style_c::reference_c const * value );
 		void_c _invalidate_glyph_layout_in_all_paragraphs(); // sets _is_glyph_layout_dirty to true on this text element and on all paragraphs.
 		void_c _invalidate_glyph_layout_in_paragraphs_with_font( resource_file_font_c * font ); // sets _is_glyph_layout_dirty to true on any paragraphs that reference the given font. this is called in response to a font being reloaded.
 		void_c _do_glyph_layout(); // does glyph reflow layout, sets _is_glyph_layout_dirty is false.

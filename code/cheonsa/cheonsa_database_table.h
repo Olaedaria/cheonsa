@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_database_types.h"
 #include "cheonsa_database_record_schema.h"
@@ -17,14 +17,14 @@ namespace cheonsa
 	// writing new string values will be a bit wasteful, old unreferenced strings will hang around until garbage is collected.
 	class database_table_c
 	{
-	private:
 		friend class database_c;
 		friend class database_record_c;
 		friend class database_stack_record_c;
 
+	private:
 		database_c * _database;
 
-		string8_c _name; // name to describe this table for convenience. it should not used to reference this table, because names might change between builds.
+		string8_c _key; // name to describe this table for convenience. it should not used to reference this table, because names might change between builds.
 		uint16_c _id; // static id used to identify this table to the game. in the case that this table contains records to modify table records in a higher in the load order database, then this id should be the same as the id of the original table.
 		uint8_c _flags; // not used for anything at the moment.
 		uint32_c _next_record_id; // next id to try to use as id for next new record that is added, which is likely to be unallocated.
@@ -49,8 +49,8 @@ namespace cheonsa
 	public:
 		database_table_c();
 
-		string8_c const & get_name() const;
-		void_c set_name( string8_c const & value ); // will assert if a table of the given name already exists in the database.
+		string8_c const & get_key() const;
+		void_c set_key( string8_c const & value ); // will assert if a table of the given name already exists in the database.
 
 		uint16_c get_id() const;
 		void_c set_id( uint16_c value ); // don't change this while the game is already dependent on it. just change it during initial set up.

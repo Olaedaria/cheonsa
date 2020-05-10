@@ -1,4 +1,4 @@
-﻿#include "cheonsa_scene_component_sprite.h"
+#include "cheonsa_scene_component_sprite.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
 
@@ -17,12 +17,12 @@ namespace cheonsa
 
 	void_c scene_component_sprite_c::_update_local_space_obb()
 	{
-		_local_space_obb.minimum.a = -_radius;
-		_local_space_obb.minimum.b = -_radius;
-		_local_space_obb.minimum.c = -_radius;
-		_local_space_obb.maximum.a = _radius;
-		_local_space_obb.maximum.b = _radius;
-		_local_space_obb.maximum.c = _radius;
+		_local_space_obb.minimum.a = -_size;
+		_local_space_obb.minimum.b = -_size;
+		_local_space_obb.minimum.c = -_size;
+		_local_space_obb.maximum.a = _size;
+		_local_space_obb.maximum.b = _size;
+		_local_space_obb.maximum.c = _size;
 	}
 
 	scene_component_sprite_c::scene_component_sprite_c()
@@ -30,11 +30,20 @@ namespace cheonsa
 		, _material()
 		, _opacity( 1.0f )
 		, _render_enable( true )
-		, _sprite_type( scene_sprite_type_e_real )
-		, _radius( 0.5f )
+		, _sprite_type( scene_sprite_type_e_fixed )
+		, _size( 0.5f )
 		, _last_render_frame( 0 )
 		, _renderer_vertex_start( 0 )
 	{
+	}
+
+	scene_component_sprite_c::~scene_component_sprite_c()
+	{
+	}
+
+	scene_component_sprite_c * scene_component_sprite_c::make_new_instance()
+	{
+		return new scene_component_sprite_c();
 	}
 
 	scene_sprite_type_e scene_component_sprite_c::get_sprite_type() const
@@ -47,16 +56,16 @@ namespace cheonsa
 		_sprite_type = value;
 	}
 
-	float32_c scene_component_sprite_c::get_radius() const
+	float32_c scene_component_sprite_c::get_size() const
 	{
-		return _radius;
+		return _size;
 	}
 
-	void_c scene_component_sprite_c::set_radius( float32_c value )
+	void_c scene_component_sprite_c::set_size( float32_c value )
 	{
-		if ( _radius != value )
+		if ( _size != value )
 		{
-			_radius = value;
+			_size = value;
 			_update_local_space_obb();
 			_update_world_space_abb_from_local_space_obb();
 			_insert_or_update_component_tree();

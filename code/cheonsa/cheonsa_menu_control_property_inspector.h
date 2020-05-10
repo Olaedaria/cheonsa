@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_database_types.h"
 #include "cheonsa_reflection_types.h"
@@ -66,7 +66,7 @@ namespace cheonsa
 			reflection_value_container_c new_value;
 		};
 
-	private:
+	protected:
 		struct
 		{
 			float32_c height_for_class_row; // taken from style map property "height_for_class_row", height of class label row.
@@ -97,7 +97,7 @@ namespace cheonsa
 		menu_control_window_file_picker_c * _file_picker_dialog;
 		menu_control_window_text_editor_c * _text_editor_dialog;
 
-		menu_control_window_c * _property_inspector_window; // will be initialized at the moment that this property inspector needs to open up another property inspector in order to edit data_type_e_object or data_type_e_object_list type properties.
+		menu_control_window_c * _property_inspector_window; // will be initialized at the moment that this property inspector needs to open up another property inspector in order to edit nestable types (data_type_e_object or data_type_e_object_list type properties).
 		menu_control_property_inspector_c * _property_inspector; // is added to _property_inspector_window.
 		menu_control_button_c * _property_inspector_cancel_button;
 		menu_control_button_c * _property_inspector_okay_button;
@@ -139,11 +139,15 @@ namespace cheonsa
 		void_c _handle_item_sort_on_clicked( menu_event_information_c event_information );
 		void_c _handle_dialog_on_result( menu_control_window_c * window );
 
-		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ) override;
+		virtual void_c _handle_after_added_to_user_interface() override;
+		virtual void_c _handle_before_removed_from_user_interface() override;
+
+		menu_control_property_inspector_c( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
 
 	public:
-		menu_control_property_inspector_c( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
 		virtual ~menu_control_property_inspector_c() override;
+
+		static menu_control_property_inspector_c * make_new_instance( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // creates a new instance on the heap with reference count of 0.
 
 		void_c bind_reflection_object( reflection_object_c * value ); // sets the object that is to be reflected by this property inspector.
 		//void_c bind_database_record( database_record_c * value ); // sets the database record to be edited by this property inspector. unsubscribes the property inspector from the database events.

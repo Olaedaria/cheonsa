@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_video_interface.h"
@@ -53,6 +53,7 @@ namespace cheonsa
 	// used for gpu skinned meshes.
 	class video_renderer_vertex_mesh_bone_weight_c
 	{
+	public:
 		uint16_c bone_weights[ 4 ];
 		uint16_c bone_indices[ 4 ];
 	};

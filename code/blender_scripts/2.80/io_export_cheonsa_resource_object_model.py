@@ -284,6 +284,19 @@ class model_c:
 			this.texture = [ 0.0, 0.0, 0.0, 0.0 ]
 			this.bone_weights = [ 0.0, 0.0, 0.0, 0.0 ]
 			this.bone_indices = [ 0, 0, 0, 0 ]
+	class mesh_shape_key_vertex_c:
+		def __init__( this ):
+			this.vertex_index = 0
+			this.position = [ 0.0, 0.0, 0.0 ]
+	class mesh_shape_key_c:
+		def __init__( this ):
+			this.name = ""
+			this.mesh_index = 0
+			this.shape_key_vertex_start = 0
+			this.shape_key_vertex_end = 0
+			this.minimum_value = 0.0
+			this.maximum_value = 0.0
+			this.shape_key_vertex_list = []
 	class bone_c:
 		def __init__( this ):
 			this.name = ""
@@ -304,7 +317,7 @@ class model_c:
 		def __init__( this ):
 			this.name = ""
 			this.value = ""
-	class bone_attachment_c:
+	class attachment_point_c:
 		def __init__( this ):
 			this.name = ""
 			this.mother_bone_name = ""
@@ -371,7 +384,7 @@ class model_c:
 			this.time = 0.0
 			this.type = 0
 			this.value = 0
-	class physics_body_c:
+	class physics_ridgid_body_c:
 		class flags_e:
 			is_active = 0x01
 			is_dynamic = 0x02
@@ -400,6 +413,7 @@ class model_c:
 			this.shape_list = []
 			this.shape_start = 0
 			this.shape_end = 0
+			this.effects_material_name = ""
 	class physics_shape_c:
 		class type_e:
 			none = 0
@@ -471,6 +485,7 @@ class model_c:
 			this.type = 0						# uint16_c
 			this.flags = 0						# uint16_c
 			this.parameters = None				# None, parameters_hinge_c, parameters_cone_c, or paramaters_generic_c, depending on constraint type.
+			this.parameters_list = []			# list of floats.
 			this.parameters_start = 0			# uint16_c
 			this.parameters_end = 0				# uint16_c
 			this.body_a_index = 0				# sint16_c
@@ -511,18 +526,20 @@ class model_c:
 		this.mesh_list = []
 		this.mesh_draw_list = []			# compiled from mesh_list.
 		this.mesh_vertex_list = []			# compiled from mesh_draw_list. mesh_vertex_c, but gets saved as two lists of two other types (not defined in this file), one for base data and one for bone weight data.
-		this.mesh_index_list = []			# compiled from mesh_draw_list. saved format depends on length, if less than 65535 then saved as list of uint16_c, otherwise saved as list of uint32_c.
+		this.mesh_index_list = []			# compiled from mesh_draw_list. saved format depends on length of vertex list, if less than 65535 then saved as list of uint16_c, otherwise saved as list of uint32_c.
 		this.mesh_bone_name_dictionary = {}	# dictionary of str keys and int values.
+		this.mesh_shape_key_vertex_list = []# list of mesh_shape_key_vertex_c.
+		this.mesh_shape_key_list = []		# list of mesh_shape_key_c.
 		this.bone_list = []					# list of bone_c.
 		this.bone_logic_list = []			# list of bone_logic_c.
 		this.bone_logic_property_list = []	# list of bone_logic_property_c, compiled from bone_logic_list
-		this.bone_attachment_list = []		# list of bone_attachment_c.
+		this.attachment_point_list = []		# list of attachment_point_c.
 		this.animation_list = []			# list of animation_c.
 		this.animation_object_list = []		# list of animation_object_c, compiled from animation_list
 		this.animation_property_list = []	# list of animation_property_c, compiled from animation_object_list
 		this.animation_key_list = []		# list of animation_key_c, compiled from animation_property_list
 		this.animation_event_list = []		# list of animation_event_c, compiled from animation_list
-		this.physics_body_list = []			# list of physics_body_c.
+		this.physics_body_list = []			# list of physics_ridgid_body_c.
 		this.physics_shape_list = []		# list of physics_shape_c, compiled from physics_body_list
 		this.physics_vertex_list = []		# list of physics_vertex_c, compiled from physics_shape_list
 		this.physics_index_list = []		# list of uint16_c, compiled from physics_shape_list
@@ -567,6 +584,10 @@ class model_c:
 					this.mesh_index_list.append( index + index_base )
 				mesh_draw.index_end = len( this.mesh_index_list )
 				index_base += len( mesh_draw.vertex_list )
+		for mesh_shape_key in this.mesh_shape_key_list:
+			mesh_shape_key.shape_key_vertex_start = len( this.mesh_shape_key_vertex_list )
+			this.mesh_shape_key_vertex_list.extend( mesh_shape_key.shape_key_vertex_list )
+			mesh_shape_key.shape_key_vertex_end = len( this.mesh_shape_key_vertex_list )
 		this.bone_logic_property_list = []
 		for bone_logic in this.bone_logic_list:
 			bone_logic.property_start = len( this.bone_logic_property_list )
@@ -617,31 +638,37 @@ class model_c:
 					index_base += len( physics_shape.index_list )
 		for physics_constraint in this.physics_constraint_list:
 			if physics_constraint.type == physics_constraint_type_e.hinge:
+				assert len( physics_constraint.parameters_list ) == 2
 				physics_constraint.parameters_start = len( this.physics_parameters_list )
-				this.physics_parameters_list.append( physics_constraint.parameters.angular_lower_a )
-				this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_a )
-				physics_constraint.parameters_end = len( this.physics_parameters_list )
+				this.physics_parameters_list.extend( physics_constraint.parameters_list )
+				#this.physics_parameters_list.append( physics_constraint.parameters.angular_lower_a )
+				#this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_a )
+				#physics_constraint.parameters_end = len( this.physics_parameters_list )
 			elif physics_constraint.type == physics_constraint_type_e.cone:
+				assert len( physics_constraint.parameters_list ) == 3
 				physics_constraint.parameters_start = len( this.physics_parameters_list )
-				this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_a )
-				this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_b )
-				this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_c )
-				physics_constraint.parameters_end = len( this.physics_parameters_list )
+				this.physics_parameters_list.extend( physics_constraint.parameters_list )
+				#this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_a )
+				#this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_b )
+				#this.physics_parameters_list.append( physics_constraint.parameters.angular_upper_c )
+				#physics_constraint.parameters_end = len( this.physics_parameters_list )
 			elif physics_constraint.type == physics_constraint_type_e.generic:
+				assert len( physics_constraint.parameters_list ) == 12
 				physics_constraint.parameters_start = len( this.physics_parameters_list )
-				this.physics_parameters_list.append( physics_constraint.linear_lower_a )
-				this.physics_parameters_list.append( physics_constraint.linear_upper_a )
-				this.physics_parameters_list.append( physics_constraint.linear_lower_b )
-				this.physics_parameters_list.append( physics_constraint.linear_upper_b )
-				this.physics_parameters_list.append( physics_constraint.linear_lower_c )
-				this.physics_parameters_list.append( physics_constraint.linear_upper_c )
-				this.physics_parameters_list.append( physics_constraint.angular_lower_a )
-				this.physics_parameters_list.append( physics_constraint.angular_upper_a )
-				this.physics_parameters_list.append( physics_constraint.angular_lower_b )
-				this.physics_parameters_list.append( physics_constraint.angular_upper_b )
-				this.physics_parameters_list.append( physics_constraint.angular_lower_c )
-				this.physics_parameters_list.append( physics_constraint.angular_upper_c )
-				physics_constraint.parameters_end = len( this.physics_parameters_list )
+				this.physics_parameters_list.extend( physics_constraint.parameters_list )
+				#this.physics_parameters_list.append( physics_constraint.linear_lower_a )
+				#this.physics_parameters_list.append( physics_constraint.linear_upper_a )
+				#this.physics_parameters_list.append( physics_constraint.linear_lower_b )
+				#this.physics_parameters_list.append( physics_constraint.linear_upper_b )
+				#this.physics_parameters_list.append( physics_constraint.linear_lower_c )
+				#this.physics_parameters_list.append( physics_constraint.linear_upper_c )
+				#this.physics_parameters_list.append( physics_constraint.angular_lower_a )
+				#this.physics_parameters_list.append( physics_constraint.angular_upper_a )
+				#this.physics_parameters_list.append( physics_constraint.angular_lower_b )
+				#this.physics_parameters_list.append( physics_constraint.angular_upper_b )
+				#this.physics_parameters_list.append( physics_constraint.angular_lower_c )
+				#this.physics_parameters_list.append( physics_constraint.angular_upper_c )
+				#physics_constraint.parameters_end = len( this.physics_parameters_list )
 		# build chunks.
 		# this will also build the string table which is saved last.
 		data_endianness = endianness_e.little
@@ -739,7 +766,7 @@ class model_c:
 			chunk.signature = b"mi__"
 			chunk.count = len( this.mesh_index_list )
 			chunk.memory_stream = memory_stream_c( data_endianness )
-			if len( this.mesh_index_list ) <= 65535:
+			if len( this.mesh_vertex_list ) <= 65535:
 				for mesh_index in this.mesh_index_list:
 					chunk.memory_stream.save_uint16( mesh_index )
 			else:
@@ -748,6 +775,33 @@ class model_c:
 			chunk.data_size = chunk.memory_stream.get_size()
 			chunk.memory_stream.save_padding( data_list_byte_alignment )
 			chunk_list.append( chunk )
+		# mesh_shape_key_vertex_list
+		if len( this.mesh_shape_key_vertex_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"mskv"
+			chunk.count = len( this.mesh_shape_key_vertex_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for mesh_shape_key_vertex in this.mesh_shape_key_vertex_list:
+				chunk.memory_stream.save_uint32( mesh_shape_key_vertex.vertex_index )
+				chunk.memory_stream.save_float32( mesh_shape_key_vertex.position[ 0 ] )
+				chunk.memory_stream.save_float32( mesh_shape_key_vertex.position[ 1 ] )
+				chunk.memory_stream.save_float32( mesh_shape_key_vertex.position[ 2 ] )
+			chunk.data_size = chunk.memory_stream.get_size()
+			chunk.memory_stream.save_padding( data_list_byte_alignment )
+			chunk_list.append( chunk )
+		# mesh_shape_key_list
+		if len( this.mesh_shape_key_list ) > 0:
+			chunk = model_c.chunk_c()
+			chunk.signature = b"msk_"
+			chunk.count = len( this.mesh_shape_key_list )
+			chunk.memory_stream = memory_stream_c( data_endianness )
+			for mesh_shape_key in this.mesh_shape_key_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( mesh_shape_key.name ) )
+				chunk.memory_stream.save_uint16( mesh_shape_key.mesh_index )
+				chunk.memory_stream.save_uint32( mesh_shape_key.shape_key_vertex_start )
+				chunk.memory_stream.save_uint32( mesh_shape_key.shape_key_vertex_end )
+				chunk.memory_stream.save_float32( mesh_shape_key.minimum_value )
+				chunk.memory_stream.save_float32( mesh_shape_key.maximum_value )
 		# bone_list
 		if len( this.bone_list ) > 0:
 			chunk = model_c.chunk_c()
@@ -799,23 +853,23 @@ class model_c:
 			chunk.data_size = chunk.memory_stream.get_size()
 			chunk.memory_stream.save_padding( data_list_byte_alignment )
 			chunk_list.append( chunk )
-		# bone_attachment_list
-		if len( this.bone_attachment_list ) > 0:
+		# attachment_point_list
+		if len( this.attachment_point_list ) > 0:
 			chunk = model_c.chunk_c()
-			chunk.signature = b"ba__"
-			chunk.count = len( this.bone_attachment_list )
+			chunk.signature = b"ap__"
+			chunk.count = len( this.attachment_point_list )
 			chunk.memory_stream = memory_stream_c( data_endianness )
-			for bone_attachment in this.bone_attachment_list:
-				chunk.memory_stream.save_uint16( this.string_table.add_string( bone_attachment.name ) )
-				chunk.memory_stream.save_uint16( this.string_table.add_string( bone_attachment.mother_bone_name ) )
-				chunk.memory_stream.save_float32( bone_attachment.position[ 0 ] )
-				chunk.memory_stream.save_float32( bone_attachment.position[ 1 ] )
-				chunk.memory_stream.save_float32( bone_attachment.position[ 2 ] )
-				chunk.memory_stream.save_float32( bone_attachment.rotation[ 0 ] )
-				chunk.memory_stream.save_float32( bone_attachment.rotation[ 1 ] )
-				chunk.memory_stream.save_float32( bone_attachment.rotation[ 2 ] )
-				chunk.memory_stream.save_float32( bone_attachment.rotation[ 3 ] )
-				chunk.memory_stream.save_float32( bone_attachment.rotation )
+			for attachment_point in this.attachment_point_list:
+				chunk.memory_stream.save_uint16( this.string_table.add_string( attachment_point.name ) )
+				chunk.memory_stream.save_uint16( this.string_table.add_string( attachment_point.mother_bone_name ) )
+				chunk.memory_stream.save_float32( attachment_point.position[ 0 ] )
+				chunk.memory_stream.save_float32( attachment_point.position[ 1 ] )
+				chunk.memory_stream.save_float32( attachment_point.position[ 2 ] )
+				chunk.memory_stream.save_float32( attachment_point.rotation[ 0 ] )
+				chunk.memory_stream.save_float32( attachment_point.rotation[ 1 ] )
+				chunk.memory_stream.save_float32( attachment_point.rotation[ 2 ] )
+				chunk.memory_stream.save_float32( attachment_point.rotation[ 3 ] )
+				chunk.memory_stream.save_float32( attachment_point.rotation )
 			chunk.data_size = chunk.memory_stream.get_size()
 			chunk.memory_stream.save_padding( data_list_byte_alignment )
 			chunk_list.append( chunk )
@@ -917,11 +971,11 @@ class model_c:
 				chunk.memory_stream.save_float32( physics_body.linear_damping )
 				chunk.memory_stream.save_float32( physics_body.angular_damping )
 				chunk.memory_stream.save_uint16( physics_body.flags )
-				chunk.memory_stream.save_uint16( 0 )
 				chunk.memory_stream.save_uint16( physics_body.layer )
-				chunk.memory_stream.save_uint16( physics_body.layer_mask )
 				chunk.memory_stream.save_uint16( physics_body.shape_start )
 				chunk.memory_stream.save_uint16( physics_body.shape_end )
+				chunk.memory_stream.save_uint16( physics_body.effects_material_name )
+				chunk.memory_stream.save_uint16( 0 )
 			chunk.data_size = chunk.memory_stream.get_size()
 			chunk.memory_stream.save_padding( data_list_byte_alignment )
 			chunk_list.append( chunk )
@@ -1258,7 +1312,7 @@ def do_export( context, file_path ):
 		for blender_object_child in blender_object.children:
 			compile_blender_object_list( blender_object_child, result )
 	"""
-	gets the min and max bounding box tuples for a given blender object.
+	gets the local object space min and max bounding box tuples for a given blender object.
 	"""
 	def extract_blender_bound_box( blender_object, min, max ):
 		# looks like blender bound box is 8 points, one for each corner of a box.
@@ -1328,6 +1382,8 @@ def do_export( context, file_path ):
 			xml_document = xml.dom.minidom.parseString( bpy.data.texts[ text_block_name ].as_string() )
 			if xml_document != None:
 				if xml_document.documentElement != None and xml_document.documentElement.tagName == "export":
+					# rebound_bones.
+					rebound_bones = xml_document.documentElement.getAttribute( "rebound_bones" )
 					# property.
 					xml_property_elements = xml_document.documentElement.getElementsByTagName( "property" )
 					for xml_property_element in xml_property_elements:
@@ -1393,19 +1449,19 @@ def do_export( context, file_path ):
 		if printed == False:
 			print( "  building meshes" )
 			printed = True
-		cheonsa_model_mesh = model_c.mesh_c()
-		cheonsa_model_mesh.name = trim_blender_name( blender_object.name )
-		#cheonsa_model_mesh.mother_bone_name = blender_object.parent_bone
-		#cheonsa_model_mesh.position[ 0 ] = blender_object.location.x
-		#cheonsa_model_mesh.position[ 1 ] = blender_object.location.y
-		#cheonsa_model_mesh.position[ 2 ] = blender_object.location.z
-		#cheonsa_model_mesh.rotation[ 0 ] = blender_object.rotation_quaternion.x
-		#cheonsa_model_mesh.rotation[ 1 ] = blender_object.rotation_quaternion.y
-		#cheonsa_model_mesh.rotation[ 2 ] = blender_object.rotation_quaternion.z
-		#cheonsa_model_mesh.rotation[ 3 ] = blender_object.rotation_quaternion.w
+		cheonsa_mesh = model_c.mesh_c()
+		cheonsa_mesh.name = trim_blender_name( blender_object.name )
+		#cheonsa_mesh.mother_bone_name = blender_object.parent_bone
+		#cheonsa_mesh.position[ 0 ] = blender_object.location.x
+		#cheonsa_mesh.position[ 1 ] = blender_object.location.y
+		#cheonsa_mesh.position[ 2 ] = blender_object.location.z
+		#cheonsa_mesh.rotation[ 0 ] = blender_object.rotation_quaternion.x
+		#cheonsa_mesh.rotation[ 1 ] = blender_object.rotation_quaternion.y
+		#cheonsa_mesh.rotation[ 2 ] = blender_object.rotation_quaternion.z
+		#cheonsa_mesh.rotation[ 3 ] = blender_object.rotation_quaternion.w
 		#if blender_object.scale.x != blender_object.scale.y or blender_object.scale.x != blender_object.scale.z:
 		#	print( "    warning: a mesh object has non-uniform scale, but cheonsa meshes only support uniform scale. the mesh will still be exported but using the x scale to define the uniform scale." )
-		#cheonsa_model_mesh.scale = blender_object.scale.x
+		#cheonsa_mesh.scale = blender_object.scale.x
 		blender_mesh = triangulate_blender_mesh( context, blender_object ) # create a triangulated copy of the mesh
 		blender_active_uv = blender_mesh.data.uv_layers.active
 		#blender_active_uv_b = None
@@ -1418,40 +1474,40 @@ def do_export( context, file_path ):
 			if len( blender_polygon.loop_indices ) == 3:
 				for blender_loop_index in blender_polygon.loop_indices:
 					blender_loop = blender_mesh.data.loops[ blender_loop_index ]
-					blender_vertex = blender_mesh.data.vertices[ blender_loop.vertex_index ] # look up the vertex with the vertex index from the loop
-					cheonsa_model_mesh_vertex = model_c.mesh_vertex_c()
-					cheonsa_model_mesh_vertex.position[ 0 ] = blender_vertex.co.x # extract vertex position XYZs
-					cheonsa_model_mesh_vertex.position[ 1 ] = blender_vertex.co.y
-					cheonsa_model_mesh_vertex.position[ 2 ] = blender_vertex.co.z
+					blender_mesh_vertex = blender_mesh.data.vertices[ blender_loop.vertex_index ] # look up the vertex with the vertex index from the loop
+					cheonsa_mesh_vertex = model_c.mesh_vertex_c()
+					cheonsa_mesh_vertex.position[ 0 ] = blender_mesh_vertex.co.x # extract vertex position XYZs
+					cheonsa_mesh_vertex.position[ 1 ] = blender_mesh_vertex.co.y
+					cheonsa_mesh_vertex.position[ 2 ] = blender_mesh_vertex.co.z
 					if blender_polygon.use_smooth: # face is smooth, take normal from vertex.
-						cheonsa_model_mesh_vertex.normal[ 0 ] = blender_vertex.normal.x
-						cheonsa_model_mesh_vertex.normal[ 1 ] = blender_vertex.normal.y
-						cheonsa_model_mesh_vertex.normal[ 2 ] = blender_vertex.normal.z
+						cheonsa_mesh_vertex.normal[ 0 ] = blender_mesh_vertex.normal.x
+						cheonsa_mesh_vertex.normal[ 1 ] = blender_mesh_vertex.normal.y
+						cheonsa_mesh_vertex.normal[ 2 ] = blender_mesh_vertex.normal.z
 					else: # face is flat, take normal from face.
-						cheonsa_model_mesh_vertex.normal[ 0 ] = blender_polygon.normal.x
-						cheonsa_model_mesh_vertex.normal[ 1 ] = blender_polygon.normal.y
-						cheonsa_model_mesh_vertex.normal[ 2 ] = blender_polygon.normal.z
+						cheonsa_mesh_vertex.normal[ 0 ] = blender_polygon.normal.x
+						cheonsa_mesh_vertex.normal[ 1 ] = blender_polygon.normal.y
+						cheonsa_mesh_vertex.normal[ 2 ] = blender_polygon.normal.z
 					if blender_active_uv != None:
-						cheonsa_model_mesh_vertex.texture[ 0 ] = blender_active_uv.data[ blender_loop_index ].uv.x
-						cheonsa_model_mesh_vertex.texture[ 1 ] = 1.0 - blender_active_uv.data[ blender_loop_index ].uv.y # ivert Y|V axis to work with Direct3D texture addressing.
+						cheonsa_mesh_vertex.texture[ 0 ] = blender_active_uv.data[ blender_loop_index ].uv.x
+						cheonsa_mesh_vertex.texture[ 1 ] = 1.0 - blender_active_uv.data[ blender_loop_index ].uv.y # ivert Y|V axis to work with Direct3D texture addressing.
 					#if blender_active_uv_b != None:
-					#	cheonsa_model_mesh_vertex.texture[ 2 ] = blender_active_uv_b.data[ blender_loop_index ].uv[ 0 ]
-					#	cheonsa_model_mesh_vertex.texture[ 3 ] = 1.0 - blender_active_uv_b.data[ blender_loop_index ].uv[ 1 ] # ivert V axis to work with Direct3D texture addressing.
+					#	cheonsa_mesh_vertex.texture[ 2 ] = blender_active_uv_b.data[ blender_loop_index ].uv[ 0 ]
+					#	cheonsa_mesh_vertex.texture[ 3 ] = 1.0 - blender_active_uv_b.data[ blender_loop_index ].uv[ 1 ] # ivert V axis to work with Direct3D texture addressing.
 					#if blender_active_rgb != None:	# vertex colors
 					#	blender_rgb = blender_active_rgb.data[ blender_loop_index ].color
-					#	cheonsa_model_mesh_vertex.color = [ int( blender_rgb[ 0 ] * 0xFF ), int( blender_rgb[ 1 ] * 0xFF ), int( blender_rgb[ 2 ] * 0xFF ), 0xFF ]
+					#	cheonsa_mesh_vertex.color = [ int( blender_rgb[ 0 ] * 0xFF ), int( blender_rgb[ 1 ] * 0xFF ), int( blender_rgb[ 2 ] * 0xFF ), 0xFF ]
 					#else:
-					#	cheonsa_model_mesh_vertex.color = [ 0xFF, 0xFF, 0xFF, 0xFF ]
+					#	cheonsa_mesh_vertex.color = [ 0xFF, 0xFF, 0xFF, 0xFF ]
 					vertex_influence_list = [] # compile vertex groups
-					for blender_vertex_group_element in blender_vertex.groups:	# gather all of the influences on this vertex.
+					for blender_vertex_group_element in blender_mesh_vertex.groups:	# gather all of the influences on this vertex.
 						group_name = blender_mesh.vertex_groups[ blender_vertex_group_element.group ].name
 						group_weight = blender_vertex_group_element.weight
 						if group_name == "_smooth_seam" and group_weight >= 1:
-							smooth_seam_vertex_list.append( cheonsa_model_mesh_vertex )
+							smooth_seam_vertex_list.append( cheonsa_mesh_vertex )
 						elif group_name == "_wave_frequency":
-							cheonsa_model_mesh_vertex.texture[ 2 ] = group_weight * 1000.0
+							cheonsa_mesh_vertex.texture[ 2 ] = group_weight * 1000.0
 						elif group_name == "_wave_amplitude":
-							cheonsa_model_mesh_vertex.texture[ 3 ] = group_weight
+							cheonsa_mesh_vertex.texture[ 3 ] = group_weight
 						elif group_weight > 0.0:
 							vertex_influence_list.append( [ group_name, group_weight ] )
 					vertex_influence_list.sort( key = sort_vertex_influences ) # sort influences by weight from heaviest to lightest.
@@ -1465,27 +1521,48 @@ def do_export( context, file_path ):
 								cheonsa_vertex_influence_index += 1
 					vertex_influence_list = vertex_influence_list[ :4 ] # trim to be no more than 4 weights, since cheonsa only supports up to 4 influences per vertex.
 					for cheonsa_vertex_influence_index, cheonsa_vertex_influence in enumerate( vertex_influence_list ):	# add bone name lookups to model.
-							cheonsa_model_mesh_vertex.bone_weights[ cheonsa_vertex_influence_index ] = cheonsa_vertex_influence[ 1 ]
-							cheonsa_model_mesh_vertex.bone_indices[ cheonsa_vertex_influence_index ] = model.add_mesh_bone_name( cheonsa_vertex_influence[ 0 ] )
-					weight_sum = cheonsa_model_mesh_vertex.bone_weights[ 0 ] + cheonsa_model_mesh_vertex.bone_weights[ 1 ] + cheonsa_model_mesh_vertex.bone_weights[ 2 ] + cheonsa_model_mesh_vertex.bone_weights[ 3 ]	# normalize weights.
+							cheonsa_mesh_vertex.bone_weights[ cheonsa_vertex_influence_index ] = cheonsa_vertex_influence[ 1 ]
+							cheonsa_mesh_vertex.bone_indices[ cheonsa_vertex_influence_index ] = model.add_mesh_bone_name( cheonsa_vertex_influence[ 0 ] )
+					weight_sum = cheonsa_mesh_vertex.bone_weights[ 0 ] + cheonsa_mesh_vertex.bone_weights[ 1 ] + cheonsa_mesh_vertex.bone_weights[ 2 ] + cheonsa_mesh_vertex.bone_weights[ 3 ]	# normalize weights.
 					if weight_sum > 0.0:
-						cheonsa_model_mesh_vertex.bone_weights[ 0 ] = cheonsa_model_mesh_vertex.bone_weights[ 0 ] / weight_sum
-						cheonsa_model_mesh_vertex.bone_weights[ 1 ] = cheonsa_model_mesh_vertex.bone_weights[ 1 ] / weight_sum
-						cheonsa_model_mesh_vertex.bone_weights[ 2 ] = cheonsa_model_mesh_vertex.bone_weights[ 2 ] / weight_sum
-						cheonsa_model_mesh_vertex.bone_weights[ 3 ] = cheonsa_model_mesh_vertex.bone_weights[ 3 ] / weight_sum
+						cheonsa_mesh_vertex.bone_weights[ 0 ] = cheonsa_mesh_vertex.bone_weights[ 0 ] / weight_sum
+						cheonsa_mesh_vertex.bone_weights[ 1 ] = cheonsa_mesh_vertex.bone_weights[ 1 ] / weight_sum
+						cheonsa_mesh_vertex.bone_weights[ 2 ] = cheonsa_mesh_vertex.bone_weights[ 2 ] / weight_sum
+						cheonsa_mesh_vertex.bone_weights[ 3 ] = cheonsa_mesh_vertex.bone_weights[ 3 ] / weight_sum
 					else:
-						cheonsa_model_mesh_vertex.bone_weights[ 0 ] = 0
-						cheonsa_model_mesh_vertex.bone_weights[ 1 ] = 0
-						cheonsa_model_mesh_vertex.bone_weights[ 2 ] = 0
-						cheonsa_model_mesh_vertex.bone_weights[ 3 ] = 0
-					cheonsa_mesh_vertex_list_for_polygon.append( cheonsa_model_mesh_vertex ) # add the vertex to the polygon vertex list.
+						cheonsa_mesh_vertex.bone_weights[ 0 ] = 0
+						cheonsa_mesh_vertex.bone_weights[ 1 ] = 0
+						cheonsa_mesh_vertex.bone_weights[ 2 ] = 0
+						cheonsa_mesh_vertex.bone_weights[ 3 ] = 0
+					cheonsa_mesh_vertex_list_for_polygon.append( cheonsa_mesh_vertex ) # add the vertex to the polygon vertex list.
 				cheonsa_model_mesh_draw.add_vertices( cheonsa_mesh_vertex_list_for_polygon, blender_polygon.use_smooth ) # add the polygon (triangle) vertex list to the draw.
-			cheonsa_model_mesh.draw_list.append( cheonsa_model_mesh_draw ) # add the draw to the mesh.
-		for cheonsa_model_mesh_draw in cheonsa_model_mesh.draw_list: # build tangents.
+			cheonsa_mesh.draw_list.append( cheonsa_model_mesh_draw ) # add the draw to the mesh.
+		for cheonsa_model_mesh_draw in cheonsa_mesh.draw_list: # build tangents.
 			if cheonsa_model_mesh_draw.primitive_type == model_c.primitive_type_e.triangle_list:
 				make_tangents_for_triangle_list( cheonsa_model_mesh_draw.smooth_vertex_list )
 				make_tangents_for_triangle_list( cheonsa_model_mesh_draw.flat_vertex_list )
-		cheonsa_model.mesh_list.append( cheonsa_model_mesh ) # add the new mesh to the model.
+		mesh_index = len( cheonsa_model.mesh_list )
+		cheonsa_model.mesh_list.append( cheonsa_mesh ) # add the new mesh to the model.
+		# mesh shape keys.
+		if blender_mesh.data.shape_keys != None:
+			if len( blender_mesh.data.shape_keys.key_blocks ) > 1: # the first shape key is always the Basis and we aren't interested in it.
+				for i in range( 1, len( blender_mesh.data.shape_keys.key_blocks ) ):
+					blender_mesh_shape_key = blender_mesh.data.shape_keys.key_blocks[ i ]
+					cheonsa_mesh_shape_key = model_c.mesh_shape_key_c()
+					cheonsa_mesh_shape_key.name = blender_mesh_shape_key.name
+					cheonsa_mesh_shape_key.mesh_index = mesh_index
+					cheonsa_mesh_shape_key.minimum_value = blender_mesh_shape_key.slider_min
+					cheonsa_mesh_shape_key.maximum_value = blender_mesh_shape_key.slider_max
+					for j in range( 0, len( blender_mesh_shape_key.data ) ):
+						blender_mesh_vertex = blender_mesh.data.vertices[ j ]
+						blender_mesh_shape_key_vertex = blender_mesh_shape_key.data[ j ]
+						if blender_mesh_vertex.co != blender_mesh_shape_key_vertex.co:
+							cheonsa_mesh_shape_key_vertex = model_c.mesh_shape_key_vertex_c()
+							cheonsa_mesh_shape_key_vertex.vertex_index = j
+							cheonsa_mesh_shape_key_vertex.position[ 0 ] = blender_mesh_shape_key_vertex.co.x - blender_mesh_vertex.co.x
+							cheonsa_mesh_shape_key_vertex.position[ 1 ] = blender_mesh_shape_key_vertex.co.y - blender_mesh_vertex.co.y
+							cheonsa_mesh_shape_key_vertex.position[ 2 ] = blender_mesh_shape_key_vertex.co.z - blender_mesh_vertex.co.z
+							cheonsa_mesh_shape_key.shape_key_vertex_list.append( cheonsa_mesh_shape_key_vertex )
 		bpy.ops.object.delete()	# delete the duplicated mesh that is currently the active selected object.
 	smooth_duplicate_vertices( smooth_seam_vertex_list ) # smooth seams between meshes that are supposed to connect together seamlessly.
 
@@ -1507,11 +1584,13 @@ def do_export( context, file_path ):
 			cheonsa_model_bone.name = blender_edit_bone.name
 			if blender_edit_bone.parent != None:
 				cheonsa_model_bone.mother_bone_name = blender_edit_bone.parent.name
-			cheonsa_model_bone.flags = 0x00
+			cheonsa_model_bone.flags = 0x01 # enable inherit position.
 			if not blender_edit_bone.use_inherit_rotation:
-				cheonsa_model_bone.flags |= 0x02
+				cheonsa_model_bone.flags |= 0x02 # enable inherit rotation.
 			if not blender_edit_bone.use_inherit_scale:
-				cheonsa_model_bone.flags |= 0x04
+				cheonsa_model_bone.flags |= 0x04 # enable inherit scale.
+			if blender_edit_bone.name in rebound_bones:
+				cheonsa_model_bone.flags |= 0x08 # enable rebound.
 			cheonsa_model_bone.roll = blender_edit_bone.roll
 			cheonsa_model_bone.head_position[ 0 ] = blender_edit_bone.head.x
 			cheonsa_model_bone.head_position[ 1 ] = blender_edit_bone.head.y
@@ -1529,25 +1608,25 @@ def do_export( context, file_path ):
 		blender_object_root.select = True								# select root.
 		context.scene.objects.active = blender_object_root				# make root active.
 
-	# bone attachments.
+	# attachment points.
 	for blender_object in blender_object_list:
 		if blender_object.type == 'EMPTY' and blender_object.parent_type == 'BONE':
 			trimmed_name = trim_blender_name( blender_object.name )
 			if blender_object.name.startswith( "attachment" ):
-				cheonsa_model_bone_attachment = model_c.bone_attachment_c()
-				cheonsa_model_bone_attachment.name = trim_blender_name( blender_object.name )
-				cheonsa_model_bone_attachment.mother_bone_name = blender_object.parent_bone
-				cheonsa_model_bone_attachment.position[ 0 ] = blender_object.location.x
-				cheonsa_model_bone_attachment.position[ 1 ] = blender_object.location.y
-				cheonsa_model_bone_attachment.position[ 2 ] = blender_object.location.z
-				cheonsa_model_bone_attachment.rotation[ 0 ] = blender_object.rotation_quaternion.x
-				cheonsa_model_bone_attachment.rotation[ 1 ] = blender_object.rotation_quaternion.y
-				cheonsa_model_bone_attachment.rotation[ 2 ] = blender_object.rotation_quaternion.z
-				cheonsa_model_bone_attachment.rotation[ 3 ] = blender_object.rotation_quaternion.w
+				cheonsa_model_attachment_point = model_c.attachment_point_c()
+				cheonsa_model_attachment_point.name = trim_blender_name( blender_object.name )
+				cheonsa_model_attachment_point.mother_bone_name = blender_object.parent_bone
+				cheonsa_model_attachment_point.position[ 0 ] = blender_object.location.x
+				cheonsa_model_attachment_point.position[ 1 ] = blender_object.location.y
+				cheonsa_model_attachment_point.position[ 2 ] = blender_object.location.z
+				cheonsa_model_attachment_point.rotation[ 0 ] = blender_object.rotation_quaternion.x
+				cheonsa_model_attachment_point.rotation[ 1 ] = blender_object.rotation_quaternion.y
+				cheonsa_model_attachment_point.rotation[ 2 ] = blender_object.rotation_quaternion.z
+				cheonsa_model_attachment_point.rotation[ 3 ] = blender_object.rotation_quaternion.w
 				if blender_object.scale[ 0 ] != blender_object.scale[ 1 ] or blender_object.scale[ 0 ] != blender_object.scale[ 2 ]:
 					print( "    warning: an attachment object has non-uniform scale, but cheonsa attachments only support uniform scale. the attachment will still be exported but using the x scale to define the uniform scale." )
-				cheonsa_model_bone_attachment.scale = blender_object.scale[ 0 ]
-				cheonsa_model.bone_attachment_list.append( cheonsa_model_bone_attachment )
+				cheonsa_model_attachment_point.scale = blender_object.scale[ 0 ]
+				cheonsa_model.attachment_point_list.append( cheonsa_model_attachment_point )
 
 	# animations.
 	if ( len( export_animation_list ) > 0 ):
@@ -1630,7 +1709,7 @@ def do_export( context, file_path ):
 			if printed == False:
 				print( "  building physics" )
 				printed = True
-			cheonsa_model_physics_body = model_c.physics_body_c()
+			cheonsa_model_physics_body = model_c.physics_ridgid_body_c()
 			cheonsa_model_physics_body.name = trim_blender_name( blender_object.name )
 			cheonsa_model_physics_body.mother_bone_name = blender_object.parent_bone
 			cheonsa_model_physics_body.position[ 0 ] = blender_object.location.x
@@ -1650,11 +1729,11 @@ def do_export( context, file_path ):
 			cheonsa_model_physics_body.angular_damping = blender_object.rigid_body.angular_damping
 			cheonsa_model_physics_body.flags = 0x00
 			if blender_object.rigid_body.type == 'ACTIVE':
-				cheonsa_model_physics_body.flags |= model_c.physics_body_c.flags_e.is_active
+				cheonsa_model_physics_body.flags |= model_c.physics_ridgid_body_c.flags_e.is_active
 			if blender_object.rigid_body.enabled:
-				cheonsa_model_physics_body.flags |= model_c.physics_body_c.flags_e.is_dynamic
+				cheonsa_model_physics_body.flags |= model_c.physics_ridgid_body_c.flags_e.is_dynamic
 			if blender_object.rigid_body.kinematic:
-				cheonsa_model_physics_body.flags |= model_c.physics_body_c.flags_e.is_kinematic
+				cheonsa_model_physics_body.flags |= model_c.physics_ridgid_body_c.flags_e.is_kinematic
 			for i in range( 0, 6 ):
 				if blender_object.rigid_body.collision_collections[ i ]:
 					cheonsa_model_physics_body.layer = math.pow( 2, i );
@@ -1663,6 +1742,7 @@ def do_export( context, file_path ):
 				aabb_max = None
 				extract_blender_bound_box( blender_object, aabb_min, aabb_max )
 				aabb_extents = ( aabb_max[ 0 ] - aabb_min[ 0 ], aabb_max[ 1 ] - aabb_min[ 1 ], aabb_max[ 2 ] - aabb_min[ 2 ] )
+				aabb_center = ( aabb_extents[ 0 ] * 0.5, aabb_extents[ 1 ] * 0.5, aabb_extents[ 2 ] * 0.5 )
 				cheonsa_model_physics_shape = model_c.physics_shape_c()
 				if blender_object.rigid_body.collision_shape == 'BOX':
 					cheonsa_model_physics_shape.type = model_c.physics_shape_type_e.box
@@ -1680,7 +1760,10 @@ def do_export( context, file_path ):
 					cheonsa_model_physics_shape.sphere_radius *= 0.5
 				elif blender_object.rigid_body.collision_shape == 'CONE' or blender_object.rigid_body.collision_shape == 'CAPSULE' or blender_object.rigid_body.collision_shape == 'CYLINDER':
 					cheonsa_model_physics_shape = model_c.physics_shape_c()
-					generic_radius = aabb_extents[ 0 ] * 0.5
+					if aabb_extents[ 0 ] > aabb_extents[ 1 ]:
+						generic_radius = aabb_extents[ 0 ] * 0.5
+					else:
+						generic_radius = aabb_extents[ 1 ] * 0.5
 					generic_height = aabb_extents[ 2 ]
 					if blender_object.rigid_body.collision_shape == 'CONE':
 						cheonsa_model_physics_shape.type = model_c.physics_shape_type_e.cone
@@ -1699,8 +1782,8 @@ def do_export( context, file_path ):
 						cheonsa_model_physics_shape = model_c.physics_shape_c()
 						cheonsa_model_physics_shape.type = model_c.physics_shape_type_e.convex_hull
 						blender_mesh = blender_object
-						for blender_vertex in blender_mesh.data.vertices:
-							cheonsa_model_physics_shape.convex_hull_vertex_list.append( ( blender_vertex.co.x, blender_vertex.co.y, blender_vertex.co.z ) )
+						for blender_mesh_vertex in blender_mesh.data.vertices:
+							cheonsa_model_physics_shape.convex_hull_vertex_list.append( ( blender_mesh_vertex.co.x, blender_mesh_vertex.co.y, blender_mesh_vertex.co.z ) )
 				elif blender_object.rigid_body.collision_shape == 'MESH':
 					if blender_object.type == 'MESH':
 						cheonsa_model_physics_shape = cheonsa_model_physics_body.add_shape()
@@ -1716,13 +1799,13 @@ def do_export( context, file_path ):
 								else:
 									index = len( cheonsa_model_physics_shape.triangle_mesh_vertex_list )
 									index_remap[ blender_loop.vertex_index ] = index
-									blender_vertex = blender_mesh.data.vertices[ blender_loop.vertex_index ]
-									cheonsa_model_physics_shape.triangle_mesh_vertex_list.append( ( blender_vertex.co[ 0 ], blender_vertex.co[ 1 ], blender_vertex.co[ 2 ] ) )
+									blender_mesh_vertex = blender_mesh.data.vertices[ blender_loop.vertex_index ]
+									cheonsa_model_physics_shape.triangle_mesh_vertex_list.append( ( blender_mesh_vertex.co[ 0 ], blender_mesh_vertex.co[ 1 ], blender_mesh_vertex.co[ 2 ] ) )
 									cheonsa_model_physics_shape.triangle_mesh_index_list.append( index )
 						bpy.ops.object.delete() # delete previously duplicated blender mesh.
-				cheonsa_model_physics_shape.position[ 0 ] = blender_object.location.x
-				cheonsa_model_physics_shape.position[ 1 ] = blender_object.location.y
-				cheonsa_model_physics_shape.position[ 2 ] = blender_object.location.z
+				cheonsa_model_physics_shape.position[ 0 ] = aabb_center[ 0 ]
+				cheonsa_model_physics_shape.position[ 1 ] = aabb_center[ 1 ]
+				cheonsa_model_physics_shape.position[ 2 ] = aabb_center[ 2 ]
 				cheonsa_model_physics_shape.rotation[ 0 ] = blender_object.rotation_quaternion.x
 				cheonsa_model_physics_shape.rotation[ 1 ] = blender_object.rotation_quaternion.y
 				cheonsa_model_physics_shape.rotation[ 2 ] = blender_object.rotation_quaternion.z
@@ -1768,17 +1851,20 @@ def do_export( context, file_path ):
 	#	model_constraint.frame_rotation[1] = blender_quaternion.y
 	#	model_constraint.frame_rotation[2] = blender_quaternion.z
 	#	if blender_rigid_body_joint.pivot_type == 'HINGE':
+	#		model_constraint.parameters_list = [ 0, 0 ]
 	#		if blender_rigid_body_joint.use_angular_limit_x:
-	#			model_constraint.angular_lower_a = blender_rigid_body_joint.limit_ang_min_x
-	#			model_constraint.angular_upper_a = blender_rigid_body_joint.limit_ang_max_x
+	#			model_constraint.parameters_list[ 0 ] = blender_rigid_body_joint.limit_ang_min_x
+	#			model_constraint.parameters_list[ 1 ] = blender_rigid_body_joint.limit_ang_max_x
 	#	elif blender_rigid_body_joint.pivot_type == 'CONE_TWIST':
+	#		model_constraint.parameters_list = [ 0, 0, 0 ]
 	#		if blender_rigid_body_joint.use_angular_limit_x:
-	#			model_constraint.angular_upper_a = blender_rigid_body_joint.limit_ang_max_x
+	#			model_constraint.parameters_list[ 0 ] = blender_rigid_body_joint.limit_ang_max_x
 	#		if blender_rigid_body_joint.use_angular_limit_y:
-	#			model_constraint.angular_upper_b = blender_rigid_body_joint.limit_ang_max_y
+	#			model_constraint.parameters_list[ 1 ] = blender_rigid_body_joint.limit_ang_max_y
 	#		if blender_rigid_body_joint.use_angular_limit_z:
-	#			model_constraint.angular_upper_c = blender_rigid_body_joint.limit_ang_max_z
+	#			model_constraint.parameters_list[ 2 ] = blender_rigid_body_joint.limit_ang_max_z
 	#	elif blender_rigid_body_joint.pivot_type == 'GENERIC_6_DOF':
+	#		model_constraint.parameters_list = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
 	#		if blender_rigid_body_joint.use_linear_limit_x:
 	#			model_constraint.linear_lower_a = blender_rigid_body_joint.limit_min_x
 	#			model_constraint.linear_upper_a = blender_rigid_body_joint.limit_max_x

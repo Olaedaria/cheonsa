@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_string_file.h"
 #include "cheonsa_string16.h"
@@ -107,14 +107,12 @@ namespace cheonsa
 		// you will need to call apply_changes() when you are done making all your updates.
 		void_c add_game_data_folder_path( string16_c const & game_data_folder_path );
 
-		// takes relative file path, scans data folders for the first file that matches, then sets the result in absolute_file_path.
-		// returns true if resolution was successful, or false if not.
-		// if relative_file_path starts with "[e]" then it will search only within global_engine_instance.interfaces.content_manager->get_engine_data_folder_path().
-		// if relative_file_paht starts with "[g]" then it will search only within global_engine_instance.interfaces.content_manager->get_game_data_folder_path().
-		// otherwise, it will search both the game data folder and the engine data folder (in that order).
-		// game mod data folders are taken into account for game data.
-		// for each folder, locale code is taken into account, the locale code first then the "_common/" folder next.
-		boolean_c resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path ) const; 
+		// takes a relative file path and scans data folders for the first file that matches.
+		// relative_file_path is the file to search the data folders for.
+		// absolute_file_path will hold the result if the function returns true.
+		// search_game_data if true means that the game data folders will be searched. game data folders have higher priority and so are searched before engine data folders.
+		// search_engine_data if true means that the engine data folders will be searched.
+		boolean_c resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path, boolean_c search_game_data, boolean_c search_engine_data );
 
 		// gets the list of detected supported locales.
 		// this can be used to show a locale selection list to the user.

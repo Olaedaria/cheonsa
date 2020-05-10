@@ -1,5 +1,13 @@
-<export>
+<export
+	rebound_bones="bone1, bone2, bone3, etc.">
 	<!-- this file serves as reference for how to build an export.xml that the blender model export script can read -->
+
+	<!-- rebound_bones attribute should contain a list of bone names that should contribute to bounding box recalculation during run time.
+	during run time, animations will animate the bones, so a static bounding box isn't always sufficient, so the game engine needs to know which bones to use to recalculate it.
+	the bones and their head and tail radii are used calculate the new bounding box.
+	it's good to include bones that are most likely going to best define the bounding box of the model (hands, feet, head, tail, etc).
+	it's good to ommit bones that might be small (fingers, toes) or interior (eyes, face) to the model.
+	-->
 
 	<!-- properties define additional arbitrary data about the model that might be used by the game engine or game for a little bit of future proofing. -->
 	<property

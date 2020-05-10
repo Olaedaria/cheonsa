@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control_panel_i.h"
 
@@ -16,8 +16,13 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "panel"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	public:
+	protected:
 		menu_control_panel_c( string8_c const & name );
+
+	public:
+		virtual ~menu_control_panel_c() override;
+
+		static menu_control_panel_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		menu_visibility_mode_e get_horizontal_scroll_bar_visibility_mode() const;
 		void_c set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value );
@@ -25,13 +30,13 @@ namespace cheonsa
 		menu_visibility_mode_e get_vertical_scroll_bar_visibility_mode() const;
 		void_c set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value );
 
-		sint32_c get_controls_in_client_count() const;
-		menu_control_c const * get_control_in_client( sint32_c control_index ) const;
-		menu_control_c * get_control_in_client( sint32_c control_index );
+		void_c update_scroll_bar_visibility();
 
-		sint32_c give_control_to_client( menu_control_c * control, sint32_c index = -1 );
-		menu_control_c * take_control_from_client( sint32_c control_index );
-		void_c remove_and_delete_all_controls_from_client();
+		core_linked_list_c< menu_control_c * > const & get_client_daughter_control_list() const;
+
+		void_c add_daughter_control_to_client( menu_control_c * control, sint32_c index = -1 );
+		void_c remove_daughter_control_from_client( menu_control_c * control );
+		void_c remove_all_daughter_controls_from_client();
 
 	};
 

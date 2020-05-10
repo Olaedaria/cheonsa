@@ -1,4 +1,4 @@
-﻿#include "cheonsa_debug_manager.h"
+#include "cheonsa_debug_manager.h"
 #include "cheonsa_engine.h"
 
 #if defined( cheonsa_platform_windows )
@@ -62,11 +62,8 @@ namespace cheonsa
 		_console_is_showing = value;
 	}
 
-	void_c debug_manager_c::log( log_type_e type, string16_c const & message )
+	void_c debug_manager_c::_log( log_type_e type, string16_c const & message )
 	{
-#if defined( _DEBUG ) && defined( cheonsa_platform_windows )
-		OutputDebugStringW( message.character_list.get_internal_array() );
-#endif
 		if ( _log_file_is_open && type != log_type_e_information )
 		{
 			core_list_c< char8_c > utf8;
@@ -74,7 +71,6 @@ namespace cheonsa
 			_log_file.save( utf8.get_internal_array(), utf8.get_length() - 1 );
 			_log_file.save( "\n", 1 );
 		}
-
 		if ( _console_lines.get_length() == _console_lines.get_capacity() )
 		{
 			_console_lines.pop_front();
@@ -86,9 +82,14 @@ namespace cheonsa
 
 	void_c debug_log( log_type_e type, char16_c const * message )
 	{
+#if defined( _DEBUG ) && defined( cheonsa_platform_windows )
+		OutputDebugStringW( message );
+#else
+#error not implemented.
+#endif
 		if ( engine.get_debug_manager() )
 		{
-			engine.get_debug_manager()->log( type, string16_c( core_list_mode_e_static_volatile, message ) );
+			engine.get_debug_manager()->_log( type, string16_c( core_list_mode_e_static_volatile, message ) );
 		}
 	}
 

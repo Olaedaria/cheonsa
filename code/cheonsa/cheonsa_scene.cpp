@@ -1,4 +1,4 @@
-﻿#include "cheonsa_scene.h"
+#include "cheonsa_scene.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene_component.h"
 #include "cheonsa_scene_component_model.h"
@@ -37,9 +37,9 @@ namespace cheonsa
 		, _physics_scene( nullptr )
 		, _light_probe_list()
 		, _last_baked_light_probe( nullptr )
-		, sky_models()
-		, colors()
-		, _suspend_automatic_light_probe_invalidation( false )
+		, _sky_model_list()
+		, _color_array()
+		, _automatic_light_probe_invalidation_enabled( true )
 		, _light_probe_clip_near( 0.05f )
 		, _light_probe_clip_far( 1000.0f )
 		, _pick_on_next_render( false )
@@ -53,16 +53,24 @@ namespace cheonsa
 		_scene_component_tree.initialize( 512.0, 5 ); // 512, 256, 128, 64, 32
 		_local_lights_tree.initialize( 512.0, 5 );
 
-		_audio_scene_listener = new audio2_scene_listener_c();
+		_audio_scene_listener = audio2_scene_listener_c::make_new_instance();
+		_audio_scene_listener->add_reference();
 
-		_audio_scene = new audio2_scene_c();
+		_audio_scene = audio2_scene_c::make_new_instance();
+		_audio_scene->add_reference();
 		_audio_scene->set_scene_listener( _audio_scene_listener );
 
-		_physics_scene = new physics_scene_c();
+		_physics_scene = physics_scene_c::make_new_instance();
 	}
 
 	scene_c::~scene_c()
 	{
+		assert( !_user_interface );
+
+		// we want the game to own and manage the scene objects.
+		// we don't want to be responsible for deleting them.
+		assert( _scene_object_list.get_length() == 0 );
+
 		_audio_scene->remove_reference();
 		_audio_scene = nullptr;
 
@@ -88,9 +96,26 @@ namespace cheonsa
 		_clear_color = vector32x4_c( 0.0f, 0.0f, 0.0f, 0.0f );
 	}
 
-	scene_camera_c & scene_c::get_scene_camera()
+	scene_camera_c & scene_c::get_camera()
 	{
 		return _scene_camera;
+	}
+
+	core_list_c< scene_component_model_c * > & scene_c::get_sky_model_list()
+	{
+		return _sky_model_list;
+	}
+
+	vector32x4_c const & scene_c::get_color( sint32_c index ) const
+	{
+		assert( index >= 0 && index < video_renderer_interface_c::scene_colors_count );
+		return _color_array[ index ];
+	}
+
+	void_c scene_c::set_color( sint32_c index, vector32x4_c const & value )
+	{
+		assert( index >= 0 && index < video_renderer_interface_c::scene_colors_count );
+		_color_array[ index ] = value;
 	}
 
 	void_c scene_c::update_audio( float32_c time_step )
@@ -108,19 +133,29 @@ namespace cheonsa
 	void_c scene_c::add_object( scene_object_c * object )
 	{
 		assert( object );
-		assert( !object->_scene );
+		assert( object->_scene == nullptr );
+		object->add_reference();
 		_scene_object_list.insert_at_end( &object->_scene_object_list_node );
 		object->_scene = this;
 		object->_handle_after_added_to_scene();
+		if ( _user_interface )
+		{
+			object->_handle_after_added_to_user_interface();
+		}
 	}
 
 	void_c scene_c::remove_object( scene_object_c * object )
 	{
 		assert( object );
 		assert( object->_scene == this );
+		if ( _user_interface )
+		{
+			object->_handle_before_removed_from_user_interface();
+		}
 		object->_handle_before_removed_from_scene();
 		_scene_object_list.remove( &object->_scene_object_list_node );
 		object->_scene = nullptr;
+		object->remove_reference();
 	}
 
 	void_c scene_c::add_light( scene_light_c * light )
@@ -129,23 +164,29 @@ namespace cheonsa
 		light->_scene = this;
 		if ( light->_type == scene_light_type_e_direction )
 		{
-			_global_lights_list.insert_at_end( light );
+			_global_lights_list.insert( -1, light );
 		}
 		else
 		{
 			_local_lights_tree.insert_or_update_item( light );
 		}
-		invalidate_light_probes_with_light( light );
+		if ( _automatic_light_probe_invalidation_enabled )
+		{
+			invalidate_light_probes_with_light( light, nullptr );
+		}
 	}
 
 	void_c scene_c::remove_light( scene_light_c * light )
 	{
 		assert( light->_scene == this );
-		invalidate_light_probes_with_light( light );
+		if ( _automatic_light_probe_invalidation_enabled )
+		{
+			invalidate_light_probes_with_light( light, nullptr );
+		}
 		light->_scene = nullptr;
 		if ( light->_type == scene_light_type_e_direction )
 		{
-			_global_lights_list.remove( light );
+			_global_lights_list.remove_value( light );
 		}
 		else
 		{
@@ -162,10 +203,9 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < models_of_interest.get_length(); i++ )
 		{
 			scene_component_model_c * model = models_of_interest[ i ];
-
 			if ( ops::sweep_point_vs_box( pick_segment, box64x3_c( model->get_local_space_obb() ), model->get_scene_object()->get_world_space_transform(), t ) )
 			{
-				scene_pick_c * pick = _pick_list_original.emplace_at_end();
+				scene_pick_c * pick = _pick_list_original.emplace( -1, 1 );
 				pick->component = model;
 			}
 		}
@@ -173,9 +213,9 @@ namespace cheonsa
 		for ( sint32_c sprite_index = 0; sprite_index < sprites_of_interest.get_length(); sprite_index++ )
 		{
 			scene_component_sprite_c * sprite = sprites_of_interest[ sprite_index ];
-			if ( ops::sweep_point_vs_sphere( pick_segment, sphere64_c( sprite->get_scene_object()->get_world_space_transform().position, sprite->_radius ), t ) )
+			if ( ops::sweep_point_vs_sphere( pick_segment, sphere64_c( sprite->get_scene_object()->get_world_space_transform().position, sprite->get_size() ), t ) )
 			{
-				scene_pick_c * pick = _pick_list_original.emplace_at_end();
+				scene_pick_c * pick = _pick_list_original.emplace( -1, 1 );
 				pick->component = sprite;
 			}
 		}
@@ -231,12 +271,12 @@ namespace cheonsa
 
 	void_c scene_c::suspend_automatic_light_probe_invalidation()
 	{
-		_suspend_automatic_light_probe_invalidation = true;
+		_automatic_light_probe_invalidation_enabled = false;
 	}
 
 	void_c scene_c::resume_automatic_light_probe_invalidation()
 	{
-		_suspend_automatic_light_probe_invalidation = false;
+		_automatic_light_probe_invalidation_enabled = true;
 	}
 
 	void_c scene_c::invalidate_light_probes_every_where()
@@ -249,38 +289,25 @@ namespace cheonsa
 		}
 	}
 
-	void_c scene_c::invalidate_light_probes_with_light( scene_light_c * light )
+	void_c scene_c::invalidate_light_probes_with_light( scene_light_c const * light, transform3d_c const * old_world_space_transform )
 	{
-		if ( light && light->_scene && !light->_scene->_suspend_automatic_light_probe_invalidation )
+		assert( light );
+		assert( light->_scene == this );
+		if ( light->_type == scene_light_type_e_direction )
 		{
-			if ( light->_type == scene_light_type_e_direction )
+			light->_scene->invalidate_light_probes_every_where();
+		}
+		else if ( light->_type == scene_light_type_e_point || light->_type == scene_light_type_e_cone )
+		{
+			if ( old_world_space_transform )
 			{
-				light->_scene->invalidate_light_probes_every_where();
+				light->_scene->invalidate_light_probes_with_box( box64x3_c( light->_local_space_obb ), *old_world_space_transform );
 			}
-			else if ( light->_type == scene_light_type_e_point || light->_type == scene_light_type_e_cone )
-			{
-				light->_scene->invalidate_light_probes_with_box( box64x3_c( light->_local_space_obb ), light->_world_space_transform );
-			}
+			light->_scene->invalidate_light_probes_with_box( box64x3_c( light->_local_space_obb ), light->get_world_space_transform() );
 		}
 	}
 
-	void_c scene_c::invalidate_light_probes_with_box( box64x3_c const & bounding_box, space_transform_c const & bounding_box_transform )
-	{
-		core_linked_list_c< scene_component_light_probe_c * >::node_c const * light_probe_list_node = _light_probe_list.get_first();
-		while ( light_probe_list_node )
-		{
-			vector64x3_c light_probe_position = light_probe_list_node->get_value()->get_scene_object()->_world_space_transform.position;
-			vector64x3_c extent = vector64x3_c( _light_probe_clip_far, _light_probe_clip_far, _light_probe_clip_far );
-			box64x3_c light_probe_box = box64x3_c( light_probe_position - extent, light_probe_position + extent ); // light probes are shaped like axis aligned boxes, not spheres.
-			if ( ops::intersect_box_vs_box( light_probe_box, space_transform_c(), bounding_box, bounding_box_transform ) )
-			{
-				light_probe_list_node->get_value()->_is_up_to_date = false;
-			}
-			light_probe_list_node = light_probe_list_node->get_next();
-		}
-	}
-
-	void_c scene_c::invalidate_light_probes_with_before_and_after_box( box64x3_c const & bounding_box, space_transform_c const & before_bounding_box_transform, space_transform_c & after_bounding_box_transform )
+	void_c scene_c::invalidate_light_probes_with_box( box64x3_c const & bounding_box, transform3d_c const & bounding_box_transform )
 	{
 		core_linked_list_c< scene_component_light_probe_c * >::node_c const * light_probe_list_node = _light_probe_list.get_first();
 		while ( light_probe_list_node )
@@ -288,7 +315,23 @@ namespace cheonsa
 			vector64x3_c light_probe_position = light_probe_list_node->get_value()->get_scene_object()->get_world_space_transform().position;
 			vector64x3_c extent = vector64x3_c( _light_probe_clip_far, _light_probe_clip_far, _light_probe_clip_far );
 			box64x3_c light_probe_box = box64x3_c( light_probe_position - extent, light_probe_position + extent ); // light probes are shaped like axis aligned boxes, not spheres.
-			if ( ops::intersect_box_vs_box( light_probe_box, space_transform_c(), bounding_box, before_bounding_box_transform ) || ops::intersect_box_vs_box( light_probe_box, space_transform_c(), bounding_box, after_bounding_box_transform ) )
+			if ( ops::intersect_box_vs_box( light_probe_box, transform3d_c(), bounding_box, bounding_box_transform ) )
+			{
+				light_probe_list_node->get_value()->_is_up_to_date = false;
+			}
+			light_probe_list_node = light_probe_list_node->get_next();
+		}
+	}
+
+	void_c scene_c::invalidate_light_probes_with_before_and_after_box( box64x3_c const & bounding_box, transform3d_c const & before_bounding_box_transform, transform3d_c & after_bounding_box_transform )
+	{
+		core_linked_list_c< scene_component_light_probe_c * >::node_c const * light_probe_list_node = _light_probe_list.get_first();
+		while ( light_probe_list_node )
+		{
+			vector64x3_c light_probe_position = light_probe_list_node->get_value()->get_scene_object()->get_world_space_transform().position;
+			vector64x3_c extent = vector64x3_c( _light_probe_clip_far, _light_probe_clip_far, _light_probe_clip_far );
+			box64x3_c light_probe_box = box64x3_c( light_probe_position - extent, light_probe_position + extent ); // light probes are shaped like axis aligned boxes, not spheres.
+			if ( ops::intersect_box_vs_box( light_probe_box, transform3d_c(), bounding_box, before_bounding_box_transform ) || ops::intersect_box_vs_box( light_probe_box, transform3d_c(), bounding_box, after_bounding_box_transform ) )
 			{
 				light_probe_list_node->get_value()->_is_up_to_date = false;
 			}
@@ -340,7 +383,7 @@ namespace cheonsa
 		light_probe_list_node = light_probe_list_node->get_next();
 		while ( light_probe_list_node )
 		{
-			float64_c value_distance = ops::make_float64_length( light_probe_list_node->get_value()->get_scene_object()->get_world_space_transform().position - position );
+			float64_c value_distance = ops::length_float64( light_probe_list_node->get_value()->get_scene_object()->get_world_space_transform().position - position );
 			if ( value_distance < closest_value_distance )
 			{
 				closest_value = light_probe_list_node->get_value();
@@ -368,6 +411,34 @@ namespace cheonsa
 	user_interface_c * scene_c::get_user_interface() const
 	{
 		return _user_interface;
+	}
+
+	void_c scene_c::_set_user_interface( user_interface_c * user_interface )
+	{
+		if ( _user_interface != user_interface )
+		{
+			if ( _user_interface )
+			{
+				core_linked_list_c< scene_object_c * >::node_c const * scene_object_list_node = _scene_object_list.get_first();
+				while ( scene_object_list_node )
+				{
+					scene_object_list_node->get_value()->_handle_before_removed_from_user_interface();
+					scene_object_list_node = scene_object_list_node->get_next();
+				}
+			}
+
+			_user_interface = user_interface;
+
+			if ( _user_interface )
+			{
+				core_linked_list_c< scene_object_c * >::node_c const * scene_object_list_node = _scene_object_list.get_first();
+				while ( scene_object_list_node )
+				{
+					scene_object_list_node->get_value()->_handle_after_added_to_user_interface();
+					scene_object_list_node = scene_object_list_node->get_next();
+				}
+			}
+		}
 	}
 
 	audio2_scene_c * scene_c::get_audio_scene()

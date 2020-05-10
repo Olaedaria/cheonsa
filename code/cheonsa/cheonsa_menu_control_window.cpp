@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_window.h"
+#include "cheonsa_menu_control_window.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -200,40 +200,40 @@ namespace cheonsa
 
 		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
 		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
-		_add_element( &_element_text );
+		_add_daughter_element( &_element_text );
 
 		_apply_client_margins();
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_window" ) );
 	}
 
+	menu_control_window_c::~menu_control_window_c()
+	{
+	}
+
+	menu_control_window_c * menu_control_window_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_window_c( name );
+	}
+
 	void_c menu_control_window_c::update_animations( float32_c time_step )
 	{
+		assert( _user_interface );
+
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_selected = is_ascendant_of( get_user_interface_root()->get_mouse_overed() ) || get_is_deep_text_focused();
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		boolean_c is_selected = is_ascendant_of( _user_interface->get_mouse_overed() ) || get_is_deep_text_focused();
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			menu_element_c * element = _element_list[ i ];
-			element->set_is_enabled( _is_enabled );
-			element->set_is_selected( is_selected );
-			element->set_is_pressed( _is_pressed && _is_mouse_overed );
-			element->update_animations( time_step );
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_selected( is_selected );
+			daughter_element->set_is_pressed( _is_pressed && _is_mouse_overed );
+			daughter_element->update_animations( time_step );
 		}
 
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-		{
-			menu_control_c * control = _control_list[ i ];
-			assert( control->get_index() == i );
-			control->update_animations( time_step );
-			if ( control->get_wants_to_be_deleted() && control->get_is_showed_weight() <= 0.0f )
-			{
-				_take_control( i );
-				delete control;
-				i--;
-			}
-		}
+		_update_daughter_control_animations( time_step );
 	}
 
 	void_c menu_control_window_c::constrain_transform()
@@ -404,42 +404,39 @@ namespace cheonsa
 		_set_vertical_scroll_bar_visibility_mode( value );
 	}
 
-	sint32_c menu_control_window_c::get_controls_in_client_count() const
+	sint32_c menu_control_window_c::get_daughter_controls_in_client_count() const
 	{
-		return _get_controls_in_client_count();
+		return _client->get_daughter_control_list().get_length();
 	}
 
-	menu_control_c const * menu_control_window_c::get_control_in_client( sint32_c control_index ) const
+	menu_control_c * menu_control_window_c::get_daughter_control_in_client_at_index( sint32_c control_index ) const
 	{
-		return _get_control_in_client( control_index );
+		return _client->get_daughter_control_list().get_at_index( control_index )->get_value();
 	}
 
-	menu_control_c * menu_control_window_c::get_control_in_client( sint32_c control_index )
+	void_c menu_control_window_c::add_daughter_control_to_client( menu_control_c * control, sint32_c index )
 	{
-		return _get_control_in_client( control_index );
+		_client->add_daughter_control( control, index );
 	}
 
-	sint32_c menu_control_window_c::give_control_to_client( menu_control_c * control, sint32_c index )
+	void_c menu_control_window_c::remove_daughter_control_from_client( menu_control_c * control )
 	{
-		return _give_control_to_client( control, index );
+		_client->remove_daughter_control( control );
 	}
 
-	menu_control_c * menu_control_window_c::take_control_from_client( sint32_c control_index )
+	void_c menu_control_window_c::remove_all_daughter_controls_from_client()
 	{
-		return _take_control_from_client( control_index );
-	}
-
-	void_c menu_control_window_c::remove_and_delete_all_controls_from_client()
-	{
-		_remove_and_delete_all_controls_from_client();
+		_client->remove_all_daughter_controls();
 	}
 
 	void_c menu_control_window_c::center()
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		_local_origin.a = ops::math_round_down( user_interface->get_local_box().get_width() * 0.5f - ( _local_box.get_width() * 0.5f ) );
-		_local_origin.b = ops::math_round_down( user_interface->get_local_box().get_height() * 0.5f - ( _local_box.get_height() * 0.5f ) );
-		_update_transform_and_layout();
+		if ( _user_interface )
+		{
+			_local_origin.a = ops::math_round_down( _user_interface->get_local_box().get_width() * 0.5f - ( _local_box.get_width() * 0.5f ) );
+			_local_origin.b = ops::math_round_down( _user_interface->get_local_box().get_height() * 0.5f - ( _local_box.get_height() * 0.5f ) );
+			_update_transform_and_layout();
+		}
 	}
 
 	void_c menu_control_window_c::show_dialog( menu_control_c * modal_screen )

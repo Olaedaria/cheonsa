@@ -1,39 +1,36 @@
-﻿#pragma once
+#pragma once
 
-#include "cheonsa_resource_file_sprite_set.h"
+#include "cheonsa_resource_file_sprites.h"
 
 namespace cheonsa
 {
 
 	// sprite instance.
-	// manages play back state of a sprite resource.
+	// manages animation play back state of a sprite sheet resource.
+	// used by menu sprite controls and scene component sprites.
 	class sprite_c
 	{
 	private:
-		resource_file_sprite_set_c::reference_c _sprite_set_resource;
-		string8_c _sprite_name; // the name of the sprite within the sprite set to play.
-		resource_file_sprite_set_c::sprite_c const * _sprite; // pointer to sprite within _sprite_resource with name of _sprite_name.
-		sint32_c _current_frame; // index of the current frame.
-		float32_c _current_frame_time; // how long the current frame was displayed.
+		resource_file_sprites_c::reference_c _sprite_sheet_resource; // the sprite sheet resource that holds all of the frame lists to make available to this sprite instance.
+		string8_c _animation_name; // the name of the frame list to play back.
+		resource_file_sprites_c::animation_c const * _animation; // pointer to the current frame list within _sprite_sheet_resource.
+		sint32_c _frame_index; // the index of the current frame.
+		float32_c _frame_time; // keeps track of how long the current frame has been displayed for.
 
-		void_c _handle_sprite_set_resource_on_load( resource_file_c * resource );
-		void_c _handle_sprite_set_resource_on_unload( resource_file_c * resource );
+		void_c _handle_sprite_sheet_resource_on_loaded( resource_file_c * resource );
+		void_c _handle_sprite_sheet_resource_on_unloaded( resource_file_c * resource );
 
 	public:
 		sprite_c();
 
 		void_c update( float32_c time_step );
 
-		resource_file_sprite_set_c * get_sprite_set_resource() const;
-		void_c set_sprite_set_resource( resource_file_sprite_set_c * value );
+		resource_file_sprites_c * get_sprite_sheet_resource() const;
+		void_c set_sprite_sheet_resource( resource_file_sprites_c * value );
 
-		string8_c const & get_sprite_name() const;
-		void_c set_sprite_name( string8_c const & value );
-
-		resource_file_sprite_set_c::sprite_c const * get_sprite() const;
-		resource_file_sprite_set_c::frame_c const * get_frame() const;
-
-		boolean_c get_is_ready() const; // reutrns true if sprite set resource is loaded and sprite is set and sprite texture is loaded.
+		void_c set_animation( string8_c const & name ); // sets the animation to play on this sprite instance. this state is applied even if no sprite sheet resource is currently bound (set and loaded).
+		resource_file_sprites_c::animation_c const * get_animation() const; // may return nullptr.
+		resource_file_sprites_c::frame_c const * get_frame() const; // may return nullptr.
 
 	};
 

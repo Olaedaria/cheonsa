@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_data_scribe_binary.h"
 
@@ -47,7 +47,7 @@ namespace cheonsa
 		void_c open( data_scribe_binary_c * scribe_binary ); // initializes the scribe for reading from and/or writing to a stream.
 		void_c close(); // resets this scribe's scribe state so that open can be called again.
 
-		data_scribe_binary_c * get_binary_scribe();
+		data_scribe_binary_c * get_scribe_binary() const;
 
 		boolean_c load(); // loads the next property from the stream. returns false when the end of the property stream was reached.
 		boolean_c loaded_check( char8_c const * expected_key, data_type_e expected_type, uint8_c expected_type_count = 1 ); // expected_length should be set to 1 if expected_type is list or string.

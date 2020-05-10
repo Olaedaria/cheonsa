@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_event.h"
@@ -14,48 +14,52 @@ namespace cheonsa
 
 	// base class of resources.
 	// a resource file represents a file that is loaded from disk, and which can be reloaded at run time if the source file is modified.
-	// through the resource manager, at most only one resource file is instanced per source file per resource type.
+	// through the resource manager, at most only one resource is instanced per source file per resource type.
 	// the game can then instance any number of content kinds of objects using a single resource file instance.
 	class resource_file_c
 	{
 	public:
-		static char8_c const * get_type_static() { return "none"; }
-		virtual char8_c const * get_type() const { return get_type_static(); }
+		static char8_c const * get_resource_file_type_static() { return "none"; }
+		virtual char8_c const * get_resource_file_type() const { return get_resource_file_type_static(); }
 
 	protected:
-		template< typename resource_file_type_c >
-		friend class resource_file_reference_c;
-		friend class resource_manager_c;
+		string16_c _file_path; // the relative file path of the file in the game's content system.
+		string16_c _file_path_absolute; // the resolved absolute file path of the file in the operating system's file system.
+		sint64_c _file_last_write_time; // the last write time of the loaded file.
 
+		boolean_c _search_game_data; // default is true. if true then the content manager will search the game data folders for a match when trying to resolve _file_path to _file_path_absolute.
+		boolean_c _search_engine_data; // default is true. if true then the content manager will search the engine data folders for a match when trying to resolve _file_path to _file_path_absolute.
 		boolean_c _is_loaded; // tracks if this resource is loaded and ready to be used or not.
-		
-		sint32_c _reference_count; // number of users using this resource, so we can automatically un load it when it has no more users.
 
-		string16_c _relative_file_path; // file path that the game uses to identify this resource. this path is formatted in cheonsa's path format, using forward slashes, and is interpreted as being relative to the data folders.
-		string16_c _absolute_file_path; // absolute file path that identifies where this resource was actually loaded from. this is formatted in the opearting system's file path format.
-		sint64_c _last_write_time; // milliseconds since epoch that tells us when the source file was last modified.
+		sint32_c _reference_count; // tracks the number of users using this resource. this resource does not delete itself when this count reaches 0.
 
-		virtual boolean_c _load( data_stream_c * stream ) = 0;
+		virtual void_c _load( data_stream_c * stream ) = 0;
 		virtual void_c _unload() = 0;
 
 	public:
-		resource_file_c();
-		resource_file_c( resource_file_c const & ) = delete;
-		virtual ~resource_file_c() = 0;
-		resource_file_c & operator = ( resource_file_c const & ) = delete;
+		resource_file_c( string16_c const & file_path );
+		virtual ~resource_file_c();
+
+		boolean_c get_search_game_data() const;
+		void_c set_search_game_data( boolean_c value );
+
+		boolean_c get_search_engine_data() const;
+		void_c set_search_engine_data( boolean_c value );
 
 		boolean_c get_is_loaded() const;
 
-		sint32_c get_reference_count() const;
+		string16_c const & get_file_path() const; // gets the relative file path of the file in the game's content system.
+		string16_c const & get_file_path_absolute() const; // gets the resolved absolute file path of the file in the operating system's file system, which is the specific file that this resource is loaded from.
+		sint64_c get_file_last_write_time() const; // gets the last write time of the loaded file.
 
-		string16_c const & get_relative_file_path() const;
-		string16_c const & get_absolute_file_path() const;
+		void_c add_reference(); // adds a reference to this resource file.
+		void_c remove_reference(); // removes a reference from this resource file. does not delete this resource file if it reaches 0, that is the resource manager's responsibility.
 
-		sint64_c get_last_write_time() const;
+		void_c refresh(); // scans for changes to source file and reloads the resource if needed.
 
 	public:
-		core_event_c< void_c, resource_file_c * > on_load; // users may subscribe to this event to be notified when we are done loading.
-		core_event_c< void_c, resource_file_c * > on_unload; // users may subscribe to this event to be notified when we are about to unload.
+		core_event_c< void_c, resource_file_c * > on_loaded; // this event is invoked from _load as soon the resource transitions to a usable state.
+		core_event_c< void_c, resource_file_c * > on_unloaded; // this event is invoked from _unload right before the resource transitions to an unusable state.
 
 	};
 
@@ -66,88 +70,82 @@ namespace cheonsa
 	class resource_file_reference_c
 	{
 	private:
-		resource_file_type_c * _reference;
+		resource_file_type_c * _value;
 
 	public:
 		resource_file_reference_c()
-			: _reference( nullptr )
+			: _value( nullptr )
 		{
 		}
 
 		resource_file_reference_c( resource_file_reference_c const & other )
-			: _reference( other._reference )
+			: _value( other._value )
 		{
-			if ( _reference )
+			if ( _value )
 			{
-				_reference->_reference_count++;
+				_value->add_reference();
 			}
 		}
 
 		resource_file_reference_c( resource_file_type_c * other )
-			: _reference( other )
+			: _value( other )
 		{
-			if ( _reference )
+			if ( _value )
 			{
-				_reference->_reference_count++;
+				_value->add_reference();
 			}
 		}
 
 		~resource_file_reference_c()
 		{
-			if ( _reference )
+			if ( _value )
 			{
-				assert( _reference->_reference_count > 0 );
-				_reference->_reference_count--;
+				_value->remove_reference();
 			}
 		}
 
 		resource_file_reference_c & operator = ( resource_file_type_c * other )
 		{
-			if ( other )
+			if ( _value != other )
 			{
-				other->_reference_count++;
+				if ( _value )
+				{
+					_value->remove_reference();
+				}
+				_value = other;
+				if ( _value )
+				{
+					_value->add_reference();
+				}
 			}
-			if ( _reference )
-			{
-				_reference->_reference_count--;
-			}
-			_reference = other;
 			return *this;
 		}
 
 		resource_file_reference_c & operator = ( resource_file_reference_c & other )
 		{
-			if ( other._reference )
-			{
-				other._reference->_reference_count++;
-			}
-			if ( _reference )
-			{
-				_reference->_reference_count--;
-			}
-			_reference = other._reference;
+			*this = other._value;
 			return *this;
 		}
 
 		resource_file_type_c * operator -> () const
 		{
-			assert( _reference );
-			return _reference;
+			assert( _value );
+			return _value;
 		}
 
 		operator resource_file_type_c * () const
 		{
-			return _reference;
+			return _value;
 		}
 
-		boolean_c is_reference_set() const
+		boolean_c get_is_value_set() const
 		{
-			return _reference != nullptr;
+			return _value != nullptr;
 		}
 
-		boolean_c is_reference_set_and_loaded() const
+		boolean_c get_is_value_set_and_loaded() const
 		{
-			return ( _reference != nullptr ) && ( _reference->_is_loaded );
+			return ( _value != nullptr ) && ( _value->get_is_loaded() );
 		}
 
 	};

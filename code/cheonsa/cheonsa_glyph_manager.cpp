@@ -1,4 +1,4 @@
-﻿#include "cheonsa_glyph_manager.h"
+#include "cheonsa_glyph_manager.h"
 #include "cheonsa_data_stream_memory.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_resource_file_font.h"
@@ -233,7 +233,7 @@ namespace cheonsa
 			{
 				vector64x2_c direction = find_direction( 0.0 );
 				vector64x2_c aq = origin - find_point( 0.0 );
-				float64_c ts = ops::make_float64_dot_product( aq, direction );
+				float64_c ts = ops::dot_product_float64( aq, direction );
 				if ( ts < 0.0 )
 				{
 					float64_c pseudo_distance = make_float64_cross_product_analog( aq, direction );
@@ -248,7 +248,7 @@ namespace cheonsa
 			{
 				vector64x2_c direction = find_direction( 1.0 );
 				vector64x2_c bq = origin - find_point( 1.0 );
-				float64_c ts = ops::make_float64_dot_product( bq, direction );
+				float64_c ts = ops::dot_product_float64( bq, direction );
 				if ( ts > 0.0 )
 				{
 					float64_c pseudo_distance = make_float64_cross_product_analog( bq, direction );
@@ -319,25 +319,25 @@ namespace cheonsa
 
 		virtual vector64x2_c find_direction( float64_c t ) const override
 		{
-			return ops::make_vector64x2_normalized( points[ 1 ] - points[ 0 ] );
+			return ops::normal_vector64x2( points[ 1 ] - points[ 0 ] );
 		}
 
 		virtual signed_distance_c find_singed_distance( vector64x2_c const & origin, float64_c & t ) const override
 		{
 			vector64x2_c aq = origin - points[ 0 ];
 			vector64x2_c ab = points[ 1 ] - points[ 0 ];
-			t = ops::make_float64_dot_product( aq, ab ) / ops::make_float64_dot_product( ab, ab );
+			t = ops::dot_product_float64( aq, ab ) / ops::dot_product_float64( ab, ab );
 			vector64x2_c eq = points[ t > 0.5 ] - origin;
-			float64_c end_point_distance = ops::make_float64_length( eq );
+			float64_c end_point_distance = ops::length_float64( eq );
 			if ( t > 0.0 && t < 1.0 )
 			{
-				float64_c ortho_distance = ops::make_float64_dot_product( ops::make_vector64x2_orthonormal( ab, false, false ), aq );
+				float64_c ortho_distance = ops::dot_product_float64( ops::orthonormalized_vector64x2( ab, false, false ), aq );
 				if ( ops::math_absolute_value( ortho_distance ) < end_point_distance )
 				{
 					return signed_distance_c( ortho_distance, 0.0 );
 				}
 			}
-			return signed_distance_c( ops::math_non_zero_sign( make_float64_cross_product_analog( aq, ab ) ) * end_point_distance, ops::math_absolute_value( ops::make_float64_dot_product( ops::make_vector64x2_normalized( ab ), ops::make_vector64x2_normalized( eq ) ) ) );
+			return signed_distance_c( ops::math_non_zero_sign( make_float64_cross_product_analog( aq, ab ) ) * end_point_distance, ops::math_absolute_value( ops::dot_product_float64( ops::normal_vector64x2( ab ), ops::normal_vector64x2( eq ) ) ) );
 		}
 
 		virtual void_c find_bounds( box64x2_c & result ) const override
@@ -404,21 +404,21 @@ namespace cheonsa
 			vector64x2_c qa = points[ 0 ] - origin;
 			vector64x2_c ab = points[ 1 ] - points[ 0 ];
 			vector64x2_c br = points[ 0 ] + points[ 2 ] - points[ 1 ] - points[ 1 ];
-			float64_c a = ops::make_float64_dot_product( br, br );
-			float64_c b = 3 * ops::make_float64_dot_product( ab, br );
-			float64_c c = 2 * ops::make_float64_dot_product( ab, ab ) + ops::make_float64_dot_product( qa, br );
-			float64_c d = ops::make_float64_dot_product( qa, ab );
+			float64_c a = ops::dot_product_float64( br, br );
+			float64_c b = 3 * ops::dot_product_float64( ab, br );
+			float64_c c = 2 * ops::dot_product_float64( ab, ab ) + ops::dot_product_float64( qa, br );
+			float64_c d = ops::dot_product_float64( qa, ab );
 			float64_c x[ 3 ];
 			sint32_c solutions = solve_cubic( x, a, b, c, d );
 
-			float64_c minimum_distance = ops::math_non_zero_sign( make_float64_cross_product_analog( ab, qa ) ) * ops::make_float64_length( qa ); // distance from A
-			t = -ops::make_float64_dot_product( qa, ab ) / ops::make_float64_dot_product( ab, ab );
+			float64_c minimum_distance = ops::math_non_zero_sign( make_float64_cross_product_analog( ab, qa ) ) * ops::length_float64( qa ); // distance from A
+			t = -ops::dot_product_float64( qa, ab ) / ops::dot_product_float64( ab, ab );
 			{
-				float64_c distance = ops::math_non_zero_sign( make_float64_cross_product_analog( points[ 2 ] - points[ 1 ], points[ 2 ] - origin ) ) * ops::make_float64_length( points[ 2 ] - origin ); // distance from B
+				float64_c distance = ops::math_non_zero_sign( make_float64_cross_product_analog( points[ 2 ] - points[ 1 ], points[ 2 ] - origin ) ) * ops::length_float64( points[ 2 ] - origin ); // distance from B
 				if ( ops::math_absolute_value( distance ) < ops::math_absolute_value( minimum_distance ) )
 				{
 					minimum_distance = distance;
-					t = ops::make_float64_dot_product( origin - points[ 1 ], points[ 2 ] - points[ 1 ]) / ops::make_float64_dot_product( points[ 2 ] - points[ 1 ], points[ 2 ] - points[ 1 ] );
+					t = ops::dot_product_float64( origin - points[ 1 ], points[ 2 ] - points[ 1 ]) / ops::dot_product_float64( points[ 2 ] - points[ 1 ], points[ 2 ] - points[ 1 ] );
 				}
 			}
 			for ( sint32_c i = 0; i < solutions; i++ )
@@ -426,7 +426,7 @@ namespace cheonsa
 				if ( x[ i ] > 0.0 && x[ i ] < 1.0 )
 				{
 					vector64x2_c end_point = points[ 0 ] + ( ab * ( x[ i ] * 2.0 ) ) + ( br * ( x[ i ] * x[ i ] ) );
-					float64_c distance = ops::math_non_zero_sign( make_float64_cross_product_analog( points[ 2 ] - points[ 0 ], end_point - origin ) ) * ops::make_float64_length( end_point - origin );
+					float64_c distance = ops::math_non_zero_sign( make_float64_cross_product_analog( points[ 2 ] - points[ 0 ], end_point - origin ) ) * ops::length_float64( end_point - origin );
 					if ( ops::math_absolute_value( distance ) <= ops::math_absolute_value( minimum_distance ) )
 					{
 						minimum_distance = distance;
@@ -441,11 +441,11 @@ namespace cheonsa
 			}
 			if ( t < 0.5 )
 			{
-				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::make_float64_dot_product( ops::make_vector64x2_normalized( ab ), ops::make_vector64x2_normalized( qa ) ) ) );
+				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::dot_product_float64( ops::normal_vector64x2( ab ), ops::normal_vector64x2( qa ) ) ) );
 			}
 			else
 			{
-				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::make_float64_dot_product( ops::make_vector64x2_normalized( points[ 2 ] - points[ 1 ] ), ops::make_vector64x2_normalized( points[ 2 ] - origin) ) ) );
+				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::dot_product_float64( ops::normal_vector64x2( points[ 2 ] - points[ 1 ] ), ops::normal_vector64x2( points[ 2 ] - origin) ) ) );
 			}
 		}
 
@@ -547,15 +547,15 @@ namespace cheonsa
 			vector64x2_c as = ( points[ 3 ] - points[ 2 ] ) - ( points[ 2 ] - points[ 1 ] ) - br;
 
 			vector64x2_c ep_direction = find_direction( 0.0 );
-			float64_c minimum_distance = ops::math_non_zero_sign( make_float64_cross_product_analog( ep_direction, qa ) ) * ops::make_float64_length( qa ); // distance from A
-			t = -ops::make_float64_dot_product( qa, ep_direction ) / ops::make_float64_dot_product( ep_direction, ep_direction );
+			float64_c minimum_distance = ops::math_non_zero_sign( make_float64_cross_product_analog( ep_direction, qa ) ) * ops::length_float64( qa ); // distance from A
+			t = -ops::dot_product_float64( qa, ep_direction ) / ops::dot_product_float64( ep_direction, ep_direction );
 			{
 				ep_direction = find_direction( 1.0 );
-				float64_c distance = ops::math_non_zero_sign( make_float64_cross_product_analog( ep_direction, points[ 3 ] - origin ) ) * ops::make_float64_length( points[ 3 ] - origin ); // distance from B
+				float64_c distance = ops::math_non_zero_sign( make_float64_cross_product_analog( ep_direction, points[ 3 ] - origin ) ) * ops::length_float64( points[ 3 ] - origin ); // distance from B
 				if ( ops::math_absolute_value( distance ) < ops::math_absolute_value( minimum_distance ) )
 				{
 					minimum_distance = distance;
-					t = ops::make_float64_dot_product( origin + ep_direction - points[ 3 ], ep_direction ) / ops::make_float64_dot_product( ep_direction, ep_direction );
+					t = ops::dot_product_float64( origin + ep_direction - points[ 3 ], ep_direction ) / ops::dot_product_float64( ep_direction, ep_direction );
 				}
 			}
 
@@ -568,7 +568,7 @@ namespace cheonsa
 				for ( sint32_c step = 0; ; step++ )
 				{
 					vector64x2_c qpt = find_point( t2 ) - origin;
-					double distance = ops::math_non_zero_sign( make_float64_cross_product_analog( find_direction( t2 ), qpt ) ) * ops::make_float64_length( qpt );
+					double distance = ops::math_non_zero_sign( make_float64_cross_product_analog( find_direction( t2 ), qpt ) ) * ops::length_float64( qpt );
 					if ( ops::math_absolute_value( distance ) < ops::math_absolute_value( minimum_distance ) )
 					{
 						minimum_distance = distance;
@@ -581,7 +581,7 @@ namespace cheonsa
 					// improve t2.
 					vector64x2_c d1 = ( as * ( 3.0 * t2 * t2 ) ) + ( br * ( 6.0 * t2 ) ) + ( ab * 3.0 );
 					vector64x2_c d2 = ( as * ( 6.0 * t2 ) ) + ( br * 6.0 );
-					t2 -= ops::make_float64_dot_product( qpt, d1 ) / ( ops::make_float64_dot_product( d1, d1 ) + ops::make_float64_dot_product( qpt, d2 ) );
+					t2 -= ops::dot_product_float64( qpt, d1 ) / ( ops::dot_product_float64( d1, d1 ) + ops::dot_product_float64( qpt, d2 ) );
 					if ( t2 < 0.0 || t2 > 1.0 )
 					{
 						break;
@@ -595,11 +595,11 @@ namespace cheonsa
 			}
 			if ( t < 0.5 )
 			{
-				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::make_float64_dot_product( find_direction( 0.0 ), ops::make_vector64x2_normalized( qa ) ) ) );
+				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::dot_product_float64( find_direction( 0.0 ), ops::normal_vector64x2( qa ) ) ) );
 			}
 			else
 			{
-				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::make_float64_dot_product( find_direction( 1.0 ), ops::make_vector64x2_normalized( points[ 3 ] - origin ) ) ) );
+				return signed_distance_c( minimum_distance, ops::math_absolute_value( ops::dot_product_float64( find_direction( 1.0 ), ops::normal_vector64x2( points[ 3 ] - origin ) ) ) );
 			}
 		}
 
@@ -636,7 +636,7 @@ namespace cheonsa
 			vector64x2_c original_point_1 = points[ 1 ];
 			points[ 1 ] += ( points[ 2 ] - points[ 1 ] ) * ( make_float64_cross_product_analog( points[ 0 ] - points[ 1 ], to - points[ 0 ] ) / make_float64_cross_product_analog( points[ 0 ] - points[ 1 ], points[ 2 ] - points[ 1 ] ) );
 			points[ 0 ] = to;
-			if ( ops::make_float64_dot_product( original_start_direction, points[ 0 ] - points[ 1 ] ) < 0.0 )
+			if ( ops::dot_product_float64( original_start_direction, points[ 0 ] - points[ 1 ] ) < 0.0 )
 			{
 				points[ 1 ] = original_point_1;
 			}
@@ -679,7 +679,7 @@ namespace cheonsa
 		// adds an edge holder.
 		void_c add_edge_segment( edge_segment_c * edge_segment )
 		{
-			edge_segments.insert_at_end( edge_segment );
+			edge_segments.insert( -1, edge_segment );
 		}
 
 		//// adds a blank edge holder and returns its reference.
@@ -871,7 +871,7 @@ namespace cheonsa
 		// if there are no rows then we need to add the first row with the required hight.
 		if ( _row_list.get_length() == 0 )
 		{
-			row_c * new_row = _row_list.emplace_at_end();
+			row_c * new_row = _row_list.emplace( -1, 1 );
 			new_row->quantized_size = quantized_size;
 			new_row->top = 0;
 			new_row->width = 0;
@@ -919,7 +919,7 @@ namespace cheonsa
 					// there's no room left in this atlas texture array slice (page).
 					return false;
 				}
-				row_c * new_row = _row_list.emplace_at_end();
+				row_c * new_row = _row_list.emplace( -1, 1 );
 				new_row->quantized_size = quantized_size;
 				new_row->top = new_row_top;
 				new_row->width = 0;
@@ -988,7 +988,7 @@ namespace cheonsa
 	{
 		free_type_context_c * context = reinterpret_cast< free_type_context_c * >( user );
 		context->contour = new contour_c();
-		context->shape->contours.insert_at_end( context->contour );
+		context->shape->contours.insert( -1, context->contour );
 		context->position = ftPoint2( *to );
 		return 0;
 	}
@@ -1417,7 +1417,7 @@ namespace cheonsa
 					glyphs_saved++;
 				}
 				assert( glyphs_saved == _glyph_dictionary.get_length() );
-				chunk = chunk_list.emplace_at_end();
+				chunk = chunk_list.emplace( -1, 1 );
 				chunk->data_is_ours = false;
 				chunk->data = glyph_stream.get_internal_buffer().get_internal_array();
 				chunk->data_size = glyph_stream.get_size();
@@ -1437,7 +1437,7 @@ namespace cheonsa
 				row_scribe.save_sint32( row.width );
 				row_scribe.save_sint32( row.height );
 			}
-			chunk = chunk_list.emplace_at_end();
+			chunk = chunk_list.emplace( -1, 1 );
 			chunk->data_is_ours = false;
 			chunk->data = row_stream.get_internal_buffer().get_internal_array();
 			chunk->data_size = row_stream.get_size();
@@ -1474,7 +1474,7 @@ namespace cheonsa
 			{
 				return false;
 			}
-			file_stream.save( file_data.get_internal_array(), file_data.get_internal_array_size_used() );
+			file_stream.save( file_data.get_internal_array(), file_data.get_internal_array_size() );
 			file_stream.close();
 			file_data.remove_all();
 		}
@@ -1678,7 +1678,7 @@ namespace cheonsa
 					}
 					for ( sint32_c j = 0; j < row_count; j++ )
 					{
-						glyph_atlas_c::row_c * row = glyph_atlas->_row_list.emplace_at_end();
+						glyph_atlas_c::row_c * row = glyph_atlas->_row_list.emplace( -1, 1 );
 						if ( !chunk_scribe.load_uint8( row->quantized_size ) )
 						{
 							return false;

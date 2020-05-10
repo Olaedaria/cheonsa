@@ -1,4 +1,4 @@
-﻿#include "cheonsa_physics_bullet_debug_drawer.h"
+#include "cheonsa_physics_bullet_debug_drawer.h"
 #include "cheonsa_physics_types.h"
 #include "cheonsa_engine.h"
 

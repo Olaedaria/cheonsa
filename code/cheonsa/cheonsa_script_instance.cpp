@@ -1,4 +1,4 @@
-﻿#include "cheonsa_script_instance.h"
+#include "cheonsa_script_instance.h"
 #include "cheonsa_script_context.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
@@ -440,7 +440,7 @@ namespace cheonsa
 		// type_e_keyword_else
 
 		core_list_c< token_c * > token_list_a;
-		token_list_a.insert_at_end( token_array, token_count );
+		token_list_a.insert( -1, token_array, token_count );
 
 		// if there is only one token in the input and if it is a resolved value, then it is our final result and we are done
 		if ( token_list_a.get_length() == 1 )
@@ -448,7 +448,7 @@ namespace cheonsa
 			token_c * token = token_list_a[ 0 ];
 			if ( token->type == script_instance_c::token_c::type_e_resolved_value )
 			{
-				result.insert_at_end( token->resolved_value );
+				result.insert( -1, token->resolved_value );
 				return true;
 			}
 		}
@@ -516,7 +516,7 @@ namespace cheonsa
 								_evaluate_expression( sub_expression_result_2, &token_array[ sub_expression_start ], sub_expression_end - sub_expression_start );
 								for ( sint32_c j = 0; j < sub_expression_result_2.get_length(); j++ )
 								{
-									sub_expression_result.insert_at_end( sub_expression_result_2[ j ] );
+									sub_expression_result.insert( -1, sub_expression_result_2[ j ] );
 								}
 							}
 						}
@@ -532,7 +532,7 @@ namespace cheonsa
 								_evaluate_expression( sub_expression_result_2, &token_array[ sub_expression_start ], sub_expression_end - sub_expression_start );
 								for ( sint32_c j = 0; j < sub_expression_result_2.get_length(); j++ )
 								{
-									sub_expression_result.insert_at_end( sub_expression_result_2[ j ] );
+									sub_expression_result.insert( -1, sub_expression_result_2[ j ] );
 								}
 								sub_expression_start = sub_expression_end + 1;
 							}
@@ -572,7 +572,7 @@ namespace cheonsa
 
 					token->type = token_c::type_e_resolved_value;
 					token->resolved_value = sub_expression_result[ 0 ];
-					token_list_b.insert_at_end( token );
+					token_list_b.insert( -1, token );
 				}
 			}
 			else if ( token->type >= token_c::type_e_none && token->type <= token_c::type_e_keyword_else )
@@ -583,7 +583,7 @@ namespace cheonsa
 			else
 			{
 				last_token_was_name = token->type == token_c::type_e_value_name;
-				token_list_b.insert_at_end( token );
+				token_list_b.insert( -1, token );
 			}
 		}
 
@@ -622,7 +622,7 @@ namespace cheonsa
 			}
 			else
 			{
-				token_list_a.insert_at_end( token );
+				token_list_a.insert( -1, token );
 			}
 		}
 
@@ -657,7 +657,7 @@ namespace cheonsa
 			}
 			else
 			{
-				token_list_b.insert_at_end( token );
+				token_list_b.insert( -1, token );
 			}
 		}
 
@@ -700,7 +700,7 @@ namespace cheonsa
 			}
 			else
 			{
-				token_list_a.insert_at_end( token );
+				token_list_a.insert( -1, token );
 			}
 		}
 
@@ -763,7 +763,7 @@ namespace cheonsa
 			}
 			else
 			{
-				token_list_b.insert_at_end( token );
+				token_list_b.insert( -1, token );
 			}
 		}
 
@@ -780,11 +780,11 @@ namespace cheonsa
 				}
 				i++;
 				token->resolved_value.set_number_value( !r_operand->resolve_as_boolean() ? 1.0f : 0.0f );
-				token_list_a.insert_at_end( token );
+				token_list_a.insert( -1, token );
 			}
 			else
 			{
-				token_list_a.insert_at_end( token );
+				token_list_a.insert( -1, token );
 			}
 		}
 
@@ -804,7 +804,7 @@ namespace cheonsa
 			}
 			else
 			{
-				token_list_b.insert_at_end( token );
+				token_list_b.insert( -1, token );
 			}
 		}
 
@@ -824,7 +824,7 @@ namespace cheonsa
 			}
 			else
 			{
-				token_list_a.insert_at_end( token );
+				token_list_a.insert( -1, token );
 			}
 		}
 
@@ -834,7 +834,7 @@ namespace cheonsa
 			token_c * token = token_list_a[ 0 ];
 			if ( token->type == token_c::type_e_resolved_value )
 			{
-				result.insert_at_end( token->resolved_value );
+				result.insert( -1, token->resolved_value );
 				return true;
 			}
 		}
@@ -890,7 +890,7 @@ namespace cheonsa
 		// if the left operand is set then it is our final result
 		if ( l_operand != nullptr )
 		{
-			result.insert_at_end( *l_operand );
+			result.insert( -1, *l_operand );
 		}
 
 		return true;
@@ -1179,14 +1179,14 @@ namespace cheonsa
 				}
 
 				// 
-				_token_list.insert_at_end( token );
+				_token_list.insert( -1, token );
 			}
 
 			// add line
 			line.token_count = _token_list.get_length() - line.token_start;
 			if ( line.token_count > 0 )
 			{
-				_line_list.insert_at_end( line );
+				_line_list.insert( -1, line );
 			}
 		}
 
@@ -1217,7 +1217,7 @@ namespace cheonsa
 				label_c label;
 				label.line = i;
 				label.name = line.token_array[ 1 ].string;
-				_label_list.insert_at_end( label );
+				_label_list.insert( -1, label );
 			}
 		}
 

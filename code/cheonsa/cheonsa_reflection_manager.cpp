@@ -1,4 +1,4 @@
-﻿#include "cheonsa_reflection_manager.h"
+#include "cheonsa_reflection_manager.h"
 #include "cheonsa_reflection_property.h"
 #include "cheonsa_reflection_enumeration.h"
 #include "cheonsa_reflection_class.h"
@@ -30,7 +30,7 @@ namespace cheonsa
 	{
 		assert( find_enumeration( name ) == nullptr );
 		reflection_enumeration_c * new_enumeration = new reflection_enumeration_c( this, name, description );
-		_enumeration_list.insert_at_end( new_enumeration );
+		_enumeration_list.insert( -1, new_enumeration );
 		return new_enumeration;
 	}
 
@@ -51,7 +51,7 @@ namespace cheonsa
 		assert( find_class( name ) == nullptr );
 
 		reflection_class_c * new_class = new reflection_class_c( this, name, description, base_class );
-		_class_list.insert_at_end( new_class );
+		_class_list.insert( -1, new_class );
 
 		// get chain of base classes.
 		core_list_c< reflection_class_c * > class_list;
@@ -59,7 +59,7 @@ namespace cheonsa
 		while ( new_class_walker->get_base_class() )
 		{
 			new_class_walker = new_class_walker->get_base_class();
-			class_list.insert_at_end( new_class_walker );
+			class_list.insert( -1, new_class_walker );
 		}
 
 		// clone properties from base classes to this class.

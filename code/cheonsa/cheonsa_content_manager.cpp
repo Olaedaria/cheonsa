@@ -1,4 +1,4 @@
-﻿#include "cheonsa_content_manager.h"
+#include "cheonsa_content_manager.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -146,9 +146,17 @@ namespace cheonsa
 
 	void_c content_manager_c::add_game_data_folder_path( string16_c const & game_data_folder_path )
 	{
-		_game_data_folder_path_list.insert_at_end( game_data_folder_path );
+		_game_data_folder_path_list.insert( -1, game_data_folder_path );
 	}
 
+	/*
+	// takes relative file path, scans data folders for the first file that matches, then sets the result in absolute_file_path.
+	// returns true if resolution was successful, or false if not.
+	// if relative_file_path starts with "[e]" then it will search only within global_engine_instance.interfaces.content_manager->get_engine_data_folder_path().
+	// if relative_file_paht starts with "[g]" then it will search only within global_engine_instance.interfaces.content_manager->get_game_data_folder_path().
+	// otherwise, it will search both the game data folder and the engine data folder (in that order).
+	// game mod data folders are taken into account for game data.
+	// for each folder, locale code is taken into account, the locale code first then the "_common/" folder next.
 	boolean_c content_manager_c::resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path ) const
 	{
 		static char8_c const * const engine_data_key = "[e]";
@@ -271,6 +279,101 @@ namespace cheonsa
 
 		return false;
 	}
+	*/
+
+	boolean_c content_manager_c::resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path, boolean_c search_engine_data, boolean_c search_game_data )
+	{
+		absolute_file_path = string16_c();
+
+		if ( relative_file_path.get_length() == 0 )
+		{
+			return false;
+		}
+
+		assert( ops::file_system_is_path_formatted_for_cheonsa( relative_file_path, ops::file_system_path_type_e_file ) );
+
+		locale_c const * locale = engine.get_content_manager()->get_actual_locale();
+
+		// search game data folders.
+		if ( search_game_data )
+		{
+			core_list_c< string16_c > const & game_data_folder_path_list = engine.get_content_manager()->get_game_data_folder_path_list();
+			for ( sint32_c i = game_data_folder_path_list.get_length() - 1; i >= 0; i-- )
+			{
+				for ( sint32_c j = locale != nullptr ? 1 : 0; j >= 0; j-- )
+				{
+					string16_c scan_path = game_data_folder_path_list[ i ];
+					if ( j != 0 )
+					{
+						assert( locale != nullptr );
+						scan_path += locale->get_code();
+#if defined( cheonsa_platform_windows )
+						scan_path += "\\";
+#else
+#error
+#endif
+					}
+					else
+					{
+#if defined( cheonsa_platform_windows )
+						scan_path += "_common\\";
+#else
+#error
+#endif				
+					}
+#if defined( cheonsa_platform_windows )
+					scan_path += ops::file_system_convert_path_format_from_cheonsa_to_windows( relative_file_path );
+#else
+#error
+#endif
+					if ( ops::file_system_does_file_exist( scan_path ) )
+					{
+						absolute_file_path = scan_path;
+						return true;
+					}
+				}
+			}
+		}
+
+		// search engine data folders.
+		if ( search_engine_data )
+		{
+			for ( sint32_c j = locale ? 1 : 0; j >= 0; j-- )
+			{
+				string16_c scan_path = engine.get_content_manager()->get_engine_data_folder_path();
+				if ( j != 0 )
+				{
+					assert( locale != nullptr );
+					scan_path += locale->get_code();
+#if defined( cheonsa_platform_windows )
+					scan_path += "\\";
+#else
+#error
+#endif
+				}
+				else
+				{
+#if defined( cheonsa_platform_windows )
+					scan_path += "_common\\";
+#else
+#error
+#endif
+				}
+#if defined( cheonsa_platform_windows )
+				scan_path += ops::file_system_convert_path_format_from_cheonsa_to_windows( relative_file_path );
+#else
+#error
+#endif
+				if ( ops::file_system_does_file_exist( scan_path ) )
+				{
+					absolute_file_path = scan_path;
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 
 	core_list_c< content_manager_c::locale_c * > const & content_manager_c::get_supported_locales() const
 	{
@@ -310,7 +413,7 @@ namespace cheonsa
 		}
 		for ( sint32_c j = 0; j < sub_folder_path_list.get_length(); j++ )
 		{
-			string16_c locale_code = ops::path_get_file_name( sub_folder_path_list[ j ] ); // the folder name is the locale code.
+			string16_c locale_code = ops::path_get_file_or_folder_name( sub_folder_path_list[ j ] ); // the folder name is the locale code.
 
 			// first two characters are for language code.
 			// third character should be an underscore.
@@ -348,7 +451,7 @@ namespace cheonsa
 					locale = new locale_c();
 					locale->_code = locale_code;
 					locale->_name = locale_code;
-					_supported_locales.insert_at_end( locale );
+					_supported_locales.insert( -1, locale );
 				}
 				
 				// find the name from the markup.
@@ -388,7 +491,7 @@ namespace cheonsa
 				string_file_c * string_file = new string_file_c();
 				if ( string_file->load_from_xml( strings_file_path ) )
 				{
-					_string_file_list.insert_at_end( string_file );
+					_string_file_list.insert( -1, string_file );
 				}
 				else
 				{
@@ -410,7 +513,7 @@ namespace cheonsa
 					string_file_c * string_file = new string_file_c();
 					if ( string_file->load_from_xml( strings_file_path ) )
 					{
-						_string_file_list.insert_at_end( string_file );
+						_string_file_list.insert( -1, string_file );
 					}
 					else
 					{

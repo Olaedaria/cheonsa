@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control_window.h"
 #include "cheonsa_menu_control_label.h"
@@ -26,7 +26,7 @@ namespace cheonsa
 			mode_e_cancel_no_yes,
 		};
 
-	private:
+	protected:
 		menu_control_label_c * _message_label;
 
 		menu_control_button_c * _a_button; // first from right.
@@ -39,8 +39,12 @@ namespace cheonsa
 
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-	public:
 		menu_control_window_message_c( string8_c const & name );
+
+	public:
+		virtual ~menu_control_window_message_c() override;
+
+		static menu_control_window_message_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );

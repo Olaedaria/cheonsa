@@ -1,4 +1,4 @@
-﻿#include "cheonsa_scene_component_sound.h"
+#include "cheonsa_scene_component_sound.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
 #include "cheonsa_user_interface.h"
@@ -35,13 +35,19 @@ namespace cheonsa
 		, _interval_minimum( 0.0f )
 		, _interval_maximum( 0.0f )
 	{
-		_audio_scene_source = new audio2_scene_source_c();
+		_audio_scene_source = audio2_scene_source_c::make_new_instance();
+		_audio_scene_source->add_reference();
 	}
 
 	scene_component_sound_c::~scene_component_sound_c()
 	{
 		_audio_scene_source->remove_reference();
 		_audio_scene_source = nullptr;
+	}
+
+	scene_component_sound_c * scene_component_sound_c::make_new_instance()
+	{
+		return new scene_component_sound_c();
 	}
 
 	resource_file_sound_c * scene_component_sound_c::get_sound_resource() const
@@ -126,7 +132,7 @@ namespace cheonsa
 				audio2_scene_listener_c * scene_listener = _scene_object->get_scene()->get_audio_scene()->get_scene_listener();
 				if ( _audio_scene_source->get_wave_player()->get_appears_to_be_playing() == false && scene_listener != nullptr )
 				{
-					float32_c distance_squared = ops::make_float32_length_squared( vector32x3_c( _scene_object->get_world_space_position() - scene_listener->get_world_space_position() ) );
+					float32_c distance_squared = ops::length_squared_float32( vector32x3_c( _scene_object->get_world_space_position() - scene_listener->get_world_space_position() ) );
 					float32_c effective_range_squared = _audio_scene_source->get_effective_range_squared();
 					if ( distance_squared <= effective_range_squared )
 					{

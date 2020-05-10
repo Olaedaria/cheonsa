@@ -1,4 +1,4 @@
-﻿#include "cheonsa__types.h"
+#include "cheonsa__types.h"
 #include "cheonsa__ops.h"
 #include <cassert>
 
@@ -48,21 +48,6 @@ namespace cheonsa
 		assert( index >= 0 && index < 2 );
 		return reinterpret_cast< float32_c const * >( this )[ index ];
 	}
-
-
-	//vector32x2_c & vector32x2_c::operator += ( float32_c b )
-	//{
-	//	this->a += b;
-	//	this->b += b;
-	//	return *this;
-	//}
-
-	//vector32x2_c & vector32x2_c::operator -= ( float32_c b )
-	//{
-	//	this->a -= b;
-	//	this->b -= b;
-	//	return *this;
-	//}
 
 	vector32x2_c & vector32x2_c::operator *= ( float32_c b )
 	{
@@ -120,16 +105,6 @@ namespace cheonsa
 	{
 		return vector32x2_c( -a.a, -a.b );
 	}
-
-	//vector32x2_c operator + ( vector32x2_c a, float32_c const b )
-	//{
-	//	return a += b;
-	//}
-
-	//vector32x2_c operator - ( vector32x2_c a, float32_c const b )
-	//{
-	//	return a -= b;
-	//}
 
 	vector32x2_c operator * ( vector32x2_c a, float32_c const b )
 	{
@@ -197,20 +172,6 @@ namespace cheonsa
 		return reinterpret_cast< float64_c const * >( this )[ index ];
 	}
 
-	//vector64x2_c & vector64x2_c::operator += ( float64_c const b )
-	//{
-	//	this->a += b;
-	//	this->b += b;
-	//	return *this;
-	//}
-
-	//vector64x2_c & vector64x2_c::operator -= ( float64_c const b )
-	//{
-	//	this->a -= b;
-	//	this->b -= b;
-	//	return *this;
-	//}
-
 	vector64x2_c & vector64x2_c::operator *= ( float64_c const b )
 	{
 		this->a *= b;
@@ -267,16 +228,6 @@ namespace cheonsa
 	{
 		return vector64x2_c( -a.a, -a.b );
 	}
-
-	//vector64x2_c operator + ( vector64x2_c a, float64_c b )
-	//{
-	//	return a += b;
-	//}
-
-	//vector64x2_c operator - ( vector64x2_c a, float64_c b )
-	//{
-	//	return a -= b;
-	//}
 
 	vector64x2_c operator * ( vector64x2_c a, float64_c b )
 	{
@@ -355,22 +306,6 @@ namespace cheonsa
 		return result;
 	}
 
-	//vector32x3_c & vector32x3_c::operator += ( float32_c b )
-	//{
-	//	this->a += b;
-	//	this->b += b;
-	//	this->c += b;
-	//	return * this;
-	//}
-
-	//vector32x3_c & vector32x3_c::operator -= ( float32_c b )
-	//{
-	//	this->a -= b;
-	//	this->b -= b;
-	//	this->c -= b;
-	//	return * this;
-	//}
-
 	vector32x3_c & vector32x3_c::operator *= ( float32_c b )
 	{
 		this->a *= b;
@@ -433,16 +368,6 @@ namespace cheonsa
 	{
 		return vector32x3_c( -a.a, -a.b, -a.c );
 	}
-
-	//vector32x3_c operator + ( vector32x3_c a, float32_c b )
-	//{
-	//	return a += b;
-	//}
-
-	//vector32x3_c operator - ( vector32x3_c a, float32_c b )
-	//{
-	//	return a -= b;
-	//}
 
 	vector32x3_c operator * ( vector32x3_c a, float32_c b )
 	{
@@ -629,6 +554,14 @@ namespace cheonsa
 		a.a += b.a;
 		a.b += b.b;
 		a.c += b.c;
+		return a;
+	}
+
+	vector64x3_c operator - ( vector64x3_c a, vector32x3_c const & b )
+	{
+		a.a -= b.a;
+		a.b -= b.b;
+		a.c -= b.c;
 		return a;
 	}
 
@@ -1378,7 +1311,7 @@ namespace cheonsa
 	{
 		for ( sint32_c i = 0; i < 8; i++ )
 		{
-			planes[ i ].d += ops::make_float64_dot_product( planes[ i ].get_normal(), offset );
+			planes[ i ].d += ops::dot_product_float64( planes[ i ].get_normal(), offset );
 		}
 		make_points_from_planes();
 	}
@@ -1641,6 +1574,15 @@ namespace cheonsa
 		return ops::math_maximum( ops::math_maximum( maximum.a - minimum.a, maximum.b - minimum.b ), maximum.c - minimum.c );
 	}
 
+	float64_c box64x3_c::get_longest_half_extent() const
+	{
+		float64_c result;
+		result = ops::math_maximum( ops::math_absolute_value( minimum.a ), ops::math_absolute_value( maximum.a ) );
+		result = ops::math_maximum( ops::math_maximum( ops::math_absolute_value( minimum.b ), ops::math_absolute_value( maximum.b ) ), result );
+		result = ops::math_maximum( ops::math_maximum( ops::math_absolute_value( minimum.c ), ops::math_absolute_value( maximum.c ) ), result );
+		return result;
+	}
+
 	vector64x3_c box64x3_c::get_point( sint32_c const index ) const
 	{
 		return vector64x3_c( index & 1 ? maximum.a : minimum.a, index & 2 ? maximum.b : minimum.b, index & 4 ? maximum.c : minimum.c );
@@ -1659,33 +1601,33 @@ namespace cheonsa
 	void_c triangle64_c::make_planes_from_points()
 	{
 		face_plane = ops::make_plane64_from_triangle( point_a, point_b, point_c );
-		edge_plane_ab = ops::make_plane64_from_normal_and_point( ops::make_vector64x3_normalized( ops::make_vector64x3_cross_product( point_a - point_b, face_plane.get_normal() ) ), point_a );
-		edge_plane_bc = ops::make_plane64_from_normal_and_point( ops::make_vector64x3_normalized( ops::make_vector64x3_cross_product( point_b - point_c, face_plane.get_normal() ) ), point_b );
-		edge_plane_ca = ops::make_plane64_from_normal_and_point( ops::make_vector64x3_normalized( ops::make_vector64x3_cross_product( point_c - point_a, face_plane.get_normal() ) ), point_c );
+		edge_plane_ab = ops::make_plane64_from_normal_and_point( ops::normal_vector64x3( ops::cross_product_vector64x3( point_a - point_b, face_plane.get_normal() ) ), point_a );
+		edge_plane_bc = ops::make_plane64_from_normal_and_point( ops::normal_vector64x3( ops::cross_product_vector64x3( point_b - point_c, face_plane.get_normal() ) ), point_b );
+		edge_plane_ca = ops::make_plane64_from_normal_and_point( ops::normal_vector64x3( ops::cross_product_vector64x3( point_c - point_a, face_plane.get_normal() ) ), point_c );
 	}
 
-	space_transform_c::space_transform_c()
+	transform3d_c::transform3d_c()
 		: position()
 		, rotation()
 		, scale( 1.0f, 1.0f, 1.0f )
 	{
 	}
 
-	space_transform_c::space_transform_c( vector64x3_c const & position, quaternion32_c const & rotation, float32_c uniform_scale )
+	transform3d_c::transform3d_c( vector64x3_c const & position, quaternion32_c const & rotation, float32_c uniform_scale )
 		: position( position )
 		, rotation( rotation )
 		, scale( uniform_scale, uniform_scale, uniform_scale )
 	{
 	}
 
-	space_transform_c::space_transform_c( vector64x3_c const & position, quaternion32_c const & rotation, vector32x3_c const & scale )
+	transform3d_c::transform3d_c( vector64x3_c const & position, quaternion32_c const & rotation, vector32x3_c const & scale )
 		: position( position )
 		, rotation( rotation )
 		, scale( scale )
 	{
 	}
 
-	void_c space_transform_c::reset()
+	void_c transform3d_c::reset()
 	{
 		position.a = 0.0;
 		position.b = 0.0;
@@ -1699,81 +1641,65 @@ namespace cheonsa
 		scale.c = 1.0f;
 	}
 
-	//vector32x3_c space_transform_c::get_rotation_euler_angles() const
-	//{
-	//	return ops::make_euler_angles_from_quaternion32( rotation );
-	//}
-
-	//void_c space_transform_c::set_rotation_euler_angles( vector32x3_c const & euler_angles )
-	//{
-	//	rotation = ops::make_quaternion32_from_euler_angles( euler_angles );
-	//}
-
-	matrix32x3x3_c space_transform_c::get_scaled_basis() const
+	matrix32x3x3_c transform3d_c::get_scaled_basis() const
 	{
-		matrix32x3x3_c result = ops::make_matrix32x3x3_basis_from_quaternion32( rotation );
+		matrix32x3x3_c result = ops::basis_matrix32x3x3_from_rotation_quaternion32( rotation );
 		result.a *= scale.a;
 		result.b *= scale.b;
 		result.c *= scale.c;
 		return result;
 	}
 
-	vector32x3_c space_transform_c::get_scaled_basis_a() const
+	vector32x3_c transform3d_c::get_scaled_basis_x() const
 	{
-		vector32x3_c result = ops::make_vector32x3_basis_a_from_quaternion32( rotation );
-		result *= scale;
-		return result;
+		return ops::basis_vector32x3_x_from_rotation_quaternion32( rotation ) * scale;
 	}
 
-	vector32x3_c space_transform_c::get_scaled_basis_b() const
+	vector32x3_c transform3d_c::get_scaled_basis_y() const
 	{
-		vector32x3_c result = ops::make_vector32x3_basis_b_from_quaternion32( rotation );
-		result *= scale;
-		return result;
+		return ops::basis_vector32x3_y_from_rotation_quaternion32( rotation ) * scale;
 	}
 
-	vector32x3_c space_transform_c::get_scaled_basis_c() const
+	vector32x3_c transform3d_c::get_scaled_basis_z() const
 	{
-		vector32x3_c result = ops::make_vector32x3_basis_c_from_quaternion32( rotation );
-		result *= scale;
-		return result;
+		return ops::basis_vector32x3_z_from_rotation_quaternion32( rotation ) * scale;
 	}
 
-	matrix32x3x3_c space_transform_c::get_unscaled_basis() const
+	matrix32x3x3_c transform3d_c::get_unscaled_basis() const
 	{
-		return ops::make_matrix32x3x3_basis_from_quaternion32( rotation );
+		return ops::basis_matrix32x3x3_from_rotation_quaternion32( rotation );
 	}
 
-	vector32x3_c space_transform_c::get_unscaled_basis_a() const
+	vector32x3_c transform3d_c::get_unscaled_basis_x() const
 	{
-		return ops::make_vector32x3_basis_a_from_quaternion32( rotation );
+		return ops::basis_vector32x3_x_from_rotation_quaternion32( rotation );
 	}
 
-	vector32x3_c space_transform_c::get_unscaled_basis_b() const
+	vector32x3_c transform3d_c::get_unscaled_basis_y() const
 	{
-		return ops::make_vector32x3_basis_b_from_quaternion32( rotation );
+		return ops::basis_vector32x3_y_from_rotation_quaternion32( rotation );
 	}
 
-	vector32x3_c space_transform_c::get_unscaled_basis_c() const
+	vector32x3_c transform3d_c::get_unscaled_basis_z() const
 	{
-		return ops::make_vector32x3_basis_c_from_quaternion32( rotation );
+		return ops::basis_vector32x3_z_from_rotation_quaternion32( rotation );
 	}
 
-	void_c space_transform_c::set_unscaled_basis( matrix32x3x3_c const & value )
+	void_c transform3d_c::set_rotation_from_unscaled_basis( matrix32x3x3_c const & value )
 	{
-		rotation = ops::make_quaternion32_from_matrix32x3x3_basis( value );
+		rotation = ops::rotation_quaternion32_from_basis_matrix32x3x3( value );
 	}
 
-	void_c space_transform_c::set_uniform_scale( float32_c value )
+	void_c transform3d_c::set_uniform_scale( float32_c value )
 	{
 		scale.a = value;
 		scale.b = value;
 		scale.c = value;
 	}
 
-	space_transform_c space_transform_c::get_inverted() const
+	transform3d_c transform3d_c::get_inverted() const
 	{
-		space_transform_c result;
+		transform3d_c result;
 		result.rotation.a = -rotation.a;
 		result.rotation.b = -rotation.b;
 		result.rotation.c = -rotation.c;
@@ -1781,11 +1707,11 @@ namespace cheonsa
 		result.scale.a = 1.0f / scale.a;
 		result.scale.b = 1.0f / scale.b;
 		result.scale.c = 1.0f / scale.c;
-		result.position = ops::make_vector64x3_rotated_vector( position, result.rotation ) * -result.scale;
+		result.position = ops::rotate_vector64x3( position, result.rotation ) * -result.scale;
 		return result;
 	}
 
-	void_c space_transform_c::invert()
+	void_c transform3d_c::invert()
 	{
 		rotation.a = -rotation.a;
 		rotation.b = -rotation.b;
@@ -1793,10 +1719,10 @@ namespace cheonsa
 		scale.a = 1.0f / scale.a;
 		scale.b = 1.0f / scale.b;
 		scale.c = 1.0f / scale.c;
-		position = ops::make_vector64x3_rotated_vector( position, rotation ) * -scale;
+		position = ops::rotate_vector64x3( position, rotation ) * -scale;
 	}
 
-	space_transform_c & space_transform_c::operator = ( space_transform_c const & other )
+	transform3d_c & transform3d_c::operator = ( transform3d_c const & other )
 	{
 		position = other.position;
 		rotation = other.rotation;
@@ -1804,40 +1730,38 @@ namespace cheonsa
 		return *this;
 	}
 
-	space_transform_c & space_transform_c::operator *= ( space_transform_c const & b )
+	transform3d_c & transform3d_c::operator *= ( transform3d_c const & b )
 	{
 		this->rotation = this->rotation * b.rotation;
 		this->scale = this->scale * b.scale;
-		this->position = this->position + ops::make_vector64x3_rotated_vector( b.position, this->rotation ) * this->scale;
+		this->position = this->position + ops::rotate_vector64x3( b.position, this->rotation ) * this->scale;
 		return *this;
 	}
 
-	boolean_c operator == ( space_transform_c const & a, space_transform_c const & b )
+	boolean_c operator == ( transform3d_c const & a, transform3d_c const & b )
 	{
 		return ( a.position == b.position ) && ( a.rotation == b.rotation ) && ( a.scale == b.scale );
 	}
 
-	boolean_c operator != ( space_transform_c const & a, space_transform_c const & b )
+	boolean_c operator != ( transform3d_c const & a, transform3d_c const & b )
 	{
 		return ( a.position != b.position ) || ( a.rotation != b.rotation ) || ( a.scale != b.scale );
 	}
 
-	space_transform_c operator * ( space_transform_c a, space_transform_c const & b )
+	transform3d_c operator * ( transform3d_c a, transform3d_c const & b )
 	{
 		return a *= b;
 	}
 
-	scene_matrix_c scene_matrix_c::operator * ( scene_matrix_c const & other ) const
+	basis_position_c basis_position_c::operator * ( basis_position_c const & other ) const
 	{
-		scene_matrix_c result;
+		basis_position_c result;
 		result.basis = basis * other.basis;
-		result.position = position + ops::make_vector64x3_transformed_point( other.position, basis );
+		result.position = position + ops::rotate_and_scale_vector64x3( other.position, basis );
 		return result;
 	}
 
 	polygon32x2_c::polygon32x2_c()
-		//: origin()
-		//, basis()
 		: points_count( 0 )
 		, points{}
 	{
@@ -1846,7 +1770,6 @@ namespace cheonsa
 	vector32x2_c polygon32x2_c::get_point( sint32_c point_index ) const
 	{
 		assert( point_index >= 0 && point_index < points_count );
-		//return ops::make_vector32x2_transformed_point( points[ point_index ], basis ) + origin;
 		return points[ point_index ];
 	}
 

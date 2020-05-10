@@ -1,4 +1,4 @@
-﻿#include "cheonsa_data_scribe_structure.h"
+#include "cheonsa_data_scribe_structure.h"
 #include "cheonsa__ops.h"
 #include <cassert>
 
@@ -104,7 +104,7 @@ namespace cheonsa
 	{
 		assert( _type == type_e_structure_list );
 		data_scribe_structure_c * result = new data_scribe_structure_c();
-		reinterpret_cast< core_list_c< data_scribe_structure_c * > * >( _value )->insert_at_end( result );
+		reinterpret_cast< core_list_c< data_scribe_structure_c * > * >( _value )->insert( -1, result );
 		return result;
 	}
 
@@ -321,14 +321,14 @@ namespace cheonsa
 
 	void_c data_scribe_structure_c::remove_property( property_c * property )
 	{
-		assert( _property_list.remove( property ) );
+		assert( _property_list.remove_value( property ) );
 		delete property;
 	}
 
 	data_scribe_structure_c::property_c * data_scribe_structure_c::add_property( string16_c const & name, property_c::type_e type, uint8_c type_count )
 	{
 		property_c * result = new property_c( name, type, type_count );
-		_property_list.insert_at_end( result );
+		_property_list.insert( -1, result );
 		return result;
 	}
 

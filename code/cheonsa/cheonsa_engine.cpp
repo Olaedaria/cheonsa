@@ -1,4 +1,4 @@
-﻿//#include <vld.h>
+//#include <vld.h>
 
 #include "cheonsa_engine.h"
 #include "cheonsa_data_stream_file.h"
@@ -79,8 +79,8 @@ namespace cheonsa
 		GetModuleFileNameW( NULL, module_file_path, MAX_PATH + 1 );
 		module_file_path[ MAX_PATH ] = 0;
 		string16_c executable_file_path = string16_c( core_list_mode_e_static, module_file_path );
-		string16_c executable_folder_path = ops::path_get_mother( executable_file_path );
-		string16_c executable_file_name = ops::path_get_file_name( executable_file_path );
+		string16_c executable_folder_path = ops::path_get_folder_path( executable_file_path );
+		string16_c executable_file_name = ops::path_get_file_or_folder_name( executable_file_path );
 		
 		//// resolved logical processor count.
 		//SYSTEM_INFO system_info;
@@ -98,9 +98,9 @@ namespace cheonsa
 		if ( !ops::file_system_does_folder_exist( engine_data_folder_path ) )
 		{
 			engine_data_folder_path = executable_folder_path;
-			engine_data_folder_path = ops::path_get_mother( engine_data_folder_path );
-			engine_data_folder_path = ops::path_get_mother( engine_data_folder_path );
-			engine_data_folder_path = ops::path_get_mother( engine_data_folder_path );
+			engine_data_folder_path = ops::path_get_folder_path( engine_data_folder_path );
+			engine_data_folder_path = ops::path_get_folder_path( engine_data_folder_path );
+			engine_data_folder_path = ops::path_get_folder_path( engine_data_folder_path );
 			engine_data_folder_path += "data\\engine\\";
 		}
 #endif

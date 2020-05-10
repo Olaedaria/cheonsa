@@ -1,4 +1,4 @@
-﻿#include "cheonsa_data_scribe_ini.h"
+#include "cheonsa_data_scribe_ini.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -105,7 +105,7 @@ namespace cheonsa
 					if ( end != nullptr )
 					{
 						end = 0; // zero the ']'.
-						item_c * item = _item_list.emplace_at_end();
+						item_c * item = _item_list.emplace( -1, 1 );
 						item->type = item_c::type_e_section;
 						item->name = c + 1;
 						item->value = nullptr;
@@ -128,7 +128,7 @@ namespace cheonsa
 						spaces_after = count_spaces_at_start( equal_sign );
 						equal_sign += spaces_after;
 
-						item_c * item = _item_list.emplace_at_end();
+						item_c * item = _item_list.emplace( -1, 1 );
 						item->type = item_c::type_e_property;
 						item->name = c;
 						item->value = equal_sign; // the end of value should be zeroed out during next iteration, when count_and_zero_spaces_at_end() is called.

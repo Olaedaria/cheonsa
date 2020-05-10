@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
@@ -25,7 +25,7 @@ namespace cheonsa
 	{
 		static uint32_c hash( string8_c const & value )
 		{
-			return ops::xxhash32( value.character_list.get_internal_array(), value.character_list.get_internal_array_size_used() );
+			return ops::xxhash32( value.character_list.get_internal_array(), value.character_list.get_internal_array_size() );
 		}
 	};
 
@@ -34,7 +34,7 @@ namespace cheonsa
 	{
 		static uint32_c hash( string16_c const & value )
 		{
-			return ops::xxhash32( value.character_list.get_internal_array(), value.character_list.get_internal_array_size_used() );
+			return ops::xxhash32( value.character_list.get_internal_array(), value.character_list.get_internal_array_size() );
 		}
 	};
 
@@ -170,7 +170,7 @@ namespace cheonsa
 				{
 					entry_c const & entry = old_bucket[ j ];
 					core_list_c< entry_c > & bucket = _buckets[ core_hasher< key_type_c >::hash( entry.key ) % _buckets.get_length() ];
-					bucket.insert_at_end( entry );
+					bucket.insert( -1, entry );
 				}
 			}
 		}
@@ -192,7 +192,7 @@ namespace cheonsa
 		core_dictionary_c & operator = ( core_dictionary_c const & ) = delete;
 
 		// finds an item in the dictionary, and optionally gets its specific address in the dictionary.
-		boolean_c find_entry( key_type_c const & key, core_list_c< entry_c > const * * out_bucket, sint32_c * out_entry_index, entry_c const * * out_entry ) const
+		boolean_c find_entry( key_type_c const & key, core_list_c< entry_c > * * out_bucket, sint32_c * out_entry_index, entry_c * * out_entry ) const
 		{
 			core_list_c< entry_c > const & bucket = _buckets[ core_hasher< key_type_c >::hash( key ) % _buckets.get_length() ];
 			for ( sint32_c i = 0; i < bucket.get_length(); i++ )
@@ -201,7 +201,7 @@ namespace cheonsa
 				{
 					if ( out_bucket != nullptr )
 					{
-						*out_bucket = &bucket;
+						*out_bucket = const_cast< core_list_c< entry_c > * >( &bucket );
 					}
 					if ( out_entry_index != nullptr )
 					{
@@ -209,7 +209,7 @@ namespace cheonsa
 					}
 					if ( out_entry != nullptr )
 					{
-						*out_entry = &bucket[ i ];
+						*out_entry = const_cast< entry_c * >( &bucket[ i ] );
 					}
 					return true;
 				}
@@ -225,7 +225,7 @@ namespace cheonsa
 				_set_buckets_count( _buckets.get_length() * 2 );
 			}
 
-			entry_c const * entry = nullptr;
+			entry_c * entry = nullptr;
 			if ( find_entry( key, nullptr, nullptr, &entry ) )
 			{
 				const_cast< entry_c * >( entry )->value = value;
@@ -233,7 +233,7 @@ namespace cheonsa
 			else
 			{
 				core_list_c< entry_c > & bucket = _buckets[ core_hasher< key_type_c >::hash( key ) % _buckets.get_length() ];
-				entry_c * entry = bucket.emplace_at_end();
+				entry_c * entry = bucket.emplace( -1, 1 );
 				entry->key = key;
 				entry->value = value;
 				_length++;
@@ -244,13 +244,29 @@ namespace cheonsa
 		// removes existing key and value with key.
 		boolean_c remove( key_type_c const & key )
 		{
-			core_list_c< entry_c > const * bucket = nullptr;
-			sint32_c entry_index;
+			core_list_c< entry_c > * bucket = nullptr;
+			sint32_c entry_index = 0;
 			if ( !find_entry( key, &bucket, &entry_index, nullptr ) )
 			{
 				return false;
 			}
-			const_cast< core_list_c< entry_c > * >( bucket )->remove_at_index( entry_index );
+			bucket->remove( entry_index, 1 );
+			_length--;
+			return true;
+		}
+
+		// removes existing key and value with key, and deletes value.
+		boolean_c remove_and_delete( key_type_c const & key )
+		{
+			core_list_c< entry_c > * bucket = nullptr;
+			sint32_c entry_index = 0;
+			entry_c * entry = nullptr;
+			if ( !find_entry( key, &bucket, &entry_index, &entry ) )
+			{
+				return false;
+			}
+			delete entry->value;
+			bucket->remove( entry_index, 1 );
 			_length--;
 			return true;
 		}
@@ -293,7 +309,7 @@ namespace cheonsa
 		{
 			if ( _length > 0 )
 			{
-				entry_c const * entry = nullptr;
+				entry_c * entry = nullptr;
 				if ( find_entry( key, nullptr, nullptr, &entry ) )
 				{
 					return entry->value;
@@ -303,16 +319,16 @@ namespace cheonsa
 		}
 
 		// returns a pointer to the value if key exists or nullptr if it doesn't.
-		// treat the returned pointer as volatile, because if/when the dictionary resizes then that pointer will become invalid.
+		// treat the returned pointer as temporary, because if/when the dictionary resizes then that pointer will become invalid.
 		// intended for use if value_type_c is a value type (rather than a pointer type).
 		value_type_c * find_value_pointer( key_type_c const & key ) const
 		{
 			if ( _length > 0 )
 			{
-				entry_c const * entry = nullptr;
+				entry_c * entry = nullptr;
 				if ( find_entry( key, nullptr, nullptr, &entry ) )
 				{
-					return &const_cast< entry_c * >( entry )->value;
+					return &entry->value;
 				}
 			}
 			return nullptr;
@@ -322,7 +338,7 @@ namespace cheonsa
 		// treat the reference as volatile, use it for what you need and then discard it, when the dictionary resizes then that reference will be invalid.
 		value_type_c & find_value_reference( key_type_c const & key ) const
 		{
-			entry_c const * entry = nullptr;
+			entry_c * entry = nullptr;
 			assert( find_entry( key, nullptr, nullptr, &entry ) );
 			return entry->value;
 		}
@@ -330,7 +346,7 @@ namespace cheonsa
 		// returns a copy of the value if it exists or asserts if it doesn't.
 		value_type_c find_value( key_type_c const & key ) const
 		{
-			entry_c const * entry = nullptr;
+			entry_c * entry = nullptr;
 			assert( find_entry( key, nullptr, nullptr, &entry ) );
 			return entry->value;
 		}
@@ -356,7 +372,7 @@ namespace cheonsa
 				core_list_c< entry_c > const & bucket = _buckets[ i ];
 				for ( sint32_c j = 0; j < bucket.get_length(); j++ )
 				{
-					result.insert_at_end( bucket[ j ].key );
+					result.insert( -1, bucket[ j ].key );
 				}
 			}
 			return result;
@@ -371,7 +387,7 @@ namespace cheonsa
 				core_list_c< entry_c > const & bucket = _buckets[ i ];
 				for ( sint32_c j = 0; j < bucket.get_length(); j++ )
 				{
-					result.insert_at_end( bucket[ j ].value );
+					result.insert( -1, bucket[ j ].value );
 				}
 			}
 			return result;

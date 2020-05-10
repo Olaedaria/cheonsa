@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_scroll_bar_i.h"
+#include "cheonsa_menu_control_scroll_bar_i.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -194,10 +194,10 @@ namespace cheonsa
 		}
 
 		_rail_element.set_shared_color_class( menu_shared_color_class_e_button );
-		_add_element( &_rail_element );
+		_add_daughter_element( &_rail_element );
 
 		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
-		_add_element( &_grip_element );
+		_add_daughter_element( &_grip_element );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_scroll" ) );
 
@@ -273,28 +273,17 @@ namespace cheonsa
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_selected = is_ascendant_of( get_user_interface_root()->get_mouse_overed() );
-		for ( sint32_c i = 0; i < _element_list.get_length(); i++ )
+		boolean_c is_selected = is_ascendant_of( _user_interface->get_mouse_overed() );
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			menu_element_c * element = _element_list[ i ];
-			element->set_is_enabled( _is_enabled );
-			element->set_is_selected( is_selected );
-			element->set_is_pressed( ( _is_pressed && _is_mouse_overed ) || _is_mouse_focused );
-			element->update_animations( time_step );
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_selected( is_selected );
+			daughter_element->set_is_pressed( ( _is_pressed && _is_mouse_overed ) || _is_mouse_focused );
+			daughter_element->update_animations( time_step );
 		}
 
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
-		{
-			menu_control_c * control = _control_list[ i ];
-			assert( control->get_index() == i );
-			control->update_animations( time_step );
-			if ( control->get_wants_to_be_deleted() && control->get_is_showed_weight() <= 0.0f )
-			{
-				_take_control( i );
-				delete control;
-				i--;
-			}
-		}
+		_update_daughter_control_animations( time_step );
 	}
 
 	void_c menu_control_scroll_bar_i::load_static_data_properties( data_scribe_markup_c::node_c const * node )

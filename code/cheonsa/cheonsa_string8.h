@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
@@ -19,10 +19,12 @@ namespace cheonsa
 	public:
 		explicit string8_c(); // constructs an empty static mode string that contains just the terminating null character.
 		         string8_c( string8_c const & other ); // constructs copy of other string, preserves mode.
-		explicit string8_c( char16_c const * other );
 		explicit string8_c( string16_c const & other ); // constructs dynamic mode copy of other string, encodes as utf-8.
+		explicit string8_c( char16_c const * other ); // constructs dynamic mode copy of other string, encodes as utf-8. other string must be null terminated.
 		explicit string8_c( core_list_mode_e mode, char8_c const * other ); // constructs a static or dynamic mode copy of other.
 		explicit string8_c( core_list_mode_e mode, char8_c const * other, sint32_c other_length_with_null_terminator ); // constructs static or dynamic mode copy of other string. other_length is length of other string including the terminating null character. other[ other_length - 1 ] must == 0.
+
+		boolean_c is_set() const; // returns true if character_list.get_length() > 1.
 
 		sint32_c get_length() const; // gets the effective length of the string, not including the terminating null character.
 

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_resource_file_font.h"
+#include "cheonsa_resource_file_font.h"
 #include "cheonsa_data_scribe_binary.h"
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa__ops.h"
@@ -11,8 +11,6 @@
 
 namespace cheonsa
 {
-
-	//core_linked_list_c< resource_file_font_c * > resource_file_font_c::_global_list;
 
 	glyph_key_c::glyph_key_c()
 		: font_file_hash( 0 )
@@ -107,7 +105,7 @@ namespace cheonsa
 		space_horizontal_advance = 0.0f;
 	}
 
-	boolean_c resource_file_font_c::_load( data_stream_c * stream )
+	void_c resource_file_font_c::_load( data_stream_c * stream )
 	{
 		assert( stream != nullptr );
 		assert( _is_loaded == false );
@@ -131,11 +129,14 @@ namespace cheonsa
 		}
 
 		_file_hash = ops::xxhash32( _file, _file_size );
+
 		_is_loaded = true;
 
 		menu_element_text_c::invalidate_glyph_layout_of_all_instances_with_font( this );
 
-		return true;
+		on_loaded.invoke( this );
+
+		return;
 
 	cancel:
 		if ( _free_type_face_handle != nullptr )
@@ -154,14 +155,15 @@ namespace cheonsa
 			_file_size = 0;
 		}
 		_file_hash = 0;
-		return false;
 	}
 
 	void_c resource_file_font_c::_unload()
 	{
 		assert( _is_loaded == true );
+
+		on_unloaded.invoke( this );
+
 		_is_loaded = false;
-		on_unload.invoke( this );
 
 		delete[] _file;
 		_file = nullptr;
@@ -177,22 +179,19 @@ namespace cheonsa
 		menu_element_text_c::invalidate_glyph_layout_of_all_instances_with_font( this );
 	}
 
-	resource_file_font_c::resource_file_font_c()
-		: resource_file_c()
-		//, _global_list_node( this )
+	resource_file_font_c::resource_file_font_c( string16_c const & file_path )
+		: resource_file_c( file_path )
 		, _file( nullptr )
 		, _file_size( 0 )
 		, _file_hash( 0 )
 		, _free_type_face_handle( nullptr )
 		, _quantized_size_metrics()
 	{
-		//_global_list.insert_at_end( &_global_list_node );
 	}
 
 	resource_file_font_c::~resource_file_font_c()
 	{
 		assert( _is_loaded == false );
-		//_global_list.remove( &_global_list_node );
 	}
 
 	uint32_c resource_file_font_c::get_file_hash() const
@@ -253,16 +252,6 @@ namespace cheonsa
 			}
 			size_metrics_c const * right_size_metrics = get_quantized_size_metrics( right_font_size );
 			return ( static_cast< float32_c >( left_kerning.x ) / 64.0f ) * ( ( left_font_size / static_cast< float32_c >( left_size_metrics->quantized_size ) ) / ( right_font_size / static_cast< float32_c >( right_size_metrics->quantized_size ) ) );
-
-			//size_metrics_c const * right_size_metrics = _get_quantized_size_metrics( right_font_size );
-			//FT_Activate_Size( reinterpret_cast< FT_Size >( right_size_metrics->free_type_size_handle ) );
-			//FT_Vector right_kerning;
-			//free_type_error = FT_Get_Kerning( reinterpret_cast< FT_Face >( _free_type_face_handle ), FT_Get_Char_Index( reinterpret_cast< FT_Face >( _free_type_face_handle ), left_code_point ), FT_Get_Char_Index( reinterpret_cast< FT_Face >( _free_type_face_handle ), right_code_point ), FT_KERNING_UNFITTED, &right_kerning );
-			//if ( free_type_error )
-			//{
-			//	return 0.0f;
-			//}
-			//return ( static_cast< float32_c >( left_kerning.x ) / 64.0f ) * ( left_font_size / right_font_size );
 		}
 	}
 

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_data_scribe_binary_property.h"
+#include "cheonsa_data_scribe_binary_property.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -39,7 +39,7 @@ namespace cheonsa
 		_list_instance_stack.remove_all();
 	}
 
-	data_scribe_binary_c * data_scribe_binary_property_c::get_binary_scribe()
+	data_scribe_binary_c * data_scribe_binary_property_c::get_scribe_binary() const
 	{
 		return _scribe_binary;
 	}
@@ -55,7 +55,7 @@ namespace cheonsa
 			{
 				return false;
 			}
-			_list_instance_stack.remove_at_end();
+			_list_instance_stack.remove( -1, 1 );
 		}
 
 		// check if done.
@@ -115,7 +115,7 @@ namespace cheonsa
 			{
 				return false;
 			}
-			_list_instance_stack.insert_at_end( list_instance_c( false, _scribe_binary->get_stream()->get_position() + _loaded_value_list_size ) );
+			_list_instance_stack.insert( -1, list_instance_c( false, _scribe_binary->get_stream()->get_position() + _loaded_value_list_size ) );
 		}
 		else if ( _loaded_type == data_type_e_string8 )
 		{
@@ -328,7 +328,7 @@ namespace cheonsa
 		{
 			return false;
 		}
-		_list_instance_stack.insert_at_end( list_instance_c( true, _scribe_binary->get_stream()->get_position() ) );
+		_list_instance_stack.insert( -1, list_instance_c( true, _scribe_binary->get_stream()->get_position() ) );
 		return true;
 	}
 
@@ -336,7 +336,7 @@ namespace cheonsa
 	{
 		assert( _scribe_binary );
 		uint32_c list_offset = _list_instance_stack[ _list_instance_stack.get_length() - 1 ].offset;
-		_list_instance_stack.remove_at_end();
+		_list_instance_stack.remove( -1, 1 );
 		uint32_c current_offset = _scribe_binary->get_stream()->get_position();
 		if ( !_scribe_binary->get_stream()->set_position( list_offset - 8 ) )
 		{

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_menu_types.h"
@@ -38,49 +38,51 @@ namespace cheonsa
 	//     these values are always managed by the program, the xml file can not interact with these values.
 	class menu_control_c
 	{
+		friend class user_interface_c;
+		friend class menu_style_manager_c; // to call _global_resolve_style_maps.
+		friend class video_renderer_interface_c;
+
 	public:
 		static inline char8_c const * get_type_name_static() { return "control"; }
 		virtual inline char8_c const * get_type_name() const { return get_type_name_static(); }
 
 	protected:
-		friend class user_interface_c;
-		friend class menu_style_manager_c; // to call _global_resolve_style_maps.
-		friend class video_renderer_interface_c;
-		friend class menu_control_panel_i;
-		friend class menu_control_list_i;
-
 		// the global list is used to hold a pointer to every control that is instantiated.
 		// each control adds itself to this list when it is constructed.
 		// each control removes itself from this list when it is destructed.
 		// this lets us reload style files during run time and force controls to reacquire their style map references.
 		// this lets us reload layout files during run time and force controls to reload their properties and layouts.
 		static core_linked_list_c< menu_control_c * > _global_list;
-
 		core_linked_list_c< menu_control_c * >::node_c _global_list_node;
 
 		string8_c _name; // used to identify this control in the hierarchy, it should be unique within the context of its immediate superior (context or control), but it doesn't need to be globally unique.
 
 		user_interface_c * _user_interface; // the mother user interface, only set on the root control.
+		void_c _set_user_interface_recursive( user_interface_c * value ); // called by the user interface to associate or disassociate the entire hierarchy of controls with the user interface.
+
 		menu_control_c * _mother_control; // the mother control.
+
+		core_linked_list_c< menu_control_c * > _daughter_control_list; // daughter controls.
+		core_linked_list_c< menu_control_c * >::node_c _daughter_control_list_node;
+		void_c _update_daughter_control_animations( float32_c time_step ); // to enable reuse of the code that removes controls that want to be removed.
+
+		core_list_c< menu_element_c * > _daughter_element_list; // private daughter elements are added by this control's private implementation.
+		void_c _add_daughter_element( menu_element_c * element );
+		void_c _remove_daughter_element( menu_element_c * element );
+		void_c _find_daughter_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result ); // searches private daughter elements for all elements that match the given name.
+
 		sint32_c _index; // this control's index within its mother's _control_list or _private_control_list.
 
 		vector32x2_c _content_offset; // scroll bars can plug in to this to scroll the daughter controls of this control.
 		box32x2_c _content_bounds; // minimum axis aligned bounding box that contains all of the daughter controls and elements.
 		boolean_c _content_bounds_is_dirty; // if true then _content_bounds is out of date and needs to be recalculated.
 
-		core_list_c< menu_control_c * > _control_list; // daughter controls.
-		virtual sint32_c _give_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end.
-		virtual menu_control_c * _take_control( sint32_c control_index );
-		virtual void_c _remove_and_delete_all_controls();
-		menu_control_c * _find_control( string8_c const & name, string8_c const & type );
-
-		core_list_c< menu_element_c * > _element_list; // private daughter elements are added by this control's private implementation.
-		void_c _add_element( menu_element_c * element );
-		void_c _remove_element( menu_element_c * element );
-		void_c _find_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result ); // searches private daughter elements for all elements that match the given name.
+		boolean_c _is_supplemental; // will be set to true on root-level controls that are created and managed by other controls. this tells the user interface's destructor not to remove these controls directly, and to only remove non supplemental controls directly, in this way the supplemental controls will be removed indirectly by the non supplemental controls.
 
 		menu_style_map_c::reference_c _style_map_reference; // the style map that is currently applied to this control.
-		void_c _handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value ); // resolves style map key to a style map reference, and applies the style map to daughter elements and controls.
+		void_c _handle_style_map_reference_on_resolved( menu_style_map_c::reference_c const * style_map ); // responds to when _style_map_resource is loaded.
+		void_c _handle_style_map_reference_on_unresolved( menu_style_map_c::reference_c const * style_map ); // responds to when _style_map_resource is unloaded.
+		//void_c _handle_style_map_reference_on_refreshed( menu_style_map_c::reference_c const * value ); // resolves style map key to a style map reference, and applies the style map to daughter elements and controls.
 
 		menu_layer_e _layer; // determines priority for hit detection and render ordering. lets control heirarchies mix layers, for example so that a pop up layer control can be a daughter to a base layer control.
 
@@ -139,13 +141,16 @@ namespace cheonsa
 
 		menu_non_client_type_e _non_client_type; // lets the user interface system define areas within the client are of the engine's client window that we want the operating system to treat like non-client areas, these are things like window title bars and window edge resize handles.
 
-		resource_file_menu_layout_c::reference_c _resource_file_menu;
-		void_c _handle_resource_file_menu_on_load( resource_file_c * resource_file );
-		void_c _handle_resource_file_menu_on_unload( resource_file_c * resource_file );
+		resource_file_menu_layout_c::reference_c _menu_layout_resource;
+		void_c _handle_menu_layout_resource_on_loaded( resource_file_c * resource_file );
+		void_c _handle_menu_layout_resource_on_unloaded( resource_file_c * resource_file );
+
+		sint32_c _reference_count;
 
 		void_c * _user_pointer; // can be set by the user to associate some other kind of data with this control.
 
-		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ); // occurs right after the control is added to (associated with) the user interface or right before the control is removed from (disassociated from) the user interface. user_interface is the user interface that this control was just added to or removed from. if the control was added then the _user_interface memeber will be set, if the control was removed then the _user_interface memeber will be nullptr.
+		virtual void_c _handle_after_added_to_user_interface();
+		virtual void_c _handle_before_removed_from_user_interface();
 		virtual void_c _on_is_showed_changed(); // is called right after _is_showed state is changed. after performing control specific implementation, it should in turn invoke the is_showed_changed event.
 		virtual void_c _on_is_enabled_changed(); // is called right after _is_enabled state is changed. after performing control specific implementation, it should in turn invoke the is_enabled_changed event.
 		virtual void_c _on_is_deep_text_focused_changed(); // is called right after _is_deep_text_focused state is changed. after performing control specific implementation, it should in turn invoke the is_deep_text_focused_changed event.
@@ -159,9 +164,15 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout(); // updates global space properties based on inheritance and local space properties.
 
-	public:
 		menu_control_c( string8_c const & name );
+
+	public:
 		virtual ~menu_control_c();
+
+		static menu_control_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
+
+		void_c add_reference();
+		void_c remove_reference();
 
 		// gets called once per frame.
 		// should only update animations.
@@ -184,11 +195,11 @@ namespace cheonsa
 
 		// gets the menu layout of this control system.
 		// this should only be set on the root control of a system (for example, the window control of a file picker dialog).
-		resource_file_menu_layout_c * get_menu_layout() const;
+		resource_file_menu_layout_c * get_menu_layout_resource() const;
 		// sets the menu layout of this control system.
 		// this should only be set on the root control of a control system.
 		// this menu layout resource defines layout of controls in hierarchy.
-		void_c set_menu_layout( resource_file_menu_layout_c * value );
+		void_c set_menu_layout_resource( resource_file_menu_layout_c * value );
 
 		virtual menu_control_c * pick_control_with_global_point( vector32x2_c const & global_point, menu_layer_e & layer );
 
@@ -204,16 +215,23 @@ namespace cheonsa
 		string8_c const & get_name() const;
 		//void_c set_name( string8_c const & value );
 
+		boolean_c get_is_supplemental() const;
+		void_c _set_is_supplemental( boolean_c value );
+
 		sint32_c get_index() const; // gets the index of this control within it's mother's daughter list.
 
-		user_interface_c * get_user_interface_root(); // returns the menu context of the root mother control.
+		//user_interface_c * get_user_interface_root(); // returns the menu context of the root mother control.
+		user_interface_c * get_user_interface() const;
 
 		menu_control_c * get_root_mother_control(); // returns the root mother control of this control, also called a window (regardless of if it acts like one or not), which is the control that is directly added to the menu context.
 
 		menu_control_c * get_mother_control(); // returns the control that is the immediate mother of this control.
 
-		sint32_c get_control_count() const;
-		menu_control_c * get_control( sint32_c control_index ) const;
+		core_linked_list_c< menu_control_c * > const & get_daughter_control_list() const;
+		void_c add_daughter_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end. this control will hold a one-way reference count on the daughter control.
+		void_c remove_daughter_control( menu_control_c * control );
+		void_c remove_all_daughter_controls();
+		menu_control_c * find_daughter_control( string8_c const & name, string8_c const & type );
 
 		boolean_c is_ascendant_of( menu_control_c * control ); // returns true if this control is equal to the given control or if the given control is a descendant of this control.
 
@@ -248,6 +266,7 @@ namespace cheonsa
 		void_c set_local_origin( vector32x2_c const & value );
 
 		box32x2_c const & get_local_box() const;
+		box32x2_c & get_local_box(); // in rare siutations, to enable direct modification of local box.
 
 		box32x2_c const & get_local_anchor_measures() const;
 		void_c set_local_anchor_measures( box32x2_c const & value );

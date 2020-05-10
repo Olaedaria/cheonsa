@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_label.h"
+#include "cheonsa_menu_control_label.h"
 
 namespace cheonsa
 {
@@ -9,15 +9,24 @@ namespace cheonsa
 		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
 	{
 		_element_frame.set_shared_color_class( menu_shared_color_class_e_button );
-		_add_element( &_element_frame );
+		_add_daughter_element( &_element_frame );
 
 		_element_text.set_shared_color_class( menu_shared_color_class_e_button );
 		_element_text.set_multi_line( true );
 		_element_text.set_text_format_mode( menu_text_format_mode_e_rich );
 		_element_text.set_text_interact_mode( menu_text_interact_mode_e_static );
-		_add_element( &_element_text );
+		_add_daughter_element( &_element_text );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_label" ) );
+	}
+
+	menu_control_label_c::~menu_control_label_c()
+	{
+	}
+
+	menu_control_label_c * menu_control_label_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_label_c( name );
 	}
 
 	void_c menu_control_label_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_control_menu.h"
+#include "cheonsa_menu_control_menu.h"
 #include "cheonsa_user_interface.h"
 
 namespace cheonsa
@@ -7,6 +7,15 @@ namespace cheonsa
 	menu_control_menu_list_item_separator_c::menu_control_menu_list_item_separator_c( string8_c const & name )
 		: menu_control_list_item_separator_i( name )
 	{
+	}
+
+	menu_control_menu_list_item_separator_c::~menu_control_menu_list_item_separator_c()
+	{
+	}
+
+	menu_control_menu_list_item_separator_c * menu_control_menu_list_item_separator_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_menu_list_item_separator_c( name );
 	}
 
 	void_c menu_control_menu_list_item_text_c::_on_is_mouse_overed_changed()
@@ -32,21 +41,23 @@ namespace cheonsa
 
 	void_c menu_control_menu_list_item_text_c::_on_clicked( input_event_c * input_event )
 	{
-		if ( _sub_menu )
+		if ( _is_enabled )
 		{
-			static_cast< menu_control_menu_list_c * >( _sub_menu )->show_like_sub_menu( this );
+			if ( _sub_menu )
+			{
+				static_cast< menu_control_menu_list_c * >( _sub_menu )->show_like_sub_menu( this );
+			}
+			else if ( _can_be_checked )
+			{
+				_is_checked = !_is_checked;
+			}
+			else
+			{
+				assert( _user_interface );
+				_user_interface->set_text_focused( nullptr ); // this should have the effect of hiding the whole popup menu hierarchy.
+			}
+			menu_control_list_item_i::_on_clicked( input_event );
 		}
-		else if ( _can_be_checked )
-		{
-			_is_checked = !_is_checked;
-		}
-		else
-		{
-			user_interface_c * user_interface = get_user_interface_root();
-			assert( user_interface );
-			user_interface->set_text_focused( nullptr ); // this should have the effect of hiding the whole popup menu hierarchy.
-		}
-		menu_control_list_item_i::_on_clicked( input_event );
 	}
 
 	menu_control_menu_list_item_text_c::menu_control_menu_list_item_text_c( string8_c const & name )
@@ -56,6 +67,15 @@ namespace cheonsa
 		, _sub_menu( nullptr )
 	{
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_menu_list_item" ) );
+	}
+
+	menu_control_menu_list_item_text_c::~menu_control_menu_list_item_text_c()
+	{
+	}
+
+	menu_control_menu_list_item_text_c * menu_control_menu_list_item_text_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_menu_list_item_text_c( name );
 	}
 
 	boolean_c menu_control_menu_list_item_text_c::get_can_be_checked() const
@@ -97,9 +117,9 @@ namespace cheonsa
 	{
 		assert( _sub_menu == nullptr );
 		assert( menu != nullptr );
-		assert( menu->get_user_interface_root() == nullptr );
+		assert( menu->get_user_interface() == nullptr );
 		assert( menu->get_mother_control() == nullptr );
-		_give_control( menu );
+		add_daughter_control( menu );
 		_sub_menu = menu;
 	}
 
@@ -126,16 +146,23 @@ namespace cheonsa
 		_selected_item_limit = 0;
 		_vertical_size_mode = menu_size_mode_e_fit_content;
 		_vertical_size_maximum = 0.0f;
-		set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic );
 		set_is_showed_immediately( false );
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_menu_list" ) );
 	}
 
+	menu_control_menu_list_c::~menu_control_menu_list_c()
+	{
+	}
+
+	menu_control_menu_list_c * menu_control_menu_list_c::make_new_instance( string8_c const & name )
+	{
+		return new menu_control_menu_list_c( name );
+	}
+
 	void_c menu_control_menu_list_c::show_like_context_menu( vector32x2_c const & screen_space_point_to_spawn_pop_up_around )
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		assert( user_interface );
-		box32x2_c new_local_box = user_interface->find_context_menu_pop_up_box( screen_space_point_to_spawn_pop_up_around, _local_box.get_size() );
+		assert( _user_interface );
+		box32x2_c new_local_box = _user_interface->find_context_menu_pop_up_box( screen_space_point_to_spawn_pop_up_around, _local_box.get_size() );
 		set_layout_simple( new_local_box );
 		set_is_showed_immediately( true );
 		bring_to_front();
@@ -144,9 +171,8 @@ namespace cheonsa
 
 	void_c menu_control_menu_list_c::show_like_sub_menu( menu_control_c * menu_item_to_spawn_pop_up_around )
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		assert( user_interface );
-		box32x2_c new_local_box = user_interface->find_sub_menu_pop_up_box( menu_item_to_spawn_pop_up_around, _local_box.get_size(), true );
+		assert( _user_interface );
+		box32x2_c new_local_box = _user_interface->find_sub_menu_pop_up_box( menu_item_to_spawn_pop_up_around, _local_box.get_size(), true );
 		set_layout_simple( new_local_box );
 		set_is_showed_immediately( true );
 		bring_to_front();
@@ -155,9 +181,8 @@ namespace cheonsa
 
 	void_c menu_control_menu_list_c::show_like_combo_list( menu_control_c * combo_to_spawn_pop_up_around )
 	{
-		user_interface_c * user_interface = get_user_interface_root();
-		assert( user_interface );
-		box32x2_c new_local_box = user_interface->find_combo_list_pop_up_box( combo_to_spawn_pop_up_around, _local_box.get_size(), true );
+		assert( _user_interface );
+		box32x2_c new_local_box = _user_interface->find_combo_list_pop_up_box( combo_to_spawn_pop_up_around, _local_box.get_size(), true );
 		set_layout_simple( new_local_box );
 		set_is_showed_immediately( true );
 		bring_to_front();
@@ -166,28 +191,33 @@ namespace cheonsa
 
 	sint32_c menu_control_menu_list_c::get_item_count() const
 	{
-		return _get_item_count();
+		return _client->get_daughter_control_list().get_length();
 	}
 
-	menu_control_list_item_i * menu_control_menu_list_c::get_item( sint32_c item_index)
+	menu_control_list_item_i const * menu_control_menu_list_c::get_item_at_index( sint32_c item_index ) const
 	{
-		return _get_item( item_index );
+		return static_cast< menu_control_list_item_i const * >( _client->get_daughter_control_list().get_at_index( item_index )->get_value() );
 	}
 
-	sint32_c menu_control_menu_list_c::give_item( menu_control_list_item_i * item, sint32_c index )
+	menu_control_list_item_i * menu_control_menu_list_c::get_item_at_index( sint32_c item_index )
+	{
+		return static_cast< menu_control_list_item_i * >( _client->get_daughter_control_list().get_at_index( item_index )->get_value() );
+	}
+
+	void_c menu_control_menu_list_c::add_item( menu_control_list_item_i * item, sint32_c index )
 	{
 		assert( dynamic_cast< menu_control_menu_list_item_separator_c * >( item ) != nullptr || dynamic_cast< menu_control_menu_list_item_text_c * >( item ) != nullptr );
-		return _give_item( item, index );
+		_add_item( item, index );
 	}
 
-	menu_control_list_item_i * menu_control_menu_list_c::take_item( sint32_c item_index )
+	void_c menu_control_menu_list_c::remove_item( menu_control_list_item_i * item )
 	{
-		return _take_item( item_index );
+		_remove_item( item );
 	}
 
-	void_c menu_control_menu_list_c::remove_and_delete_all_items()
+	void_c menu_control_menu_list_c::remove_all_items()
 	{
-		_remove_and_delete_all_items();
+		_remove_all_items();
 	}
 
 }

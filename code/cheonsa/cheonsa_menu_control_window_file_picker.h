@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control_window.h"
 #include "cheonsa_menu_control_button.h"
@@ -47,7 +47,7 @@ namespace cheonsa
 
 		};
 
-	private:
+	protected:
 		boolean_c _is_muted; // when true, the _handle_* functions will return immediately. the file picker is in the middle of changing values of controls, so it wants to temporarily ignore any events that are created by those controls.
 
 		menu_control_text_c * _folder_path_text; // name is "folder_path_text", address bar at top. this path will be formatted with the operating system's file system path format.
@@ -80,12 +80,16 @@ namespace cheonsa
 		void_c _handle_file_collection_on_selected_items_changed( menu_control_collection_c * collection );
 		void_c _handle_file_collection_on_selected_items_invoked( menu_control_collection_c * collection );
 
-		virtual void_c _on_user_interface_association_changed( user_interface_c * user_interface ) override;
+		virtual void_c _handle_after_added_to_user_interface() override;
+		virtual void_c _handle_before_removed_from_user_interface() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-	public:
 		menu_control_window_file_picker_c( string8_c const & name );
+
+	public:
 		virtual ~menu_control_window_file_picker_c() override;
+
+		static menu_control_window_file_picker_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );

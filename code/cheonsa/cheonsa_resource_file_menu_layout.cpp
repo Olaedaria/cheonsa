@@ -1,31 +1,37 @@
-﻿#include "cheonsa_resource_file_menu_layout.h"
+#include "cheonsa_resource_file_menu_layout.h"
 
 namespace cheonsa
 {
 
-	boolean_c resource_file_menu_layout_c::_load( data_stream_c * stream )
+	void_c resource_file_menu_layout_c::_load( data_stream_c * stream )
 	{
 		assert( stream != nullptr );
 		assert( _is_loaded == false );
 
 		_is_loaded = _markup.parse( stream );
 
-		return _is_loaded;
+		if ( !_is_loaded )
+		{
+			return;
+		}
+
+		on_loaded.invoke( this );
 	}
 
 	void_c resource_file_menu_layout_c::_unload()
 	{
-		_markup.reset();
+		assert( _is_loaded == true );
+
+		on_unloaded.invoke( this );
+
 		_is_loaded = false;
+
+		_markup.reset();
 	}
 
-	resource_file_menu_layout_c::resource_file_menu_layout_c()
-		: resource_file_c()
+	resource_file_menu_layout_c::resource_file_menu_layout_c( string16_c const & file_path )
+		: resource_file_c( file_path )
 		, _markup( '<' )
-	{
-	}
-	
-	resource_file_menu_layout_c::~resource_file_menu_layout_c()
 	{
 	}
 

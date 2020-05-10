@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa___build_configuration.h"
 #include "cheonsa__types.h"
@@ -50,8 +50,8 @@ namespace cheonsa
 		float64_c math_round_up( float64_c value );
 		float32_c math_round_to_decimal_place( float32_c value, sint32_c places );
 		float64_c math_round_to_decimal_place( float64_c value, sint32_c places );
-		float32_c math_remainder( float32_c value, float32_c multiple );
-		float64_c math_remainder( float64_c value, float64_c multiple );
+		float32_c math_modulo( float32_c value, float32_c multiple );
+		float64_c math_modulo( float64_c value, float64_c multiple );
 		float32_c math_natural_logarithm( float32_c value );
 		float32_c math_square( float32_c value );
 		float64_c math_square( float64_c value );
@@ -100,84 +100,81 @@ namespace cheonsa
 		//
 		//
 
-		float32_c make_float32_length_squared( vector32x2_c const & vector );
-		float64_c make_float64_length_squared( vector64x2_c const & vector );
-		float32_c make_float32_length_squared( vector32x3_c const & vector );
-		float64_c make_float64_length_squared( vector64x3_c const & vector );
-		float32_c make_float32_length_squared( vector32x4_c const & vector );
-		float64_c make_float64_length_squared( vector64x4_c const & vector );
+		float32_c length_squared_float32( vector32x2_c const & vector );
+		float64_c length_squared_float64( vector64x2_c const & vector );
+		float32_c length_squared_float32( vector32x3_c const & vector );
+		float64_c length_squared_float64( vector64x3_c const & vector );
+		float32_c length_squared_float32( vector32x4_c const & vector );
+		float64_c length_squared_float64( vector64x4_c const & vector );
 
-		float32_c make_float32_length( vector32x2_c const & vector );
-		float64_c make_float64_length( vector64x2_c const & vector );
-		float32_c make_float32_length( vector32x3_c const & vector );
-		float64_c make_float64_length( vector64x3_c const & vector );
-		float32_c make_float32_length( vector32x4_c const & vector );
-		float64_c make_float64_length( vector64x4_c const & vector );
+		float32_c length_float32( vector32x2_c const & vector );
+		float64_c length_float64( vector64x2_c const & vector );
+		float32_c length_float32( vector32x3_c const & vector );
+		float64_c length_float64( vector64x3_c const & vector );
+		float32_c length_float32( vector32x4_c const & vector );
+		float64_c length_float64( vector64x4_c const & vector );
 
-		vector32x2_c make_vector32x2_normalized( vector32x2_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
-		vector64x2_c make_vector64x2_normalized( vector64x2_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
-		vector32x3_c make_vector32x3_normalized( vector32x3_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
-		vector64x3_c make_vector64x3_normalized( vector64x3_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
-		vector32x4_c make_vector32x4_normalized( vector32x4_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
-		vector64x4_c make_vector64x4_normalized( vector64x4_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
-		quaternion32_c make_quaternion32_normalized( quaternion32_c const & quaternion );
+		vector32x2_c normal_vector32x2( vector32x2_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
+		vector64x2_c normal_vector64x2( vector64x2_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
+		vector32x3_c normal_vector32x3( vector32x3_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
+		vector64x3_c normal_vector64x3( vector64x3_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
+		vector32x4_c normal_vector32x4( vector32x4_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
+		vector64x4_c normal_vector64x4( vector64x4_c const & vector ); // returns normalized copy of vector, but if vector's length is close to 0 then it will just return a copy of the vector as is.
+		quaternion32_c normal_quaternion32( quaternion32_c const & quaternion );
+		void_c normalize_quaternion32( quaternion32_c & quaternion );
 
-		float32_c make_float32_dot_product( vector32x2_c const & vector_a, vector32x2_c const & vector_b );
-		float64_c make_float64_dot_product( vector64x2_c const & vector_a, vector64x2_c const & vector_b );
-		float32_c make_float32_dot_product( vector32x3_c const & vector_a, vector32x3_c const & vector_b );
-		float64_c make_float64_dot_product( vector64x3_c const & vector_a, vector64x3_c const & vector_b );
-		float32_c make_float32_dot_product( vector32x4_c const & vector_a, vector32x4_c const & vector_b );
-		float64_c make_float64_dot_product( vector64x4_c const & vector_a, vector64x4_c const & vector_b );
-		float32_c make_float32_dot_product( quaternion32_c const & quaternion_a, quaternion32_c const & quaternion_b );
+		float32_c dot_product_float32( vector32x2_c const & vector_a, vector32x2_c const & vector_b );
+		float64_c dot_product_float64( vector64x2_c const & vector_a, vector64x2_c const & vector_b );
+		float32_c dot_product_float32( vector32x3_c const & vector_a, vector32x3_c const & vector_b );
+		float64_c dot_product_float64( vector64x3_c const & vector_a, vector64x3_c const & vector_b );
+		float32_c dot_product_float32( vector32x4_c const & vector_a, vector32x4_c const & vector_b );
+		float64_c dot_product_float64( vector64x4_c const & vector_a, vector64x4_c const & vector_b );
+		float32_c dot_product_float32( quaternion32_c const & quaternion_a, quaternion32_c const & quaternion_b );
 
-		vector32x3_c make_vector32x3_cross_product( vector32x3_c const & vector_a, vector32x3_c const & vector_b );
-		vector64x3_c make_vector64x3_cross_product( vector64x3_c const & vector_a, vector64x3_c const & vector_b );
+		vector32x3_c cross_product_vector32x3( vector32x3_c const & vector_a, vector32x3_c const & vector_b );
+		vector64x3_c cross_product_vector64x3( vector64x3_c const & vector_a, vector64x3_c const & vector_b );
 
-		vector32x2_c make_vector32x2_orthogonal( vector32x2_c const & vector ); // kind of analogous to 3D cross product, creates a tangent vector that points right of input vector.
-		vector64x2_c make_vector64x2_orthogonal( vector64x2_c const & vector ); // kind of analogous to 3D cross product, creates a tangent vector that points right of input vector.
+		vector32x2_c orthogonalized_vector32x2( vector32x2_c const & vector ); // kind of analogous to 3D cross product, creates a tangent vector that points right of input vector.
+		vector64x2_c orthogonalized_vector64x2( vector64x2_c const & vector ); // kind of analogous to 3D cross product, creates a tangent vector that points right of input vector.
 
-		vector32x2_c make_vector32x2_orthonormal( vector32x2_c const & vector, boolean_c polarity, boolean_c allow_zero );
-		vector64x2_c make_vector64x2_orthonormal( vector64x2_c const & vector, boolean_c polarity, boolean_c allow_zero );
+		vector32x2_c orthonormalized_vector32x2( vector32x2_c const & vector, boolean_c polarity, boolean_c allow_zero );
+		vector64x2_c orthonormalized_vector64x2( vector64x2_c const & vector, boolean_c polarity, boolean_c allow_zero );
 
-		vector32x3_c make_vector32x3_rotated_vector( vector32x3_c const & vector, quaternion32_c const & rotation ); // 16 multiplications, 6 additions, 6 subtractions.
-		vector64x3_c make_vector64x3_rotated_vector( vector64x3_c const & vector, quaternion32_c const & rotation ); // 16 multiplications, 6 additions, 6 subtractions.
+		vector32x3_c rotate_vector32x3( vector32x3_c const & vector, quaternion32_c const & rotation ); // 16 multiplications, 6 additions, 6 subtractions.
+		vector64x3_c rotate_vector64x3( vector64x3_c const & vector, quaternion32_c const & rotation ); // 16 multiplications, 6 additions, 6 subtractions.
 
-		vector32x2_c make_vector32x2_rotated_vector( vector32x2_c const & point, float32_c const angle );
-		vector64x2_c make_vector64x2_rotated_vector( vector64x2_c const & point, float64_c const angle );
+		vector32x2_c rotate_vector32x2( vector32x2_c const & point, float32_c const angle );
+		vector64x2_c rotate_vector64x2( vector64x2_c const & point, float64_c const angle );
 		
-		vector32x3_c make_vector32x3_rotated_vector( vector32x3_c const & point, vector32x3_c const & axis, float32_c const angle );
-		vector64x3_c make_vector64x3_rotated_vector( vector64x3_c const & point, vector64x3_c const & axis, float64_c const angle );
+		vector32x3_c rotate_vector32x3( vector32x3_c const & point, vector32x3_c const & axis, float32_c const angle );
+		vector64x3_c rotate_vector64x3( vector64x3_c const & point, vector64x3_c const & axis, float64_c const angle );
 
-		vector32x2_c make_vector32x2_transformed_point( vector32x2_c const & point, matrix32x2x2_c const & transform );
+		vector32x2_c rotate_and_scale_vector32x2( vector32x2_c const & point, matrix32x2x2_c const & transform );
 
-		vector32x3_c make_vector32x3_transformed_point( vector32x3_c const & point, matrix32x3x3_c const & transform ); // 9 multiplications, 6 additions.
-		vector64x3_c make_vector64x3_transformed_point( vector64x3_c const & point, matrix32x3x3_c const & transform ); // 9 multiplications, 6 additions.
+		vector32x3_c rotate_and_scale_vector32x3( vector32x3_c const & point, matrix32x3x3_c const & transform ); // 9 multiplications, 6 additions.
+		vector64x3_c rotate_and_scale_vector64x3( vector64x3_c const & point, matrix32x3x3_c const & transform ); // 9 multiplications, 6 additions.
 
-		vector32x3_c make_vector32x3_transformed_vector( vector32x3_c const & vector, matrix32x4x4_c const & transform ); // 9 multiplications, 6 additions. applies rotation and scale, disregards position|translation.
-		vector64x3_c make_vector64x3_transformed_vector( vector64x3_c const & vector, matrix32x4x4_c const & transform ); // 9 multiplications, 6 additions. applies rotation and scale, disregards position|translation.
+		vector32x3_c rotate_and_scale_vector32x3( vector32x3_c const & vector, matrix32x4x4_c const & transform ); // 9 multiplications, 6 additions. applies rotation and scale, disregards position|translation.
+		vector64x3_c rotate_and_scale_vector64x3( vector64x3_c const & vector, matrix32x4x4_c const & transform ); // 9 multiplications, 6 additions. applies rotation and scale, disregards position|translation.
 
-		vector32x3_c make_vector32x3_transformed_point( vector32x3_c const & point, matrix32x4x4_c const & transform ); // 9 multiplications, 9 additions.
-		vector64x3_c make_vector64x3_transformed_point( vector64x3_c const & point, matrix32x4x4_c const & transform ); // 9 multiplications, 9 additions.
+		vector32x3_c rotate_scale_and_translate_vector32x3( vector32x3_c const & point, matrix32x4x4_c const & transform ); // 9 multiplications, 9 additions. same as the mul() hlsl gpu shader function.
+		vector64x3_c rotate_scale_and_translate_vector64x3( vector64x3_c const & point, matrix32x4x4_c const & transform ); // 9 multiplications, 9 additions. same as the mul() hlsl gpu shader function.
 
-		vector32x4_c make_vector32x4_transformed_point( vector32x3_c const & point, matrix32x4x4_c const & transform ); // 12 multiplications, 12 additions. same as what the gpu does to transform 3d points by the view projection matrix, results in a 4d point, then xy can be divided by w to get screen space coordinates.
+		vector32x4_c rotate_scale_and_translate_vector32x4( vector32x3_c const & point, matrix32x4x4_c const & transform ); // 12 multiplications, 12 additions. same as the mul() hlsl gpu shader function.
 
-		vector64x3_c make_vector64x3_transformed_point( vector64x3_c const & point, space_transform_c const & transform ); // applies rotation, scale, and translation (in that order).
+		vector64x3_c rotate_scale_and_translate_vector64x3( vector64x3_c const & point, transform3d_c const & transform ); // applies rotation, scale, and translation (in that order).
 
-		vector32x3_c make_vector32x3_basis_a_from_quaternion32( quaternion32_c const & rotation );
-		vector32x3_c make_vector32x3_basis_b_from_quaternion32( quaternion32_c const & rotation );
-		vector32x3_c make_vector32x3_basis_c_from_quaternion32( quaternion32_c const & rotation );
+		vector32x3_c constrained_normal_vector32x3( vector32x3_c const & normal, vector32x3_c const & normal_target, float32_c const maximum_angle );
+		vector64x3_c constrained_normal_vector64x3( vector64x3_c const & normal, vector64x3_c const & normal_target, float64_c const maximum_angle );
 
-		vector32x3_c make_vector32x3_constrained_normal( vector32x3_c const & normal, vector32x3_c const & normal_target, float32_c const maximum_angle );
-		vector64x3_c make_vector64x3_constrained_normal( vector64x3_c const & normal, vector64x3_c const & normal_target, float64_c const maximum_angle );
+		vector64x3_c reflected_vector64x3( vector64x3_c const & direction_vector, vector64x3_c const & normal_vector ); // reflects vector across imaginary plane with surface normal defined by normal_vector.
+		vector64x3_c reflected_vector64x3( vector64x3_c const & point, plane64_c const & plane ); // finds the point that is opposite of plane.
 
-		vector64x3_c make_vector64x3_reflected_vector( vector64x3_c const & direction_vector, vector64x3_c const & normal_vector ); // reflects vector across imaginary plane defined by normal_vector and zero origin.
-		vector64x3_c make_vector64x3_reflected_vector( vector64x3_c const & point, plane64_c const & plane ); // finds the point that is opposite of plane.
+		vector64x3_c parallel_component_vector64x3( vector64x3_c const & normal_vector, vector64x3_c const & other_vector ); // returns a vector that is parallel to normal_vector and is as long as other_vector is in agreement with normal_vector.
+		vector64x3_c perpendicular_component_vector64x3( vector64x3_c const & normal_vector, vector64x3_c const & other_vector ); // returns a vector that is perpendicular to normal_vector and is as long as other_vector is in disagreement with normal_vector.
 
-		vector64x3_c make_vector64x3_parallel_component_vector2( vector64x3_c const & normal_vector, vector64x3_c const & other_vector ); // returns a vector that is parallel to normal_vector and is as long as other_vector is in agreement with normal_vector.
-		vector64x3_c make_vector64x3_perpendicular_component_vector2( vector64x3_c const & normal_vector, vector64x3_c const & other_vector ); // returns a vector that is perpendicular to normal_vector and is as long as other_vector is in disagreement with normal_vector.
-
-		vector32x3_c make_vector32x3_parallel_component_vector2( vector32x3_c const & normal_vector, vector32x3_c const & other_vector );
-		vector32x3_c make_vector32x3_perpendicular_component_vector2( vector32x3_c const & normal_vector, vector32x3_c const & other_vector );
+		vector32x3_c parallel_component_vector32x3( vector32x3_c const & normal_vector, vector32x3_c const & other_vector );
+		vector32x3_c perpendicular_component_vector32x3( vector32x3_c const & normal_vector, vector32x3_c const & other_vector );
 		
 
 		//
@@ -186,41 +183,111 @@ namespace cheonsa
 		//
 		//
 
-		matrix32x4x4_c make_matrix32x4x4_from_space_transform( space_transform_c const & space_transform );
-		matrix32x4x4_c make_matrix32x4x4_from_space_transform( space_transform_c const & space_transform, vector64x3_c const & relative_to_origin );
+		vector32x3_c basis_vector32x3_x_from_rotation_quaternion32( quaternion32_c const & rotation ); // x axis.
+		vector32x3_c basis_vector32x3_y_from_rotation_quaternion32( quaternion32_c const & rotation ); // y axis.
+		vector32x3_c basis_vector32x3_z_from_rotation_quaternion32( quaternion32_c const & rotation ); // z axis.
 
-		matrix32x4x4_c make_matrix32x4x4_basis_from_quaternion32( quaternion32_c const & rotation );
-		matrix32x3x3_c make_matrix32x3x3_basis_from_quaternion32( quaternion32_c const & rotation );
-		matrix32x3x3_c make_matrix32x3x3_basis_from_axis_angle( vector32x4_c const & axis_angle );
-		matrix32x3x3_c make_matrix32x3x3_basis_socket_rotated_b( matrix32x3x3_c basis, vector32x3_c const & basis_b_target );
-		matrix32x3x3_c make_matrix32x3x3_basis_socket_rotated_c( matrix32x3x3_c basis, vector32x3_c const & basis_c_target );
-		matrix32x3x3_c make_matrix32x3x3_transposed( matrix32x3x3_c const & matrix );
+		matrix32x4x4_c transform_matrix32x4x4_c_from_transform3d( transform3d_c const & transform );
+		matrix32x4x4_c transform_matrix32x4x4_c_from_transform3d( transform3d_c const & transform, vector64x3_c const & relative_to_origin );
 
-		matrix32x4x4_c make_matrix32x4x4_view_from_look_at( vector32x3_c const & position, vector32x3_c const & forward, vector32x3_c const & up );
-		//matrix32x4x4_c make_matrix32x4x4_view2( vector32x3_c const & position, vector32x3_c const & z_forward, vector32x3_c const & x_right );
+		// creates a basis matrix from a rotation quaternion.
+		// just sets the basis elements (3x3), everything else is left as identity.
+		matrix32x4x4_c basis_matrix32x4x4_from_rotation_quaternion32( quaternion32_c const & rotation );
 
-		float32_c make_float32_fov_a( float32_c fov_b, float32_c aspect_ratio ); // convenience function to calculate angle fov counter part, because our make_matrix32x4x4_projection_perspective3 function takes fov_a and fov_b instead of the typical fov_b and aspect_ratio.
-		float32_c make_float32_fov_b( float32_c fov_a, float32_c aspect_ratio ); // convenience function to calculate angle fov counter part, because our make_matrix32x4x4_projection_perspective3 function takes fov_a and fov_b instead of the typical fov_b and aspect_ratio.
-		float32_c make_float32_fov_b_off_center_scale_factor( float32_c fov_b, float32_c clip_near ); // convenience function to calculate scale factor for converting canvas size to near clip plane size.
+		// creates a basis matrix from a rotation quaternion.
+		matrix32x3x3_c basis_matrix32x3x3_from_rotation_quaternion32( quaternion32_c const & rotation );
+		// basis should be right-handed, normalized, and orthogonal.
+		quaternion32_c rotation_quaternion32_from_basis_matrix32x3x3( matrix32x3x3_c const & basis );
 
-		matrix32x4x4_c make_matrix32x4x4_projection_orthographic( float32_c const size_a, float32_c const size_b, float32_c const clip_near, float32_c const clip_far );
-		matrix32x4x4_c make_matrix32x4x4_projection_orthographic_off_center( float32_c const left, float32_c right, float32_c const bottom, float32_c const top, float32_c const clip_near, float32_c const clip_far ); // note that in right-handed projection, left < right, bottom < top.
-		matrix32x4x4_c make_matrix32x4x4_projection_perspective( float32_c const vertical_fov, float32_c const horizontal_to_vertical_aspect_ratio, float32_c const clip_near, float32_c const clip_far );
-		matrix32x4x4_c make_matrix32x4x4_projection_perspective_off_center( float32_c const left, float32_c const right, float32_c const bottom, float32_c const top, float32_c const clip_near, float32_c const clip_far ); // note that in right-handed projection, left < right, bottom < top. left, top, right, and bottom are units of distance over the near clip plane, so these values should be scaled with the near clip plane distance (the closer the clip plane the smaller the values, and the farther the clip plane the larger the values).
-		matrix32x4x4_c make_matrix32x4x4_transposed( matrix32x4x4_c const & matrix );
-		matrix32x4x4_c make_matrix32x4x4_inverted_fast( matrix32x4x4_c const & matrix ); // can be used to convert an object transform to a view transform, and vice versa. foregoes doing determinant calculation and all that, which is the typical way a matrix would be inverted in math.
+		// creates a basis matrix from a rotation quaternion.
+		// axis_angle is the normalized axis vector in abc and the angle in d in radians.
+		matrix32x3x3_c basis_matrix32x3x3_from_axis_angle( vector32x4_c const & axis_angle );
 
-		float32_c make_matrix32x2x2_determinant( matrix32x2x2_c const & matrix );
-		matrix32x2x2_c make_matrix32x2x2_inverted( matrix32x2x2_c const & matrix );
-		matrix32x2x2_c make_matrix32x2x2_transform( float32_c const angle, float32_c const scale );
+		// rotates (like a socket joint) an existing basis matrix so that its y axis aligns with the provided basis_y_target.
+		// basis is the original basis matrix that we want to recalculate.
+		// basis_y_target is the new orientation for the y axis, it must already be normalized.
+		matrix32x3x3_c joint_rotate_basis_matrix32x3x3_y( matrix32x3x3_c basis, vector32x3_c const & basis_y_target );
 
-		quaternion32_c make_quaternion32_from_matrix32x3x3_basis( matrix32x3x3_c const & basis ); // basis must be right-handed, normalized, and orthogonal.
-		quaternion32_c make_quaternion32_inverted( quaternion32_c const & quaternion );
-		quaternion32_c make_quaternion32_from_axis_angle( vector32x4_c const & axis_angle ); // axis_angle.abc is normalized unit length axis, axis_angle.d is angle around axis in radians (IDK if it's clockwise or coutnerclockwise).
-		vector32x4_c make_axis_angle_from_quaternion32( quaternion32_c const & rotation ); // rotation is assumed to be normalized unit length quaternion.
-		quaternion32_c make_quaternion32_from_euler_angles( vector32x3_c const & euler_angles ); // euler_angles are angles in radians for each axis, rotations are applied in the order of a, b, then c.
-		vector32x3_c make_euler_angles_from_quaternion32( quaternion32_c const & rotation ); // rotation should 
-		quaternion32_c make_quaternion32_from_look_at( vector32x3_c const & z_forward, vector32x3_c const & x_right ); // inputs should be pre-normalized.
+		// rotates (like a socket joint) an existing basis matrix so that its z axis aligns with the provided basis_z_target.
+		// basis_z_target is the new orientation for the z axis, it must already be normalized.
+		matrix32x3x3_c joint_rotate_basis_matrix32x3x3_z( matrix32x3x3_c basis, vector32x3_c const & basis_z_target );
+
+		matrix32x3x3_c transpose_matrix32x3x3( matrix32x3x3_c const & matrix );
+
+		// constructs a right-handed view matrix.
+		// internally, the view matrix has to use a different convention when compared to the camera's world space transform matrix.
+		// this is because the gpu rasterizer is hard wired to use the view matrix to convert world space coordinates to view space coordinates in a certain way.
+		// the internal view matrix convention is that z-axis points backward, x-axis points right, and y-axis points up.
+		// cheonsa's camera convention is that y-axis points forward, z-axis points up, and x-axis points right,
+		// cheonsa's 2d screen space convention is that y-axis points down, and x-axis points right.
+		// but, none of this is very important since the view matrix is like internal use only.
+		matrix32x4x4_c view_matrix32x4x4_from_look_at( vector32x3_c const & position, vector32x3_c const & forward, vector32x3_c const & up );
+
+		// width is the width of projection frustum (box) volume in meters.
+		// height is the height of projection frustum (box) volume in meters.
+		// clip_near is the distance in meters along the central forward axis to the near clip plane.
+		// clip_far is the distance in meters to the central forward axis far clip plane. this value should be greater than clip_near.
+		matrix32x4x4_c projection_orthographic_matrix32x4x4( float32_c const width, float32_c const height, float32_c const clip_near, float32_c const clip_far );
+
+		// left is distance from central forward axis to left side of projection frustum (box) volume in meters. this value should be less than right.
+		// right is distance from central forward axis to right side of projection frustum (box) volume in meters. this value should be greater than left.
+		// top is distance from central forward axis to top side of projection frustum (box) volume in meters. this value should be less than bottom.
+		// bottom is distance from central forward axis to bottom side of projection frustum (box) volume in meters. this value should be greater than top.
+		// clip_near is the distance in meters along the central forward axis to the near clip plane.
+		// clip_far is the distance in meters to the central forward axis far clip plane. this value should be greater than clip_near.
+		matrix32x4x4_c projection_orthographic_off_center_matrix32x4x4_a( float32_c const left, float32_c right, float32_c const top, float32_c const bottom, float32_c const clip_near, float32_c const clip_far ); // note that in right-handed projection, left < right, bottom < top.
+
+		// width is the width of the projection frustum (box) volume in meters.
+		// height is the height of the projection frustum (box) volume in meters.
+		// center_x is a unit percentage which defines the point in view space that will be the "center". a value if -1 is along the left edge, a value of 1 is along the right edge.
+		// center_y is a unit percentage which defines the point in view space that will be the "center". a value of -1 is along the top edge, a value of 1 is along the bottom edge.
+		// clip_near is the distance in meters along the central forward axis to the near clip plane.
+		// clip_far is the distance in meters to the central forward axis far clip plane. this value should be greater than clip_near.
+		matrix32x4x4_c projection_orthographic_off_center_matrix32x4x4_b( float32_c const width, float32_c const height, float32_c const center_x, float32_c const center_y, float32_c clip_near, float32_c clip_far );
+
+		// field_of_view is vertical field of view angle in radians.
+		// aspect_ratio is the horizontal width to vertical height ratio. this is typically the render target width divided by the render target height. this is used by the function to calculate the the horizontal field of view angle in radians.
+		// clip_near is the distance in meters along the central forward axis to the near clip plane. this value should be greater than 0 and as large as is reasonable given your scene's design.
+		// clip_far is the distance in meters to the central forward axis far clip plane. this value should be greater than clip_near.
+		matrix32x4x4_c projection_perspective_matrix32x4x4( float32_c const field_of_view, float32_c const aspect_ratio, float32_c const clip_near, float32_c const clip_far );
+
+		// left is the minimum x value of view volume. this value should be less than right. a default value is -1.
+		// right is the maximum x value of the view volume. this value should be greater than left. a default value is 1.
+		// top is the minimum y value of the view volume. this value should be less than bottom. a default value is -1.
+		// bottom is the maximum y value of the view volume. this value should be greater than top. a default value is 1.
+		// clip_near is the distance in meters along the central forward axis to the near clip plane. this value should be greater than 0 and as large as is reasonable given your scene's design.
+		// clip_far is the distance in meters to the central forward axis far clip plane. this value should be greater than clip_near.
+		matrix32x4x4_c projection_perspective_off_center_matrix32x4x4_a( float32_c const left, float32_c const right, float32_c const top, float32_c const bottom, float32_c const clip_near, float32_c const clip_far ); // note that in right-handed projection, left < right, bottom < top. left, top, right, and bottom are units of distance over the near clip plane, so these values should be scaled with the near clip plane distance (the closer the clip plane the smaller the values, and the farther the clip plane the larger the values).
+
+		// field_of_view is the vertical field of view in radians.
+		// aspect_ratio is the horizontal width to vertical height ratio. this is typically the render target width divided by the render target height.
+		// center_x defines the point in view space which will be the off-center center of the resulting projection matrix. a value of -1 is along the left edge, a value of 1 is along the right edge.
+		// center_y defines the point in view space which will be the off-center center of the resulting projection matrix. a value of -1 is along the top edge, a value of 1 is along the bottom edge.
+		// clip_near is the distance in meters along the central forward axis to the near clip plane. this value should be greater than 0 and as large as is reasonable given your scene's design.
+		// clip_far is the distance in meters to the central forward axis far clip plane. this value should be greater than clip_near.
+		matrix32x4x4_c projection_perspective_off_center_matrix32x4x4_b( float32_c const field_of_view, float32_c const aspect_ratio, float32_c center_x, float32_c center_y, float32_c clip_near, float32_c clip_far );
+
+		matrix32x4x4_c transpose_matrix32x4x4( matrix32x4x4_c const & matrix );
+
+		matrix32x4x4_c invert_matrix32x4x4_fast( matrix32x4x4_c const & matrix ); // can be used to convert a world space transform to a view transform and vice versa. foregoes doing determinant calculation and all that, which is the formal mathematical way a matrix inversion would be done, so it's not a proper invert, but for what we do in scenes this is fine.
+
+		matrix32x2x2_c invert_matrix32x2x2( matrix32x2x2_c const & matrix );
+
+		matrix32x2x2_c basis_matrix32x2x2_from_angle_scale( float32_c const angle, float32_c const scale );
+
+		// creates an inverted form of quaternion, such that invert_quaternion32( quaternion ) * quaternion equals the identity quaternion.
+		quaternion32_c invert_quaternion32( quaternion32_c const & quaternion );
+
+		
+		quaternion32_c rotation_quaternion32_from_axis_angle( vector32x4_c const & axis_angle ); // axis_angle.abc is normalized unit length axis, axis_angle.d is angle around axis in radians (IDK if it's clockwise or coutnerclockwise).
+		quaternion32_c rotation_quaternion32_from_look_at2( vector32x3_c const & forward, vector32x3_c const & up );
+
+		vector32x4_c axis_angle_from_rotation_quaternion32( quaternion32_c const & rotation ); // rotation is assumed to be normalized unit length quaternion.
+		quaternion32_c rotation_quaternion32_from_euler_angles( vector32x3_c const & euler_angles ); // euler_angles are angles in radians for each axis, rotations are applied in the order of a, b, then c.
+		vector32x3_c euler_angles_from_rotation_quaternion32( quaternion32_c const & rotation ); // euler angles are applied in the following order: x, y, z.
+		//quaternion32_c make_rotation_quaternion32_from_look_at( vector32x3_c const & z_forward, vector32x3_c const & x_right ); // inputs should be pre-normalized.
+
+		
 
 
 		//
@@ -261,8 +328,8 @@ namespace cheonsa
 		//
 		//
 
-		frustum64_c make_frustum64_perspective3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_a, float64_c const fov_b, float64_c const clip_near, float64_c const clip_far );
-		frustum64_c make_frustum64_orthographic3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_a, float64_c const fov_b, float64_c const clip_near, float64_c const clip_far );
+		frustum64_c make_frustum64_perspective3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_x, float64_c const fov_y, float64_c const clip_near, float64_c const clip_far );
+		frustum64_c make_frustum64_orthographic3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_x, float64_c const fov_y, float64_c const clip_near, float64_c const clip_far );
 		frustum64_c make_frustum64_from_view_projection( matrix32x4x4_c const & view_projection );
 
 
@@ -296,9 +363,9 @@ namespace cheonsa
 
 		//ray64_c make_transformed_ray( ray64_c const & ray, matrix64x3x4_c const & transform );
 		vector64x3_c make_vector64x3_normal_from_triangle( vector64x3_c a, vector64x3_c b, vector64x3_c c );
-		box64x3_c make_aabb_from_obb( box64x3_c const & obb, space_transform_c const & obb_transform );
+		box64x3_c make_aabb_from_obb( box64x3_c const & obb, transform3d_c const & obb_transform );
 		box32x2_c make_aabb_from_obb( box32x2_c const & obb, vector32x2_c const & obb_position, matrix32x2x2_c obb_basis );
-		//plane64_c make_transformed_plane( plane64_c const & plane, space_transform_c const & transform );
+		//plane64_c make_transformed_plane( plane64_c const & plane, transform3d_c const & transform );
 
 
 		//
@@ -352,7 +419,7 @@ namespace cheonsa
 		float32_c distance_between_point_and_line( vector32x2_c const & point, line32_c const & line ); // positive distance means that point lies above line, negative distance means that point lies beneath line.
 		float64_c distance_between_point_and_plane( vector64x3_c const & point, plane64_c const & plane ); // positive distance means that point lies above plane, negative distance means that point lies beneath plane.
 		vector64x3_c nearest_point_on_box( vector64x3_c const & point, box64x3_c const & box );
-		vector64x3_c nearest_point_on_box( vector64x3_c const & point, box64x3_c const & box, space_transform_c const & box_transform );
+		vector64x3_c nearest_point_on_box( vector64x3_c const & point, box64x3_c const & box, transform3d_c const & box_transform );
 		vector64x3_c nearest_point_on_plane( vector64x3_c const & point, plane64_c const & plane );
 		vector64x3_c nearest_point_on_ray( vector64x3_c const & point, ray64_c const & ray );
 		vector64x3_c nearest_point_on_segment( vector64x3_c const & point, segment64_c const & segment );
@@ -368,14 +435,14 @@ namespace cheonsa
 		boolean_c intersect_frustum_vs_point( frustum64_c const & frustum, vector64x3_c const & point );
 		boolean_c intersect_frustum_vs_sphere( frustum64_c const & frustum, sphere64_c const & sphere );
 		boolean_c intersect_frustum_vs_box( frustum64_c const & frustum, box64x3_c const & box );
-		boolean_c intersect_frustum_vs_box( frustum64_c const & frustum, box64x3_c const & box, space_transform_c const & box_transform );
+		boolean_c intersect_frustum_vs_box( frustum64_c const & frustum, box64x3_c const & box, transform3d_c const & box_transform );
 		boolean_c intersect_sphere_vs_point( sphere64_c const & sphere, vector64x3_c const & point );
 		boolean_c intersect_sphere_vs_sphere( sphere64_c const & sphere_a, sphere64_c const & sphere_b );
 		boolean_c intersect_box_vs_point( box64x3_c const & box, vector64x3_c const & point );
 		boolean_c intersect_box_vs_box( box64x3_c const & box_a, box64x3_c const & box_b );
-		boolean_c intersect_box_vs_box( box64x3_c const & box_a, space_transform_c const & box_a_transform, box64x3_c const & box_b, space_transform_c const & box_b_transform );
+		boolean_c intersect_box_vs_box( box64x3_c const & box_a, transform3d_c const & box_a_transform, box64x3_c const & box_b, transform3d_c const & box_b_transform );
 		boolean_c intersect_box_vs_sphere( box64x3_c const & box, sphere64_c const & sphere );
-		boolean_c intersect_box_vs_sphere( box64x3_c const & box, space_transform_c const & box_transform, sphere64_c const & b );
+		boolean_c intersect_box_vs_sphere( box64x3_c const & box, transform3d_c const & box_transform, sphere64_c const & b );
 		boolean_c intersect_box_vs_point( box32x2_c const & box, vector32x2_c const & point );
 		boolean_c intersect_box_vs_point( box64x2_c const & box, vector64x2_c const & point );
 		boolean_c intersect_box_vs_box( box32x2_c const & box_a, box32x2_c const & box_b );
@@ -405,8 +472,8 @@ namespace cheonsa
 		boolean_c sweep_point_vs_sphere( segment64_c const & point_path, sphere64_c const & sphere, float64_c & t );
 		boolean_c sweep_point_vs_capsule( segment64_c const & point_path, capsule64_c const & capsule, float64_c & t );
 		boolean_c sweep_point_vs_box( segment64_c const & point_path, box64x3_c const & box, float64_c & t );
-		boolean_c sweep_point_vs_box( segment64_c const & point_path, box64x3_c const & box, space_transform_c const & box_transform, float64_c & t );
-		boolean_c sweep_sphere_vs_box( segment64_c const & sphere_path, float64_c const sphere_radius, box64x3_c const & box, space_transform_c const & box_transform, float64_c & t );
+		boolean_c sweep_point_vs_box( segment64_c const & point_path, box64x3_c const & box, transform3d_c const & box_transform, float64_c & t );
+		boolean_c sweep_sphere_vs_box( segment64_c const & sphere_path, float64_c const sphere_radius, box64x3_c const & box, transform3d_c const & box_transform, float64_c & t );
 		boolean_c sweep_point_vs_triangle( segment64_c const & point_path, triangle64_c const & triangle, float64_c & t );
 
 
@@ -422,10 +489,10 @@ namespace cheonsa
 		//boolean_c string16_is_valid_for_file_path( string16_c const & string );
 		//boolean_c string16_is_valid_for_file_name( string16_c const & string );
 
-		string16_c path_get_mother( string16_c const & path ); // removes the last node from the given path and returns it. works with forward slashes and back slashes. works with and without trailing slash.
-		string16_c path_get_file_extension( string16_c const & path ); // returns the file extension of the last node in the path. works with forward slashes and back slashes. works with and without trailing slash.
-		string16_c path_get_file_name( string16_c const & path ); // returns the name of the last node in the path (including the file extension). works with forward slashes and back slashes. works with and without trailing slash.
-		string16_c path_get_file_name_without_extension( string16_c const & path ); // returns the name of the last node in the path (excluding the file extension). works with forward slashes and back slashes. works with and without trailing slash.
+		string16_c path_get_folder_path( string16_c const & path ); // removes the last node from the given path and returns it. works with forward slashes and back slashes. works with and without trailing slash.
+		string16_c path_get_file_or_folder_extension( string16_c const & path ); // returns the file extension (including the dot) of the last node in the path, or an empty string if there is no file extension. works with forward slashes and back slashes. works with and without trailing slash. works with multi-dot file extensions.
+		string16_c path_get_file_or_folder_name( string16_c const & path ); // returns the name of the last node in the path (including the file extension). works with forward slashes and back slashes. works with and without trailing slash.
+		string16_c path_get_file_or_folder_name_without_extension( string16_c const & path ); // returns the name of the last node in the path (excluding the file extension). works with forward slashes and back slashes. works with and without trailing slash. works with multi-dot file extensions.
 
 
 		//
@@ -494,15 +561,15 @@ namespace cheonsa
 		boolean_c file_system_is_path_formatted_for_cheonsa( string16_c const & path, file_system_path_type_e path_type );
 
 #if defined( cheonsa_platform_windows )
-		// to "fix" "broken" paths that the user provides via text entry.
+		// to "proof read" and "fix" "broken" paths (correct style errors) that the user provides via manual text entry.
 		// for windows:
-		//     converts forward slashes with back slashes.
-		//     resolves instances of "/..".
-		//     removes instances of "/."
+		//     converts forward slashes to back slashes.
+		//     resolves instances of "/.." by going up one node.
+		//     removes instances of "/.".
 		//     makes drive letters upper case.
-		//     fixes casing of node names so that they match the actual casing of node names in the file system.
-		//     returns fixed path if successful, returns an empty string if not successful.
+		//     fixes casing of node names so that they match the actual casing of node names that exist in the file system.
 		//     appends a trailing back slash if the path is referencing a folder.
+		//     returns fixed path if successful, returns an empty string if not successful.
 		string16_c file_system_fix_path( string16_c const & path );
 
 		// used to check if path is formatted for windows.
@@ -674,6 +741,8 @@ namespace cheonsa
 		boolean_c convert_rgb_to_hexadecimal_string8( vector64x3_c const & rgb, string8_c & string ); // converts an rgb color to a string of hexadecimal digits.
 		boolean_c convert_rgba_to_hexadecimal_string8( vector64x4_c const & rgba, string8_c & string ); // converts an rgba color to a string of hexadecimal digits.
 
+		boolean_c convert_string8_to_rgb( string8_c const & string, vector32x3_c & rgb );
+		boolean_c convert_string8_to_rgb( string8_c const & string, vector64x3_c & rgb );
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
 

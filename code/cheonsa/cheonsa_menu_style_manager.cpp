@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_style_manager.h"
+#include "cheonsa_menu_style_manager.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_menu_control.h"
 #include "cheonsa_engine.h"
@@ -106,7 +106,6 @@ namespace cheonsa
 		sint32_c shared_color_count = menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_;
 		for ( sint32_c i = 0; i < shared_color_count; i++ )
 		{
-			assert( _shared_color_style_list[ i ].index == i );
 			_shared_color_style_dictionary.insert( _shared_color_style_list[ i ].key, &_shared_color_style_list[ i ] );
 		}
 		// set default colors.
@@ -124,7 +123,7 @@ namespace cheonsa
 
 		// load default font.
 		_default_font = engine.get_resource_manager()->load_font( string16_c( core_list_mode_e_static, L"[e]fonts/DXLBaB-KSCpc-EUC-H.ttf" ) );
-		if ( !_default_font.is_reference_set_and_loaded() )
+		if ( !_default_font.get_is_value_set_and_loaded() )
 		{
 			debug_annoy( L"error", L"default_font could not be loaded." );
 			return false;
@@ -133,13 +132,12 @@ namespace cheonsa
 		// load default frame style.
 		_default_frame_style.key = string8_c( core_list_mode_e_static, "default" );
 		_default_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"[e]menus/atlas.png" ) );
-		if ( !_default_frame_style.texture.is_reference_set_and_loaded() )
+		if ( !_default_frame_style.texture.get_is_value_set_and_loaded() )
 		{
 			debug_annoy( L"error", L"default_frame_style.texture could not be loaded." );
 			return false;
 		}
 		_default_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_nine_slice_stretch;
-		_default_frame_style.texture_map_fill_middle = true;
 		_default_frame_style.texture_map_fill_middle = true;
 		_default_frame_style.state_list[ 0 ].texture_map[ 0 ] = 1;
 		_default_frame_style.state_list[ 0 ].texture_map[ 1 ] = 1;
@@ -212,53 +210,53 @@ namespace cheonsa
 		core_linked_list_c< menu_style_map_c::reference_c * >::node_c * style_map_list_node = menu_style_map_c::reference_c::_global_list.get_first();
 		while ( style_map_list_node )
 		{
-			style_map_list_node->get_value()->release_value();
+			style_map_list_node->get_value()->unresolve();
 			style_map_list_node = style_map_list_node->get_next();
 		}
 		core_linked_list_c< menu_color_style_c::reference_c * >::node_c * color_style_list_node = menu_color_style_c::reference_c::_global_list.get_first();
 		while ( color_style_list_node )
 		{
-			color_style_list_node->get_value()->release_value();
+			color_style_list_node->get_value()->unresolve();
 			color_style_list_node = color_style_list_node->get_next();
 		}
 		core_linked_list_c< menu_frame_style_c::reference_c * >::node_c * frame_style_list_node = menu_frame_style_c::reference_c::_global_list.get_first();
 		while ( frame_style_list_node )
 		{
-			frame_style_list_node->get_value()->release_value();
+			frame_style_list_node->get_value()->unresolve();
 			frame_style_list_node = frame_style_list_node->get_next();
 		}
 		core_linked_list_c< menu_text_style_c::reference_c * >::node_c * text_style_list_node = menu_text_style_c::reference_c::_global_list.get_first();
 		while ( text_style_list_node )
 		{
-			text_style_list_node->get_value()->release_value();
+			text_style_list_node->get_value()->unresolve();
 			text_style_list_node = text_style_list_node->get_next();
 		}
 
-		_engine_styles._refresh();
-		_game_styles._refresh();
+		_engine_styles.refresh();
+		_game_styles.refresh();
 
 		color_style_list_node = menu_color_style_c::reference_c::_global_list.get_first();
 		while ( color_style_list_node )
 		{
-			color_style_list_node->get_value()->resolve_value();
+			color_style_list_node->get_value()->resolve();
 			color_style_list_node = color_style_list_node->get_next();
 		}
 		frame_style_list_node = menu_frame_style_c::reference_c::_global_list.get_first();
 		while ( frame_style_list_node )
 		{
-			frame_style_list_node->get_value()->resolve_value();
+			frame_style_list_node->get_value()->resolve();
 			frame_style_list_node = frame_style_list_node->get_next();
 		}
 		text_style_list_node = menu_text_style_c::reference_c::_global_list.get_first();
 		while ( text_style_list_node )
 		{
-			text_style_list_node->get_value()->resolve_value();
+			text_style_list_node->get_value()->resolve();
 			text_style_list_node = text_style_list_node->get_next();
 		}
 		style_map_list_node = menu_style_map_c::reference_c::_global_list.get_first();
 		while ( style_map_list_node )
 		{
-			style_map_list_node->get_value()->resolve_value();
+			style_map_list_node->get_value()->resolve();
 			style_map_list_node = style_map_list_node->get_next();
 		}
 	}
@@ -288,14 +286,11 @@ namespace cheonsa
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_accent );
 		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_accent, 0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.window_primary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.window_primary, vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f ), 0.25f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.window_secondary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.window_secondary, values.window_primary, 0.25f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.window_secondary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.window_secondary, values.window_primary, 0.25f );
 		// button
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_primary );
 		_shared_color_style_list[ shared_color_style_index ].value = values.button_primary;
@@ -316,14 +311,11 @@ namespace cheonsa
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_accent );
 		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_accent, -0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_primary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.button_primary, vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f ), 0.25f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_secondary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.button_secondary, values.button_primary, 0.25f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_secondary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.button_secondary, values.button_primary, 0.25f );
 		// field
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_primary );
 		_shared_color_style_list[ shared_color_style_index ].value = values.field_primary;
@@ -344,14 +336,11 @@ namespace cheonsa
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_accent );
 		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_accent, -0.1f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_primary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.field_primary, vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f ), 0.25f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_secondary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.field_secondary, values.field_primary, 0.25f );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_secondary, -0.25f );
-		_shared_color_style_list[ shared_color_style_index ].value.d *= 0.75f;
+		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.field_secondary, values.field_primary, 0.25f );
 	}
 
 	void_c menu_style_manager_c::get_shared_color_base_notes( menu_shared_color_base_notes_c & values )

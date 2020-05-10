@@ -1,10 +1,10 @@
-﻿#include "cheonsa_resource_file_texture.h"
+#include "cheonsa_resource_file_texture.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
 {
 
-	boolean_c resource_file_texture_c::_load( data_stream_c * stream )
+	void_c resource_file_texture_c::_load( data_stream_c * stream )
 	{
 		assert( stream != nullptr );
 		assert( _is_loaded == false );
@@ -19,7 +19,7 @@ namespace cheonsa
 		uint8_c loaded_file_signature[ 8 ] = {};
 		if ( !stream->load( loaded_file_signature, 8 ) )
 		{
-			return false;
+			return;
 		}
 
 		stream->set_position( stream->get_position() - 8 );
@@ -40,7 +40,10 @@ namespace cheonsa
 			image_c image;
 			if ( image_load_from_png( file_data, image, nullptr ) )
 			{
-				create_video_texture_from_image( image, _video_texture );
+				if ( !create_video_texture_from_image( image, _video_texture ) )
+				{
+					return;
+				}
 			}
 		}
 		else if ( 
@@ -52,22 +55,22 @@ namespace cheonsa
 			image_c image;
 			if ( image_load_from_jpg( file_data, image ) )
 			{
-				create_video_texture_from_image( image, _video_texture );
+				if ( !create_video_texture_from_image( image, _video_texture ) )
+				{
+					return;
+				}
 			}
 		}
 		else
 		{
-			return false;
+			return;
 		}
 
-		_is_loaded = _video_texture != nullptr;
+		assert( _video_texture != nullptr );
 
-		if ( _is_loaded )
-		{
-			on_load.invoke( this );
-		}
+		_is_loaded = true;
 
-		return _is_loaded;
+		on_loaded.invoke( this );
 	}
 
 	void_c resource_file_texture_c::_unload()
@@ -79,9 +82,9 @@ namespace cheonsa
 
 		assert( _is_loaded == true );
 
-		_is_loaded = false;
+		on_unloaded.invoke( this );
 
-		on_unload.invoke( this );
+		_is_loaded = false;
 
 		if ( _video_texture )
 		{
@@ -90,24 +93,19 @@ namespace cheonsa
 		}
 	}
 
-	resource_file_texture_c::resource_file_texture_c()
-		: resource_file_c()
+	resource_file_texture_c::resource_file_texture_c( string16_c const & file_path )
+		: resource_file_c( file_path )
 		, _video_texture( nullptr )
 		, _is_wrapper( false )
 	{
 	}
 
 	resource_file_texture_c::resource_file_texture_c( boolean_c is_wrapper )
-		: resource_file_c()
+		: resource_file_c( string16_c() )
 		, _video_texture( nullptr )
 		, _is_wrapper( true )
 	{
 		assert( is_wrapper );
-	}
-
-	resource_file_texture_c::~resource_file_texture_c()
-	{
-		assert( _is_loaded == false );
 	}
 
 	video_texture_c * resource_file_texture_c::get_video_texture() const

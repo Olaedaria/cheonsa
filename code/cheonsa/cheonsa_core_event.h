@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_core_list.h"
 #include <cassert>
@@ -143,7 +143,7 @@ namespace cheonsa
 					return;
 				}
 			}
-			_delegate_list.insert_at_end( new_delegate );
+			_delegate_list.insert( -1, new_delegate );
 		}
 
 		template< typename function_type_c >
@@ -155,7 +155,7 @@ namespace cheonsa
 				if ( _delegate_list[ i ]->equals( new_delegate ) )
 				{
 					delete new_delegate;
-					_delegate_list.remove_at_index( i );
+					_delegate_list.remove( i, 1 );
 					return;
 				}
 			}
@@ -171,7 +171,7 @@ namespace cheonsa
 				if ( _delegate_list[ i ]->equals( new_delegate ) )
 				{
 					delete new_delegate;
-					_delegate_list.remove_at_index( i );
+					_delegate_list.remove( i, 1 );
 					return;
 				}
 			}

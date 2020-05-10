@@ -1,4 +1,4 @@
-﻿#include "cheonsa_string16.h"
+#include "cheonsa_string16.h"
 #include "cheonsa_string8.h"
 #include "cheonsa__ops.h"
 #include <cassert>
@@ -28,14 +28,6 @@ namespace cheonsa
 	{
 		assert( other != nullptr );
 		*this = other;
-	}
-
-	string16_c::string16_c( char8_c const * other, sint32_c other_length )
-		: character_list( core_list_mode_e_dynamic, nullptr, 0 )
-	{
-		assert( other );
-		assert( other_length >= 0 && other[ other_length ] == 0 );
-		ops::convert_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, other_length + 1 ), character_list );
 	}
 
 	string16_c::string16_c( core_list_mode_e mode, char16_c const * other )
@@ -91,9 +83,8 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
-		character_list.insert_at_end( other );
-		character_list.insert_at_end( 0 );
+		character_list[ character_list.get_length() - 1 ] = other;
+		character_list.insert( -1, '\0' );
 		return *this;
 	}
 
@@ -103,9 +94,8 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
-		character_list.insert_at_end( other );
-		character_list.insert_at_end( 0 );
+		character_list[ character_list.get_length() - 1 ] = other;
+		character_list.insert( -1, '\0' );
 		return *this;
 	}
 
@@ -116,7 +106,7 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
+		character_list.remove( -1, 1 );
 		ops::convert_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
@@ -128,8 +118,8 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
-		character_list.insert_at_end( other, ops::string16_find_length( other ) + 1 );
+		character_list.remove( -1, 1 );
+		character_list.insert( -1, other, ops::string16_find_length( other ) + 1 );
 		return *this;
 	}
 
@@ -139,7 +129,7 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
+		character_list.remove( -1, 1 );
 		ops::convert_string8_to_string16( other.character_list, character_list );
 		return *this;
 	}
@@ -150,8 +140,8 @@ namespace cheonsa
 		{
 			character_list.convert_from_static_to_dynamic();
 		}
-		character_list.remove_at_end();
-		character_list.insert_at_end( other.character_list.get_internal_array(), other.character_list.get_length() );
+		character_list.remove( -1, 1 );
+		character_list.insert( -1, other.character_list.get_internal_array(), other.character_list.get_length() );
 		return *this;
 	}
 

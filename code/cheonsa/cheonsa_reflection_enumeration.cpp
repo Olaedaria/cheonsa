@@ -1,4 +1,4 @@
-﻿#include "cheonsa_reflection_enumeration.h"
+#include "cheonsa_reflection_enumeration.h"
 
 namespace cheonsa
 {
@@ -60,7 +60,7 @@ namespace cheonsa
 	void_c reflection_enumeration_c::initialize_value( string8_c const & name, string8_c const & description, sint32_c value )
 	{
 		value_c * new_value = new value_c( name, description, value );
-		_value_list.insert_at_end( new_value );
+		_value_list.insert( -1, new_value );
 	}
 
 	sint32_c reflection_enumeration_c::get_value_count() const

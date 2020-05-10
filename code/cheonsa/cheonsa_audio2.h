@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_string16.h"
@@ -6,6 +6,7 @@
 #include "cheonsa_data_scribe_ini.h"
 #include "cheonsa_platform_critical_section.h"
 #include "cheonsa_core_linked_list.h"
+#include "cheonsa_core_safe_reference_counter.h"
 #include "third_party/stb_vorbis.h"
 
 namespace cheonsa
@@ -70,21 +71,21 @@ namespace cheonsa
 	// can be any sample rate.
 	class audio2_wave_buffer_c
 	{
-	private:
 		friend class wave_out_implementation_c;
 		friend class audio2_interface_c;
 		friend class audio2_wave_player_c;
 
+	private:
 		// internal state.
 		// internal state is decoupled from the external interface, so that new states can be created by the main thread in response to source file changes, and so that the audio thread can continue to mix with the old state without waiting for the new state to finish loading.
 		// a wave buffer interface may create any number of these, but only the newest one is current, the older ones will be forgotten in time.
 		class state_c
 		{
-		private:
 			friend class wave_out_implementation_c;
 			friend class audio2_wave_player_c;
 
-			sint32_c _reference_count;
+		private:
+			core_safe_reference_counter_c _reference_counter;
 
 			audio2_wave_buffer_format_e _format;
 
@@ -100,12 +101,15 @@ namespace cheonsa
 			// this is the size in bytes of _load_buffer.
 			sint32_c _data_buffer_size;
 
-		public:
 			state_c( data_stream_c * stream ); // no return value, if the load fails then it does so silently, and this state will not have its _format set.
+
+		public:
 			~state_c();
 
-			sint32_c add_reference();
-			sint32_c remove_reference();
+			static state_c * make_new_instance( data_stream_c * stream );
+
+			boolean_c add_reference(); // if this returns false, then it means that this object was deleted by another thread and the caller should gracefully forget its reference to this object.
+			void_c remove_reference();
 
 		};
 
@@ -114,12 +118,15 @@ namespace cheonsa
 		sint32_c _reference_count;
 		state_c * _state; // the state of this wave buffer that the mixer is mixing. the main thread may replace this at any time with a new instance. the mixing thread needs to detect when it changes so it can resituate.
 
-	public:
 		audio2_wave_buffer_c();
+
+	public:
 		~audio2_wave_buffer_c();
 
-		sint32_c add_reference();
-		sint32_c remove_reference();
+		static audio2_wave_buffer_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
+
+		void_c add_reference();
+		void_c remove_reference();
 
 		void_c load_new_state( data_stream_c * stream ); // creates a new state from the given stream, which may contain a riff wave (.wav) or vorbis ogg (.ogg). wave players that are still playing this wave buffer will continue to play the old state.
 		void_c release_state(); // forgets state. wave players that are still playing this wave buffer will continue to play the old state.
@@ -129,12 +136,12 @@ namespace cheonsa
 	// manages play back state of a wave buffer.
 	class audio2_wave_player_c
 	{
-	private:
 		friend class wave_out_implementation_c;
 		friend class audio2_interface_c;
 		friend class audio2_scene_source_c;
 		friend class audio2_scene_c;
 
+	private:
 		static core_linked_list_c< audio2_wave_player_c * > _instance_list;
 		core_linked_list_c< audio2_wave_player_c * >::node_c _instance_list_node;
 
@@ -162,12 +169,15 @@ namespace cheonsa
 		audio2_scene_source_c * _linked_audio_scene_source; // the audio scene source that this audio wave player is owned by.
 		audio2_interface_c * _linked_audio_interface; // the audio interface that this audio wave player is added to.
 
-	public:
 		audio2_wave_player_c();
+
+	public:
 		~audio2_wave_player_c();
 
-		sint32_c add_reference();
-		sint32_c remove_reference();
+		static audio2_wave_player_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
+
+		void_c add_reference();
+		void_c remove_reference();
 
 		audio2_wave_buffer_c * get_wave_buffer() const; // gets the most recent wave buffer.
 		void_c set_wave_buffer( audio2_wave_buffer_c * value ); // sets the wave buffer to play the next time this wave player is added to the audio interface or its audio scene source is added to an audio scene. if this wave player is currently playing an older state, it will finish playing that state before it changes over to this new state.
@@ -190,10 +200,10 @@ namespace cheonsa
 	// sources only play once and then they are removed from the audio scene.
 	class audio2_scene_source_c
 	{
-	private:
 		friend class wave_out_implementation_c;
 		friend class audio2_scene_c;
 
+	private:
 		core_linked_list_c< audio2_scene_source_c * >::node_c _scene_source_list_node;
 		sint32_c _reference_count;
 		vector64x3_c _world_space_position;
@@ -202,14 +212,17 @@ namespace cheonsa
 		audio2_wave_player_c * _wave_player; // this wave player is created by and owned by this audio source.
 		audio2_scene_c * _linked_audio_scene; // the audio scene that this audio scene source is added to.
 
-	public:
 		audio2_scene_source_c();
+
+	public:
 		~audio2_scene_source_c();
 
-		sint32_c add_reference();
-		sint32_c remove_reference();
+		static audio2_scene_source_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
 
-		void_c set_world_space_transform( space_transform_c const & value );
+		void_c add_reference();
+		void_c remove_reference();
+
+		void_c set_world_space_transform( transform3d_c const & value );
 		vector64x3_c const & get_world_space_position() const;
 		matrix32x3x3_c const & get_world_space_basis() const;
 		vector32x3_c const & get_world_space_velocity() const;
@@ -223,9 +236,9 @@ namespace cheonsa
 	// defines how audio in a 3d scene is mixed to the output.
 	class audio2_scene_listener_c
 	{
-	private:
 		friend class wave_out_implementation_c;
 
+	private:
 		sint32_c _reference_count;
 		vector64x3_c _world_space_position;
 		matrix32x3x3_c _world_space_basis;
@@ -234,13 +247,15 @@ namespace cheonsa
 		float32_c _sensitivity; // effectively same thing as volume, but using more natural terminology.
 		audio2_scene_c * _linked_audio_scene; // the audio scene that this audio scene listener is added to.
 
-	public:
 		audio2_scene_listener_c();
 
-		sint32_c add_reference();
-		sint32_c remove_reference();
+	public:
+		static audio2_scene_listener_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
+		  
+		void_c add_reference();
+		void_c remove_reference();
 
-		void_c set_world_space_transform( space_transform_c const & value );
+		void_c set_world_space_transform( transform3d_c const & value );
 		vector64x3_c const & get_world_space_position() const;
 		matrix32x3x3_c const & get_world_space_basis() const;
 		vector32x3_c const & get_world_space_velocity() const;
@@ -264,10 +279,10 @@ namespace cheonsa
 	// simulate distortions that become apparent at high energies and distances, like how lightning up close is a crack, but from kilometers away its a very low and drawn out rumble. the sound designer would only have to author the crack sound effect, the simulation model would do the rest.
 	class audio2_scene_c
 	{
-	private:
 		friend class wave_out_implementation_c;
 		friend class audio2_interface_c;
 
+	private:
 		platform_critical_section_c _critical_section; // used to give mutually exclusive access to a single thread at a time to data that is shared between threads.
 
 		sint32_c _reference_count;
@@ -283,12 +298,15 @@ namespace cheonsa
 
 		audio2_interface_c * _linked_audio_interface; // the audio interface that this audio scene is added to.
 
-	public:
 		audio2_scene_c();
+
+	public:
 		~audio2_scene_c();
 
-		sint32_c add_reference();
-		sint32_c remove_reference();
+		static audio2_scene_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
+
+		void_c add_reference();
+		void_c remove_reference();
 
 		audio2_scene_listener_c * get_scene_listener() const; // gets a pointer to the scene listener, without adding a reference to it.
 		void_c set_scene_listener( audio2_scene_listener_c * value ); // queues an add operation for the given scene listener.
@@ -305,13 +323,13 @@ namespace cheonsa
 	// manages audio playback and output.
 	class audio2_interface_c
 	{
-	private:
 		friend class wave_out_implementation_c;
 		friend class audio2_wave_buffer_c;
 		friend class audio2_wave_player_c;
 		friend class audio2_scene_c;
 		friend class engine_c;
 
+	private:
 		platform_critical_section_c _critical_section; // used to give mutually exclusive access to a single thread at a time to data that is shared between threads.
 
 		core_list_c< audio2_scene_c * > _scene_list;
@@ -383,8 +401,8 @@ namespace cheonsa
 
 		void_c refresh(); // pauses mixing thread, syncs wave players to any new wave buffer states (which restarts play back of those wave players, so it might "break" how things sound temporarily), resumes mixing thread.
 		
-		void_c add_scene( audio2_scene_c * value ); // adds a 3d scene to this audio interface.
-		void_c remove_scene( audio2_scene_c * value ); // removes a 3d scene from this audio interface.
+		void_c add_scene( audio2_scene_c * value ); // adds a 3d audio scene to this audio interface.
+		void_c remove_scene( audio2_scene_c * value ); // removes a 3d audio scene from this audio interface.
 
 		void_c add_wave_player( audio2_wave_player_c * value ); // adds a wave player to this audio interface. the wave player will play once and then be removed.
 		void_c remove_wave_player( audio2_wave_player_c * value ); // removes a wave player from this audio interface.

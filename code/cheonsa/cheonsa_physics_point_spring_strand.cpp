@@ -1,4 +1,4 @@
-﻿#include "cheonsa_physics_point_spring_strand.h"
+#include "cheonsa_physics_point_spring_strand.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -37,7 +37,7 @@ namespace cheonsa
 	{
 	}
 
-	void_c physics_point_spring_strand_c::update( space_transform_c & scene_transform_in, float32_c time_step, vector64x3_c gravity, vector64x3_c wind )
+	void_c physics_point_spring_strand_c::update( transform3d_c & scene_transform_in, float32_c time_step, vector64x3_c gravity, vector64x3_c wind )
 	{
 		assert( point_list.get_length() && spring_list.get_length() );
 		assert( spring_list.get_length() + 1 == point_list.get_length() );
@@ -62,7 +62,7 @@ namespace cheonsa
 			point_c * tail = & point_list[ i + 1 ];
 
 			// linear relax constraint
-			vector64x3_c head_to_tail = ops::make_vector64x3_normalized( tail->world_position - head->world_position );
+			vector64x3_c head_to_tail = ops::normal_vector64x3( tail->world_position - head->world_position );
 			vector64x3_c tail_position_target = head->world_position + ( head_to_tail * spring->length_original );
 			vector64x3_c to_target_delta = ( tail_position_target - tail->world_position ) * ( spring->linear_tension );
 			if ( i > 0 )
@@ -79,7 +79,7 @@ namespace cheonsa
 			//// adjust for collisions with bodies
 			//for ( sint32_c j = 0; j < body_list.get_count(); j++ )
 			//{
-			//	physics_body_c * body = body_list[ i ];
+			//	physics_rigid_body_c * body = body_list[ i ];
 			//		
 			//	if ( tail->radius > 0.0f )
 			//	{
@@ -105,13 +105,13 @@ namespace cheonsa
 			{
 				spring->world_transform = world_transform;
 			}
-			spring->world_transform.basis.c = ops::make_vector32x3_normalized( spring->world_target_transform.basis.c );
+			spring->world_transform.basis.c = ops::normal_vector32x3( spring->world_target_transform.basis.c );
 
 			head_to_tail = tail->world_position - head->world_position;
-			float64_c head_to_tail_length = static_cast< float32_c >( ops::make_float64_length( head_to_tail ) );
+			float64_c head_to_tail_length = static_cast< float32_c >( ops::length_float64( head_to_tail ) );
 			assert( head_to_tail_length > constants< float64_c >::division_near_zero() );
 			head_to_tail /= head_to_tail_length;
-			float64_c to_target_delta_angle = ops::math_arc_cosine( ops::make_float64_dot_product( vector64x3_c( spring->world_target_transform.basis.c ), head_to_tail ) );
+			float64_c to_target_delta_angle = ops::math_arc_cosine( ops::dot_product_float64( vector64x3_c( spring->world_target_transform.basis.c ), head_to_tail ) );
 			if ( to_target_delta_angle > constants< float64_c >::angle_near_zero() )
 			{
 				to_target_delta = ( ops::interpolate_linear( head_to_tail, vector64x3_c( spring->world_target_transform.basis.c ), ( spring->angular_tension ) ) - head_to_tail ) * ( head_to_tail_length );
@@ -146,15 +146,15 @@ namespace cheonsa
 			{
 				spring->world_target_transform = world_transform;
 			}
-			spring->world_target_transform.basis.c = ops::make_vector32x3_normalized( spring->world_target_transform.basis.c );
+			spring->world_target_transform.basis.c = ops::normal_vector32x3( spring->world_target_transform.basis.c );
 
 			vector64x3_c head_to_tail = tail->world_position - head->world_position;
-			float64_c head_to_tail_length = ops::make_float64_length( head_to_tail );
+			float64_c head_to_tail_length = ops::length_float64( head_to_tail );
 			//float32_c length_percent = head_to_tail_length / spring->length_original;
 			assert( head_to_tail_length > constants< float64_c >::division_near_zero() );
 			head_to_tail /= head_to_tail_length;
 			spring->world_transform = spring->world_target_transform;
-			spring->world_transform.basis = ops::make_matrix32x3x3_basis_socket_rotated_c( spring->world_transform.basis, vector32x3_c( head_to_tail ) );
+			spring->world_transform.basis = ops::joint_rotate_basis_matrix32x3x3_z( spring->world_transform.basis, vector32x3_c( head_to_tail ) );
 			spring->world_transform.position = head->world_position;
 
 			//global_engine_instance.interfaces.video_renderer_interface->add_debug_line( true, head->world_position, tail->world_position, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ) );

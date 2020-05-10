@@ -1,4 +1,4 @@
-﻿#include "cheonsa_scene_types.h"
+#include "cheonsa_scene_types.h"
 #include "cheonsa_scene.h"
 #include "cheonsa__ops.h"
 
@@ -66,12 +66,12 @@ namespace cheonsa
 	{
 	}
 
-	space_transform_c const & scene_camera_c::get_world_space_transform() const
+	transform3d_c const & scene_camera_c::get_world_space_transform() const
 	{
 		return _world_space_transform;
 	}
 
-	void_c scene_camera_c::set_world_space_transform( space_transform_c const & value )
+	void_c scene_camera_c::set_world_space_transform( transform3d_c const & value )
 	{
 		_world_space_transform = value;
 	}
@@ -169,38 +169,31 @@ namespace cheonsa
 	//matrix32x4x4_c scene_camera_c::make_view_transform_at_origin() const
 	//{
 	//	matrix32x4x4_c result;
-	//	result = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( 0.0f, 0.0f, 0.0f ), _world_space_transform.get_unscaled_basis_b(), _world_space_transform.get_unscaled_basis_c() );
+	//	result = ops::make_view_matrix32x4x4( vector32x3_c( 0.0f, 0.0f, 0.0f ), _world_space_transform.get_unscaled_basis_b(), _world_space_transform.get_unscaled_basis_c() );
 	//	return result;
 	//}
 
 	matrix32x4x4_c scene_camera_c::make_view_transform_relative_to_origin( vector64x3_c origin ) const
 	{
 		matrix32x4x4_c result;
-		result = ops::make_matrix32x4x4_view_from_look_at( vector32x3_c( _world_space_transform.position - origin ), _world_space_transform.get_unscaled_basis_c(), -_world_space_transform.get_unscaled_basis_b() );
+		result = ops::view_matrix32x4x4_from_look_at( vector32x3_c( _world_space_transform.position - origin ), _world_space_transform.get_unscaled_basis_y(), -_world_space_transform.get_unscaled_basis_z() );
 		return result;
 	}
 
 	matrix32x4x4_c scene_camera_c::make_projection_transform( sint32_c canvas_width, sint32_c canvas_height ) const
 	{
 		matrix32x4x4_c result;
+		float32_c aspect_ratio = static_cast< float32_c >( canvas_width ) / static_cast< float32_c >( canvas_height );
 		if ( _projection_type == scene_projection_type_e_perspective )
 		{
-			float32_c scale_factor = ops::make_float32_fov_b_off_center_scale_factor( _perspective_field_of_view, _perspective_clip_near );
-			float32_c half_width = static_cast< float32_c >( canvas_width ) / 2.0f;
-			float32_c half_height = static_cast< float32_c >( canvas_height ) / 2.0f;
-			float32_c offset_x = _perspective_center.a * half_width;
-			float32_c offset_y = _perspective_center.b * half_height;
-			//result = ops::make_matrix32x4x4_projection_perspective_off_center( ( offset_x - half_width ) * scale_factor, ( offset_x + half_width ) * scale_factor, ( offset_y - half_height ) * scale_factor, ( offset_y + half_height ) * scale_factor, _perspective_clip_near, _perspective_clip_far );
-			float32_c fov = 75.0f * constants< float32_c >::degrees_to_radians();
-			result = ops::make_matrix32x4x4_projection_perspective( fov, static_cast< float32_c >( canvas_width ) / static_cast< float32_c >( canvas_height ), 0.01f, 1000.0f );
+			result = ops::projection_perspective_matrix32x4x4( _perspective_field_of_view, aspect_ratio, _perspective_clip_near, _perspective_clip_far );
+			//result = ops::projection_perspective_off_center_matrix32x4x4_b( _perspective_field_of_view, static_cast< float32_c >( canvas_width ) / static_cast< float32_c >( canvas_height ), _perspective_center.a, _perspective_center.b, _perspective_clip_near, _perspective_clip_far );
+			
 		}
 		else if ( _projection_type == scene_projection_type_e_orthographic )
 		{
-			float32_c offset_x = _orthographic_center.a * static_cast< float32_c >( canvas_width ) * 0.5f;
-			float32_c offset_y = _orthographic_center.b * static_cast< float32_c >( canvas_height ) * 0.5f;
-			float32_c half_width = static_cast< float32_c >( canvas_width ) / 2.0f;
-			float32_c half_height = static_cast< float32_c >( canvas_height ) / 2.0f;
-			result = ops::make_matrix32x4x4_projection_orthographic_off_center( offset_x - half_width, offset_x + half_width, offset_y - half_height, offset_y + half_height, _orthographic_clip_near, _orthographic_clip_far );
+			result = ops::projection_orthographic_matrix32x4x4( _orthographic_field_of_view * aspect_ratio, _orthographic_field_of_view, _orthographic_clip_near, _orthographic_clip_far );
+			//result = ops::projection_orthographic_off_center_matrix32x4x4_b( _orthographic_field_of_view * aspect_ratio, _orthographic_field_of_view, _orthographic_center.a, _orthographic_center.b, _orthographic_clip_near, _orthographic_clip_far );
 		}
 		return result;
 	}
@@ -208,7 +201,7 @@ namespace cheonsa
 	ray64_c scene_camera_c::build_ray_through_canvas( vector32x2_c const & canvas_coordinates, sint32_c canvas_width, sint32_c canvas_height ) const
 	{
 		segment64_c segment = build_segment_through_canvas( canvas_coordinates, canvas_width, canvas_height );
-		return ray64_c( segment.point_a, ops::make_vector64x3_normalized( segment.point_b - segment.point_a ) );
+		return ray64_c( segment.point_a, ops::normal_vector64x3( segment.point_b - segment.point_a ) );
 	}
 
 	segment64_c scene_camera_c::build_segment_through_canvas( vector32x2_c const & canvas_coordinates, sint32_c canvas_width, sint32_c canvas_height ) const
@@ -241,7 +234,7 @@ namespace cheonsa
 		vector32x3_c local_point = vector32x3_c( world_space_point - _world_space_transform.position );
 		matrix32x4x4_c view_transform = make_view_transform_relative_to_origin( vector64x3_c( 0.0, 0.0, 0.0 ) );
 		matrix32x4x4_c projection_transform = make_projection_transform( canvas_width, canvas_height );
-		vector32x4_c transformed_point = ops::make_vector32x4_transformed_point( local_point, view_transform * projection_transform );
+		vector32x4_c transformed_point = ops::rotate_scale_and_translate_vector32x4( local_point, view_transform * projection_transform );
 		result.a = static_cast< float32_c >( transformed_point.a / transformed_point.d ) * 0.5f + 0.5f; // scale from range (-1..1) to (0..1)
 		result.b = static_cast< float32_c >( transformed_point.b / transformed_point.d ) * 0.5f + 0.5f; // scale from range (-1..1) to (0..1)
 		return result;
@@ -250,11 +243,11 @@ namespace cheonsa
 	scene_light_c::scene_light_c()
 		: _scene( nullptr )
 		, _world_space_transform()
-		, _render_enable( true )
-		, _shadow_cast_enable( true )
+		, _render_enabled( true )
+		, _shadow_cast_enabled( true )
 		, _type( scene_light_type_e_point )
 		, _color( 1.0f, 1.0f, 1.0f )
-		, _brightness( 1.0f )
+		, _strength( 1.0f )
 		, _range( 10.0f )
 		, _local_space_obb()
 		, _world_space_aabb()
@@ -271,47 +264,47 @@ namespace cheonsa
 		return _scene;
 	}
 
-	space_transform_c const & scene_light_c::get_world_space_transform() const
+	transform3d_c const & scene_light_c::get_world_space_transform() const
 	{
 		return _world_space_transform;
 	}
 
-	void_c scene_light_c::set_world_space_transform( space_transform_c const & value )
+	void_c scene_light_c::set_world_space_transform( transform3d_c const & value )
 	{
 		_world_space_transform = value;
 		update_bounding_boxes();
 	}
 
-	boolean_c scene_light_c::get_render_enable() const
+	boolean_c scene_light_c::get_render_enabled() const
 	{
-		return _render_enable;
+		return _render_enabled;
 	}
 
-	void_c scene_light_c::set_render_enable( boolean_c value )
+	void_c scene_light_c::set_render_enabled( boolean_c value )
 	{
-		if ( _render_enable != value )
+		if ( _render_enabled != value )
 		{
-			_render_enable = value;
-			if ( _scene != nullptr )
+			_render_enabled = value;
+			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
 			{
-				_scene->invalidate_light_probes_with_light( this );
+				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
 		}
 	}
 
-	boolean_c scene_light_c::get_shadow_cast_enable() const
+	boolean_c scene_light_c::get_shadow_cast_enabled() const
 	{
-		return _shadow_cast_enable;
+		return _shadow_cast_enabled;
 	}
 
-	void_c scene_light_c::set_shadow_cast_enable( boolean_c value )
+	void_c scene_light_c::set_shadow_cast_enabled( boolean_c value )
 	{
-		if ( _shadow_cast_enable != value )
+		if ( _shadow_cast_enabled != value )
 		{
-			_shadow_cast_enable = value;
-			if ( _scene != nullptr )
+			_shadow_cast_enabled = value;
+			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
 			{
-				_scene->invalidate_light_probes_with_light( this );
+				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
 		}
 	}
@@ -329,20 +322,23 @@ namespace cheonsa
 			boolean_c now_global = value == scene_light_type_e_direction;
 			if ( _scene != nullptr )
 			{
-				_scene->invalidate_light_probes_with_light( this );
+				if ( _scene->_automatic_light_probe_invalidation_enabled )
+				{
+					_scene->invalidate_light_probes_with_light( this, nullptr );
+				}
 				if ( was_global == true && now_global == false )
 				{
-					_scene->_global_lights_list.remove( this );
+					_scene->_global_lights_list.remove_value( this );
 					_scene->_local_lights_tree.insert_or_update_item( this );
 				}
 				else if ( was_global == false && now_global == true )
 				{
 					_scene->_local_lights_tree.remove_item( this );
-					_scene->_global_lights_list.insert_at_end( this );
+					_scene->_global_lights_list.insert( -1, this );
 				}
 			}
 			_type = value;
-			update_bounding_boxes();
+			update_bounding_boxes(); // this will also invalidate light probes again if needed.
 		}
 	}
 
@@ -356,28 +352,28 @@ namespace cheonsa
 		if ( _color != value )
 		{
 			_color = value;
-			if ( _scene != nullptr )
+			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
 			{
-				_scene->invalidate_light_probes_with_light( this );
+				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
 		}
 	}
 
-	float32_c scene_light_c::get_brightness() const
+	float32_c scene_light_c::get_strength() const
 	{
-		return _brightness;
+		return _strength;
 	}
 
-	void_c scene_light_c::set_brightness( float32_c value )
+	void_c scene_light_c::set_strength( float32_c value )
 	{
-		if ( _brightness != value )
+		if ( _strength != value )
 		{
-			_brightness = value;
-			if ( _scene != nullptr )
+			_strength = value;
+			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
 			{
-				_scene->invalidate_light_probes_with_light( this );
+				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
-			_range = ops::math_square_root( _brightness );
+			_range = ops::math_square_root( _strength );
 			update_bounding_boxes();
 		}
 	}
@@ -409,14 +405,14 @@ namespace cheonsa
 	{
 		if ( _cone_angle != value )
 		{
-			if ( _type == scene_light_type_e_cone && _scene != nullptr )
+			if ( _type == scene_light_type_e_cone && _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
 			{
-				_scene->invalidate_light_probes_with_light( this );
+				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
 			_cone_angle = value;
 			if ( _type == scene_light_type_e_cone )
 			{
-				update_bounding_boxes();
+				update_bounding_boxes(); // this will also invalidate light probes again if needed.
 			}
 		}
 	}
@@ -455,6 +451,7 @@ namespace cheonsa
 		}
 		else if ( _type == scene_light_type_e_direction )
 		{
+			// bounding box is ignored for direction type lights.
 			_local_space_obb.minimum.a = 1.0;
 			_local_space_obb.minimum.b = 1.0;
 			_local_space_obb.minimum.c = 1.0;
@@ -471,433 +468,10 @@ namespace cheonsa
 			{
 				_scene->_local_lights_tree.insert_or_update_item( this );
 			}
-			_scene->invalidate_light_probes_with_light( this );
-		}
-	}
-
-	scene_node_c::scene_node_c()
-		: _name()
-		, _mother( nullptr )
-		, _daughters()
-		, _daughters_node( this )
-		, _local_space_transform()
-		, _world_space_transform()
-		, _auto_update_suspend_count( 0 )
-	{
-	}
-
-	scene_node_c::~scene_node_c()
-	{
-		core_linked_list_c< scene_node_c * >::node_c const * daughter_list_node = _daughters.get_first();
-		while ( daughter_list_node )
-		{
-			core_linked_list_c< scene_node_c * >::node_c const * daughter_list_node_next = daughter_list_node->get_next();
-			delete daughter_list_node->get_value();
-			daughter_list_node = daughter_list_node_next;
-		}
-	}
-
-	string8_c const & scene_node_c::get_name() const
-	{
-		return _name;
-	}
-
-	void_c scene_node_c::set_name( string8_c const & value )
-	{
-		_name = value;
-	}
-
-	scene_node_c const * scene_node_c::get_root_scene_node() const
-	{
-		scene_node_c const * result = this;
-		while ( result->_mother )
-		{
-			result = result->_mother;
-		}
-		return result;
-	}
-
-	scene_node_c * scene_node_c::get_root_scene_node()
-	{
-		scene_node_c * result = this;
-		while ( result->_mother )
-		{
-			result = result->_mother;
-		}
-		return result;
-	}
-
-	scene_node_c const * scene_node_c::get_mother() const
-	{
-		return _mother;
-	}
-
-	scene_node_c * scene_node_c::get_mother()
-	{
-		return _mother;
-	}
-
-	void_c scene_node_c::set_mother( scene_node_c * value, boolean_c and_preserve_world_space_transform )
-	{
-		if ( _mother )
-		{
-			_mother->remove_daughter( this, and_preserve_world_space_transform );
-		}
-		if ( value )
-		{
-			_mother->add_daughter( value, and_preserve_world_space_transform );
-		}
-	}
-
-	core_linked_list_c< scene_node_c * > const & scene_node_c::get_daughters() const
-	{
-		return _daughters;
-	}
-
-	void_c scene_node_c::add_daughter( scene_node_c * value, boolean_c and_preserve_world_space_transform )
-	{
-		assert( value );
-		assert( value->_mother == nullptr );
-		value->_mother = this;
-		_daughters.insert_at_end( &value->_daughters_node );
-		if ( and_preserve_world_space_transform )
-		{
-			value->_local_space_transform = value->_world_space_transform * get_world_space_transform().get_inverted();
-		}
-		if ( _auto_update_suspend_count == 0 )
-		{
-			value->update_transform_hierarchy();
-		}
-	}
-
-	void_c scene_node_c::remove_daughter( scene_node_c * value, boolean_c and_preserve_world_space_transform )
-	{
-		assert( value );
-		assert( value->_mother == this );
-		value->_mother = nullptr;
-		_daughters.remove( &value->_daughters_node );
-		if ( and_preserve_world_space_transform )
-		{
-			value->_local_space_transform = value->_world_space_transform;
-			if ( value->_auto_update_suspend_count == 0 )
+			if ( _scene->_automatic_light_probe_invalidation_enabled )
 			{
-				value->update_transform_hierarchy();
+				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
-		}
-	}
-
-	scene_node_c const * scene_node_c::find_daughter_with_name( string8_c const & name ) const
-	{
-		if ( _name == name )
-		{
-			return this;
-		}
-		core_linked_list_c< scene_node_c * >::node_c * daughter_list_node = _daughters.get_first();
-		while ( daughter_list_node )
-		{
-			scene_node_c * result = daughter_list_node->get_value()->find_daughter_with_name( name );
-			if ( result )
-			{
-				return result;
-			}
-			daughter_list_node = daughter_list_node->get_next();
-		}
-		return nullptr;
-	}
-
-	scene_node_c * scene_node_c::find_daughter_with_name( string8_c const & name )
-	{
-		return const_cast< scene_node_c * >( const_cast< scene_node_c const * >( this )->find_daughter_with_name( name ) );
-	}
-
-	scene_node_c const * scene_node_c::find_daughter_with_path( string8_c const & path ) const
-	{
-		if ( _name.get_length() == 0 || path.get_length() == 0 )
-		{
-			return nullptr;
-		}
-
-		// extract first path node and see if it matches our name.
-		sint32_c path_end = path.get_length();
-		sint32_c delimiter_index;
-		if ( ops::string8_find_index_of( path, string8_c( core_list_mode_e_static, "/" ), delimiter_index ) )
-		{
-			path_end = delimiter_index;
-			if ( path_end == 0 )
-			{
-				return nullptr;
-			}
-		}
-		if ( path_end != _name.get_length() )
-		{
-			return nullptr;
-		}
-		char8_c const * name_characters = _name.character_list.get_internal_array();
-		char8_c const * path_characters = path.character_list.get_internal_array();
-		for ( sint32_c i = 0; i < path_end; i++ )
-		{
-			if ( name_characters[ i ] != path_characters[ i ] )
-			{
-				return nullptr;
-			}
-		}
-		
-		// path node matches.
-		if ( path_end == path.get_length() )
-		{
-			// reached end of path, return this.
-			return this;
-		}
-		else
-		{
-			// there is more path to process, process daughters.
-			string8_c sub_path; // get the rest of the path after the first slash.
-			sub_path.character_list.construct_mode_static_from_array( &path_characters[ path_end + 1 ], path.get_length() - ( path_end + 1 ) );
-			core_linked_list_c< scene_node_c * >::node_c * daughter_list_node = _daughters.get_first();
-			while ( daughter_list_node )
-			{
-				scene_node_c * result = daughter_list_node->get_value()->find_daughter_with_path( sub_path );
-				if ( result )
-				{
-					return result;
-				}
-				daughter_list_node = daughter_list_node->get_next();
-			}
-		}
-
-		return nullptr;
-	}
-
-	scene_node_c * scene_node_c::find_daughter_with_path( string8_c const & path )
-	{
-		return const_cast< scene_node_c * >( const_cast< scene_node_c const * >( this )->find_daughter_with_path( path ) );
-	}
-
-	space_transform_c const & scene_node_c::get_local_space_transform() const
-	{
-		return _local_space_transform;
-	}
-
-	vector64x3_c const & scene_node_c::get_local_space_position() const
-	{
-		return _local_space_transform.position;
-	}
-
-	void_c scene_node_c::set_local_space_position( vector64x3_c const & value )
-	{
-		_local_space_transform.position = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	quaternion32_c const & scene_node_c::get_local_space_rotation() const
-	{
-		return _local_space_transform.rotation;
-	}
-
-	void_c scene_node_c::set_local_space_rotation( quaternion32_c const & value )
-	{
-		_local_space_transform.rotation = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	vector32x3_c const & scene_node_c::get_local_space_scale() const
-	{
-		return _local_space_transform.scale;
-	}
-
-	void_c scene_node_c::set_local_space_scale( vector32x3_c const & value )
-	{
-		_local_space_transform.scale = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	void_c scene_node_c::set_local_space_scale( float32_c value )
-	{
-		_local_space_transform.scale.a = value;
-		_local_space_transform.scale.b = value;
-		_local_space_transform.scale.c = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	space_transform_c const & scene_node_c::get_world_space_transform() const
-	{
-		return _world_space_transform;
-	}
-
-	void_c scene_node_c::set_world_space_transform( space_transform_c const & value )
-	{
-		if ( _mother )
-		{
-			space_transform_c mother_global_transform_inverted = _mother->_world_space_transform.get_inverted();
-			_local_space_transform.position = ops::make_vector64x3_transformed_point( value.position, mother_global_transform_inverted );
-			_local_space_transform.rotation = value.rotation * mother_global_transform_inverted.rotation;
-			_local_space_transform.scale = value.scale * mother_global_transform_inverted.scale; //value.scale / _mother->_world_space_transform.scale;
-		}
-		else
-		{
-			_local_space_transform = value;
-		}
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	vector64x3_c const & scene_node_c::get_world_space_position() const
-	{
-		return _world_space_transform.position;
-	}
-
-	void_c scene_node_c::set_world_space_position( vector64x3_c const & value )
-	{
-		if ( _mother )
-		{
-			space_transform_c mother_global_transform_inverted = _mother->_world_space_transform.get_inverted();
-			_local_space_transform.position = ops::make_vector64x3_transformed_point( value, mother_global_transform_inverted );
-		}
-		else
-		{
-			_local_space_transform.position = value;
-		}
-		_world_space_transform.position = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-
-	quaternion32_c const & scene_node_c::get_world_space_rotation() const
-	{
-		return _world_space_transform.rotation;
-	}
-
-	void_c scene_node_c::set_world_space_rotation( quaternion32_c const & value )
-	{
-		if ( _mother )
-		{
-			quaternion32_c mother_global_transform_inverted = ops::make_quaternion32_inverted( _mother->_world_space_transform.rotation );
-			_local_space_transform.rotation = value * mother_global_transform_inverted;
-		}
-		else
-		{
-			_local_space_transform.rotation = value;
-		}
-		_world_space_transform.rotation = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	vector32x3_c const & scene_node_c::get_world_space_scale() const
-	{
-		return _world_space_transform.scale;
-	}
-
-	void_c scene_node_c::set_world_space_scale( vector32x3_c const & value )
-	{
-		if ( _mother )
-		{
-			_local_space_transform.scale = value / _mother->_world_space_transform.scale;
-		}
-		else
-		{
-			_local_space_transform.scale = value;
-		}
-		_world_space_transform.scale = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	void_c scene_node_c::set_world_space_scale( float32_c value )
-	{
-		if ( _mother )
-		{
-			_local_space_transform.scale.a = value / _mother->_world_space_transform.scale.a;
-			_local_space_transform.scale.b = value / _mother->_world_space_transform.scale.b;
-			_local_space_transform.scale.c = value / _mother->_world_space_transform.scale.c;
-		}
-		else
-		{
-			_local_space_transform.scale.a = value;
-			_local_space_transform.scale.b = value;
-			_local_space_transform.scale.c = value;
-		}
-		_world_space_transform.scale.a = value;
-		_world_space_transform.scale.b = value;
-		_world_space_transform.scale.c = value;
-		if ( _auto_update_suspend_count == 0 )
-		{
-			update_transform_hierarchy();
-		}
-	}
-
-	box32x3_c const & scene_node_c::get_local_space_bounding_box() const
-	{
-		return _local_space_bounding_box;
-	}
-
-	void_c scene_node_c::set_local_space_bounding_box( box32x3_c const & value )
-	{
-		_local_space_bounding_box = value;
-		_world_space_bounding_box = ops::make_aabb_from_obb( box64x3_c( _local_space_bounding_box ), _world_space_transform );
-	}
-
-	box64x3_c const & scene_node_c::get_world_space_bounding_box() const
-	{
-		return _world_space_bounding_box;
-	}
-
-	void_c scene_node_c::suspend_auto_update()
-	{
-		_auto_update_suspend_count++;
-	}
-
-	void_c scene_node_c::resume_auto_update()
-	{
-		assert( _auto_update_suspend_count > 0 );
-		_auto_update_suspend_count--;
-	}
-
-	void_c scene_node_c::update_transform()
-	{
-		if ( _mother )
-		{
-			_world_space_transform.position = ops::make_vector64x3_transformed_point( _local_space_transform.position, _mother->_world_space_transform );
-			_world_space_transform.rotation = _local_space_transform.rotation * _mother->_world_space_transform.rotation;
-			_world_space_transform.scale = _local_space_transform.scale * _mother->_world_space_transform.scale;
-		}
-		else
-		{
-			_world_space_transform.position = _local_space_transform.position;
-			_world_space_transform.rotation = _local_space_transform.rotation;
-			_world_space_transform.scale = _local_space_transform.scale;
-		}
-	}
-
-	void_c scene_node_c::update_transform_hierarchy()
-	{
-		update_transform();
-		core_linked_list_c< scene_node_c * >::node_c * daughter_list_node = _daughters.get_first();
-		while ( daughter_list_node )
-		{
-			daughter_list_node->get_value()->update_transform_hierarchy();
-			daughter_list_node = daughter_list_node->get_next();
 		}
 	}
 

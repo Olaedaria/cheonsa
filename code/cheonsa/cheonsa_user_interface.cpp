@@ -1,4 +1,4 @@
-﻿#include "cheonsa_user_interface.h"
+#include "cheonsa_user_interface.h"
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_frame.h"
 #include "cheonsa_data_scribe_markup.h"
@@ -37,32 +37,37 @@ namespace cheonsa
 		menu_layer_e picked_control_layer = menu_layer_e_undefined;
 
 		// fist pass, try to pick 2d.
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
 		{
-			menu_control_c * control = _control_list[ i ];
-			if ( control->_scene_component == nullptr )
+			core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _control_list.get_first();
+			while ( control_list_node )
 			{
-				menu_control_c * candidate_control = nullptr;
-				float64_c candidate_control_distance = 0.0;
-				menu_layer_e candidate_control_layer = menu_layer_e_undefined;
-				if ( _pick_control_level_2( input_event, control, candidate_control_layer, candidate_control, candidate_control_distance ) )
+				menu_control_c * control = control_list_node->get_value();
+				if ( control->_scene_component == nullptr )
 				{
-					if ( control->get_expressed_layer() > picked_control_layer ) // 2d prioritizes layers and disregards distance, which is different from 3d.
+					menu_control_c * candidate_control = nullptr;
+					float64_c candidate_control_distance = 0.0;
+					menu_layer_e candidate_control_layer = menu_layer_e_undefined;
+					if ( _pick_control_level_2( input_event, control, candidate_control_layer, candidate_control, candidate_control_distance ) )
 					{
-						picked_control = candidate_control;
-						picked_control_distance = candidate_control_distance;
-						picked_control_layer = candidate_control_layer;
+						if ( control->get_expressed_layer() > picked_control_layer ) // 2d prioritizes layers and disregards distance, which is different from 3d.
+						{
+							picked_control = candidate_control;
+							picked_control_distance = candidate_control_distance;
+							picked_control_layer = candidate_control_layer;
+						}
 					}
 				}
+				control_list_node = control_list_node->get_next();
 			}
 		}
 
 		// second pass, try to pick 3d.
 		if ( picked_control == nullptr ) // it's only valid to try to pick 3d if 2d didn't hit anything.
 		{
-			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+			core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _control_list.get_first();
+			while ( control_list_node )
 			{
-				menu_control_c * control = _control_list[ i ];
+				menu_control_c * control = control_list_node->get_value();
 				if ( control->_scene_component != nullptr )
 				{
 					menu_control_c * candidate_control = nullptr;
@@ -78,6 +83,7 @@ namespace cheonsa
 						}
 					}
 				}
+				control_list_node = control_list_node->get_next();
 			}
 		}
 
@@ -114,17 +120,17 @@ namespace cheonsa
 			else
 			{
 				assert( _scene != nullptr );
-				space_transform_c world_space_window_transform = window->get_scene_component()->get_scene_object()->get_world_space_transform();
+				transform3d_c world_space_window_transform = window->get_scene_component()->get_scene_object()->get_world_space_transform();
 				world_space_window_transform.scale *= 0.001f; // convert size of pixels from meters to millimeters.
 				matrix32x3x3_c world_space_window_basis = world_space_window_transform.get_scaled_basis();
-				space_transform_c world_space_window_transform_inverted = world_space_window_transform.get_inverted();
+				transform3d_c world_space_window_transform_inverted = world_space_window_transform.get_inverted();
 				plane64_c world_space_window_plane = ops::make_plane64_from_normal_and_point( vector64x3_c( world_space_window_basis.c / world_space_window_transform.scale ), world_space_window_transform.position );
-				ray64_c world_space_mouse_ray = _scene->get_scene_camera().build_ray_through_canvas( input_event->mouse_position, static_cast< sint32_c >( _local_box.get_width() ), static_cast< sint32_c >( _local_box.get_height() ) ); // ASSUMING that _local_box is the same size as the canvas.
+				ray64_c world_space_mouse_ray = _scene->get_camera().build_ray_through_canvas( input_event->mouse_position, static_cast< sint32_c >( _local_box.get_width() ), static_cast< sint32_c >( _local_box.get_height() ) ); // ASSUMING that _local_box is the same size as the canvas.
 				if ( ops::sweep_ray_vs_plane( world_space_mouse_ray, world_space_window_plane, control_distance ) ) // find if there is an intersection and if so find out the distance to intersection
 				{
 					vector64x3_c world_space_intersection_point = world_space_mouse_ray.position + ( world_space_mouse_ray.normal * control_distance );
-					space_transform_c world_space_window_transform_inverted = window->get_scene_component()->get_scene_object()->get_world_space_transform().get_inverted();
-					vector64x3_c menu_space_intersection_point = ops::make_vector64x3_transformed_point( world_space_intersection_point, world_space_window_transform_inverted );
+					transform3d_c world_space_window_transform_inverted = window->get_scene_component()->get_scene_object()->get_world_space_transform().get_inverted();
+					vector64x3_c menu_space_intersection_point = ops::rotate_scale_and_translate_vector64x3( world_space_intersection_point, world_space_window_transform_inverted );
 					input_event->menu_global_mouse_position.a = static_cast< float32_c >( menu_space_intersection_point.a );
 					input_event->menu_global_mouse_position.b = static_cast< float32_c >( menu_space_intersection_point.b );
 				}
@@ -221,7 +227,7 @@ namespace cheonsa
 					_mouse_focused->_is_pressed = true;
 					_mouse_focused->_on_is_pressed_changed();
 					if ( _multi_click_control != _mouse_focused ||
-						ops::make_float32_length_squared( input_event->mouse_position - _multi_click_position ) > _get_multi_click_space() ||
+						ops::length_squared_float32( input_event->mouse_position - _multi_click_position ) > _get_multi_click_space() ||
 						( static_cast< float64_c >( input_event->time - _multi_click_time ) / static_cast< float64_c >( ops::time_get_high_resolution_timer_frequency() ) ) > _get_multi_click_time() )
 					{
 						_multi_click_count = 1;
@@ -306,6 +312,22 @@ namespace cheonsa
 
 	user_interface_c::~user_interface_c()
 	{
+		core_list_c< menu_control_c * > controls_to_remove; // take stock of the non-supplemental controls to remove.
+		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _control_list.get_first();
+		while ( control_list_node )
+		{
+			if ( !control_list_node->get_value()->get_is_supplemental() )
+			{
+				controls_to_remove.insert( -1, control_list_node->get_value() );
+			}
+			control_list_node = control_list_node->get_next();
+		}
+		for ( sint32_c i = 0; i < controls_to_remove.get_length(); i++ ) // remove the non-supplemental controls.
+		{
+			remove_control( controls_to_remove[ i ] );
+		}
+		assert( _control_list.get_length() == 0 ); // all controls (non-supplemental and supplemental) should be removed now.
+
 		delete _canvas_and_output;
 		_canvas_and_output = nullptr;
 		_scene = nullptr;
@@ -314,7 +336,6 @@ namespace cheonsa
 		_text_focused = nullptr;
 		_is_mouse_overed = false;
 		_is_set_text_focused_changing = false;
-		_control_list.remove_and_delete_all();
 	}
 
 	boolean_c user_interface_c::start( void_c * window_handle )
@@ -355,13 +376,16 @@ namespace cheonsa
 		{
 			_local_box = local_box;
 			on_local_box_changed.invoke( this );
-			for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+
+			core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _control_list.get_first();
+			while ( control_list_node )
 			{
-				menu_control_c * control = _control_list[ i ];
+				menu_control_c * control = control_list_node->get_value();
 				if ( control->_scene_component == nullptr )
 				{
 					control->_update_transform_and_layout();
 				}
+				control_list_node = control_list_node->get_next();
 			}
 		}
 	}
@@ -414,18 +438,24 @@ namespace cheonsa
 			engine.get_menu_style_manager()->refresh();
 		}
 
-		// update animations of controls, and delete any that want to be deleted.
-		for ( sint32_c i = 0; i < _control_list.get_length(); i++ )
+		// update animations of controls, and remove any that want to be removed.
+		sint32_c index = 0;
+		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _control_list.get_first();
+		while ( control_list_node )
 		{
-			menu_control_c * control = _control_list[ i ];
-			control->_index = i;
+			core_linked_list_c< menu_control_c * >::node_c const * next = control_list_node->get_next();
+			menu_control_c * control = control_list_node->get_value();
 			control->update_animations( time_step );
-			if ( control->_wants_to_be_deleted && control->_is_showed_weight <= 0.0f )
+			if ( control->get_wants_to_be_deleted() && control->get_is_showed_weight() <= 0.0f )
 			{
-				_control_list.remove_at_index( i );
-				delete control;
-				i--;
+				remove_control( control );
 			}
+			else
+			{
+				control->_index = index;
+				index++;
+			}
+			control_list_node = next;
 		}
 	}
 
@@ -446,7 +476,7 @@ namespace cheonsa
 		// render 3d scene and 3d menu controls to canvas.
 		if ( _scene )
 		{
-			engine.get_video_renderer_interface()->render_scene( _scene, &_scene->get_scene_camera(), _canvas_and_output );
+			engine.get_video_renderer_interface()->render_scene( _scene, &_scene->get_camera(), _canvas_and_output );
 		}
 
 		// render 2d menus to canvas.
@@ -468,111 +498,99 @@ namespace cheonsa
 
 	void_c user_interface_c::set_scene( scene_c * scene )
 	{
-		// remove controls from old scene.
-		if ( _scene )
+		if ( _scene != scene )
 		{
-			engine.get_audio_interface()->remove_scene( _scene->get_audio_scene() );
-			core_linked_list_c< scene_object_c * >::node_c const * scene_object_list_node = _scene->get_scene_object_list().get_first();
-			while ( scene_object_list_node )
+			if ( _scene )
 			{
-				core_linked_list_c< scene_component_c * >::node_c const * scene_component_list_node = scene_object_list_node->get_value()->get_scene_component_list()->get_first();
-				while ( scene_component_list_node )
-				{
-					if ( scene_component_list_node->get_value()->get_type_code() == scene_component_menu_control_c::get_type_code_static() )
-					{
-						scene_component_menu_control_c * scene_component_menu_control = static_cast< scene_component_menu_control_c * >( scene_component_list_node->get_value() );
-						if ( scene_component_menu_control->_control )
-						{
-							_control_list.remove( scene_component_menu_control->_control );
-						}
-					}
-				}
-				scene_object_list_node = scene_object_list_node->get_next();
+				_scene->_set_user_interface( nullptr );
+				engine.get_audio_interface()->remove_scene( _scene->get_audio_scene() );
 			}
-		}
 
-		// set new scene and forget old one.
-		_scene = scene;
+			_scene = scene;
 
-		// add controls from new scene.
-		if ( _scene )
-		{
-			core_linked_list_c< scene_object_c * >::node_c const * scene_object_list_node = _scene->get_scene_object_list().get_first();
-			while ( scene_object_list_node )
+			if ( _scene )
 			{
-				core_linked_list_c< scene_component_c * >::node_c const * scene_component_list_node = scene_object_list_node->get_value()->get_scene_component_list()->get_first();
-				while ( scene_component_list_node )
-				{
-					if ( scene_component_list_node->get_value()->get_type_code() == scene_component_menu_control_c::get_type_code_static() )
-					{
-						scene_component_menu_control_c * scene_component_menu_control = static_cast< scene_component_menu_control_c * >( scene_component_list_node->get_value() );
-						if ( scene_component_menu_control->_control )
-						{
-							_control_list.insert_at_end( scene_component_menu_control->_control );
-						}
-					}
-				}
+				engine.get_audio_interface()->add_scene( _scene->get_audio_scene() );
+				_scene->_set_user_interface( this );
 			}
-			engine.get_audio_interface()->add_scene( _scene->get_audio_scene() );
 		}
 	}
 
-	void_c user_interface_c::give_control( menu_control_c * control, sint32_c index )
+	void_c user_interface_c::add_control( menu_control_c * control, sint32_c index )
 	{
+		assert( _local_box.maximum.a > _local_box.minimum.a && _local_box.maximum.b > _local_box.minimum.b );
 		assert( control != nullptr );
 		assert( control->_user_interface == nullptr );
 		assert( control->_mother_control == nullptr );
 		assert( control->_index == -1 );
 		assert( index >= -1 && index <= _control_list.get_length() );
 		assert( control->_name.get_length() > 0 );
-		control->_user_interface = this;
-		if ( index == -1 )
+
+		// update relationships, insert in list.
+		control->add_reference();
+		control->_mother_control = nullptr;
+		control->_index = index < 0 ? _control_list.get_length() : index;
+		control->_set_user_interface_recursive( this );
+		_control_list.insert_at_index( &control->_daughter_control_list_node, control->_index );
+
+		// reindex controls after insertion point.
+		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
+		sint32_c reindex_index = control->_index + 1;
+		while ( reindex_node )
 		{
-			index = _control_list.get_length();
+			reindex_node->get_value()->_index = reindex_index;
+			reindex_index++;
+			reindex_node = reindex_node->get_next();
 		}
-		_control_list.insert_at_index( index, control );
-		for ( sint32_c i = index; i < _control_list.get_length(); i++ )
-		{
-			_control_list[ i ]->_index = index;
-		}
-		assert( _local_box.maximum.a > _local_box.minimum.a && _local_box.maximum.b > _local_box.minimum.b );
+
+		// update layout.
 		control->_update_transform_and_layout();
-		control->_on_user_interface_association_changed( this );
+		control->_handle_after_added_to_user_interface();
 	}
 
-	void_c user_interface_c::take_control( menu_control_c * control )
+	void_c user_interface_c::remove_control( menu_control_c * control )
 	{
 		assert( control != nullptr );
 		assert( control->_user_interface == this );
 		assert( control->_mother_control == nullptr );
 		assert( control->_index >= 0 && control->_index < _control_list.get_length() );
-		assert( control == _control_list[ control->_index ] );
+
+		// suspend control from user interface.
+		control->_handle_before_removed_from_user_interface();
 		_suspend_control( control );
-		_control_list.remove_at_index( control->_index );
-		for ( sint32_c i = control->_index; i < _control_list.get_length(); i++ )
+
+		// reindex controls after removal point.
+		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
+		sint32_c reindex_index = control->_index;
+		while ( reindex_node )
 		{
-			_control_list[ i ]->_index = i;
+			reindex_node->get_value()->_index = reindex_index;
+			reindex_index++;
+			reindex_node = reindex_node->get_next();
 		}
-		control->_user_interface = nullptr;
+
+		// update relationships and remove control from list.
+		control->_mother_control = nullptr;
 		control->_index = -1;
-		control->_on_user_interface_association_changed( this );
+		control->_set_user_interface_recursive( nullptr );
+		_control_list.remove( &control->_daughter_control_list_node );
+		control->remove_reference();
 	}
 
 	void_c user_interface_c::bring_control_to_front( menu_control_c * control )
 	{
 		assert( control != nullptr );
 		assert( control->_user_interface == this );
-		_control_list.remove_at_index( control->_index );
-		_control_list.insert_at_end( control );
-		for ( sint32_c i = control->_index; i < _control_list.get_length(); i++ )
+		sint32_c reindex_index = control->_index;
+		_control_list.remove( &control->_daughter_control_list_node );
+		_control_list.insert_at_end( &control->_daughter_control_list_node );
+		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _control_list.get_at_index( reindex_index );
+		while ( control_list_node )
 		{
-			_control_list[ i ]->_index = i;
+			control_list_node->get_value()->_index = reindex_index;
+			reindex_index++;
+			control_list_node = control_list_node->get_next();
 		}
-	}
-
-	core_list_c< menu_control_c * > const & user_interface_c::get_control_list() const
-	{
-		return _control_list;
 	}
 
 	void_c user_interface_c::reset_multi_click_detection()
@@ -611,7 +629,7 @@ namespace cheonsa
 
 		if ( menu_control )
 		{
-			assert( menu_control->get_user_interface_root() == this );
+			assert( menu_control->_user_interface == this );
 		}
 
 		// clear text focus.
@@ -712,13 +730,15 @@ namespace cheonsa
 	menu_non_client_type_e user_interface_c::perform_non_client_hit_test( vector32x2_c const & point )
 	{
 		menu_layer_e layer = menu_layer_e_base;
-		for ( sint32_c i = _control_list.get_length() - 1; i >= 0; i-- )
+		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _control_list.get_last();
+		while ( control_list_node )
 		{
-			menu_control_c * control = _control_list[ i ]->pick_control_with_global_point( point, layer );
+			menu_control_c * control = control_list_node->get_value()->pick_control_with_global_point( point, layer );
 			if ( control != nullptr )
 			{
 				return control->get_non_client_type();
 			}
+			control_list_node = control_list_node->get_previous();
 		}
 		return menu_non_client_type_e_none;
 	}
@@ -951,10 +971,10 @@ namespace cheonsa
 		// this should produce a rectangular polygon that is axis aligned, then we can convert it to a box by simply grabbing a couple of points.
 		if ( !give_result_in_global_space )
 		{
-			matrix32x2x2_c around_global_basis_inverted = ops::make_matrix32x2x2_inverted( around_global_basis );
+			matrix32x2x2_c around_global_basis_inverted = ops::invert_matrix32x2x2( around_global_basis );
 			for ( sint32_c i = 0; i < pop_up_box_polygon.points_count; i++ )
 			{
-				pop_up_box_polygon.points[ i ] = ops::make_vector32x2_transformed_point( pop_up_box_polygon.points[ i ] - around_global_origin, around_global_basis_inverted );
+				pop_up_box_polygon.points[ i ] = ops::rotate_and_scale_vector32x2( pop_up_box_polygon.points[ i ] - around_global_origin, around_global_basis_inverted );
 			}
 		}
 		result.minimum = pop_up_box_polygon.points[ 0 ]; // top left point.
@@ -988,10 +1008,10 @@ namespace cheonsa
 
 	menu_control_c * user_interface_c::open_modal_screen()
 	{
-		menu_control_frame_c * result = new menu_control_frame_c( string8_c( core_list_mode_e_static, "modal_screen" ) );
+		menu_control_frame_c * result = menu_control_frame_c::make_new_instance( string8_c( core_list_mode_e_static, "modal_screen" ) );
 		result->set_style_map_key( string8_c( core_list_mode_e_static, "e_modal" ) );
 		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
-		give_control( result );
+		add_control( result );
 		return result;
 	}
 

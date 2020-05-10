@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_string16.h"
@@ -7,10 +7,10 @@
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_resource_file_font.h"
-#include "cheonsa_resource_file_material_map.h"
+#include "cheonsa_resource_file_materials.h"
 #include "cheonsa_resource_file_menu_layout.h"
 #include "cheonsa_resource_file_model.h"
-#include "cheonsa_resource_file_sprite_set.h"
+#include "cheonsa_resource_file_sprites.h"
 #include "cheonsa_resource_file_texture.h"
 #include "cheonsa_platform_thread.h"
 #include "cheonsa_platform_critical_section.h"
@@ -20,12 +20,13 @@ namespace cheonsa
 
 	// tracks, loads, and unloads resources that are used by the game.
 	// automatically scans source files of loaded resources and reloads them when modifications are detected.
+	// not yet implemented: automatic unloading and deletion of resources with 0 reference count.
 	class resource_manager_c
 	{
 	private:
 		core_list_c< resource_file_c * > _resource_list; // all of the resources currently instantiated.
 
-		core_list_c< resource_file_c * > _load_queue; // main thread buffer of resources to add to the worker thread copy.
+		core_list_c< resource_file_c * > _load_queue; // load queue on the main thread side. this main thread buffer will be copied to the worker thread buffer continuously, then cleared.
 
 		platform_thread_c _worker_thread;
 		platform_critical_section_c _worker_thread_critical_section;
@@ -40,12 +41,6 @@ namespace cheonsa
 
 		boolean_c _scan_enable; // if true then the resource manager will continuously scan for source file modifications in the background.
 		sint32_c _scan_index; // tracks which resource file the scanner is currently on.
-		
-		// called by async load thread, is here for friend access benefit (since the async load thread does not have access).
-		// also called by templated _load method, since friend benefits don't apply in there.
-		static void_c _load_resource_file( resource_file_c * resource_file, data_stream_c * stream, string16_c const & absolute_file_path, boolean_c for_async_load_thread );
-
-		void_c _refresh_resource_file( resource_file_c * resource_file ); // used by the scanner to check if a source file of a given resource file was modified, and if so then it reloads the resource file, otherwise it doesn't do anything.
 
 	public:
 		resource_manager_c(); // spins up the background resource loading thread.
@@ -53,18 +48,14 @@ namespace cheonsa
 
 		boolean_c start();
 
-		// scans a few resource source files for modifications, and reloads those resources from their source files if needed, and deletes resources that are no longer referenced.
-		// we may move this to another thread later on.
-		void_c update();
-
-		// scans all resource source files for modifications, and reloads those resources from their source files if needed.
+		// scans all resource source files for modifications, and reloads them if any changes are detected.
 		void_c refresh();
 
 		resource_file_font_c * load_font( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_material_map_c * load_material_map( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_materials_c * load_materials( string16_c const & relative_file_path, boolean_c load_now = true );
 		resource_file_menu_layout_c * load_menu_layout( string16_c const & relative_file_path, boolean_c load_now = true );
 		resource_file_model_c * load_model( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_sprite_set_c * load_sprite_set( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_sprites_c * load_sprites( string16_c const & relative_file_path, boolean_c load_now = true );
 		resource_file_texture_c * load_texture( string16_c const & relative_file_path, boolean_c load_now = true );
 
 	};

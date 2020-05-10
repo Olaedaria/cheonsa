@@ -1,4 +1,4 @@
-﻿#include "cheonsa_resource_file_model.h"
+#include "cheonsa_resource_file_model.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 #include "cheonsa_debug_manager.h"
@@ -17,7 +17,7 @@ namespace cheonsa
 		bone_list.remove_all();
 		bone_logic_list.remove_all();
 		bone_logic_property_list.remove_all();
-		bone_attachment_list.remove_all();
+		attachment_point_list.remove_all();
 		animation_list.remove_all();
 		animation_object_list.remove_all();
 		animation_property_list.remove_all();
@@ -33,20 +33,23 @@ namespace cheonsa
 		property_list.remove_all();
 		string_table.remove_all();
 		bone_extras_list.remove_all();
-		if ( mesh_vertex_buffer_base != nullptr )
+
+		_cpu_vertex_buffer_mesh_base.remove_all();
+		if ( _gpu_vertex_buffer_mesh_base != nullptr )
 		{
-			delete mesh_vertex_buffer_base;
-			mesh_vertex_buffer_base = nullptr;
+			delete _gpu_vertex_buffer_mesh_base;
+			_gpu_vertex_buffer_mesh_base = nullptr;
 		}
-		if ( mesh_vertex_buffer_bone_weight != nullptr )
+		_cpu_vertex_buffer_mesh_bone_weight.remove_all();
+		if ( _gpu_vertex_buffer_mesh_bone_weight != nullptr )
 		{
-			delete mesh_vertex_buffer_bone_weight;
-			mesh_vertex_buffer_bone_weight = nullptr;
+			delete _gpu_vertex_buffer_mesh_bone_weight;
+			_gpu_vertex_buffer_mesh_bone_weight = nullptr;
 		}
-		if ( mesh_index_buffer != nullptr )
+		if ( _gpu_mesh_index_buffer != nullptr )
 		{
-			delete mesh_index_buffer;
-			mesh_index_buffer = nullptr;
+			delete _gpu_mesh_index_buffer;
+			_gpu_mesh_index_buffer = nullptr;
 		}
 	}
 
@@ -141,7 +144,7 @@ namespace cheonsa
 		return offset;
 	}
 
-	boolean_c resource_file_model_c::_load( data_stream_c * stream )
+	void_c resource_file_model_c::_load( data_stream_c * stream )
 	{
 		assert( stream != nullptr );
 		assert( _is_loaded == false );
@@ -229,7 +232,7 @@ namespace cheonsa
 				else
 				{
 					_data.string_table.set_length_absolute( chunk_header.data_size );
-					if ( _data.string_table.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.string_table.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -256,12 +259,12 @@ namespace cheonsa
 			{
 				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
-					_data.mesh_bone_name_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+					_data.mesh_bone_name_list.construct_mode_static_from_array( reinterpret_cast< mesh_bone_name_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
 				}
 				else
 				{
 					_data.mesh_bone_name_list.set_length_absolute( chunk_header.count );
-					if ( _data.mesh_bone_name_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.mesh_bone_name_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -272,7 +275,7 @@ namespace cheonsa
 					}
 					for ( sint32_c j = 0; j < chunk_header.count; j++ )
 					{
-						if ( !scribe.load_uint16( _data.mesh_bone_name_list[ j ] ) )
+						if ( !scribe.load_uint16( _data.mesh_bone_name_list[ j ].name ) )
 						{
 							goto cancel;
 						}
@@ -296,7 +299,7 @@ namespace cheonsa
 				else
 				{
 					_data.mesh_list.set_length_absolute( chunk_header.count );
-					if ( _data.mesh_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.mesh_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -331,7 +334,7 @@ namespace cheonsa
 				else
 				{
 					_data.mesh_draw_list.set_length_absolute( chunk_header.count );
-					if ( _data.mesh_draw_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.mesh_draw_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -366,7 +369,7 @@ namespace cheonsa
 				else
 				{
 					_data.mesh_vertex_list_base.set_length_absolute( chunk_header.count );
-					if ( _data.mesh_vertex_list_base.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.mesh_vertex_list_base.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -401,7 +404,7 @@ namespace cheonsa
 				else
 				{
 					_data.mesh_vertex_list_bone_weight.set_length_absolute( chunk_header.count );
-					if ( _data.mesh_vertex_list_bone_weight.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.mesh_vertex_list_bone_weight.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -429,9 +432,9 @@ namespace cheonsa
 			// mesh_index_list
 			else if ( ops::memory_compare( chunk_header.signature, mesh_index_c::get_signature(), 4 ) )
 			{
-				if ( chunk_header.count <= 65535 )
+				if ( _data.mesh_vertex_list_base.get_length() <= 65535 )
 				{
-					// 16 bit indices safety check.
+					// 16-bit indices safety check.
 					if ( sizeof( uint16_c ) * chunk_header.count != chunk_header.data_size )
 					{
 						goto cancel;
@@ -439,7 +442,7 @@ namespace cheonsa
 				}
 				else
 				{
-					// 32 bit indices safety check.
+					// 32-bit indices safety check.
 					if ( sizeof( uint32_c ) * chunk_header.count != chunk_header.data_size )
 					{
 						goto cancel;
@@ -447,24 +450,24 @@ namespace cheonsa
 				}
 				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
-					if ( chunk_header.count <= 65535 )
+					if ( _data.mesh_vertex_list_base.get_length() <= 65535 )
 					{
-						// 16 bit indices.
+						// 16-bit indices.
 						_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
 					}
 					else
 					{
-						// 32 bit indices.
+						// 32-bit indices.
 						_data.mesh_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count * 2 );
 					}
 				}
 				else
 				{
-					if ( chunk_header.count <= 65535 )
+					if ( _data.mesh_vertex_list_base.get_length() <= 65535 )
 					{
-						// 16 bit indices.
+						// 16-bit indices.
 						_data.mesh_index_list.set_length_absolute( chunk_header.count );
-						if ( _data.mesh_index_list.get_internal_array_size_used() != chunk_header.data_size )
+						if ( _data.mesh_index_list.get_internal_array_size() != chunk_header.data_size )
 						{
 							goto cancel;
 						}
@@ -487,9 +490,9 @@ namespace cheonsa
 					}
 					else
 					{
-						// 32 bit indices.
+						// 32-bit indices.
 						_data.mesh_index_list.set_length_absolute( chunk_header.count * 2 );
-						if ( _data.mesh_index_list.get_internal_array_size_used() != chunk_header.data_size )
+						if ( _data.mesh_index_list.get_internal_array_size() != chunk_header.data_size )
 						{
 							goto cancel;
 						}
@@ -516,6 +519,76 @@ namespace cheonsa
 
 			//
 			//
+			// mesh_shape_key_vertex_list
+			else if ( ops::memory_compare( chunk_header.signature, mesh_shape_key_vertex_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.mesh_shape_key_vertex_list.construct_mode_static_from_array( reinterpret_cast< mesh_shape_key_vertex_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.mesh_shape_key_vertex_list.set_length_absolute( chunk_header.count );
+					if ( _data.bone_list.get_internal_array_size() != chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j = 0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.mesh_shape_key_vertex_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
+
+			//
+			//
+			// mesh_shape_key_list
+			else if ( ops::memory_compare( chunk_header.signature, mesh_shape_key_c::get_signature(), 4 ) )
+			{
+				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
+				{
+					_data.mesh_shape_key_list.construct_mode_static_from_array( reinterpret_cast< mesh_shape_key_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+				}
+				else
+				{
+					_data.mesh_shape_key_list.set_length_absolute( chunk_header.count );
+					if ( _data.mesh_shape_key_list.get_internal_array_size() == chunk_header.data_size )
+					{
+						goto cancel;
+					}
+					sint32_c return_stream_position = stream->get_position();
+					if ( !stream->set_position( chunk_header.data_offset ) )
+					{
+						goto cancel;
+					}
+					for ( sint32_c j =0; j < chunk_header.count; j++ )
+					{
+						if ( !_data.mesh_shape_key_list[ j ].load( scribe ) )
+						{
+							goto cancel;
+						}
+					}
+					if ( !stream->set_position( return_stream_position ) )
+					{
+						goto cancel;
+					}
+				}
+			}
+
+			//
+			//
 			// bone_list
 			else if ( ops::memory_compare( chunk_header.signature, bone_c::get_signature(), 4 ) )
 			{
@@ -526,7 +599,7 @@ namespace cheonsa
 				else
 				{
 					_data.bone_list.set_length_absolute( chunk_header.count );
-					if ( _data.bone_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.bone_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -561,7 +634,7 @@ namespace cheonsa
 				else
 				{
 					_data.bone_logic_list.set_length_absolute( chunk_header.count );
-					if ( _data.bone_logic_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.bone_logic_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -596,7 +669,7 @@ namespace cheonsa
 				else
 				{
 					_data.bone_logic_property_list.set_length_absolute( chunk_header.count );
-					if ( _data.bone_logic_property_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.bone_logic_property_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -622,16 +695,16 @@ namespace cheonsa
 			//
 			//
 			// bone_attachment_list
-			else if ( ops::memory_compare( chunk_header.signature, bone_attachment_c::get_signature(), 4 ) )
+			else if ( ops::memory_compare( chunk_header.signature, attachment_point_c::get_signature(), 4 ) )
 			{
 				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
-					_data.bone_attachment_list.construct_mode_static_from_array( reinterpret_cast< bone_attachment_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+					_data.attachment_point_list.construct_mode_static_from_array( reinterpret_cast< attachment_point_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
 				}
 				else
 				{
-					_data.bone_attachment_list.set_length_absolute( chunk_header.count );
-					if ( _data.bone_attachment_list.get_internal_array_size_used() != chunk_header.data_size )
+					_data.attachment_point_list.set_length_absolute( chunk_header.count );
+					if ( _data.attachment_point_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -642,7 +715,7 @@ namespace cheonsa
 					}
 					for ( sint32_c j = 0; j < chunk_header.count; j++ )
 					{
-						if ( !_data.bone_attachment_list[ j ].load( scribe ) )
+						if ( !_data.attachment_point_list[ j ].load( scribe ) )
 						{
 							goto cancel;
 						}
@@ -666,7 +739,7 @@ namespace cheonsa
 				else
 				{
 					_data.animation_list.set_length_absolute( chunk_header.count );
-					if ( _data.animation_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.animation_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -701,7 +774,7 @@ namespace cheonsa
 				else
 				{
 					_data.animation_object_list.set_length_absolute( chunk_header.count );
-					if ( _data.animation_object_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.animation_object_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -736,7 +809,7 @@ namespace cheonsa
 				else
 				{
 					_data.animation_property_list.set_length_absolute( chunk_header.count );
-					if ( _data.animation_property_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.animation_property_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -771,7 +844,7 @@ namespace cheonsa
 				else
 				{
 					_data.animation_event_list.set_length_absolute( chunk_header.count );
-					if ( _data.animation_event_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.animation_event_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -797,16 +870,16 @@ namespace cheonsa
 			//
 			//
 			// physics_body_list
-			else if ( ops::memory_compare( chunk_header.signature, physics_body_c::get_signature(), 4 ) )
+			else if ( ops::memory_compare( chunk_header.signature, physics_rigid_body_c::get_signature(), 4 ) )
 			{
 				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
-					_data.physics_body_list.construct_mode_static_from_array( reinterpret_cast< physics_body_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+					_data.physics_body_list.construct_mode_static_from_array( reinterpret_cast< physics_rigid_body_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
 				}
 				else
 				{
 					_data.physics_body_list.set_length_absolute( chunk_header.count );
-					if ( _data.physics_body_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.physics_body_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -841,7 +914,7 @@ namespace cheonsa
 				else
 				{
 					_data.physics_shape_list.set_length_absolute( chunk_header.count );
-					if ( _data.physics_shape_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.physics_shape_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -876,7 +949,7 @@ namespace cheonsa
 				else
 				{
 					_data.physics_vertex_list.set_length_absolute( chunk_header.count );
-					if ( _data.physics_vertex_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.physics_vertex_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -906,12 +979,12 @@ namespace cheonsa
 			{
 				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
-					_data.physics_index_list.construct_mode_static_from_array( reinterpret_cast< uint16_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+					_data.physics_index_list.construct_mode_static_from_array( reinterpret_cast< physics_index_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
 				}
 				else
 				{
 					_data.physics_index_list.set_length_absolute( chunk_header.count );
-					if ( _data.physics_index_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.physics_index_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -922,7 +995,7 @@ namespace cheonsa
 					}
 					for ( sint32_c j = 0; j < chunk_header.count; j++ )
 					{
-						if ( !scribe.load_uint16( _data.physics_index_list[ j ] ) )
+						if ( !_data.physics_index_list[ j ].load( scribe ) )
 						{
 							goto cancel;
 						}
@@ -946,7 +1019,7 @@ namespace cheonsa
 				else
 				{
 					_data.physics_constraint_list.set_length_absolute( chunk_header.count );
-					if ( _data.physics_constraint_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.physics_constraint_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -976,12 +1049,12 @@ namespace cheonsa
 			{
 				if ( scribe.get_byte_order() == ops::get_native_byte_order() )
 				{
-					_data.physics_parameter_list.construct_mode_static_from_array( reinterpret_cast< float32_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
+					_data.physics_parameter_list.construct_mode_static_from_array( reinterpret_cast< physics_parameter_c const * >( &_raw_data[ chunk_header.data_offset ] ), chunk_header.count );
 				}
 				else
 				{
 					_data.physics_parameter_list.set_length_absolute( chunk_header.count );
-					if ( _data.physics_parameter_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.physics_parameter_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -992,7 +1065,7 @@ namespace cheonsa
 					}
 					for ( sint32_c j = 0; j < chunk_header.count; j++ )
 					{
-						if ( !scribe.load_float32( _data.physics_parameter_list[ j ] ) )
+						if ( !_data.physics_parameter_list[ j ].load( scribe ) )
 						{
 							goto cancel;
 						}
@@ -1016,7 +1089,7 @@ namespace cheonsa
 				else
 				{
 					_data.light_list.set_length_absolute( chunk_header.count );
-					if ( _data.light_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.light_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -1051,7 +1124,7 @@ namespace cheonsa
 				else
 				{
 					_data.property_list.set_length_absolute( chunk_header.count );
-					if ( _data.property_list.get_internal_array_size_used() != chunk_header.data_size )
+					if ( _data.property_list.get_internal_array_size() != chunk_header.data_size )
 					{
 						goto cancel;
 					}
@@ -1086,7 +1159,7 @@ namespace cheonsa
 			bone_extras_c & bone_extras = _data.bone_extras_list.get_internal_array()[ i ];
 
 			// calculate bone length.
-			bone_extras.length = ops::make_float32_length( vector32x3_c( bone.tail_position ) - vector32x3_c( bone.head_position ) );
+			bone_extras.length = ops::length_float32( vector32x3_c( bone.tail_position ) - vector32x3_c( bone.head_position ) );
 			
 			// calculate object space rest transform.
 			bone_extras.object_space_rest_transform = make_bone_transform( vector64x3_c( bone.head_position ), vector64x3_c( bone.tail_position ), bone.roll, vector32x3_c( 0.0, 0.0, 1.0 ) );
@@ -1117,20 +1190,32 @@ namespace cheonsa
 		// gpus are always little endian as far as i know, we may need to swap endianness.
 		if ( _data.mesh_vertex_list_base.get_length() > 0 )
 		{
-			_data.mesh_vertex_buffer_base = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_base.get_length(), _data.mesh_vertex_list_base.get_internal_array(), _data.mesh_vertex_list_base.get_internal_array_size_used(), false, false, false );
+			_data._cpu_vertex_buffer_mesh_base.construct_mode_static_from_array( reinterpret_cast< video_renderer_vertex_mesh_base_c * >( _data.mesh_vertex_list_base.get_internal_array() ), _data.mesh_vertex_list_base.get_length() );
+			_data._gpu_vertex_buffer_mesh_base = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data._cpu_vertex_buffer_mesh_base.get_length(), _data._cpu_vertex_buffer_mesh_base.get_internal_array(), _data._cpu_vertex_buffer_mesh_base.get_internal_array_size(), false, false, false );
 		}
 		if ( _data.mesh_vertex_list_bone_weight.get_length() > 0 )
 		{
-			_data.mesh_vertex_buffer_bone_weight = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data.mesh_vertex_list_bone_weight.get_length(), _data.mesh_vertex_list_bone_weight.get_internal_array(), _data.mesh_vertex_list_bone_weight.get_internal_array_size_used(), false, false, false );
+			_data._cpu_vertex_buffer_mesh_bone_weight.construct_mode_static_from_array( reinterpret_cast< video_renderer_vertex_mesh_bone_weight_c * >( _data.mesh_vertex_list_bone_weight.get_internal_array() ), _data.mesh_vertex_list_bone_weight.get_length() );
+			_data._gpu_vertex_buffer_mesh_bone_weight = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_mesh_base, _data._cpu_vertex_buffer_mesh_bone_weight.get_length(), _data._cpu_vertex_buffer_mesh_bone_weight.get_internal_array(), _data._cpu_vertex_buffer_mesh_bone_weight.get_internal_array_size(), false, false, false );
 		}
 		if ( _data.mesh_index_list.get_length() > 0 )
 		{
-			_data.mesh_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint16, _data.mesh_index_list.get_length(), _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size_used(), false, false );
+			if ( _data.mesh_vertex_list_base.get_length() <= 65535 )
+			{
+				_data._gpu_mesh_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint16, _data.mesh_index_list.get_internal_array_size() / sizeof( uint16_c ), _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size(), false, false );
+			}
+			else
+			{
+				_data._gpu_mesh_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint32, _data.mesh_index_list.get_internal_array_size() / sizeof( uint32_c ), _data.mesh_index_list.get_internal_array(), _data.mesh_index_list.get_internal_array_size(), false, false );
+			}
 		}
 
 		// done.
 		_is_loaded = true;
-		return true;
+
+		on_loaded.invoke( this );
+
+		return;
 
 	cancel:
 		if ( _raw_data_size > 0 )
@@ -1140,12 +1225,16 @@ namespace cheonsa
 			_raw_data_size = 0;
 		}
 		_data.reset();
-		return false;
 	}
 
 	void_c resource_file_model_c::_unload()
 	{
 		assert( _is_loaded == true );
+
+		on_unloaded.invoke( this );
+
+		_is_loaded = false;
+
 		_data.reset();
 		if ( _raw_data_size > 0 )
 		{
@@ -1153,20 +1242,14 @@ namespace cheonsa
 			_raw_data = nullptr;
 			_raw_data_size = 0;
 		}
-		_is_loaded = false;
 	}
 
-	resource_file_model_c::resource_file_model_c()
-		: resource_file_c()
+	resource_file_model_c::resource_file_model_c( string16_c const & file_path )
+		: resource_file_c( file_path )
 		, _raw_data_size( 0 )
 		, _raw_data( nullptr )
 		, _data()
 	{
-	}
-
-	resource_file_model_c::~resource_file_model_c()
-	{
-		assert( _is_loaded == false );
 	}
 
 	resource_file_model_c::data_c const & resource_file_model_c::get_data() const
@@ -1174,34 +1257,153 @@ namespace cheonsa
 		return _data;
 	}
 
-	space_transform_c resource_file_model_c::make_bone_transform( vector64x3_c const & bone_head, vector64x3_c const & bone_tail, float32_c bone_roll, vector32x3_c const & global_up )
+	transform3d_c resource_file_model_c::make_bone_transform( vector64x3_c const & bone_head, vector64x3_c const & bone_tail, float32_c bone_roll, vector32x3_c const & global_up )
 	{
-		// this algorithm is essentially copied from a file in Blender.
+		// this algorithm is essentially copied from blender:
+		//     https://github.com/blender/blender/blob/master/source/blender/blenkernel/intern/armature.c
+		//     void vec_roll_to_mat3_normalized(const float nor[3], const float roll, float mat[3][3])
+		//
 		// in Blender, the bone's main axis is along the y axis of the matrix.
 		// but in cheonsa, the bone's main axis is along the z axis of the matrix.
 		// this is the difference and it can cause some confusion.
 		// this is also why quaternions exported from blender are swizzled, so that they define an orientation in this space.
-		space_transform_c result;
-		vector32x3_c axis = ops::make_vector32x3_normalized( vector32x3_c( bone_tail - bone_head ) ); // this is the axis of the bone from head to tail.
-		vector32x3_c tangent = ops::make_vector32x3_cross_product( global_up, axis ); // this is the axis that the bone_rotation will be around.
-		if ( ops::make_float32_length_squared( tangent ) > constants< float32_c >::angle_near_zero() )
+		transform3d_c result;
+		vector32x3_c axis = ops::normal_vector32x3( vector32x3_c( bone_tail - bone_head ) ); // this is the axis of the bone from head to tail.
+		vector32x3_c tangent = ops::cross_product_vector32x3( global_up, axis ); // this is the axis that the bone_rotation will be around.
+		if ( ops::length_squared_float32( tangent ) > constants< float32_c >::angle_near_zero() )
 		{
 			// bone axis is not pointing straight up or straight down.
-			float32_c angle = ops::math_arc_cosine( ops::make_float32_dot_product( global_up, axis ) );
-			result.rotation = ops::make_quaternion32_from_axis_angle( vector32x4_c( tangent.a, tangent.b, tangent.c, angle ) );
+			float32_c angle = ops::math_arc_cosine( ops::dot_product_float32( global_up, axis ) );
+			result.rotation = ops::rotation_quaternion32_from_axis_angle( vector32x4_c( tangent.a, tangent.b, tangent.c, angle ) );
 		}
 		else
 		{
 			// bone axis is pointing straight up or straight down.
-			float32_c angle = ops::make_float32_dot_product( global_up, axis ) > 0 ? 0.0f : constants< float32_c >::pi();
-			result.rotation = ops::make_quaternion32_from_axis_angle( vector32x4_c( global_up.a, global_up.b, global_up.c, angle ) );
+			float32_c angle = ops::dot_product_float32( global_up, axis ) > 0 ? 0.0f : constants< float32_c >::pi();
+			result.rotation = ops::rotation_quaternion32_from_axis_angle( vector32x4_c( global_up.a, global_up.b, global_up.c, angle ) );
 		}
 		if ( bone_roll != 0.0f )
 		{
-			result.rotation = result.rotation * ops::make_quaternion32_from_axis_angle( vector32x4_c( axis.a, axis.b, axis.c, bone_roll ) );
+			result.rotation = result.rotation * ops::rotation_quaternion32_from_axis_angle( vector32x4_c( axis.a, axis.b, axis.c, bone_roll ) );
 		}
 		result.position = bone_head;
 		return result;
+	}
+
+	void axis_angle_normalized_to_mat3_ex( matrix32x3x3_c & mat, vector32x3_c const & axis, float32_c const angle_sin, float32_c const angle_cos)
+	{
+		vector32x3_c nsi;
+		float32_c ico;
+		float n_00, n_01, n_11, n_02, n_12, n_22;
+
+		//BLI_ASSERT_UNIT_V3(axis);
+
+		/* now convert this to a 3x3 matrix */
+
+		ico = (1.0f - angle_cos);
+		nsi.a = axis.a * angle_sin;
+		nsi.b = axis.b * angle_sin;
+		nsi.c = axis.c * angle_sin;
+
+		n_00 = (axis.a * axis.a) * ico;
+		n_01 = (axis.a * axis.b) * ico;
+		n_11 = (axis.b * axis.b) * ico;
+		n_02 = (axis.a * axis.c) * ico;
+		n_12 = (axis.b * axis.c) * ico;
+		n_22 = (axis.c * axis.c) * ico;
+
+		mat.a.a = n_00 + angle_cos;
+		mat.a.b = n_01 + nsi.c;
+		mat.a.c = n_02 - nsi.b;
+		mat.b.a = n_01 - nsi.c;
+		mat.b.b = n_11 + angle_cos;
+		mat.b.c = n_12 + nsi.a;
+		mat.c.a = n_02 + nsi.b;
+		mat.c.b = n_12 - nsi.a;
+		mat.c.c = n_22 + angle_cos;
+	}
+
+	void axis_angle_normalized_to_mat3( matrix32x3x3_c & mat, vector32x3_c const & axis, const float angle )
+	{
+		axis_angle_normalized_to_mat3_ex(mat, axis, sinf(angle), cosf(angle));
+	}
+
+	transform3d_c resource_file_model_c::make_bone_transform2( vector64x3_c const & bone_head, vector64x3_c const & bone_tail, float32_c bone_roll )
+	{
+		// this algorithm is copied from blender:
+		//     https://github.com/blender/blender/blob/master/source/blender/blenkernel/intern/armature.c
+		//     void vec_roll_to_mat3_normalized(const float nor[3], const float roll, float mat[3][3])
+
+		#define THETA_THRESHOLD_NEGY 1.0e-9f
+		#define THETA_THRESHOLD_NEGY_CLOSE 1.0e-5f
+
+		transform3d_c result;
+
+		float32_c theta;
+		matrix32x3x3_c bone_roll_matrix;
+		matrix32x3x3_c bone_base_matrix;
+
+		vector32x3_c bone_axis = ops::normal_vector32x3( vector32x3_c( bone_tail - bone_head ) );
+
+		theta = 1.0f + bone_axis.b;
+
+		/* With old algo, 1.0e-13f caused T23954 and T31333, 1.0e-6f caused T27675 and T30438,
+		* so using 1.0e-9f as best compromise.
+		*
+		* New algo is supposed much more precise, since less complex computations are performed,
+		* but it uses two different threshold values...
+		*
+		* Note: When theta is close to zero, we have to check we do have non-null X/Z components as well
+		*       (due to float precision errors, we can have nor = (0.0, 0.99999994, 0.0)...).
+		*/
+		if ( theta > THETA_THRESHOLD_NEGY_CLOSE || ( ( bone_axis.a || bone_axis.c ) && theta > THETA_THRESHOLD_NEGY ) )
+		{
+			/* nor is *not* -Y.
+			* We got these values for free... so be happy with it... ;)
+			*/
+			bone_base_matrix.a.b = -bone_axis.a;
+			bone_base_matrix.b.a = bone_axis.a;
+			bone_base_matrix.b.b = bone_axis.b;
+			bone_base_matrix.b.c = bone_axis.c;
+			bone_base_matrix.c.b = -bone_axis.c;
+			if ( theta > THETA_THRESHOLD_NEGY_CLOSE )
+			{
+				/* If nor is far enough from -Y, apply the general case. */
+				bone_base_matrix.a.a = 1 - bone_axis.a * bone_axis.a / theta;
+				bone_base_matrix.c.c = 1 - bone_axis.c * bone_axis.c / theta;
+				bone_base_matrix.c.a = bone_base_matrix.a.c = -bone_axis.a * bone_axis.c / theta;
+			}
+			else
+			{
+				/* If nor is too close to -Y, apply the special case. */
+				theta = bone_axis.a * bone_axis.a + bone_axis.c * bone_axis.c;
+				bone_base_matrix.a.a = ( bone_axis.a + bone_axis.c ) * ( bone_axis.a - bone_axis.c ) / -theta;
+				bone_base_matrix.c.c = -bone_base_matrix.a.a;
+				bone_base_matrix.c.a = bone_base_matrix.a.c = 2.0f * bone_axis.a * bone_axis.c / theta;
+			}
+		}
+		else
+		{
+			/* If nor is -Y, simple symmetry by Z axis. */
+			bone_base_matrix.a.b = bone_base_matrix.a.c = 0.0;
+			bone_base_matrix.b.a = bone_base_matrix.b.c = 0.0;
+			bone_base_matrix.a.a = bone_base_matrix.b.b = -1.0;
+			bone_base_matrix.c.a = bone_base_matrix.c.b = 0.0;
+			bone_base_matrix.c.c = 1.0;
+		}
+
+		/* Make Roll matrix */
+		axis_angle_normalized_to_mat3( bone_roll_matrix, bone_axis, bone_roll );
+
+		/* Combine and output result */
+		//mul_m3_m3m3(mat, rMatrix, bMatrix);
+		result.set_rotation_from_unscaled_basis( bone_roll_matrix * bone_base_matrix );
+		result.position = bone_head;
+
+		return result;
+
+		#undef THETA_THRESHOLD_NEGY
+		#undef THETA_THRESHOLD_NEGY_CLOSE
 	}
 
 }

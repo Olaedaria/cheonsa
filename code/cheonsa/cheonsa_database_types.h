@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_data_types.h"
@@ -9,6 +9,7 @@ namespace cheonsa
 	// databases can work in one of two different modes.
 	enum database_flag_e
 	{
+		database_flag_e_none = 0x00,
 		// if schema is modified and new fields are added, then their values will be defined and set to the default defined by the scehma.
 		database_flag_e_master = 0x01,
 		// if schema is modified and new fields are added, then their values will be left undefined.
@@ -67,7 +68,7 @@ namespace cheonsa
 	{
 		uint32_c id;
 		database_record_address_c mod_record_address;
-		uint8_c flags;
+		uint8_c flags; // interpret as database_record_flag_e.
 		uint8_c padding[ 3 ];
 	};
 	static_assert( sizeof( database_record_header_c ) == 16, "size of database_record_header_c is wrong." );
@@ -77,13 +78,13 @@ namespace cheonsa
 	{
 		// a new record was added.
 		// the game usually doesn't need to do anything to respond to this situation.
-		// but in the case that we are in the editor and the user is undoing or undeleting a record, then the game should reinstance any previously deinstanced objects that were instanced from this data.
+		// but in the case that we are in the editor and the user is undoing or undeleting a record, then the game should reinstance any previously deinstanced objects|states that were instanced from this data.
 		database_operation_e_record_added,
 		// a one or more fields in a record were modified.
-		// the game should gracefully reinstance any objects that it had instanced from this data.
+		// the game should gracefully reinstance any objects|states that it had instanced from this data.
 		database_operation_e_record_modified,
 		// a record is about to be deleted.
-		// the game should gracefully deinstance any objects that it had instanced from this data.
+		// the game should gracefully deinstance any objects|states that it had instanced from this data.
 		database_operation_e_record_removed,
 	};
 
@@ -102,7 +103,7 @@ namespace cheonsa
 		database_record_address_c mod_record_address; // lets the game respond to when the record is deleted.
 		database_record_c const * record; // the record that is being operated on.
 		database_operation_e operation; // the operation that happened (added and updated) or is about to happen (removed).
-		string8_c fields; // a vertical slash separated list fo the names of the fields that were modified. this lets the game respond to changes in the most optimal way possible if it wants to (the least optimal way is to reinstance the whole game object each time a single value changes).
+		string8_c field_key_list; // a vertical slash separated list of field keys with values that were modified. this enables the game respond to changes in the most optimal (minimal) way that it can.
 	};
 
 	uint16_c database_get_data_type_size( data_type_e data_type );

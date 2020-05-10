@@ -1,4 +1,4 @@
-﻿#include "cheonsa_database.h"
+#include "cheonsa_database.h"
 #include "cheonsa_database_table.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_data_stream_file.h"
@@ -9,11 +9,11 @@ namespace cheonsa
 
 	database_c::database_c( string16_c const & file_path )
 		: _database_stack( nullptr )
-		, _file_path( file_path )
+		, _file_path_absolute( file_path )
 		//, _endianness( ops::get_native_byte_order() )
 		, _name()
 		, _id( 0 )
-		, _flags( 0 )
+		, _flags( database_flag_e_none )
 		, _dependency_ids()
 		, _tables()
 	{
@@ -24,14 +24,14 @@ namespace cheonsa
 		return _database_stack;
 	}
 
-	string16_c const & database_c::get_file_path() const
+	string16_c const & database_c::get_file_path_absolute() const
 	{
-		return _file_path;
+		return _file_path_absolute;
 	}
 
-	void_c database_c::set_file_path( string16_c const & value )
+	void_c database_c::set_file_path_absolute( string16_c const & value )
 	{
-		_file_path = value;
+		_file_path_absolute = value;
 	}
 
 	string8_c const & database_c::get_name() const
@@ -54,12 +54,12 @@ namespace cheonsa
 		_id = value;
 	}
 
-	uint8_c database_c::get_flags() const
+	database_flag_e database_c::get_flags() const
 	{
-		return _flags;
+		return static_cast< database_flag_e >( _flags );
 	}
 
-	void_c database_c::set_flags( uint8_c value )
+	void_c database_c::set_flags( database_flag_e value )
 	{
 		_flags = value;
 	}
@@ -69,7 +69,7 @@ namespace cheonsa
 		database_table_c * table = new database_table_c();
 		table->_database = this;
 		table->_id = id;
-		_tables.insert_at_end( table );
+		_tables.insert( -1, table );
 		return table;
 	}
 
@@ -106,7 +106,7 @@ namespace cheonsa
 			database_table_c * table = _tables[ i ];
 			if ( table->_id == id )
 			{
-				_tables.remove_at_index( i );
+				_tables.remove( i, 1 );
 				delete table;
 			}
 		}
@@ -136,7 +136,7 @@ namespace cheonsa
 		assert( ( ( _flags & database_flag_e_master ) != 0 ) != ( ( _flags & database_flag_e_mod ) != 0 ) ); // make sure only one flag is set.
 
 		data_stream_file_c stream;
-		if ( !stream.open( _file_path, data_stream_mode_e_write ) )
+		if ( !stream.open( _file_path_absolute, data_stream_mode_e_write ) )
 		{
 			return false;
 		}
@@ -196,12 +196,12 @@ namespace cheonsa
 	{
 		_name = string8_c();
 		_id = 0;
-		_flags = 0;
+		_flags = database_flag_e_none;
 		_dependency_ids.remove_all();
 		_tables.remove_and_delete_all();
 
 		data_stream_file_c stream;
-		if ( !stream.open( _file_path, data_stream_mode_e_read ) )
+		if ( !stream.open( _file_path_absolute, data_stream_mode_e_read ) )
 		{
 			return false;
 		}
@@ -252,7 +252,7 @@ namespace cheonsa
 			{
 				goto cancel;
 			}
-			_dependency_ids.insert_at_end( dependency_id );
+			_dependency_ids.insert( -1, dependency_id );
 		}
 		uint16_c tables_length = 0;
 		if ( !scribe.load_uint16( tables_length ) )
@@ -263,7 +263,7 @@ namespace cheonsa
 		{
 			database_table_c * table = new database_table_c();
 			table->_database = this;
-			_tables.insert_at_end( table );
+			_tables.insert( -1, table );
 			if ( !table->_load( scribe ) )
 			{
 				goto cancel;
@@ -275,7 +275,7 @@ namespace cheonsa
 	cancel:
 		_name = string8_c();
 		_id = 0;
-		_flags = 0;
+		_flags = database_flag_e_none;
 		_dependency_ids.remove_all();
 		_tables.remove_and_delete_all();
 		return false;

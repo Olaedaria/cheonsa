@@ -1,4 +1,4 @@
-﻿#include "cheonsa_string_file.h"
+#include "cheonsa_string_file.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_data_scribe_markup.h"
 
@@ -55,21 +55,21 @@ namespace cheonsa
 				}
 
 				// save key.
-				offsets.insert_at_end( _byte_heap.get_length() ); // record start of key.
-				_byte_heap.insert_at_end( key_attribute->get_value().character_list.get_internal_array(), key_attribute->get_value().character_list.get_length() ); // copy key to byte buffer.
-				offsets.insert_at_end( _byte_heap.get_length() ); // record end of key, which is also start of value.
+				offsets.insert( -1, _byte_heap.get_length() ); // record start of key.
+				_byte_heap.insert( -1, key_attribute->get_value().character_list.get_internal_array(), key_attribute->get_value().character_list.get_length() ); // copy key to byte buffer.
+				offsets.insert( -1, _byte_heap.get_length() ); // record end of key, which is also start of value.
 
 				// save value.
 				data_scribe_markup_c::node_c const * string_text = string_tag->get_first_daughter();
 				if ( string_text && string_text->get_type() == data_scribe_markup_c::node_c::type_e_text )
 				{
 					// text node found.
-					_byte_heap.insert_at_end( string_text->get_value().character_list.get_internal_array(), string_text->get_value().character_list.get_length() );
+					_byte_heap.insert( -1, string_text->get_value().character_list.get_internal_array(), string_text->get_value().character_list.get_length() );
 				}
 				else
 				{
 					// no text node found.
-					_byte_heap.insert_at_end( '\0' ); // insert null terminator for empty string.
+					_byte_heap.insert( -1, '\0' ); // insert null terminator for empty string.
 				}
 			}
 			string_tag = string_tag->get_next_sister();
@@ -77,10 +77,10 @@ namespace cheonsa
 
 		// build _string_heap and _string_dictionary from _byte_heap.
 		sint32_c count = offsets.get_length();
-		offsets.insert_at_end( _byte_heap.get_length() ); // add extra so that accessing [ i + 2 ] does not fail.
+		offsets.insert( -1, _byte_heap.get_length() ); // add extra so that accessing [ i + 2 ] does not fail.
 		for ( sint32_c i = 0; i < count; i += 2 )
 		{
-			string_c * string = _string_heap.emplace_at_end();
+			string_c * string = _string_heap.emplace( -1, 1 );
 			sint32_c key_start = offsets[ i ];
 			sint32_c key_end = offsets[ i + 1 ];
 			string->_key = string8_c( core_list_mode_e_static, &_byte_heap.get_internal_array()[ key_start ], key_end - key_start );

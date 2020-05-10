@@ -1,4 +1,4 @@
-﻿#include "cheonsa_scene_tree_kd.h"
+#include "cheonsa_scene_tree_kd.h"
 #include "cheonsa_scene_component.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa__ops.h"
@@ -59,9 +59,9 @@ namespace cheonsa
 		}
 		else
 		{
-			_positive_value_list = _tree->_list_heap.emplace_at_end();
+			_positive_value_list = _tree->_list_heap.emplace( -1, 1 );
 			_positive_value_list->remove_all();
-			_negative_value_list = _tree->_list_heap.emplace_at_end();
+			_negative_value_list = _tree->_list_heap.emplace( -1, 1 );
 			_negative_value_list->remove_all();
 		}
 
@@ -70,20 +70,20 @@ namespace cheonsa
 			scene_component_c * value = value_list[ i ];
 			if ( value->get_scene_object()->get_world_space_transform().position.get_element_at_index( separating_axis ) >= _separating_distance )
 			{
-				_positive_value_list->insert_at_end( value );
+				_positive_value_list->insert( -1, value );
 			}
 			else
 			{
-				_negative_value_list->insert_at_end( value );
+				_negative_value_list->insert( -1, value );
 			}
 		}
 
 		if ( depth < depth_limit )
 		{
-			_positive_daughter = _tree->_node_heap.emplace_at_end();
+			_positive_daughter = _tree->_node_heap.emplace( -1, 1 );
 			_positive_daughter->_tree = _tree;
 			_positive_daughter->_build( positive_value_list, depth + 1, depth_limit );
-			_negative_daughter = _tree->_node_heap.emplace_at_end();
+			_negative_daughter = _tree->_node_heap.emplace( -1, 1 );
 			_negative_daughter->_tree = _tree;
 			_negative_daughter->_build( negative_value_list, depth + 1, depth_limit );
 		}
@@ -172,11 +172,11 @@ namespace cheonsa
 		}
 
 		scene_component_c * closest_value = (*value_list)[ 0 ];
-		float64_c closest_value_distance = ops::make_float64_length( (*value_list)[ 0 ]->get_scene_object()->get_world_space_transform().position - position );
+		float64_c closest_value_distance = ops::length_float64( (*value_list)[ 0 ]->get_scene_object()->get_world_space_transform().position - position );
 		for ( sint32_c i = 1; i < value_list->get_length(); i++ )
 		{
 			scene_component_c * value = (*value_list)[ i ];
-			float64_c value_distance = ops::make_float64_length( value->get_scene_object()->get_world_space_transform().position - position );
+			float64_c value_distance = ops::length_float64( value->get_scene_object()->get_world_space_transform().position - position );
 			if ( value_distance < closest_value_distance )
 			{
 				closest_value = value;

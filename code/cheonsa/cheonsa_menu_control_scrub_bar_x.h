@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control_scroll_bar_i.h"
 
@@ -14,8 +14,13 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "scrub_bar_x"; }
 		virtual inline char8_c const * get_type_name() const { return get_type_name_static(); }
 
-	public:
+	protected:
 		menu_control_scrub_bar_x_c( string8_c const & name );
+
+	public:
+		virtual ~menu_control_scrub_bar_x_c() override;
+
+		static menu_control_scrub_bar_x_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 	};
 

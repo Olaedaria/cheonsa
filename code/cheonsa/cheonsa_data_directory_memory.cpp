@@ -1,4 +1,4 @@
-﻿#include "cheonsa_data_directory_memory.h"
+#include "cheonsa_data_directory_memory.h"
 
 namespace cheonsa
 {
@@ -24,7 +24,7 @@ namespace cheonsa
 		}
 		result = new file_c();
 		result->path = file_path;
-		_file_list.insert_at_end( result );
+		_file_list.insert( -1, result );
 		return result;
 	}
 
@@ -71,7 +71,7 @@ namespace cheonsa
 			file_c * file = _file_list[ i ];
 			if ( file->path == file_path )
 			{
-				_file_list.remove_at_index( i );
+				_file_list.remove( i, 1 );
 				delete file;
 				return true;
 			}

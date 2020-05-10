@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_scroll_bar_x.h"
@@ -38,9 +38,12 @@ namespace cheonsa
 		void_c _handle_on_value_changed_preview( menu_element_text_c * text );
 		void_c _handle_on_value_changed( menu_element_text_c * text );
 
-	public:
 		menu_control_text_c( string8_c const & name ); // defaults to single line, plain text, editable, no scroll bars.
-		~menu_control_text_c();
+
+	public:
+		virtual ~menu_control_text_c() override;
+
+		static menu_control_text_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c update_animations( float32_c time_step ) override;
 

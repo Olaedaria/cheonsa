@@ -1,4 +1,4 @@
-﻿#include "cheonsa__ops.h"
+#include "cheonsa__ops.h"
 #include "third_party/strnatcmp.h"
 #include "third_party/xxhash.h"
 #include <cstdlib>
@@ -279,12 +279,12 @@ namespace cheonsa
 			return round( value * n ) / n;
 		}
 
-		float32_c math_remainder( float32_c value, float32_c multiple )
+		float32_c math_modulo( float32_c value, float32_c multiple )
 		{
 			return fmod( value, multiple );
 		}
 
-		float64_c math_remainder( float64_c value, float64_c multiple )
+		float64_c math_modulo( float64_c value, float64_c multiple )
 		{
 			return fmod( value, multiple );
 		}
@@ -505,16 +505,16 @@ namespace cheonsa
 		float32_c math_find_angle_around_axis( vector32x3_c const & tangent_to_axis_that_defines_angle_zero, vector32x3_c const & tangent_to_axis_that_defines_angle_quarter, vector32x3_c const & tangent_to_find_angle_of )
 		{
 			// this function returns the number of radians that tangent_to_find_angle_of is away from.
-			float32_c dot_forward = make_float32_dot_product( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_zero ); // we will use this value to determine the base foreward angle.
-			float32_c dot_right = make_float32_dot_product( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_quarter ); // we will use this value to determine if the result needs to be pushed past pi radians (180 degrees).
+			float32_c dot_forward = dot_product_float32( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_zero ); // we will use this value to determine the base foreward angle.
+			float32_c dot_right = dot_product_float32( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_quarter ); // we will use this value to determine if the result needs to be pushed past pi radians (180 degrees).
 			return math_arc_cosine( dot_forward ) * dot_right > 0.0f ? -1.0f : 1.0f; // clock-wise : counter-clock-wise.
 		}
 
 		float64_c math_find_angle_around_axis( vector64x3_c const & tangent_to_axis_that_defines_angle_zero, vector64x3_c const & tangent_to_axis_that_defines_angle_quarter, vector64x3_c const & tangent_to_find_angle_of )
 		{
 			// this function returns the number of radians that tangent_to_find_angle_of is away from.
-			float64_c dot_forward = make_float64_dot_product( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_zero ); // we will use this value to determine the base foreward angle.
-			float64_c dot_right = make_float64_dot_product( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_quarter ); // we will use this value to determine if the result needs to be pushed past pi radians (180 degrees).
+			float64_c dot_forward = dot_product_float64( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_zero ); // we will use this value to determine the base foreward angle.
+			float64_c dot_right = dot_product_float64( tangent_to_find_angle_of, tangent_to_axis_that_defines_angle_quarter ); // we will use this value to determine if the result needs to be pushed past pi radians (180 degrees).
 			return math_arc_cosine( dot_forward ) * dot_right > 0.0 ? -1.0 : 1.0; // clock-wise : counter-clock-wise.
 		}
 
@@ -553,70 +553,70 @@ namespace cheonsa
 		//
 		//
 
-		float32_c make_float32_length_squared( vector32x2_c const & vector )
+		float32_c length_squared_float32( vector32x2_c const & vector )
 		{
 			return ( vector.a * vector.a ) + ( vector.b * vector.b );
 		}
 
-		float64_c make_float64_length_squared( vector64x2_c const & vector )
+		float64_c length_squared_float64( vector64x2_c const & vector )
 		{
 			return ( vector.a * vector.a ) + ( vector.b * vector.b );
 		}
 
-		float32_c make_float32_length_squared( vector32x3_c const & vector )
+		float32_c length_squared_float32( vector32x3_c const & vector )
 		{
 			return ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c );
 		}
 
-		float64_c make_float64_length_squared( vector64x3_c const & vector )
+		float64_c length_squared_float64( vector64x3_c const & vector )
 		{
 			return ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c );
 		}
 
-		float32_c make_float32_length_squared( vector32x4_c const & vector )
+		float32_c length_squared_float32( vector32x4_c const & vector )
 		{
 			return ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c ) + ( vector.d * vector.d );
 		}
 
-		float64_c make_float64_length_squared( vector64x4_c const & vector )
+		float64_c length_squared_float64( vector64x4_c const & vector )
 		{
 			return ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c ) + ( vector.d * vector.d );
 		}
 
-		float32_c make_float32_length( vector32x2_c const & vector )
+		float32_c length_float32( vector32x2_c const & vector )
 		{
 			return math_square_root( ( vector.a * vector.a ) + ( vector.b * vector.b ) );
 		}
 
-		float64_c make_float64_length( vector64x2_c const & vector )
+		float64_c length_float64( vector64x2_c const & vector )
 		{
 			return math_square_root( ( vector.a * vector.a ) + ( vector.b * vector.b ) );
 		}
 
-		float32_c make_float32_length( vector32x3_c const & vector )
+		float32_c length_float32( vector32x3_c const & vector )
 		{
 			return math_square_root( ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c ) );
 		}
 
-		float64_c make_float64_length( vector64x3_c const & vector )
+		float64_c length_float64( vector64x3_c const & vector )
 		{
 			return math_square_root( ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c ) );
 		}
 
-		float32_c make_float32_length( vector32x4_c const & vector )
+		float32_c length_float32( vector32x4_c const & vector )
 		{
 			return math_square_root( ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c ) + ( vector.d * vector.d ) );
 		}
 
-		float64_c make_float64_length( vector64x4_c const & vector )
+		float64_c length_float64( vector64x4_c const & vector )
 		{
 			return math_square_root( ( vector.a * vector.a ) + ( vector.b * vector.b ) + ( vector.c * vector.c ) + ( vector.d * vector.d ) );
 		}
 
-		vector32x2_c make_vector32x2_normalized( vector32x2_c const & vector )
+		vector32x2_c normal_vector32x2( vector32x2_c const & vector )
 		{
 			vector32x2_c result;
-			float32_c a_vector_length = make_float32_length( vector );
+			float32_c a_vector_length = length_float32( vector );
 			if ( a_vector_length > constants< float32_c >::division_near_zero() )
 			{
 				result.a = vector.a / a_vector_length;
@@ -625,10 +625,10 @@ namespace cheonsa
 			return result;
 		}
 
-		vector64x2_c make_vector64x2_normalized( vector64x2_c const & vector )
+		vector64x2_c normal_vector64x2( vector64x2_c const & vector )
 		{
 			vector64x2_c result;
-			float64_c a_vector_length = make_float64_length( vector );
+			float64_c a_vector_length = length_float64( vector );
 			if ( a_vector_length > constants< float64_c >::division_near_zero() )
 			{
 				result.a = vector.a / a_vector_length;
@@ -637,10 +637,10 @@ namespace cheonsa
 			return result;
 		}
 
-		vector32x3_c make_vector32x3_normalized( vector32x3_c const & vector )
+		vector32x3_c normal_vector32x3( vector32x3_c const & vector )
 		{
 			vector32x3_c result;
-			float32_c a_vector_length = make_float32_length( vector );
+			float32_c a_vector_length = length_float32( vector );
 			if ( a_vector_length > constants< float32_c >::division_near_zero() )
 			{
 				result.a = vector.a / a_vector_length;
@@ -650,10 +650,10 @@ namespace cheonsa
 			return result;
 		}
 
-		vector64x3_c make_vector64x3_normalized( vector64x3_c const & vector )
+		vector64x3_c normal_vector64x3( vector64x3_c const & vector )
 		{
 			vector64x3_c result;
-			float64_c a_vector_length = make_float64_length( vector );
+			float64_c a_vector_length = length_float64( vector );
 			if ( a_vector_length > constants< float64_c >::division_near_zero() )
 			{
 				result.a = vector.a / a_vector_length;
@@ -663,10 +663,10 @@ namespace cheonsa
 			return result;
 		}
 
-		vector32x4_c make_vector32x4_normalized( vector32x4_c const & vector )
+		vector32x4_c normal_vector32x4( vector32x4_c const & vector )
 		{
 			vector32x4_c result;
-			float32_c a_vector_length = make_float32_length( vector );
+			float32_c a_vector_length = length_float32( vector );
 			if ( a_vector_length > constants< float32_c >::division_near_zero() )
 			{
 				result.a = vector.a / a_vector_length;
@@ -677,10 +677,10 @@ namespace cheonsa
 			return result;
 		}
 
-		vector64x4_c make_vector64x4_normalized( vector64x4_c const & vector )
+		vector64x4_c normal_vector64x4( vector64x4_c const & vector )
 		{
 			vector64x4_c result;
-			float64_c a_vector_length = make_float64_length( vector );
+			float64_c a_vector_length = length_float64( vector );
 			if ( a_vector_length > constants< float64_c >::division_near_zero() )
 			{
 				result.a = vector.a / a_vector_length;
@@ -691,75 +691,84 @@ namespace cheonsa
 			return result;
 		}
 
-		quaternion32_c make_quaternion32_normalized( quaternion32_c const & quaternion )
+		quaternion32_c normal_quaternion32( quaternion32_c const & quaternion )
 		{
 			quaternion32_c result;
-			float32_c length = math_square_root( ( quaternion.a * quaternion.a ) + ( quaternion.b * quaternion.b ) + ( quaternion.c * quaternion.c ) + ( quaternion.d * quaternion.d ) );
-			result.a = quaternion.a / length;
-			result.b = quaternion.b / length;
-			result.c = quaternion.c / length;
-			result.d = quaternion.d / length;
+			float32_c length_inverse = 1.0f / math_square_root( ( quaternion.a * quaternion.a ) + ( quaternion.b * quaternion.b ) + ( quaternion.c * quaternion.c ) + ( quaternion.d * quaternion.d ) );
+			result.a = quaternion.a * length_inverse;
+			result.b = quaternion.b * length_inverse;
+			result.c = quaternion.c * length_inverse;
+			result.d = quaternion.d * length_inverse;
 			return result;
 		}
 
-		float32_c make_float32_dot_product( vector32x2_c const & vector_a, vector32x2_c const & vector_b )
+		void_c normalize_quaternion32( quaternion32_c & quaternion )
+		{
+			float32_c length_inverse = 1.0f / math_square_root( ( quaternion.a * quaternion.a ) + ( quaternion.b * quaternion.b ) + ( quaternion.c * quaternion.c ) + ( quaternion.d * quaternion.d ) );
+			quaternion.a /= length_inverse;
+			quaternion.b /= length_inverse;
+			quaternion.c /= length_inverse;
+			quaternion.d /= length_inverse;
+		}
+
+		float32_c dot_product_float32( vector32x2_c const & vector_a, vector32x2_c const & vector_b )
 		{
 			return ( vector_a.a * vector_b.a ) + ( vector_a.b * vector_b.b );
 		}
 
-		float64_c make_float64_dot_product( vector64x2_c const & vector_a, vector64x2_c const & vector_b )
+		float64_c dot_product_float64( vector64x2_c const & vector_a, vector64x2_c const & vector_b )
 		{
 			return ( vector_a.a * vector_b.a ) + ( vector_a.b * vector_b.b );
 		}
 
-		float32_c make_float32_dot_product( vector32x3_c const & vector_a, vector32x3_c const & vector_b )
+		float32_c dot_product_float32( vector32x3_c const & vector_a, vector32x3_c const & vector_b )
 		{
 			return ( vector_a.a * vector_b.a ) + ( vector_a.b * vector_b.b ) + ( vector_a.c * vector_b.c );
 		}
 
-		float64_c make_float64_dot_product( vector64x3_c const & vector_a, vector64x3_c const & vector_b )
+		float64_c dot_product_float64( vector64x3_c const & vector_a, vector64x3_c const & vector_b )
 		{
 			return ( vector_a.a * vector_b.a ) + ( vector_a.b * vector_b.b ) + ( vector_a.c * vector_b.c );
 		}
 
-		float32_c make_float32_dot_product( vector32x4_c const & vector_a, vector32x4_c const & vector_b )
+		float32_c dot_product_float32( vector32x4_c const & vector_a, vector32x4_c const & vector_b )
 		{
 			return ( vector_a.a * vector_b.a ) + ( vector_a.b * vector_b.b ) + ( vector_a.c * vector_b.c ) + ( vector_a.d * vector_b.d );
 		}
 
-		float64_c make_float64_dot_product( vector64x4_c const & vector_a, vector64x4_c const & vector_b )
+		float64_c dot_product_float64( vector64x4_c const & vector_a, vector64x4_c const & vector_b )
 		{
 			return ( vector_a.a * vector_b.a ) + ( vector_a.b * vector_b.b ) + ( vector_a.c * vector_b.c ) + ( vector_a.d * vector_b.d );
 		}
 
-		float32_c make_float32_dot_product( quaternion32_c const & quaternion_a, quaternion32_c const & quaternion_b )
+		float32_c dot_product_float32( quaternion32_c const & quaternion_a, quaternion32_c const & quaternion_b )
 		{
 			return ( quaternion_a.a * quaternion_b.a ) + ( quaternion_a.b * quaternion_b.b ) + ( quaternion_a.c * quaternion_b.c ) + ( quaternion_a.d * quaternion_b.d );
 		}
 
-		vector32x3_c make_vector32x3_cross_product( vector32x3_c const & vector_a, vector32x3_c const & vector_b )
+		vector32x3_c cross_product_vector32x3( vector32x3_c const & vector_a, vector32x3_c const & vector_b )
 		{
 			return vector32x3_c( ( vector_a.b * vector_b.c ) - ( vector_a.c * vector_b.b ), ( vector_a.c * vector_b.a ) - ( vector_a.a * vector_b.c ), ( vector_a.a * vector_b.b ) - ( vector_a.b * vector_b.a ) );
 		}
 
-		vector64x3_c make_vector64x3_cross_product( vector64x3_c const & vector_a, vector64x3_c const & vector_b )
+		vector64x3_c cross_product_vector64x3( vector64x3_c const & vector_a, vector64x3_c const & vector_b )
 		{
 			return vector64x3_c( ( vector_a.b * vector_b.c ) - ( vector_a.c * vector_b.b ), ( vector_a.c * vector_b.a ) - ( vector_a.a * vector_b.c ), ( vector_a.a * vector_b.b ) - ( vector_a.b * vector_b.a ) );
 		}
 
-		vector32x2_c make_vector32x2_orthogonal( vector32x2_c const & vector )
+		vector32x2_c orthogonalized_vector32x2( vector32x2_c const & vector )
 		{
 			return vector32x2_c( vector.b, -vector.a );
 		}
 
-		vector64x2_c make_vector64x2_orthogonal( vector64x2_c const & vector )
+		vector64x2_c orthogonalized_vector64x2( vector64x2_c const & vector )
 		{
 			return vector64x2_c( vector.b, -vector.a );
 		}
 
-		vector32x2_c make_vector32x2_orthonormal( vector32x2_c const & vector, boolean_c polarity, boolean_c allow_zero )
+		vector32x2_c orthonormalized_vector32x2( vector32x2_c const & vector, boolean_c polarity, boolean_c allow_zero )
 		{
-			float32_c length = make_float32_length( vector );
+			float32_c length = length_float32( vector );
 			if ( length == 0.0f )
 			{
 				return polarity ? vector32x2_c( 0.0f, !allow_zero ? 1.0f : 0.0f ) : vector32x2_c( 0.0f, !allow_zero ? -1.0f : 0.0f );
@@ -767,9 +776,9 @@ namespace cheonsa
 			return polarity ? vector32x2_c( -vector.b / length, vector.a / length ) : vector32x2_c( vector.b / length, -vector.a / length );
 		}
 
-		vector64x2_c make_vector64x2_orthonormal( vector64x2_c const & vector, boolean_c polarity, boolean_c allow_zero )
+		vector64x2_c orthonormalized_vector64x2( vector64x2_c const & vector, boolean_c polarity, boolean_c allow_zero )
 		{
-			float64_c length = make_float64_length( vector );
+			float64_c length = length_float64( vector );
 			if ( length == 0.0 )
 			{
 				return polarity ? vector64x2_c( 0.0, !allow_zero ) : vector64x2_c( 0.0, -!allow_zero );
@@ -777,61 +786,61 @@ namespace cheonsa
 			return polarity ? vector64x2_c( -vector.b / length, vector.a / length ) : vector64x2_c( vector.b / length, -vector.a / length );
 		}
 
-		vector32x3_c make_vector32x3_rotated_vector( vector32x3_c const & vector, quaternion32_c const & rotation )
+		vector32x3_c rotate_vector32x3( vector32x3_c const & vector, quaternion32_c const & rotation )
 		{
 			// nVidia SDK implementation
 			vector32x3_c qvec( rotation.a, rotation.b, rotation.c );
-			vector32x3_c uv = make_vector32x3_cross_product( qvec, vector );
-			vector32x3_c uuv = make_vector32x3_cross_product( qvec, uv ) * 2.0f;
+			vector32x3_c uv = cross_product_vector32x3( qvec, vector );
+			vector32x3_c uuv = cross_product_vector32x3( qvec, uv ) * 2.0f;
 			uv *= 2.0f * rotation.d;
 			return vector + uv + uuv;
 		}
 
-		vector64x3_c make_vector64x3_rotated_vector( vector64x3_c const & vector, quaternion32_c const & rotation )
+		vector64x3_c rotate_vector64x3( vector64x3_c const & vector, quaternion32_c const & rotation )
 		{
 			// 16 multiplications, 6 additions, 6 subtractions.
 			// nVidia SDK implementation
 			vector64x3_c qvec( rotation.a, rotation.b, rotation.c );
-			vector64x3_c uv = make_vector64x3_cross_product( qvec, vector ); // 6 multiplications, 3 subtractions.
-			vector64x3_c uuv = make_vector64x3_cross_product( qvec, uv ) * 2.0f; // 6 multiplications, 3 subtractions.
+			vector64x3_c uv = cross_product_vector64x3( qvec, vector ); // 6 multiplications, 3 subtractions.
+			vector64x3_c uuv = cross_product_vector64x3( qvec, uv ) * 2.0f; // 6 multiplications, 3 subtractions.
 			uv *= 2.0 * rotation.d; // 4 multiplications.
 			return vector + uv + uuv; // 6 additions.
 		}
 
-		vector32x2_c make_vector32x2_rotated_vector( vector32x2_c const & point, float32_c const angle )
+		vector32x2_c rotate_vector32x2( vector32x2_c const & point, float32_c const angle )
 		{
 			float32_c s = math_sine( angle );
 			float32_c c = math_cosine( angle );
 			return vector32x2_c( point.a * c - point.b * s, point.a * s + point.b * c );
 		}
 
-		vector64x2_c make_vector64x2_rotated_vector( vector64x2_c const & point, float64_c const angle )
+		vector64x2_c rotate_vector64x2( vector64x2_c const & point, float64_c const angle )
 		{
 			float64_c s = math_sine( angle );
 			float64_c c = math_cosine( angle );
 			return vector64x2_c( point.a * c - point.b * s, point.a * s + point.b * c );
 		}
 
-		vector32x3_c make_vector32x3_rotated_vector( vector32x3_c const & point, vector32x3_c const & axis, float32_c const angle )
+		vector32x3_c rotate_vector32x3( vector32x3_c const & point, vector32x3_c const & axis, float32_c const angle )
 		{
 			float32_c s = math_sine( angle );
 			float32_c c = math_cosine( angle );
-			return ( point * c ) + ( axis * make_float32_dot_product( axis, point ) * ( 1.0f - c ) ) + ( make_vector32x3_cross_product( point, axis ) * s );
+			return ( point * c ) + ( axis * dot_product_float32( axis, point ) * ( 1.0f - c ) ) + ( cross_product_vector32x3( point, axis ) * s );
 		}
 
-		vector64x3_c make_vector64x3_rotated_vector( vector64x3_c const & point, vector64x3_c const & axis, float64_c const angle )
+		vector64x3_c rotate_vector64x3( vector64x3_c const & point, vector64x3_c const & axis, float64_c const angle )
 		{
 			float64_c s = math_sine( angle );
 			float64_c c = math_cosine( angle );
-			return ( point * c ) + ( axis * make_float64_dot_product( axis, point ) * ( 1.0f - c ) ) + ( make_vector64x3_cross_product( point, axis ) * s );
+			return ( point * c ) + ( axis * dot_product_float64( axis, point ) * ( 1.0f - c ) ) + ( cross_product_vector64x3( point, axis ) * s );
 		}
 
-		vector32x2_c make_vector32x2_transformed_point( vector32x2_c const & point, matrix32x2x2_c const & transform )
+		vector32x2_c rotate_and_scale_vector32x2( vector32x2_c const & point, matrix32x2x2_c const & transform )
 		{
 			return vector32x2_c( ( point.a * transform.a.a ) + ( point.b * transform.b.a ), ( point.a * transform.a.b ) + ( point.b * transform.b.b ) );
 		}
 
-		vector32x3_c make_vector32x3_transformed_point( vector32x3_c const & point, matrix32x3x3_c const & transform )
+		vector32x3_c rotate_and_scale_vector32x3( vector32x3_c const & point, matrix32x3x3_c const & transform )
 		{
 			// 9 multiplications, 6 additions.
 			vector32x3_c result;
@@ -841,7 +850,7 @@ namespace cheonsa
 			return result;
 		}
 
-		vector64x3_c make_vector64x3_transformed_point( vector64x3_c const & point, matrix32x3x3_c const & transform )
+		vector64x3_c rotate_and_scale_vector64x3( vector64x3_c const & point, matrix32x3x3_c const & transform )
 		{
 			// 9 multiplications, 6 additions.
 			vector64x3_c result;
@@ -851,7 +860,7 @@ namespace cheonsa
 			return result;
 		}
 
-		vector32x3_c make_vector32x3_transformed_vector( vector32x3_c const & vector, matrix32x4x4_c const & transform )
+		vector32x3_c rotate_and_scale_vector32x3( vector32x3_c const & vector, matrix32x4x4_c const & transform )
 		{
 			// 9 multiplications, 6 additions.
 			vector32x3_c result;
@@ -861,7 +870,7 @@ namespace cheonsa
 			return result;
 		}
 
-		vector64x3_c make_vector64x3_transformed_vector( vector64x3_c const & vector, matrix32x4x4_c const & transform )
+		vector64x3_c rotate_and_scale_vector64x3( vector64x3_c const & vector, matrix32x4x4_c const & transform )
 		{
 			// 9 multiplications, 9 additions.
 			vector64x3_c result;
@@ -871,7 +880,7 @@ namespace cheonsa
 			return result;
 		}
 
-		vector32x3_c make_vector32x3_transformed_point( vector32x3_c const & point, matrix32x4x4_c const & transform )
+		vector32x3_c rotate_scale_and_translate_vector32x3( vector32x3_c const & point, matrix32x4x4_c const & transform )
 		{
 			// 9 multiplications, 9 additions.
 			vector32x3_c result;
@@ -881,7 +890,7 @@ namespace cheonsa
 			return result;
 		}
 
-		vector64x3_c make_vector64x3_transformed_point( vector64x3_c const & point, matrix32x4x4_c const & transform )
+		vector64x3_c rotate_scale_and_translate_vector64x3( vector64x3_c const & point, matrix32x4x4_c const & transform )
 		{
 			// 9 multiplications, 9 additions.
 			vector64x3_c result;
@@ -891,7 +900,7 @@ namespace cheonsa
 			return result;
 		}
 
-		vector32x4_c make_vector32x4_transformed_point( vector32x3_c const & point, matrix32x4x4_c const & transform )
+		vector32x4_c rotate_scale_and_translate_vector32x4( vector32x3_c const & point, matrix32x4x4_c const & transform )
 		{
 			// 12 multiplications, 12 additions.
 			vector32x4_c result;
@@ -902,88 +911,61 @@ namespace cheonsa
 			return result;
 		}
 
-		vector64x3_c make_vector64x3_transformed_point( vector64x3_c const & point, space_transform_c const & transform )
+		vector64x3_c rotate_scale_and_translate_vector64x3( vector64x3_c const & point, transform3d_c const & transform )
 		{
 			vector64x3_c result;
-			result = make_vector64x3_rotated_vector( point, transform.rotation ) * transform.scale + transform.position;
+			result = rotate_vector64x3( point, transform.rotation ) * transform.scale + transform.position;
 			return result;
 		}
 
-		vector32x3_c make_vector32x3_basis_a_from_quaternion32( quaternion32_c const & rotation )
+		vector32x3_c constrained_normal_vector32x3( vector32x3_c const & normal, vector32x3_c const & normal_target, float32_c const maximum_angle )
 		{
-			vector32x3_c result;
-			result.a = ( 1.0f - 2.0f * rotation.b * rotation.b - 2.0f * rotation.c * rotation.c );
-			result.b = (        2.0f * rotation.a * rotation.b + 2.0f * rotation.c * rotation.d );
-			result.c = (        2.0f * rotation.a * rotation.c - 2.0f * rotation.b * rotation.d );
-			return result;
-		}
-
-		vector32x3_c make_vector32x3_basis_b_from_quaternion32( quaternion32_c const & rotation )
-		{
-			vector32x3_c result;
-			result.a = (        2.0f * rotation.a * rotation.b - 2.0f * rotation.c * rotation.d );
-			result.b = ( 1.0f - 2.0f * rotation.a * rotation.a - 2.0f * rotation.c * rotation.c );
-			result.c = (        2.0f * rotation.c * rotation.b + 2.0f * rotation.a * rotation.d );
-			return result;
-		}
-
-		vector32x3_c make_vector32x3_basis_c_from_quaternion32( quaternion32_c const & rotation )
-		{
-			vector32x3_c result;
-			result.a = (        2.0f * rotation.a * rotation.c + 2.0f * rotation.b * rotation.d );
-			result.b = (        2.0f * rotation.c * rotation.b - 2.0f * rotation.a * rotation.d );
-			result.c = ( 1.0f - 2.0f * rotation.a * rotation.a - 2.0f * rotation.b * rotation.b );
-			return result;
-		}
-
-		vector32x3_c make_vector32x3_constrained_normal( vector32x3_c const & normal, vector32x3_c const & normal_target, float32_c const maximum_angle )
-		{
-			float32_c angle = math_arc_cosine( math_clamp( make_float32_dot_product( normal, normal_target ), -1.0f, 1.0f ) );
+			float32_c angle = math_arc_cosine( math_clamp( dot_product_float32( normal, normal_target ), -1.0f, 1.0f ) );
 			if ( angle > maximum_angle )
 			{
-				return make_vector32x3_rotated_vector( normal_target, make_vector32x3_cross_product( normal, normal_target ), maximum_angle );
+				return rotate_vector32x3( normal_target, cross_product_vector32x3( normal, normal_target ), maximum_angle );
 			}
 			return normal;
 		}
 
-		vector64x3_c make_vector64x3_constrained_normal( vector64x3_c const & normal, vector64x3_c const & normal_target, float64_c const maximum_angle )
+		vector64x3_c constrained_normal_vector64x3( vector64x3_c const & normal, vector64x3_c const & normal_target, float64_c const maximum_angle )
 		{
-			float64_c angle = math_arc_cosine( math_clamp( make_float64_dot_product( normal, normal_target ), -1.0, 1.0 ) );
+			float64_c angle = math_arc_cosine( math_clamp( dot_product_float64( normal, normal_target ), -1.0, 1.0 ) );
 			if ( angle > maximum_angle )
 			{
-				return make_vector64x3_rotated_vector( normal_target, make_vector64x3_cross_product( normal, normal_target ), maximum_angle );
+				return rotate_vector64x3( normal_target, cross_product_vector64x3( normal, normal_target ), maximum_angle );
 			}
 			return normal;
 		}
 
-		vector64x3_c make_vector64x3_reflected_vector( vector64x3_c const & direction_vector, vector64x3_c const & normal_vector )
+		vector64x3_c reflected_vector64x3( vector64x3_c const & direction_vector, vector64x3_c const & normal_vector )
 		{
-			return direction_vector - ( normal_vector * ( make_float64_dot_product( direction_vector, normal_vector ) * 2.0 ) );
+			return direction_vector - ( normal_vector * ( dot_product_float64( direction_vector, normal_vector ) * 2.0 ) );
 		}
 
-		vector64x3_c make_vector64x3_reflected_vector( vector64x3_c const & point, plane64_c const & plane )
+		vector64x3_c reflected_vector64x3( vector64x3_c const & point, plane64_c const & plane )
 		{
 			return point + ( plane.get_normal() * ( distance_between_point_and_plane( point , plane ) * -2.0 ) );
 		}
 
-		vector64x3_c make_vector64x3_parallel_component_vector2( vector64x3_c const & normal_vector, vector64x3_c const & other_vector )
+		vector64x3_c parallel_component_vector64x3( vector64x3_c const & normal_vector, vector64x3_c const & other_vector )
 		{
-			return normal_vector * make_float64_dot_product( normal_vector, other_vector );
+			return normal_vector * dot_product_float64( normal_vector, other_vector );
 		}
 
-		vector64x3_c make_vector64x3_perpendicular_component_vector2( vector64x3_c const & normal_vector, vector64x3_c const & other_vector )
+		vector64x3_c perpendicular_component_vector64x3( vector64x3_c const & normal_vector, vector64x3_c const & other_vector )
 		{
-			return other_vector - make_vector64x3_parallel_component_vector2( normal_vector, other_vector );
+			return other_vector - parallel_component_vector64x3( normal_vector, other_vector );
 		}
 
-		vector32x3_c make_vector32x3_parallel_component_vector2( vector32x3_c const & normal_vector, vector32x3_c const & other_vector )
+		vector32x3_c parallel_component_vector32x3( vector32x3_c const & normal_vector, vector32x3_c const & other_vector )
 		{
-			return normal_vector * make_float32_dot_product( normal_vector, other_vector );
+			return normal_vector * dot_product_float32( normal_vector, other_vector );
 		}
 
-		vector32x3_c make_vector32x3_perpendicular_component_vector2( vector32x3_c const & normal_vector, vector32x3_c const & other_vector )
+		vector32x3_c perpendicular_component_vector32x3( vector32x3_c const & normal_vector, vector32x3_c const & other_vector )
 		{
-			return other_vector - make_vector32x3_parallel_component_vector2( normal_vector, other_vector );
+			return other_vector - parallel_component_vector32x3( normal_vector, other_vector );
 		}
 
 
@@ -993,9 +975,37 @@ namespace cheonsa
 		//
 		//
 
+		vector32x3_c basis_vector32x3_x_from_rotation_quaternion32( quaternion32_c const & rotation )
+		{
+			vector32x3_c result;
+			result.a = ( 1.0f - 2.0f * rotation.b * rotation.b - 2.0f * rotation.c * rotation.c );
+			result.b = (        2.0f * rotation.a * rotation.b + 2.0f * rotation.c * rotation.d );
+			result.c = (        2.0f * rotation.a * rotation.c - 2.0f * rotation.b * rotation.d );
+			return result;
+		}
+
+		vector32x3_c basis_vector32x3_y_from_rotation_quaternion32( quaternion32_c const & rotation )
+		{
+			vector32x3_c result;
+			result.a = (        2.0f * rotation.a * rotation.b - 2.0f * rotation.c * rotation.d );
+			result.b = ( 1.0f - 2.0f * rotation.a * rotation.a - 2.0f * rotation.c * rotation.c );
+			result.c = (        2.0f * rotation.c * rotation.b + 2.0f * rotation.a * rotation.d );
+			return result;
+		}
+
+		vector32x3_c basis_vector32x3_z_from_rotation_quaternion32( quaternion32_c const & rotation )
+		{
+			vector32x3_c result;
+			result.a = (        2.0f * rotation.a * rotation.c + 2.0f * rotation.b * rotation.d );
+			result.b = (        2.0f * rotation.c * rotation.b - 2.0f * rotation.a * rotation.d );
+			result.c = ( 1.0f - 2.0f * rotation.a * rotation.a - 2.0f * rotation.b * rotation.b );
+			return result;
+		}
+
 		inline matrix32x4x4_c make_matrix32x4x4_basis_from_quaternion32_blender( quaternion32_c const & rotation )
 		{
 			// taken from blender, math_rotation.c, quat_to_mat4.
+			// this isn't used right now, but it's here for reference.
 			matrix32x4x4_c result;
 			float64_c q0 = constants< float64_c >::square_root_of_2() * static_cast< float64_c >( rotation.d );
 			float64_c q1 = constants< float64_c >::square_root_of_2() * static_cast< float64_c >( rotation.a );
@@ -1024,8 +1034,8 @@ namespace cheonsa
 
 		inline matrix32x4x4_c make_matrix32x4x4_basis_from_quaternion32_irrlicht( quaternion32_c const & rotation )
 		{
-			// taken from iirlicht
-			// thank you
+			// taken from iirlicht.
+			// this isn't used right now, but it's here for reference.
 			matrix32x4x4_c result;
 			result.a.a = ( 1.0f - 2.0f * rotation.b * rotation.b - 2.0f * rotation.c * rotation.c );
 			result.a.b = ( 2.0f * rotation.a * rotation.b + 2.0f * rotation.c * rotation.d );
@@ -1039,30 +1049,30 @@ namespace cheonsa
 			return result;
 		}
 
-		matrix32x4x4_c make_matrix32x4x4_from_space_transform( space_transform_c const & space_transform )\
+		matrix32x4x4_c transform_matrix32x4x4_c_from_transform3d( transform3d_c const & transform )\
 		{
-			matrix32x4x4_c result = make_matrix32x4x4_basis_from_quaternion32( space_transform.rotation );
-			result.d.a = static_cast< float32_c >( space_transform.position.a );
-			result.d.b = static_cast< float32_c >( space_transform.position.b );
-			result.d.c = static_cast< float32_c >( space_transform.position.c );
+			matrix32x4x4_c result = basis_matrix32x4x4_from_rotation_quaternion32( transform.rotation );
+			result.d.a = static_cast< float32_c >( transform.position.a );
+			result.d.b = static_cast< float32_c >( transform.position.b );
+			result.d.c = static_cast< float32_c >( transform.position.c );
 			return result;
 		}
 
-		matrix32x4x4_c make_matrix32x4x4_from_space_transform( space_transform_c const & space_transform, vector64x3_c const & relative_to_origin )
+		matrix32x4x4_c transform_matrix32x4x4_c_from_transform3d( transform3d_c const & transform, vector64x3_c const & relative_to_origin )
 		{
-			matrix32x4x4_c result = make_matrix32x4x4_basis_from_quaternion32( space_transform.rotation );
-			result.d.a = static_cast< float32_c >( space_transform.position.a - relative_to_origin.a );
-			result.d.b = static_cast< float32_c >( space_transform.position.b - relative_to_origin.b );
-			result.d.c = static_cast< float32_c >( space_transform.position.c - relative_to_origin.c );
+			matrix32x4x4_c result = basis_matrix32x4x4_from_rotation_quaternion32( transform.rotation );
+			result.d.a = static_cast< float32_c >( transform.position.a - relative_to_origin.a );
+			result.d.b = static_cast< float32_c >( transform.position.b - relative_to_origin.b );
+			result.d.c = static_cast< float32_c >( transform.position.c - relative_to_origin.c );
 			return result;
 		}
 
-		matrix32x4x4_c make_matrix32x4x4_basis_from_quaternion32( quaternion32_c const & rotation )
+		matrix32x4x4_c basis_matrix32x4x4_from_rotation_quaternion32( quaternion32_c const & rotation )
 		{
 			return make_matrix32x4x4_basis_from_quaternion32_blender( rotation );
 		}
 
-		inline matrix32x3x3_c make_matrix32x3x3_basis_from_quaternion32_blender( quaternion32_c const & rotation )
+		inline matrix32x3x3_c basis_matrix32x3x3_from_rotation_quaternion32_blender( quaternion32_c const & rotation )
 		{
 			// taken from blender, math_rotation.c, quat_to_mat4.
 			matrix32x3x3_c result;
@@ -1091,10 +1101,10 @@ namespace cheonsa
 			return result;
 		}
 
-		inline matrix32x3x3_c make_matrix32x3x3_basis_from_quaternion32_irrlicht( quaternion32_c const & rotation )
+		inline matrix32x3x3_c basis_matrix32x3x3_from_rotation_quaternion32_irrlicht( quaternion32_c const & rotation )
 		{
-			// taken from iirlicht
-			// thank you
+			// quaternion must be normalized already.
+			// taken from iirlich, quaternion.h, inline void quaternion::getMatrixFast( matrix4 &dest) const.
 			matrix32x3x3_c result;
 			result.a.a = ( 1.0f - 2.0f * rotation.b * rotation.b - 2.0f * rotation.c * rotation.c );
 			result.a.b = ( 2.0f * rotation.a * rotation.b + 2.0f * rotation.c * rotation.d );
@@ -1108,286 +1118,9 @@ namespace cheonsa
 			return result;
 		}
 
-		matrix32x3x3_c make_matrix32x3x3_basis_from_quaternion32( quaternion32_c const & rotation )
+		inline quaternion32_c rotation_quaternion32_from_basis_matrix32x3x3_blender( matrix32x3x3_c const & basis )
 		{
-			return make_matrix32x3x3_basis_from_quaternion32_blender( rotation );
-		}
-
-		matrix32x3x3_c make_matrix32x3x3_basis_from_axis_angle( vector32x4_c const & axis_angle )
-		{
-			matrix32x3x3_c basis;
-			float32_c v1 = axis_angle.a;
-			float32_c v2 = axis_angle.b;
-			float32_c v3 = axis_angle.c;
-			float32_c v1s = v1 * v1;
-			float32_c v2s = v2 * v2;
-			float32_c v3s = v3 * v3;
-			float32_c c = math_cosine( axis_angle.d );
-			float32_c s = math_sine( axis_angle.d );
-			basis.a.a = ( v1s + ( ( 1.0f - v1s ) * c ) );
-			basis.a.b = ( ( ( v1 * v2 ) * ( 1.0f - c ) ) + ( v3 * s ) );
-			basis.a.c = ( ( ( v1 * v3 ) * ( 1.0f - c ) ) - ( v2 * s ) );
-			basis.b.a = ( ( ( v1 * v2 ) * ( 1.0f - c ) ) - ( v3 * s ) );
-			basis.b.b = ( v2s + ( ( 1.0f - v2s ) * c ) );
-			basis.b.c = ( ( ( v2 * v3 ) * ( 1.0f - c ) ) + ( v1 * s ) );
-			basis.c.a = ( ( ( v1 * v3 ) * ( 1.0f - c ) ) + ( v2 * s ) );
-			basis.c.b = ( ( ( v2 * v3 ) * ( 1.0f - c ) ) - ( v1 * s ) );
-			basis.c.c = ( v3s + ( ( 1.0f - v3s ) * c ) );
-			return basis;
-		}
-
-		matrix32x3x3_c make_matrix32x3x3_basis_socket_rotated_b( matrix32x3x3_c basis, vector32x3_c const & basis_b_target )
-		{
-			matrix32x3x3_c result;
-			float32_c basis_b_length = make_float32_length( basis.b );
-			vector32x3_c basis_b_normal = basis.b / basis_b_length;
-			float32_c d = make_float32_dot_product( basis_b_normal, basis_b_target );
-			float32_c angle = math_arc_cosine( d );
-			if ( angle > constants< float32_c >::angle_near_zero() )
-			{
-				float32_c s = math_sine( angle );
-				float32_c c = math_cosine( angle );
-				vector32x3_c axis = make_vector32x3_cross_product( basis_b_target, basis_b_normal );
-				result.a = ( ( basis.a * c ) + ( axis * make_float32_dot_product( axis, basis.a ) * ( 1.0f - c ) ) + ( make_vector32x3_cross_product( basis.a, axis ) * s ) );
-				result.b = basis_b_target * basis_b_length;
-				result.b = ( ( basis.c * c ) + ( axis * make_float32_dot_product( axis, basis.c ) * ( 1.0f - c ) ) + ( make_vector32x3_cross_product( basis.c, axis ) * s ) );
-			}
-			return result;
-		}
-
-		matrix32x3x3_c make_matrix32x3x3_basis_socket_rotated_c( matrix32x3x3_c basis, vector32x3_c const & basis_c_target )
-		{
-			matrix32x3x3_c result;
-			float32_c basis_c_length = make_float32_length( basis.c );
-			vector32x3_c basis_c_normal = basis.c / basis_c_length;
-			float32_c d = make_float32_dot_product( basis_c_normal, basis_c_target );
-			float32_c angle = math_arc_cosine( d );
-			if ( angle > constants< float32_c >::angle_near_zero() )
-			{
-				float32_c s = math_sine( angle );
-				float32_c c = math_cosine( angle );
-				vector32x3_c axis = make_vector32x3_cross_product( basis_c_target, basis_c_normal );
-				result.a = ( ( basis.a * c ) + ( axis * make_float32_dot_product( axis, basis.a ) * ( 1.0f - c ) ) + ( make_vector32x3_cross_product( basis.a, axis ) * s ) );
-				result.b = ( ( basis.b * c ) + ( axis * make_float32_dot_product( axis, basis.b ) * ( 1.0f - c ) ) + ( make_vector32x3_cross_product( basis.b, axis ) * s ) );
-				result.c = basis_c_target * basis_c_normal;
-			}
-			return result;
-		}
-
-		matrix32x3x3_c make_matrix32x3x3_transposed( matrix32x3x3_c const & matrix )
-		{
-			matrix32x3x3_c result;
-			result.a.a = matrix.a.a;
-			result.a.b = matrix.b.a;
-			result.a.c = matrix.c.a;
-			result.b.a = matrix.a.b;
-			result.b.b = matrix.b.b;
-			result.b.c = matrix.c.b;
-			result.c.a = matrix.a.c;
-			result.c.b = matrix.b.c;
-			result.c.c = matrix.c.c;
-			return result;
-		}
-
-		matrix32x4x4_c make_matrix32x4x4_view_from_look_at( vector32x3_c const & position, vector32x3_c const & forward, vector32x3_c const & up )
-		{
-			vector32x3_c zaxis = -make_vector32x3_normalized( forward );
-			vector32x3_c xaxis = make_vector32x3_normalized( make_vector32x3_cross_product( up, zaxis ) );
-			vector32x3_c yaxis = make_vector32x3_cross_product( zaxis, xaxis );
-			matrix32x4x4_c result;
-			result.a.a = xaxis.a;
-			result.a.b = yaxis.a;
-			result.a.c = zaxis.a;
-			result.a.d = 0.0f;
-			result.b.a = xaxis.b;
-			result.b.b = yaxis.b;
-			result.b.c = zaxis.b;
-			result.b.d = 0.0f;
-			result.c.a = xaxis.c;
-			result.c.b = yaxis.c;
-			result.c.c = zaxis.c;
-			result.c.d = 0.0f;
-			result.d.a = -make_float32_dot_product( xaxis, position );
-			result.d.b = -make_float32_dot_product( yaxis, position );
-			result.d.c = -make_float32_dot_product( zaxis, position );
-			result.d.d = 1.0f;
-			return result;
-		}
-
-		float32_c make_float32_fov_a( float32_c fov_b, float32_c aspect_ratio )
-		{
-			float32_c scale_b = math_tangent( fov_b / 2.0f );
-			float32_c scale_a = scale_b * aspect_ratio;
-			return math_arc_tangent( scale_a ) * 2.0f;
-		}
-
-		float32_c make_float32_fov_b( float32_c fov_a, float32_c aspect_ratio )
-		{
-			float32_c scale_a = math_tangent( fov_a / 2.0f );
-			float32_c scale_b = scale_a / aspect_ratio;
-			return math_arc_tangent( scale_b ) * 2.0f;
-		}
-
-		float32_c make_float32_fov_b_off_center_scale_factor( float32_c fov_b, float32_c clip_near )
-		{
-			return math_tangent( fov_b / 2.0f ) * clip_near / 2.0f;
-		}
-
-		matrix32x4x4_c make_matrix32x4x4_projection_orthographic( float32_c const size_a, float32_c const size_b, float32_c const clip_near, float32_c const clip_far )
-		{
-			matrix32x4x4_c result;
-			result.a.a = 2.0f / size_a;
-			result.a.b = 0.0;
-			result.a.c = 0.0;
-			result.a.d = 0.0;
-			result.b.a = 0.0;
-			result.b.b = 2.0f / size_b;
-			result.b.c = 0.0;
-			result.b.d = 0.0;
-			result.c.a = 0.0;
-			result.c.b = 0.0;
-			result.c.c = 1.0f / ( clip_near - clip_far );
-			result.c.d = 0.0;
-			result.d.a = 0.0;
-			result.d.b = 0.0;
-			result.d.c = clip_near / ( clip_near - clip_far );
-			result.d.d = 1.0f;
-			return result;
-		}
-
-		matrix32x4x4_c make_matrix32x4x4_projection_orthographic_off_center( float32_c const left, float32_c const right, float32_c const bottom, float32_c const top, float32_c const clip_near, float32_c const clip_far )
-		{
-			matrix32x4x4_c result;
-			result.a.a = 2.0f / ( right - left );
-			result.a.b = 0.0f;
-			result.a.c = 0.0f;
-			result.a.d = 0.0f;
-			result.b.a = 0.0f;
-			result.b.b = 2.0f / ( top - bottom );
-			result.b.c = 0.0f;
-			result.b.d = 0.0f;
-			result.c.a = 0.0f;
-			result.c.b = 0.0f;
-			result.c.c = 1.0f / ( clip_near - clip_far );
-			result.c.d = 0.0f;
-			result.d.a = ( left + right ) / ( left - right );
-			result.d.b = ( bottom + top ) / ( bottom - top );
-			result.d.c = clip_near / ( clip_near - clip_far );
-			result.d.d = 1.0f;
-			return result;
-		}
-
-		matrix32x4x4_c make_matrix32x4x4_projection_perspective( float32_c const vertical_fov, float32_c const horizontal_to_vertical_aspect_ratio, float32_c const clip_near, float32_c const clip_far )
-		{
-			float32_c dn = 0.0f;
-			float32_c df = 1.0f;
-			float32_c zn = clip_near;
-			float32_c zf = clip_far;
-			float32_c s = 1.0f / math_tangent( vertical_fov / 2.0f );
-			matrix32x4x4_c result;
-			result.a.a = s / horizontal_to_vertical_aspect_ratio;
-			result.a.b = 0.0f;
-			result.a.c = 0.0f;
-			result.a.d = 0.0f;
-			result.b.a = 0.0f;
-			result.b.b = s;
-			result.b.c = 0.0f;
-			result.b.d = 0.0f;
-			result.c.a = 0.0f;
-			result.c.b = 0.0f;
-			result.c.c = ( df * zf - dn * zn ) / ( zn - zf );
-			result.c.d = -1.0f;
-			result.d.a = 0.0f;
-			result.d.b = 0.0f;
-			result.d.c = ( df - dn ) * ( zn * zf ) / ( zn - zf );
-			result.d.d = 0.0f;
-			return result;
-		}
-
-		matrix32x4x4_c make_matrix32x4x4_projection_perspective_off_center( float32_c const left, float32_c const right, float32_c const bottom, float32_c top, float32_c const clip_near, float32_c const clip_far )
-		{
-			matrix32x4x4_c result;
-			result.a.a = ( 2.0f * clip_near ) / ( right - left );
-			result.a.b = 0.0f;
-			result.a.c = 0.0f;
-			result.a.d = 0.0f;
-			result.b.a = 0.0f;
-			result.b.b = ( 2.0f * clip_near ) / ( top - bottom );
-			result.b.c = 0.0f;
-			result.b.d = 0.0f;
-			result.c.a = ( left + right ) / ( right - left );
-			result.c.b = ( top + bottom ) / ( top - bottom );
-			result.c.c = clip_far / ( clip_near - clip_far );
-			result.c.d = -1.0f;
-			result.d.a = 0.0f;
-			result.d.b = 0.0f;
-			result.d.c = ( clip_near * clip_far ) / ( clip_near - clip_far );
-			result.d.d = 0.0f;
-			return result;
-		}
-
-		matrix32x4x4_c make_matrix32x4x4_transposed( matrix32x4x4_c const & matrix )
-		{
-			matrix32x4x4_c result;
-			result.a.a = matrix.a.a;
-			result.a.b = matrix.b.a;
-			result.a.c = matrix.c.a;
-			result.a.d = matrix.d.a;
-			result.b.a = matrix.a.b;
-			result.b.b = matrix.b.b;
-			result.b.c = matrix.c.b;
-			result.b.d = matrix.d.b;
-			result.c.a = matrix.a.c;
-			result.c.b = matrix.b.c;
-			result.c.c = matrix.c.c;
-			result.c.d = matrix.d.c;
-			result.d.a = matrix.a.d;
-			result.d.b = matrix.b.d;
-			result.d.c = matrix.c.d;
-			result.d.d = matrix.d.d;
-			return result;
-		}
-
-		matrix32x4x4_c make_matrix32x4x4_inverted_fast( matrix32x4x4_c const & matrix )
-		{
-			matrix32x4x4_c result;
-			result.a.a = matrix.a.a;
-			result.a.b = matrix.b.a;
-			result.a.c = matrix.c.a;
-			result.b.a = matrix.a.b;
-			result.b.b = matrix.b.b;
-			result.b.c = matrix.c.b;
-			result.c.a = matrix.a.c;
-			result.c.b = matrix.b.c;
-			result.c.c = matrix.c.c;
-			result.d.a = -matrix.d.a;
-			result.d.b = -matrix.d.b;
-			result.d.c = -matrix.d.c;
-			result.d.d = matrix.d.d;
-			return result;
-		}
-
-		float32_c make_matrix32x2x2_determinant( matrix32x2x2_c const & matrix )
-		{
-			return ( matrix.a.a * matrix.b.b ) - ( matrix.a.b * matrix.b.a );
-		}
-
-		matrix32x2x2_c make_matrix32x2x2_inverted( matrix32x2x2_c const & matrix )
-		{
-			float32_c matrix_determinant = make_matrix32x2x2_determinant( matrix );
-			return matrix32x2x2_c( matrix.a.a / matrix_determinant, matrix.a.b / -matrix_determinant, matrix.b.a / -matrix_determinant, matrix.b.b / matrix_determinant );
-		}
-
-		matrix32x2x2_c make_matrix32x2x2_transform( float32_c const angle, float32_c const scale )
-		{
-			float32_c c = math_cosine( angle ) * scale;
-			float32_c s = math_sine( angle ) * scale;
-			return matrix32x2x2_c( c, s, -s, c );
-		}
-
-		inline quaternion32_c make_quaternion32_from_matrix32x3x3_basis_blender( matrix32x3x3_c const & basis )
-		{
-			// basis should be normalized.
+			// basis must be normalized already.
 			// taken from blender, math_rotation.c, mat3_normalized_to_quat.
 			quaternion32_c result;
 			float64_c s;
@@ -1431,68 +1164,352 @@ namespace cheonsa
 					result.b = static_cast< float32_c >( static_cast< float64_c >( basis.c.b + basis.b.c ) * s );
 				}
 			}
-			result = make_quaternion32_normalized( result );
+			result = normal_quaternion32( result );
 			return result;
 		}
 
-		/*
-		inline quaternion32_c make_quaternion32_from_matrix32x3x3_basis_irrlicht( matrix32x3x3_c const & basis )
+		inline quaternion32_c rotation_quaternion32_from_basis_matrix32x3x3_irrlicht( matrix32x3x3_c const & basis )
 		{
-			// basis should be normalized.
-			// taken from Converting a rotation Matrix to a Quaternion
-			// by Mike Day, Insomniac Games
-			// thank you
+			// basis does not need to be normalized.
+			// taken from irrlicht, quaternion.h, inline quaternion& quaternion::operator=(const matrix4& m).
 			quaternion32_c result;
-			float32_c t;
-			if ( basis.c.c < 0.0f )
+
+			float32_c diagonal = basis.a.a + basis.b.b + basis.c.c + 1.0f;
+
+			if( diagonal > 0.0f )
 			{
-				if ( basis.a.a > basis.b.b )
-				{
-					t = 1.0f + basis.a.a - basis.b.b - basis.c.c;
-					result.a = t;
-					result.b = basis.a.b + basis.b.a;
-					result.c = basis.c.a + basis.a.c;
-					result.d = basis.b.c - basis.c.b;
-				}
-				else
-				{
-					t = 1.0f - basis.a.a + basis.b.b - basis.c.c;
-					result.a = basis.a.b + basis.b.a;
-					result.b = t;
-					result.c = basis.b.c + basis.c.b;
-					result.d = basis.c.a - basis.a.c;
-				}
+				float32_c scale = sqrtf( diagonal ) * 2.0f; // get scale from diagonal
+
+				// TODO: speed this up
+				result.a = ( basis.b.c - basis.c.b ) / scale;
+				result.b = ( basis.c.a - basis.a.c ) / scale;
+				result.c = ( basis.a.b - basis.b.a ) / scale;
+				result.d = 0.25f * scale;
 			}
 			else
 			{
-				if ( basis.a.a < -basis.b.b )
+				if ( basis.a.a > basis.b.b && basis.a.a > basis.c.c )
 				{
-					t = 1.0f - basis.a.a - basis.b.b + basis.c.c;
-					result.a = basis.c.a + basis.a.c;
-					result.b = basis.b.c + basis.c.b;
-					result.c = t;
-					result.d = basis.a.b - basis.b.a;
+					// 1st element of diag is greatest value
+					// find scale according to 1st element, and double it
+					float32_c scale = sqrtf( 1.0f + basis.a.a - basis.b.b - basis.c.c ) * 2.0f;
+
+					// TODO: speed this up
+					result.a = 0.25f * scale;
+					result.b = ( basis.b.a + basis.a.b ) / scale;
+					result.c = ( basis.a.c + basis.c.a ) / scale;
+					result.d = ( basis.b.c - basis.c.b ) / scale;
+				}
+				else if ( basis.b.b > basis.c.c )
+				{
+					// 2nd element of diag is greatest value
+					// find scale according to 2nd element, and double it
+					float32_c scale = sqrtf( 1.0f + basis.b.b - basis.a.a - basis.c.c ) * 2.0f;
+
+					// TODO: speed this up
+					result.a = ( basis.b.a + basis.a.b ) / scale;
+					result.b = 0.25f * scale;
+					result.c = ( basis.c.b + basis.b.c ) / scale;
+					result.d = ( basis.c.a - basis.a.c ) / scale;
 				}
 				else
 				{
-					t = 1.0f + basis.a.a + basis.b.b + basis.c.c;
-					result.a = basis.b.c - basis.c.b;
-					result.b = basis.c.a - basis.a.c;
-					result.c = basis.a.b - basis.b.a;
-					result.d = t;
+					// 3rd element of diag is greatest value
+					// find scale according to 3rd element, and double it
+					float32_c scale = sqrtf( 1.0f + basis.c.c - basis.a.a - basis.b.b ) * 2.0f;
+
+					// TODO: speed this up
+					result.a = ( basis.c.a + basis.a.c ) / scale;
+					result.b = ( basis.c.b + basis.b.c ) / scale;
+					result.c = 0.25f * scale;
+					result.d = ( basis.a.b - basis.b.a ) / scale;
 				}
 			}
-			result = result * ( 0.5f / math_square_root( t ) );
+
+			ops::normalize_quaternion32( result );
+
 			return result;
 		}
-		*/
 
-		quaternion32_c make_quaternion32_from_matrix32x3x3_basis( matrix32x3x3_c const & basis )
+		matrix32x3x3_c basis_matrix32x3x3_from_rotation_quaternion32( quaternion32_c const & rotation )
 		{
-			return make_quaternion32_from_matrix32x3x3_basis_blender( basis );
+			return basis_matrix32x3x3_from_rotation_quaternion32_blender( rotation );
 		}
 
-		quaternion32_c make_quaternion32_inverted( quaternion32_c const & quaternion )
+		quaternion32_c rotation_quaternion32_from_basis_matrix32x3x3( matrix32x3x3_c const & basis )
+		{
+			return rotation_quaternion32_from_basis_matrix32x3x3_blender( basis );
+		}
+
+		matrix32x3x3_c basis_matrix32x3x3_from_axis_angle( vector32x4_c const & axis_angle )
+		{
+			matrix32x3x3_c basis;
+			float32_c v1 = axis_angle.a;
+			float32_c v2 = axis_angle.b;
+			float32_c v3 = axis_angle.c;
+			float32_c v1s = v1 * v1;
+			float32_c v2s = v2 * v2;
+			float32_c v3s = v3 * v3;
+			float32_c c = math_cosine( axis_angle.d );
+			float32_c s = math_sine( axis_angle.d );
+			basis.a.a = ( v1s + ( ( 1.0f - v1s ) * c ) );
+			basis.a.b = ( ( ( v1 * v2 ) * ( 1.0f - c ) ) + ( v3 * s ) );
+			basis.a.c = ( ( ( v1 * v3 ) * ( 1.0f - c ) ) - ( v2 * s ) );
+			basis.b.a = ( ( ( v1 * v2 ) * ( 1.0f - c ) ) - ( v3 * s ) );
+			basis.b.b = ( v2s + ( ( 1.0f - v2s ) * c ) );
+			basis.b.c = ( ( ( v2 * v3 ) * ( 1.0f - c ) ) + ( v1 * s ) );
+			basis.c.a = ( ( ( v1 * v3 ) * ( 1.0f - c ) ) + ( v2 * s ) );
+			basis.c.b = ( ( ( v2 * v3 ) * ( 1.0f - c ) ) - ( v1 * s ) );
+			basis.c.c = ( v3s + ( ( 1.0f - v3s ) * c ) );
+			return basis;
+		}
+
+		matrix32x3x3_c joint_rotate_basis_matrix32x3x3_y( matrix32x3x3_c basis, vector32x3_c const & basis_y_target )
+		{
+			matrix32x3x3_c result;
+			float32_c basis_y_length = length_float32( basis.b );
+			vector32x3_c basis_y_normal = basis.b / basis_y_length;
+			float32_c d = dot_product_float32( basis_y_normal, basis_y_target );
+			float32_c angle = math_arc_cosine( d );
+			if ( angle > constants< float32_c >::angle_near_zero() )
+			{
+				float32_c s = math_sine( angle );
+				float32_c c = math_cosine( angle );
+				vector32x3_c axis = cross_product_vector32x3( basis_y_target, basis_y_normal );
+				result.a = ( ( basis.a * c ) + ( axis * dot_product_float32( axis, basis.a ) * ( 1.0f - c ) ) + ( cross_product_vector32x3( basis.a, axis ) * s ) );
+				result.b = basis_y_target * basis_y_length;
+				result.b = ( ( basis.c * c ) + ( axis * dot_product_float32( axis, basis.c ) * ( 1.0f - c ) ) + ( cross_product_vector32x3( basis.c, axis ) * s ) );
+			}
+			return result;
+		}
+
+		matrix32x3x3_c joint_rotate_basis_matrix32x3x3_z( matrix32x3x3_c basis, vector32x3_c const & basis_z_target )
+		{
+			matrix32x3x3_c result;
+			float32_c basis_z_length = length_float32( basis.c );
+			vector32x3_c basis_z_normal = basis.c / basis_z_length;
+			float32_c d = dot_product_float32( basis_z_normal, basis_z_target );
+			float32_c angle = math_arc_cosine( d );
+			if ( angle > constants< float32_c >::angle_near_zero() )
+			{
+				float32_c s = math_sine( angle );
+				float32_c c = math_cosine( angle );
+				vector32x3_c axis = cross_product_vector32x3( basis_z_target, basis_z_normal );
+				result.a = ( ( basis.a * c ) + ( axis * dot_product_float32( axis, basis.a ) * ( 1.0f - c ) ) + ( cross_product_vector32x3( basis.a, axis ) * s ) );
+				result.b = ( ( basis.b * c ) + ( axis * dot_product_float32( axis, basis.b ) * ( 1.0f - c ) ) + ( cross_product_vector32x3( basis.b, axis ) * s ) );
+				result.c = basis_z_target * basis_z_normal;
+			}
+			return result;
+		}
+
+		matrix32x3x3_c transpose_matrix32x3x3( matrix32x3x3_c const & matrix )
+		{
+			matrix32x3x3_c result;
+			result.a.a = matrix.a.a;
+			result.a.b = matrix.b.a;
+			result.a.c = matrix.c.a;
+			result.b.a = matrix.a.b;
+			result.b.b = matrix.b.b;
+			result.b.c = matrix.c.b;
+			result.c.a = matrix.a.c;
+			result.c.b = matrix.b.c;
+			result.c.c = matrix.c.c;
+			return result;
+		}
+
+		matrix32x4x4_c view_matrix32x4x4_from_look_at( vector32x3_c const & position, vector32x3_c const & forward, vector32x3_c const & up )
+		{
+			matrix32x3x3_c basis;
+			basis.c = -normal_vector32x3( forward ); // z-axis, backwards, relative to viewer's perspective.
+			basis.a = normal_vector32x3( cross_product_vector32x3( up, basis.c ) ); // x-axis, right, relative to viewer's perspective.
+			basis.b = cross_product_vector32x3( basis.c, basis.a); // y-axis, down, relative to viewer's perspective.
+			matrix32x4x4_c result;
+			result.a.a = basis.a.a;
+			result.a.b = basis.b.a;
+			result.a.c = basis.c.a;
+			result.a.d = 0.0f;
+			result.b.a = basis.a.b;
+			result.b.b = basis.b.b;
+			result.b.c = basis.c.b;
+			result.b.d = 0.0f;
+			result.c.a = basis.a.c;
+			result.c.b = basis.b.c;
+			result.c.c = basis.c.c;
+			result.c.d = 0.0f;
+			result.d.a = -dot_product_float32( basis.a, position );
+			result.d.b = -dot_product_float32( basis.b, position );
+			result.d.c = -dot_product_float32( basis.c, position );
+			result.d.d = 1.0f;
+			return result;
+		}
+
+		matrix32x4x4_c projection_orthographic_matrix32x4x4( float32_c const width, float32_c const height, float32_c const clip_near, float32_c const clip_far )
+		{
+			matrix32x4x4_c result;
+			result.a.a = 2.0f / width;
+			result.a.b = 0.0;
+			result.a.c = 0.0;
+			result.a.d = 0.0;
+			result.b.a = 0.0;
+			result.b.b = 2.0f / height;
+			result.b.c = 0.0;
+			result.b.d = 0.0;
+			result.c.a = 0.0;
+			result.c.b = 0.0;
+			result.c.c = 1.0f / ( clip_near - clip_far );
+			result.c.d = 0.0;
+			result.d.a = 0.0;
+			result.d.b = 0.0;
+			result.d.c = clip_near / ( clip_near - clip_far );
+			result.d.d = 1.0f;
+			return result;
+		}
+
+		matrix32x4x4_c projection_orthographic_off_center_matrix32x4x4_a( float32_c const left, float32_c const right, float32_c const top, float32_c const bottom, float32_c const clip_near, float32_c const clip_far )
+		{
+			matrix32x4x4_c result;
+			result.a.a = 2.0f / ( right - left );
+			result.a.b = 0.0f;
+			result.a.c = 0.0f;
+			result.a.d = 0.0f;
+			result.b.a = 0.0f;
+			result.b.b = 2.0f / ( bottom - top ); // ( top - bottom );
+			result.b.c = 0.0f;
+			result.b.d = 0.0f;
+			result.c.a = 0.0f;
+			result.c.b = 0.0f;
+			result.c.c = 1.0f / ( clip_near - clip_far );
+			result.c.d = 0.0f;
+			result.d.a = ( left + right ) / ( left - right );
+			result.d.b = ( top + bottom ) / ( top - bottom ); // ( bottom + top ) / ( bottom - top );
+			result.d.c = clip_near / ( clip_near - clip_far );
+			result.d.d = 1.0f;
+			return result;
+		}
+
+		matrix32x4x4_c projection_orthographic_off_center_matrix32x4x4_b( float32_c const width, float32_c const height, float32_c const center_x, float32_c const center_y, float32_c clip_near, float32_c clip_far )
+		{
+			float32_c left = ( width * -0.5f ) - ( center_x * width * 0.5f );
+			float32_c right = ( width * 0.5f ) - ( center_x * width * 0.5f );
+			float32_c top = ( height * -0.5f ) - ( center_y * height * 0.5f );
+			float32_c bottom = ( height * 0.5f ) - ( center_y * height * 0.5f );
+			return projection_orthographic_off_center_matrix32x4x4_a( left, right, top, bottom, clip_near, clip_far );
+		}
+
+		matrix32x4x4_c projection_perspective_matrix32x4x4( float32_c const field_of_view, float32_c const aspect_ratio, float32_c const clip_near, float32_c const clip_far )
+		{
+			float32_c dn = 0.0f;
+			float32_c df = 1.0f;
+			float32_c s = 1.0f / math_tangent( field_of_view / 2.0f );
+			matrix32x4x4_c result;
+			result.a.a = s / aspect_ratio;
+			result.a.b = 0.0f;
+			result.a.c = 0.0f;
+			result.a.d = 0.0f;
+			result.b.a = 0.0f;
+			result.b.b = s;
+			result.b.c = 0.0f;
+			result.b.d = 0.0f;
+			result.c.a = 0.0f;
+			result.c.b = 0.0f;
+			result.c.c = ( df * clip_far - dn * clip_near ) / ( clip_near - clip_far );
+			result.c.d = -1.0f;
+			result.d.a = 0.0f;
+			result.d.b = 0.0f;
+			result.d.c = ( df - dn ) * ( clip_near * clip_far ) / ( clip_near - clip_far );
+			result.d.d = 0.0f;
+			return result;
+		}
+
+		matrix32x4x4_c projection_perspective_off_center_matrix32x4x4_a( float32_c const left, float32_c const right, float32_c const top, float32_c bottom, float32_c const clip_near, float32_c const clip_far )
+		{
+			matrix32x4x4_c result;
+			result.a.a = ( 2.0f * clip_near ) / ( right - left );
+			result.a.b = 0.0f;
+			result.a.c = 0.0f;
+			result.a.d = 0.0f;
+			result.b.a = 0.0f;
+			result.b.b = ( 2.0f * clip_near ) / ( bottom - top ); // ( top - bottom );
+			result.b.c = 0.0f;
+			result.b.d = 0.0f;
+			result.c.a = ( left + right ) / ( right - left );
+			result.c.b = ( bottom + top ) / ( bottom - top ); // ( top + bottom ) / ( top - bottom );
+			result.c.c = clip_far / ( clip_near - clip_far );
+			result.c.d = -1.0f;
+			result.d.a = 0.0f;
+			result.d.b = 0.0f;
+			result.d.c = ( clip_near * clip_far ) / ( clip_near - clip_far );
+			result.d.d = 0.0f;
+			return result;
+		}
+
+		matrix32x4x4_c projection_perspective_off_center_matrix32x4x4_b( float32_c const field_of_view, float32_c const aspect_ratio, float32_c center_x, float32_c center_y, float32_c clip_near, float32_c clip_far )
+		{
+			float32_c s = 1.0f / math_tangent( field_of_view / 2.0f );
+			float32_c left = -s / aspect_ratio;
+			float32_c right = s / aspect_ratio;
+			float32_c top = -s;
+			float32_c bottom = s;
+			float32_c offset_x = ( right - left ) * center_x;
+			float32_c offset_y = ( bottom - top ) * center_y;
+			return projection_perspective_off_center_matrix32x4x4_a( left, right, top, bottom, clip_near, clip_far );
+		}
+
+		matrix32x4x4_c transpose_matrix32x4x4( matrix32x4x4_c const & matrix )
+		{
+			matrix32x4x4_c result;
+			result.a.a = matrix.a.a;
+			result.a.b = matrix.b.a;
+			result.a.c = matrix.c.a;
+			result.a.d = matrix.d.a;
+			result.b.a = matrix.a.b;
+			result.b.b = matrix.b.b;
+			result.b.c = matrix.c.b;
+			result.b.d = matrix.d.b;
+			result.c.a = matrix.a.c;
+			result.c.b = matrix.b.c;
+			result.c.c = matrix.c.c;
+			result.c.d = matrix.d.c;
+			result.d.a = matrix.a.d;
+			result.d.b = matrix.b.d;
+			result.d.c = matrix.c.d;
+			result.d.d = matrix.d.d;
+			return result;
+		}
+
+		matrix32x4x4_c invert_matrix32x4x4_fast( matrix32x4x4_c const & matrix )
+		{
+			matrix32x4x4_c result;
+			result.a.a = matrix.a.a;
+			result.a.b = matrix.b.a;
+			result.a.c = matrix.c.a;
+			result.b.a = matrix.a.b;
+			result.b.b = matrix.b.b;
+			result.b.c = matrix.c.b;
+			result.c.a = matrix.a.c;
+			result.c.b = matrix.b.c;
+			result.c.c = matrix.c.c;
+			result.d.a = -matrix.d.a;
+			result.d.b = -matrix.d.b;
+			result.d.c = -matrix.d.c;
+			result.d.d = matrix.d.d;
+			return result;
+		}
+
+		matrix32x2x2_c invert_matrix32x2x2( matrix32x2x2_c const & matrix )
+		{
+			float32_c matrix_determinant = ( matrix.a.a * matrix.b.b ) - ( matrix.a.b * matrix.b.a );
+			return matrix32x2x2_c( matrix.a.a / matrix_determinant, matrix.a.b / -matrix_determinant, matrix.b.a / -matrix_determinant, matrix.b.b / matrix_determinant );
+		}
+
+		matrix32x2x2_c basis_matrix32x2x2_from_angle_scale( float32_c const angle, float32_c const scale )
+		{
+			float32_c c = math_cosine( angle ) * scale;
+			float32_c s = math_sine( angle ) * scale;
+			return matrix32x2x2_c( c, s, -s, c );
+		}
+
+		quaternion32_c invert_quaternion32( quaternion32_c const & quaternion )
 		{
 			quaternion32_c result;
 			// if quaternion is always supposed to be unit length, then we don't need to divide by length squared because it will be equal to 1.
@@ -1508,7 +1525,7 @@ namespace cheonsa
 			return result;
 		}
 
-		quaternion32_c make_quaternion32_from_axis_angle( vector32x4_c const & axis_angle )
+		quaternion32_c rotation_quaternion32_from_axis_angle( vector32x4_c const & axis_angle )
 		{
 			quaternion32_c rotation;
 			float32_c half_angle = axis_angle.d / 2.0f;
@@ -1520,7 +1537,16 @@ namespace cheonsa
 			return rotation;
 		}
 
-		vector32x4_c make_axis_angle_from_quaternion32( quaternion32_c const & rotation )
+		quaternion32_c rotation_quaternion32_from_look_at2( vector32x3_c const & forward, vector32x3_c const & up )
+		{
+			matrix32x3x3_c basis;
+			basis.a = normal_vector32x3( cross_product_vector32x3( forward, up ) ); // x-axis right.
+			basis.b = normal_vector32x3( forward ); // y-axis forward.
+			basis.c = cross_product_vector32x3( basis.a, basis.b ); // z-axis up.
+			return rotation_quaternion32_from_basis_matrix32x3x3( basis );
+		}
+
+		vector32x4_c axis_angle_from_rotation_quaternion32( quaternion32_c const & rotation )
 		{
 			vector32x4_c axis_angle;
 			axis_angle.a = rotation.a;
@@ -1530,7 +1556,7 @@ namespace cheonsa
 			return axis_angle;
 		}
 
-		quaternion32_c make_quaternion32_from_euler_angles( vector32x3_c const & euler_angles )
+		quaternion32_c rotation_quaternion32_from_euler_angles( vector32x3_c const & euler_angles )
 		{
 			// taken from iirlicht
 			// thank you
@@ -1556,7 +1582,7 @@ namespace cheonsa
 			return result;
 		}
 
-		vector32x3_c make_euler_angles_from_quaternion32( quaternion32_c const & rotation )
+		vector32x3_c euler_angles_from_rotation_quaternion32( quaternion32_c const & rotation )
 		{
 			// taken from iirlicht
 			// thank you
@@ -1588,15 +1614,6 @@ namespace cheonsa
 			return result;
 		}
 
-		quaternion32_c make_quaternion32_from_look_at( vector32x3_c const & z_forward, vector32x3_c const & x_right )
-		{
-			matrix32x3x3_c basis;
-			basis.a = make_vector32x3_normalized( x_right );
-			basis.c = make_vector32x3_normalized( z_forward );
-			basis.b = make_vector32x3_cross_product( basis.c, x_right ); // y_down.
-			return make_quaternion32_from_matrix32x3x3_basis( basis );
-		}
-
 
 		//
 		//
@@ -1611,18 +1628,18 @@ namespace cheonsa
 
 		line32_c make_line32_from_normal_and_point( vector32x2_c const & normal, vector32x2_c const & point )
 		{
-			return make_line32_normalized( line32_c( normal.a, normal.b, -make_float32_dot_product( normal, point ) ) );
+			return make_line32_normalized( line32_c( normal.a, normal.b, -dot_product_float32( normal, point ) ) );
 		}
 
 		line32_c make_line32_from_segment( vector32x2_c const & point_a, vector32x2_c const & point_b )
 		{
-			vector32x2_c normal = make_vector32x2_normalized( make_vector32x2_orthogonal( point_b - point_a ) );
+			vector32x2_c normal = normal_vector32x2( orthogonalized_vector32x2( point_b - point_a ) );
 			return make_line32_from_normal_and_point( normal, point_a );
 		}
 
 		line32_c make_line32_normalized( line32_c const & line )
 		{
-			float32_c line_normal_length = make_float32_length( line.get_normal() );
+			float32_c line_normal_length = length_float32( line.get_normal() );
 			if ( line_normal_length > constants< float32_c >::division_near_zero() )
 			{
 				return line32_c( line.a / line_normal_length, line.b / line_normal_length, line.c / line_normal_length );
@@ -1657,7 +1674,7 @@ namespace cheonsa
 				result.b = box.maximum.b;
 				break;
 			}
-			result = make_vector32x2_transformed_point( result, box_origin, box_basis );
+			result = rotate_and_scale_vector32x2( result, box_origin, box_basis );
 			return result;
 		}
 
@@ -1697,8 +1714,8 @@ namespace cheonsa
 				segment_point_b.b = box.maximum.b;
 				break;
 			}
-			segment_point_a = make_vector32x2_transformed_point( segment_point_a, box_basis, box_origin );
-			segment_point_b = make_vector32x2_transformed_point( segment_point_b, box_basis, box_origin );
+			segment_point_a = rotate_and_scale_vector32x2( segment_point_a, box_basis, box_origin );
+			segment_point_b = rotate_and_scale_vector32x2( segment_point_b, box_basis, box_origin );
 			result = make_line32_from_segment( segment_point_a, segment_point_b );
 			return result;
 		}
@@ -1713,30 +1730,30 @@ namespace cheonsa
 
 		plane32_c make_plane32_from_normal_and_point( vector32x3_c const & normal, vector32x3_c const & point )
 		{
-			return plane32_c( normal.a, normal.b, normal.c, -make_float32_dot_product( normal, point ) );
+			return plane32_c( normal.a, normal.b, normal.c, -dot_product_float32( normal, point ) );
 		}
 
 		plane32_c make_plane32_from_triangle( vector32x3_c const & point_a, vector32x3_c const & point_b, vector32x3_c const & point_c )
 		{
-			vector32x3_c normal = make_vector32x3_normalized( make_vector32x3_cross_product( point_b - point_a, point_c - point_a ) );
+			vector32x3_c normal = normal_vector32x3( cross_product_vector32x3( point_b - point_a, point_c - point_a ) );
 			return make_plane32_from_normal_and_point( normal, point_a );
 		}
 
 		plane64_c make_plane64_from_normal_and_point( vector64x3_c const & normal, vector64x3_c const & point )
 		{
-			//return make_plane64_normalized( plane64_c( normal.a, normal.b, normal.c, -make_float64_dot_product( normal, point ) ) );
-			return plane64_c( normal.a, normal.b, normal.c, -make_float64_dot_product( normal, point ) );
+			//return make_plane64_normalized( plane64_c( normal.a, normal.b, normal.c, -dot_product_float64( normal, point ) ) );
+			return plane64_c( normal.a, normal.b, normal.c, -dot_product_float64( normal, point ) );
 		}
 
 		plane64_c make_plane64_from_triangle( vector64x3_c const & point_a, vector64x3_c const & point_b, vector64x3_c const & point_c )
 		{
-			vector64x3_c normal = make_vector64x3_normalized( make_vector64x3_cross_product( point_b - point_a, point_c - point_a ) );
+			vector64x3_c normal = normal_vector64x3( cross_product_vector64x3( point_b - point_a, point_c - point_a ) );
 			return make_plane64_from_normal_and_point( normal, point_a );
 		}
 
 		plane64_c make_plane64_normalized( plane64_c const & plane )
 		{
-			float64_c plane_normal_length = make_float64_length( plane.get_normal() );
+			float64_c plane_normal_length = length_float64( plane.get_normal() );
 			if ( plane_normal_length > constants< float64_c >::division_near_zero() )
 			{
 				return plane64_c( plane.a / plane_normal_length, plane.b / plane_normal_length, plane.c / plane_normal_length, plane.d / plane_normal_length );
@@ -1751,18 +1768,18 @@ namespace cheonsa
 		//
 		//
 
-		frustum64_c make_frustum64_perspective3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_a, float64_c const fov_b, float64_c const clip_near, float64_c const clip_far )
+		frustum64_c make_frustum64_perspective3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_x, float64_c const fov_y, float64_c const clip_near, float64_c const clip_far )
 		{
 			frustum64_c result;
 
-			assert( make_float64_length( forward ) > constants< float64_c >::division_near_zero() );
-			assert( make_float64_length( up ) > constants< float64_c >::division_near_zero() );
-			vector64x3_c forward_normal = make_vector64x3_normalized( forward );
-			vector64x3_c up_normal = make_vector64x3_normalized( up );
-			vector64x3_c right_normal = make_vector64x3_cross_product( forward_normal, up_normal ); // used to find down that is orthogonal to forward, because up may not be orthogonal to forward.
-			vector64x3_c down_normal = make_vector64x3_cross_product( forward_normal, right_normal );
+			assert( length_float64( forward ) > constants< float64_c >::division_near_zero() );
+			assert( length_float64( up ) > constants< float64_c >::division_near_zero() );
+			vector64x3_c forward_normal = normal_vector64x3( forward );
+			vector64x3_c up_normal = normal_vector64x3( up );
+			vector64x3_c right_normal = cross_product_vector64x3( forward_normal, up_normal ); // used to find down that is orthogonal to forward, because up may not be orthogonal to forward.
+			vector64x3_c down_normal = cross_product_vector64x3( forward_normal, right_normal );
 
-			vector64x2_c near_size_half = vector64x2_c( math_tangent( fov_a / 2.0 ) * clip_near, math_tangent( fov_b / 2.0 ) * clip_near );
+			vector64x2_c near_size_half = vector64x2_c( math_tangent( fov_x / 2.0 ) * clip_near, math_tangent( fov_y / 2.0 ) * clip_near );
 
 			vector64x3_c near_center = position + ( forward_normal * clip_near ) ; // vector64x3_c( transform.get_position() ) + ( vector64x3_c( transform.get_basis_b() ) * near_clip );
 			result.points[ frustum_point_index_e_near_top_left ] = near_center + ( down_normal * -near_size_half.b ) + ( right_normal * -near_size_half.a );
@@ -1770,7 +1787,7 @@ namespace cheonsa
 			result.points[ frustum_point_index_e_near_bottom_left ] = near_center + ( down_normal * near_size_half.b ) + ( right_normal * -near_size_half.a );
 			result.points[ frustum_point_index_e_near_bottom_right ] = near_center + ( down_normal * near_size_half.b ) + ( right_normal * near_size_half.a );
 
-			vector64x2_c far_size_half = vector64x2_c( math_tangent( fov_a / 2.0 ) * clip_far, math_tangent( fov_b / 2.0 ) * clip_far );
+			vector64x2_c far_size_half = vector64x2_c( math_tangent( fov_x / 2.0 ) * clip_far, math_tangent( fov_y / 2.0 ) * clip_far );
 
 			vector64x3_c far_center = position + ( forward_normal * clip_far );
 
@@ -1784,18 +1801,18 @@ namespace cheonsa
 			return result;
 		}
 
-		frustum64_c make_frustum64_orthographic3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_a, float64_c const fov_b, float64_c const clip_near, float64_c const clip_far )
+		frustum64_c make_frustum64_orthographic3( vector64x3_c const & position, vector64x3_c const & forward, vector64x3_c const & up, float64_c const fov_x, float64_c const fov_y, float64_c const clip_near, float64_c const clip_far )
 		{
 			frustum64_c result;
 
-			assert( make_float64_length( forward ) > constants< float64_c >::division_near_zero() );
-			assert( make_float64_length( up ) > constants< float64_c >::division_near_zero() );
-			vector64x3_c forward_normal = make_vector64x3_normalized( forward );
-			vector64x3_c up_normal = make_vector64x3_normalized( up );
-			vector64x3_c right_normal = make_vector64x3_cross_product( forward_normal, up_normal ); // used to find down that is orthogonal to forward, because up may not be orthogonal to forward.
-			vector64x3_c down_normal = make_vector64x3_cross_product( forward_normal, right_normal );
+			assert( length_float64( forward ) > constants< float64_c >::division_near_zero() );
+			assert( length_float64( up ) > constants< float64_c >::division_near_zero() );
+			vector64x3_c forward_normal = normal_vector64x3( forward );
+			vector64x3_c up_normal = normal_vector64x3( up );
+			vector64x3_c right_normal = cross_product_vector64x3( forward_normal, up_normal ); // used to find down that is orthogonal to forward, because up may not be orthogonal to forward.
+			vector64x3_c down_normal = cross_product_vector64x3( forward_normal, right_normal );
 
-			vector64x2_c half_size = vector64x2_c( fov_a * 0.5, fov_b * 0.5 );
+			vector64x2_c half_size = vector64x2_c( fov_x * 0.5, fov_y * 0.5 );
 
 			vector64x3_c near_center = position + ( forward_normal * clip_near );
 
@@ -2406,7 +2423,7 @@ namespace cheonsa
 		{
 			amount = math_saturate( amount );
 			vector32x4_c result;
-			float32_c p = math_square_root( make_float32_dot_product( vector32x3_c( color.a, color.b, color.c ), vector32x3_c( 0.299f, 0.587f, 0.114f ) ) );
+			float32_c p = math_square_root( dot_product_float32( vector32x3_c( color.a, color.b, color.c ), vector32x3_c( 0.299f, 0.587f, 0.114f ) ) );
 			result.a = ( ( color.a - p ) * amount ) + p;
 			result.b = ( ( color.b - p ) * amount ) + p;
 			result.c = ( ( color.c - p ) * amount ) + p;
@@ -2435,17 +2452,17 @@ namespace cheonsa
 			result.points_count = polygon_in.points_count;
 			for ( sint32_c i = 0; i < polygon_in.points_count; i++ )
 			{
-				result.points[ i ] = make_vector32x2_transformed_point( polygon_in.points[ i ], transform_basis ) + transform_origin;
+				result.points[ i ] = rotate_and_scale_vector32x2( polygon_in.points[ i ], transform_basis ) + transform_origin;
 			}
 			return result;
 		}
 
 		vector64x3_c make_vector64x3_normal_from_triangle( vector64x3_c a, vector64x3_c b, vector64x3_c c )
 		{
-			return make_vector64x3_normalized( make_vector64x3_cross_product( a - b, c - b ) );
+			return normal_vector64x3( cross_product_vector64x3( a - b, c - b ) );
 		}
 
-		box64x3_c make_aabb_from_obb( box64x3_c const & obb, space_transform_c const & obb_transform )
+		box64x3_c make_aabb_from_obb( box64x3_c const & obb, transform3d_c const & obb_transform )
 		{
 			matrix32x3x3_c obb_matrix = obb_transform.get_scaled_basis();
 			if ( obb_matrix.a.a < 0.0f ) { obb_matrix.a.a = -obb_matrix.a.a; }
@@ -2458,7 +2475,7 @@ namespace cheonsa
 			if ( obb_matrix.c.b < 0.0f ) { obb_matrix.c.b = -obb_matrix.c.b; }
 			if ( obb_matrix.c.c < 0.0f ) { obb_matrix.c.c = -obb_matrix.c.c; }
 			vector64x3_c center = ( obb.minimum + obb.maximum ) * 0.5;
-			vector64x3_c extent = make_vector64x3_transformed_point( obb.maximum - center, obb_matrix );
+			vector64x3_c extent = rotate_and_scale_vector64x3( obb.maximum - center, obb_matrix );
 			return box64x3_c( center - extent + obb_transform.position, center + extent + obb_transform.position );
 		}
 
@@ -2469,7 +2486,7 @@ namespace cheonsa
 			if ( obb_basis.b.a < 0.0f ) { obb_basis.b.a = -obb_basis.b.a; }
 			if ( obb_basis.b.b < 0.0f ) { obb_basis.b.b = -obb_basis.b.b; }
 			vector32x2_c center = ( obb.minimum + obb.maximum ) * 0.5f;
-			vector32x2_c extent = make_vector32x2_transformed_point( obb.minimum - center, obb_basis );
+			vector32x2_c extent = rotate_and_scale_vector32x2( obb.minimum - center, obb_basis );
 			return box32x2_c( center - extent + obb_position, center + extent + obb_position);
 		}
 
@@ -2643,7 +2660,7 @@ namespace cheonsa
 				return destination;
 			}
 
-			float32_c cosine_half_theta = make_float32_dot_product( source, destination );
+			float32_c cosine_half_theta = dot_product_float32( source, destination );
 			if ( math_absolute_value( cosine_half_theta ) >= 1.0f ) // difference is 0 degrees, or 360 degrees, or greater than 360 degrees (if quaternions are not normalized), so source and destination are the same.
 			{
 				return source;
@@ -2663,12 +2680,12 @@ namespace cheonsa
 				( source.b * ratio_source ) + ( destination.b * ratio_destination ),
 				( source.c * ratio_source ) + ( destination.c * ratio_destination ),
 				( source.d * ratio_source ) + ( destination.d * ratio_destination ) );
-			return make_quaternion32_normalized( result );
+			return normal_quaternion32( result );
 		}
 
 		quaternion32_c traverse( quaternion32_c const & source, quaternion32_c const & destination, float32_c amount )
 		{
-			float32_c cosine_half_theta = make_float32_dot_product( source, destination );
+			float32_c cosine_half_theta = dot_product_float32( source, destination );
 			if ( math_absolute_value( cosine_half_theta ) >= 1.0f ) // difference is 0 degrees, or 360 degrees, or greater than 360 degrees (if quaternions are not normalized), so source and destination are the same.
 			{
 				return source;
@@ -2748,15 +2765,14 @@ namespace cheonsa
 				math_clamp( point.c, box.minimum.c, box.maximum.c ) );
 		}
 
-		vector64x3_c nearest_point_on_box( vector64x3_c const & point, box64x3_c const & box, space_transform_c const & box_transform )
+		vector64x3_c nearest_point_on_box( vector64x3_c const & point, box64x3_c const & box, transform3d_c const & box_transform )
 		{
 			vector64x3_c box_center = box.get_center();
-
-			vector64x3_c box_center_transformed = make_vector64x3_rotated_vector( box_center, box_transform.rotation ) * box_transform.scale + box_transform.position;
+			vector64x3_c box_center_transformed = rotate_vector64x3( box_center, box_transform.rotation ) * box_transform.scale + box_transform.position;
 			vector64x3_c box_half_distances = ( box.maximum - box_center ) * box_transform.scale;
 			vector64x3_c box_center_to_point = point - box_center_transformed;
 			matrix32x3x3_c box_transform_basis = box_transform.get_scaled_basis();
-			return box_center_transformed + ( box_transform_basis.a * math_clamp( make_float64_dot_product( vector64x3_c( box_transform_basis.a ), box_center_to_point ), -box_half_distances.a, box_half_distances.a ) ) + ( box_transform_basis.b * math_clamp( make_float64_dot_product( vector64x3_c( box_transform_basis.b ), box_center_to_point ), -box_half_distances.b, box_half_distances.b ) ) + ( box_transform_basis.c * math_clamp( make_float64_dot_product( vector64x3_c( box_transform_basis.c ), box_center_to_point ), -box_half_distances.c, box_half_distances.c ) );
+			return box_center_transformed + ( box_transform_basis.a * math_clamp( dot_product_float64( vector64x3_c( box_transform_basis.a ), box_center_to_point ), -box_half_distances.a, box_half_distances.a ) ) + ( box_transform_basis.b * math_clamp( dot_product_float64( vector64x3_c( box_transform_basis.b ), box_center_to_point ), -box_half_distances.b, box_half_distances.b ) ) + ( box_transform_basis.c * math_clamp( dot_product_float64( vector64x3_c( box_transform_basis.c ), box_center_to_point ), -box_half_distances.c, box_half_distances.c ) );
 		}
 
 		vector64x3_c nearest_point_on_plane( vector64x3_c const & point, plane64_c const & plane )
@@ -2766,14 +2782,14 @@ namespace cheonsa
 
 		vector64x3_c nearest_point_on_ray( vector64x3_c const & point, ray64_c const & ray )
 		{
-			float64_c t = make_float64_dot_product( point - ray.position, ray.normal );
+			float64_c t = dot_product_float64( point - ray.position, ray.normal );
 			return ray.position + ( ray.normal * t );
 		}
 
 		vector64x3_c nearest_point_on_segment( vector64x3_c const & point, segment64_c const & segment )
 		{
 			vector64x3_c segment_ab = segment.point_b - segment.point_a;
-			float64_c t = make_float64_dot_product( point - segment.point_a, segment_ab ) / make_float64_length_squared( segment_ab );
+			float64_c t = dot_product_float64( point - segment.point_a, segment_ab ) / length_squared_float64( segment_ab );
 			if ( t <= 0.0 )
 			{
 				return segment.point_a;
@@ -2834,21 +2850,21 @@ namespace cheonsa
 			return true;
 		}
 
-		boolean_c intersect_frustum_vs_box( frustum64_c const & frustum, box64x3_c const & box, space_transform_c const & box_transform )
+		boolean_c intersect_frustum_vs_box( frustum64_c const & frustum, box64x3_c const & box, transform3d_c const & box_transform )
 		{
 			// this code taken from:
 			// http://www.gamedev.net/topic/539116-optimized-obb-frustum64_c/
 			matrix32x3x3_c box_transform_basis = box_transform.get_scaled_basis();
-			vector64x3_c box_center = make_vector64x3_transformed_point( box.get_center(), box_transform );
+			vector64x3_c box_center = rotate_scale_and_translate_vector64x3( box.get_center(), box_transform );
 			vector64x3_c box_half_lengths = ( box.maximum - box.minimum ) * 0.5;
 			vector64x3_c to_inside; // temp, will store the corner point of the box that is closest to the inside of the plane we are testing against.
 			for ( sint32_c i = 0; i < 6; i++ ) // test the box against each plane in the frustum.
 			{
 				plane64_c const & p = frustum.planes[ i ];
 				// find the corner on the box that is most likely to be above the plane that we are testing against.
-				to_inside.a = make_float64_dot_product( vector64x3_c( box_transform_basis.a ), p.get_normal() ) > 0.0 ? box_half_lengths.a : -box_half_lengths.a;
-				to_inside.b = make_float64_dot_product( vector64x3_c( box_transform_basis.b ), p.get_normal() ) > 0.0 ? box_half_lengths.b : -box_half_lengths.b;
-				to_inside.c = make_float64_dot_product( vector64x3_c( box_transform_basis.c ), p.get_normal() ) > 0.0 ? box_half_lengths.c : -box_half_lengths.c;
+				to_inside.a = dot_product_float64( vector64x3_c( box_transform_basis.a ), p.get_normal() ) > 0.0 ? box_half_lengths.a : -box_half_lengths.a;
+				to_inside.b = dot_product_float64( vector64x3_c( box_transform_basis.b ), p.get_normal() ) > 0.0 ? box_half_lengths.b : -box_half_lengths.b;
+				to_inside.c = dot_product_float64( vector64x3_c( box_transform_basis.c ), p.get_normal() ) > 0.0 ? box_half_lengths.c : -box_half_lengths.c;
 				to_inside = box_center + ( box_transform_basis.a * to_inside.a ) + ( box_transform_basis.b * to_inside.b ) + ( box_transform_basis.c * to_inside.c );
 				// test if the point is inside (above) our outside (below) the plane we are testing against.
 				if ( distance_between_point_and_plane( to_inside, p ) < 0.0 )
@@ -2861,12 +2877,12 @@ namespace cheonsa
 
 		boolean_c intersect_sphere_vs_point( sphere64_c const & sphere, vector64x3_c const & point )
 		{
-			return make_float64_length_squared( sphere.position - point ) <= ( sphere.radius * sphere.radius );
+			return length_squared_float64( sphere.position - point ) <= ( sphere.radius * sphere.radius );
 		}
 
 		boolean_c intersect_sphere_vs_sphere( sphere64_c const & sphere_a, sphere64_c const & sphere_b )
 		{
-			return make_float64_length_squared( sphere_a.position - sphere_b.position ) <= ( ( sphere_a.radius + sphere_b.radius ) * ( sphere_a.radius + sphere_b.radius ) );
+			return length_squared_float64( sphere_a.position - sphere_b.position ) <= ( ( sphere_a.radius + sphere_b.radius ) * ( sphere_a.radius + sphere_b.radius ) );
 		}
 
 		boolean_c intersect_box_vs_point( box64x3_c const & box, vector64x3_c const & point )
@@ -2879,7 +2895,7 @@ namespace cheonsa
 			return ( box_a.maximum.a >= box_b.minimum.b && box_a.maximum.b >= box_b.minimum.b && box_a.maximum.c >= box_b.minimum.c );
 		}
 
-		boolean_c intersect_box_vs_box( box64x3_c const & box_a, space_transform_c const & box_a_transform, box64x3_c const & box_b, space_transform_c const & box_b_transform )
+		boolean_c intersect_box_vs_box( box64x3_c const & box_a, transform3d_c const & box_a_transform, box64x3_c const & box_b, transform3d_c const & box_b_transform )
 		{
 			// this code taken from:
 			// http://www.3dkingdoms.com/weekly/bbox.cpp
@@ -2897,7 +2913,7 @@ namespace cheonsa
 			{
 				for ( sint32_c k = 0; k < 3; k++ )
 				{
-					rotation.get_element_at_index( i ).get_element_at_index( k ) = make_float32_dot_product( box_a_transform_basis.get_element_at_index( i ), box_b_transform_basis.get_element_at_index( k ) );
+					rotation.get_element_at_index( i ).get_element_at_index( k ) = dot_product_float32( box_a_transform_basis.get_element_at_index( i ), box_b_transform_basis.get_element_at_index( k ) );
 					rotation_absolute.get_element_at_index( i ).get_element_at_index( k ) = math_absolute_value( rotation.get_element_at_index( i ).get_element_at_index( k ) );
 				}
 			}
@@ -2905,7 +2921,7 @@ namespace cheonsa
 			vector64x3_c center_a = ( box_a.get_center() + box_a_transform.position );
 			vector64x3_c center_b = ( box_b.get_center() + box_b_transform.position );
 			vector64x3_c center_delta = ( box_a.get_center() + box_a_transform.position ) - ( box_b.get_center() + box_b_transform.position ); // center delta in world space.
-			vector64x3_c center_delta_local = vector64x3_c( make_float64_dot_product( vector64x3_c( rotation.get_element_at_index( 0 ) ), center_delta ), make_float64_dot_product( vector64x3_c( rotation.get_element_at_index( 1 ) ), center_delta ), make_float64_dot_product( vector64x3_c( rotation.get_element_at_index( 2 ) ), center_delta ) ); // center delta in a space.
+			vector64x3_c center_delta_local = vector64x3_c( dot_product_float64( vector64x3_c( rotation.get_element_at_index( 0 ) ), center_delta ), dot_product_float64( vector64x3_c( rotation.get_element_at_index( 1 ) ), center_delta ), dot_product_float64( vector64x3_c( rotation.get_element_at_index( 2 ) ), center_delta ) ); // center delta in a space.
 
 			float64_c extent_a;
 			float64_c extent_b;
@@ -2915,7 +2931,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < 3; i++ )
 			{
 				extent_a = size_a.get_element_at_index( i );
-				extent_b = make_float64_dot_product( size_b, vector64x3_c( rotation_absolute.get_element_at_index( i ).get_element_at_index( 0 ), rotation_absolute.get_element_at_index( i ).get_element_at_index( 1 ), rotation_absolute.get_element_at_index( i ).get_element_at_index( 2 ) ) );
+				extent_b = dot_product_float64( size_b, vector64x3_c( rotation_absolute.get_element_at_index( i ).get_element_at_index( 0 ), rotation_absolute.get_element_at_index( i ).get_element_at_index( 1 ), rotation_absolute.get_element_at_index( i ).get_element_at_index( 2 ) ) );
 				separation = math_absolute_value( center_delta_local.get_element_at_index( i ) );
 
 				if ( separation > ( extent_a + extent_b ) )
@@ -2927,9 +2943,9 @@ namespace cheonsa
 			// test if any of box_b's basis vectors separate the box.
 			for ( sint32_c k = 0; k < 3; k++ )
 			{
-				extent_a = make_float64_dot_product( size_a, vector64x3_c( rotation_absolute.get_element_at_index( 0 ).get_element_at_index( k ), rotation_absolute.get_element_at_index( 1 ).get_element_at_index( k ), rotation_absolute.get_element_at_index( 2 ).get_element_at_index( k ) ) );
+				extent_a = dot_product_float64( size_a, vector64x3_c( rotation_absolute.get_element_at_index( 0 ).get_element_at_index( k ), rotation_absolute.get_element_at_index( 1 ).get_element_at_index( k ), rotation_absolute.get_element_at_index( 2 ).get_element_at_index( k ) ) );
 				extent_b = size_b.get_element_at_index( k );
-				separation = math_absolute_value( make_float64_dot_product( center_delta_local, vector64x3_c( rotation.get_element_at_index( 0 ).get_element_at_index( k ), rotation.get_element_at_index( 1 ).get_element_at_index( k ), rotation.get_element_at_index( 2 ).get_element_at_index( k ) ) ) );
+				separation = math_absolute_value( dot_product_float64( center_delta_local, vector64x3_c( rotation.get_element_at_index( 0 ).get_element_at_index( k ), rotation.get_element_at_index( 1 ).get_element_at_index( k ), rotation.get_element_at_index( 2 ).get_element_at_index( k ) ) ) );
 
 				if ( separation > ( extent_a + extent_b ) )
 				{
@@ -2963,13 +2979,13 @@ namespace cheonsa
 		boolean_c intersect_box_vs_sphere( box64x3_c const & box, sphere64_c const & sphere )
 		{
 			vector64x3_c closest_point_on_box = nearest_point_on_box( sphere.position, box );
-			return make_float64_length_squared( sphere.position - closest_point_on_box ) <= ( sphere.radius * sphere.radius );
+			return length_squared_float64( sphere.position - closest_point_on_box ) <= ( sphere.radius * sphere.radius );
 		}
 
-		boolean_c intersect_box_vs_sphere( box64x3_c const & box, space_transform_c const & box_transform, sphere64_c const & sphere )
+		boolean_c intersect_box_vs_sphere( box64x3_c const & box, transform3d_c const & box_transform, sphere64_c const & sphere )
 		{
 			vector64x3_c closest_point_on_box = nearest_point_on_box( sphere.position, box, box_transform );
-			return make_float64_length_squared( sphere.position - closest_point_on_box ) <= ( sphere.radius * sphere.radius );
+			return length_squared_float64( sphere.position - closest_point_on_box ) <= ( sphere.radius * sphere.radius );
 		}
 
 		boolean_c intersect_box_vs_point( box32x2_c const & box, vector32x2_c const & point )
@@ -2995,7 +3011,7 @@ namespace cheonsa
 		boolean_c intersect_box_vs_circle( box64x2_c const & box, circle64_c const & circle )
 		{
 			vector64x2_c nearest_point_on_or_in_box = nearest_point_on_box( circle.position, box );
-			return make_float64_length_squared( circle.position - nearest_point_on_or_in_box ) <= ( circle.radius * circle.radius );
+			return length_squared_float64( circle.position - nearest_point_on_or_in_box ) <= ( circle.radius * circle.radius );
 		}
 
 		boolean_c intersect_plane_vs_plane_vs_plane( plane64_c const & plane_a, plane64_c const & plane_b, plane64_c const & plane_c, vector64x3_c * intersection_point )
@@ -3003,8 +3019,8 @@ namespace cheonsa
 			if ( plane_a.get_normal() != plane_b.get_normal() || plane_a.get_normal() != plane_c.get_normal() || plane_b.get_normal() != plane_c.get_normal() )
 			{
 				// http://www.cgafaq.info/wiki/Intersection_of_three_planes
-				vector64x3_c numerator = ( make_vector64x3_cross_product( plane_b.get_normal(), plane_c.get_normal() ) * plane_a.get_distance() ) + ( make_vector64x3_cross_product( plane_c.get_normal(), plane_a.get_normal() ) * plane_b.get_distance() ) + ( make_vector64x3_cross_product( plane_a.get_normal(), plane_b.get_normal() ) * plane_c.get_distance() );
-				vector64x3_c denominator = make_vector64x3_cross_product( plane_b.get_normal(), plane_c.get_normal() ) * plane_a.get_normal();
+				vector64x3_c numerator = ( cross_product_vector64x3( plane_b.get_normal(), plane_c.get_normal() ) * plane_a.get_distance() ) + ( cross_product_vector64x3( plane_c.get_normal(), plane_a.get_normal() ) * plane_b.get_distance() ) + ( cross_product_vector64x3( plane_a.get_normal(), plane_b.get_normal() ) * plane_c.get_distance() );
+				vector64x3_c denominator = cross_product_vector64x3( plane_b.get_normal(), plane_c.get_normal() ) * plane_a.get_normal();
 				if ( intersection_point )
 				{
 					* intersection_point = numerator / denominator;
@@ -3067,12 +3083,12 @@ namespace cheonsa
 		void_c project_polygon( polygon32x2_c const & polygon, vector32x2_c const & axis, float32_c & result_minimum, float32_c & result_maximum )
 		{
 			assert( polygon.points_count > 0 && polygon.points_count <= 8 );
-			float32_c d = make_float32_dot_product( axis, polygon.points[ 0 ] );
+			float32_c d = dot_product_float32( axis, polygon.points[ 0 ] );
 			result_minimum = d;
 			result_maximum = d;
 			for ( sint32_c i = 1; i < polygon.points_count; i++ )
 			{
-				d = make_float32_dot_product( axis, polygon.points[ i ] );
+				d = dot_product_float32( axis, polygon.points[ i ] );
 				if ( d < result_minimum )
 				{
 					result_minimum = d;
@@ -3123,7 +3139,7 @@ namespace cheonsa
 				{
 					edge_vector = polygon_b.get_edge_vector( i - polygon_a.points_count );
 				}
-				vector32x2_c axis = make_vector32x2_normalized( vector32x2_c( -edge_vector.b, edge_vector.a ) ); // normal of edge, tangent to edge.
+				vector32x2_c axis = normal_vector32x2( vector32x2_c( -edge_vector.b, edge_vector.a ) ); // normal of edge, tangent to edge.
 				float32_c minimum_a;
 				float32_c maximum_a;
 				float32_c minimum_b;
@@ -3153,7 +3169,7 @@ namespace cheonsa
 
 		boolean_c sweep_ray_vs_plane( ray64_c const & ray, plane64_c const & plane, float64_c & t )
 		{
-			float64_c cosine = make_float64_dot_product( ray.normal, plane.get_normal() );
+			float64_c cosine = dot_product_float64( ray.normal, plane.get_normal() );
 			if ( cosine < 0.0 )
 			{
 				float64_c distance_above = distance_between_point_and_plane( ray.position, plane );
@@ -3203,7 +3219,7 @@ namespace cheonsa
 		boolean_c sweep_point_vs_plane( segment64_c const & point_path, plane64_c const & plane, float64_c & t )
 		{
 			vector64x3_c ab = point_path.point_b - point_path.point_a;
-			t = ( plane.d - make_float64_dot_product( plane.get_normal(), point_path.point_a ) ) / make_float64_dot_product( plane.get_normal(), ab );
+			t = ( plane.d - dot_product_float64( plane.get_normal(), point_path.point_a ) ) / dot_product_float64( plane.get_normal(), ab );
 			if ( t >= 0.0 && t <= 1.0 )
 			{
 				return true;
@@ -3214,8 +3230,8 @@ namespace cheonsa
 		boolean_c sweep_point_vs_sphere( segment64_c const & point_path, sphere64_c const & sphere, float64_c & t )
 		{
 			vector64x3_c m = point_path.point_a - sphere.position;
-			float64_c b = make_float64_dot_product( m, point_path.point_b - point_path.point_a );
-			float64_c c = make_float64_dot_product( m, m ) - sphere.radius * sphere.radius;
+			float64_c b = dot_product_float64( m, point_path.point_b - point_path.point_a );
+			float64_c c = dot_product_float64( m, m ) - sphere.radius * sphere.radius;
 
 			// exit if r's origin is outside s (c > 0) and r pointing away from s (b > 0)
 			if ( c > 0.0 && b > 0.0 )
@@ -3247,9 +3263,9 @@ namespace cheonsa
 			vector64x3_c sphere_path_vector = capsule.point_b - capsule.point_a;
 			vector64x3_c point_to_sphere = point_path.point_a - capsule.point_a;
 			vector64x3_c point_path_vector = point_path.point_b - point_path.point_a;
-			float64_c a = make_float64_dot_product( point_to_sphere, sphere_path_vector );
-			float64_c b = make_float64_dot_product( point_path_vector, sphere_path_vector );
-			float64_c c = make_float64_dot_product( sphere_path_vector, sphere_path_vector );
+			float64_c a = dot_product_float64( point_to_sphere, sphere_path_vector );
+			float64_c b = dot_product_float64( point_path_vector, sphere_path_vector );
+			float64_c c = dot_product_float64( sphere_path_vector, sphere_path_vector );
 
 			// test if swept point (segment64_c) is fully outside either end swept sphere64_c (capsule)
 			if ( a < 0.0 && a + b < 0.0 )
@@ -3263,10 +3279,10 @@ namespace cheonsa
 				return sweep_point_vs_sphere( point_path, sphere64_c( capsule.point_b, capsule.radius_a ), t );
 			}
 
-			float64_c d = make_float64_dot_product( point_path_vector, point_path_vector );
-			float64_c e = make_float64_dot_product( point_to_sphere, point_path_vector );
+			float64_c d = dot_product_float64( point_path_vector, point_path_vector );
+			float64_c e = dot_product_float64( point_to_sphere, point_path_vector );
 			float64_c f = c * d - b * b;
-			float64_c g = make_float64_dot_product( point_to_sphere, point_to_sphere ) - capsule.radius_a * capsule.radius_a;
+			float64_c g = dot_product_float64( point_to_sphere, point_to_sphere ) - capsule.radius_a * capsule.radius_a;
 			float64_c h = c * g - a * a;
 			if ( math_absolute_value( f ) < constants< float64_c >::value_near_zero() )
 			{
@@ -3402,19 +3418,18 @@ namespace cheonsa
 			return ( ( t_minimum <= 1.0 ) && ( t_maximum >= 0.0 ) );
 		}
 
-		boolean_c sweep_point_vs_box( segment64_c const & point_path, box64x3_c const & box, space_transform_c const & box_transform, float64_c & t )
+		boolean_c sweep_point_vs_box( segment64_c const & point_path, box64x3_c const & box, transform3d_c const & box_transform, float64_c & t )
 		{
-			space_transform_c box_transform_inverted = box_transform.get_inverted();
-
-			segment64_c point_path_local = segment64_c( make_vector64x3_transformed_point( point_path.point_a, box_transform_inverted ), make_vector64x3_transformed_point( point_path.point_b, box_transform_inverted ) );
+			transform3d_c box_transform_inverted = box_transform.get_inverted();
+			segment64_c point_path_local = segment64_c( rotate_scale_and_translate_vector64x3( point_path.point_a, box_transform_inverted ), rotate_scale_and_translate_vector64x3( point_path.point_b, box_transform_inverted ) );
 			return sweep_point_vs_box( point_path_local, box, t );
 		}
 
-		boolean_c sweep_sphere_vs_box( segment64_c const & sphere_path, float64_c const sphere_radius, box64x3_c const & box, space_transform_c const & box_transform, float64_c & t )
+		boolean_c sweep_sphere_vs_box( segment64_c const & sphere_path, float64_c const sphere_radius, box64x3_c const & box, transform3d_c const & box_transform, float64_c & t )
 		{
 			box64x3_c box_with_margin = box64x3_c( box.minimum.a - sphere_radius, box.minimum.b - sphere_radius, box.minimum.c - sphere_radius, box.maximum.a + sphere_radius, box.maximum.b + sphere_radius, box.maximum.c + sphere_radius );
-			space_transform_c box_transform_inverted = box_transform.get_inverted();
-			segment64_c sphere_path_local = segment64_c( make_vector64x3_transformed_point( sphere_path.point_a, box_transform_inverted ), make_vector64x3_transformed_point( sphere_path.point_b, box_transform_inverted ) );
+			transform3d_c box_transform_inverted = box_transform.get_inverted();
+			segment64_c sphere_path_local = segment64_c( rotate_scale_and_translate_vector64x3( sphere_path.point_a, box_transform_inverted ), rotate_scale_and_translate_vector64x3( sphere_path.point_b, box_transform_inverted ) );
 
 			if ( !sweep_point_vs_box( sphere_path_local, box_with_margin, t ) || t > 1.0 )
 			{
@@ -3502,13 +3517,13 @@ namespace cheonsa
 
 			vector64x3_c intersection_point = point_path.point_a + ( point_path.point_b - point_path.point_a ) * t;
 
-			float64_c u = make_float64_dot_product( intersection_point, triangle.edge_plane_bc.get_normal() ) - triangle.edge_plane_bc.get_distance();
+			float64_c u = dot_product_float64( intersection_point, triangle.edge_plane_bc.get_normal() ) - triangle.edge_plane_bc.get_distance();
 			if ( u < 0.0 || u > 1.0 )
 			{
 				return false;
 			}
 
-			float64_c v = make_float64_dot_product( intersection_point, triangle.edge_plane_ca.get_normal() ) - triangle.edge_plane_ca.get_distance();
+			float64_c v = dot_product_float64( intersection_point, triangle.edge_plane_ca.get_normal() ) - triangle.edge_plane_ca.get_distance();
 			if ( v < 0.0 )
 			{
 				return false;
@@ -3530,56 +3545,7 @@ namespace cheonsa
 		//
 		//
 
-		//boolean_c char16_is_valid_for_file_path( char16_c character )
-		//{
-		//	if ( !char16_is_printable( character ) || ( character == 127 ) || ( character == '<' ) || ( character == '>' ) || ( character == '"' ) || ( character == '|' ) || ( character == '?' ) || ( character == '*' ) || ( character == '/' ) )
-		//	if ( ( character >= 0 && character <= 31 ) || !char16_is_printable( character ) || character == '<' || character == '>' || character == '"' || character == '|' || character == '?' || character == '*' || character == '%' )
-		//	{
-		//		return false;
-		//	}
-		//	return true;
-		//}
-
-		/*
-		boolean_c char16_is_valid_for_file_name( char16_c character )
-		{
-			if ( ( character >= 0 && character <= 31 ) || !char16_is_printable( character ) || character == '<' || character == '>' || character == '"' || character == '|' || character == '?' || character == '*' || character == '%' || character == ':' || character == '\\' || character == '/' )
-			{
-				return false;
-			}
-			return true;
-		}
-
-		boolean_c string16_is_valid_for_file_path( string16_c const & string )
-		{
-			sint32_c length = string.get_length();
-			char16_c const * c = string.character_list.get_internal_array();
-			for ( sint32_c i = 0; i < length; i++ )
-			{
-				if ( !char16_is_valid_for_file_path( c[ i ] ) )
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-
-		boolean_c string16_is_valid_for_file_name( string16_c const & string )
-		{
-			sint32_c length = string.get_length();
-			char16_c const * c = string.character_list.get_internal_array();
-			for ( sint32_c i = 0; i < length; i++ )
-			{
-				if ( !char16_is_valid_for_file_name( c[ i ] ) )
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-		*/
-
-		string16_c path_get_mother( string16_c const & a )
+		string16_c path_get_folder_path( string16_c const & a )
 		{
 			string16_c result;
 
@@ -3607,13 +3573,13 @@ namespace cheonsa
 			if ( i > 0 )
 			{
 				result.character_list.construct_mode_dynamic_from_array( a.character_list.get_internal_array(), i );
-				result.character_list.insert_at_end( 0 );				 
+				result.character_list.insert( -1, 0 );
 			}
 
 			return result;
 		}
 
-		string16_c path_get_file_extension( string16_c const & a )
+		string16_c path_get_file_or_folder_extension( string16_c const & a )
 		{
 			string16_c result;
 
@@ -3621,40 +3587,42 @@ namespace cheonsa
 			sint32_c a_length = a.get_length();
 			assert( a_length > 0 );
 			char16_c a_character = a.character_list[ a_length - 1 ];
-			assert( a_character != '/' && a_character != '\\' );
+			if ( a_character == '/' || a_character == '\\' )
+			{
+				a_length--;
+			}
 
-			// walk backwards until we find a dot.
+			// walk backwards until we find a slash, but also keep note of the index of the earliest occurrence of a dot in the file name.
 			sint32_c i = a_length - 1;
-			sint32_c last_dot = -1;
+			sint32_c dot = -1;
 			while ( i >= 0 )
 			{
 				char16_c a_character = a.character_list[ i ];
 				if ( a_character == '.' )
 				{
-					last_dot = i;
+					dot = i;
 				}
 				else if ( a_character == '/' || a_character == '\\' )
 				{
-					i++;
 					break;
 				}
 				i--;
 			}
 
 			// create the result.
-			if ( last_dot >= 0 )
+			if ( dot >= 0 )
 			{
-				result.character_list.construct_mode_dynamic_from_array( &a.character_list.get_internal_array()[ i ], last_dot - i );
+				result.character_list.construct_mode_dynamic_from_array( &a.character_list.get_internal_array()[ dot ], a_length - dot );
 			}
 
 			return result;
 		}
 
-		string16_c path_get_file_name( string16_c const & a )
+		string16_c path_get_file_or_folder_name( string16_c const & a )
 		{
 			string16_c result;
 
-			// folder paths will end in a slash and we want to exclude it from the result.
+			// folder paths will end in a slash and we want to exclude it from the scan.
 			sint32_c a_length = a.get_length();
 			assert( a_length > 0 );
 			char16_c a_character = a.character_list[ a_length - 1 ];
@@ -3670,31 +3638,27 @@ namespace cheonsa
 				char16_c a_character = a.character_list[ i ];
 				if ( a_character == '/' || a_character == '\\' )
 				{
-					i++; // exclude the slash from the result.
 					break;
 				}
 				i--;
 			}
-			if ( i < 0 )
-			{
-				i = 0;
-			}
+			i++; // + 1 because we want to exclude the slash from the result, or prevent -1.
 
 			// create the result.
 			if ( a_length - i > 0 )
 			{
 				result.character_list.construct_mode_dynamic_from_array( &a.character_list.get_internal_array()[ i ], a_length - i );
-				result.character_list.insert_at_end( 0 );
+				result.character_list.insert( -1, 0 );
 			}
 
 			return result;
 		}
 
-		string16_c path_get_file_name_without_extension( string16_c const & a )
+		string16_c path_get_file_or_folder_name_without_extension( string16_c const & a )
 		{
 			string16_c result;
 
-			// folder paths will end in a slash and we want to exclude it from the result.
+			// folder paths will end in a slash and we want to exclude it from the scan.
 			sint32_c a_length = a.get_length();
 			assert( a_length > 0 );
 			char16_c a_character = a.character_list[ a_length - 1 ];
@@ -3703,29 +3667,28 @@ namespace cheonsa
 				a_length--;
 			}
 
-			// walk backwards until we find the last slash and dot.
-			sint32_c last_slash = 0;
-			sint32_c last_dot = a_length;
+			// walk backwards until we find a slash, but also keep note of the index of the earliest occurrence of a dot in the file name.
 			sint32_c i = a_length - 1;
+			sint32_c dot = i;
 			while ( i >= 0 )
 			{
 				char16_c a_character = a.character_list[ i ];
-				if ( a_character == '/' )
+				if ( a_character == '.' )
 				{
-					last_slash = i + 1; // + 1 because we want to exclude the slash from the result.
-					break;
+					dot = i;
 				}
-				else if ( a_character == '.' )
+				else if ( a_character == '/' || a_character == '\\' )
 				{
-					last_dot = i;
+					break;
 				}
 				i--;
 			}
+			i++; // + 1 because we want to exclude the slash from the result, or prevent -1.
 
-			if ( last_dot > last_slash )
+			if ( dot > i )
 			{
-				result.character_list.construct_mode_dynamic_from_array( &a.character_list.get_internal_array()[ last_slash ], last_dot - last_slash );
-				result.character_list.insert_at_end( 0 );
+				result.character_list.construct_mode_dynamic_from_array( &a.character_list.get_internal_array()[ i ], dot - i );
+				result.character_list.insert( -1, 0 );
 			}
 
 			return result;
@@ -3862,7 +3825,7 @@ namespace cheonsa
 			else if( node == "\\.." )
 			{
 				// get mother node.
-				t = path_get_mother( t );
+				t = path_get_folder_path( t );
 				if ( t.get_length() == 0 )
 				{
 					// if collapsed into nothing, return nothing.
@@ -3913,8 +3876,8 @@ namespace cheonsa
 			{
 				if ( result.character_list[ result.get_length() - 1 ] == '\\' )
 				{
-					result.character_list.remove_at_end( 2 );
-					result.character_list.insert_at_end( 0 );
+					result.character_list.remove( -1, 2 );
+					result.character_list.insert( -1, 0 );
 				}
 			}
 
@@ -4166,7 +4129,7 @@ namespace cheonsa
 				ULARGE_INTEGER windows_time;
 				if ( get_folders && ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 )
 				{
-					file_system_file_information_c * result_item = result.emplace_at_end();
+					file_system_file_information_c * result_item = result.emplace( -1, 1 );
 					result_item->path = folder_path;
 					result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
 					result_item->path += L'\\';
@@ -4195,7 +4158,7 @@ namespace cheonsa
 					}
 					if ( add )
 					{
-						file_system_file_information_c * result_item = result.emplace_at_end();
+						file_system_file_information_c * result_item = result.emplace( -1, 1 );
 						result_item->path = folder_path;
 						result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
 						windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
@@ -4240,7 +4203,7 @@ namespace cheonsa
 						string16_c sub_file_path;
 						sub_file_path += folder_path;
 						sub_file_path += sub_file_name;
-						result.insert_at_end( sub_file_path );
+						result.insert( -1, sub_file_path );
 					}
 				}
 				else if ( search_sub_folders )
@@ -4291,7 +4254,7 @@ namespace cheonsa
 						sub_folder_path += folder_path;
 						sub_folder_path += sub_folder_name;
 						sub_folder_path += '\\';
-						result.insert_at_end( sub_folder_path );
+						result.insert( -1, sub_folder_path );
 					}
 					if ( search_sub_folders )
 					{
@@ -4360,7 +4323,7 @@ namespace cheonsa
 					UINT drive_type = GetDriveTypeW( drive_path.character_list.get_internal_array() );
 					if ( drive_type >= 2 )
 					{
-						file_system_file_information_c * information = result.emplace_at_end();
+						file_system_file_information_c * information = result.emplace( -1, 1 );
 						information->label = string16_c();
 						information->path = drive_path;
 						WCHAR drive_label[ MAX_PATH + 1 ];
@@ -4659,19 +4622,19 @@ namespace cheonsa
 			out.character_list.remove_all();
 			if ( in < 0 )
 			{
-				out.character_list.insert_at_end( '-' );
+				out.character_list.insert( -1, '-' );
 			}
 			else if ( in == 0 )
 			{
-				out.character_list.insert_at_end( '0' );
+				out.character_list.insert( -1, '0' );
 			}
 			while ( in > 0 )
 			{
 				int_type_c digit = in % base;
 				in /= base;
-				out.character_list.insert_at_index( 0, convert_digit_to_char8( static_cast< sint8_c >( digit ) ) );
+				out.character_list.insert( 0, convert_digit_to_char8( static_cast< sint8_c >( digit ) ) );
 			}
-			out.character_list.insert_at_end( 0 );
+			out.character_list.insert( -1, 0 );
 		}
 
 		template< typename string_type_c, typename int_type_c >
@@ -4700,7 +4663,7 @@ namespace cheonsa
 					if ( out.get_mode_is_dynamic() )
 					{
 						// append element to dynamic mode list.
-						out.insert_at_end( element_value );
+						out.insert( -1, element_value );
 					}
 					else
 					{
@@ -4985,7 +4948,7 @@ namespace cheonsa
 					convert_string8_to_float32( element_string, element_value );
 					if ( out.get_mode_is_dynamic() )
 					{
-						out.insert_at_end( element_value );
+						out.insert( -1, element_value );
 					}
 					else
 					{
@@ -5069,7 +5032,7 @@ namespace cheonsa
 					convert_string8_to_float64( element_string, element_value );
 					if ( out.get_mode_is_dynamic() )
 					{
-						out.insert_at_end( element_value );
+						out.insert( -1, element_value );
 					}
 					else
 					{
@@ -5171,6 +5134,28 @@ namespace cheonsa
 			string.character_list[ 7 ] = convert_digit_to_char8( a & 0x0f );
 			string.character_list[ 8 ] = 0;
 			return true;
+		}
+
+		boolean_c convert_string8_to_rgb( string8_c const & string, vector32x3_c & rgb )
+		{
+			vector32x4_c rgba;
+			if ( convert_string8_to_rgba( string, rgba ) )
+			{
+				rgb = vector32x3_c( rgba.a, rgba.b, rgba.c );
+				return true;
+			}
+			return false;
+		}
+
+		boolean_c convert_string8_to_rgb( string8_c const & string, vector64x3_c & rgb )
+		{
+			vector64x4_c rgba;
+			if ( convert_string8_to_rgba( string, rgba ) )
+			{
+				rgb = vector64x3_c( rgba.a, rgba.b, rgba.c );
+				return true;
+			}
+			return false;
 		}
 
 		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba )
@@ -5406,7 +5391,7 @@ namespace cheonsa
 			sint32_c how_many = desired_length - string.get_length();
 			if ( how_many > 0 )
 			{
-				string.character_list.emplace_range_at_index( 0, how_many );
+				string.character_list.emplace( 0, how_many );
 				char8_c * c = string.character_list.get_internal_array();
 				for ( sint32_c i = 0; i < how_many; i++ )
 				{
@@ -5490,8 +5475,8 @@ namespace cheonsa
 				}
 			}
 			result = string;
-			result.character_list.remove_at_end( end - start );
-			result.character_list.remove_at_index( 0, start );
+			result.character_list.remove( -1, end - start );
+			result.character_list.remove( 0, start );
 			return result;
 		}
 
@@ -5583,7 +5568,7 @@ namespace cheonsa
 					j++;
 					if ( b[ j ] == 0 )
 					{
-						result.insert_at_end( i );
+						result.insert( -1, i );
 						i += j;
 						break;
 					}
@@ -5624,19 +5609,19 @@ namespace cheonsa
 						sint32_c k = 0;
 						while ( r[ k ] )
 						{
-							result.character_list.insert_at_end( r[ k ] );
+							result.character_list.insert( -1, r[ k ] );
 							k++;
 						}
 						i += j;
 						goto replaced;
 					}
 				}
-				result.character_list.insert_at_end( s[ i ] );
+				result.character_list.insert( -1, s[ i ] );
 				i++;
 			replaced:
 				continue;
 			}
-			result.character_list.insert_at_end( 0 );
+			result.character_list.insert( -1, 0 );
 			return result;
 		}
 
@@ -5663,7 +5648,7 @@ namespace cheonsa
 				{
 					if ( sub_string_count > 0 )
 					{
-						result.insert_at_end( _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
+						result.insert( -1, _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
 					}
 					sub_string_count = 0;
 				}
@@ -5678,7 +5663,7 @@ namespace cheonsa
 			}
 			if ( sub_string_count > 0 )
 			{
-				result.insert_at_end( _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
+				result.insert( -1, _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
 			}
 		}
 
@@ -5688,7 +5673,7 @@ namespace cheonsa
 			result.remove_all();
 			if ( delimiter.get_length() >= string.get_length() )
 			{
-				result.insert_at_end( string );
+				result.insert( -1, string );
 			}
 			else
 			{
@@ -5707,7 +5692,7 @@ namespace cheonsa
 							sub_string_count -= j;
 							if ( sub_string_count > 0 )
 							{
-								result.insert_at_end( _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
+								result.insert( -1, _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
 							}
 							j = 0;
 							sub_string_start = i + 1;
@@ -5722,7 +5707,7 @@ namespace cheonsa
 				}
 				if ( sub_string_count > 0 )
 				{
-					result.insert_at_end( _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
+					result.insert( -1, _string_sub_string< string_type_c >( string, sub_string_start, sub_string_count ) );
 				}
 			}
 		}
@@ -5753,7 +5738,7 @@ namespace cheonsa
 			assert( start >= 0 && length >= 0 && start + length <= string.get_length() );
 			string_type_c result;
 			result.character_list.construct_mode_dynamic_from_array( &string.character_list.get_internal_array()[ start ], length );
-			result.character_list.insert_at_end( 0 );
+			result.character_list.insert( -1, 0 );
 			return result;
 		}
 
@@ -6193,9 +6178,9 @@ namespace cheonsa
 			{
 				char16_c character;
 				convert_utf8_to_char16( byte, character );
-				out.insert_at_end( character );
+				out.insert( -1, character );
 			}
-			out.insert_at_end( 0 );
+			out.insert( -1, 0 );
 		}
 
 		void_c convert_string8_to_string16_bytes( core_list_c< char8_c > const & in, core_list_c< char8_c > & out )
@@ -6212,11 +6197,11 @@ namespace cheonsa
 				char16_c character;
 				convert_utf8_to_char16( byte, character );
 				char8_c * character_bytes = reinterpret_cast< char8_c * >( &character );
-				out.insert_at_end( character_bytes[ 0 ] );
-				out.insert_at_end( character_bytes[ 1 ] );
+				out.insert( -1, character_bytes[ 0 ] );
+				out.insert( -1, character_bytes[ 1 ] );
 			}
-			out.insert_at_end( 0 );
-			out.insert_at_end( 0 );
+			out.insert( -1, 0 );
+			out.insert( -1, 0 );
 		}
 
 		sint8_c convert_char16_to_utf8( char16_c in, char8_c * & out )
@@ -6279,11 +6264,11 @@ namespace cheonsa
 				sint8_c bytes_count = convert_char16_to_utf8( character[ 0 ], buffer );
 				for ( sint8_c i = 0; i < bytes_count; i++ )
 				{
-					out.insert_at_end( buffer_base[ i ] );
+					out.insert( -1, buffer_base[ i ] );
 				}
 				character++;
 			}
-			out.insert_at_end( 0 );
+			out.insert( -1, 0 );
 		}
 
 

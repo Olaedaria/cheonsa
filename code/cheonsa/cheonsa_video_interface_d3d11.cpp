@@ -1,4 +1,4 @@
-﻿#include "cheonsa__ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 #include <cassert>
 #if defined( cheonsa_platform_windows )
@@ -2815,6 +2815,10 @@ namespace cheonsa
 		}
 	}
 
+	void_c video_interface_d3d11_c::clear_depth_stencil_slice( video_depth_stencil_c * depth_stencil, float32_c depth, sint32_c stencil, sint32_c slice_index )
+	{
+	}
+
 	void_c video_interface_d3d11_c::bind_target_vertex_buffer( video_vertex_buffer_c * vertex_buffer )
 	{
 		ID3D11Buffer * buffers[] = { nullptr };
@@ -2936,7 +2940,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c video_interface_d3d11_c::bind_target_texture2darrays_slices( sint32_c textures_count, video_texture_c * * textures, sint32_c * textures_slices, video_depth_stencil_c * depth_stencil, sint32_c depth_stencil_slice )
+	void_c video_interface_d3d11_c::bind_target_textures_slices( sint32_c textures_count, video_texture_c * * textures, sint32_c * textures_slices, video_depth_stencil_c * depth_stencil, sint32_c depth_stencil_slice )
 	{
 		assert( textures_count >= 0 && textures_count <= 4 );
 		sint32_c width = -1;

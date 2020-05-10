@@ -1,4 +1,4 @@
-﻿#include "cheonsa_input_manager.h"
+#include "cheonsa_input_manager.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -14,7 +14,7 @@ namespace cheonsa
 
 	input_event_c * input_manager_c::_emplace_input_event()
 	{
-		input_event_c * input_event = _events_next->emplace_at_end();
+		input_event_c * input_event = _events_next->emplace( -1, 1 );
 		ops::memory_zero( input_event, sizeof( input_event_c ) );
 		return input_event;
 	}
@@ -245,7 +245,8 @@ namespace cheonsa
 			_frame_snapshot_gamepad_state._left_stick_state.a = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbLX ) / 32767.0f, -1.0f, 1.0f );
 			_frame_snapshot_gamepad_state._left_stick_state.b = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbLY ) / -32767.0f, -1.0f, 1.0f );
 			_frame_snapshot_gamepad_state._right_stick_state.a = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbRX ) / 32767.0f, -1.0f, 1.0f );
-			_frame_snapshot_gamepad_state._right_stick_state.a = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbRY ) / -32767.0f, -1.0f, 1.0f );
+			_frame_snapshot_gamepad_state._right_stick_state.b = ops::math_clamp( static_cast< float32_c >( xinput_state.Gamepad.sThumbRY ) / -32767.0f, -1.0f, 1.0f );
+			_frame_snapshot_gamepad_state._make_dead_zone();
 		}
 		else
 		{
@@ -253,10 +254,10 @@ namespace cheonsa
 			_frame_snapshot_gamepad_state._button_states = 0;
 			_frame_snapshot_gamepad_state._left_trigger_state = 0.0f;
 			_frame_snapshot_gamepad_state._right_trigger_state = 0.0f;
-			_frame_snapshot_gamepad_state._left_stick_state.a = 0.0f;
-			_frame_snapshot_gamepad_state._left_stick_state.b = 0.0f;
-			_frame_snapshot_gamepad_state._right_stick_state.a = 0.0f;
-			_frame_snapshot_gamepad_state._right_stick_state.b = 0.0f;
+			_frame_snapshot_gamepad_state._left_stick_state = vector32x2_c( 0.0f, 0.0f );
+			_frame_snapshot_gamepad_state._right_stick_state = vector32x2_c( 0.0f, 0.0f );
+			_frame_snapshot_gamepad_state._left_stick_state_with_dead_zone = vector32x2_c( 0.0f, 0.0f );
+			_frame_snapshot_gamepad_state._right_stick_state_with_dead_zone = vector32x2_c( 0.0f, 0.0f );
 		}
 
 		_frame_snapshot_mouse_position_last = _frame_snapshot_mouse_position;
@@ -479,7 +480,7 @@ namespace cheonsa
 	input_action_c * input_manager_c::create_action( string8_c const & key, string8_c const & context )
 	{
 		input_action_c * result = new input_action_c( key, context );
-		_action_list.insert_at_end( result );
+		_action_list.insert( -1, result );
 		return result;
 	}
 
@@ -577,13 +578,13 @@ namespace cheonsa
 		if ( OpenClipboard( static_cast< HWND >( engine.get_window_manager()->get_window_handle() ) ) )
 		{
 			EmptyClipboard();
-			HGLOBAL h_what_global_what_tho_hghghghg_win32unnngg = GlobalAlloc( GMEM_MOVEABLE, value.character_list.get_internal_array_size_used() );
+			HGLOBAL h_what_global_what_tho_hghghghg_win32unnngg = GlobalAlloc( GMEM_MOVEABLE, value.character_list.get_internal_array_size() );
 			if ( h_what_global_what_tho_hghghghg_win32unnngg )
 			{
 				LPVOID buffer = GlobalLock( h_what_global_what_tho_hghghghg_win32unnngg );
 				if ( buffer )
 				{
-					ops::memory_copy( value.character_list.get_internal_array(), buffer, value.character_list.get_internal_array_size_used() );
+					ops::memory_copy( value.character_list.get_internal_array(), buffer, value.character_list.get_internal_array_size() );
 					GlobalUnlock( h_what_global_what_tho_hghghghg_win32unnngg );
 					SetClipboardData( CF_UNICODETEXT, h_what_global_what_tho_hghghghg_win32unnngg );
 					result = true;

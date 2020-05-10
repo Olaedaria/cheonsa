@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_scene_component.h"
 #include "cheonsa_audio2.h"
@@ -17,7 +17,7 @@ namespace cheonsa
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_sound; }
 		virtual inline uint8_c get_type_code() const override { return get_type_code_static(); }
 
-	public:
+	private:
 		core_linked_list_c< scene_component_sound_c * >::node_c _sound_list_node;
 
 		resource_file_sound_c::reference_c _sound_resource;
@@ -42,9 +42,12 @@ namespace cheonsa
 		virtual void_c _handle_after_added_to_scene() override;
 		virtual void_c _handle_before_removed_from_scene() override;
 
+		scene_component_sound_c();
+
 	public:
-		scene_component_sound_c(); // constructor is protected to prevent instantiation on the stack. use make_new_instance() to make a new instance on the heap. then use delete as normal to delete it.
 		virtual ~scene_component_sound_c() override;
+
+		static scene_component_sound_c * make_new_instance();
 
 		resource_file_sound_c * get_sound_resource() const;
 		void_c set_sound_resource( resource_file_sound_c * value );

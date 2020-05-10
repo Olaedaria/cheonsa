@@ -1,4 +1,4 @@
-﻿#include "cheonsa_database_stack_record.h"
+#include "cheonsa_database_stack_record.h"
 #include "cheonsa_database_stack.h"
 #include "cheonsa_database_record.h"
 #include "cheonsa_database_table.h"
@@ -72,7 +72,7 @@ namespace cheonsa
 			{
 				assert( _record_schema );
 				database_field_schema_c const * field = _record_schema->get_field( expected_name, expected_type, expected_type_count );
-				ops::memory_copy( &field->reflection_info.defaults_and_limits, field_value, field->_data_offset - 1 );
+				ops::memory_copy( &field->_reflection_information.defaults_and_limits, field_value, field->_data_offset - 1 );
 			}
 			return false;
 		}

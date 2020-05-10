@@ -1,4 +1,4 @@
-﻿#include "cheonsa_video_types.h"
+#include "cheonsa_video_types.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
@@ -363,7 +363,7 @@ namespace cheonsa
 		*source_code_out = nullptr;
 		*source_code_size_out = 0;
 
-		included_file_paths.insert_at_end( string16_c( relative_file_path ) );
+		included_file_paths.insert( -1, string16_c( relative_file_path ) );
 
 		string16_c absolute_file_path;
 		video_renderer_shader_manager_c::resolve_file_path( string16_c( relative_file_path ), false, absolute_file_path );

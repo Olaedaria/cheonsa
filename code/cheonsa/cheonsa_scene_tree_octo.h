@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
@@ -16,7 +16,7 @@ namespace cheonsa
 	//     core_linked_list_c< type_c >::node_c _scene_tree_list_node;
 	//     box32x3_c const & get_local_space_obb() const;
 	//     box64x3_c const & get_world_space_aabb() const;
-	//     space_transform_c const & get_world_space_transform() const;
+	//     transform3d_c const & get_world_space_transform() const;
 	//     
 	// sparse octo tree implementation, with loose nodes (because objects are index via their axis aligned bounding box volume rather than their origin points).
 	// the tree is used to store components (rather than objects), because each component on a given object may have a different sized bounding box.
@@ -232,7 +232,7 @@ namespace cheonsa
 					{
 						if ( ops::intersect_frustum_vs_box( frustum, box64x3_c( item_list_node->get_value()->get_local_space_obb() ), item_list_node->get_value()->get_world_space_transform() ) )
 						{
-							result.insert_at_end( item_list_node->get_value() );
+							result.insert( -1, item_list_node->get_value() );
 						}
 						item_list_node = item_list_node->get_next();
 					}

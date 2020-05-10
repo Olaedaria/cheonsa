@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_database_types.h"
 #include "cheonsa_core_event.h"
@@ -12,9 +12,9 @@ namespace cheonsa
 	// the intention for this was to create a data system that could do bethesda-like mods.
 	class database_stack_c
 	{
-	private:
 		friend class database_stack_record_c;
 
+	private:
 		core_list_c< database_c * > _database_stack; // the first one is the master, the rest are mods which may add or delete records, and may modify field values.
 
 	public:

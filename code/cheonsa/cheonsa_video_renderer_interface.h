@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_video_renderer_types.h"
@@ -47,9 +47,9 @@ namespace cheonsa
 		void_c add_debug_line( boolean_c xray, vector64x3_c const & a_position, vector64x3_c const & b_position, vector32x4_c const & a_and_b_color );
 		void_c add_debug_line( boolean_c xray, vector64x3_c const & a_position, vector64x3_c const & b_position, vector32x4_c const & a_color, vector32x4_c const & b_color );
 		void_c add_debug_box( boolean_c xray, box64x3_c const & box, vector32x4_c const & color );
-		void_c add_debug_box( boolean_c xray, box64x3_c const & box, space_transform_c & box_transform, vector32x4_c const & color );
-		void_c add_debug_axes( boolean_c xray, scene_matrix_c & transform, float32_c scale, float32_c alpha );
-		void_c add_debug_axes( boolean_c xray, space_transform_c & transform, float32_c scale, float32_c alpha );
+		void_c add_debug_box( boolean_c xray, box64x3_c const & box, transform3d_c & box_transform, vector32x4_c const & color );
+		void_c add_debug_axes( boolean_c xray, basis_position_c & transform, float32_c scale, float32_c alpha );
+		void_c add_debug_axes( boolean_c xray, transform3d_c & transform, float32_c scale, float32_c alpha );
 
 		//sint32_c get_shadow_view_count();
 		//void_c set_shadow_view_count( sint32_c value );
@@ -485,7 +485,7 @@ namespace cheonsa
 			view_c();
 
 			// initializes world_space_position, world_space_basis, world_space_frustum, and virtual_space_view_projection_transform.
-			void_c initialize_for_camera( scene_camera_c const * camera, vector64x3_c primary_view_world_space_position );
+			void_c initialize_for_camera( scene_camera_c const * camera, vector64x3_c primary_view_origin );
 
 		};
 
@@ -538,22 +538,22 @@ namespace cheonsa
 		//void_c initialize_mirror_perspective(
 		//	plane64_c const & mirror_plane, // the reflection plane.
 		//	box64x3_c const & mirror_plane_world_space_aabb, // the bounding box of the object that is the mirror. the plane by itself is infinite, so this makes it finite, it doesn't have to be a perfect fit, a little loose is fine.
-		//	space_transform_c & at_transform, // the scene transform of the bounding box.
+		//	transform3d_c & at_transform, // the scene transform of the bounding box.
 		//	view_c * result
 		//);
 
 		// scene drawing
-		void_c _bind_model_properties( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c with_lights, boolean_c with_ambience, boolean_c with_outline );
+		void_c _bind_model_properties( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c with_lights, boolean_c with_ambience, boolean_c with_outline );
 		void_c _bind_mesh_vs_for_normal_and_depth( boolean_c is_waved, boolean_c is_clipped ); // binds vertex shaders for normal and depth rendering.
 		void_c _bind_mesh_vs_for_color( boolean_c is_waved, boolean_c is_clipped ); // binds vertex shaders for color rendering.
-		void_c _bind_material_for_color( scene_material_c * material ); // binds pixel shader, pixel shader textures, material colors, and rasterizer state.
-		void_c _draw_model_with_no_material( scene_component_model_c * model, vector64x3_c const & view_position ); // draws model geometry only, leaves pixel shader state alone.
-		void_c _draw_model_for_sky( scene_component_model_c * model ); // does not take view_position like the other functions, it assumes that view_position is zero.
-		void_c _draw_model_for_outline( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c is_clipped ); // draws model (silhouette, mask) to outline buffer with value of outline_color_index.
-		void_c _draw_model_for_color( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c is_clipped, boolean_c do_opaque, boolean_c do_transparent, boolean_c do_overlay, boolean_c with_lights, boolean_c with_ambience );
+		void_c _bind_material_for_color( scene_material_c const * material, float32_c model_opacity ); // binds pixel shader, pixel shader textures, material colors, and rasterizer state. if blend type is set and model_opacity is < 1, then reinterprets blend type as mix.
+		void_c _draw_model_with_no_material( scene_component_model_c const * model, vector64x3_c const & view_position ); // draws model geometry only, leaves pixel shader state alone.
+		void_c _draw_model_for_sky( scene_component_model_c const * model, boolean_c do_opaque, boolean_c do_transparent ); // does not take view_position like the other functions, it assumes that view_position is zero.
+		void_c _draw_model_for_outline( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c is_clipped ); // draws model (silhouette, mask) to outline buffer with value of outline_color_index.
+		void_c _draw_model_for_color( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c is_clipped, boolean_c do_opaque, boolean_c do_transparent, boolean_c do_overlay, boolean_c with_lights, boolean_c with_ambience );
 		//void_c _draw_model_for_energy( scene_component_model_c * model, vector64x3_c const & view_position ); // uses cheaper pixel shaders than _draw_model_for_color to generate approximate environment maps.
-		void_c _draw_model_for_shadow( scene_component_model_c * model, vector64x3_c const & view_position ); // draws model for shadow map.
-		void_c _draw_model_for_normal_and_depth( scene_component_model_c * model, vector64x3_c const & view_position, boolean_c is_clipped ); // draws model for normal and depth.
+		void_c _draw_model_for_shadow( scene_component_model_c const * model, vector64x3_c const & view_position ); // draws model for shadow map.
+		void_c _draw_model_for_normal_and_depth( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c is_clipped ); // draws model for normal and depth.
 
 		// uses shaders to copy input texture to output texture.
 		// input will be scaled to stretch over output.

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa___build_configuration.h"
 #include "third_party/half.hpp"
@@ -260,8 +260,6 @@ namespace cheonsa
 		float32_c & get_element_at_index( sint32_c const index );
 		float32_c const & get_element_at_index( sint32_c const index ) const;
 
-		//vector32x2_c & operator += ( float32_c b );
-		//vector32x2_c & operator -= ( float32_c b );
 		vector32x2_c & operator *= ( float32_c b );
 		vector32x2_c & operator /= ( float32_c b );
 		vector32x2_c & operator += ( vector32x2_c const & b );
@@ -274,8 +272,6 @@ namespace cheonsa
 	boolean_c operator == ( vector32x2_c const & a, vector32x2_c const & b );
 	boolean_c operator != ( vector32x2_c const & a, vector32x2_c const & b );
 	vector32x2_c operator - ( vector32x2_c const & a );
-	//vector32x2_c operator + ( vector32x2_c a, float32_c const b );
-	//vector32x2_c operator - ( vector32x2_c a, float32_c const b );
 	vector32x2_c operator * ( vector32x2_c a, float32_c const b );
 	vector32x2_c operator / ( vector32x2_c a, float32_c const b );
 	vector32x2_c operator + ( vector32x2_c a, vector32x2_c const & b );
@@ -302,8 +298,6 @@ namespace cheonsa
 		float64_c & get_element_at_index( sint32_c const index );
 		float64_c const & get_element_at_index( sint32_c const index ) const;
 
-		//vector64x2_c & operator += ( float64_c const b );
-		//vector64x2_c & operator -= ( float64_c const b );
 		vector64x2_c & operator *= ( float64_c const b );
 		vector64x2_c & operator /= ( float64_c const b );
 		vector64x2_c & operator += ( vector64x2_c const & b );
@@ -316,8 +310,6 @@ namespace cheonsa
 	boolean_c operator == ( vector64x2_c const & a, vector64x2_c const & b );
 	boolean_c operator != ( vector64x2_c const & a, vector64x2_c const & b );
 	vector64x2_c operator - ( vector64x2_c const & a );
-	//vector64x2_c operator + ( vector64x2_c a, float64_c b );
-	//vector64x2_c operator - ( vector64x2_c a, float64_c b );
 	vector64x2_c operator * ( vector64x2_c a, float64_c b );
 	vector64x2_c operator / ( vector64x2_c a, float64_c b );
 	vector64x2_c operator + ( vector64x2_c a, vector64x2_c const & b );
@@ -347,8 +339,6 @@ namespace cheonsa
 
 		float32_c get_largest_element() const; // gets the value of the component with the largest magnitude.
 
-		//vector32x3_c & operator += ( float32_c b );
-		//vector32x3_c & operator -= ( float32_c b );
 		vector32x3_c & operator *= ( float32_c b );
 		vector32x3_c & operator /= ( float32_c b );
 		vector32x3_c & operator += ( vector32x3_c const & b );
@@ -361,8 +351,6 @@ namespace cheonsa
 	boolean_c operator == ( vector32x3_c const & a, vector32x3_c const & b );
 	boolean_c operator != ( vector32x3_c const & a, vector32x3_c const & b );
 	vector32x3_c operator - ( vector32x3_c const & a );
-	//vector32x3_c operator + ( vector32x3_c a, float32_c b );
-	//vector32x3_c operator - ( vector32x3_c a, float32_c b );
 	vector32x3_c operator * ( vector32x3_c a, float32_c b );
 	vector32x3_c operator / ( vector32x3_c a, float32_c b );
 	vector32x3_c operator + ( vector32x3_c a, vector32x3_c const & b );
@@ -414,6 +402,7 @@ namespace cheonsa
 	vector64x3_c operator / ( vector64x3_c a, vector64x3_c const & b );
 
 	vector64x3_c operator + ( vector64x3_c a, vector32x3_c const & b );
+	vector64x3_c operator - ( vector64x3_c a, vector32x3_c const & b );
 	vector64x3_c operator * ( vector64x3_c a, float32_c b );
 	vector64x3_c operator * ( vector64x3_c a, vector32x3_c const & b );
 
@@ -911,7 +900,7 @@ namespace cheonsa
 		inline float64_c get_depth() const { return maximum.b - minimum.b; }
 		inline float64_c get_height() const { return maximum.c - minimum.c; }
 		float64_c get_longest_dimension() const;
-		//float64_c get_longest_half_extent() const;
+		float64_c get_longest_half_extent() const;
 		vector64x3_c get_point( sint32_c const index ) const;
 
 	};
@@ -1022,7 +1011,7 @@ namespace cheonsa
 
 	// double precision position, for undiscretized|unpartitioned open worlds.
 	// single precision rotation quaternion.
-	// single precision scale, uniform (not independent xyz).
+	// single precision scale.
 	// single precision basis that is calculated as needed and then cached.
 	// abc is xyz.
 	//
@@ -1044,7 +1033,7 @@ namespace cheonsa
 	// if you are going to transform a lot of points or vectors, then it is more cost efficient to calculate a matrix and use that, use make_basis_with_scale(), make_basis_without_scale(), or get_matrix32x4x4_relative_to_position().
 	// the bullet physics engine however is designed to use a scalar type, that can be defined as either 32-bit or 64-bit float.
 	// if we did not use third party physics, we could reduce duplication and waste, since the physics engine basically has to have its own copy of the scene.
-	class space_transform_c
+	class transform3d_c
 	{
 	public:
 		vector64x3_c position;
@@ -1052,66 +1041,50 @@ namespace cheonsa
 		vector32x3_c scale; // need non-uniform scale for rare cases, for certain effects.
 
 	public:
-		space_transform_c();
-		space_transform_c( vector64x3_c const & position, quaternion32_c const & rotation, float32_c uniform_scale );
-		space_transform_c( vector64x3_c const & position, quaternion32_c const & rotation, vector32x3_c const & scale );
+		transform3d_c();
+		transform3d_c( vector64x3_c const & position, quaternion32_c const & rotation, float32_c uniform_scale );
+		transform3d_c( vector64x3_c const & position, quaternion32_c const & rotation, vector32x3_c const & scale );
 
 		void_c reset();
 
-		//vector64x3_c const & get_position() const;
-		//void_c set_position( vector64x3_c const & value );
-
-		//quaternion32_c const & get_rotation() const;
-		//void_c set_rotation( quaternion32_c const & value );
-
-		//vector32x3_c get_rotation_euler_angles() const;
-		//void_c set_rotation_euler_angles( vector32x3_c const & euler_angles ); // angles are applied in the order of x, then y, then z.
-
-		//float32_c get_scale() const;
-		//void_c set_scale( float32_c value );
-
-		//vector64x3_c make_transformed_point( vector64x3_c const & in ) const; // transforms point, applies rotation, scale, and translation.
-		//vector64x3_c make_rotated_and_scaled_vector( vector64x3_c const & in ) const; // applies rotation and scale.
-
 		matrix32x3x3_c get_scaled_basis() const; // basis axes.
-		vector32x3_c get_scaled_basis_a() const; // right axis.
-		vector32x3_c get_scaled_basis_b() const; // forward axis.
-		vector32x3_c get_scaled_basis_c() const; // up axis.
+		vector32x3_c get_scaled_basis_x() const; // x axis, right (with scale applied).
+		vector32x3_c get_scaled_basis_y() const; // y axis, forward (with scale applied).
+		vector32x3_c get_scaled_basis_z() const; // z axis, up (with scale applied).
 
 		matrix32x3x3_c get_unscaled_basis() const; // basis axis normals.
-		vector32x3_c get_unscaled_basis_a() const; // right axis normal.
-		vector32x3_c get_unscaled_basis_b() const; // forward axis normal.
-		vector32x3_c get_unscaled_basis_c() const; // up axis normal.
+		vector32x3_c get_unscaled_basis_x() const; // x axis, right (without scale applied|unit length|normalized).
+		vector32x3_c get_unscaled_basis_y() const; // y axis, forward (without scale applied|unit length|normalized).
+		vector32x3_c get_unscaled_basis_z() const; // z axis, up (without scale applied|unit length|normalized).
 
-		void_c set_unscaled_basis( matrix32x3x3_c const & value ); // sets rotation quaternion from an unscaled (normalized) orthogonal basis 3x3 matrix.
+		void_c set_rotation_from_unscaled_basis( matrix32x3x3_c const & value ); // sets rotation quaternion from an unscaled (normalized) orthogonal basis 3x3 matrix.
 
 		void_c set_uniform_scale( float32_c value );
 
-		space_transform_c get_inverted() const; // makes an inverted copy of this instance.
+		transform3d_c get_inverted() const; // makes an inverted copy of this instance.
 
-		void_c invert(); // inverts this transform instance, such that original * inverted = identity.
+		void_c invert(); // inverts this instance, such that original * inverted = identity.
 
-		space_transform_c & operator = ( space_transform_c const & other );
+		transform3d_c & operator = ( transform3d_c const & other );
 
-		space_transform_c & operator *= ( space_transform_c const & other ); // multiplies this transform with other transform and assigns result to this transform.
+		transform3d_c & operator *= ( transform3d_c const & other ); // multiplies this transform with other transform and assigns result to this transform.
 
 	};
 
-	boolean_c operator == ( space_transform_c const & a, space_transform_c const & b );
-	boolean_c operator != ( space_transform_c const & a, space_transform_c const & b );
-	space_transform_c operator * ( space_transform_c a, space_transform_c const & b ); // multiplies this transform with other transform.
+	boolean_c operator == ( transform3d_c const & a, transform3d_c const & b );
+	boolean_c operator != ( transform3d_c const & a, transform3d_c const & b );
+	transform3d_c operator * ( transform3d_c a, transform3d_c const & b ); // multiplies this transform with other transform.
 
 	// a kind of 4x3 matrix.
-	// multiplies like a 4x4 matrix, but with an imaginary 4th column of [0, 0, 0, 1].
-	// this is useful for physics sims, where it's better to use a set of axis vectors to define a basis instead of a quaternion.
-	class scene_matrix_c
+	// multiplies like a 4x4 matrix, but with an imaginary 4th row of [0, 0, 0, 1].
+	class basis_position_c
 	{
 	public:
 		matrix32x3x3_c basis;
 		vector64x3_c position;
 
 	public:
-		scene_matrix_c operator * ( scene_matrix_c const & other ) const;
+		basis_position_c operator * ( basis_position_c const & other ) const;
 
 	};
 

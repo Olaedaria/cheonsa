@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_scene_component.h"
 #include "cheonsa_resource_object_texture.h"
@@ -8,6 +8,7 @@
 namespace cheonsa
 {
 
+	// manages emission of particles and/or ribbons.
 	class scene_component_emitter_c
 		: public scene_component_c
 	{

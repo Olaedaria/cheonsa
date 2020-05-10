@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_database_types.h"
 
@@ -10,9 +10,9 @@ namespace cheonsa
 	// this is how mods are applied.
 	class database_stack_record_c
 	{
-	private:
 		friend class database_stack_c;
 
+	private:
 		database_stack_c * _database_stack; // the database stack that spawned this stack record.
 		database_record_schema_c const * _record_schema; // a pointer to the schema in the first database for the table that maps to the records in this record stack. this is the record schema that holds the default field value definitions that we will fall back to using if a field value is not defined by a record.
 		core_list_c< database_record_c const * > _record_stack; // one record for each database in the database stack. elements will be nullptr if that database didn't define this record.

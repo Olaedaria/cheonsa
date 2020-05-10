@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_element_frame.h"
@@ -60,8 +60,12 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override;
 
-	public:
 		menu_control_window_c( string8_c const & name );
+
+	public:
+		virtual ~menu_control_window_c() override;
+
+		static menu_control_window_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c update_animations( float32_c time_step ) override;
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
@@ -104,13 +108,12 @@ namespace cheonsa
 		menu_visibility_mode_e get_vertical_scroll_bar_visibility_mode() const;
 		void_c set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value );
 
-		sint32_c get_controls_in_client_count() const;
-		menu_control_c const * get_control_in_client( sint32_c control_index ) const;
-		menu_control_c * get_control_in_client( sint32_c control_index );
+		sint32_c get_daughter_controls_in_client_count() const;
+		menu_control_c * get_daughter_control_in_client_at_index( sint32_c control_index ) const;
 
-		sint32_c give_control_to_client( menu_control_c * control, sint32_c index = -1 );
-		menu_control_c * take_control_from_client( sint32_c control_index );
-		void_c remove_and_delete_all_controls_from_client();
+		void_c add_daughter_control_to_client( menu_control_c * control, sint32_c index = -1 ); // adds a control to the client area of the window.
+		void_c remove_daughter_control_from_client( menu_control_c * control ); // removes a control from the client area of the window.
+		void_c remove_all_daughter_controls_from_client(); // removes all controls from the client area of the window.
 
 		// centers this window in the user interface, preserves current size.
 		void_c center();

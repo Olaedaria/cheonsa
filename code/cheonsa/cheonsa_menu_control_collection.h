@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_control_scroll_bar_y.h"
@@ -18,6 +18,8 @@ namespace cheonsa
 	class menu_control_collection_c
 		: public menu_control_c
 	{
+		friend class item_i;
+
 	public:
 		static inline char8_c const * get_type_name_static() { return "collection"; }
 		virtual inline char8_c const * get_type_name() const { return get_type_name_static(); }
@@ -74,6 +76,8 @@ namespace cheonsa
 		// then add those instnaces to your menu_control_collection_c instance.
 		class item_i
 		{
+			friend class menu_control_collection_c;
+
 		public:
 			// cached column/property values. 
 			// used to sort items by column/property.
@@ -89,8 +93,6 @@ namespace cheonsa
 			};
 
 		protected:
-			friend class menu_control_collection_c;
-		
 			menu_control_collection_c * _mother_collection; // the collection that is holding this item.
 			value_c * _value_cache; // list of resolved column values, always the same length as the _column_list in the _mother_collection.
 			sint32_c _group; // can be used to group together items of the same type when items are sorted. for example, when used by file collections, folders will be assigned group 0 and files will be assigned group 1, which causes folders to group together and files to group together.
@@ -99,9 +101,9 @@ namespace cheonsa
 
 			void_c _cache_values(); // rebuilds _value_list for this item, queries and caches property column values.
 
-		public:
 			item_i();
 
+		public:
 			sint32_c get_group() const;
 			void_c set_group( sint32_c value );
 
@@ -143,7 +145,9 @@ namespace cheonsa
 		// which property values to cache with each item in the collection.
 		class column_c
 		{
-		public:
+			friend class menu_control_collection_c;
+
+		protected:
 			string8_c _key; // unique key to identify this column by, is always the same regardless of what the language is. this key is used to look up property values in the collection items.
 			sint32_c _position; // x offset in pixels of this column from the left edge of the container. this is equal to all the widths of the visible columns to the left of this column.
 			sint32_c _width; // width in pixels of this column, the user can resize both fixed an non-fixed columns.
@@ -151,14 +155,15 @@ namespace cheonsa
 			boolean_c _is_editable; // if true, then the user is supposed to be able to edit (rename) item display value in this column.
 			menu_element_frame_c _element_frame; // name is "column_frame". this is displayed at the top of the collection when display mode is display_mode_e_details.
 			menu_element_text_c _element_text; // name is "column_text". this is displayed at the top of the collection when display mode is display_mode_e_details.
-			
+
 		public:
 			column_c();
 
+			string8_c const & get_key() const;
+
 		};
 
-		friend class item_i;
-
+	protected:
 		// the elements in the _element_list are as follows:
 		// base elements:
 		//   _element_frame
@@ -177,7 +182,7 @@ namespace cheonsa
 		item_i * _last_selected_item; // is set to the first item that was added to the collection, or the item that was last selected in the collection. this is the item that directional keyboard input will originate from. analogs: in modern windows this item would be outlined with a solid blue line, in legacy windows this item would be outlined with a dotted black line.
 		item_i * _mouse_selected_item; // is set to the item that the mouse is currently over. analogs: in modern windows this item would be highlighted with a light blue background, in legacy windows i don't think there was an analog.
 
-		menu_visibility_mode_e _vertical_scroll_bar_visibility; // how to show or hide the vertical scroll bar.
+		menu_visibility_mode_e _vertical_scroll_bar_visibility_mode; // how to show or hide the vertical scroll bar.
 		menu_control_scroll_bar_y_c * _vertical_scroll_bar; // name is "vertical_scroll_bar".
 		void_c _handle_scroll_bar_on_value_changed( menu_control_scroll_bar_i * scroll );
 
@@ -217,7 +222,7 @@ namespace cheonsa
 
 		item_i * _pick_item_at_local_point( vector32x2_c const & local_point );
 
-	public:
+	protected:
 		// handles item click selection.
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
 		// handles item double click invocation.
@@ -227,9 +232,12 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override;
 
-	public:
 		menu_control_collection_c( string8_c const & name );
+
+	public:
 		virtual ~menu_control_collection_c() override;
+
+		static menu_control_collection_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c update_animations( float32_c time_step ) override;
 
@@ -291,17 +299,17 @@ namespace cheonsa
 		// is_editable is true then the user can press F2 or click on the same item twice to edit its value.
 		// don't forget to call refresh() after you are done changing columns and items.
 		void_c add_column( string8_c const & key, string16_c const & display_value, sint32_c width, sort_by_e sort_by, boolean_c is_editable );
-		
 
 		// gets number of items in this collection.
 		sint32_c get_item_count();
 		// gets an item in this collection, after sorting has been applied.
 		item_i * get_item_at_index( sint32_c item_index );
 
-		// adds an item to this collection.
+		// gives an item to this collection.
+		// give, because this collection becomes responsible for managing the memory of the item and for deleting it when its time comes.
 		// an item can be added to at most one collection at a time.
 		// don't forget to call refresh() after you are done changing columns and items.
-		void_c add_item( item_i * item );
+		void_c give_item( item_i * item );
 		// removes and deletes an item from the collection.
 		// don't forget to call refresh() after you are done changing columns and items.
 		void_c remove_and_delete_item( sint32_c item_index );

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_audio2.h"
+#include "cheonsa_audio2.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 #include "cheonsa_data_stream_file.h"
@@ -252,7 +252,7 @@ namespace cheonsa
 				float64_c input_index_scalar = static_cast< float64_c >( output_index ) / static_cast< float64_c >( output_sample_count ) * static_cast< float64_c >( input_sample_count );
 				sint32_c input_index_2_a = static_cast< sint32_c >( input_index_scalar ) * output_channel_count;
 				sint32_c input_index_2_b = input_index_2_a + output_channel_count;
-				float32_c input_blend = static_cast< float32_c >( ops::math_remainder( input_index_scalar, 1.0 ) );
+				float32_c input_blend = static_cast< float32_c >( ops::math_modulo( input_index_scalar, 1.0 ) );
 				for ( sint32_c channel_index = 0; channel_index < output_channel_count; channel_index++ )
 				{
 					output_sample_buffer[ output_index_2 + channel_index ] += ( ( input_samples[ input_index_2_a + channel_index ] * ( 1.0f - input_blend ) ) + ( input_samples[ input_index_2_b + channel_index ] * input_blend ) ) * output_channel_volumes[ channel_index ];
@@ -262,7 +262,7 @@ namespace cheonsa
 	}
 
 	audio2_wave_buffer_c::state_c::state_c( data_stream_c * stream )
-		: _reference_count( 1 )
+		: _reference_counter()
 		, _format( audio2_wave_buffer_format_e_none )
 		, _channel_count( 0 )
 		, _sample_format( audio2_sample_format_e_none )
@@ -467,29 +467,29 @@ namespace cheonsa
 		}
 	}
 
-	sint32_c audio2_wave_buffer_c::state_c::add_reference()
+	audio2_wave_buffer_c::state_c * audio2_wave_buffer_c::state_c::make_new_instance( data_stream_c * stream )
 	{
-		_reference_count++;
-		return _reference_count;
+		return new state_c( stream );
 	}
 
-	sint32_c audio2_wave_buffer_c::state_c::remove_reference()
+	boolean_c audio2_wave_buffer_c::state_c::add_reference()
 	{
-		assert( _reference_count > 0 );
-		_reference_count--;
-		sint32_c result = _reference_count;
-		if ( _reference_count == 0 )
+		return _reference_counter.increment() != 0;
+	}
+
+	void_c audio2_wave_buffer_c::state_c::remove_reference()
+	{
+		if ( _reference_counter.decrement() == 0 )
 		{
 			delete this;
 		}
-		return result;
 	}
 
 	core_linked_list_c< audio2_wave_buffer_c * > audio2_wave_buffer_c::_instance_list;
 
 	audio2_wave_buffer_c::audio2_wave_buffer_c()
 		: _instance_list_node( this )
-		, _reference_count( 1 )
+		, _reference_count( 0 )
 		, _state( nullptr )
 	{
 		_instance_list.insert_at_end( &_instance_list_node );
@@ -505,28 +505,31 @@ namespace cheonsa
 		_instance_list.remove( &_instance_list_node );
 	}
 
-	sint32_c audio2_wave_buffer_c::add_reference()
+	audio2_wave_buffer_c * audio2_wave_buffer_c::make_new_instance()
 	{
-		_reference_count++;
-		return _reference_count;
+		return new audio2_wave_buffer_c();
 	}
 
-	sint32_c audio2_wave_buffer_c::remove_reference()
+	void_c audio2_wave_buffer_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c audio2_wave_buffer_c::remove_reference()
 	{
 		assert( _reference_count > 0 );
 		_reference_count--;
-		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
 		{
 			delete this;
 		}
-		return result;
 	}
 
 	void_c audio2_wave_buffer_c::load_new_state( data_stream_c * stream )
 	{
 		state_c * old_state = _state;
-		_state = new state_c( stream );
+		_state = state_c::make_new_instance( stream );
+		_state->add_reference();
 		if ( old_state != nullptr )
 		{
 			old_state->remove_reference();
@@ -674,7 +677,7 @@ namespace cheonsa
 	audio2_wave_player_c::audio2_wave_player_c()
 		: _instance_list_node( this )
 		, _wave_player_list_node( this )
-		, _reference_count( 1 )
+		, _reference_count( 0 )
 		, _wave_buffer( nullptr )
 		, _wave_buffer_state( nullptr )
 		, _randomize_seek( false )
@@ -711,22 +714,24 @@ namespace cheonsa
 		}
 	}
 
-	sint32_c audio2_wave_player_c::add_reference()
+	audio2_wave_player_c * audio2_wave_player_c::make_new_instance()
 	{
-		_reference_count++;
-		return _reference_count;
+		return new audio2_wave_player_c();
 	}
 
-	sint32_c audio2_wave_player_c::remove_reference()
+	void_c audio2_wave_player_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c audio2_wave_player_c::remove_reference()
 	{
 		assert( _reference_count > 0 );
 		_reference_count--;
-		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
 		{
 			delete this;
 		}
-		return result;
 	}
 
 	audio2_wave_buffer_c * audio2_wave_player_c::get_wave_buffer() const
@@ -785,7 +790,7 @@ namespace cheonsa
 
 	audio2_scene_source_c::audio2_scene_source_c()
 		: _scene_source_list_node( this )
-		, _reference_count( 1 )
+		, _reference_count( 0 )
 		, _world_space_position()
 		, _world_space_basis( matrix32x3x3_c::get_identity() )
 		, _world_space_velocity()
@@ -801,25 +806,27 @@ namespace cheonsa
 		_wave_player->remove_reference();
 	}
 
-	sint32_c audio2_scene_source_c::add_reference()
+	audio2_scene_source_c * audio2_scene_source_c::make_new_instance()
 	{
-		_reference_count++;
-		return _reference_count;
+		return new audio2_scene_source_c();
 	}
 
-	sint32_c audio2_scene_source_c::remove_reference()
+	void_c audio2_scene_source_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c audio2_scene_source_c::remove_reference()
 	{
 		assert( _reference_count > 0 );
 		_reference_count--;
-		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
 		{
 			delete this;
 		}
-		return result;
 	}
 
-	void_c audio2_scene_source_c::set_world_space_transform( space_transform_c const & value )
+	void_c audio2_scene_source_c::set_world_space_transform( transform3d_c const & value )
 	{
 		_world_space_position = value.position;
 		_world_space_basis = value.get_unscaled_basis();
@@ -851,7 +858,7 @@ namespace cheonsa
 	}
 
 	audio2_scene_listener_c::audio2_scene_listener_c()
-		: _reference_count( 1 )
+		: _reference_count( 0 )
 		, _world_space_position()
 		, _world_space_basis( matrix32x3x3_c::get_identity() )
 		, _world_space_velocity()
@@ -861,25 +868,27 @@ namespace cheonsa
 	{
 	}
 
-	sint32_c audio2_scene_listener_c::add_reference()
+	audio2_scene_listener_c * audio2_scene_listener_c::make_new_instance()
 	{
-		_reference_count++;
-		return _reference_count;
+		return new audio2_scene_listener_c();
 	}
 
-	sint32_c audio2_scene_listener_c::remove_reference()
+	void_c audio2_scene_listener_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c audio2_scene_listener_c::remove_reference()
 	{
 		assert( _reference_count > 0 );
 		_reference_count--;
-		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
 		{
 			delete this;
 		}
-		return result;
 	}
 
-	void_c audio2_scene_listener_c::set_world_space_transform( space_transform_c const & value )
+	void_c audio2_scene_listener_c::set_world_space_transform( transform3d_c const & value )
 	{
 		_world_space_position = value.position;
 		_world_space_basis = value.get_unscaled_basis();
@@ -921,7 +930,7 @@ namespace cheonsa
 	}
 
 	audio2_scene_c::audio2_scene_c()
-		: _reference_count( 1 )
+		: _reference_count( 0 )
 		, _scene_listener( nullptr )
 		, _scene_source_list()
 		, _queued_scene_source_list()
@@ -952,22 +961,24 @@ namespace cheonsa
 		_queued_scene_source_list.remove_all();
 	}
 
-	sint32_c audio2_scene_c::add_reference()
+	audio2_scene_c * audio2_scene_c::make_new_instance()
 	{
-		_reference_count++;
-		return _reference_count;
+		return new audio2_scene_c();
 	}
 
-	sint32_c audio2_scene_c::remove_reference()
+	void_c audio2_scene_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c audio2_scene_c::remove_reference()
 	{
 		assert( _reference_count > 0 );
 		_reference_count--;
-		sint32_c result = _reference_count;
 		if ( _reference_count == 0 )
 		{
 			delete this;
 		}
-		return result;
 	}
 
 	audio2_scene_listener_c * audio2_scene_c::get_scene_listener() const
@@ -998,7 +1009,7 @@ namespace cheonsa
 			_critical_section.enter();
 			value->add_reference();
 			value->_wave_player->_is_queued = true;
-			queued_scene_source_c * queued_scene_source = _queued_scene_source_list.emplace_at_end();
+			queued_scene_source_c * queued_scene_source = _queued_scene_source_list.emplace( -1, 1 );
 			queued_scene_source->operation = audio2_queue_operation_e_add;
 			queued_scene_source->instance = value;
 			queued_scene_source->instance->_wave_player->_randomize_seek = randomize_seek;
@@ -1011,7 +1022,7 @@ namespace cheonsa
 		assert( value != nullptr );
 		_critical_section.enter();
 		value->add_reference();
-		queued_scene_source_c * queued_scene_source = _queued_scene_source_list.emplace_at_end();
+		queued_scene_source_c * queued_scene_source = _queued_scene_source_list.emplace( -1, 1 );
 		queued_scene_source->operation = audio2_queue_operation_e_remove;
 		queued_scene_source->instance = value;
 		_critical_section.exit();
@@ -1145,14 +1156,14 @@ namespace cheonsa
 						{
 							queued_scene.instance->add_reference(); // add reference from this mixing thread.
 							queued_scene.instance->_linked_audio_interface = audio_interface;
-							audio_interface->_scene_list.insert_at_end( queued_scene.instance );
+							audio_interface->_scene_list.insert( -1, queued_scene.instance );
 						}
 					}
 					else
 					{
 						if ( queued_scene.instance->_linked_audio_interface == audio_interface )
 						{
-							audio_interface->_scene_list.remove( queued_scene.instance );
+							audio_interface->_scene_list.remove_value( queued_scene.instance );
 							queued_scene.instance->_linked_audio_interface = nullptr;
 							queued_scene.instance->remove_reference(); // remove reference that was added by this mixing thread.
 						}
@@ -1249,7 +1260,7 @@ namespace cheonsa
 					// calculate listener normals.
 					for ( sint32_c j = 0; j < 6; j++ )
 					{
-						mix_channel_normals[ j ] = ops::make_vector32x3_transformed_point( mixing_channel_normals_base[ j ], scene_listener->_world_space_basis );
+						mix_channel_normals[ j ] = ops::rotate_and_scale_vector32x3( mixing_channel_normals_base[ j ], scene_listener->_world_space_basis );
 					}
 
 					// mix scene sources.
@@ -1263,7 +1274,7 @@ namespace cheonsa
 						// this factors in distance attenuation (for all channels), and directional attenuation (for each channel).
 						float32_c volume = mix_layer_volumes[ scene_source->_wave_player->_layer ];
 						vector32x3_c listener_to_source = vector32x3_c( scene_source->_world_space_position - scene_listener->_world_space_position );
-						float32_c listener_to_source_distance = ops::make_float32_length( listener_to_source );
+						float32_c listener_to_source_distance = ops::length_float32( listener_to_source );
 						float32_c distance_attenuation = 0.0f;
 						float32_c direction_attenuation_factor = 1.0f; // will be in range 0 to 1, when 1 it means that directional attenuation has full influence, when 0 it means that it has no influence.
 						float32_c distance_plus_damping = listener_to_source_distance;
@@ -1295,7 +1306,7 @@ namespace cheonsa
 								listener_to_source /= listener_to_source_distance;
 								for ( sint32_c j = 0; j < 6; j++ )
 								{
-									float32_c direction_attenuation = ops::make_float32_dot_product( mix_channel_normals[ j ], listener_to_source ); // will be in range -1.0 to 1.0.
+									float32_c direction_attenuation = ops::dot_product_float32( mix_channel_normals[ j ], listener_to_source ); // will be in range -1.0 to 1.0.
 									direction_attenuation = ( direction_attenuation * 0.75f ) + 0.25f; // refit to range 0.25 to 1.0.
 									direction_attenuation = ops::interpolate_linear( 1.0f, direction_attenuation, direction_attenuation_factor ); // bias towards 1.0 based on how close listener is to source.
 									mix_channel_volumes[ j ] = direction_attenuation * distance_attenuation;
@@ -1688,7 +1699,7 @@ namespace cheonsa
 	{
 		_critical_section.enter();
 		value->add_reference();
-		queued_scene_c * queued_scene = _queued_scene_list.emplace_at_end();
+		queued_scene_c * queued_scene = _queued_scene_list.emplace( -1, 1 );
 		queued_scene->operation = audio2_queue_operation_e_add;
 		queued_scene->instance = value;
 		_critical_section.exit();
@@ -1698,7 +1709,7 @@ namespace cheonsa
 	{
 		_critical_section.enter();
 		value->add_reference();
-		queued_scene_c * queued_scene = _queued_scene_list.emplace_at_end();
+		queued_scene_c * queued_scene = _queued_scene_list.emplace( -1, 1 );
 		queued_scene->operation = audio2_queue_operation_e_remove;
 		queued_scene->instance = value;
 		_critical_section.exit();
@@ -1711,7 +1722,7 @@ namespace cheonsa
 		{
 			value->add_reference();
 			value->_is_queued = true;
-			queued_wave_player_c * queued_wave_player = _queued_wave_player_list.emplace_at_end();
+			queued_wave_player_c * queued_wave_player = _queued_wave_player_list.emplace( -1, 1 );
 			queued_wave_player->operation = audio2_queue_operation_e_add;
 			queued_wave_player->instance = value;
 			queued_wave_player->instance->_randomize_seek = false;
@@ -1723,7 +1734,7 @@ namespace cheonsa
 	{
 		_critical_section.enter();
 		value->add_reference();
-		queued_wave_player_c * queued_wave_player = _queued_wave_player_list.emplace_at_end();
+		queued_wave_player_c * queued_wave_player = _queued_wave_player_list.emplace( -1, 1 );
 		queued_wave_player->operation = audio2_queue_operation_e_remove;
 		queued_wave_player->instance = value;
 		_critical_section.exit();

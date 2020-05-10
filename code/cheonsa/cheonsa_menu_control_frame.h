@@ -16,8 +16,12 @@ namespace cheonsa
 	protected:
 		menu_element_frame_c _element_frame; // name is "frame".
 
-	public:
 		menu_control_frame_c( string8_c const & name );
+
+	public:
+		virtual ~menu_control_frame_c() override;
+
+		static menu_control_frame_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 	};
 

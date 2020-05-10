@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_data_stream.h"
@@ -23,6 +23,8 @@ namespace cheonsa
 		boolean_c _save_straight( void_c const * const data, sint32_c size ); // preserves byte order.
 		boolean_c _load_flipped( void_c * const data, sint32_c size ); // reverses byte order.
 		boolean_c _save_flipped( void_c const * const data, sint32_c size ); // reverses byte order.
+
+		boolean_c _encountered_error;
 
 	public:
 		data_scribe_binary_c();
@@ -66,6 +68,9 @@ namespace cheonsa
 		boolean_c save_four_character_code( uint32_c value );
 		boolean_c save_string8( string8_c const & string ); // saves a uint16_c length prefixed char8_c string (not null terminated).
 		boolean_c save_string16( string16_c const & string ); // saves a uint16_c length prefixed char16_c string (not null terminated).
+
+		boolean_c encountered_error() const; // will return true if any load* or save* functions returned false. just so that we can program loaders/savers to load/save every property without checking for false each time, and only check one time at the end.
+		void_c clear_error(); // resets the encountered error flag to false again.
 
 	};
 

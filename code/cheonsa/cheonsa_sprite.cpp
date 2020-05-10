@@ -1,128 +1,123 @@
-﻿#include "cheonsa_sprite.h"
+#include "cheonsa_sprite.h"
 #include <cassert>
 
 namespace cheonsa
 {
 
-	void_c sprite_c::_handle_sprite_set_resource_on_load( resource_file_c * resource )
+	void_c sprite_c::_handle_sprite_sheet_resource_on_loaded( resource_file_c * resource )
 	{
-		_sprite = _sprite_set_resource->find_sprite( _sprite_name );
-		if ( _sprite )
+		assert( _sprite_sheet_resource.get_is_value_set_and_loaded() );
+		_animation = _sprite_sheet_resource->find_animation( _animation_name );
+		if ( _animation )
 		{
-			if ( _current_frame > _sprite->frame_list.get_length() )
+			if ( _frame_index > _animation->get_frame_list().get_length() )
 			{
-				_current_frame = 0;
-				_current_frame_time = 0.0f;
+				_frame_index = 0;
+				_frame_time = 0.0f;
 			}
 		}
 	}
 
-	void_c sprite_c::_handle_sprite_set_resource_on_unload( resource_file_c * resource )
+	void_c sprite_c::_handle_sprite_sheet_resource_on_unloaded( resource_file_c * resource )
 	{
-		_sprite = nullptr;
+		_animation = nullptr;
 	}
 
 	sprite_c::sprite_c()
-		: _sprite_set_resource()
-		, _sprite_name()
-		, _sprite( nullptr )
-		, _current_frame( 0 )
-		, _current_frame_time( 0.0f )
+		: _sprite_sheet_resource()
+		, _animation_name()
+		, _animation( nullptr )
+		, _frame_index( 0 )
+		, _frame_time( 0.0f )
 	{
 	}
 
 	void_c sprite_c::update( float32_c time_step )
 	{
-		if ( _sprite )
+		if ( _animation && _animation->get_frame_list().get_length() > 0 )
 		{
-			_current_frame_time += time_step;
-			if ( _current_frame >= _sprite->frame_list.get_length() )
+			if ( _frame_index >= _animation->get_frame_list().get_length() )
 			{
-				_current_frame = 0;
+				_frame_index = 0;
 			}
 
-			while ( _current_frame_time >= _sprite->frame_list[ _current_frame ].duration )
+			_frame_time += time_step;
+			while ( _frame_time >= _animation->get_frame_list()[ _frame_index ].get_duration() )
 			{
-				if ( _sprite->frame_list[ _current_frame ].duration <= 0.001f )
+				resource_file_sprites_c::frame_c const & frame = _animation->get_frame_list()[ _frame_index ];
+				if ( frame.get_duration() == 0.0f ) // this frame lasts forever.
 				{
 					return;
 				}
-				_current_frame_time -= _sprite->frame_list[ _current_frame ].duration;
-				_current_frame++;
-				if ( _current_frame >= _sprite->frame_list.get_length() )
+				_frame_time -= frame.get_duration();
+				_frame_index++;
+				if ( _frame_index >= _animation->get_frame_list().get_length() )
 				{
-					_current_frame = 0;
+					_frame_index = 0;
 				}
 			}
 		}
 		else
 		{
-			_current_frame = 0;
-			_current_frame_time = 0.0f;
+			_frame_index = 0;
+			_frame_time = 0.0f;
 		}
 	}
 
-	resource_file_sprite_set_c * sprite_c::get_sprite_set_resource() const
+	resource_file_sprites_c * sprite_c::get_sprite_sheet_resource() const
 	{
-		return _sprite_set_resource;
+		return _sprite_sheet_resource;
 	}
 
-	void_c sprite_c::set_sprite_set_resource( resource_file_sprite_set_c * value )
+	void_c sprite_c::set_sprite_sheet_resource( resource_file_sprites_c * value )
 	{
-		if ( _sprite_set_resource )
+		if ( _sprite_sheet_resource )
 		{
-			_sprite_set_resource->on_load.unsubscribe( this, &sprite_c::_handle_sprite_set_resource_on_load );
-			_sprite_set_resource->on_unload.unsubscribe( this, &sprite_c::_handle_sprite_set_resource_on_unload );
-			if ( _sprite_set_resource->get_is_loaded() )
+			if ( _sprite_sheet_resource->get_is_loaded() )
 			{
-				_handle_sprite_set_resource_on_unload( nullptr );
+				_handle_sprite_sheet_resource_on_unloaded( _sprite_sheet_resource );
+			}
+			_sprite_sheet_resource->on_loaded.unsubscribe( this, &sprite_c::_handle_sprite_sheet_resource_on_loaded );
+			_sprite_sheet_resource->on_unloaded.unsubscribe( this, &sprite_c::_handle_sprite_sheet_resource_on_unloaded );
+		}
+
+		_sprite_sheet_resource = value;
+
+		if ( _sprite_sheet_resource )
+		{
+			_sprite_sheet_resource->on_loaded.subscribe( this, &sprite_c::_handle_sprite_sheet_resource_on_loaded );
+			_sprite_sheet_resource->on_unloaded.subscribe( this, &sprite_c::_handle_sprite_sheet_resource_on_unloaded );
+			if ( _sprite_sheet_resource->get_is_loaded() )
+			{
+				_handle_sprite_sheet_resource_on_loaded( _sprite_sheet_resource );
 			}
 		}
+	}
 
-		_sprite_set_resource = value;
-
-		if ( _sprite_set_resource )
+	void_c sprite_c::set_animation( string8_c const & name )
+	{
+		_animation_name = name;
+		_animation = nullptr;
+		if ( _sprite_sheet_resource.get_is_value_set_and_loaded() )
 		{
-			_sprite_set_resource->on_load.subscribe( this, &sprite_c::_handle_sprite_set_resource_on_load );
-			_sprite_set_resource->on_unload.subscribe( this, &sprite_c::_handle_sprite_set_resource_on_unload );
-			if ( _sprite_set_resource->get_is_loaded() )
-			{
-				_handle_sprite_set_resource_on_load( nullptr );
-			}
+			_animation = _sprite_sheet_resource->find_animation( _animation_name );
 		}
+		_frame_index = 0;
+		_frame_time = 0.0f;
 	}
 
-	string8_c const & sprite_c::get_sprite_name() const
+	resource_file_sprites_c::animation_c const * sprite_c::get_animation() const
 	{
-		return _sprite_name;
+		return _animation;
 	}
 
-	void_c sprite_c::set_sprite_name( string8_c const & value )
+	resource_file_sprites_c::frame_c const * sprite_c::get_frame() const
 	{
-		_sprite_name = value;
-		_current_frame = 0;
-		_current_frame_time = 0.0f;
-		if ( _sprite_set_resource.is_reference_set_and_loaded() )
+		if ( _animation )
 		{
-			_sprite = _sprite_set_resource->find_sprite( _sprite_name );
+			return &_animation->get_frame_list()[ _frame_index ];
 		}
-	}
-
-	resource_file_sprite_set_c::sprite_c const * sprite_c::get_sprite() const
-	{
-		assert( _sprite );
-		return _sprite;
-	}
-
-	resource_file_sprite_set_c::frame_c const * sprite_c::get_frame() const
-	{
-		assert( _sprite );
-		return &_sprite->frame_list[ _current_frame ];
-	}
-
-	boolean_c sprite_c::get_is_ready() const
-	{
-		return _sprite != nullptr && _sprite->texture_resource.is_reference_set_and_loaded();
+		return nullptr;
 	}
 
 }

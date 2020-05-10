@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
@@ -17,11 +17,10 @@ namespace cheonsa
 		core_list_c< char16_c > character_list; // null terminated list of characters.
 
 	public:
-		explicit string16_c(); // constructs an empty static mode string that contains just the terminating null character.
-		explicit string16_c( string8_c const & other ); // constructs dynamic mode copy of other string, decodes from utf-8.
-		         string16_c( string16_c const & other ); // constructs copy of other string, converts mode if needed.
-		explicit string16_c( char8_c const * other ); // constructs dynamic mode copy of other string, decodes from utf-8.
-		explicit string16_c( char8_c const * other, sint32_c other_length ); // constructs dynamic mode copy of other string, decodes from utf-8. other_length is length of other string including the terminating null character.
+		explicit string16_c(); // constructs an empty static mode string that contains just the null terminator.
+		explicit string16_c( string8_c const & other ); // constructs dynamic mode copy of other string. other string may be utf-8 encoded.
+		         string16_c( string16_c const & other ); // constructs copy of other string. if other string is static mode, then this string will also be a static mode wrapper. otherwise if other string is dynamic or static volatile, then this string will be a dynamic mode copy.
+		explicit string16_c( char8_c const * other ); // constructs dynamic mode copy of other string. other string must be null terminated. other string may be utf-8 encoded.
 		explicit string16_c( core_list_mode_e mode, char16_c const * other ); // constructs static or dynamic mode copy of other string.
 		explicit string16_c( core_list_mode_e mode, char16_c const * other, sint32_c other_length_with_null_terminator ); // constructs static or dynamic mode copy of other string. other_length is length of other string including the terminating null character.
 

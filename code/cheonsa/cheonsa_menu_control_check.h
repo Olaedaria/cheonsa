@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_element_frame.h"
@@ -34,10 +34,13 @@ namespace cheonsa
 		menu_element_frame_c _element_mark; // name is "mark_frame".
 		menu_element_text_c _element_text; // name is "text".
 
-	public:
 		menu_control_check_c( string8_c const & name );
 
 	public:
+		virtual ~menu_control_check_c() override;
+
+		static menu_control_check_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
+
 		string16_c get_plain_text_value() const;
 		void_c set_plain_text_value( string8_c const & plain_text );
 		void_c set_plain_text_value( string16_c const & plain_text );

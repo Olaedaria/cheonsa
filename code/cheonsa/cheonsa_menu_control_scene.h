@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_scene.h"
 #include "cheonsa_video_renderer_canvas.h"
@@ -36,18 +36,17 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override;
 
-	public:
 		menu_control_scene_c( string8_c const & name );
-		~menu_control_scene_c();
+
+	public:
+		virtual ~menu_control_scene_c() override;
+
+		static menu_control_scene_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		scene_c * get_scene() const; // gets the scene that this scene control will render.
 		void_c set_scene( scene_c * value ); // sets the scene that this scene control will render.
 
 		video_renderer_canvas_c * get_canvas() const; // gets the canvas that this scene control renders to.
-
-	public:
-		void_c give_control( menu_control_c * control );
-		menu_control_c * take_control( menu_control_c * control );
 
 		core_event_c< void_c, float32_c > on_update;
 		core_event_c< void_c, menu_event_information_c > on_input;
