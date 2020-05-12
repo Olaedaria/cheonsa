@@ -1,5 +1,5 @@
 #include "cheonsa_menu_control_scroll_bar_i.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -33,11 +33,11 @@ namespace cheonsa
 		// current layout state informs how we interpret the input event to drive changes to _value.
 		// but layout state of the grip is driven by the _value (for scroll bar) or _scrub_input (for scrub wheel).
 
-		if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
+		if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 		{
-			if ( input_event->mouse_key == input_mouse_key_e_left )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 			{
-				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
 				if ( ops::intersect_box_vs_point( _grip_element.get_local_box(), local_mouse_position ) )
 				{
 					_mouse_is_grabbed = true;
@@ -54,9 +54,9 @@ namespace cheonsa
 				}
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_released )
 		{
-			if ( input_event->mouse_key == input_mouse_key_e_left )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 			{
 				_mouse_is_grabbed = false;
 				_mouse_is_grabbed_offset = 0.0f;
@@ -69,11 +69,11 @@ namespace cheonsa
 				}
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_move )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_move )
 		{
 			if ( _mouse_is_grabbed )
 			{
-				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
 				float32_c grip_effective_range = ( _orientation == orientation_e_y ? _local_box.get_height() : _local_box.get_width() ) - _dynamic_grip_length;
 				float64_c grip_position = ops::math_clamp( ( _orientation == orientation_e_y ? local_mouse_position.b : local_mouse_position.a ) - _mouse_is_grabbed_offset - ( _orientation == orientation_e_y ? _local_box.minimum.b : _local_box.minimum.a ), 0.0f, grip_effective_range );
 				float64_c grip_position_percent = grip_position / grip_effective_range;

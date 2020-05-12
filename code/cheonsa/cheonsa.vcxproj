@@ -169,6 +169,8 @@
     <ClInclude Include="cheonsa_menu_control_scrub_bar_y.h" />
     <ClInclude Include="cheonsa_menu_control_window_text_editor.h" />
     <ClInclude Include="cheonsa_menu_element_mesh.h" />
+    <ClInclude Include="cheonsa_physics_collision_object.h" />
+    <ClInclude Include="cheonsa_scene_component_collision_object.h" />
     <ClInclude Include="cheonsa_scene_object.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
     <ClInclude Include="cheonsa_content_manager.h" />
@@ -205,7 +207,7 @@
     <ClInclude Include="cheonsa_menu_control_menu.h" />
     <ClInclude Include="cheonsa_menu_control_panel_i.h" />
     <ClInclude Include="cheonsa_menu_style_manager.h" />
-    <ClInclude Include="cheonsa__ops.h" />
+    <ClInclude Include="cheonsa_ops.h" />
     <ClInclude Include="cheonsa_physics_ridgid_body.h" />
     <ClInclude Include="cheonsa_physics_bullet_debug_drawer.h" />
     <ClInclude Include="cheonsa_physics_constraint.h" />
@@ -217,7 +219,7 @@
     <ClInclude Include="cheonsa_scene_component_ridgid_body.h" />
     <ClInclude Include="cheonsa_scene_component_model.h" />
     <ClInclude Include="cheonsa_scene_tree_kd.h" />
-    <ClInclude Include="cheonsa_resource_file_sprites.h" />
+    <ClInclude Include="cheonsa_resource_file_sprite.h" />
     <ClInclude Include="cheonsa_string8.h" />
     <ClInclude Include="cheonsa_video_types.h" />
     <ClInclude Include="cheonsa_data_scribe_ini.h" />
@@ -288,7 +290,7 @@
     <ClInclude Include="cheonsa_menu_control_window_file_picker.h" />
     <ClInclude Include="cheonsa_menu_control_property_inspector.h" />
     <ClInclude Include="cheonsa_scene_tree_tetrahedron.h" />
-    <ClInclude Include="cheonsa__types.h" />
+    <ClInclude Include="cheonsa_types.h" />
     <ClInclude Include="cheonsa___build_configuration.h" />
     <ClInclude Include="cheonsa_menu_control_collection.h" />
     <ClInclude Include="cheonsa_menu_control_image.h" />
@@ -694,6 +696,8 @@
     <ClCompile Include="cheonsa_menu_control_scrub_bar_y.cpp" />
     <ClCompile Include="cheonsa_menu_control_window_text_editor.cpp" />
     <ClCompile Include="cheonsa_menu_element_mesh.cpp" />
+    <ClCompile Include="cheonsa_physics_collision_object.cpp" />
+    <ClCompile Include="cheonsa_scene_component_collision_object.cpp" />
     <ClCompile Include="cheonsa_scene_object.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_menu_style_file.cpp" />
@@ -718,7 +722,7 @@
     <ClCompile Include="cheonsa_menu_control_panel_i.cpp" />
     <ClCompile Include="cheonsa_menu_control_scene.cpp" />
     <ClCompile Include="cheonsa_menu_style_manager.cpp" />
-    <ClCompile Include="cheonsa__ops.cpp" />
+    <ClCompile Include="cheonsa_ops.cpp" />
     <ClCompile Include="cheonsa_physics_ridgid_body.cpp" />
     <ClCompile Include="cheonsa_physics_bullet_debug_drawer.cpp" />
     <ClCompile Include="cheonsa_physics_constraint.cpp" />
@@ -730,7 +734,7 @@
     <ClCompile Include="cheonsa_scene_component_ridgid_body.cpp" />
     <ClCompile Include="cheonsa_scene_component_model.cpp" />
     <ClCompile Include="cheonsa_scene_tree_kd.cpp" />
-    <ClCompile Include="cheonsa_resource_file_sprites.cpp" />
+    <ClCompile Include="cheonsa_resource_file_sprite.cpp" />
     <ClCompile Include="cheonsa_sprite.cpp" />
     <ClCompile Include="cheonsa_string.cpp" />
     <ClCompile Include="cheonsa_string8.cpp" />
@@ -793,7 +797,7 @@
     <ClCompile Include="cheonsa_menu_control_window_message.cpp" />
     <ClCompile Include="cheonsa_menu_control_window_file_picker.cpp" />
     <ClCompile Include="cheonsa_menu_control_property_inspector.cpp" />
-    <ClCompile Include="cheonsa__types.cpp" />
+    <ClCompile Include="cheonsa_types.cpp" />
     <ClCompile Include="third_party\jpgd.cpp" />
     <ClCompile Include="third_party\jpge.cpp" />
     <ClCompile Include="third_party\jsmn.cpp" />

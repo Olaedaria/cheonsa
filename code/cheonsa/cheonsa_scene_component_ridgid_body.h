@@ -13,7 +13,7 @@ namespace cheonsa
 		: public scene_component_c
 	{
 	public:
-		static inline uint8_c get_type_code_static() { return scene_component_type_e_body; }
+		static inline uint8_c get_type_code_static() { return scene_component_type_e_ridgid_body; }
 		virtual inline uint8_c get_type_code() const override { return get_type_code_static(); }
 
 	private:
@@ -28,10 +28,6 @@ namespace cheonsa
 		transform3d_c _frame; // the physics rigid body may have a transform that is offset from the scene object by this relative amount. this transform also defines the center of mass of the rigid body. it should not be scaled.
 		transform3d_c _frame_inverse;
 
-		boolean_c _is_initialized; // just keeps track of if this has been initialized, so that we don't initialize it more than once.
-
-		boolean_c _is_muted; // used to prevent getting into a feedback loop.
-
 		// bullet physics interoperability function.
 		// copies the world space transform from the _scene_object to the _physics_ridgid_body.
 		// for rigid bodies this is called once per initialization.
@@ -44,8 +40,7 @@ namespace cheonsa
 
 		virtual void_c _handle_before_removed_from_scene() override;
 		virtual void_c _handle_after_added_to_scene() override;
-
-		virtual void_c _handle_on_world_space_transform_changed( transform3d_c const & old_world_space_transform, transform3d_c const & new_world_space_transform ) override;
+		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
 		scene_component_ridgid_body_c();
 
@@ -59,19 +54,18 @@ namespace cheonsa
 		physics_shape_c const * get_shape_at_index( sint32_c index ) const;
 		physics_shape_c * get_shape_at_index( sint32_c index ); // you may use function only when the ridgid body is in an uninitialized shape. you can use this to modify (uninitialzie and initialize) existing shape instances that you added before.
 
-		// physics_shape_list should contain a list of one or more physics_shape_c instances that you have allocated on the heap.
-		// when you call this function, you are giving ownership of those shapes to this physics body, so you should not try to delete them afterwards.
-		// if you want a single shape, put just a single shape in the list.
-		// if you want a compound shape, put more than one shape in the list.
-		// the initializer will create a compound shape if needed to hold the shape or shapes that you provide.
-		// a compound shape is created if:
-		//     more than one shape is provided.
-		//     or the one shape that is provided has a frame that is not identity.
+		// when you call this function, this initializes the collision object with the shapes that you added with add_shape().
+		// adds the collision object to the physics simulation scene if able.
 		void_c initialize( transform3d_c const & frame, float64_c mass, uint32_c layer, uint32_c layer_mask, boolean_c kinematic );
+
+		// removes the ridgid body from the physics simulation scene if needed.
+		// releases the collision object.
 		void_c uninitialize();
 
-		//boolean_c get_kinematic() const;
-		//void_c set_kinematic( boolean_c value );
+		// you can set physics properties on the ridgid body with this.
+		// don't set world space transform properties from here though, do so from the scene object.
+		// will return nullptr of the ridgid body is not initialized.
+		physics_rigid_body_c * get_ridgid_body() const;
 
 	};
 

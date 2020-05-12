@@ -1,12 +1,14 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_scene_types.h"
 
 namespace cheonsa
 {
 
+	// loads ".materials.xml" or ".model.materials.xml" files.
+	// (file extension is a suggestion, you may deviate from it).
 	// defines what materials to apply to what things in an object.
 	class resource_file_materials_c
 		: public resource_file_c

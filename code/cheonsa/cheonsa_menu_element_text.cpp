@@ -1,6 +1,6 @@
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa_data_scribe_markup.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -230,8 +230,8 @@ namespace cheonsa
 								//		menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
 								//		if ( entity_sprite->value.get_is_ready() )
 								//		{
-								//			resource_file_sprites_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
-								//			resource_file_sprites_c::frame_c const * current_frame = entity_sprite->value.get_frame();
+								//			resource_file_sprite_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
+								//			resource_file_sprite_c::frame_c const * current_frame = entity_sprite->value.get_frame();
 
 								//			float32_c scale_to_size = text_glyph_style->size / entity_sprite->value.get_sprite()->font_size;
 
@@ -3219,12 +3219,12 @@ namespace cheonsa
 
 	boolean_c menu_element_text_c::handle_on_multi_clicked( input_event_c * input_event )
 	{
-		vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
-		if ( input_event->multi_click_count == 2 )
+		vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->get_menu_mouse_position() ); 
+		if ( input_event->get_menu_multi_click_count() == 2 )
 		{
 			_text_select_mode = menu_text_select_mode_e_word;
 		}
-		else if ( input_event->multi_click_count == 3 )
+		else if ( input_event->get_menu_multi_click_count() == 3 )
 		{
 			_text_select_mode = menu_text_select_mode_e_paragraph;
 		}
@@ -3240,47 +3240,47 @@ namespace cheonsa
 			return false;
 		}
 
-		if ( input_event->type == input_event_c::type_e_character )
+		if ( input_event->get_type() == input_event_c::type_e_character )
 		{
 			if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 			{
-				input_character( input_event->character );
+				input_character( input_event->get_character() );
 				return true;
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
+		else if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
 		{
-			if ( input_event->keyboard_key == input_keyboard_key_e_left )
+			if ( input_event->get_keyboard_key() == input_keyboard_key_e_left )
 			{
-				input_left( input_event->modifier_keys_state[ input_modifier_key_e_shift ], input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] );
+				input_left( input_event->get_modifier_flags() & input_modifier_flag_e_shift, input_event->get_modifier_flags() & input_modifier_flag_e_ctrl );
 				return true;
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_right )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_right )
 			{
-				input_right( input_event->modifier_keys_state[ input_modifier_key_e_shift ], input_event->modifier_keys_state[ input_modifier_key_e_ctrl ] );
+				input_right( input_event->get_modifier_flags() & input_modifier_flag_e_shift, input_event->get_modifier_flags() & input_modifier_flag_e_ctrl );
 				return true;
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_up )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_up )
 			{
-				input_up( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
+				input_up( input_event->get_modifier_flags() & input_modifier_flag_e_shift );
 				return true;
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_down )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_down )
 			{
-				input_down( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
+				input_down( input_event->get_modifier_flags() & input_modifier_flag_e_shift );
 				return true;
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_home )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_home )
 			{
-				input_home( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
+				input_home( input_event->get_modifier_flags() & input_modifier_flag_e_shift );
 				return true;
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_end )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_end )
 			{
-				input_end( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
+				input_end( input_event->get_modifier_flags() & input_modifier_flag_e_shift );
 				return true;
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_back_space )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_back_space )
 			{
 				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
@@ -3288,7 +3288,7 @@ namespace cheonsa
 					return true;
 				}
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_delete )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_delete )
 			{
 				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
@@ -3296,65 +3296,65 @@ namespace cheonsa
 					return true;
 				}
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_enter )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_enter )
 			{
 				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
-					input_return( input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
+					input_return( input_event->get_modifier_flags() & input_modifier_flag_e_shift );
 					return true;
 				}
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_a && input_event->check_modifier_key_states( false, true, false ) )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_a && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
 			{
 				_text_select_mode = menu_text_select_mode_e_character;
 				set_cursor_index( _plain_text.character_list.get_length() - 2 );  // - 2 to exclude trailing new line character.
 				_text_select_anchor_index_start = 0;
 				//_text_select_anchor_index_end = _plain_text.get_length();
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_x && input_event->check_modifier_key_states( false, true, false ) )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_x && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
 			{
 				cut_text_to_clip_board();
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_c && input_event->check_modifier_key_states( false, true, false ) )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_c && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
 			{
 				copy_text_to_clip_board();
 			}
-			else if ( input_event->keyboard_key == input_keyboard_key_e_v && input_event->check_modifier_key_states( false, true, false ) )
+			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_v && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
 			{
 				paste_text_from_clip_board();
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 		{
 			assert( _mother_control );
-			vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
-			if ( input_event->mouse_key == input_mouse_key_e_left && ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) )
+			vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->get_menu_mouse_position() ); 
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left && ( _text_interact_mode == menu_text_interact_mode_e_static_selectable || _text_interact_mode == menu_text_interact_mode_e_editable ) )
 			{
 				_text_select_mode = menu_text_select_mode_e_character;
-				_place_cursor_at_local_point( local_mouse_position, input_event->modifier_keys_state[ input_modifier_key_e_shift ] );
+				_place_cursor_at_local_point( local_mouse_position, input_event->get_modifier_flags() & input_modifier_flag_e_shift );
 				_cursor_time = 0.0f;
 				return true;
 			}
-			else if ( input_event->mouse_key == input_mouse_key_e_right )
+			else if ( input_event->get_mouse_key() == input_mouse_key_e_right )
 			{
 				// if the mouse pointer is not intersecting with the currently selected range of text, then place the cursor where the mouse pointer is.
 				_place_cursor_at_local_point( local_mouse_position, false );
 				return true;
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_released )
 		{
-			if ( input_event->mouse_key == input_mouse_key_e_right )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_right )
 			{
 				// open context menu.
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_move )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_move )
 		{
-			if ( input_event->mouse_keys_state[ input_mouse_key_e_left ] )
+			if ( input_event->get_mouse_key_state( input_mouse_key_e_left ) )
 			{
 				assert( _mother_control );
-				vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->menu_global_mouse_position ); 
+				vector32x2_c local_mouse_position = _mother_control->transform_global_point_to_local_point( input_event->get_menu_mouse_position() ); 
 				_place_cursor_at_local_point( local_mouse_position, true );
 				return true;
 			}

@@ -238,11 +238,11 @@ namespace cheonsa
 	void_c menu_control_window_file_picker_c::_on_input( input_event_c * input_event )
 	{
 		menu_control_window_c::_on_input( input_event );
-		if ( !input_event->was_handled )
+		if ( !input_event->get_was_handled() )
 		{
-			if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
+			if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
 			{
-				if ( input_event->keyboard_key == input_keyboard_key_e_escape )
+				if ( input_event->get_keyboard_key() == input_keyboard_key_e_escape )
 				{
 					_dialog_result = menu_dialog_result_e_cancel;
 					on_dialog_result.invoke( this );

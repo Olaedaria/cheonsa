@@ -12,14 +12,19 @@ namespace cheonsa
 {
 
 	// a 3d scene, or world.
-	// works as an interface between a couple other systems that also need to maintain their own internal scene representations:
+	//
+	// manages scene state for renderables, audio, and physics simulation.
+	//
+	// primarily manages the scene state for gpu renderables.
+	// secondarily interfaces with a couple other systems that also need to maintain their own internal scene representations (somewhat redundant):
 	//     audio
 	//     physics
 	// the engine's user interface manager acts as an interface between the scene and the user.
-	// works closely with the renderer.
-	// its contents are probably going to be managed closely by the game.
 	//
-	// it's spatially optimized a little bit, it uses octo trees to hold scene components and scene lights, which allows for quick look up based on proximity.
+	// the scene's contents will probably be managed closely by the game.
+	//
+	// it's spatially optimized a little bit for general case (open world), it uses octo trees to hold scene components and scene lights, which allows for quick look up based on proximity.
+	//
 	// update on scene objects has to be managed by the game, and it should occur in the following order:
 	//     game calls update_animations() on all its animated model scene components.
 	//     game calls update() on the physics scene contained in the scene.
@@ -153,9 +158,9 @@ namespace cheonsa
 
 		user_interface_c * get_user_interface() const; // gets the user interface that this scene is associated with, if any. this will only be set if you call engine.get_user_interface()->set_scene(). the engine has only one user interface and only one scene can be associated with it at a time.
 
-		audio2_scene_c * get_audio_scene(); // gets the audio scene interface that manages mixing of sounds that are in the scene. this will never return nullptr.
+		audio2_scene_c * get_audio_scene(); // gets a pointer to the audio scene interface that manages mixing of sounds for this scene. this will never return nullptr.
 
-		physics_scene_c * get_physics_scene(); // gets the physics scene that manages physics simulation in the scene. this will never return nullptr.
+		physics_scene_c * get_physics_scene(); // gets a pointer to the physics scene that manages physics simulation for this scene. this will never return nullptr.
 
 		core_linked_list_c< scene_object_c * > const & get_scene_object_list() const; // gets a reference to the list that holds all the scene objects in this scene.
 

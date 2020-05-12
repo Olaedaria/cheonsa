@@ -1,7 +1,7 @@
 #include "cheonsa_scene_component_light.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 
 namespace cheonsa
 {
@@ -18,9 +18,9 @@ namespace cheonsa
 		_scene_object->get_scene()->add_light( &_scene_light ); // a little loopy.
 	}
 
-	void_c scene_component_light_c::_handle_on_world_space_transform_changed( transform3d_c const & old_world_space_transform, transform3d_c const & new_world_space_transform )
+	void_c scene_component_light_c::_handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator )
 	{
-		scene_component_c::_handle_on_world_space_transform_changed( old_world_space_transform, new_world_space_transform );
+		scene_component_c::_handle_on_world_space_transform_modified( old_world_space_transform, initiator );
 		if ( _scene_object->get_scene() )
 		{
 			_scene_object->get_scene()->invalidate_light_probes_with_light( &_scene_light, &old_world_space_transform );

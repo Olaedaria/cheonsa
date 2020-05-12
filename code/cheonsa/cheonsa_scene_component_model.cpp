@@ -2,7 +2,7 @@
 #include "cheonsa_scene_component_light_probe.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -1537,7 +1537,7 @@ namespace cheonsa
 	void_c scene_component_model_c::_physics_copy_world_space_transform_from_game_to_physics( void_c * object, vector64x3_c & world_space_position, matrix32x3x3_c & world_space_basis )
 	{
 		scene_component_model_c * instance = reinterpret_cast< scene_component_model_c * >( object );
-		world_space_position = instance->get_scene_object()->get_world_space_position();
+		world_space_position = instance->get_scene_object()->get_world_space_transform().position;
 		world_space_basis = instance->get_scene_object()->get_world_space_transform().get_unscaled_basis();
 	}
 
@@ -2359,13 +2359,13 @@ namespace cheonsa
 		}
 	}
 
-	void_c scene_component_model_c::_handle_on_world_space_transform_changed( transform3d_c const & old_world_space_transform, transform3d_c const & new_world_space_transform )
+	void_c scene_component_model_c::_handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator )
 	{
-		scene_component_c::_handle_on_world_space_transform_changed( old_world_space_transform, new_world_space_transform );
-		if ( _automatic_light_probe_invalidation_enabled && _scene_object->get_scene()->_automatic_light_probe_invalidation_enabled && old_world_space_transform != new_world_space_transform )
+		scene_component_c::_handle_on_world_space_transform_modified( old_world_space_transform, initiator );
+		if ( _automatic_light_probe_invalidation_enabled && _scene_object->get_scene()->_automatic_light_probe_invalidation_enabled && old_world_space_transform != _scene_object->get_world_space_transform() )
 		{
 			_scene_object->get_scene()->invalidate_light_probes_with_box( box64x3_c( _local_space_obb ), old_world_space_transform );
-			_scene_object->get_scene()->invalidate_light_probes_with_box( box64x3_c( _local_space_obb ), new_world_space_transform );
+			_scene_object->get_scene()->invalidate_light_probes_with_box( box64x3_c( _local_space_obb ), _scene_object->get_world_space_transform() );
 		}
 	}
 

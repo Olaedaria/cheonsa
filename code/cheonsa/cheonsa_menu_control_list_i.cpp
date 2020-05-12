@@ -1,6 +1,6 @@
 #include "cheonsa_menu_control_list_i.h"
 #include "cheonsa_user_interface.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 
 namespace cheonsa
 {
@@ -119,7 +119,7 @@ namespace cheonsa
 		assert( mother_list );
 		if ( mother_list != nullptr )
 		{
-			_set_is_selected( true, input_event->check_modifier_key_states( false, true, false ) );
+			_set_is_selected( true, input_event->get_modifier_flags() == input_modifier_flag_e_ctrl );
 		}
 		on_clicked.invoke( menu_event_information_c( this, input_event ) );
 	}
@@ -502,9 +502,9 @@ namespace cheonsa
 
 	void_c menu_control_list_i::_on_input( input_event_c * input_event )
 	{
-		if ( input_event->type == input_event_c::type_e_mouse_wheel )
+		if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 		{
-			_vertical_scroll_bar->inject_mouse_wheel_input( input_event->mouse_wheel_delta );
+			_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
 		}
 	}
 

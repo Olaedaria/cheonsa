@@ -6,6 +6,8 @@
 namespace cheonsa
 {
 
+	// loads ".menu.styles.xml" files.
+	// (file extension is a suggestion, you may deviate from it).
 	// during run time, the engine and game may request to load any number of style files.
 	// this class inherits from resource file for convenience, but these instances are managed by the menu style manager rather than the resource manager.
 	// the menu style manager can reload these files during run time.

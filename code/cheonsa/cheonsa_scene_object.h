@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_data_scribe_binary_property.h"
@@ -36,7 +36,11 @@ namespace cheonsa
 		void_c _handle_after_added_to_scene(); // for example, lets the object add its relevant components to lists in the scene.
 		void_c _handle_before_removed_from_scene(); // for example, lets the object remove its relevant components from lists in the scene.
 
-		void_c _handle_world_space_transform_modified( transform3d_c const & old_world_space_transform );
+		// this method is called to notify all components that the world space transform was modified.
+		// the current _world_space_transform is the new transform.
+		// old_world_space_transform is the old transform.
+		// initiator is the scene component that initiated the change. this is optional. but if it's set, then the initiator is the component that initiated the change. this lets the initiator choose to not respond to the change.
+		void_c _handle_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator );
 
 		sint32_c _reference_count;
 
@@ -50,19 +54,13 @@ namespace cheonsa
 		void_c add_reference();
 		void_c remove_reference();
 
-		scene_c * get_scene() const;
+		scene_c * get_scene() const; // gets the scene that this scene object is currently in, or nullptr if none.
 
 		transform3d_c const & get_world_space_transform() const;
-		void_c set_world_space_transform( transform3d_c const & value );
-
-		vector64x3_c const & get_world_space_position() const;
-		void_c set_world_space_position( vector64x3_c const & value );
-
-		quaternion32_c const & get_world_space_rotation() const;
-		void_c set_world_space_rotation( quaternion32_c const & value );
-
-		vector32x3_c const & get_world_space_scale() const;
-		void_c set_world_space_scale( vector32x3_c const & value );
+		void_c set_world_space_transform( transform3d_c const & value, scene_component_c * initiator = nullptr );
+		void_c set_world_space_position( vector64x3_c const & value, scene_component_c * initiator = nullptr );
+		void_c set_world_space_rotation( quaternion32_c const & value, scene_component_c * initiator = nullptr );
+		void_c set_world_space_scale( vector32x3_c const & value, scene_component_c * initiator = nullptr );
 
 		void_c add_component( scene_component_c * component ); // adds a component to the end of the component list. the scene object then takes ownership of the component, it will delete the component in its destructor.
 		void_c remove_component( scene_component_c * component ); // removes a component and takes ownership of it, someone will need to delete it if it isn't going to be reused.

@@ -23,10 +23,10 @@ namespace cheonsa
 		}
 	}
 
-	void_c scene_component_light_probe_c::_handle_on_world_space_transform_changed( transform3d_c const & old_world_space_transform, transform3d_c const & new_world_space_transform )
+	void_c scene_component_light_probe_c::_handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator )
 	{
-		scene_component_c::_handle_on_world_space_transform_changed( old_world_space_transform, new_world_space_transform );
-		if ( old_world_space_transform.position != new_world_space_transform.position )
+		scene_component_c::_handle_on_world_space_transform_modified( old_world_space_transform, initiator );
+		if ( old_world_space_transform.position != _scene_object->get_world_space_transform().position )
 		{
 			_is_up_to_date = false;
 		}

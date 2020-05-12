@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_core_list.h"
 
 // the global namespace is a lost cause when it comes to trying to keep it clean.
@@ -27,6 +27,7 @@ namespace cheonsa
 
 	class physics_scene_c;
 	class physics_shape_c;
+	class physics_collision_object_c;
 	class physics_rigid_body_c;
 	class physics_constraint_c;
 

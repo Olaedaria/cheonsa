@@ -1,14 +1,18 @@
-﻿#include "cheonsa_input_types.h"
+#include "cheonsa_input_types.h"
 #include "cheonsa_engine.h"
 #include <cassert>
 
 namespace cheonsa
 {
 
-	void_c input_gamepad_state_c::_make_dead_zone()
+	void_c input_gamepad_state_c::_cap_length_and_make_dead_zone()
 	{
 		float32_c dead_zone_size = 0.1f;
 		float32_c length = ops::length_float32( _left_stick_state );
+		if ( length > 1.0f )
+		{
+			_left_stick_state /= length;
+		}
 		if ( length > dead_zone_size )
 		{
 			_left_stick_state_with_dead_zone = ( _left_stick_state / length ) * ( ( length - dead_zone_size ) * ( 1.0f + dead_zone_size ) );
@@ -19,6 +23,10 @@ namespace cheonsa
 		}
 
 		length = ops::length_float32( _right_stick_state );
+		if ( length > 1.0f )
+		{
+			_right_stick_state /= length;
+		}
 		if ( length > dead_zone_size )
 		{
 			_right_stick_state_with_dead_zone = ( _right_stick_state / length ) * ( ( length - dead_zone_size ) * ( 1.0f + dead_zone_size ) );
@@ -86,94 +94,108 @@ namespace cheonsa
 	}
 
 	input_shortcut_c::input_shortcut_c()
-		: _modifier_flags( input_modifier_flag_e_none )
+		: _mouse_modifier_flags( input_modifier_flag_e_none )
 		, _mouse_key( input_mouse_key_e_none )
+		, _keyboard_modifier_flags( input_modifier_flag_e_none )
 		, _keyboard_key( input_keyboard_key_e_none )
 		, _gamepad_key( input_gamepad_key_e_none )
 	{
 	}
 
-	void_c input_shortcut_c::clear()
+	void_c input_shortcut_c::reset()
 	{
-		_modifier_flags = input_modifier_flag_e_none;
+		_mouse_modifier_flags = input_modifier_flag_e_none;
 		_mouse_key = input_mouse_key_e_none;
+		_keyboard_modifier_flags = input_modifier_flag_e_none;
 		_keyboard_key = input_keyboard_key_e_none;
 		_gamepad_key = input_gamepad_key_e_none;
 	}
 
-	void_c input_shortcut_c::set_mouse_shortcut( input_mouse_key_e key, input_modifier_flag_e modifier_flags )
+	input_modifier_flag_e input_shortcut_c::get_mouse_modifier_flags() const
 	{
-		_modifier_flags = modifier_flags;
-		_mouse_key = key;
-		_keyboard_key = input_keyboard_key_e_none;
-		_gamepad_key = input_gamepad_key_e_none;
+		return _mouse_modifier_flags;
 	}
 
-	void_c input_shortcut_c::set_keyboard_shortcut( input_keyboard_key_e key, input_modifier_flag_e modifier_flags )
+	void_c input_shortcut_c::set_mouse_modifier_flags( input_modifier_flag_e value )
 	{
-		_modifier_flags = modifier_flags;
-		_mouse_key = input_mouse_key_e_none;
-		_keyboard_key = key;
-		_gamepad_key = input_gamepad_key_e_none;
+		_mouse_modifier_flags = value;
 	}
 
-	void_c input_shortcut_c::set_gamepad_shortcut( input_gamepad_key_e key, input_modifier_flag_e modifier_flags )
+	input_mouse_key_e input_shortcut_c::get_mouse_key() const
 	{
-		_modifier_flags = modifier_flags;
-		_mouse_key = input_mouse_key_e_none;
-		_keyboard_key = input_keyboard_key_e_none;
-		_gamepad_key = key;
+		return _mouse_key;
+	}
+
+	void_c input_shortcut_c::set_mouse_key( input_mouse_key_e value )
+	{
+		_mouse_key = value;
+	}
+
+	input_modifier_flag_e input_shortcut_c::get_keyboard_modifier_flags() const
+	{
+		return _keyboard_modifier_flags;
+	}
+
+	void_c input_shortcut_c::set_keyboard_modifier_flags( input_modifier_flag_e value )
+	{
+		_keyboard_modifier_flags = value;
+	}
+
+	input_keyboard_key_e input_shortcut_c::get_keyboard_key() const
+	{
+		return _keyboard_key;
+	}
+
+	void_c input_shortcut_c::set_keyboard_key( input_keyboard_key_e value )
+	{
+		_keyboard_key = value;
+	}
+
+	input_gamepad_key_e input_shortcut_c::get_gamepad_key() const
+	{
+		return _gamepad_key;
+	}
+
+	void_c input_shortcut_c::set_gamepad_key( input_gamepad_key_e value )
+	{
+		_gamepad_key = value;
+	}
+
+	boolean_c input_shortcut_c::is_pressed( input_event_c const * input_event ) const
+	{
+		assert( input_event );
+		if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
+		{
+			return ( input_event->get_keyboard_key() == _keyboard_key ) && ( input_event->get_modifier_flags() == _keyboard_modifier_flags );
+		}
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
+		{
+			return ( input_event->get_mouse_key() == _mouse_key ) && ( input_event->get_modifier_flags() == _mouse_modifier_flags );
+		}
+		else if ( input_event->get_type() == input_event_c::type_e_gamepad_key_pressed )
+		{
+			return ( input_event->get_gamepad_key() == _gamepad_key );
+		}
+		return false;
 	}
 
 	boolean_c input_shortcut_c::operator == ( input_shortcut_c const & other ) const
 	{
-		return ( _modifier_flags == other._modifier_flags ) && ( _mouse_key == other._mouse_key ) && ( _keyboard_key == other._keyboard_key ) && ( _gamepad_key == other._gamepad_key );
-	}
-
-	input_action_c::reference_c::reference_c()
-		: _key()
-		, _value( nullptr )
-	{
-	}
-
-	void_c input_action_c::reference_c::clear()
-	{
-		_key = string8_c();
-		_value = nullptr;
-		on_refreshed.invoke( this );
-	}
-
-	string8_c const & input_action_c::reference_c::get_key() const
-	{
-		return _key;
-	}
-
-	void_c input_action_c::reference_c::set_key( string8_c const & value )
-	{
-		_key = value;
-		_value = engine.get_input_manager()->find_action( _key );
-		on_refreshed.invoke( this );
-	}
-
-	input_action_c const * input_action_c::reference_c::get_value() const
-	{
-		return _value;
+		return
+			( _mouse_modifier_flags == other._mouse_modifier_flags ) &&
+			( _mouse_key == other._mouse_key ) &&
+			( _keyboard_modifier_flags == other._keyboard_modifier_flags ) &&
+			( _keyboard_key == other._keyboard_key ) &&
+			( _gamepad_key == other._gamepad_key );
 	}
 
 	input_action_c::input_action_c()
 		: _key()
-		, _context()
+		, _scope()
+		, _shortcut()
 		, _name()
 		, _description()
-	{
-	}
-
-	input_action_c::input_action_c( string8_c const & key, string8_c const & context )
-		: _key( key )
-		, _context( context )
-		, _name()
-		, _description()
-		, _references()
+		, _snapshot_state( false )
 	{
 	}
 
@@ -182,9 +204,24 @@ namespace cheonsa
 		return _key;
 	}
 
-	string8_c const & input_action_c::get_context() const
+	void_c input_action_c::set_key( string8_c const & value )
 	{
-		return _context;
+		_key = value;
+	}
+
+	string8_c const & input_action_c::get_scope() const
+	{
+		return _scope;
+	}
+
+	void_c input_action_c::set_scope( string8_c const & value )
+	{
+		_scope = value;
+	}
+
+	input_shortcut_c const & input_action_c::get_shortcut() const
+	{
+		return _shortcut;
 	}
 
 	input_shortcut_c & input_action_c::get_shortcut()
@@ -192,40 +229,151 @@ namespace cheonsa
 		return _shortcut;
 	}
 
-	string_c::reference_c & input_action_c::get_name()
+	string16_c const & input_action_c::get_name() const
 	{
 		return _name;
 	}
 
-	string_c::reference_c & input_action_c::get_description()
+	void_c input_action_c::set_name( string16_c const & value )
+	{
+		_name = value;
+	}
+
+	string16_c const & input_action_c::get_description() const
 	{
 		return _description;
 	}
 
-	input_event_c::input_event_c()
-		: type( type_e_none )
-		, time( 0 )
-		, mouse_key( input_mouse_key_e_none )
-		, mouse_position( 0.0f, 0.0f )
-		, mouse_position_delta( 0.0f, 0.0f )
-		, mouse_wheel_delta( 0.0f )
-		, multi_click_count( 0 )
-		, keyboard_key( input_keyboard_key_e_none )
-		, character( 0 )
-		, character_repeat_count( 0 )
-		, gamepad_key( input_gamepad_key_e_none )
-		, modifier_keys_state{}
-		, mouse_keys_state{}
-		, keyboard_keys_state{}
-		, gamepad_keys_state{}
-		, menu_global_mouse_position( 0.0f, 0.0f )
-		, was_handled( false )
+	void_c input_action_c::set_description( string16_c const & value )
 	{
+		_description = value;
 	}
 
-	boolean_c input_event_c::check_modifier_key_states( boolean_c shift, boolean_c ctrl, boolean_c alt ) const
+	boolean_c input_action_c::get_snapshot_state()
 	{
-		return ( modifier_keys_state[ input_modifier_key_e_shift ] == shift ) && ( modifier_keys_state[ input_modifier_key_e_ctrl ] == ctrl ) && ( modifier_keys_state[ input_modifier_key_e_alt ] == alt );
+		return _snapshot_state;
+	}
+
+	input_event_c::input_event_c()
+	{
+		reset();
+	}
+
+	void_c input_event_c::reset()
+	{
+		_type = type_e_none;
+		_time = 0;
+		_mouse_key = input_mouse_key_e_none;
+		_mouse_position.a = 0.0f;
+		_mouse_position.b = 0.0f;
+		_mouse_position_delta.a = 0.0f;
+		_mouse_position_delta.b = 0.0f;
+		_mouse_wheel_delta = 0.0f;
+		_keyboard_key = input_keyboard_key_e_none;
+		_character = 0;
+		_character_repeat_count = 0;
+		_gamepad_key = input_gamepad_key_e_none;
+		_modifier_flags = input_modifier_flag_e_none;
+		_mouse_keys_state; // we can leave alone, it will get overwritten by _finalize_input_event().
+		_keyboard_keys_state; // we can leave alone, it will get overwritten by _finalize_input_event().
+		_gamepad_keys_state; // we can leave alone, it will get overwritten by _finalize_input_event().
+		_menu_mouse_position.a = 0.0f;
+		_menu_mouse_position.b = 0.0f;
+		_menu_multi_click_count = 0;
+		_was_handled = false;
+	}
+
+	input_event_c::type_e input_event_c::get_type() const
+	{
+		return _type;
+	}
+
+	sint64_c input_event_c::get_time() const
+	{
+		return _time;
+	}
+
+	input_mouse_key_e input_event_c::get_mouse_key() const
+	{
+		return _mouse_key;
+	}
+
+	vector32x2_c const & input_event_c::get_mouse_position() const
+	{
+		return _mouse_position;
+	}
+
+	vector32x2_c const & input_event_c::get_mouse_position_delta() const
+	{
+		return _mouse_position_delta;
+	}
+
+	float32_c input_event_c::get_mouse_wheel_delta() const
+	{
+		return _mouse_wheel_delta;
+	}
+
+	input_keyboard_key_e input_event_c::get_keyboard_key() const
+	{
+		return _keyboard_key;
+	}
+
+	char16_c input_event_c::get_character() const
+	{
+		return _character;
+	}
+
+	uint8_c input_event_c::get_character_repeat_count() const
+	{
+		return _character_repeat_count;
+	}
+
+	input_gamepad_key_e input_event_c::get_gamepad_key() const
+	{
+		return _gamepad_key;
+	}
+
+	input_modifier_flag_e input_event_c::get_modifier_flags() const
+	{
+		return _modifier_flags;
+	}
+
+	boolean_c input_event_c::get_mouse_key_state( input_mouse_key_e key )
+	{
+		assert( key > input_mouse_key_e_none && key < input_mouse_key_e_count_ );
+		return _mouse_keys_state[ key ];
+	}
+
+	boolean_c input_event_c::get_keyboard_key_state( input_keyboard_key_e key )
+	{
+		assert( key > input_keyboard_key_e_none && key < input_keyboard_key_e_count_ );
+		return _keyboard_keys_state[ key ];
+	}
+
+	boolean_c input_event_c::get_gamepad_key_state( input_gamepad_key_e key )
+	{
+		assert( key > input_gamepad_key_e_none && key < input_gamepad_key_e_count_ );
+		return _gamepad_keys_state[ key ];
+	}
+
+	vector32x2_c const & input_event_c::get_menu_mouse_position() const
+	{
+		return _menu_mouse_position;
+	}
+
+	sint32_c input_event_c::get_menu_multi_click_count() const
+	{
+		return _menu_multi_click_count;
+	}
+
+	boolean_c input_event_c::get_was_handled() const
+	{
+		return _was_handled;
+	}
+
+	void_c input_event_c::set_was_handled( boolean_c value )
+	{
+		_was_handled = value;
 	}
 
 	input_drag_drop_payload_c::input_drag_drop_payload_c()

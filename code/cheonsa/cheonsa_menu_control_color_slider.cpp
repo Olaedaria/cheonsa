@@ -173,23 +173,23 @@ namespace cheonsa
 
 	void_c menu_control_color_slider_c::_on_input( input_event_c * input_event )
 	{
-		if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
+		if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 		{
-			if ( input_event->mouse_key == input_mouse_key_e_left )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 			{
 				_mouse_is_grabbed = true;
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_released )
 		{
-			if ( input_event->mouse_key == input_mouse_key_e_left )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 			{
 				_mouse_is_grabbed = false;
 			}
 		}
 		if ( _mouse_is_grabbed )
 		{
-			vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+			vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
 			float64_c old_value = _value;
 			_value = ( local_mouse_position.a - _local_box.minimum.a ) / ( _local_box.maximum.a - _local_box.minimum.a );
 			if ( _mode == mode_e_hue )

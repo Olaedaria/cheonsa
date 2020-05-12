@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_string16.h"
 
 namespace cheonsa

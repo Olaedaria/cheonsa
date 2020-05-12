@@ -84,7 +84,10 @@ namespace cheonsa
 	physics_rigid_body_c::~physics_rigid_body_c()
 	{
 		assert( _reference_count == 0 );
-		uninitialize();
+		if ( _bullet_rigid_body )
+		{
+			uninitialize();
+		}
 	}
 
 	physics_rigid_body_c * physics_rigid_body_c::make_new_instance()
@@ -123,6 +126,7 @@ namespace cheonsa
 		assert( copy_world_space_transform_from_game_to_physics );
 		assert( copy_world_space_transform_from_physics_to_game );
 		assert( shape );
+		assert( shape->get_is_initialized() );
 
 		shape->add_reference();
 		_shape = shape;
@@ -151,21 +155,19 @@ namespace cheonsa
 
 	void_c physics_rigid_body_c::uninitialize()
 	{
-		if ( _bullet_rigid_body )
+		assert( _bullet_rigid_body );
+		assert( _bullet_rigid_body->getWorldArrayIndex() < 0 ); // shouldn't be in a dynamics world at this point.
+
+		delete _bullet_rigid_body;
+		_bullet_rigid_body = nullptr;
+
+		delete _bullet_motion_state;
+		_bullet_motion_state = nullptr;
+
+		if ( _shape )
 		{
-			assert( _bullet_rigid_body->getWorldArrayIndex() < 0 ); // shouldn't be in a dynamics world at this point.
-
-			delete _bullet_rigid_body;
-			_bullet_rigid_body = nullptr;
-
-			delete _bullet_motion_state;
-			_bullet_motion_state = nullptr;
-
-			if ( _shape )
-			{
-				_shape->remove_reference();
-				_shape = nullptr;
-			}
+			_shape->remove_reference();
+			_shape = nullptr;
 		}
 	}
 

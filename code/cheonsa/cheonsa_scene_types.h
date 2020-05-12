@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_scene_tree_octo.h"
@@ -27,7 +27,6 @@ namespace cheonsa
 	enum scene_component_type_e : uint8_c
 	{
 		scene_component_type_e_none,
-		scene_component_type_e_body,
 		scene_component_type_e_camera,
 		scene_component_type_e_emitter,
 		scene_component_type_e_light,
@@ -36,6 +35,8 @@ namespace cheonsa
 		scene_component_type_e_model,
 		scene_component_type_e_sound,
 		scene_component_type_e_sprite,
+		scene_component_type_e_ridgid_body,
+		scene_component_type_e_collision_object,
 	};
 
 	//enum scene_object_property_e

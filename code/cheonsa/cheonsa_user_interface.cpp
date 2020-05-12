@@ -5,7 +5,7 @@
 #include "cheonsa_scene_component_menu_control.h"
 #include "cheonsa_scene_component_sound.h"
 #include "cheonsa_scene_object.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 #if defined( cheonsa_platform_windows )
@@ -125,17 +125,17 @@ namespace cheonsa
 				matrix32x3x3_c world_space_window_basis = world_space_window_transform.get_scaled_basis();
 				transform3d_c world_space_window_transform_inverted = world_space_window_transform.get_inverted();
 				plane64_c world_space_window_plane = ops::make_plane64_from_normal_and_point( vector64x3_c( world_space_window_basis.c / world_space_window_transform.scale ), world_space_window_transform.position );
-				ray64_c world_space_mouse_ray = _scene->get_camera().build_ray_through_canvas( input_event->mouse_position, static_cast< sint32_c >( _local_box.get_width() ), static_cast< sint32_c >( _local_box.get_height() ) ); // ASSUMING that _local_box is the same size as the canvas.
+				ray64_c world_space_mouse_ray = _scene->get_camera().build_ray_through_canvas( input_event->get_mouse_position(), static_cast< sint32_c >( _local_box.get_width() ), static_cast< sint32_c >( _local_box.get_height() ) ); // ASSUMING that _local_box is the same size as the canvas.
 				if ( ops::sweep_ray_vs_plane( world_space_mouse_ray, world_space_window_plane, control_distance ) ) // find if there is an intersection and if so find out the distance to intersection
 				{
 					vector64x3_c world_space_intersection_point = world_space_mouse_ray.position + ( world_space_mouse_ray.normal * control_distance );
 					transform3d_c world_space_window_transform_inverted = window->get_scene_component()->get_scene_object()->get_world_space_transform().get_inverted();
 					vector64x3_c menu_space_intersection_point = ops::rotate_scale_and_translate_vector64x3( world_space_intersection_point, world_space_window_transform_inverted );
-					input_event->menu_global_mouse_position.a = static_cast< float32_c >( menu_space_intersection_point.a );
-					input_event->menu_global_mouse_position.b = static_cast< float32_c >( menu_space_intersection_point.b );
+					input_event->_menu_mouse_position.a = static_cast< float32_c >( menu_space_intersection_point.a );
+					input_event->_menu_mouse_position.b = static_cast< float32_c >( menu_space_intersection_point.b );
 				}
 			}
-			menu_control_c * candidate = window->pick_control_with_global_point( input_event->menu_global_mouse_position, minimum_layer );
+			menu_control_c * candidate = window->pick_control_with_global_point( input_event->get_menu_mouse_position(), minimum_layer );
 			if ( candidate != nullptr && ( result == nullptr || control_distance < result_distance ) )
 			{
 				_is_mouse_overed = true;
@@ -149,12 +149,12 @@ namespace cheonsa
 
 	void_c user_interface_c::_bubble_input_event( menu_control_c * control, input_event_c * input_event )
 	{
-		assert( input_event->was_handled == false );
+		assert( input_event->get_was_handled() == false );
 		while ( control )
 		{
 			control->_on_input( input_event );
 			control = control->_mother_control;
-			if ( input_event->was_handled )
+			if ( input_event->get_was_handled() )
 			{
 				return;
 			}
@@ -167,13 +167,16 @@ namespace cheonsa
 		// reset things.
 		_is_mouse_overed = false;
 
+		// process input actions.
+		engine.get_input_manager()->_invoke_action_with_input_event( input_event );
+
 		// default to 2d, until we have to pick 3d.
-		input_event->menu_global_mouse_position = input_event->mouse_position;
+		input_event->_menu_mouse_position = input_event->get_mouse_position();
 
 		// route mouse move event to appropriate control.
 		// do this before picking controls under the mouse, because this lets controls update in response to drag and drop operations.
 		// which can change the mouse pick result.
-		if ( input_event->type == input_event_c::type_e_mouse_move )
+		if ( input_event->get_type() == input_event_c::type_e_mouse_move )
 		{
 			if ( _mouse_focused )
 			{
@@ -184,7 +187,7 @@ namespace cheonsa
 		// update mouse overed and mouse focused.
 		menu_control_c * original_mouse_focused = _mouse_focused;
 		_pick_control( input_event, _mouse_overed );
-		boolean_c is_any_mouse_key_down = input_event->mouse_keys_state[ input_mouse_key_e_left ] || input_event->mouse_keys_state[ input_mouse_key_e_right ] || input_event->mouse_keys_state[ input_mouse_key_e_middle ];
+		boolean_c is_any_mouse_key_down = input_event->get_mouse_key_state( input_mouse_key_e_left ) || input_event->get_mouse_key_state( input_mouse_key_e_right ) || input_event->get_mouse_key_state( input_mouse_key_e_middle );
 		if ( !is_any_mouse_key_down )
 		{
 			_pick_control( input_event, _mouse_overed );
@@ -210,10 +213,10 @@ namespace cheonsa
 		}
 
 		// route other events to appropriate control.
-		if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
+		if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 		{
 			boolean_c do_multi_click = false;
-			if ( input_event->mouse_key == input_mouse_key_e_left || input_event->mouse_key == input_mouse_key_e_right || input_event->mouse_key == input_mouse_key_e_middle )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left || input_event->get_mouse_key() == input_mouse_key_e_right || input_event->get_mouse_key() == input_mouse_key_e_middle )
 			{
 				if ( _text_focused != _mouse_focused )
 				{
@@ -222,13 +225,13 @@ namespace cheonsa
 			}
 			if ( _mouse_focused )
 			{
-				if ( input_event->mouse_key == input_mouse_key_e_left )
+				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 				{
 					_mouse_focused->_is_pressed = true;
 					_mouse_focused->_on_is_pressed_changed();
 					if ( _multi_click_control != _mouse_focused ||
-						ops::length_squared_float32( input_event->mouse_position - _multi_click_position ) > _get_multi_click_space() ||
-						( static_cast< float64_c >( input_event->time - _multi_click_time ) / static_cast< float64_c >( ops::time_get_high_resolution_timer_frequency() ) ) > _get_multi_click_time() )
+						ops::length_squared_float32( input_event->get_mouse_position() - _multi_click_position ) > _get_multi_click_space() ||
+						( static_cast< float64_c >( input_event->get_time() - _multi_click_time ) / static_cast< float64_c >( ops::time_get_high_resolution_timer_frequency() ) ) > _get_multi_click_time() )
 					{
 						_multi_click_count = 1;
 					}
@@ -241,11 +244,11 @@ namespace cheonsa
 						}
 					}
 					_multi_click_control = _mouse_focused;
-					_multi_click_time = input_event->time;
-					_multi_click_position = input_event->mouse_position;
+					_multi_click_time = input_event->get_time();
+					_multi_click_position = input_event->get_mouse_position();
 					if ( _multi_click_count != 1 )
 					{
-						input_event->multi_click_count = _multi_click_count;
+						input_event->_menu_multi_click_count = _multi_click_count;
 						_mouse_focused->_on_multi_clicked( input_event );
 					}
 					else
@@ -255,20 +258,20 @@ namespace cheonsa
 				}
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_released )
 		{
 			if ( _mouse_focused )
 			{
-				if ( input_event->mouse_key == input_mouse_key_e_left )
+				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 				{
 					_mouse_focused->_is_pressed = false;
 					_mouse_focused->_on_is_pressed_changed();
 				}
 				_bubble_input_event( _mouse_focused, input_event );
 			}
-			if ( input_event->mouse_key == input_mouse_key_e_left || input_event->mouse_key == input_mouse_key_e_right || input_event->mouse_key == input_mouse_key_e_middle )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left || input_event->get_mouse_key() == input_mouse_key_e_right || input_event->get_mouse_key() == input_mouse_key_e_middle )
 			{
-				if ( original_mouse_focused && original_mouse_focused == _mouse_overed && input_event->mouse_key == input_mouse_key_e_left )
+				if ( original_mouse_focused && original_mouse_focused == _mouse_overed && input_event->get_mouse_key() == input_mouse_key_e_left )
 				{
 					if ( _multi_click_count == 1 )
 					{
@@ -277,7 +280,7 @@ namespace cheonsa
 				}
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_wheel )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 		{
 			_bubble_input_event( _mouse_overed, input_event );
 		}
@@ -396,6 +399,7 @@ namespace cheonsa
 		update_canvas();
 
 		// process input events.
+		engine.get_input_manager()->_update_action_snapshot_states();
 		boolean_c wants_to_refresh_resources = false;
 		core_list_c< input_event_c > & input_events = engine.get_input_manager()->get_events();
 		for ( sint32_c i = 0; i < input_events.get_length(); i++ )
@@ -403,21 +407,21 @@ namespace cheonsa
 			input_event_c & input_event = input_events[ i ];
 
 			// check for engine hot keys.
-			if ( input_event.type == input_event_c::type_e_keyboard_key_pressed )
+			if ( input_event.get_type() == input_event_c::type_e_keyboard_key_pressed )
 			{
-				if ( input_event.keyboard_key == debug_key_toggle_console )
+				if ( input_event.get_keyboard_key() == debug_key_toggle_console )
 				{
 					engine.get_debug_manager()->set_console_is_showing( !engine.get_debug_manager()->get_console_is_showing() );
 				}
-				else if ( input_event.keyboard_key == debug_key_toggle_stats )
+				else if ( input_event.get_keyboard_key() == debug_key_toggle_stats )
 				{
 					engine.get_debug_manager()->set_statistics_is_showing( !engine.get_debug_manager()->get_statistics_is_showing() );
 				}
-				else if ( input_event.keyboard_key == debug_key_toggle_menu_bounds )
+				else if ( input_event.get_keyboard_key() == debug_key_toggle_menu_bounds )
 				{
 					engine.get_debug_manager()->set_draw_menu_bounds( !engine.get_debug_manager()->get_draw_menu_bounds() );
 				}
-				else if ( input_event.keyboard_key == debug_key_refresh_resources )
+				else if ( input_event.get_keyboard_key() == debug_key_refresh_resources )
 				{
 					wants_to_refresh_resources = true;
 				}

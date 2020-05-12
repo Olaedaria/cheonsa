@@ -784,7 +784,7 @@ namespace cheonsa
 		void_c _update_world_transforms(); // builds world space transforms of all bones, and attachments, and lights, based on their local space transforms and inheritance.
 		virtual void_c _handle_before_removed_from_scene(); // is called when the scene object is added to a scene. the scene may or may not already be associated with the engine's user interface at this point.
 		virtual void_c _handle_after_added_to_scene(); // is called when the scene object is removed from a scene. the scene may or may not already be associated with the engine's user interface at this point.
-		virtual void_c _handle_on_world_space_transform_changed( transform3d_c const & old_world_space_transform, transform3d_c const & new_world_space_transform ) override;
+		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
 		scene_component_model_c();
 

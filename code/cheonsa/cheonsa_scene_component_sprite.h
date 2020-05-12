@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa_scene_component.h"
-#include "cheonsa_resource_file_sprites.h"
+#include "cheonsa_resource_file_sprite.h"
 #include "cheonsa_video_interface.h"
 
 namespace cheonsa
@@ -18,7 +18,7 @@ namespace cheonsa
 		virtual inline uint8_c get_type_code() const override { return get_type_code_static(); }
 
 	private:
-		resource_file_sprites_c::reference_c _sprite_sheet_resource;
+		resource_file_sprite_c::reference_c _sprite_sheet_resource;
 		scene_material_c _material;
 
 		float32_c _opacity;

@@ -7,7 +7,7 @@
 #include "cheonsa_network.h"
 #include "cheonsa_time_date_gregorian.h"
 #include "cheonsa_resource_file_font.h" // to manage global glyph cache.
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 
 #if defined( cheonsa_platform_windows )
 #include <Windows.h>

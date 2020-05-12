@@ -1,12 +1,15 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_audio2.h"
 
 namespace cheonsa
 {
 
+	// loads ".wav" and ".ogg" files.
+	// any bit rate should work.
+	// any channel count should work, but i have only tested with mono and stereo.
 	class resource_file_sound_c
 		: public resource_file_c
 	{

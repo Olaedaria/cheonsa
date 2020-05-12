@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_stream.h"
 
@@ -18,7 +18,8 @@ namespace cheonsa
 		virtual ~data_stream_file_c() override;
 
 		// the file path must be absolute and must be formatted with the operating system's native path format.
-		// if stream_mode == stream_mode_write_e, then a new file will be created. if it already exists, then it will be over written.
+		// if stream_mode == data_stream_mode_e_write, then a new file will be created. if it already exists, then it will be over written.
+		// if stream_mode == data_stream_mode_e_read, then it will try to open an existing file.
 		boolean_c open( string16_c const & file_path, data_stream_mode_e const stream_mode );
 		void_c close();
 

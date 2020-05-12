@@ -487,8 +487,6 @@
     <ClInclude Include="cheonsa_resource_file_model.h" />
     <ClInclude Include="cheonsa_resource_file_texture.h" />
     <ClInclude Include="cheonsa_resource_file_sound.h" />
-    <ClInclude Include="cheonsa__types.h" />
-    <ClInclude Include="cheonsa__ops.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
     <ClInclude Include="cheonsa_core_safe_reference_counter.h" />
@@ -514,8 +512,12 @@
     <ClInclude Include="cheonsa_resource_file_materials.h" />
     <ClInclude Include="cheonsa_sprite.h" />
     <ClInclude Include="cheonsa_scene_component_ridgid_body.h" />
-    <ClInclude Include="cheonsa_resource_file_sprites.h" />
     <ClInclude Include="cheonsa_physics_ridgid_body.h" />
+    <ClInclude Include="cheonsa_ops.h" />
+    <ClInclude Include="cheonsa_types.h" />
+    <ClInclude Include="cheonsa_resource_file_sprite.h" />
+    <ClInclude Include="cheonsa_physics_collision_object.h" />
+    <ClInclude Include="cheonsa_scene_component_collision_object.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -622,8 +624,6 @@
     <ClCompile Include="cheonsa_resource_file_model.cpp" />
     <ClCompile Include="cheonsa_resource_file_texture.cpp" />
     <ClCompile Include="cheonsa_resource_file_sound.cpp" />
-    <ClCompile Include="cheonsa__types.cpp" />
-    <ClCompile Include="cheonsa__ops.cpp" />
     <ClCompile Include="cheonsa_debug_manager.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_core_safe_reference_counter.cpp" />
@@ -645,7 +645,11 @@
     <ClCompile Include="cheonsa_scene_object.cpp" />
     <ClCompile Include="cheonsa_resource_file_materials.cpp" />
     <ClCompile Include="cheonsa_scene_component_ridgid_body.cpp" />
-    <ClCompile Include="cheonsa_resource_file_sprites.cpp" />
     <ClCompile Include="cheonsa_physics_ridgid_body.cpp" />
+    <ClCompile Include="cheonsa_ops.cpp" />
+    <ClCompile Include="cheonsa_types.cpp" />
+    <ClCompile Include="cheonsa_resource_file_sprite.cpp" />
+    <ClCompile Include="cheonsa_physics_collision_object.cpp" />
+    <ClCompile Include="cheonsa_scene_component_collision_object.cpp" />
   </ItemGroup>
 </Project>

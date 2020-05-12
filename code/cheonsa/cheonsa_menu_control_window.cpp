@@ -33,11 +33,11 @@ namespace cheonsa
 
 	void_c menu_control_window_c::_on_input( input_event_c * input_event )
 	{
-		vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+		vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
 
-		if ( input_event->type == input_event_c::type_e_mouse_key_pressed )
+		if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 		{
-			if ( input_event->mouse_key == input_mouse_key_e_left )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 			{
 				if ( _user_can_resize )
 				{
@@ -92,27 +92,27 @@ namespace cheonsa
 				}
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_key_released )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_released )
 		{
-			if ( input_event->mouse_key == input_mouse_key_e_left )
+			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 			{
 				_grabbed_element = grabbed_element_e_none;
 				_update_transform_and_layout();
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_move && _grabbed_element != grabbed_element_e_none )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_move && _grabbed_element != grabbed_element_e_none )
 		{
 			//vector32x2_c menu_mouse_position_local = transform_point_from_global_to_local( input_event->menu_mouse_position );
 			if ( _grabbed_element == grabbed_element_e_title_bar )
 			{
-				_local_origin = input_event->menu_global_mouse_position - _grabbed_point_local;
+				_local_origin = input_event->get_menu_mouse_position() - _grabbed_point_local;
 				_update_transform_and_layout();
 			}
 			else
 			{
 				if ( _grabbed_element & grabbed_element_e_edge_left )
 				{
-					float32_c left = input_event->menu_global_mouse_position.a - _grabbed_point_local.a;
+					float32_c left = input_event->get_menu_mouse_position().a - _grabbed_point_local.a;
 					float32_c right = _local_origin.a + _local_box.maximum.a;
 					float32_c width = right - left;
 					if ( width < _minimum_size.a )
@@ -128,7 +128,7 @@ namespace cheonsa
 				}
 				else if ( _grabbed_element & grabbed_element_e_edge_right )
 				{
-					float32_c width = input_event->menu_global_mouse_position.a + _grabbed_point_local.a - _local_origin.a;
+					float32_c width = input_event->get_menu_mouse_position().a + _grabbed_point_local.a - _local_origin.a;
 					if ( width < _minimum_size.a )
 					{
 						width = _minimum_size.a;
@@ -141,7 +141,7 @@ namespace cheonsa
 				}
 				if ( _grabbed_element & grabbed_element_e_edge_top )
 				{
-					float32_c top = input_event->menu_global_mouse_position.b - _grabbed_point_local.b;
+					float32_c top = input_event->get_menu_mouse_position().b - _grabbed_point_local.b;
 					float32_c bottom = _local_origin.b + _local_box.maximum.b;
 					float32_c height = bottom - top;
 					if ( height < _minimum_size.b )
@@ -157,7 +157,7 @@ namespace cheonsa
 				}
 				else if ( _grabbed_element & grabbed_element_e_edge_bottom )
 				{
-					float32_c height = input_event->menu_global_mouse_position.b + _grabbed_point_local.b - _local_origin.b;
+					float32_c height = input_event->get_menu_mouse_position().b + _grabbed_point_local.b - _local_origin.b;
 					if ( height < _minimum_size.b )
 					{
 						height = _minimum_size.b;

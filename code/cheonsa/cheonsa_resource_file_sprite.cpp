@@ -1,34 +1,34 @@
-#include "cheonsa_resource_file_sprites.h"
+#include "cheonsa_resource_file_sprite.h"
 #include "cheonsa_data_scribe_markup.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
 {
 
-	resource_file_sprites_c::frame_c::frame_c()
+	resource_file_sprite_c::frame_c::frame_c()
 		: _box()
 		, _map()
 		, _duration( 0.1f )
 	{
 	}
 
-	box32x2_c const & resource_file_sprites_c::frame_c::get_box() const
+	box32x2_c const & resource_file_sprite_c::frame_c::get_box() const
 	{
 		return _box;
 	}
 
-	box32x2_c const & resource_file_sprites_c::frame_c::get_map() const
+	box32x2_c const & resource_file_sprite_c::frame_c::get_map() const
 	{
 		return _map;
 	}
 
-	float32_c resource_file_sprites_c::frame_c::get_duration() const
+	float32_c resource_file_sprite_c::frame_c::get_duration() const
 	{
 		return _duration;
 	}
 
-	resource_file_sprites_c::animation_c::animation_c()
+	resource_file_sprite_c::animation_c::animation_c()
 		: _name()
 		, _texture_resource()
 		, _font_size( 10.0f )
@@ -37,32 +37,32 @@ namespace cheonsa
 	{
 	}
 
-	string8_c const & resource_file_sprites_c::animation_c::get_name() const
+	string8_c const & resource_file_sprite_c::animation_c::get_name() const
 	{
 		return _name;
 	}
 
-	resource_file_texture_c * resource_file_sprites_c::animation_c::get_texture_resource() const
+	resource_file_texture_c * resource_file_sprite_c::animation_c::get_texture_resource() const
 	{
 		return _texture_resource;
 	}
 
-	float32_c resource_file_sprites_c::animation_c::get_font_size() const
+	float32_c resource_file_sprite_c::animation_c::get_font_size() const
 	{
 		return _font_size;
 	}
 
-	float32_c resource_file_sprites_c::animation_c::get_font_horizontal_advance() const
+	float32_c resource_file_sprite_c::animation_c::get_font_horizontal_advance() const
 	{
 		return _font_horizontal_advance;
 	}
 
-	core_list_c< resource_file_sprites_c::frame_c > const & resource_file_sprites_c::animation_c::get_frame_list() const
+	core_list_c< resource_file_sprite_c::frame_c > const & resource_file_sprite_c::animation_c::get_frame_list() const
 	{
 		return _frame_list;
 	}
 
-	void_c resource_file_sprites_c::_load( data_stream_c * stream )
+	void_c resource_file_sprite_c::_load( data_stream_c * stream )
 	{
 		assert( stream != nullptr );
 		assert( _is_loaded == false );
@@ -73,11 +73,17 @@ namespace cheonsa
 			return;
 		}
 
+		data_scribe_markup_c::node_c const * animations_tag = markup.get_node( 0 )->find_tag( "sprite" );
 		core_list_c< data_scribe_markup_c::node_c const * > animation_tag_list;
 		core_list_c< data_scribe_markup_c::node_c const * > frame_tag_list;
 		data_scribe_markup_c::attribute_c const * attribute = nullptr;
 
-		markup.get_node( 0 )->find_tags( "animation", animation_tag_list );
+		if ( !animations_tag )
+		{
+			return;
+		}
+
+		animations_tag->find_tags( "animation", animation_tag_list );
 		_animation_list.set_length_absolute( animation_tag_list.get_length() );
 		for ( sint32_c i = 0; i < animation_tag_list.get_length(); i++ )
 		{
@@ -144,7 +150,7 @@ namespace cheonsa
 		on_loaded.invoke( this );
 	}
 
-	void_c resource_file_sprites_c::_unload()
+	void_c resource_file_sprite_c::_unload()
 	{
 		assert( _is_loaded == true );
 
@@ -155,13 +161,13 @@ namespace cheonsa
 		_animation_list.remove_all();
 	}
 
-	resource_file_sprites_c::resource_file_sprites_c( string16_c const & file_path )
+	resource_file_sprite_c::resource_file_sprite_c( string16_c const & file_path )
 		: resource_file_c( file_path )
 		, _animation_list()
 	{
 	}
 
-	resource_file_sprites_c::animation_c const * resource_file_sprites_c::find_animation( string8_c const & name )
+	resource_file_sprite_c::animation_c const * resource_file_sprite_c::find_animation( string8_c const & name )
 	{
 		for ( sint32_c i = 0; i < _animation_list.get_length(); i++ )
 		{

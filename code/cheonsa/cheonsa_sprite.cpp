@@ -44,7 +44,7 @@ namespace cheonsa
 			_frame_time += time_step;
 			while ( _frame_time >= _animation->get_frame_list()[ _frame_index ].get_duration() )
 			{
-				resource_file_sprites_c::frame_c const & frame = _animation->get_frame_list()[ _frame_index ];
+				resource_file_sprite_c::frame_c const & frame = _animation->get_frame_list()[ _frame_index ];
 				if ( frame.get_duration() == 0.0f ) // this frame lasts forever.
 				{
 					return;
@@ -64,12 +64,12 @@ namespace cheonsa
 		}
 	}
 
-	resource_file_sprites_c * sprite_c::get_sprite_sheet_resource() const
+	resource_file_sprite_c * sprite_c::get_sprite_sheet_resource() const
 	{
 		return _sprite_sheet_resource;
 	}
 
-	void_c sprite_c::set_sprite_sheet_resource( resource_file_sprites_c * value )
+	void_c sprite_c::set_sprite_sheet_resource( resource_file_sprite_c * value )
 	{
 		if ( _sprite_sheet_resource )
 		{
@@ -106,12 +106,12 @@ namespace cheonsa
 		_frame_time = 0.0f;
 	}
 
-	resource_file_sprites_c::animation_c const * sprite_c::get_animation() const
+	resource_file_sprite_c::animation_c const * sprite_c::get_animation() const
 	{
 		return _animation;
 	}
 
-	resource_file_sprites_c::frame_c const * sprite_c::get_frame() const
+	resource_file_sprite_c::frame_c const * sprite_c::get_frame() const
 	{
 		if ( _animation )
 		{

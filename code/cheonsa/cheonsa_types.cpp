@@ -1,5 +1,5 @@
-#include "cheonsa__types.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_types.h"
+#include "cheonsa_ops.h"
 #include <cassert>
 
 namespace cheonsa

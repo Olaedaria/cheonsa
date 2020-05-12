@@ -1,14 +1,16 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_data_scribe_markup.h"
 
 namespace cheonsa
 {
 
-	// enables a markup file to define the appearance and layout of a menu.
-	// it can't define any of the contents or logic, all of that has to be hard coded by the game.
+	// can load ".menu.layout.xml" files.
+	// (file extension is a suggestion, you may deviate from it).
+	// a menu layout file defines the layout and appearance (style map assignments) of a hierarchy of menu controls.
+	// it does not define any of the contents or logic of the menu controls, all of that is hard-coded and is not data-driven.
 	class resource_file_menu_layout_c
 		: public resource_file_c
 	{

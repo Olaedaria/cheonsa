@@ -2,7 +2,7 @@
 #include "cheonsa_data_scribe_markup.h"
 #include "cheonsa_user_interface.h"
 #include "cheonsa_engine.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 
 namespace cheonsa
 {
@@ -21,7 +21,7 @@ namespace cheonsa
 	void_c menu_control_text_c::_on_multi_clicked( input_event_c * input_event )
 	{
 		_element_text.handle_on_multi_clicked( input_event );
-		if ( input_event->multi_click_count == 3 )
+		if ( input_event->get_menu_multi_click_count() == 3 )
 		{
 			_user_interface->reset_multi_click_detection();
 		}

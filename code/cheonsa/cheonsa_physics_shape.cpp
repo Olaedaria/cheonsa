@@ -1,5 +1,5 @@
 #include "cheonsa_physics_shape.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "btBulletCollisionCommon.h"
 #include <cassert>
 
@@ -226,6 +226,11 @@ namespace cheonsa
 			}
 			_type = physics_shape_type_e_none;
 		}
+	}
+
+	boolean_c physics_shape_c::get_is_initialized() const
+	{
+		return _bullet_shape != nullptr;
 	}
 
 	transform3d_c const & physics_shape_c::get_frame() const

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_dictionary.h"
@@ -10,7 +10,7 @@
 #include "cheonsa_resource_file_materials.h"
 #include "cheonsa_resource_file_menu_layout.h"
 #include "cheonsa_resource_file_model.h"
-#include "cheonsa_resource_file_sprites.h"
+#include "cheonsa_resource_file_sprite.h"
 #include "cheonsa_resource_file_texture.h"
 #include "cheonsa_platform_thread.h"
 #include "cheonsa_platform_critical_section.h"
@@ -55,7 +55,7 @@ namespace cheonsa
 		resource_file_materials_c * load_materials( string16_c const & relative_file_path, boolean_c load_now = true );
 		resource_file_menu_layout_c * load_menu_layout( string16_c const & relative_file_path, boolean_c load_now = true );
 		resource_file_model_c * load_model( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_sprites_c * load_sprites( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_sprite_c * load_sprites( string16_c const & relative_file_path, boolean_c load_now = true );
 		resource_file_texture_c * load_texture( string16_c const & relative_file_path, boolean_c load_now = true );
 
 	};

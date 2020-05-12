@@ -2,7 +2,7 @@
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
 #include "cheonsa_user_interface.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 
 namespace cheonsa
 {
@@ -129,10 +129,9 @@ namespace cheonsa
 			_interval_counter += time_step;
 			if ( _interval_counter >= _interval )
 			{
-				audio2_scene_listener_c * scene_listener = _scene_object->get_scene()->get_audio_scene()->get_scene_listener();
-				if ( _audio_scene_source->get_wave_player()->get_appears_to_be_playing() == false && scene_listener != nullptr )
+				if ( _audio_scene_source->get_wave_player()->get_appears_to_be_playing() == false )
 				{
-					float32_c distance_squared = ops::length_squared_float32( vector32x3_c( _scene_object->get_world_space_position() - scene_listener->get_world_space_position() ) );
+					float32_c distance_squared = ops::length_squared_float32( vector32x3_c( _scene_object->get_world_space_transform().position - _scene_object->get_scene()->get_audio_scene()->get_scene_listener_world_space_position() ) );
 					float32_c effective_range_squared = _audio_scene_source->get_effective_range_squared();
 					if ( distance_squared <= effective_range_squared )
 					{

@@ -8,7 +8,7 @@
 #include "cheonsa_scene_component_sprite.h"
 #include "cheonsa_scene_component_sound.h"
 #include "cheonsa_scene_component_menu_control.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa

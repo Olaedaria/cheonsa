@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa___build_configuration.h"
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_data_types.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"

@@ -1,6 +1,6 @@
 #include "cheonsa_resource_manager.h"
 #include "cheonsa_data_stream_file.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -132,9 +132,9 @@ namespace cheonsa
 		return _load< resource_file_model_c >( relative_file_path, load_now );
 	}
 	
-	resource_file_sprites_c * resource_manager_c::load_sprites( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_sprite_c * resource_manager_c::load_sprites( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_sprites_c >( relative_file_path, load_now );
+		return _load< resource_file_sprite_c >( relative_file_path, load_now );
 	}
 
 	resource_file_texture_c * resource_manager_c::load_texture( string16_c const & relative_file_path, boolean_c load_now )

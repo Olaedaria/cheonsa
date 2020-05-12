@@ -45,12 +45,12 @@ namespace cheonsa
 		}
 	}
 
-	void_c scene_object_c::_handle_world_space_transform_modified( transform3d_c const & old_world_space_transform )
+	void_c scene_object_c::_handle_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator )
 	{
 		core_linked_list_c< scene_component_c * >::node_c const * scene_component_list_node = _scene_component_list.get_first();
 		while ( scene_component_list_node )
 		{
-			scene_component_list_node->get_value()->_handle_on_world_space_transform_changed( old_world_space_transform, _world_space_transform );
+			scene_component_list_node->get_value()->_handle_on_world_space_transform_modified( old_world_space_transform, initiator );
 			scene_component_list_node = scene_component_list_node->get_next();
 		}
 	}
@@ -110,47 +110,32 @@ namespace cheonsa
 		return _world_space_transform;
 	}
 
-	void_c scene_object_c::set_world_space_transform( transform3d_c const & value )
+	void_c scene_object_c::set_world_space_transform( transform3d_c const & value, scene_component_c * who )
 	{
 		transform3d_c old_world_space_transform = _world_space_transform;
 		_world_space_transform = value;
-		_handle_world_space_transform_modified( old_world_space_transform );
+		_handle_world_space_transform_modified( old_world_space_transform, who );
 	}
 
-	vector64x3_c const & scene_object_c::get_world_space_position() const
-	{
-		return _world_space_transform.position;
-	}
-
-	void_c scene_object_c::set_world_space_position( vector64x3_c const & value )
+	void_c scene_object_c::set_world_space_position( vector64x3_c const & value, scene_component_c * who )
 	{
 		transform3d_c old_world_space_transform = _world_space_transform;
 		_world_space_transform.position = value;
-		_handle_world_space_transform_modified( old_world_space_transform );
+		_handle_world_space_transform_modified( old_world_space_transform, who );
 	}
 
-	quaternion32_c const & scene_object_c::get_world_space_rotation() const
-	{
-		return _world_space_transform.rotation;
-	}
-
-	void_c scene_object_c::set_world_space_rotation( quaternion32_c const & value )
+	void_c scene_object_c::set_world_space_rotation( quaternion32_c const & value, scene_component_c * who )
 	{
 		transform3d_c old_world_space_transform = _world_space_transform;
 		_world_space_transform.rotation = value;
-		_handle_world_space_transform_modified( old_world_space_transform );
+		_handle_world_space_transform_modified( old_world_space_transform, who );
 	}
 
-	vector32x3_c const & scene_object_c::get_world_space_scale() const
-	{
-		return _world_space_transform.scale;
-	}
-
-	void_c scene_object_c::set_world_space_scale( vector32x3_c const & value )
+	void_c scene_object_c::set_world_space_scale( vector32x3_c const & value, scene_component_c * who )
 	{
 		transform3d_c old_world_space_transform = _world_space_transform;
 		_world_space_transform.scale = value;
-		_handle_world_space_transform_modified( old_world_space_transform );
+		_handle_world_space_transform_modified( old_world_space_transform, who );
 	}
 
 	void_c scene_object_c::add_component( scene_component_c * component )

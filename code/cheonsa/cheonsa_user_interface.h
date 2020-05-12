@@ -49,7 +49,7 @@ namespace cheonsa
 
 		video_renderer_canvas_c * _canvas_and_output; // canvas and output associated with operating system window that this user interface will render to.
 
-		scene_c * _scene; // this scene needs to be set by the game. it will be the world that the user experiences.
+		scene_c * _scene; // this scene needs to be set by the game. it will be the world that the user experiences. this scene is rendered behind all of the 2d menus.
 
 		core_linked_list_c< menu_control_c * > _control_list; // list of root level menu controls. this contains 2d and 3d controls. for 2d controls, controls that are placed towards the end of the list appear layered in front of controls that come before. for 3d controls, they may appear anywhere in the list and order is irrelevant.
 
@@ -102,6 +102,7 @@ namespace cheonsa
 
 		// controls that do not respond to multi-clicks should call this in their _on_clicked() method.
 		// controls that do respond to multi-clicks should call this in their _on_multi_clicked() method when the multi-click count is equal to the maximum multi-click count that the control is programmed to respond to.
+		// this allows multi-click response behavior to wrap around (cycle) indefinitely.
 		void_c reset_multi_click_detection();
 
 		boolean_c has_text_focus(); // returns true if this menu context has text input focus.

@@ -1,9 +1,10 @@
 #include "cheonsa_physics_scene.h"
 #include "cheonsa_physics_shape.h"
+#include "cheonsa_physics_collision_object.h"
 #include "cheonsa_physics_ridgid_body.h"
 #include "cheonsa_physics_constraint.h"
 #include "cheonsa_physics_bullet_debug_drawer.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 #include "btBulletDynamicsCommon.h"
 
@@ -20,8 +21,7 @@ namespace cheonsa
 	//}
 
 	physics_scene_c::physics_scene_c()
-		: _gravity( 0.0f, 0.0f, -9.81f )
-		, _wind_direction( 0.0f, -1.0f, 0.0f )
+		: _wind_direction( 0.0f, -1.0f, 0.0f )
 		, _wind_speed( 1.0f )
 		, _wind_offset( 0.0f )
 		, _wind_period( 6.0f )
@@ -32,6 +32,7 @@ namespace cheonsa
 		, _bullet_collision_broad_phase( nullptr )
 		, _bullet_collision_dispatcher( nullptr )
 		, _bullet_debug_drawer( nullptr )
+		, _bullet_aabbs_are_dirty( false )
 		, _reference_count( 0 )
 	{
 		_bullet_collision_broad_phase = new btDbvtBroadphase(); //_bullet_collision_broad_phase->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() ); // i don't remember what this does
@@ -42,6 +43,7 @@ namespace cheonsa
 		_bullet_debug_drawer = new physics_bullet_debug_drawer_c();
 		_bullet_debug_drawer->setDebugMode( btIDebugDraw::DBG_DrawWireframe );
 		_bullet_dynamic_world->setDebugDrawer( _bullet_debug_drawer );
+		_bullet_dynamic_world->setGravity( btVector3( 0.0f, 0.0f, -9.80665f ) );
 	}
 
 	physics_scene_c::~physics_scene_c()
@@ -78,7 +80,6 @@ namespace cheonsa
 
 	void_c physics_scene_c::copy_properties_from( physics_scene_c * other )
 	{
-		_gravity = other->_gravity;
 		_wind_direction = other->_wind_direction;
 		_wind_speed = other->_wind_speed;
 		_wind_offset = other->_wind_offset;
@@ -94,8 +95,12 @@ namespace cheonsa
 		//_WindDirection.Z = 0.0f;
 		//_WindOffset += _WindWaveSpeed * time_step;
 
+		if ( _bullet_aabbs_are_dirty )
+		{
+			update_aabbs();
+		}
+
 		_wind_offset += _wind_speed * update_time_step;
-		_bullet_dynamic_world->setGravity( btVector3( _gravity.a, _gravity.b, _gravity.c ) );
 		_bullet_dynamic_world->stepSimulation( update_time_step, 0 ); // this stepSimulation makes bullet update the physics simulation by time_step amount. this is a fixed time step update, as indicated by passing 0 for maxSubSteps.
 	}
 
@@ -123,9 +128,19 @@ namespace cheonsa
 	//	update_aabbs();
 	//}
 
-	void_c physics_scene_c::update_aabbs()
+	
+
+	void_c physics_scene_c::add_collision_object( physics_collision_object_c * collision_object )
 	{
-		_bullet_dynamic_world->updateAabbs();
+		collision_object->add_reference();
+		_bullet_dynamic_world->addCollisionObject( collision_object->_bullet_collision_object );
+		_bullet_aabbs_are_dirty = true;
+	}
+
+	void_c physics_scene_c::remove_collision_object( physics_collision_object_c * collision_object )
+	{
+		_bullet_dynamic_world->removeCollisionObject( collision_object->_bullet_collision_object );
+		collision_object->remove_reference();
 	}
 
 	void_c physics_scene_c::add_rigid_body( physics_rigid_body_c * rigid_body )
@@ -142,8 +157,8 @@ namespace cheonsa
 		assert( rigid_body );
 		assert( rigid_body->_bullet_rigid_body );
 		assert( rigid_body->_bullet_rigid_body->getWorldArrayIndex() >= 0 );
-		rigid_body->remove_reference();
 		_bullet_dynamic_world->removeRigidBody( rigid_body->_bullet_rigid_body );
+		rigid_body->remove_reference();
 	}
 
 	void_c physics_scene_c::add_constraint( physics_constraint_c * constraint )
@@ -158,8 +173,14 @@ namespace cheonsa
 	{
 		assert( constraint );
 		assert( constraint->_bullet_constraint );
-		constraint->remove_reference();
 		_bullet_dynamic_world->removeConstraint( constraint->_bullet_constraint );
+		constraint->remove_reference();
+	}
+
+	void_c physics_scene_c::update_aabbs()
+	{
+		_bullet_dynamic_world->updateAabbs();
+		_bullet_aabbs_are_dirty = false;
 	}
 
 	void_c physics_scene_c::find_all_hits( physics_sweep_test_result_c & result, uint16_c collision_layer, uint16_c collision_layer_mask, vector64x3_c const & sweep_start, vector64x3_c const & sweep_end )
@@ -249,16 +270,21 @@ namespace cheonsa
 		return _wind_direction * _wind_speed;
 	}
 
-	vector64x3_c physics_scene_c::sample_gravity_force( vector64x3_c const & point )
+	vector64x3_c physics_scene_c::get_gravity() const
 	{
-		return _gravity;
+		btVector3 gravity = _bullet_dynamic_world->getGravity();
+		return vector64x3_c( gravity.x(), gravity.y(), gravity.z() );
 	}
 
-	vector64x3_c physics_scene_c::sample_up( vector64x3_c const & point )
+	void_c physics_scene_c::set_gravity( vector64x3_c const & value )
 	{
-		// at some point we can a planet or planets to do the gravity calculation.
-		// for now though the world is flat.
-		return ops::normal_vector64x3( -_gravity );
+		_bullet_dynamic_world->setGravity( btVector3( value.a, value.b, value.c ) );
+		_up = -vector32x3_c( ops::normal_vector64x3( value ) );
+	}
+
+	vector32x3_c physics_scene_c::get_up( vector64x3_c const & point )
+	{
+		return _up;
 	}
 
 }

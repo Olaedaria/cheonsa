@@ -1,29 +1,15 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa___build_configuration.h"
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_event.h"
 #include "cheonsa_string8.h"
+#include "cheonsa_string16.h"
 #include "cheonsa_string.h"
 
 namespace cheonsa
 {
-
-	//// used to update frame interval (frame rate dependent) sampling of inputs.
-	//// in the case that some games want to process inputs once per frame instead of once per input event.
-	//enum input_key_state_bit_e : uint8_c
-	//{
-	//	input_key_state_bit_e_off = 0x00, // key is off; not pressed, not held, or not released.
-	//	input_key_state_bit_e_on = 0x01, // key is on; pressed or held, and not released.
-	//	input_key_state_bit_e_pressed = 0x04, // this bit is set for the input event that the key state changes from off to on. when this bit is set, then the on bit will be set.
-	//	input_key_state_bit_e_released = 0x08 // this bit is set for the input event that the key state changes from on to off. when this bit is set, then the on bit will not be changed until the next frame where it will be unset.
-	//};
-
-	//inline input_key_state_bit_e operator | ( input_key_state_bit_e a, input_key_state_bit_e b )
-	//{
-	//	return static_cast< input_key_state_bit_e >( static_cast< uint8_c >( a ) | static_cast< uint8_c >( b ) );
-	//}
 
 	enum input_mouse_mode_e : uint8_c
 	{
@@ -31,18 +17,7 @@ namespace cheonsa
 		input_mouse_mode_e_relative // mouse * is invisible and it's position is centered, but position_delta and PositionDeltaSmooth values are still updated.
 	};
 
-	enum input_modifier_key_e
-	{
-		input_modifier_key_e_none,
-
-		input_modifier_key_e_shift,
-		input_modifier_key_e_ctrl,
-		input_modifier_key_e_alt,
-
-		input_modifier_key_e_count_
-	};
-
-	enum input_modifier_flag_e
+	enum input_modifier_flag_e : uint8_c
 	{
 		input_modifier_flag_e_none = 0x00,
 		input_modifier_flag_e_shift = 0x01,
@@ -50,7 +25,7 @@ namespace cheonsa
 		input_modifier_flag_e_alt = 0x04
 	};
 
-	enum input_mouse_key_e
+	enum input_mouse_key_e : uint8_c
 	{
 		input_mouse_key_e_none,
 
@@ -63,7 +38,7 @@ namespace cheonsa
 		input_mouse_key_e_count_
 	};
 
-	enum input_keyboard_key_e
+	enum input_keyboard_key_e : uint8_c
 	{
 		input_keyboard_key_e_none,
 
@@ -206,9 +181,10 @@ namespace cheonsa
 	};
 
 	// maps to virtual keys in xinput input events.
+	// these are virtual because some of these include interpreting analog inputs as binary inputs.
 	// a little redundant with input_gamepad_button_e.
 	// these are used with input events.
-	enum input_gamepad_key_e
+	enum input_gamepad_key_e : uint8_c
 	{
 		input_gamepad_key_e_none = 0x00,
 
@@ -285,7 +261,7 @@ namespace cheonsa
 		vector32x2_c _left_stick_state_with_dead_zone;
 		vector32x2_c _right_stick_state_with_dead_zone;
 
-		void_c _make_dead_zone();
+		void_c _cap_length_and_make_dead_zone();
 
 	public:
 		input_gamepad_state_c();
@@ -303,28 +279,44 @@ namespace cheonsa
 
 	};
 
+	class input_event_c;
+
 	// can be bound to an action in order to invoke that action when the shortcut is triggered.
 	// input actions can be given shortcuts so that they can be invoked at the user's convenience of a key stroke.
 	class input_shortcut_c
 	{
 		friend class input_manager_c;
 
-	private:		
-		input_modifier_flag_e _modifier_flags;
+	private:
+		input_modifier_flag_e _mouse_modifier_flags;
 		input_mouse_key_e _mouse_key;
+
+		input_modifier_flag_e _keyboard_modifier_flags;
 		input_keyboard_key_e _keyboard_key;
+
 		input_gamepad_key_e _gamepad_key;
 
 	public:
 		input_shortcut_c();
-		input_shortcut_c( input_shortcut_c const & ) = delete;
-		input_shortcut_c & operator = ( input_shortcut_c const & ) = delete;
 
-		void_c clear(); // resets this shortcut to nothing.
+		void_c reset(); // resets this shortcut to nothing.
 
-		void_c set_mouse_shortcut( input_mouse_key_e key, input_modifier_flag_e modifier_flags );
-		void_c set_keyboard_shortcut( input_keyboard_key_e key, input_modifier_flag_e modifier_flags );
-		void_c set_gamepad_shortcut( input_gamepad_key_e key, input_modifier_flag_e modifier_flags );
+		input_modifier_flag_e get_mouse_modifier_flags() const;
+		void_c set_mouse_modifier_flags( input_modifier_flag_e value );
+
+		input_mouse_key_e get_mouse_key() const;
+		void_c set_mouse_key( input_mouse_key_e value );
+
+		input_modifier_flag_e get_keyboard_modifier_flags() const;
+		void_c set_keyboard_modifier_flags( input_modifier_flag_e value );
+
+		input_keyboard_key_e get_keyboard_key() const;
+		void_c set_keyboard_key( input_keyboard_key_e value );
+
+		input_gamepad_key_e get_gamepad_key() const;
+		void_c set_gamepad_key( input_gamepad_key_e value );
+
+		boolean_c is_pressed( input_event_c const * input_event ) const; // returns true if the given input event would trigger this shortcut.
 
 		boolean_c operator == ( input_shortcut_c const & other ) const;
 
@@ -333,57 +325,43 @@ namespace cheonsa
 	// games can use this to map controls to actions.
 	// contexts define when the action can be triggered by the shortcut.
 	// this makes it possible for different actions to use the same shortcut and only one of them to be invoked depending on the context.
+	// when the engine's user interface manager processes input events, it 
 	class input_action_c
 	{
 		friend class input_manager_c;
 
-	public:
-		// menu controls and other things can hold references to input actions.
-		// those things can then invoke the action when they are clicked or activated by the user.
-		// those things can also provide feedback to the user when the action is invoked from somewhere else.
-		class reference_c
-		{
-		private:
-			string8_c _key;
-			input_action_c const * _value;
-
-		public:
-			reference_c();
-
-			void_c clear(); // clears _key and _value and invokes on_refreshed.
-
-			string8_c const & get_key() const;
-			void_c set_key( string8_c const & value ); // sets the key, tries to resolve value with key, and invokes on_refreshed.
-
-			input_action_c const * get_value() const;
-
-			core_event_c< void_c, reference_c const * > on_refreshed; // occurs when this reference resolves its value. this is to notify the reference holder (usually a menu control) that the action or shortcut was changed, and it lets it update its tool tip or shortcut key text.
-			core_event_c< void_c, reference_c const * > on_invoked; // occurs when the input action associated with this reference is invoked. this is to notify the reference holder (usually a menu control) that the action was invoked, so that it can update its visual state and animate or play a sound or something (to give feedback to the user). the subscriber to this event should not actually perform the action, just provide feedback to the user that the action was invoked.
-
-		};
-
 	private:
 		string8_c _key; // game defined key to identify this input map by.
-		string8_c _context; // which context this action can be invoked in.
+
+		string8_c _scope; // which context this action can be invoked in. if blank then this action is global scope. if set then this action is specific to a certain scope.
 
 		input_shortcut_c _shortcut; // the shortcut that will invoke this action.
 
-		string_c::reference_c _name;
-		string_c::reference_c _description;
+		string16_c _name;
 
-		core_list_c< reference_c * > _references; // all of the references to this input action.
+		string16_c _description;
+
+		boolean_c _snapshot_state;
 
 	public:
 		input_action_c();
-		input_action_c( string8_c const & key, string8_c const & context );
 
 		string8_c const & get_key() const;
-		string8_c const & get_context() const;
+		void_c set_key( string8_c const & key );
 
-		input_shortcut_c & get_shortcut(); // use this to get or set the shortcut.
+		string8_c const & get_scope() const;
+		void_c set_scope( string8_c const & value );
 
-		string_c::reference_c & get_name();
-		string_c::reference_c & get_description();
+		input_shortcut_c const & get_shortcut() const;
+		input_shortcut_c & get_shortcut(); // use this to modify the shortcut.
+
+		string16_c const & get_name() const;
+		void_c set_name( string16_c const & value );
+
+		string16_c const & get_description() const;
+		void_c set_description( string16_c const & value );
+
+		boolean_c get_snapshot_state(); // if any of the inputs are pressed at any time during a given frame, then the action's state is set to true, otherwise it is set to false.
 
 		core_event_c< void_c, input_action_c const * > on_invoked; // occurs whenever this action is invoked from any source. the subscriber to this event should actually perform the action.
 
@@ -392,6 +370,9 @@ namespace cheonsa
 	// represents an input event produced by the user.
 	class input_event_c
 	{
+		friend class input_manager_c;
+		friend class user_interface_c;
+
 	public:
 		enum type_e
 		{
@@ -407,37 +388,64 @@ namespace cheonsa
 			type_e_gamepad_key_released,
 		};
 
-	public:
-		type_e type; // what kind of event occurred, and which data in this structure is relevant to it.
+	private:
+		type_e _type; // what kind of event occurred, and which data in this structure is relevant to it.
 
-		sint64_c time; // when this event was recorded (don't expect it to be perfect, but it should be very close to when it actually happened), via call to ops::time_get_high_resolution_timer_count(). used for multi-click detection.
+		sint64_c _time; // when this event was recorded (don't expect it to be perfect, but it should be very close to when it actually happened), via call to ops::time_get_high_resolution_timer_count(). used for multi-click detection.
 
-		input_mouse_key_e mouse_key; // the mouse key which's state was changed. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
-		vector32x2_c mouse_position; // current position of mouse in the game window's client area.
-		vector32x2_c mouse_position_delta; // delta position of mouse relative to last mouse_move input event. only used when event_type is input_event_type_e_mouse_move.
-		float32_c mouse_wheel_delta; // delta position of mouse wheel relative to last mouse_wheel input event. only used when event_type is input_event_type_e_mouse_wheel.
-		sint32_c multi_click_count;
+		input_mouse_key_e _mouse_key; // the mouse key which's state was changed. only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
+		vector32x2_c _mouse_position; // snapshot of mouse position at the time that this input event was recorded.
+		vector32x2_c _mouse_position_delta; // delta position of mouse relative to last mouse_move input event. only used when event_type is input_event_type_e_mouse_move.
+		float32_c _mouse_wheel_delta; // delta position of mouse wheel relative to last mouse_wheel input event. only used when event_type is input_event_type_e_mouse_wheel.
 
-		input_keyboard_key_e keyboard_key; // only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
+		input_keyboard_key_e _keyboard_key; // only used when event_type is input_event_type_e_mouse_key_pressed or input_event_type_e_mouse_key_released.
 
-		char16_c character; // the character that is being inputted. only used when event_type is input_event_type_e_character.
-		uint8_c character_repeat_count; // the number of times that the character repeats itself, if the engine is running at a smooth frame rate though then it's highly unlikely that this value will ever be greater than 1, but it is here in case it is needed. only used when event_type is input_event_type_e_character.
+		char16_c _character; // the character that is being inputted. only used when event_type is input_event_type_e_character.
+		uint8_c _character_repeat_count; // the number of times that the character repeats itself, if the engine is running at a smooth frame rate though then it's highly unlikely that this value will ever be greater than 1, but it is here in case it is needed. only used when event_type is input_event_type_e_character.
 
-		input_gamepad_key_e gamepad_key;
+		input_gamepad_key_e _gamepad_key;
 
-		boolean_c modifier_keys_state[ input_modifier_key_e_count_ ]; // modifier keys state snapshot at the time of this input event. only the down state is tracked for the modifier keys, not pressed or released states.
-		boolean_c mouse_keys_state[ input_mouse_key_e_count_ ]; // mouse keys state snapshot at the time of this input event.
-		boolean_c keyboard_keys_state[ input_keyboard_key_e_count_ ]; // keyboard keys state snapshot at the time of this input event.
-		boolean_c gamepad_keys_state[ input_gamepad_key_e_count_ ]; // snapshot of gamepad keys state at time that event occurred.
+		input_modifier_flag_e _modifier_flags; // snapshot of modifier keys state at the time that this input event was recorded.
+		boolean_c _mouse_keys_state[ input_mouse_key_e_count_ ]; // snapshot of mouse keys state at the time that this input event was recorded.
+		boolean_c _keyboard_keys_state[ input_keyboard_key_e_count_ ]; // snapshot of keyboard keys state at the time that this input event was recorded.
+		boolean_c _gamepad_keys_state[ input_gamepad_key_e_count_ ]; // snapshot of gamepad keys state at the time that this input event was recorded.
 
-		vector32x2_c menu_global_mouse_position; // 2d mouse position in menu space. for 2d user interfaces this is basically screen space. for 3d user interfaces this is in local 2d space of the root intersected 3d menu.
+		sint32_c _menu_multi_click_count; // this is managed by the user interface system.
+		vector32x2_c _menu_mouse_position; // this is managed by the user interface system. 2d mouse position in menu space. for 2d user interfaces this is basically screen space. for 3d user interfaces this the result of a 3d ray projected through the 3d camera onto the 3d plane of the root 3d menu control.
 
-		boolean_c was_handled; // is initially set to false, until some object uses or consumes the event. used with menu context event bubbling, so that an event will continue to bubble up the control heirarchy until it is processed.
+		boolean_c _was_handled; // is initially set to false, until some object uses or consumes the event. used with menu context event bubbling, so that an event will continue to bubble up the control heirarchy until it is processed.
 
 	public:
 		input_event_c();
 
-		boolean_c check_modifier_key_states( boolean_c shift, boolean_c ctrl, boolean_c alt ) const; // returns true if all modifier key states match.
+		void_c reset();
+
+		type_e get_type() const;
+
+		sint64_c get_time() const;
+
+		input_mouse_key_e get_mouse_key() const;
+		vector32x2_c const & get_mouse_position() const;
+		vector32x2_c const & get_mouse_position_delta() const;
+		float32_c get_mouse_wheel_delta() const;
+
+		input_keyboard_key_e get_keyboard_key() const;
+
+		char16_c get_character() const;
+		uint8_c get_character_repeat_count() const;
+
+		input_gamepad_key_e get_gamepad_key() const;
+
+		input_modifier_flag_e get_modifier_flags() const;
+		boolean_c get_mouse_key_state( input_mouse_key_e key );
+		boolean_c get_keyboard_key_state( input_keyboard_key_e key );
+		boolean_c get_gamepad_key_state( input_gamepad_key_e key );
+
+		vector32x2_c const & get_menu_mouse_position() const;
+		sint32_c get_menu_multi_click_count() const;
+
+		boolean_c get_was_handled() const;
+		void_c set_was_handled( boolean_c value );
 
 	};
 

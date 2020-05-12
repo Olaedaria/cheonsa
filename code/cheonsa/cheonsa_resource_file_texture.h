@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_video_interface.h"
 #include "cheonsa_image.h"
@@ -9,7 +9,10 @@ namespace cheonsa
 {
 
 	// 2d texture.
-	// can load from png or jpg file.
+	// loads ".png" and ".jpg" files.
+	// can load 1 channel (r), 2 channel (rg), 3 channel (will be converted to rgba with opaque alpha (1.0) for gpu (gpu does not support 3 channel textures)), and 4 channel (rgba) textures.
+	// can load 8-bit per channel bit depth (jpg, png) and 16-bit per channel bit depth (png). these are interpreted ias 8-bit unorm and 16-bit unorm respectively on the gpu.
+	// for png, can load palettized textures (will be converted to rgba for gpu).
 	class resource_file_texture_c
 		: public resource_file_c
 	{

@@ -13,6 +13,7 @@ namespace cheonsa
 	class physics_shape_c
 	{
 		friend class physics_rigid_body_c;
+		friend class physics_collision_object_c;
 		friend class physics_scene_c;
 
 	private:
@@ -63,6 +64,8 @@ namespace cheonsa
 		void_c initialize_triangle_mesh( transform3d_c const & frame, uint32_c vertex_count, vector64x3_c const * vertex_list, uint32_c index_count, uint16_c const * index_list, float64_c margin );
 
 		void_c uninitialize();
+
+		boolean_c get_is_initialized() const;
 
 		transform3d_c const & get_frame() const;
 

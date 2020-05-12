@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_types.h"
 #include "cheonsa_menu_style_file.h"
@@ -8,7 +8,7 @@ namespace cheonsa
 {
 
 	// manages loading of styles from xml files and serves as a registry for all loaded control style maps and element styles.
-	// supports hot-loading of style files, which will trigger all frame and text elements to re-resolve their style references, and will trigger reflow/relayout of all glyphs in text elements.
+	// supports hot-loading of style files. when reloading style files, tells all frame elements and text elements to unresolve their style references, then reoloads style files, then tells all frame elements and text elements to reresolve their style references.
 	// there is one global shared instance, declared in "cheonsa_engine.h", defined in "cheonsa_engine.cpp", it's fully qualified name is "global_engine_instance.interfaces.menu_style_manager".
 	class menu_style_manager_c
 	{
@@ -23,8 +23,8 @@ namespace cheonsa
 		menu_frame_style_c _default_frame_style; // global frame style to use when the specific frame style can't be found.
 		menu_text_style_c _default_text_style; // global text style to use when the specific text style can't be found.
 
-		menu_style_file_c _engine_styles; // built-in styles used by engine menus, loaded from "[e]menus/styles.xml".
-		menu_style_file_c _game_styles; // game defined styles used by game menus, loaded from "[g]menus/styles.xml".
+		menu_style_file_c _engine_styles; // built-in styles used by engine menus, loaded from engine data folder "menus/styles.xml".
+		menu_style_file_c _game_styles; // game defined styles used by game menus, loaded from game data folder "menus/styles.xml".
 
 	public:
 		menu_style_manager_c();

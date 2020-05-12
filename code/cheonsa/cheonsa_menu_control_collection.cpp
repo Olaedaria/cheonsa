@@ -1,6 +1,6 @@
 #include "cheonsa_menu_control_collection.h"
 #include "cheonsa_user_interface.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -509,9 +509,9 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::_on_clicked( input_event_c * input_event )
 	{
-		vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+		vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
 		item_i * picked_item = _pick_item_at_local_point( local_mouse_position );
-		if ( input_event->check_modifier_key_states( false, true, false ) && ( _select_mode == select_mode_e_multiple ) )
+		if ( ( input_event->get_modifier_flags() == input_modifier_flag_e_ctrl ) && ( _select_mode == select_mode_e_multiple ) )
 		{
 			if ( picked_item )
 			{
@@ -533,7 +533,7 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::_on_multi_clicked( input_event_c * input_event )
 	{
-		if ( input_event->multi_click_count == 2 )
+		if ( input_event->get_menu_multi_click_count() == 2 )
 		{
 			on_selected_items_invoked.invoke( this );
 		}
@@ -546,15 +546,15 @@ namespace cheonsa
 		_element_highlighted_frame.set_is_showed( false );
 		_element_last_selected_frame.set_is_showed( false );
 
-		if ( input_event->type == input_event_c::type_e_mouse_wheel )
+		if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 		{
-			_vertical_scroll_bar->inject_mouse_wheel_input( input_event->mouse_wheel_delta );
+			_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
 		}
-		else if ( input_event->type == input_event_c::type_e_mouse_move || input_event->type == input_event_c::type_e_mouse_key_pressed )
+		else if ( input_event->get_type() == input_event_c::type_e_mouse_move || input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 		{
 			if ( _is_mouse_overed )
 			{
-				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->menu_global_mouse_position );
+				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
 				_mouse_selected_item = _pick_item_at_local_point( local_mouse_position );
 				if ( _mouse_selected_item )
 				{
@@ -570,9 +570,9 @@ namespace cheonsa
 				}
 			}
 		}
-		else if ( input_event->type == input_event_c::type_e_keyboard_key_pressed )
+		else if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
 		{
-			if ( input_event->keyboard_key == input_keyboard_key_e_enter )
+			if ( input_event->get_keyboard_key() == input_keyboard_key_e_enter )
 			{
 				on_selected_items_invoked.invoke( this );
 			}

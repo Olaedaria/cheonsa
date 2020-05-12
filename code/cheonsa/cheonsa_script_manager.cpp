@@ -1,7 +1,7 @@
 ﻿#include "cheonsa_script_manager.h"
 #include "cheonsa_script_instance.h"
 #include "cheonsa_engine.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 
 namespace cheonsa
 {

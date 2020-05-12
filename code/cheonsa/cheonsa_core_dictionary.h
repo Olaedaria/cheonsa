@@ -1,10 +1,10 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"
-#include "cheonsa__ops.h"
+#include "cheonsa_ops.h"
 
 namespace cheonsa
 {

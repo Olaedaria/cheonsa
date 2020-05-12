@@ -5,7 +5,7 @@
 namespace cheonsa
 {
 
-	// a rigid body in the physics simulation.
+	// a rigid body in the physics simulation simulation.
 	// has a simple reference count system.
 	class physics_rigid_body_c
 	{
@@ -109,7 +109,7 @@ namespace cheonsa
 		void_c apply_angular_impulse( const vector64x3_c & angular_impulse );
 
 		boolean_c get_kinematic() const;
-		void_c set_kinematic( boolean_c value ); // don't change this if this physics body was initialized with scene_component_ridgid_body_c, not unless you also update the scene object's _scene_transform_is_set_directly_by_some_thing_else property.
+		void_c set_kinematic( boolean_c value );
 
 		boolean_c get_collision_response() const;
 		void_c set_collision_response( boolean_c value ); // if set to false, the physics object will remain in the physics scene but it will be like a ghost.

@@ -19,8 +19,7 @@ namespace cheonsa
 
 		virtual void_c _handle_before_removed_from_scene() override;
 		virtual void_c _handle_after_added_to_scene() override;
-
-		virtual void_c _handle_on_world_space_transform_changed( transform3d_c const & old_world_space_transform, transform3d_c const & new_world_space_transform ) override;
+		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
 		scene_component_light_c();
 

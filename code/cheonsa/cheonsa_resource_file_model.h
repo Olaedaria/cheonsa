@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_video_types.h"
 #include "cheonsa_video_renderer_types.h"
@@ -11,6 +11,9 @@
 namespace cheonsa
 {
 
+	// loads ".model" files.
+	// (file extension is a suggestion, you may deviate from it).
+	// this is a binary format.
 	// if the file's byte order is the same as the environment's byte order, then the whole file is loaded into memory, and static mode lists are wrapped around sub-ranges of that memory.
 	// if the file's byte order is not the same as the environment's byte order, then dynamic mode lists are allocated and each binary value is loaded one by one so that byte order can be flipped.
 	// ideally and in practice, little endian byte order is popular these days and is preferable to big endian.

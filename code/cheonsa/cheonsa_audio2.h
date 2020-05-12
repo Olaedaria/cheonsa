@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa__types.h"
+#include "cheonsa_types.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_stream.h"
 #include "cheonsa_data_scribe_ini.h"
@@ -37,10 +37,10 @@ namespace cheonsa
 		audio2_layer_e_count_
 	};
 
-	enum audio2_queue_operation_e
+	enum audio2_queue_command_e
 	{
-		audio2_queue_operation_e_add,
-		audio2_queue_operation_e_remove,
+		audio2_queue_command_e_add,
+		audio2_queue_command_e_remove,
 	};
 
 	// mixes audio from input to output.
@@ -108,15 +108,15 @@ namespace cheonsa
 
 			static state_c * make_new_instance( data_stream_c * stream );
 
-			boolean_c add_reference(); // if this returns false, then it means that this object was deleted by another thread and the caller should gracefully forget its reference to this object.
-			void_c remove_reference();
+			sint32_c add_reference(); // returns the new reference count. if it returns 0, then it means that there was a race condition and another thread deleted this thing, so the calling thread should gracefully forget its reference to this thing.
+			sint32_c remove_reference(); // returns the new reference count.
 
 		};
 
 		static core_linked_list_c< audio2_wave_buffer_c * > _instance_list;
 		core_linked_list_c< audio2_wave_buffer_c * >::node_c _instance_list_node;
-		sint32_c _reference_count;
 		state_c * _state; // the state of this wave buffer that the mixer is mixing. the main thread may replace this at any time with a new instance. the mixing thread needs to detect when it changes so it can resituate.
+		core_safe_reference_counter_c _reference_count;
 
 		audio2_wave_buffer_c();
 
@@ -125,8 +125,8 @@ namespace cheonsa
 
 		static audio2_wave_buffer_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
 
-		void_c add_reference();
-		void_c remove_reference();
+		sint32_c add_reference(); // returns the new reference count. if it returns 0, then it means that there was a race condition and another thread deleted this thing, so the calling thread should gracefully forget its reference to this thing.
+		sint32_c remove_reference(); // returns the new reference count.
 
 		void_c load_new_state( data_stream_c * stream ); // creates a new state from the given stream, which may contain a riff wave (.wav) or vorbis ogg (.ogg). wave players that are still playing this wave buffer will continue to play the old state.
 		void_c release_state(); // forgets state. wave players that are still playing this wave buffer will continue to play the old state.
@@ -145,15 +145,14 @@ namespace cheonsa
 		static core_linked_list_c< audio2_wave_player_c * > _instance_list;
 		core_linked_list_c< audio2_wave_player_c * >::node_c _instance_list_node;
 
-		core_linked_list_c< audio2_wave_player_c * >::node_c _wave_player_list_node; // for use by audio2_interface_c.
+		core_linked_list_c< audio2_wave_player_c * >::node_c _wave_player_list_node; // for use by audio2_interface_c and mixing thread.
 
-		sint32_c _reference_count;
 		audio2_wave_buffer_c * _wave_buffer; // the wave buffer that this wave player is currently playing. set by main thread.
 		audio2_wave_buffer_c::state_c * _wave_buffer_state; // the wave buffer state that this wave player is currently playing. the mixing thread uses this to detect when the wave buffer state was changed.
 
 		boolean_c _randomize_seek;
-		boolean_c _is_queued; // will be true if queued or if mixing.
-		boolean_c _is_playing;
+		boolean_c _is_queued; // will be set to true if this wave player is waiting in queue for the mixing thread to formally add it. this is mainly to prevent the game thread from queuing the same wave player more than once, which isn't necessarily harmful (the mixing thread will ignore redudnant commands), but in the case that (as an example) the game's updates are running at 100 fps and the mixing thread is running at 1 fps, then the game's audio loop logic (which thinks that the wave player is not playing) will queue the wave player 100 times before the mixing thread gets around to starting _is_playing on it, and this would create some wasted overhead.
+		boolean_c _is_playing; // will be set to true when the mixer thread starts play back of this wave player.
 
 		audio2_layer_e _layer; // which audio layer this wave player mixes to.
 		float32_c _volume; // for 2d this is just volume, for 3d this is watts. for 2d this is capped between 0 and 1, for 3d this is capped between 0 and something high.
@@ -162,12 +161,11 @@ namespace cheonsa
 		stb_vorbis * _ogg_stb_vorbis; // play state for ogg format.
 		sint32_c _sample; // play state for raw and ogg formats.
 
-		boolean_c _start(); // called from mixing thread to begin play back.
+		boolean_c _start(); // called from mixing thread to begin play back after wave player is added from queue. returns true if play back started successfully, false if wave buffer state is not ready.
 		boolean_c _advance( float32_c time_step ); // called from mixing thread to advance the stream without sampling from it.
 		boolean_c _sample_and_mix( sint32_c output_channel_count, sint32_c output_sample_rate, sint32_c output_sample_count, float32_c * output_sample_buffer, float32_c * output_channel_volumes ); // called from mixing thread to sample and mix this stream.
 
-		audio2_scene_source_c * _linked_audio_scene_source; // the audio scene source that this audio wave player is owned by.
-		audio2_interface_c * _linked_audio_interface; // the audio interface that this audio wave player is added to.
+		core_safe_reference_counter_c _reference_count;
 
 		audio2_wave_player_c();
 
@@ -176,8 +174,8 @@ namespace cheonsa
 
 		static audio2_wave_player_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
 
-		void_c add_reference();
-		void_c remove_reference();
+		sint32_c add_reference(); // returns the new reference count. if it returns 0, then it means that there was a race condition and another thread deleted this thing, so the calling thread should gracefully forget its reference to this thing.
+		sint32_c remove_reference(); // returns the new reference count. if it returns 0, then it means that the calling thread should delete this thing.
 
 		audio2_wave_buffer_c * get_wave_buffer() const; // gets the most recent wave buffer.
 		void_c set_wave_buffer( audio2_wave_buffer_c * value ); // sets the wave buffer to play the next time this wave player is added to the audio interface or its audio scene source is added to an audio scene. if this wave player is currently playing an older state, it will finish playing that state before it changes over to this new state.
@@ -191,26 +189,30 @@ namespace cheonsa
 		float32_c get_speed() const;
 		void_c set_speed( float32_c value );
 
-		boolean_c get_appears_to_be_playing() const; // the main thread can call this to determine if the wave player is playing. this will be true if the wave player was queued to play, or is actually playing. this will be false if otherwise.
+		// returns true if the mixing has a reference to this wave player.
+		// this might lag a bit.
+		boolean_c get_appears_to_be_playing() const;
 
 	};
 
 	// 3d audio source.
-	// wraps the functionality of a wave player, and provides spatial properties that define how it is mixed to the output.
+	// wraps the functionality of a wave player, and provides spatial properties that the mixing thread uses to mix it to the output.
 	// sources only play once and then they are removed from the audio scene.
+	// if looping functionality is desired, then needs to be implemented externally by just re-adding the source after it finishes playing.
+	// to determine if a source is not playing, check if get_wave_player()->get_appears_to_be_playing() returns false.
 	class audio2_scene_source_c
 	{
 		friend class wave_out_implementation_c;
 		friend class audio2_scene_c;
 
 	private:
-		core_linked_list_c< audio2_scene_source_c * >::node_c _scene_source_list_node;
-		sint32_c _reference_count;
+		core_linked_list_c< audio2_scene_source_c * >::node_c _scene_source_list_node; // used by audio2_scene_c and mixing thread.
 		vector64x3_c _world_space_position;
 		matrix32x3x3_c _world_space_basis;
 		vector32x3_c _world_space_velocity;
 		audio2_wave_player_c * _wave_player; // this wave player is created by and owned by this audio source.
-		audio2_scene_c * _linked_audio_scene; // the audio scene that this audio scene source is added to.
+
+		core_safe_reference_counter_c _reference_count;
 
 		audio2_scene_source_c();
 
@@ -219,15 +221,15 @@ namespace cheonsa
 
 		static audio2_scene_source_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
 
-		void_c add_reference();
-		void_c remove_reference();
+		sint32_c add_reference(); // returns the new reference count. if it returns 0, then it means that there was a race condition and another thread deleted this thing, so the calling thread should gracefully forget its reference to this thing.
+		sint32_c remove_reference(); // returns the new reference count. if it returns 0, then it means that the calling thread should delete this thing.
 
 		void_c set_world_space_transform( transform3d_c const & value );
 		vector64x3_c const & get_world_space_position() const;
 		matrix32x3x3_c const & get_world_space_basis() const;
 		vector32x3_c const & get_world_space_velocity() const;
 
-		audio2_wave_player_c * get_wave_player() const; // gets the wave player that this source owns. does not change the reference count of the returned instance.
+		audio2_wave_player_c * get_wave_player() const; // gets the wave player that this source owns. will never return nullptr. does not change the reference count of the returned instance. also you should not change the reference count on the returned instance.
 
 		float32_c get_effective_range_squared() const; // evaluates power, and returns the maximum distance that this source could be heard from. the game and/or scene can use this to determine when to add this audio scene source to the audio scene.
 
@@ -239,21 +241,21 @@ namespace cheonsa
 		friend class wave_out_implementation_c;
 
 	private:
-		sint32_c _reference_count;
 		vector64x3_c _world_space_position;
 		matrix32x3x3_c _world_space_basis;
 		vector32x3_c _world_space_velocity;
 		float32_c _damping; // factor that affects the loss of energy of sound waves as they propagate through a medium.
 		float32_c _sensitivity; // effectively same thing as volume, but using more natural terminology.
-		audio2_scene_c * _linked_audio_scene; // the audio scene that this audio scene listener is added to.
+
+		core_safe_reference_counter_c _reference_count;
 
 		audio2_scene_listener_c();
 
 	public:
 		static audio2_scene_listener_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
 		  
-		void_c add_reference();
-		void_c remove_reference();
+		sint32_c add_reference(); // returns the new reference count. if it returns 0, then it means that there was a race condition and another thread deleted this thing, so the calling thread should gracefully forget its reference to this thing.
+		sint32_c remove_reference(); // returns the new reference count. if it returns 0, then it means that the calling thread should delete this thing.
 
 		void_c set_world_space_transform( transform3d_c const & value );
 		vector64x3_c const & get_world_space_position() const;
@@ -283,20 +285,21 @@ namespace cheonsa
 		friend class audio2_interface_c;
 
 	private:
-		platform_critical_section_c _critical_section; // used to give mutually exclusive access to a single thread at a time to data that is shared between threads.
+		platform_critical_section_c _critical_section; // used to give mutually exclusive access to a single thread at a time to data that is shared between threads. the audio mixing thread runs continuously, along with any game thread(s).
 
-		sint32_c _reference_count;
 		audio2_scene_listener_c * _scene_listener;
-		core_linked_list_c< audio2_scene_source_c * > _scene_source_list; // sources that are currently mixing.
 
 		struct queued_scene_source_c
 		{
-			audio2_queue_operation_e operation;
+			audio2_queue_command_e command;
 			audio2_scene_source_c * instance;
 		};
 		core_list_c< queued_scene_source_c > _queued_scene_source_list;
+		core_linked_list_c< audio2_scene_source_c * > _scene_source_list; // sources that are currently mixing.
 
-		audio2_interface_c * _linked_audio_interface; // the audio interface that this audio scene is added to.
+		boolean_c _is_added;
+
+		core_safe_reference_counter_c _reference_count;
 
 		audio2_scene_c();
 
@@ -305,14 +308,23 @@ namespace cheonsa
 
 		static audio2_scene_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
 
-		void_c add_reference();
-		void_c remove_reference();
+		sint32_c add_reference(); // returns the new reference count. if it returns 0, then it means that there was a race condition and another thread deleted this thing, so the calling thread should gracefully forget its reference to this thing.
+		sint32_c remove_reference(); // returns the new reference count. if it returns 0, then it means that the calling thread should delete this thing.
 
-		audio2_scene_listener_c * get_scene_listener() const; // gets a pointer to the scene listener, without adding a reference to it.
-		void_c set_scene_listener( audio2_scene_listener_c * value ); // queues an add operation for the given scene listener.
+		vector64x3_c get_scene_listener_world_space_position() const;
 
-		void_c add_scene_source( audio2_scene_source_c * value, boolean_c randomize_seek ); // queues an add operation for the given scene source.
-		void_c remove_scene_source( audio2_scene_source_c * value ); // queues a remove operation for the given scene source.
+		// sets the scene listener, may block the mixing thread for a brief moment.
+		// may return false if there was a race condition and the passed in value was deleted by another thread (should be impossible if you're doing the right thing and holding a persistent reference to it).
+		void_c set_scene_listener( audio2_scene_listener_c * value );
+
+		// queues the given source for play back in this scene.
+		// asserts if the source is already queued or mixing.
+		// may return false if there was a race condition and the passed in value was deleted by another thread (should be impossible if you're doing the right thing and holding a persistent reference to it).
+		boolean_c add_scene_source( audio2_scene_source_c * value, boolean_c randomize_seek );
+
+		// queues the given source for removal from this scene.
+		// may return false if there was a race condition and the passed in value was deleted by another thread (should be impossible if you're doing the right thing and holding a persistent reference to it).
+		boolean_c remove_scene_source( audio2_scene_source_c * value );
 
 	};
 
@@ -332,23 +344,23 @@ namespace cheonsa
 	private:
 		platform_critical_section_c _critical_section; // used to give mutually exclusive access to a single thread at a time to data that is shared between threads.
 
-		core_list_c< audio2_scene_c * > _scene_list;
+		struct queued_wave_player_c
+		{
+			audio2_queue_command_e command;
+			audio2_wave_player_c * instance;
+		};
+		core_list_c< queued_wave_player_c > _queued_wave_player_list;
 		core_linked_list_c< audio2_wave_player_c * > _wave_player_list;
 
 		struct queued_scene_c
 		{
-			audio2_queue_operation_e operation;
+			audio2_queue_command_e command;
 			audio2_scene_c * instance;
 		};
 		core_list_c< queued_scene_c > _queued_scene_list;
-		struct queued_wave_player_c
-		{
-			audio2_queue_operation_e operation;
-			audio2_wave_player_c * instance;
-		};
-		core_list_c< queued_wave_player_c > _queued_wave_player_list;
+		core_list_c< audio2_scene_c * > _scene_list;
 
-		void_c * _implementation;
+		void_c * _implementation; // the implementation class's declaration and definition is isolated to the cpp file.
 
 		sint32_c _output_sample_rate; // how many samples per second. a typical value that you might know of is 44100.
 		sint32_c _output_channel_count; // how many channels the mixer is configured to mix output to. at the monment this is fixed to stereo and can't be changed.
@@ -401,11 +413,11 @@ namespace cheonsa
 
 		void_c refresh(); // pauses mixing thread, syncs wave players to any new wave buffer states (which restarts play back of those wave players, so it might "break" how things sound temporarily), resumes mixing thread.
 		
-		void_c add_scene( audio2_scene_c * value ); // adds a 3d audio scene to this audio interface.
-		void_c remove_scene( audio2_scene_c * value ); // removes a 3d audio scene from this audio interface.
+		boolean_c add_scene( audio2_scene_c * value ); // adds a 3d audio scene to this audio interface.
+		boolean_c remove_scene( audio2_scene_c * value ); // removes a 3d audio scene from this audio interface.
 
-		void_c add_wave_player( audio2_wave_player_c * value ); // adds a wave player to this audio interface. the wave player will play once and then be removed.
-		void_c remove_wave_player( audio2_wave_player_c * value ); // removes a wave player from this audio interface.
+		boolean_c add_wave_player( audio2_wave_player_c * value ); // adds a 2d wave player to this audio interface. the wave player will play once and then be removed.
+		boolean_c remove_wave_player( audio2_wave_player_c * value ); // removes a 2d wave player from this audio interface.
 
 		void_c play_music( string16_c const & file_path, float32_c fade_duration );
 		void_c stop_music( float32_c fade_duration );
