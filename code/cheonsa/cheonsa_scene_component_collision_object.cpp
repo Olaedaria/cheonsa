@@ -30,7 +30,7 @@ namespace cheonsa
 			_collision_object->set_world_space_transform( _scene_object->get_world_space_transform() );
 			if ( _scene_object->get_scene() )
 			{
-				_scene_object->get_scene()->get_physics_scene()->update_aabbs();
+				_scene_object->get_scene()->get_physics_scene()->make_aabbs_dirty();
 			}
 		}
 	}

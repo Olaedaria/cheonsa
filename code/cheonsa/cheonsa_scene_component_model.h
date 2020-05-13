@@ -67,6 +67,7 @@ namespace cheonsa
 	//
 	public:
 		// used with animation dictionary, the key is the animation name, the value is this.
+		// it associates an animation name with animation data in a model resource file.
 		class animation_map_c
 		{
 		public:
@@ -83,13 +84,11 @@ namespace cheonsa
 		void_c _handle_animations_resource_on_unloaded( resource_file_c * resource ); // responds to when _animations_resource is un loaded.
 		core_dictionary_c< string8_c, animation_map_c > _animation_map_dictionary; // maps an animation name to an animation sourced from this model resource or from any of the model resources in _animations_resource_list.
 		core_event_c< void_c, scene_component_model_c * > _on_animation_resources_updated; // animation players subscribe to this event to respond to run time reloads of animation resources.
+		void_c _refresh_animation_map_dictionary(); // is called whenever _model_resource becomes bound or unbound. but it should also be called after you add or remove animations resources.
 	public:
-		void_c add_animations_resource( resource_file_model_c * resource ); // additional model resources can be referenced which contain animations that we want to make available to this model instance.
-		void_c remove_animations_resource( resource_file_model_c * resource );
-		sint32_c get_animations_resource_count();
-		resource_file_model_c * get_animations_resource_at_index( sint32_c index );
+		void_c add_animations_resource( resource_file_model_c * resource ); // adds another (animations) model resource reference which contains animations that we want to make available to this model instance.
+		void_c remove_animations_resource( resource_file_model_c * resource ); // removes a (animations) model resource reference that was previously associated with this model instance.
 		void_c remove_all_animations_resources();
-		void_c refresh_animation_map_dictionary(); // is called whenever _model_resource becomes bound or unbound. but it should also be called after you add or remove animations resources.
 
 
 
@@ -102,8 +101,8 @@ namespace cheonsa
 		void_c _handle_materials_resource_on_loaded( resource_file_c * resource ); // responds to when _model_materials_resource is loaded.
 		void_c _handle_materials_resource_on_unloaded( resource_file_c * resource ); // responds to when _model_materials_resource is un loaded.
 	public:
-		resource_file_materials_c * get_materials_resource();
-		void_c set_materials_resource( resource_file_materials_c * value ); // sets the model materials assignments. this works in addition to the material_assignment_list, which has higher priority.
+		resource_file_materials_c * get_materials_resource() const;
+		void_c set_materials_resource( resource_file_materials_c * value ); // sets the model materials resource which defines base material assignments. these base materials may be overridden by the custom material assignments feature.
 
 
 
@@ -206,10 +205,11 @@ namespace cheonsa
 			resource_file_model_c::bone_c const * _source_bone; // the original source bone data from the model resource that this bone is instanced from.
 			resource_file_model_c::bone_extras_c const * _source_bone_extras; // original source bone extras data from the model resource that this bone is instanced from.
 
+			transform3d_c _local_space_transform_from_base_pose_adjustments; // determines the value of _local_space_transform before animations are applied.
 			transform3d_c _local_space_transform; // local space transform of bone, relative to the rest transform. this is driven by animations.
 			transform3d_c _world_space_transform; // world space transform of bone, relative to scene origin.
 
-			matrix32x4x4_c _object_space_skin_matrix; // object space skin matrix, transform vertices from their rest pose (object space) to their post pose (object space).
+			matrix32x4x4_c _object_space_skin_matrix; // object space skin matrix, transforms vertices from their rest pose (object space) to their final (base pose applied, animations applied) pose.
 
 			core_linked_list_c< bone_c * > _daughter_bone_list; // daughter bones.
 			core_linked_list_c< bone_c * >::node_c _daughter_bone_list_node; // used with _daughter_bone_list.
@@ -230,9 +230,13 @@ namespace cheonsa
 			void_c build_object_space_skin_matrix_from_world_space_transform();
 
 			transform3d_c const & get_local_space_transform() const;
+			void_c set_local_space_transform( transform3d_c const & value );
+
 			transform3d_c const & get_world_space_transform() const;
+			void_c set_world_space_transform( transform3d_c const & value );
 
 		};
+
 	private:
 		core_list_c< bone_c > _bone_list; // all of the bones in this model.
 		core_linked_list_c< bone_c * > _root_bone_list; // just the root bones in this model (pointers to bone instances in _bone_list).
@@ -241,8 +245,14 @@ namespace cheonsa
 	public:
 		bone_c * find_bone_at_path( string8_c const & path ); // searches hierarchy at path and returns the bone that matches or nullptr.
 		bone_c * find_bone_with_name( string8_c const & name, boolean_c search_mother_first ); // searches bones in this model (_bone_list) and returns the first match.
-		void_c find_bones( string8_c const & names, core_list_c< bone_c * > & result ); // name can end with a wild card character '*'. this will match all bones with names that start with name. appends bones to result. note that all bones in the model still need to be uniquely named.
-		sint32_c find_bone_index_with_name( string8_c const & name ); // used by the animation system to look up the bone instance that an animation should apply to.
+
+		// names can be a single name, or a semi-colon separated list of names.
+		// each name may end with a wild card ("*", asterisk) to indicate that it should match with all bones with names that start with that string.
+		// a model can't (or shouldn't) contain more than one bone of a given name because the animation system can only drive one bone per name.
+		void_c find_bones( string8_c const & names, core_list_c< bone_c * > & result );
+
+		// used by the animation system to look up the bone instance that an animation should apply to.
+		sint32_c find_bone_index_with_name( string8_c const & name );
 
 
 
@@ -416,6 +426,10 @@ namespace cheonsa
 		core_list_c< attachment_point_c > _attachment_point_list; // all of the bone attachments are allocated at once in this fixed length list.
 	public:
 		attachment_point_c * find_attachment_point( string8_c const & name );
+
+		// names can be a single name, or a semi-colon separated list of names.
+		// each name may end with a wild card ("*", asterisk) to indicate that it should match with all attachment points with names that start with that string.
+		// a model may contain any number of attachment points with the same name, so it is possible for one name to match to more than one attachment point instance.
 		void_c find_attachment_points( string8_c const & names, core_list_c< attachment_point_c * > & result );
 
 
@@ -537,7 +551,8 @@ namespace cheonsa
 	// custom material assignments.
 	//
 	public:
-		// allows the game to define custom override material properties to apply to mesh instances in this model instance.
+		// enables the game to define custom override material properties to apply to mesh instances in this model instance.
+		// designed for character model customization.
 		// it is persistent between model resource file binding/unbinding, so the game can just set them once and forget about them.
 		// the intention behind this design was to enable character customization features in the game.
 		// for mesh _render_enabled states though, the game will still need to respond to resource file binding/unbinding through on_model_resource_bound/on_model_resource_un_bound to reset _render_enabled states as desired.
@@ -562,8 +577,15 @@ namespace cheonsa
 			boolean_c _pixel_shader_enabled;
 			video_renderer_pixel_shader_c::reference_c _pixel_shader; // pixel shader to put it all together.
 
+			sint32_c _reference_count;
+
+			custom_material_c();
+
 		public:
-			custom_material_c( string8_c const & target_mesh_name );
+			static custom_material_c * make_new_instance(); // creates a new instance with a reference count of 0. this is just to ensure that all instances of these are on the heap.
+
+			void_c add_reference();
+			void_c remove_reference();
 
 			string8_c const & get_target_mesh_names() const;
 			void_c set_target_mesh_names( string8_c const & value );
@@ -589,18 +611,55 @@ namespace cheonsa
 		};
 
 	private:
-		boolean_c _custom_material_list_is_locked; // will be set to true if materials are applied.
 		core_list_c< custom_material_c * > _custom_material_list; // list of game defined material assignments to apply to mesh instances. this state persists even as the model resource is bound/unbound or loaded/unloaded. these assignments are applied when the model resource is bound and its mesh parts are instanced.
+		void_c _apply_custom_material_list();
 	public:
-		core_list_c< custom_material_c * > & get_custom_material_list(); // calling this will assert if _custom_material_list_is_locked is true. make sure to unlock via call to unapply_material_assignments() first.
-		void_c unapply_custom_material_list(); // call this before modifying the contents of the list reference returned by get_custom_material_list(). this releases references that the mesh instances may be holding to items in the _custom_material_list.
-		void_c apply_custom_material_list(); // call this after modifying material_assignment_list. this resolves references that mesh instances hold to items in the material_assignment_list.
+		void_c set_custom_material_list( core_list_c< custom_material_c * > const & custom_material_list );
 
 
 
 
 	//
-	// animation player stack.
+	// custom base pose adjustments.
+	//
+	public:
+		class animation_player_c;
+		// enables the game to define tweaks to the base (rest) pose of the model.
+		// designed for character model customization.
+		class base_pose_adjustment_c
+		{
+		private:
+			string8_c _bone_name_list;
+			vector32x3_c _position;
+			quaternion32_c _rotation;
+			vector32x3_c _scale;
+
+		public:
+			base_pose_adjustment_c();
+
+			string8_c const & get_bone_name_list() const;
+			void_c set_bone_name_list( string8_c const & value );
+
+			vector32x3_c const & get_position() const;
+			void_c set_position( vector32x3_c const & value );
+
+			quaternion32_c const & get_rotation() const;
+			void_c set_rotation( quaternion32_c const & value );
+
+			vector32x3_c const & get_scale() const;
+			void_c set_scale( vector32x3_c const & value );
+
+		};
+	public:
+		core_list_c< base_pose_adjustment_c * > custom_base_pose_adjustment_list;
+		core_list_c< animation_player_c * > custom_base_pose_animation_list;
+		void_c apply_base_pose_adjustments(); // for each bone in the model, evaluates base_pose_adjustment_list and base_pose_animation_list, accumulates transform adjustments and saves result in each bone's _local_space_transform_from_base_pose_adjustments.
+
+
+
+
+	//
+	// animation player list.
 	//
 	public:
 		// drives animation for a list of animatable objects.
@@ -667,7 +726,7 @@ namespace cheonsa
 
 			core_list_c< animation_player_c::object_player_c > _object_player_list; // animation players for each animated object in _animation.
 
-			blend_type_e _blend_type; // how to blend this animation with previous animations in the stack.
+			blend_type_e _blend_type; // how to blend this animation with previous animations in the list.
 			float32_c _blend_weight; // weight to blend this animation with previous animations.
 
 			sint32_c _loop_count_current; // keeps track of how many times animation has looped.
@@ -684,9 +743,15 @@ namespace cheonsa
 			// this method is subscribed to the on_load and on_unload events of the bound _model_resource and _animations_resource.
 			void_c _handle_on_animation_resources_updated( scene_component_model_c * model );
 
-		public:
+			sint32_c _reference_count;
+
 			animation_player_c( scene_component_model_c * mother_model ); // provide the model instance that this animation player will belong to. you may add and remove this animation player from this model instance's animation player list only. this animation player needs to subscribe to events on that model instance so that it continues to work between model/animation resource file unload/load.
+
+		public:			
 			~animation_player_c();
+
+			void_c add_reference();
+			void_c remove_reference();
 
 			// updates this animation player.
 			void_c update( float32_c time_step );
@@ -702,8 +767,8 @@ namespace cheonsa
 			blend_type_e get_blend_type(); // gets blend mode that determines how this animation player blends with existing pose.
 			void_c set_blend_type( blend_type_e value ); // sets blend mode that determines how this animation player blends with existing pose.
 
-			float32_c get_blend_weight(); // gets influence of this animation player on previous animation players in the animation player stack.
-			void_c set_blend_weight( float32_c value ); // sets influence of this animation player on previous animation players in the animation player stack.
+			float32_c get_blend_weight(); // gets influence of this animation player on previous animation players in the animation player list.
+			void_c set_blend_weight( float32_c value ); // sets influence of this animation player on previous animation players in the animation player list.
 			void_c traverse_blend_weight( float32_c value, float32_c amount );
 
 			float32_c get_animation_move_speed(); // returns the move_speed from the bound animation, if any.
@@ -726,11 +791,16 @@ namespace cheonsa
 
 		};
 
+	private:
+		core_list_c< animation_player_c * > _animation_player_list;
 	public:
-		// the game may edit this list of animation players directly to define which animations play.
-		// animations which come later are layered/blended with animations that come before.
-		// when update_animations() is called, then the animation state is evaluated and applied.
-		core_list_c< animation_player_c * > animation_player_list;
+		// creates a new animation player instance that is linked with this model instance, and adds it to the end of the animation player list.
+		// it will have a reference count of 1, held by this model instance.
+		// typically, the game will also hold a reference to the animation player so that it can control the animations on this model instance.
+		// if the model instance is deleted and the game still has references to the animation player instances, then they will stay alive but they will be useless.
+		animation_player_c * add_animation_player();
+		void_c remove_animation_player( animation_player_c * animation_player ); // deletes a previously created model player instance that is linked with this model instance.
+		void_c remove_all_animation_players();
 
 
 

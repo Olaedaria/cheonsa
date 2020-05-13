@@ -192,8 +192,8 @@
     <ClInclude Include="cheonsa_resource_file_menu_layout.h" />
     <ClInclude Include="cheonsa_resource_file_sound.h" />
     <ClInclude Include="cheonsa_sprite.h" />
-    <ClInclude Include="cheonsa_string.h" />
-    <ClInclude Include="cheonsa_string_file.h" />
+    <ClInclude Include="cheonsa_localized_string.h" />
+    <ClInclude Include="cheonsa_localized_string_file.h" />
     <ClInclude Include="cheonsa_menu_control_label.h" />
     <ClInclude Include="cheonsa_menu_control_list_i.h" />
     <ClInclude Include="cheonsa_menu_control_scene.h" />
@@ -736,9 +736,9 @@
     <ClCompile Include="cheonsa_scene_tree_kd.cpp" />
     <ClCompile Include="cheonsa_resource_file_sprite.cpp" />
     <ClCompile Include="cheonsa_sprite.cpp" />
-    <ClCompile Include="cheonsa_string.cpp" />
+    <ClCompile Include="cheonsa_localized_string.cpp" />
     <ClCompile Include="cheonsa_string8.cpp" />
-    <ClCompile Include="cheonsa_string_file.cpp" />
+    <ClCompile Include="cheonsa_localized_string_file.cpp" />
     <ClCompile Include="cheonsa_video_types.cpp" />
     <ClCompile Include="cheonsa_data_scribe_ini.cpp" />
     <ClCompile Include="cheonsa_data_scribe_structure.cpp" />

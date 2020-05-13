@@ -32,14 +32,6 @@ namespace cheonsa
 	//
 	// the user's 2d screen space inputs are routed through each 2d/3d system seamlessly.
 	// input focus is managed between all of these things.
-	//
-	// your game will probably handle user input by plugging in event handlers on the root level menu_control_scene_c instance.
-	// your game may also plug in event handlers on sub level menu_control_scene_c instances.
-	//
-	// sorting convention for controls is that controls that come first are layered on top of controls that come later.
-	// but remember that these flat lists contain a mix of 2d and 3d controls, and the 2d ones may be assigned to their own layer irrespective of their position in the list.
-	// so when picking controls with the mouse, the list is walked from front to back once for all layers.
-	// and when rendering controls, the list is walked from back to front several times, once for each layer.
 	class user_interface_c
 	{
 		friend class video_renderer_interface_c;

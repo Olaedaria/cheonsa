@@ -488,7 +488,7 @@ namespace cheonsa
 			strings_file_path += "strings.xml";
 			if ( ops::file_system_does_file_exist( strings_file_path ) )
 			{
-				string_file_c * string_file = new string_file_c();
+				localized_string_file_c * string_file = new localized_string_file_c();
 				if ( string_file->load_from_xml( strings_file_path ) )
 				{
 					_string_file_list.insert( -1, string_file );
@@ -510,7 +510,7 @@ namespace cheonsa
 				strings_file_path += "strings.xml";
 				if ( ops::file_system_does_file_exist( strings_file_path ) )
 				{
-					string_file_c * string_file = new string_file_c();
+					localized_string_file_c * string_file = new localized_string_file_c();
 					if ( string_file->load_from_xml( strings_file_path ) )
 					{
 						_string_file_list.insert( -1, string_file );
@@ -524,7 +524,7 @@ namespace cheonsa
 		}
 
 		// refresh all string reference instances.
-		core_linked_list_c< string_c::reference_c * >::node_c const * string_list_node = string_c::reference_c::_global_list.get_first();
+		core_linked_list_c< localized_string_c::reference_c * >::node_c const * string_list_node = localized_string_c::reference_c::_global_list.get_first();
 		while ( string_list_node )
 		{
 			string_list_node->get_value()->resolve_value();
@@ -536,11 +536,11 @@ namespace cheonsa
 		engine.get_menu_style_manager()->refresh();
 	}
 
-	string_c const * content_manager_c::find_string( string8_c const & key ) const
+	localized_string_c const * content_manager_c::find_string( string8_c const & key ) const
 	{
 		for ( sint32_c i = _string_file_list.get_length() - 1; i >= 0; i-- )
 		{
-			string_c const * result = _string_file_list[ i ]->find_string( key );
+			localized_string_c const * result = _string_file_list[ i ]->find_string( key );
 			if ( result )
 			{
 				return result;

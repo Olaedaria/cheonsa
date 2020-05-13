@@ -1686,10 +1686,9 @@ def do_export( context, file_path ):
 	it looks like blender 2.80 no longer supports compound shapes, so this function will be unused at the moment.
 	info: https://docs.blender.org/manual/en/latest/game_engine/physics/types/rigid_body.html
 	gathers all collision bounds contributing blender objects related to the input blender_object.
-	returns None if the blender_object is not use_collision_bounds and ( blender_object is not physics_type 'STATIC' or 'RIGID_BODY' ).
+	returns an empty list if the blender_object is not use_collision_bounds and ( blender_object is not physics_type 'STATIC' or 'RIGID_BODY' ).
 	if the collision type is not compound then it returns a list of length 1 containing only the input blender_object.
 	if the collision type is compound then it returns a list of length >= 1 containing all of the child blender objects that are correctly configured to contribute to the compound collision shape.
-	or returns None if no children are correctly configured to contribute to the compound collision shape.
 	"""
 	def gather_collision_objects( blender_object ):
 		result = []

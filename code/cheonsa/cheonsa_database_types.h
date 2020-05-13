@@ -10,8 +10,12 @@ namespace cheonsa
 	enum database_flag_e
 	{
 		database_flag_e_none = 0x00,
+
+		// master databases define the base content of a game.
 		// if schema is modified and new fields are added, then their values will be defined and set to the default defined by the scehma.
 		database_flag_e_master = 0x01,
+
+		// mod databases add new content to a game or modify existing content from another database higher up in the load order.
 		// if schema is modified and new fields are added, then their values will be left undefined.
 		database_flag_e_mod = 0x02,
 	};
@@ -80,9 +84,11 @@ namespace cheonsa
 		// the game usually doesn't need to do anything to respond to this situation.
 		// but in the case that we are in the editor and the user is undoing or undeleting a record, then the game should reinstance any previously deinstanced objects|states that were instanced from this data.
 		database_operation_e_record_added,
+
 		// a one or more fields in a record were modified.
 		// the game should gracefully reinstance any objects|states that it had instanced from this data.
 		database_operation_e_record_modified,
+
 		// a record is about to be deleted.
 		// the game should gracefully deinstance any objects|states that it had instanced from this data.
 		database_operation_e_record_removed,

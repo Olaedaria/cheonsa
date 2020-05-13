@@ -21,7 +21,7 @@ namespace cheonsa
 		btBroadphaseInterface * _bullet_collision_broad_phase;
 		btCollisionDispatcher * _bullet_collision_dispatcher;
 		btIDebugDraw * _bullet_debug_drawer;
-		boolean_c _bullet_aabbs_are_dirty;
+		boolean_c _aabbs_are_dirty; // if a collision object is added or if a collision object's transform is changed by the game (editor), then this will be set to true to tell the physics implementation to update its axis aligned bounding boxes.
 		vector32x3_c _up; // negative of gravity, normalized.
 
 		// wind model.
@@ -57,6 +57,7 @@ namespace cheonsa
 		void_c add_constraint( physics_constraint_c * constraint );
 		void_c remove_constraint( physics_constraint_c * constraint );
 
+		void_c make_aabbs_dirty(); // tells next update() to call update_aabbs() before stepping the simulation.
 		void_c update_aabbs(); // this needs to be called any collision objects are added, or after changing the transform of a collision object that is already in the simulation scene. this will prevent collision detection from breaking. this gets called automatically by update(), but if you need to update before update then this is provided here for convenience.
 
 		void_c find_all_hits( physics_sweep_test_result_c & result, uint16_c collision_layer, uint16_c collision_layer_mask, vector64x3_c const & sweep_start, vector64x3_c const & sweep_end );

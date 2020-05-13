@@ -32,7 +32,7 @@ namespace cheonsa
 		, _bullet_collision_broad_phase( nullptr )
 		, _bullet_collision_dispatcher( nullptr )
 		, _bullet_debug_drawer( nullptr )
-		, _bullet_aabbs_are_dirty( false )
+		, _aabbs_are_dirty( false )
 		, _reference_count( 0 )
 	{
 		_bullet_collision_broad_phase = new btDbvtBroadphase(); //_bullet_collision_broad_phase->getOverlappingPairCache()->setInternalGhostPairCallback( new btGhostPairCallback() ); // i don't remember what this does
@@ -95,7 +95,7 @@ namespace cheonsa
 		//_WindDirection.Z = 0.0f;
 		//_WindOffset += _WindWaveSpeed * time_step;
 
-		if ( _bullet_aabbs_are_dirty )
+		if ( _aabbs_are_dirty )
 		{
 			update_aabbs();
 		}
@@ -134,7 +134,7 @@ namespace cheonsa
 	{
 		collision_object->add_reference();
 		_bullet_dynamic_world->addCollisionObject( collision_object->_bullet_collision_object );
-		_bullet_aabbs_are_dirty = true;
+		_aabbs_are_dirty = true;
 	}
 
 	void_c physics_scene_c::remove_collision_object( physics_collision_object_c * collision_object )
@@ -177,10 +177,15 @@ namespace cheonsa
 		constraint->remove_reference();
 	}
 
+	void_c physics_scene_c::make_aabbs_dirty()
+	{
+		_aabbs_are_dirty = true;
+	}
+
 	void_c physics_scene_c::update_aabbs()
 	{
 		_bullet_dynamic_world->updateAabbs();
-		_bullet_aabbs_are_dirty = false;
+		_aabbs_are_dirty = false;
 	}
 
 	void_c physics_scene_c::find_all_hits( physics_sweep_test_result_c & result, uint16_c collision_layer, uint16_c collision_layer_mask, vector64x3_c const & sweep_start, vector64x3_c const & sweep_end )

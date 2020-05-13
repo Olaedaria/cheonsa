@@ -6,7 +6,7 @@
 #include "cheonsa_core_event.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_string.h"
+#include "cheonsa_localized_string.h"
 
 namespace cheonsa
 {

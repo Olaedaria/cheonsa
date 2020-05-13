@@ -1,20 +1,20 @@
-#include "cheonsa_string_file.h"
+#include "cheonsa_localized_string_file.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_data_scribe_markup.h"
 
 namespace cheonsa
 {
 
-	string_file_c::string_file_c()
+	localized_string_file_c::localized_string_file_c()
 		: _string_dictionary()
 	{
 	}
 
-	string_file_c::~string_file_c()
+	localized_string_file_c::~localized_string_file_c()
 	{
 	}
 
-	boolean_c string_file_c::load_from_xml( string16_c const & absolute_file_path )
+	boolean_c localized_string_file_c::load_from_xml( string16_c const & absolute_file_path )
 	{
 		unload();
 
@@ -80,7 +80,7 @@ namespace cheonsa
 		offsets.insert( -1, _byte_heap.get_length() ); // add extra so that accessing [ i + 2 ] does not fail.
 		for ( sint32_c i = 0; i < count; i += 2 )
 		{
-			string_c * string = _string_heap.emplace( -1, 1 );
+			localized_string_c * string = _string_heap.emplace( -1, 1 );
 			sint32_c key_start = offsets[ i ];
 			sint32_c key_end = offsets[ i + 1 ];
 			string->_key = string8_c( core_list_mode_e_static, &_byte_heap.get_internal_array()[ key_start ], key_end - key_start );
@@ -93,12 +93,12 @@ namespace cheonsa
 		return true;
 	}
 
-	void_c string_file_c::unload()
+	void_c localized_string_file_c::unload()
 	{
 		_string_dictionary.remove_all();
 	}
 
-	string_c const * string_file_c::find_string( string8_c const & key ) const
+	localized_string_c const * localized_string_file_c::find_string( string8_c const & key ) const
 	{
 		sint32_c const * string_index = _string_dictionary.find_value_pointer( key );
 		if ( string_index )

@@ -478,8 +478,6 @@
     <ClInclude Include="third_party\bullet\LinearMath\btVector3.h" />
     <ClInclude Include="third_party\bullet\btBulletCollisionCommon.h" />
     <ClInclude Include="third_party\bullet\btBulletDynamicsCommon.h" />
-    <ClInclude Include="cheonsa_string.h" />
-    <ClInclude Include="cheonsa_string_file.h" />
     <ClInclude Include="cheonsa_audio2.h" />
     <ClInclude Include="cheonsa_resource_file.h" />
     <ClInclude Include="cheonsa_resource_file_font.h" />
@@ -518,6 +516,8 @@
     <ClInclude Include="cheonsa_resource_file_sprite.h" />
     <ClInclude Include="cheonsa_physics_collision_object.h" />
     <ClInclude Include="cheonsa_scene_component_collision_object.h" />
+    <ClInclude Include="cheonsa_localized_string_file.h" />
+    <ClInclude Include="cheonsa_localized_string.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -614,8 +614,6 @@
     <ClCompile Include="cheonsa_reflection_types.cpp" />
     <ClCompile Include="cheonsa_platform_critical_section.cpp" />
     <ClCompile Include="cheonsa_video_interface_d3d11.cpp" />
-    <ClCompile Include="cheonsa_string.cpp" />
-    <ClCompile Include="cheonsa_string_file.cpp" />
     <ClCompile Include="cheonsa_sprite.cpp" />
     <ClCompile Include="cheonsa_audio2.cpp" />
     <ClCompile Include="cheonsa_resource_file.cpp" />
@@ -651,5 +649,7 @@
     <ClCompile Include="cheonsa_resource_file_sprite.cpp" />
     <ClCompile Include="cheonsa_physics_collision_object.cpp" />
     <ClCompile Include="cheonsa_scene_component_collision_object.cpp" />
+    <ClCompile Include="cheonsa_localized_string_file.cpp" />
+    <ClCompile Include="cheonsa_localized_string.cpp" />
   </ItemGroup>
 </Project>

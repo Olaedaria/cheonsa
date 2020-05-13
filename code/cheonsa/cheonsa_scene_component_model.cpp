@@ -102,7 +102,7 @@ namespace cheonsa
 		}
 
 		// apply custom material assignments.
-		apply_custom_material_list();
+		_apply_custom_material_list();
 
 		// instantiate bones.
 		if ( _model_resource->get_data().bone_list.get_length() > 0 )
@@ -405,7 +405,7 @@ namespace cheonsa
 		get_mother_model_root()->_restart_bone_logics_recursive();
 
 		// refresh animation map dictionary.
-		refresh_animation_map_dictionary();
+		_refresh_animation_map_dictionary();
 
 		// notify listeners that we are now bound.
 		on_model_resource_bound.invoke( this );
@@ -431,7 +431,7 @@ namespace cheonsa
 		on_model_resource_unbound.invoke( this );
 
 		// update animation lookup dictionary.
-		refresh_animation_map_dictionary();
+		_refresh_animation_map_dictionary();
 
 		// remove and delete physics.
 		if ( _physics_is_added_to_simulation )
@@ -564,57 +564,7 @@ namespace cheonsa
 	{
 	}
 
-	void_c scene_component_model_c::_handle_animations_resource_on_loaded( resource_file_c * resource )
-	{
-		refresh_animation_map_dictionary();
-		_on_animation_resources_updated.invoke( this );
-	}
-
-	void_c scene_component_model_c::_handle_animations_resource_on_unloaded( resource_file_c * resource )
-	{
-		refresh_animation_map_dictionary();
-		_on_animation_resources_updated.invoke( this );
-	}
-
-	void_c scene_component_model_c::add_animations_resource( resource_file_model_c * resource )
-	{
-		assert( _animations_resource_list.find_index_of( resource ) < 0 );
-		resource->on_loaded.subscribe( this, &scene_component_model_c::_handle_animations_resource_on_loaded );
-		resource->on_unloaded.subscribe( this, &scene_component_model_c::_handle_animations_resource_on_unloaded );
-		_animations_resource_list.insert( -1, resource );
-	}
-
-	void_c scene_component_model_c::remove_animations_resource( resource_file_model_c * resource )
-	{
-		assert( _animations_resource_list.find_index_of( resource ) >= 0 );
-		resource->on_loaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_loaded );
-		resource->on_unloaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_unloaded );
-		_animations_resource_list.remove_value( resource );
-	}
-
-	sint32_c scene_component_model_c::get_animations_resource_count()
-	{
-		return _animations_resource_list.get_length();
-	}
-
-	resource_file_model_c * scene_component_model_c::get_animations_resource_at_index( sint32_c index )
-	{
-		return _animations_resource_list[ index ];
-	}
-
-	void_c scene_component_model_c::remove_all_animations_resources()
-	{
-		for ( sint32_c i = 0; i < _animations_resource_list.get_length(); i++ )
-		{
-			resource_file_model_c * animations_resource = _animations_resource_list[ i ];
-			animations_resource->on_loaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_loaded );
-			animations_resource->on_unloaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_unloaded );
-		}
-		_animations_resource_list.remove_all();
-		refresh_animation_map_dictionary();
-	}
-
-	void_c scene_component_model_c::refresh_animation_map_dictionary()
+	void_c scene_component_model_c::_refresh_animation_map_dictionary()
 	{
 		core_list_c< resource_file_model_c * > animations_resource_list;
 		if ( _model_resource->get_is_loaded() )
@@ -641,6 +591,48 @@ namespace cheonsa
 				_animation_map_dictionary.insert( string8_c( core_list_mode_e_static, &animation_resource->get_data().string_table[ animation_map.source_animation->name ] ), animation_map );
 			}
 		}
+	}
+
+	void_c scene_component_model_c::_handle_animations_resource_on_loaded( resource_file_c * resource )
+	{
+		_refresh_animation_map_dictionary();
+		_on_animation_resources_updated.invoke( this );
+	}
+
+	void_c scene_component_model_c::_handle_animations_resource_on_unloaded( resource_file_c * resource )
+	{
+		_refresh_animation_map_dictionary();
+		_on_animation_resources_updated.invoke( this );
+	}
+
+	void_c scene_component_model_c::add_animations_resource( resource_file_model_c * resource )
+	{
+		assert( _animations_resource_list.find_index_of( resource ) < 0 );
+		resource->on_loaded.subscribe( this, &scene_component_model_c::_handle_animations_resource_on_loaded );
+		resource->on_unloaded.subscribe( this, &scene_component_model_c::_handle_animations_resource_on_unloaded );
+		_animations_resource_list.insert( -1, resource );
+		_refresh_animation_map_dictionary();
+	}
+
+	void_c scene_component_model_c::remove_animations_resource( resource_file_model_c * resource )
+	{
+		assert( _animations_resource_list.find_index_of( resource ) >= 0 );
+		resource->on_loaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_loaded );
+		resource->on_unloaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_unloaded );
+		_animations_resource_list.remove_value( resource );
+		_refresh_animation_map_dictionary();
+	}
+
+	void_c scene_component_model_c::remove_all_animations_resources()
+	{
+		for ( sint32_c i = 0; i < _animations_resource_list.get_length(); i++ )
+		{
+			resource_file_model_c * animations_resource = _animations_resource_list[ i ];
+			animations_resource->on_loaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_loaded );
+			animations_resource->on_unloaded.unsubscribe( this, &scene_component_model_c::_handle_animations_resource_on_unloaded );
+		}
+		_animations_resource_list.remove_all();
+		_refresh_animation_map_dictionary();
 	}
 
 
@@ -678,7 +670,7 @@ namespace cheonsa
 		}
 	}
 
-	resource_file_materials_c * scene_component_model_c::get_materials_resource()
+	resource_file_materials_c * scene_component_model_c::get_materials_resource() const
 	{
 		return _materials_resource;
 	}
@@ -783,37 +775,9 @@ namespace cheonsa
 
 	void_c scene_component_model_c::find_meshes( string8_c const & names, core_list_c< mesh_c * > & result )
 	{
-		// split the potentially semi-colon separated list of names into a list of single names.
-		core_list_c< string8_c > name_list;
-		//ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, ";" ), name_list ); // this is the quick and easy way, but not as efficient.
-		string8_c names_copy( core_list_mode_e_dynamic, names.character_list.get_internal_array(), names.character_list.get_length() ); // create a copy that we can edit in-place.
 		result.remove_all();
-		char8_c * string_scan = names_copy.character_list.get_internal_array();
-		char8_c * string_start = string_scan;
-		while ( true )
-		{
-			if ( *string_scan == ';' || *string_scan == 0 )
-			{
-				*string_scan = 0;
-				name_list.insert( -1, string8_c( core_list_mode_e_static, string_start, static_cast< sint32_c >( string_scan - string_start ) ) );
-				if ( *string_scan == 0 ) // first check, in case the list did not end with a delimiter.
-				{
-					break;
-				}
-				string_scan++;
-				if ( *string_scan == 0 ) // redundant second check, in case the list did end with a delimiter.
-				{
-					break;
-				}
-				string_start = string_scan;
-			}
-			else
-			{
-				string_scan++;
-			}
-		}
-
-		// go through each name.
+		core_list_c< string8_c > name_list;
+		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, ";" ), name_list );
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
@@ -867,6 +831,7 @@ namespace cheonsa
 		, _mother_bone( nullptr )
 		, _source_bone( nullptr )
 		, _source_bone_extras( nullptr )
+		, _local_space_transform_from_base_pose_adjustments()
 		, _local_space_transform()
 		, _world_space_transform()
 		, _object_space_skin_matrix()
@@ -945,9 +910,19 @@ namespace cheonsa
 		return _local_space_transform;
 	}
 
+	void_c scene_component_model_c::bone_c::set_local_space_transform( transform3d_c const & value )
+	{
+		_local_space_transform = value;
+	}
+
 	transform3d_c const & scene_component_model_c::bone_c::get_world_space_transform() const
 	{
 		return _world_space_transform;
+	}
+
+	void_c scene_component_model_c::bone_c::set_world_space_transform( transform3d_c const & value )
+	{
+		_world_space_transform = value;
 	}
 
 	void_c scene_component_model_c::_update_bone_skin_matrix_list_recursive()
@@ -1051,7 +1026,7 @@ namespace cheonsa
 	{
 		result.remove_all();
 		core_list_c< string8_c > name_list;
-		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, "," ), name_list );
+		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, ";" ), name_list );
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
@@ -1362,7 +1337,7 @@ namespace cheonsa
 	{
 		result.remove_all();
 		core_list_c< string8_c > name_list;
-		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, "," ), name_list );
+		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, ";" ), name_list );
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
@@ -1636,7 +1611,7 @@ namespace cheonsa
 	// custom material assignments.
 	//
 
-	scene_component_model_c::custom_material_c::custom_material_c( string8_c const & target_mesh_name )
+	scene_component_model_c::custom_material_c::custom_material_c()
 		: _target_mesh_names()
 		, _colors_enabled( false )
 		, _colors()
@@ -1644,7 +1619,28 @@ namespace cheonsa
 		, _textures()
 		, _pixel_shader_enabled( false )
 		, _pixel_shader()
+		, _reference_count( 0 )
 	{
+	}
+
+	scene_component_model_c::custom_material_c * scene_component_model_c::custom_material_c::make_new_instance()
+	{
+		return new custom_material_c();
+	}
+
+	void_c scene_component_model_c::custom_material_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c scene_component_model_c::custom_material_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+		}
 	}
 
 	string8_c const & scene_component_model_c::custom_material_c::get_target_mesh_names() const
@@ -1721,34 +1717,99 @@ namespace cheonsa
 		_pixel_shader = value;
 	}
 
-	core_list_c< scene_component_model_c::custom_material_c * > & scene_component_model_c::get_custom_material_list()
-	{
-		assert( _custom_material_list_is_locked == false );
-		return _custom_material_list;
-	}
-
-	void_c scene_component_model_c::unapply_custom_material_list()
-	{
-		for ( sint32_c i = 0; i < _mesh_list.get_length(); i++ )
-		{
-			_mesh_list[ i ]._custom_material_assignment = nullptr;
-		}
-		_custom_material_list_is_locked = false;
-	}
-
-	void_c scene_component_model_c::apply_custom_material_list()
+	void_c scene_component_model_c::_apply_custom_material_list()
 	{
 		for ( sint32_c i = 0; i < _custom_material_list.get_length(); i++ )
 		{
-			custom_material_c * material_assignment = _custom_material_list[ i ];
+			custom_material_c * custom_material = _custom_material_list[ i ];
 			core_list_c< mesh_c * > mesh_list;
-			find_meshes( material_assignment->_target_mesh_names, mesh_list );
+			find_meshes( custom_material->_target_mesh_names, mesh_list );
 			for ( sint32_c j = 0; j < mesh_list.get_length(); j++ )
 			{
-				mesh_list[ j ]->_custom_material_assignment = material_assignment;
+				mesh_list[ j ]->_custom_material_assignment = custom_material;
 			}
 		}
-		_custom_material_list_is_locked = true;
+	}
+
+	void_c scene_component_model_c::set_custom_material_list( core_list_c< custom_material_c * > const & custom_material_list )
+	{
+		// release old.
+		for ( sint32_c i = 0; i < _custom_material_list.get_length(); i++ )
+		{
+			_custom_material_list[ i ]->remove_reference();
+		}
+		_custom_material_list.remove_all();
+
+		// hold new.
+		for ( sint32_c i = 0; i < custom_material_list.get_length(); i++ )
+		{
+			custom_material_c * custom_material = custom_material_list[ i ];
+			assert( custom_material != nullptr );
+			custom_material->add_reference();
+			_custom_material_list.insert( -1, custom_material );
+		}
+
+		// apply new.
+		_apply_custom_material_list();
+	}
+
+
+
+
+	//
+	// custom base pose adjustments.
+	//
+
+	scene_component_model_c::base_pose_adjustment_c::base_pose_adjustment_c()
+		: _bone_name_list()
+		, _position()
+		, _rotation()
+		, _scale()
+	{
+	}
+
+	string8_c const & scene_component_model_c::base_pose_adjustment_c::get_bone_name_list() const
+	{
+		return _bone_name_list;
+	}
+
+	void_c scene_component_model_c::base_pose_adjustment_c::set_bone_name_list( string8_c const & value )
+	{
+		_bone_name_list = value;
+	}
+
+	vector32x3_c const & scene_component_model_c::base_pose_adjustment_c::get_position() const
+	{
+		return _position;
+	}
+
+	void_c scene_component_model_c::base_pose_adjustment_c::set_position( vector32x3_c const & value )
+	{
+		_position = value;
+	}
+
+	quaternion32_c const & scene_component_model_c::base_pose_adjustment_c::get_rotation() const
+	{
+		return _rotation;
+	}
+
+	void_c scene_component_model_c::base_pose_adjustment_c::set_rotation( quaternion32_c const & value )
+	{
+		_rotation = value;
+	}
+
+	vector32x3_c const & scene_component_model_c::base_pose_adjustment_c::get_scale() const
+	{
+		return _scale;
+	}
+
+	void_c scene_component_model_c::base_pose_adjustment_c::set_scale( vector32x3_c const & value )
+	{
+		_scale = value;
+	}
+
+	void_c scene_component_model_c::apply_base_pose_adjustments()
+	{
 	}
 
 
@@ -1883,6 +1944,7 @@ namespace cheonsa
 		, _time_to_bind_type( time_to_bind_type_e_seconds )
 		, _time_to_bind( 0.0f )
 		//, _time_from_other( nullptr )
+		, _reference_count( 0 )
 	{
 		assert( _mother_model != nullptr );
 		_mother_model->_on_animation_resources_updated.subscribe( this, &animation_player_c::_handle_on_animation_resources_updated );
@@ -1891,6 +1953,21 @@ namespace cheonsa
 	scene_component_model_c::animation_player_c::~animation_player_c()
 	{
 		_mother_model->_on_animation_resources_updated.unsubscribe( this, &animation_player_c::_handle_on_animation_resources_updated );
+	}
+
+	void_c scene_component_model_c::animation_player_c::add_reference()
+	{
+		_reference_count++;
+	}
+
+	void_c scene_component_model_c::animation_player_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+		}
 	}
 
 	void_c scene_component_model_c::animation_player_c::update( float32_c time_step )
@@ -2204,6 +2281,33 @@ namespace cheonsa
 		return false;
 	}
 
+	scene_component_model_c::animation_player_c * scene_component_model_c::add_animation_player()
+	{
+		animation_player_c * animation_player = new animation_player_c( this );
+		animation_player->add_reference();
+		_animation_player_list.insert( -1, animation_player );
+		return animation_player;
+	}
+
+	void_c scene_component_model_c::remove_animation_player( animation_player_c * animation_player )
+	{
+		assert( animation_player->_mother_model == this );
+		_animation_player_list.remove_value( animation_player );
+		animation_player->_mother_model = nullptr;
+		animation_player->remove_reference();
+	}
+
+	void_c scene_component_model_c::remove_all_animation_players()
+	{
+		for ( sint32_c i = 0; i < _animation_player_list.get_length(); i++ )
+		{
+			animation_player_c * animation_player = _animation_player_list[ i ];
+			animation_player->_mother_model = nullptr;
+			animation_player->remove_reference();
+		}
+		_animation_player_list.remove_all();
+	}
+
 
 
 
@@ -2400,9 +2504,8 @@ namespace cheonsa
 		, _custom_object_colors()
 		, _custom_object_textures_enabled( false )
 		, _custom_object_textures()
-		, _custom_material_list_is_locked( false )
 		, _custom_material_list()
-		, animation_player_list()
+		, _animation_player_list()
 		, _world_space_transform_inverse()
 		, _opacity( 1.0f )
 		, _render_enabled( true )
@@ -2424,9 +2527,13 @@ namespace cheonsa
 	scene_component_model_c::~scene_component_model_c()
 	{
 		assert( _mother_model == nullptr ); // should be disassociated before being deleted.
-		assert( animation_player_list.get_length() == 0 ); // we don't want to risk taking responsibility for managing dangling animation player instances, so we assert here to warn about potential for leak. these animation players could be on the heap or the stack, there may be others that were allocated for us but are not currently in our list, etc. paranoid.
-		set_materials_resource( nullptr ); // releases reference and unsubscribes from events.
+
+		remove_all_animation_players(); // remove these first, because when we remove animation resources, they won't try to resync the animation players.
+
 		remove_all_animations_resources(); // releases reference and unsubscribes from events.
+
+		set_materials_resource( nullptr ); // releases reference and unsubscribes from events.
+
 		set_model_resource( nullptr ); // releases reference and unsubscribes from events. also removes physics objects from physics simulation scene, and deletes them.
 	}
 
@@ -2443,16 +2550,17 @@ namespace cheonsa
 		// reset pose properties so we don't inadvertently accumulate values from the last frame.
 		for ( sint32_c i = 0; i < _bone_list.get_length(); i++ )
 		{
-			_bone_list[ i ]._local_space_transform.reset();
+			bone_c * bone = &_bone_list[ i ];
+			bone->_local_space_transform = bone->_local_space_transform_from_base_pose_adjustments;
 		}
 
 		// update animation players and sample animated properties.
 		vector32x3_c sampled_position;
 		quaternion32_c sampled_orientation;
 		vector32x3_c sampled_scale;
-		for ( sint32_c i = 0; i < animation_player_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _animation_player_list.get_length(); i++ )
 		{
-			animation_player_c * animation_player = animation_player_list[ i ];
+			animation_player_c * animation_player = _animation_player_list[ i ];
 			if ( animation_player == nullptr || animation_player->_source_animation == nullptr || animation_player->_blend_weight == 0.0f )
 			{
 				continue;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_string_file.h"
+#include "cheonsa_localized_string_file.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_scribe_ini.h"
 #include "cheonsa_data_stream_file.h"
@@ -8,8 +8,10 @@
 namespace cheonsa
 {
 
-	// tells other systems where to load content from and what locale setting to use.
-	// the resource manager uses this to set data folder paths to scan for resource files.
+	// there is one content manager instance per engine instance.
+	// tells other systems what folders to load content from and what locale setting to use.
+	// resolves relative file paths (of game content) to absolute file paths (which can be used to open actual files).
+	// it's done this way in part to support file modding as a feature.
 	// folders at the end of the list have higher priority than those at the start.
 	// the resource manager reinterprets paths that start with "engine/" to mean [engine_data_folder_path], this kind of compartmentalizes internal engine data from game data.
 	// all built-in internal use data files will have paths that start with "engine/".
@@ -70,7 +72,7 @@ namespace cheonsa
 		void_c _load_settings( data_scribe_ini_c & scribe );
 
 		// one string file is loaded for each data folder that contains a "strings.xml" file.
-		core_list_c< string_file_c * > _string_file_list;
+		core_list_c< localized_string_file_c * > _string_file_list;
 
 		data_scribe_ini_c _settings_file;
 
@@ -117,7 +119,8 @@ namespace cheonsa
 		// gets the list of detected supported locales.
 		// this can be used to show a locale selection list to the user.
 		core_list_c< locale_c * > const & get_supported_locales() const;
-		// sets the preferred locale code and then tries to switch to it. it may fail and select a default locale, but the preference will be persistent. this will force reloading of strings and affected resources.
+		// sets the preferred locale code.
+		// you will have to call apply_changes() when you are ready to try to switch to it.
 		void_c set_preferred_locale_code( string16_c const & locale_code );
 		// gets the preferred locale code.
 		string16_c const & get_preferred_locale_code();
@@ -125,11 +128,12 @@ namespace cheonsa
 		locale_c const * get_actual_locale() const;
 
 		// apply any data or locale changes made.
+		// detects supported by scanning each engine data folder and each game data folder for sub folders, and the name of each sub folder defines a supported locale code (with the exception of the folder named "_common" which contains files common to all locales).
 		// this incurs a reload of resources and strings.
 		void_c apply_changes();
 
 		// looks up a string for the current locale.
-		string_c const * find_string( string8_c const & key ) const; // looks up a string in this string file.
+		localized_string_c const * find_string( string8_c const & key ) const; // looks up a string in this string file.
 
 		// loads the settings file state from the settings file on disk.
 		boolean_c load_settings_file();

@@ -11,10 +11,8 @@ namespace cheonsa
 #pragma pack( push, 1 )
 
 	// gpu shader compatible light structure.
-	// 64 bytes.
-	class video_renderer_light_c
+	struct video_renderer_light_c
 	{
-	public:
 		float32_c light_type;
 		float32_c shadow_view_start;
 		float32_c shadow_view_count;
@@ -26,7 +24,6 @@ namespace cheonsa
 	static_assert( sizeof( video_renderer_light_c ) == 64, "size of video_renderer_light_c is wrong." );
 
 	// gpu shader compatible shadow view structure.
-	// 68 bytes.
 	struct video_renderer_shadow_view_c
 	{
 		matrix32x4x4_c view_projection_transform;
@@ -38,9 +35,8 @@ namespace cheonsa
 	// gpu shader compatible vertex structure.
 	// used by itself for static meshes.
 	// used in tandem with video_renderer_vertex_weight_c for gpu skinned meshes.
-	class video_renderer_vertex_mesh_base_c
+	struct video_renderer_vertex_mesh_base_c
 	{
-	public:
 		vector32x3_c position;
 		vector32x3_c normal;
 		vector32x3_c normal_u;
@@ -51,18 +47,16 @@ namespace cheonsa
 
 	// gpu shader compatible vertex structure.
 	// used for gpu skinned meshes.
-	class video_renderer_vertex_mesh_bone_weight_c
+	struct video_renderer_vertex_mesh_bone_weight_c
 	{
-	public:
 		uint16_c bone_weights[ 4 ];
 		uint16_c bone_indices[ 4 ];
 	};
 	static_assert( sizeof( video_renderer_vertex_mesh_bone_weight_c ) == 16, "size of video_renderer_vertex_mesh_bone_weight_c is wrong." );
 
 	// gpu shader compatible vertex structure.
-	class video_renderer_vertex_menu_c
+	struct video_renderer_vertex_menu_c
 	{
-	public:
 		vector32x3_c position;
 		vector32x3_c texture; // ab defines texture coordinates, c defines texture slice index to sample from in the case of rendering text.
 		vector32x4_c color;
@@ -72,27 +66,24 @@ namespace cheonsa
 
 	// debug vertices are initially created in scene space so they need to have 64-bit precision.
 	// they are then translated to be relative to the camera and converted to 32-bit when it comes time to render them.
-	class video_renderer_vertex_debug_64_c
+	struct video_renderer_vertex_debug_64_c
 	{
-	public:
 		vector64x3_c position;
 		vector32x4_c color;
 	};
 	static_assert( sizeof( video_renderer_vertex_debug_64_c ) == 40, "size of video_renderer_vertex_debug_64_c is wrong." );
 
 	// gpu shader compatible vertex structure.
-	class video_renderer_vertex_debug_c
+	struct video_renderer_vertex_debug_c
 	{
-	public:
 		vector32x3_c position;
 		vector32x4_c color;
 	};
 	static_assert( sizeof( video_renderer_vertex_debug_c ) == 28, "size of video_renderer_vertex_debug_c is wrong." );
 
 	// gpu shader compatible vertex structure.
-	class video_renderer_vertex_point_c
+	struct video_renderer_vertex_point_c
 	{
-	public:
 		vector32x3_c position;
 	};
 	static_assert( sizeof( video_renderer_vertex_point_c ) == 12, "size of video_renderer_vertex_point_c is wrong." );
