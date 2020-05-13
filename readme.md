@@ -4,7 +4,7 @@
 
 ## how to build
 
-these are just hints so i hope you know enough or are smart enough to find your way.
+these are just hints.
 
 use microsoft visual studio community 2017.
 
@@ -22,10 +22,10 @@ at build time, cheonsa depends on four static link library files from two 3rd pa
     * "BulletCollision_vs2010_x64_debug.lib"
     * "BulletDynamics_vs2010_x64_debug.lib"
 
-once you have the four static link library files, copy them to cheonsa's build output folder at "code\cheonsa\code\x64\Debug Static" so that the linker can find them. at this point, you can try building to see if it works.
+once you have the four static link library files, copy them to cheonsa's build output folder at "[project folder]\code\x64\Debug Static" so that the linker can find them. at this point, you can try building to see if it works.
 
 at run time, cheonsa depends on one dynamic link library from the windows sdk (or maybe even the directx sdk):
 
 * "d3dcompiler_47.dll"
 
-this is included with the windows sdk, which you should have if you installed visual studio community. on my system this is located at "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\d3dcompiler_47.dll". once you have the dynamic link library file, copy it to "data\engine\d3dcompiler_47.dll". the engine will look for this dll at start up.
+this is included with the windows sdk, which you should have if you installed visual studio community. on my system this is located at "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\d3dcompiler_47.dll". once you have the dynamic link library file, copy it to "[project folder]\data\engine\d3dcompiler_47.dll". the engine will look for this dll at start up.
