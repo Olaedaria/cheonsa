@@ -1,12 +1,31 @@
 # cheonsa
 
-cheonsa is a 3D game engine.
+[documentation](https://olaedaria.github.io/cheonsa/) (place holder at the moment)
 
-it is made with Visual Studio Community 2017, written in C++11, for Direct3D 11 and Windows 10 (desktop).
+## how to build
 
-it is currently not feature complete, so i am not yet going to write a guide for how to build and use it. i don't think it's worth trying to build yet, but if you want to here are some hints: it is configured for x64 and for static linking with the multi-threaded C runtime. it depends on freetype 2.10.1 ("freetype.lib") and bullet3 2.88 ("LinearMath_vs2010_x64_debug.lib", "BulletCollision_vs2010_x64_debug.lib", and "BulletDynamics_vs2010_x64_debug.lib"). i have included the bare minimum headers for freetype and bullet already, so all you need to do is provide those static link libraries. the engine once running will look for a copy of "d3dcompiler_47.dll" in the "[cheonsa]/data/engine/" folder.
+these are just hints so i hope you know enough or are smart enough to find your way.
 
-# Additional
-Portions of this software are copyright © 2019 The FreeType Project (www.freetype.org). All rights reserved.
+use microsoft visual studio community 2017.
 
-Additional third-party dependencies have their own separate licenses, listed in their respective source code files.
+cheonsa's solution is configured out of the box to build:
+* debug
+* to target x64
+* to static link with Multi-threaded Debug (/MTd).
+
+at build time, cheonsa depends on four static link library files from two 3rd party projects. you will need to build (with the same configuration as cheonsa) these static link libraries yourself. they are from open source projects so you can find their source code easily with some searching, but figuring out how to build them might take longer.
+
+* from "free type 2.10.1"
+* * "freetype.lib"
+* from "bullet3 2.88"
+* * "LinearMath_vs2010_x64_debug.lib"
+* * "BulletCollision_vs2010_x64_debug.lib"
+* * "BulletDynamics_vs2010_x64_debug.lib"
+
+once you have the four static link library files, copy them to cheonsa's build output folder at "code\cheonsa\code\x64\Debug Static" so that the linker can find them. at this point, you can try building to see if it works.
+
+at run time, cheonsa depends on one dynamic link library from the windows sdk (or maybe even the directx sdk):
+
+* "d3dcompiler_47.dll"
+
+this is included with the windows sdk, which you should have if you installed visual studio community. on my system this is located at "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\d3dcompiler_47.dll". once you have the dynamic link library file, copy it to "data\engine\d3dcompiler_47.dll". the engine will look for this dll at start up.
