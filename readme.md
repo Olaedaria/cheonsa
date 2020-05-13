@@ -16,11 +16,11 @@ cheonsa's solution is configured out of the box to build:
 at build time, cheonsa depends on four static link library files from two 3rd party projects. you will need to build (with the same configuration as cheonsa) these static link libraries yourself. they are from open source projects so you can find their source code easily with some searching, but figuring out how to build them might take longer.
 
 * from "free type 2.10.1"
-* * "freetype.lib"
+    * "freetype.lib"
 * from "bullet3 2.88"
-* * "LinearMath_vs2010_x64_debug.lib"
-* * "BulletCollision_vs2010_x64_debug.lib"
-* * "BulletDynamics_vs2010_x64_debug.lib"
+    * "LinearMath_vs2010_x64_debug.lib"
+    * "BulletCollision_vs2010_x64_debug.lib"
+    * "BulletDynamics_vs2010_x64_debug.lib"
 
 once you have the four static link library files, copy them to cheonsa's build output folder at "code\cheonsa\code\x64\Debug Static" so that the linker can find them. at this point, you can try building to see if it works.
 
