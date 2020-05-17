@@ -12,6 +12,8 @@ namespace cheonsa
 	// there is one global shared instance, declared in "cheonsa_engine.h", defined in "cheonsa_engine.cpp", it's fully qualified name is "global_engine_instance.interfaces.menu_style_manager".
 	class menu_style_manager_c
 	{
+		friend class engine_c;
+
 	private:
 		float32_c _shared_transition_speed; // speed in units per second of visual state transitions. a speed of 1 will take 1 second, a speed of 100 will take 1/100th of a second.
 		
@@ -26,12 +28,12 @@ namespace cheonsa
 		menu_style_file_c _engine_styles; // built-in styles used by engine menus, loaded from engine data folder "menus/styles.xml".
 		menu_style_file_c _game_styles; // game defined styles used by game menus, loaded from game data folder "menus/styles.xml".
 
-	public:
 		menu_style_manager_c();
 		~menu_style_manager_c();
 
 		boolean_c start();
 
+	public:
 		void_c refresh(); // reloads engine and game style files.
 
 		void_c set_shared_color_base_notes( menu_shared_color_base_notes_c const & values );

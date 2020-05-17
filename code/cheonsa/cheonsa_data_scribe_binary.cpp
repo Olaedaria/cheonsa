@@ -62,12 +62,26 @@ namespace cheonsa
 	{
 	}
 
+	void_c data_scribe_binary_c::open( data_stream_c * stream, byte_order_e byte_order )
+	{
+		assert( _stream == nullptr );
+		assert( stream != nullptr );
+		_stream = stream;
+		set_byte_order_( byte_order );
+	}
+
+	void_c data_scribe_binary_c::close()
+	{
+		assert( _stream != nullptr );
+		_stream = nullptr;
+	}
+
 	data_stream_c * data_scribe_binary_c::get_stream()
 	{
 		return _stream;
 	}
 
-	void_c data_scribe_binary_c::set_stream( data_stream_c * stream )
+	void_c data_scribe_binary_c::set_stream_( data_stream_c * stream )
 	{
 		_stream = stream;
 	}
@@ -77,18 +91,22 @@ namespace cheonsa
 		return _byte_order;
 	}
 
-	void_c data_scribe_binary_c::set_byte_order( byte_order_e byte_order )
+	void_c data_scribe_binary_c::set_byte_order_( byte_order_e byte_order )
 	{
-		_byte_order = byte_order;
-		if ( _byte_order == ops::get_native_byte_order() )
+		assert( byte_order == byte_order_e_little || byte_order == byte_order_e_big );
+		if ( _byte_order != byte_order )
 		{
-			_load_function = &data_scribe_binary_c::_load_straight;
-			_save_function = &data_scribe_binary_c::_save_straight;
-		}
-		else
-		{
-			_load_function = &data_scribe_binary_c::_load_flipped;
-			_save_function = &data_scribe_binary_c::_save_flipped;
+			_byte_order = byte_order;
+			if ( _byte_order == ops::get_native_byte_order() )
+			{
+				_load_function = &data_scribe_binary_c::_load_straight;
+				_save_function = &data_scribe_binary_c::_save_straight;
+			}
+			else
+			{
+				_load_function = &data_scribe_binary_c::_load_flipped;
+				_save_function = &data_scribe_binary_c::_save_flipped;
+			}
 		}
 	}
 

@@ -1100,26 +1100,6 @@ namespace cheonsa
 
 	//
 	//
-	// menu_text_entity_c
-	//
-	//
-
-	menu_text_entity_c::menu_text_entity_c( sint32_c type_code )
-		: type_code( type_code )
-	{
-	}
-
-	menu_text_entity_sprite_c::menu_text_entity_sprite_c()
-		: menu_text_entity_c( type_code_static() )
-		, value()
-	{
-	}
-
-
-
-
-	//
-	//
 	// menu_event_information_c
 	//
 	//

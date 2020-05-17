@@ -58,8 +58,8 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
-		static core_linked_list_c< menu_element_text_c * > _global_list; // hold all text element instances, so that they can be notified in order to respond to changes in shared menu styles or shared string values.
-		static void_c invalidate_glyph_layout_of_all_instances(); // invalidates lay out of all text elements, this also causes sprite references and string references to be updated.
+		static core_linked_list_c< menu_element_text_c * > _global_list; // hold all text element instances, so that they can be notified to respond to changes in shared menu styles or shared text strings or shared text sprites.
+		static void_c invalidate_glyph_layout_of_all_instances(); // invalidates lay out of all text elements, this also causes entities (text strings and text sprites) to be re-evaluated).
 		static void_c invalidate_glyph_layout_of_all_instances_with_font( resource_file_font_c * font ); // invalidates lay out of all text elements that have paragraphs that reference font.
 
 	public:
@@ -116,10 +116,10 @@ namespace cheonsa
 		// spans are generally not responsible for togglable bold, italic, and underline states.
 		class text_span_c
 		{
-		private:
 			friend class menu_element_text_c;
 			friend class core_list_c< text_span_c >;
 
+		private:
 			text_paragraph_c * _mother_paragraph; // will be set if the immediate mother of this span is a paragraph, otherwise it will be nullptr.
 
 			sint32_c _character_start; // index of first character within _plain_text that is formatted by this span.
@@ -146,6 +146,47 @@ namespace cheonsa
 
 		};
 
+		class text_paragraph_c;
+
+		// entities are sub-strings within the _plain_text that are instanced during _do_glyph_layout().
+		// the cursor when moving left or right will navigate around these entities, so they act like a single character.
+		// selecting the entity means selecting the plain text that is behind it, so it is possible to copy and paste them because they are just plain text.
+		// backspacing/deleting a character in the entity can be configured to delete the entire entity sub-string, or to just delete the single character thus breaking the entity so that it appears as plain text.
+		//
+		// a text sprite entity is identified like:
+		// ":key:"
+		// and the range of characters is replaced by a sprite instance (which can be animated).
+		// the key references a sprite in the engine's text sprite registry.
+		// this is how your game could implement emojiis.
+		// 
+		// a text string entity is identified like:
+		// ":$key:
+		// and the range of characters is replaced by another string.
+		// the key references a game defined string or a localized string.
+		class text_entity_c
+		{
+			friend class menu_element_text_c;
+
+		private:
+			text_paragraph_c * _mother_paragraph;
+
+			sint32_c _character_start; // index of first character within _plain_text that belongs to this entity.
+			sint32_c _character_end; // index of last character within _plain_text that belongs to this entity.
+			string8_c _key; // the key, will start with '$' if this is a string entity, otherwise it won't.
+
+			boolean_c _has_instance;
+			sprite_c _sprite_instance;
+			string16_c _string_instance; // resolved string.
+			core_list_c< text_glyph_c > _glyph_list; // for string instance.
+
+			float32_c _content_width; // width of this entity in pixels.
+
+			boolean_c _is_alive; // used to delete entity instances that don't have corresponding text any more.
+
+			text_entity_c( text_paragraph_c * mother_paragraph );
+
+		};
+
 		// a paragraph is a section or block of text that shares the same horizontal text alignment.
 		// a text element must always contain at least one paragraph, even if it is empty of text.
 		// a paragraph must always end with a new-line character, even if the paragraph is otherwise empty of text.
@@ -154,10 +195,10 @@ namespace cheonsa
 		// the last span in the paragraph should not enclose the paragraph's terminating new line character.
 		class text_paragraph_c
 		{
-		private:
 			friend class menu_element_text_c;
 
-			menu_element_text_c * _mother_element_text; // the mother text element that owns this paragraph.
+		private:
+			menu_element_text_c * _mother_text_element; // the mother text element that owns this paragraph.
 
 			sint32_c _character_start; // index of first character within _plain_text that belongs to this paragraph.
 			sint32_c _character_end; // index of last character within _plain_text that belongs to this paragraph, including this paragraph's terminating new line character. in the case that the paragraph only contains the (bare minimum) new line character, then _character_start will equal _character_end.
@@ -175,12 +216,13 @@ namespace cheonsa
 			sint32_c _line_index_base; // the line index of the first line in this paragrpah relative to all of the lines in the whole document.
 			core_list_c< text_line_c > _line_list; // all of the lines in this paragraph, this can be a mix of real and virtual (broken by automatic word wrap algorithm) lines of text.
 			core_list_c< text_glyph_c > _glyph_list; // all of the laid out glyphs in this paragraph.
-			core_list_c< menu_text_entity_c * > _entity_list; // all of the entities inlined in the text of this paragraph.
+
+			core_list_c< text_entity_c * > _entity_list; // all the entity instances in this text element.
+			text_entity_c * _find_entity( sint32_c character_start, sint32_c character_end, string8_c const & key );
 
 			boolean_c _is_glyph_layout_dirty; // will be set to true if the glyphs in this paragraph needs to be reflowed.
 
-		private:
-			text_paragraph_c();
+			text_paragraph_c( menu_element_text_c * mother_text_element );
 
 		public:
 			~text_paragraph_c();

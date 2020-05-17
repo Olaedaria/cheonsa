@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cheonsa_scene_component.h"
-#include "cheonsa_audio2.h"
+#include "cheonsa_audio_types.h"
 #include "cheonsa_resource_file_sound.h"
 
 namespace cheonsa
@@ -22,7 +22,7 @@ namespace cheonsa
 
 		resource_file_sound_c::reference_c _sound_resource;
 
-		audio2_scene_source_c * _audio_scene_source;
+		audio_scene_source_c * _audio_scene_source;
 
 		boolean_c _play;
 
@@ -52,8 +52,8 @@ namespace cheonsa
 		resource_file_sound_c * get_sound_resource() const;
 		void_c set_sound_resource( resource_file_sound_c * value );
 		
-		audio2_layer_e get_audio_layer() const;
-		void_c set_audio_layer( audio2_layer_e value );
+		audio_layer_e get_audio_layer() const;
+		void_c set_audio_layer( audio_layer_e value );
 
 		boolean_c get_play() const;
 		void_c set_play( boolean_c value );

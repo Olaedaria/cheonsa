@@ -22,9 +22,9 @@ namespace cheonsa
 	// manages the engine's command line console.
 	class debug_manager_c
 	{
-	private:
 		friend class engine_c;
 
+	private:
 		vector32x4_c _grid_color;
 		vector32x4_c _axis_a_color;
 		vector32x4_c _axis_b_color;

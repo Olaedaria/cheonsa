@@ -24,16 +24,11 @@ scroll bars control the transform properties of a container, so when a scroll oc
 */
 
 #include "cheonsa_types.h"
-#include "cheonsa_core_dictionary.h"
-#include "cheonsa_string8.h"
-#include "cheonsa_string16.h"
 #include "cheonsa_data_scribe_markup.h"
-#include "cheonsa_input_manager.h"
+#include "cheonsa_video_renderer_interface.h"
 #include "cheonsa_video_renderer_shader_manager.h"
-#include "cheonsa_video_renderer_types.h"
 #include "cheonsa_resource_file_texture.h"
 #include "cheonsa_resource_file_font.h"
-#include "cheonsa_sprite.h"
 
 namespace cheonsa
 {
@@ -50,6 +45,7 @@ namespace cheonsa
 	class menu_style_map_c;
 	class menu_style_file_c;
 	class menu_style_manager_c;
+	class input_event_c;
 
 	// these values are used with non-client hit testing.
 	// non-client hit testing works in tandem with the operating system's window system to allow for us to define areas that the operating system will treat as resize handles or title bars etc.
@@ -605,33 +601,33 @@ namespace cheonsa
 
 	};
 
-	// a text entity is a thing that is may not be text but is inlined in the text, like a sprite or emoji, or another string.
-	// each entity has a corresponding text_glyph_c instance, which may store additional info about how to lay out the entity.
-	// that is why we don't store too much info in the entity.
-	class menu_text_entity_c
-	{
-	public:
-		sint32_c type_code;
+	//// a text entity is a thing that is may not be text but is inlined in the text, like a sprite or emoji, or another string.
+	//// each entity has a corresponding text_glyph_c instance, which may store additional info about how to lay out the entity.
+	//// that is why we don't store too much info in the entity.
+	//class menu_text_entity_c
+	//{
+	//public:
+	//	sint32_c type_code;
 
-	public:
-		menu_text_entity_c( sint32_c type_code );
+	//public:
+	//	menu_text_entity_c( sint32_c type_code );
 
-	};
+	//};
 
-	// stores layout of a sprite entity in a paragraph.
-	class menu_text_entity_sprite_c
-		: public menu_text_entity_c
-	{
-	public:
-		static sint32_c type_code_static() { return 2; }
+	//// stores layout of a sprite entity in a paragraph.
+	//class menu_text_entity_sprite_c
+	//	: public menu_text_entity_c
+	//{
+	//public:
+	//	static sint32_c type_code_static() { return 2; }
 
-	public:
-		sprite_c value; // sprite instance.
+	//public:
+	//	sprite_c value; // sprite instance.
 
-	public:
-		menu_text_entity_sprite_c();
+	//public:
+	//	menu_text_entity_sprite_c();
 
-	};
+	//};
 
 	//// stores layout of a string entity in a paragraph.
 	//class menu_text_entity_string_c
@@ -645,7 +641,7 @@ namespace cheonsa
 
 
 	// used to pass additional info about input events to event handlers.
-	struct menu_event_information_c
+	class menu_event_information_c
 	{
 	public:
 		menu_control_c * control; // the control that is receiving the event.
@@ -658,7 +654,7 @@ namespace cheonsa
 	};
 
 	// elements use this to build and draw their stuff.
-	struct menu_draw_list_c
+	class menu_draw_list_c
 	{
 	public:
 		struct draw_c

@@ -6,7 +6,7 @@
 namespace cheonsa
 {
 
-	uint32_c resource_manager_c::_worker_thread_function( platform_thread_c * platform_thread )
+	uint32_c resource_manager_c::_worker_thread_function( thread_c * platform_thread )
 	{
 		while ( platform_thread->get_keep_alive() )
 		{
@@ -32,7 +32,7 @@ namespace cheonsa
 			else
 			{
 				// gives some window of opportunity for the other thread to enter the critical section.
-				platform_thread_c::sleep( 100 );
+				thread_c::sleep( 100 );
 			}
 		}
 		return 0;
@@ -132,9 +132,14 @@ namespace cheonsa
 		return _load< resource_file_model_c >( relative_file_path, load_now );
 	}
 	
-	resource_file_sprite_c * resource_manager_c::load_sprites( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_sprites_c * resource_manager_c::load_sprites( string16_c const & relative_file_path, boolean_c load_now )
 	{
-		return _load< resource_file_sprite_c >( relative_file_path, load_now );
+		return _load< resource_file_sprites_c >( relative_file_path, load_now );
+	}
+
+	resource_file_strings_c * resource_manager_c::load_strings( string16_c const & relative_file_path, boolean_c load_now )
+	{
+		return _load< resource_file_strings_c >( relative_file_path, load_now );
 	}
 
 	resource_file_texture_c * resource_manager_c::load_texture( string16_c const & relative_file_path, boolean_c load_now )

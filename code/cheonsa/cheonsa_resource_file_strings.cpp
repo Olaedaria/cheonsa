@@ -1,44 +1,39 @@
-#include "cheonsa_localized_string_file.h"
+#include "cheonsa_resource_file_strings.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_data_scribe_markup.h"
 
 namespace cheonsa
 {
 
-	localized_string_file_c::localized_string_file_c()
-		: _string_dictionary()
+	resource_file_strings_c::resource_file_strings_c( string16_c const & file_path )
+		: resource_file_c( file_path )
+		, _byte_heap()
+		, _string_heap()
+		, _string_dictionary()
 	{
 	}
 
-	localized_string_file_c::~localized_string_file_c()
+	resource_file_strings_c::~resource_file_strings_c()
 	{
 	}
 
-	boolean_c localized_string_file_c::load_from_xml( string16_c const & absolute_file_path )
+	void_c resource_file_strings_c::_load( data_stream_c * stream )
 	{
-		unload();
-
-		// try to open the file.
-		data_stream_file_c stream; // we don't need to close it because its destructor will close it when it goes out of scope.
-		if ( !stream.open( absolute_file_path, data_stream_mode_e_read ) )
-		{
-			// this usually means that the file doesn't exist.
-			// this isn't a big deal though, it could be by design.
-			return false;
-		}
+		assert( stream != nullptr );
+		assert( _is_loaded == false );
 
 		// parse the stream.
 		data_scribe_markup_c markup( '<' );
-		if ( !markup.parse( &stream ) )
+		if ( !markup.parse( stream ) )
 		{
-			return false;
+			return;
 		}
 
 		// look for root tag.
 		data_scribe_markup_c::node_c const * strings_tag = markup.get_node( 0 )->find_tag( "strings" );
 		if ( strings_tag == nullptr )
 		{
-			return false;
+			return;
 		}
 
 		// extract string keys and values, build _byte_heap.
@@ -80,32 +75,54 @@ namespace cheonsa
 		offsets.insert( -1, _byte_heap.get_length() ); // add extra so that accessing [ i + 2 ] does not fail.
 		for ( sint32_c i = 0; i < count; i += 2 )
 		{
-			localized_string_c * string = _string_heap.emplace( -1, 1 );
+			string_c * string = _string_heap.emplace( -1, 1 );
 			sint32_c key_start = offsets[ i ];
 			sint32_c key_end = offsets[ i + 1 ];
-			string->_key = string8_c( core_list_mode_e_static, &_byte_heap.get_internal_array()[ key_start ], key_end - key_start );
+			string->key.character_list.construct_mode_static_volatile_from_array( &_byte_heap.get_internal_array()[ key_start ], key_end - key_start );
 			sint32_c value_start = key_end;
 			sint32_c value_end = offsets[ i + 2 ];
-			string->_value = string8_c( core_list_mode_e_static, &_byte_heap.get_internal_array()[ value_start ], value_end - value_start );
-			_string_dictionary.insert( string->_key, i );
+			string->value.character_list.construct_mode_static_volatile_from_array( &_byte_heap.get_internal_array()[ value_start ], value_end - value_start );
+			_string_dictionary.insert( string->key, i );
 		}
 
-		return true;
+		_is_loaded = true;
+
+		on_loaded.invoke( this );
 	}
 
-	void_c localized_string_file_c::unload()
+	void_c resource_file_strings_c::_unload()
 	{
+		assert( _is_loaded == true );
+
+		on_unloaded.invoke( this );
+
+		_is_loaded = false;
+
 		_string_dictionary.remove_all();
+		_string_heap.remove_all();
+		_byte_heap.remove_all();
 	}
 
-	localized_string_c const * localized_string_file_c::find_string( string8_c const & key ) const
+	boolean_c resource_file_strings_c::find_string( string8_c const & key, string8_c & result ) const
 	{
 		sint32_c const * string_index = _string_dictionary.find_value_pointer( key );
 		if ( string_index )
 		{
-			return &_string_heap[ *string_index ];
+			result = _string_heap[ *string_index ].value;
+			return true;
 		}
-		return nullptr;
+		return false;
+	}
+
+	boolean_c resource_file_strings_c::find_string( string8_c const & key, string16_c & result ) const
+	{
+		sint32_c const * string_index = _string_dictionary.find_value_pointer( key );
+		if ( string_index )
+		{
+			result = _string_heap[ *string_index ].value;
+			return true;
+		}
+		return false;
 	}
 
 }

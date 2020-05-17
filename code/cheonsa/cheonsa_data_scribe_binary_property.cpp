@@ -20,8 +20,8 @@ namespace cheonsa
 
 	void_c data_scribe_binary_property_c::open( data_scribe_binary_c * scribe_binary )
 	{
-		assert( scribe_binary );
 		assert( _scribe_binary == nullptr );
+		assert( scribe_binary != nullptr );
 		_scribe_binary = scribe_binary;
 	}
 

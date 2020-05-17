@@ -29,11 +29,14 @@ namespace cheonsa
 	public:
 		data_scribe_binary_c();
 
+		void_c open( data_stream_c * stream, byte_order_e byte_order );
+		void_c close();
+
 		data_stream_c * get_stream();
-		void_c set_stream( data_stream_c * stream );
+		void_c set_stream_( data_stream_c * stream );
 
 		byte_order_e get_byte_order();
-		void_c set_byte_order( byte_order_e byte_order );
+		void_c set_byte_order_( byte_order_e byte_order );
 
 		boolean_c load_generic( void_c * const value, sint32_c value_size ); // performs byte-order swizzling if needed.
 		boolean_c load_uint8( uint8_c & value );

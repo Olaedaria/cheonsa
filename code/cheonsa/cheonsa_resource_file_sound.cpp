@@ -30,7 +30,7 @@ namespace cheonsa
 		: resource_file_c( file_path )
 		, _audio_wave_buffer( nullptr )
 	{
-		_audio_wave_buffer = audio2_wave_buffer_c::make_new_instance();
+		_audio_wave_buffer = audio_wave_buffer_c::make_new_instance();
 		_audio_wave_buffer->add_reference();
 	}
 
@@ -40,7 +40,7 @@ namespace cheonsa
 		_audio_wave_buffer = nullptr;
 	}
 
-	audio2_wave_buffer_c * resource_file_sound_c::get_audio_wave_buffer() const
+	audio_wave_buffer_c * resource_file_sound_c::get_audio_wave_buffer() const
 	{
 		return _audio_wave_buffer;
 	}

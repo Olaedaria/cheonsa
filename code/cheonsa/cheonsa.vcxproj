@@ -156,8 +156,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="cheonsa_audio2.h" />
-    <ClInclude Include="cheonsa_core_shared_pointer.h" />
+    <ClInclude Include="cheonsa_audio_types.h" />
+    <ClInclude Include="cheonsa_audio_interface.h" />
     <ClInclude Include="cheonsa_debug_manager.h" />
     <ClInclude Include="cheonsa_menu_control_frame.h" />
     <ClInclude Include="cheonsa_menu_control_panel.h" />
@@ -165,13 +165,16 @@
     <ClInclude Include="cheonsa_menu_control_scroll_bar_x.h" />
     <ClInclude Include="cheonsa_menu_control_scroll_bar_y.h" />
     <ClInclude Include="cheonsa_menu_control_scrub_bar_x.h" />
-    <ClInclude Include="cheonsa_core_safe_reference_counter.h" />
+    <ClInclude Include="cheonsa_thread_safe_reference_counter.h" />
     <ClInclude Include="cheonsa_menu_control_scrub_bar_y.h" />
     <ClInclude Include="cheonsa_menu_control_window_text_editor.h" />
     <ClInclude Include="cheonsa_menu_element_mesh.h" />
     <ClInclude Include="cheonsa_physics_collision_object.h" />
+    <ClInclude Include="cheonsa_resource_file_strings.h" />
     <ClInclude Include="cheonsa_scene_component_collision_object.h" />
     <ClInclude Include="cheonsa_scene_object.h" />
+    <ClInclude Include="cheonsa_video_renderer_types.h" />
+    <ClInclude Include="cheonsa_video_types.h" />
     <ClInclude Include="cheonsa_window_manager.h" />
     <ClInclude Include="cheonsa_content_manager.h" />
     <ClInclude Include="cheonsa_database.h" />
@@ -183,7 +186,7 @@
     <ClInclude Include="cheonsa_database_table.h" />
     <ClInclude Include="cheonsa_database_types.h" />
     <ClInclude Include="cheonsa_menu_style_file.h" />
-    <ClInclude Include="cheonsa_platform_critical_section.h" />
+    <ClInclude Include="cheonsa_thread_critical_section.h" />
     <ClInclude Include="cheonsa_reflection_class.h" />
     <ClInclude Include="cheonsa_reflection_enumeration.h" />
     <ClInclude Include="cheonsa_reflection_object.h" />
@@ -192,8 +195,6 @@
     <ClInclude Include="cheonsa_resource_file_menu_layout.h" />
     <ClInclude Include="cheonsa_resource_file_sound.h" />
     <ClInclude Include="cheonsa_sprite.h" />
-    <ClInclude Include="cheonsa_localized_string.h" />
-    <ClInclude Include="cheonsa_localized_string_file.h" />
     <ClInclude Include="cheonsa_menu_control_label.h" />
     <ClInclude Include="cheonsa_menu_control_list_i.h" />
     <ClInclude Include="cheonsa_menu_control_scene.h" />
@@ -214,14 +215,13 @@
     <ClInclude Include="cheonsa_physics_scene.h" />
     <ClInclude Include="cheonsa_physics_shape.h" />
     <ClInclude Include="cheonsa_physics_types.h" />
-    <ClInclude Include="cheonsa_platform_thread.h" />
+    <ClInclude Include="cheonsa_thread.h" />
     <ClInclude Include="cheonsa_resource_file_model.h" />
     <ClInclude Include="cheonsa_scene_component_ridgid_body.h" />
     <ClInclude Include="cheonsa_scene_component_model.h" />
     <ClInclude Include="cheonsa_scene_tree_kd.h" />
-    <ClInclude Include="cheonsa_resource_file_sprite.h" />
+    <ClInclude Include="cheonsa_resource_file_sprites.h" />
     <ClInclude Include="cheonsa_string8.h" />
-    <ClInclude Include="cheonsa_video_types.h" />
     <ClInclude Include="cheonsa_data_scribe_ini.h" />
     <ClInclude Include="cheonsa_data_scribe_structure.h" />
     <ClInclude Include="cheonsa_glyph_manager.h" />
@@ -280,7 +280,6 @@
     <ClInclude Include="cheonsa_video_interface.h" />
     <ClInclude Include="cheonsa_resource_file_texture.h" />
     <ClInclude Include="cheonsa_engine.h" />
-    <ClInclude Include="cheonsa_video_renderer_types.h" />
     <ClInclude Include="cheonsa_video_renderer_shader_manager.h" />
     <ClInclude Include="cheonsa_script_manager.h" />
     <ClInclude Include="cheonsa_game_i.h" />
@@ -675,7 +674,8 @@
     <ClInclude Include="third_party\xxhash.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cheonsa_audio2.cpp" />
+    <ClCompile Include="cheonsa_audio_interface.cpp" />
+    <ClCompile Include="cheonsa_audio_types.cpp" />
     <ClCompile Include="cheonsa_content_manager.cpp" />
     <ClCompile Include="cheonsa_database.cpp" />
     <ClCompile Include="cheonsa_database_field_schema.cpp" />
@@ -692,16 +692,19 @@
     <ClCompile Include="cheonsa_menu_control_scroll_bar_x.cpp" />
     <ClCompile Include="cheonsa_menu_control_scroll_bar_y.cpp" />
     <ClCompile Include="cheonsa_menu_control_scrub_bar_x.cpp" />
-    <ClCompile Include="cheonsa_core_safe_reference_counter.cpp" />
+    <ClCompile Include="cheonsa_thread_safe_reference_counter.cpp" />
     <ClCompile Include="cheonsa_menu_control_scrub_bar_y.cpp" />
     <ClCompile Include="cheonsa_menu_control_window_text_editor.cpp" />
     <ClCompile Include="cheonsa_menu_element_mesh.cpp" />
     <ClCompile Include="cheonsa_physics_collision_object.cpp" />
+    <ClCompile Include="cheonsa_resource_file_strings.cpp" />
     <ClCompile Include="cheonsa_scene_component_collision_object.cpp" />
     <ClCompile Include="cheonsa_scene_object.cpp" />
+    <ClCompile Include="cheonsa_video_interface.cpp" />
+    <ClCompile Include="cheonsa_video_types.cpp" />
     <ClCompile Include="cheonsa_window_manager.cpp" />
     <ClCompile Include="cheonsa_menu_style_file.cpp" />
-    <ClCompile Include="cheonsa_platform_critical_section.cpp" />
+    <ClCompile Include="cheonsa_thread_critical_section.cpp" />
     <ClCompile Include="cheonsa_reflection_class.cpp" />
     <ClCompile Include="cheonsa_reflection_enumeration.cpp" />
     <ClCompile Include="cheonsa_reflection_object.cpp" />
@@ -729,17 +732,14 @@
     <ClCompile Include="cheonsa_physics_scene.cpp" />
     <ClCompile Include="cheonsa_physics_shape.cpp" />
     <ClCompile Include="cheonsa_physics_types.cpp" />
-    <ClCompile Include="cheonsa_platform_thread.cpp" />
+    <ClCompile Include="cheonsa_thread.cpp" />
     <ClCompile Include="cheonsa_resource_file_model.cpp" />
     <ClCompile Include="cheonsa_scene_component_ridgid_body.cpp" />
     <ClCompile Include="cheonsa_scene_component_model.cpp" />
     <ClCompile Include="cheonsa_scene_tree_kd.cpp" />
-    <ClCompile Include="cheonsa_resource_file_sprite.cpp" />
+    <ClCompile Include="cheonsa_resource_file_sprites.cpp" />
     <ClCompile Include="cheonsa_sprite.cpp" />
-    <ClCompile Include="cheonsa_localized_string.cpp" />
     <ClCompile Include="cheonsa_string8.cpp" />
-    <ClCompile Include="cheonsa_localized_string_file.cpp" />
-    <ClCompile Include="cheonsa_video_types.cpp" />
     <ClCompile Include="cheonsa_data_scribe_ini.cpp" />
     <ClCompile Include="cheonsa_data_scribe_structure.cpp" />
     <ClCompile Include="cheonsa_glyph_manager.cpp" />

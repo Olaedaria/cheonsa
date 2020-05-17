@@ -2,7 +2,7 @@
 
 #include "cheonsa_types.h"
 #include "cheonsa_resource_file.h"
-#include "cheonsa_audio2.h"
+#include "cheonsa_audio_interface.h"
 
 namespace cheonsa
 {
@@ -21,7 +21,7 @@ namespace cheonsa
 		virtual char8_c const * get_resource_file_type() const override { return get_resource_file_type_static(); }
 	
 	private:
-		audio2_wave_buffer_c * _audio_wave_buffer;
+		audio_wave_buffer_c * _audio_wave_buffer;
 
 	public:
 		virtual void_c _load( data_stream_c * stream ) override;
@@ -31,7 +31,7 @@ namespace cheonsa
 		resource_file_sound_c( string16_c const & file_path );
 		virtual ~resource_file_sound_c() override;
 
-		audio2_wave_buffer_c * get_audio_wave_buffer() const;
+		audio_wave_buffer_c * get_audio_wave_buffer() const;
 
 	};
 

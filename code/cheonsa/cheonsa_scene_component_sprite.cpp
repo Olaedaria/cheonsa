@@ -27,6 +27,7 @@ namespace cheonsa
 
 	scene_component_sprite_c::scene_component_sprite_c()
 		: scene_component_c()
+		, _sprite()
 		, _material()
 		, _opacity( 1.0f )
 		, _render_enable( true )
@@ -44,6 +45,11 @@ namespace cheonsa
 	scene_component_sprite_c * scene_component_sprite_c::make_new_instance()
 	{
 		return new scene_component_sprite_c();
+	}
+
+	sprite_c & scene_component_sprite_c::get_sprite()
+	{
+		return _sprite;
 	}
 
 	scene_sprite_type_e scene_component_sprite_c::get_sprite_type() const

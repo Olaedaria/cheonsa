@@ -146,8 +146,7 @@ namespace cheonsa
 
 		// save rest of file.
 		data_scribe_binary_c scribe;
-		scribe.set_stream( &stream );
-		scribe.set_byte_order( byte_order );
+		scribe.open( &stream, byte_order );
 
 		if ( !scribe.save_string8( _name ) )
 		{
@@ -212,15 +211,14 @@ namespace cheonsa
 		{
 			return false;
 		}
-		data_scribe_binary_c scribe;
-		scribe.set_stream( &stream );
+		byte_order_e byte_order = byte_order_e_little;
 		if ( ops::memory_compare( signature, "chdb", 4 ) )
 		{
-			scribe.set_byte_order( byte_order_e_little );
+			byte_order = byte_order_e_little;
 		}
 		else if ( ops::memory_compare( signature, "CHDB", 4 ) )
 		{
-			scribe.set_byte_order( byte_order_e_big );
+			byte_order = byte_order_e_big;
 		}
 		else
 		{
@@ -228,6 +226,8 @@ namespace cheonsa
 		}
 
 		// load rest of file.
+		data_scribe_binary_c scribe;
+		scribe.open( &stream, byte_order );
 		if ( !scribe.load_string8( _name ) )
 		{
 			goto cancel;

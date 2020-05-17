@@ -1,15 +1,18 @@
 #pragma once
 
 #include "cheonsa_types.h"
-#include "cheonsa_video_renderer_types.h"
-#include "cheonsa_video_renderer_canvas.h"
 #include "cheonsa_scene_types.h"
-#include "cheonsa_menu_types.h"
-#include "cheonsa_resource_file_model.h"
 #include "cheonsa_data_scribe_ini.h"
+#include "cheonsa_video_renderer_types.h"
+#include "cheonsa_resource_file_model.h"
 
 namespace cheonsa
 {
+
+	class menu_control_c;
+	class menu_draw_list_c;
+	class video_renderer_canvas_c;
+	class user_interface_c;
 
 	// interacts with video_interface_c to render scenes and menus.
 	// in the context of 3d objects, if you see the term "real" it means actual real world coordinates, and if you see the term "virtual" then it means a space relative to the primary camera view.
@@ -20,12 +23,15 @@ namespace cheonsa
 	// at a later point, i believe that fixed point precision on the cpu is the way to go, but that's something to try later.
 	class video_renderer_interface_c
 	{
-	public:
+		friend class engine_c;
+
+	private:
 		video_renderer_interface_c();
 		~video_renderer_interface_c();
 
 		boolean_c start();
 
+	public:
 		// bakes count number of light probes.
 		// call with count < 0 to bake all light probes at once.
 		// call with count set to 1 to bake just that many light probes, call over several times to bake incrementally.
@@ -244,16 +250,16 @@ namespace cheonsa
 		void_c set_settings( settings_c const & desired_settings );
 
 	private:
-		friend class engine_c;
-
 		void_c _save_settings( data_scribe_ini_c & scribe ); // saves video settings to a "[video]" section in the ini file.
 		void_c _load_settings( data_scribe_ini_c & scribe ); // loads video settings from a "[video]" section in the ini file.
 
 	public:
-		struct cube_face_view_c {
+		struct cube_face_view_c
+		{
 			vector32x3_c forward; // forward normal that was used to construct view_transform.
 			vector32x3_c up; // up normal that was used to construct view_transform.
-			matrix32x4x4_c view_transform; };
+			matrix32x4x4_c view_transform;
+		};
 
 		// initializes:
 		static sint32_c const _texture_bind_index_for_material_textures = 0; // bind index of 4 textures, named in the shader as: material_texture_0, material_texture_1, material_texture_2, material_texture_3.

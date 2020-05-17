@@ -6,7 +6,6 @@
 #include "cheonsa_core_event.h"
 #include "cheonsa_string8.h"
 #include "cheonsa_string16.h"
-#include "cheonsa_localized_string.h"
 
 namespace cheonsa
 {
@@ -229,6 +228,7 @@ namespace cheonsa
 	// these are used with frame snapshots of input state.
 	enum input_gamepad_button_e : uint16_c
 	{
+		input_gamepad_button_e_none = 0,
 		input_gamepad_button_e_dpad_up = 0x0001,
 		input_gamepad_button_e_dpad_down = 0x0002,
 		input_gamepad_button_e_dpad_left = 0x0004,
@@ -283,40 +283,32 @@ namespace cheonsa
 
 	// can be bound to an action in order to invoke that action when the shortcut is triggered.
 	// input actions can be given shortcuts so that they can be invoked at the user's convenience of a key stroke.
+	// [mouse and keyboard] + [gamepad] triggers can work side-by-side; initializing one does not clear the other.
+	// for [mouse and keyboard] trigger, only the mouse key or the keyboard key should be set, not both.
 	class input_shortcut_c
 	{
 		friend class input_manager_c;
 
 	private:
-		input_modifier_flag_e _mouse_modifier_flags;
+		input_modifier_flag_e _modifier_flags;
 		input_mouse_key_e _mouse_key;
-
-		input_modifier_flag_e _keyboard_modifier_flags;
 		input_keyboard_key_e _keyboard_key;
 
-		input_gamepad_key_e _gamepad_key;
+		input_gamepad_button_e _gamepad_button;
 
 	public:
 		input_shortcut_c();
 
-		void_c reset(); // resets this shortcut to nothing.
+		void_c clear(); // resets this shortcut to nothing.
 
-		input_modifier_flag_e get_mouse_modifier_flags() const;
-		void_c set_mouse_modifier_flags( input_modifier_flag_e value );
+		void_c clear_mouse_and_keyboard_shortcut();
+		void_c initialize_mouse_and_keyboard_shortcut( input_modifier_flag_e modifier_flags, input_mouse_key_e mouse_key, input_keyboard_key_e keyboard_key ); // only set either mouse_key or keyboard_key, not both.
 
-		input_mouse_key_e get_mouse_key() const;
-		void_c set_mouse_key( input_mouse_key_e value );
+		void_c clear_gamepad_shortcut();
+		void_c initialize_gamepad_shortcut( input_gamepad_button_e gamepad_button );
 
-		input_modifier_flag_e get_keyboard_modifier_flags() const;
-		void_c set_keyboard_modifier_flags( input_modifier_flag_e value );
-
-		input_keyboard_key_e get_keyboard_key() const;
-		void_c set_keyboard_key( input_keyboard_key_e value );
-
-		input_gamepad_key_e get_gamepad_key() const;
-		void_c set_gamepad_key( input_gamepad_key_e value );
-
-		boolean_c is_pressed( input_event_c const * input_event ) const; // returns true if the given input event would trigger this shortcut.
+		boolean_c is_pressed_for_event( input_event_c const * input_event ) const; // returns true if the given input event would trigger this shortcut.
+		boolean_c is_pressed_for_frame() const; // returns true if the current input snapshot state of the input manager would trigger this shortcut.
 
 		boolean_c operator == ( input_shortcut_c const & other ) const;
 
@@ -341,8 +333,6 @@ namespace cheonsa
 
 		string16_c _description;
 
-		boolean_c _snapshot_state;
-
 	public:
 		input_action_c();
 
@@ -360,8 +350,6 @@ namespace cheonsa
 
 		string16_c const & get_description() const;
 		void_c set_description( string16_c const & value );
-
-		boolean_c get_snapshot_state(); // if any of the inputs are pressed at any time during a given frame, then the action's state is set to true, otherwise it is set to false.
 
 		core_event_c< void_c, input_action_c const * > on_invoked; // occurs whenever this action is invoked from any source. the subscriber to this event should actually perform the action.
 

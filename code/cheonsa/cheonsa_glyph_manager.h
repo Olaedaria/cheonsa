@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_types.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_dictionary.h"
 #include "cheonsa_memory_allocator_pool.h"
-#include "cheonsa_video_types.h"
+#include "cheonsa_video_interface.h"
 
 namespace cheonsa
 {
@@ -60,6 +60,10 @@ namespace cheonsa
 	// there is one global shared instance, declared in "cheonsa_engine.h", defined in "cheonsa_engine.cpp", it's fully qualified name is "global_engine_instance.interfaces.glyph_manager".
 	class glyph_manager_c
 	{
+		friend class engine_c;
+		friend class resource_file_font_c;
+		friend class video_renderer_interface_c;
+
 	public:
 		// manages a CPU texture in which glyphs are rendered to, and a GPU texture which is a copy of the CPU texture, and it manages allocating spaces in the texture for glyph images.
 		class glyph_atlas_c
@@ -101,22 +105,19 @@ namespace cheonsa
 		};
 
 	private:
-		friend class resource_file_font_c;
-		friend class video_renderer_interface_c;
-
-		memory_allocator_pool_c _glyph_pool; // memory allocator used to allocate the glyph structs that describe glyphs in the atlas, should be faster than the heap for this purpose.
+		memory_allocator_pool_c _glyph_pool; // memory allocator used to allocate the glyph structs that describe glyphs in the atlas, it's pre-allocated to a generous fixed length, should be faster than the heap and less fragmented.
 		core_dictionary_c< glyph_key_c, glyph_c const * > _glyph_dictionary;
 		glyph_atlas_c * _glyph_atlas_array; // there are as many glyph atlases allocated here as there are texture array slices in the GPU texture. all glyphs from all fonts are rendered by the CPU and stored in this glyph cache. when text needs to be rendered on the GPU, all of the glyph cache textures are bound, and then a texture index in each vertex is used to & the appropriate texture.
 		video_texture_c * _glyph_atlas_texture; // a texture2darray of _glyph_atlas_array_slice_count number of slices. format of texture is video_texture_format_e_r8_unorm.
 		video_texture_c * _glyph_atlas_staging_texture; // because we can't upload data to a texture2darray, we upload data to this texture then tell the GPU to copy it to a slice in the texture2darray _glyph_atlas_texture.
 		void_c * _free_type_library_handle; // we use free type to load fonts and render glyphs.
 
-	public:
 		glyph_manager_c();
 		~glyph_manager_c();
 
 		boolean_c start();
 
+	public:
 		glyph_c const * load_quantized_glyph( resource_file_font_c * font, float32_c font_size, char16_c code_point ); // retreives a previously cached glyph or renders and caches a new glyph.
 
 		boolean_c needs_reset; // will be set to true if the glyph cash runs out of space, this will force a reset at the next opportune moment.

@@ -7,24 +7,24 @@
 namespace cheonsa
 {
 
-	// loads ".sprite.xml" files.
+	// loads ".sprites.xml" files.
 	// (file extension is a suggestion, you may deviate from it).
-	// a sprite sheet defines a list of animations, each of which references a texture and defines a list of frames, each of which defines a duration and a rectangle sub-area of the texture.
-	class resource_file_sprite_c
+	// a sprites resource contains a list of sprites, each of which references a texture resource and defines a list of frames, each of which defines a duration and a rectangle sub-area of the texture.
+	class resource_file_sprites_c
 		: public resource_file_c
 	{
 	public:
-		typedef resource_file_reference_c< resource_file_sprite_c > reference_c;
+		typedef resource_file_reference_c< resource_file_sprites_c > reference_c;
 
 	public:
-		static char8_c const * get_resource_file_type_static() { return "sprite"; }
+		static char8_c const * get_resource_file_type_static() { return "sprites"; }
 		virtual char8_c const * get_resource_file_type() const override { return get_resource_file_type_static(); }
 
 	public:
 		// a sprite frame defines a single frame in a sprite animation.
 		class frame_c
 		{
-			friend class resource_file_sprite_c;
+			friend class resource_file_sprites_c;
 
 		private:
 			box32x2_c _box; // xy coordinates of textured quad in pixels, relative to the sprite instance origin.
@@ -41,9 +41,9 @@ namespace cheonsa
 		};
 
 		// a sprite animation references a texture and defines a set of frames that make up an animation.
-		class animation_c
+		class sprite_c
 		{
-			friend class resource_file_sprite_c;
+			friend class resource_file_sprites_c;
 
 		private:
 			string8_c _name; // name to reference this animation by.
@@ -53,7 +53,7 @@ namespace cheonsa
 			core_list_c< frame_c > _frame_list;
 
 		public:
-			animation_c();
+			sprite_c();
 
 			string8_c const & get_name() const;
 
@@ -68,15 +68,15 @@ namespace cheonsa
 		};
 
 	private:
-		core_list_c< animation_c > _animation_list;
+		core_list_c< sprite_c > _sprite_list;
 
 		virtual void_c _load( data_stream_c * stream ) override;
 		virtual void_c _unload() override;
 
 	public:
-		resource_file_sprite_c( string16_c const & file_path );
+		resource_file_sprites_c( string16_c const & file_path );
 
-		animation_c const * find_animation( string8_c const & name ); // looks up an animation with its name. may return nullptr.
+		sprite_c const * find_sprite( string8_c const & name ) const; // looks up an animation with its name. may return nullptr.
 
 	};
 

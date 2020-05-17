@@ -1,6 +1,6 @@
 #include "cheonsa_video_types.h"
-#include "cheonsa_ops.h"
-#include "cheonsa_engine.h"
+#include "cheonsa_video_renderer_shader_manager.h"
+#include "cheonsa_data_stream_file.h"
 
 namespace cheonsa
 {
@@ -488,10 +488,6 @@ namespace cheonsa
 	}
 
 	video_pixel_shader_c::~video_pixel_shader_c()
-	{
-	}
-
-	video_interface_c::~video_interface_c()
 	{
 	}
 

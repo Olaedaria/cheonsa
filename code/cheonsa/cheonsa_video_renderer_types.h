@@ -1,14 +1,11 @@
 #pragma once
 
 #include "cheonsa_types.h"
-#include "cheonsa_video_interface.h"
 
 namespace cheonsa
 {
 
-	class video_renderer_interface_c;
-
-#pragma pack( push, 1 )
+	#pragma pack( push, 1 )
 
 	// gpu shader compatible light structure.
 	struct video_renderer_light_c

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // this file has two underscores in its name so that it appears at the top when the files are sorted alphabetically.
 
@@ -19,7 +19,7 @@
 #include "cheonsa_video_interface_d3d11.h"
 #endif
 
-#include "cheonsa_audio2.h"
+#include "cheonsa_audio_interface.h"
 #include "cheonsa_video_renderer_interface.h"
 #include "cheonsa_video_renderer_shader_manager.h"
 #include "cheonsa_platform_pointer.h"
@@ -84,15 +84,15 @@ namespace cheonsa
 	  */
 	class engine_c
 	{
-	private:
 		friend class engine_members_c;
 
+	private:
 		game_i * _game; // the game instance.
 		debug_manager_c * _debug_manager;
 		window_manager_c * _window_manager;
 		content_manager_c * _content_manager;
 		resource_manager_c * _resource_manager;
-		audio2_interface_c * _audio_interface;
+		audio_interface_c * _audio_interface;
 		video_interface_c * _video_interface;
 		video_renderer_interface_c * _video_renderer_interface;
 		video_renderer_shader_manager_c * _video_renderer_shader_manager;
@@ -102,6 +102,8 @@ namespace cheonsa
 		script_manager_c * _script_manager;
 		reflection_manager_c * _reflection_manager;
 		user_interface_c * _user_interface;
+
+		
 
 		boolean_c _is_running;
 
@@ -128,7 +130,7 @@ namespace cheonsa
 		// manages loading of assets.
 		inline resource_manager_c * get_resource_manager() const { return _resource_manager; }
 		// manages audio mixing.
-		inline audio2_interface_c * get_audio_interface() const { return _audio_interface; }
+		inline audio_interface_c * get_audio_interface() const { return _audio_interface; }
 		// forms a layer to the underlying video api.
 		inline video_interface_c * get_video_interface() const { return _video_interface; }
 		// manages rendering of scenes and menus.

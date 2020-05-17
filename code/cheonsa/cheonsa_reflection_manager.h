@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_reflection_types.h"
 
@@ -54,21 +54,31 @@ namespace cheonsa
 	// there is a single global instance of this class.
 	class reflection_manager_c
 	{
+		friend class engine_c;
+
 	private:
 		core_list_c< reflection_enumeration_c * > _enumeration_list;
 		core_list_c< reflection_class_c * > _class_list;
 
-	public:
 		reflection_manager_c();
 		~reflection_manager_c();
 
 		boolean_c start();
 
-		reflection_enumeration_c * _add_enumeration( string8_c const & name, string8_c const & description ); // adds a new enumeration with name to the global enumeration registry. asserts if enumeration already exists.
-		reflection_enumeration_c * find_enumeration( string8_c const & name ); // looks up an enumeration with name.
+	public:
+		// adds a new enumeration with name to the global enumeration registry.
+		// asserts if enumeration already exists.
+		// the game should add all of the enumerations at start up.
+		reflection_enumeration_c * _add_enumeration( string8_c const & name, string8_c const & description );
+		// looks up an enumeration with name.
+		reflection_enumeration_c * find_enumeration( string8_c const & name );
 
-		reflection_class_c * _add_class( string8_c const & name, string8_c const & description, reflection_class_c * base_class ); // adds a new class with name to the global class registry. asserts if enumeration already exists.
-		reflection_class_c * find_class( string8_c const & name ); // looks up a class with name.
+		// adds a new class with name to the global class registry.
+		// asserts if enumeration already exists.
+		// the game should add all of the classes at start up.
+		reflection_class_c * _add_class( string8_c const & name, string8_c const & description, reflection_class_c * base_class );
+		// looks up a class with name.
+		reflection_class_c * find_class( string8_c const & name );
 
 	};
 

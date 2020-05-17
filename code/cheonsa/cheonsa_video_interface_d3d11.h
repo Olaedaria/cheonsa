@@ -8,7 +8,9 @@ namespace cheonsa
 	class video_interface_d3d11_c final
 		: public video_interface_c
 	{
-	public:
+		friend class engine_c;
+
+	private:
 		video_interface_d3d11_c();
 		virtual ~video_interface_d3d11_c() override; // releases all of the interfaces and the Direct3D 10 device that were created in a prior call to start().
 

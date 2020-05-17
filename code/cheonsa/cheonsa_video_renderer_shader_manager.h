@@ -15,6 +15,7 @@ namespace cheonsa
 	// this shader cache will automatically recompile and recache shaders if their source files are detected to be modified.
 	class video_renderer_shader_manager_c
 	{
+		friend class engine_c;
 		friend class video_renderer_pixel_shader_c;
 
 	private:
@@ -148,12 +149,12 @@ namespace cheonsa
 		boolean_c __load_from_cache( string16_c const & cache_file_path_absolute, video_vertex_shader_c * * result, video_vertex_layout_c const * vertex_layout );
 		boolean_c __load_from_cache( string16_c const & cache_file_path_absolute, video_pixel_shader_c * * result );
 
-	public:
 		video_renderer_shader_manager_c();
 		~video_renderer_shader_manager_c();
 
 		boolean_c start();
 
+	public:
 		boolean_c refresh(); // detects source file modifications and data directory changes, and re-compiles and re-caches shaders from source code needed, or loads shaders from cached files if they are already in sync with the source files.
 		void_c collect_garbage(); // deletes any material pixel shaders that have no references.
 

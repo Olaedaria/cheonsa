@@ -33,7 +33,6 @@ namespace cheonsa
 		, _time_counter( 0.0 )
 		, _random_number( 0.0 )
 		, _audio_scene( nullptr )
-		, _audio_scene_listener( nullptr )
 		, _physics_scene( nullptr )
 		, _light_probe_list()
 		, _last_baked_light_probe( nullptr )
@@ -53,12 +52,8 @@ namespace cheonsa
 		_scene_component_tree.initialize( 512.0, 5 ); // 512, 256, 128, 64, 32
 		_local_lights_tree.initialize( 512.0, 5 );
 
-		_audio_scene_listener = audio2_scene_listener_c::make_new_instance();
-		_audio_scene_listener->add_reference();
-
-		_audio_scene = audio2_scene_c::make_new_instance();
+		_audio_scene = audio_scene_c::make_new_instance();
 		_audio_scene->add_reference();
-		_audio_scene->set_scene_listener( _audio_scene_listener );
 
 		_physics_scene = physics_scene_c::make_new_instance();
 	}
@@ -73,9 +68,6 @@ namespace cheonsa
 
 		_audio_scene->remove_reference();
 		_audio_scene = nullptr;
-
-		_audio_scene_listener->remove_reference();
-		_audio_scene_listener = nullptr;
 
 		delete _physics_scene;
 		_physics_scene = nullptr;
@@ -120,7 +112,7 @@ namespace cheonsa
 
 	void_c scene_c::update_audio( float32_c time_step )
 	{
-		_audio_scene_listener->set_world_space_transform( _scene_camera.get_world_space_transform() );
+		_audio_scene->get_scene_listener().set_world_space_transform( _scene_camera.get_world_space_transform() );
 		core_linked_list_c< scene_component_sound_c * >::node_c const * sound_list_node = _sound_list.get_first();
 		while ( sound_list_node != nullptr )
 		{
@@ -441,7 +433,7 @@ namespace cheonsa
 		}
 	}
 
-	audio2_scene_c * scene_c::get_audio_scene()
+	audio_scene_c * scene_c::get_audio_scene()
 	{
 		return _audio_scene;
 	}

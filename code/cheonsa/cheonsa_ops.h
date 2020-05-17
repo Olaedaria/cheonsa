@@ -522,7 +522,7 @@ namespace cheonsa
 			string16_c label; // drives in windows may be given a user friendly label. we may want to use this to display to the user.
 			sint64_c creation_time; // milliseconds since epoch that tells us when the file was first created.
 			sint64_c last_write_time; // milliseconds since epoch that tells us when the file was last modified.
-			boolean_c is_folder; // if true, then the thing is a folder, other wise it is a file.
+			boolean_c is_folder; // if true, then the thing is a folder, otherwise it is a file.
 
 			file_system_file_information_c()
 				: path()

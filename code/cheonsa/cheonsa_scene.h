@@ -2,7 +2,7 @@
 
 #include "cheonsa_scene_types.h"
 #include "cheonsa_scene_tree_octo.h"
-#include "cheonsa_audio2.h"
+#include "cheonsa_audio_interface.h"
 #include "cheonsa_physics_scene.h"
 #include "cheonsa_video_interface.h"
 #include "cheonsa_video_renderer_interface.h"
@@ -74,8 +74,7 @@ namespace cheonsa
 		float32_c _random_number; // used by renderer as input to some shaders.
 
 		// corresponding audio scene.
-		audio2_scene_c * _audio_scene;
-		audio2_scene_listener_c * _audio_scene_listener;
+		audio_scene_c * _audio_scene;
 
 		// corresponding physics scene.
 		// uses bullet compiled to use double precision float, hopefully its enough for open world.
@@ -158,7 +157,7 @@ namespace cheonsa
 
 		user_interface_c * get_user_interface() const; // gets the user interface that this scene is associated with, if any. this will only be set if you call engine.get_user_interface()->set_scene(). the engine has only one user interface and only one scene can be associated with it at a time.
 
-		audio2_scene_c * get_audio_scene(); // gets a pointer to the audio scene interface that manages mixing of sounds for this scene. this will never return nullptr.
+		audio_scene_c * get_audio_scene(); // gets a pointer to the audio scene interface that manages mixing of sounds for this scene. this will never return nullptr.
 
 		physics_scene_c * get_physics_scene(); // gets a pointer to the physics scene that manages physics simulation for this scene. this will never return nullptr.
 

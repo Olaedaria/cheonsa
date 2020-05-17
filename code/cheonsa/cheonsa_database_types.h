@@ -12,39 +12,39 @@ namespace cheonsa
 		database_flag_e_none = 0x00,
 
 		// master databases define the base content of a game.
-		// if schema is modified and new fields are added, then their values will be defined and set to the default defined by the scehma.
+		// if schema is modified and new fields are added, then their values will be defined and set to the default defined by the schema.
 		database_flag_e_master = 0x01,
 
 		// mod databases add new content to a game or modify existing content from another database higher up in the load order.
-		// if schema is modified and new fields are added, then their values will be left undefined.
+		// if schema is modified and new fields are added, then their values will be left undefined (so as to inherit from some where higher up in the load order).
 		database_flag_e_mod = 0x02,
 	};
 
-	// each field data is prefixed with one byte for flags.
 	enum database_field_flag_e
 	{
 		database_field_flag_e_none = 0x00,
 
-		// if true then this field has a value defined.
+		// if set then this field has a value defined.
+		// if not set then this field has no value defined (but it will still use up just as much space as it would if the value was defined).
 		database_field_flag_e_is_defined = 0x01,
 	};
 
-	// each record data is prefixed with one byte for flags.
 	enum database_record_flag_e
 	{
 		database_record_flag_e_none = 0x00,
 
-		// if true then this record is a mod for a record in another database higher up in the load order and it wants to make the record appear as non-existent to the game.
-		// the record will still exist in the database(s) but the game will just not get a result when it tries to look it up.
-		// in this way mods can "delete" content that was defined previously.
+		// if set then this record is a mod for a record in another database higher up in the load order and it wants to make the record appear as non-existent to the game.
+		// the record will still exist but the game will not get a result when it tries to look it up.
+		// in this way mod databases can "delete" content from the game.
 		database_record_flag_e_is_hidden = 0x01,
 
-		// if true then this record should be considered as deleted and it will be pruned the next time the table is rebuilt.
+		// if set then this record should be considered as deleted and it will be pruned the next time the table is rebuilt.
+		// the record wills till exist but the game will not get a result when it tries to look it up.
 		database_record_flag_e_is_deleted = 0x02,
 	};
 
 #pragma pack( push, 1 )
-	// 8 bytes, used to address|reference records of a specific known origin.
+	// used to address and look up records of a specific known origin.
 	struct database_record_address_c
 	{
 		uint16_c database_id;
@@ -67,7 +67,15 @@ namespace cheonsa
 	};
 	static_assert( sizeof( database_record_address_c ) == 8, "size of database_record_address_c is wrong." );
 
-	// 16 bytes, each record value entry is prefixed by this structure.
+	struct database_field_header_c
+	{
+		uint8_c flags; // interpret as database_field_flag_e.
+	};
+	static_assert( sizeof( database_field_header_c ) == 1, "size of database_field_header_c is wrong." );
+
+	// each record value is a buffer of bytes.
+	// each record value is headed by this structure.
+	// the remaining number of bytes are field values.
 	struct database_record_header_c
 	{
 		uint32_c id;

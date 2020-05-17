@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_types.h"
 #include "cheonsa_string16.h"
@@ -22,10 +22,10 @@ namespace cheonsa
 	// then the user interface creates a canvas with the window as the output.
 	class window_manager_c
 	{
-	private:
 		friend class engine_c;
 		friend class window_manager_members_c;
 
+	private:
 		void_c * _process_handle;
 		void_c * _window_handle;
 		window_state_e _window_state; // treat as read only, but use set_window_state() to change. used to remember the state of the window when the operating system changes it.
@@ -34,16 +34,15 @@ namespace cheonsa
 		sint32_c _window_title_bar_thickness; // when the client window is in borderless mode, this tells the non client hit detection logic the size of the title bar in pixels.
 
 		window_manager_c();
-
-	public:
 		~window_manager_c();
 
 		boolean_c open_client_window(); // opens the client window, not maximized.
-		void_c maximize_client_window(); // 
-		void_c center_client_window(); // ucenters the window again after exiting full screen, un-maximizes it.
+		void_c maximize_client_window(); // maximizes the window. this doesn't mean going to full screen mode.
+		void_c center_client_window(); // centers the window after exiting full screen, un-maximizes it.
 		void_c close_client_window(); // closes the client window.
 
-		void_c * get_window_handle(); // gets the client window handle, but casted to a void_c const * so that it is platform neutral.
+	public:
+		void_c * get_window_handle(); // gets the client window handle, but reinterpreted as a void pointer so that it's platform neutral.
 		void_c set_window_title( string16_c const & value ); // called by client to set title of the window.
 		void_c set_window_icon_big( platform_icon_c * value ); // called by client to set icon of the window. the big icon is shown when alt+tabbing.
 		void_c set_window_icon_small( platform_icon_c * value ); // called by client to set icon of the window. the small icon is shown in the title bar of the window.

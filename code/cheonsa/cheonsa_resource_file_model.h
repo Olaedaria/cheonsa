@@ -3,10 +3,10 @@
 #include "cheonsa_types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_video_types.h"
-#include "cheonsa_video_renderer_types.h"
 #include "cheonsa_physics_types.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_data_scribe_binary.h"
+#include "cheonsa_video_renderer_types.h" // just to cross check static_assert sizeof stuff.
 
 namespace cheonsa
 {

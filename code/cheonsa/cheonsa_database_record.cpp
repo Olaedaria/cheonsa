@@ -153,23 +153,23 @@ namespace cheonsa
 			if ( field._key == expected_key && field._type == expected_type && field._type_count == expected_type_count )
 			{
 				uint8_c * field_data = &_table->_record_buffer[ _data_offset + field._data_offset ];
-				uint8_c field_flags = field_data[ 0 ];
-				if ( field_flags & database_field_flag_e_is_defined )
+				database_field_header_c const * field_header = reinterpret_cast< database_field_header_c const * >( field_data );
+				if ( field_header->flags & database_field_flag_e_is_defined )
 				{
 					if ( expected_type == data_type_e_string8 )
 					{
 						assert( expected_type_count == 1 );
-						*reinterpret_cast< string8_c * >( field_value ) = _table->_get_string8( *reinterpret_cast< sint32_c const * >( &field_data[ 1 ] ) );
+						*reinterpret_cast< string8_c * >( field_value ) = _table->_get_string8( *reinterpret_cast< sint32_c const * >( &field_data[ sizeof( database_field_header_c ) ] ) );
 					}
 					else if ( expected_type == data_type_e_string16 )
 					{
 						assert( expected_type_count == 1 );
-						*reinterpret_cast< string16_c * >( field_value ) = _table->_get_string16( *reinterpret_cast< sint32_c const * >( &field_data[ 1 ] ) );
+						*reinterpret_cast< string16_c * >( field_value ) = _table->_get_string16( *reinterpret_cast< sint32_c const * >( &field_data[ sizeof( database_field_header_c ) ] ) );
 					}
 					else
 					{
 						assert( 1 + ( database_get_data_type_size( expected_type ) * expected_type_count ) == field._data_size );
-						ops::memory_copy( &field_data[ 1 ], field_value, field._data_size - 1 );
+						ops::memory_copy( &field_data[ sizeof( database_field_header_c ) ], field_value, field._data_size - 1 );
 					}
 					got_default = false;
 					return true;
@@ -209,16 +209,17 @@ namespace cheonsa
 			{
 				// update the field value.
 				uint8_c * field_data = &_table->_record_buffer[ _data_offset + field._data_offset ];
-				field_data[ 0 ] |= database_field_flag_e_is_defined; // first byte is flags.
+				database_field_header_c * field_header = reinterpret_cast< database_field_header_c * >( field_data );
+				field_header->flags |= database_field_flag_e_is_defined;
 				if ( expected_type == data_type_e_string8 )
 				{
 					assert( expected_type_count == 1 );
-					*reinterpret_cast< sint32_c * >( &field_data[ 1 ] ) = _table->_add_string8( *reinterpret_cast< string8_c const * >( field_value ) );
+					*reinterpret_cast< sint32_c * >( &field_data[ sizeof( database_field_header_c ) ] ) = _table->_add_string8( *reinterpret_cast< string8_c const * >( field_value ) );
 				}
 				else if ( expected_type == data_type_e_string16 )
 				{
 					assert( expected_type_count == 1 );
-					*reinterpret_cast< sint32_c * >( &field_data[ 1 ] ) = _table->_add_string16( *reinterpret_cast< string16_c const * >( field_value ) );
+					*reinterpret_cast< sint32_c * >( &field_data[ sizeof( database_field_header_c ) ] ) = _table->_add_string16( *reinterpret_cast< string16_c const * >( field_value ) );
 				}
 				else
 				{
@@ -256,7 +257,8 @@ namespace cheonsa
 			{
 				// clear the field value.
 				uint8_c * field_data = &_table->_record_buffer[ _data_offset + field._data_offset ];
-				*field_data &= ~database_field_flag_e_is_defined;
+				database_field_header_c * field_header = reinterpret_cast< database_field_header_c * >( field_data );
+				field_header->flags &= ~database_field_flag_e_is_defined;
 				field_data++;
 				ops::memory_zero( field_data, field._data_size - 1 );
 

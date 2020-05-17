@@ -1,4 +1,4 @@
-#include "cheonsa_core_safe_reference_counter.h"
+#include "cheonsa_thread_safe_reference_counter.h"
 #include "cheonsa___build_configuration.h"
 #if defined( cheonsa_platform_windows )
 #include <windows.h>
@@ -7,12 +7,12 @@
 namespace cheonsa
 {
 
-	core_safe_reference_counter_c::core_safe_reference_counter_c( sint32_c initial_count )
+	thread_safe_reference_counter_c::thread_safe_reference_counter_c( sint32_c initial_count )
 		: _count( initial_count )
 	{
 	}
 
-	sint32_c core_safe_reference_counter_c::increment()
+	sint32_c thread_safe_reference_counter_c::increment()
 	{
 #if defined( cheonsa_platform_windows )
 		sint32_c const volatile * c = &_count;
@@ -33,7 +33,7 @@ namespace cheonsa
 #endif
 	}
 
-	sint32_c core_safe_reference_counter_c::decrement()
+	sint32_c thread_safe_reference_counter_c::decrement()
 	{
 #if defined( cheonsa_platform_windows )
 		return InterlockedDecrement( &_count );
@@ -42,7 +42,7 @@ namespace cheonsa
 #endif
 	}
 
-	sint32_c core_safe_reference_counter_c::get_count()
+	sint32_c thread_safe_reference_counter_c::get_count()
 	{
 		return _count;
 	}

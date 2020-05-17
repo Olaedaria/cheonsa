@@ -152,7 +152,7 @@ namespace cheonsa
 		sint32_c stream_size = stream->get_size();
 
 		data_scribe_binary_c scribe;
-		scribe.set_stream( stream );
+		scribe.open( stream, ops::get_native_byte_order() );
 
 		// check signature.
 		char8_c signature_and_version[ 4 ];
@@ -160,21 +160,21 @@ namespace cheonsa
 		{
 			goto cancel;
 		}
-		if ( ops::memory_compare( "cm", signature_and_version, 2 ) )
+		if ( signature_and_version[ 0 ] == 'c' && signature_and_version[ 1 ] == 'm' )
 		{
 			if ( ops::get_native_byte_order() != byte_order_e_little )
 			{
 				debug_log( log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is little endian but this environment's native byte order is big endian." );
 			}
-			scribe.set_byte_order( byte_order_e::byte_order_e_little );
+			scribe.set_byte_order_( byte_order_e::byte_order_e_little );
 		}
-		else if ( ops::memory_compare( "CM", signature_and_version, 2 ) )
+		else if ( signature_and_version[ 0 ] == 'C' && signature_and_version[ 1 ] == 'M' )
 		{
 			if ( ops::get_native_byte_order() != byte_order_e_big )
 			{
 				debug_log( log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is big endian but this environment's native byte order is little endian." );
 			}
-			scribe.set_byte_order( byte_order_e::byte_order_e_big );
+			scribe.set_byte_order_( byte_order_e::byte_order_e_big );
 		}
 		else
 		{

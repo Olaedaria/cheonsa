@@ -7,6 +7,7 @@
 #include "cheonsa_resource_file_model.h"
 #include "cheonsa_resource_file_materials.h"
 #include "cheonsa_video_renderer_interface.h"
+#include "cheonsa_core_dictionary.h"
 
 namespace cheonsa
 {

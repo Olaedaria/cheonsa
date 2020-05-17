@@ -1,7 +1,8 @@
 #pragma once
 
 #include "cheonsa_scene_component.h"
-#include "cheonsa_resource_file_sprite.h"
+#include "cheonsa_sprite.h"
+#include "cheonsa_resource_file_sprites.h"
 #include "cheonsa_video_interface.h"
 
 namespace cheonsa
@@ -18,7 +19,8 @@ namespace cheonsa
 		virtual inline uint8_c get_type_code() const override { return get_type_code_static(); }
 
 	private:
-		resource_file_sprite_c::reference_c _sprite_sheet_resource;
+		sprite_c _sprite; // the sprite instance that drives the animation and state.
+
 		scene_material_c _material;
 
 		float32_c _opacity;
@@ -39,6 +41,8 @@ namespace cheonsa
 		virtual ~scene_component_sprite_c() override;
 
 		static scene_component_sprite_c * make_new_instance();
+
+		sprite_c & get_sprite();
 
 		scene_sprite_type_e get_sprite_type() const;
 		void_c set_sprite_type( scene_sprite_type_e value );

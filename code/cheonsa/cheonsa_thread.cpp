@@ -1,4 +1,4 @@
-﻿#include "cheonsa_platform_thread.h"
+#include "cheonsa_thread.h"
 #include <cassert>
 #if defined( cheonsa_platform_windows )
 #define WIN32_LEAN_AND_MEAN
@@ -15,14 +15,14 @@ namespace cheonsa
 		HANDLE _handle; // thread handle.
 		static DWORD WINAPI thread_function( LPVOID parameter )
 		{
-			platform_thread_c * platform_thread = reinterpret_cast< platform_thread_c * >( parameter );
+			thread_c * platform_thread = reinterpret_cast< thread_c * >( parameter );
 			uint32_c result = (*platform_thread->_function)( platform_thread );
 			return result;
 		}
 #endif
 	};
 
-	platform_thread_c::platform_thread_c()
+	thread_c::thread_c()
 		: _members( nullptr )
 		, _function( nullptr )
 		, _parameter( nullptr )
@@ -31,7 +31,7 @@ namespace cheonsa
 		_members = new platform_thread_members_c();
 	}
 
-	platform_thread_c::~platform_thread_c()
+	thread_c::~thread_c()
 	{
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
@@ -44,17 +44,17 @@ namespace cheonsa
 		_members = nullptr;
 	}
 
-	void_c * platform_thread_c::get_parameter() const
+	void_c * thread_c::get_parameter() const
 	{
 		return _parameter;
 	}
 
-	boolean_c platform_thread_c::get_keep_alive() const
+	boolean_c thread_c::get_keep_alive() const
 	{
 		return _keep_alive;
 	}
 
-	void_c platform_thread_c::start( uint32_c (*function)( platform_thread_c * platform_thread ), void_c * parameter )
+	void_c thread_c::start( uint32_c (*function)( thread_c * platform_thread ), void_c * parameter )
 	{
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
@@ -67,7 +67,7 @@ namespace cheonsa
 #endif
 	}
 
-	void_c platform_thread_c::stop()
+	void_c thread_c::stop()
 	{
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
@@ -81,7 +81,7 @@ namespace cheonsa
 #endif
 	}
 
-	void_c platform_thread_c::sleep( sint32_c milliseconds )
+	void_c thread_c::sleep( sint32_c milliseconds )
 	{
 #if defined( cheonsa_platform_windows )
 		Sleep( milliseconds );

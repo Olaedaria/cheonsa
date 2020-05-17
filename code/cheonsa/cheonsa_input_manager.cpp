@@ -127,6 +127,7 @@ namespace cheonsa
 		, _event_mouse_keys_state{}
 		, _event_keyboard_keys_state{}
 		, _event_gamepad_keys_state{}
+		, _frame_modifier_flags( input_modifier_flag_e_none )
 		, _frame_mouse_position_last()
 		, _frame_mouse_position()
 		, _frame_mouse_position_delta()
@@ -271,6 +272,7 @@ namespace cheonsa
 			_frame_gamepad_state._right_stick_state_with_dead_zone = vector32x2_c( 0.0f, 0.0f );
 		}
 
+		_frame_modifier_flags = _event_modifier_flags;
 		_frame_mouse_position_last = _frame_mouse_position;
 		_frame_mouse_position = _event_mouse_position;
 		_frame_mouse_position_delta = _frame_mouse_position - _frame_mouse_position_last;
@@ -462,29 +464,34 @@ namespace cheonsa
 	//	return ( _keyboard_keys_state[ key ] & input_key_state_bit_e_on ) != 0;
 	//}
 
-	vector32x2_c input_manager_c::get_frame_snapshot_mouse_position() const
+	input_modifier_flag_e input_manager_c::get_frame_modifier_flags() const
+	{
+		return _frame_modifier_flags;
+	}
+
+	vector32x2_c input_manager_c::get_frame_mouse_position() const
 	{
 		return _frame_mouse_position;
 	}
 
-	vector32x2_c input_manager_c::get_frame_snapshot_mouse_position_delta() const
+	vector32x2_c input_manager_c::get_frame_mouse_position_delta() const
 	{
 		return _frame_mouse_position_delta;
 	}
 
-	boolean_c input_manager_c::get_frame_snapshot_mouse_key_state( input_mouse_key_e mouse_key ) const
+	boolean_c input_manager_c::get_frame_mouse_key_state( input_mouse_key_e mouse_key ) const
 	{
 		assert( mouse_key > input_mouse_key_e_none && mouse_key < input_mouse_key_e_count_ );
 		return _frame_mouse_keys_state[ mouse_key ];
 	}
 
-	boolean_c input_manager_c::get_frame_snapshot_keyboard_key_state( input_keyboard_key_e keyboard_key ) const
+	boolean_c input_manager_c::get_frame_keyboard_key_state( input_keyboard_key_e keyboard_key ) const
 	{
 		assert( keyboard_key > input_keyboard_key_e_none && keyboard_key < input_keyboard_key_e_count_ );
 		return _frame_keyboard_keys_state[ keyboard_key ];
 	}
 
-	input_gamepad_state_c const & input_manager_c::get_frame_snapshot_gamepad_state() const
+	input_gamepad_state_c const & input_manager_c::get_frame_gamepad_state() const
 	{
 		return _frame_gamepad_state;
 	}
@@ -522,31 +529,6 @@ namespace cheonsa
 	void_c input_manager_c::set_action_scope( string8_c const & value )
 	{
 		_action_scope = value;
-
-		// update snapshots states to match new scope.
-		// this is because the game may call this during update.
-		// and if we don't update the snapshot states, then the game may inadvertently shortcut inputs from this frame, would be frustrating to a perceptive player.
-		_update_action_snapshot_states();
-	}
-
-	void_c input_manager_c::_update_action_snapshot_states()
-	{
-		for ( sint32_c i = 0; i < _action_list.get_length(); i++ )
-		{
-			input_action_c * action = _action_list[ i ];
-			action->_snapshot_state = false;
-			if ( action->_scope == _action_scope )
-			{
-				for ( sint32_c j = 0; j < _events_current->get_length(); j++ )
-				{
-					if ( action->_shortcut.is_pressed( &(*_events_current)[ j ] ) )
-					{
-						action->_snapshot_state = true;
-						break;
-					}
-				}
-			}
-		}
 	}
 
 	void_c input_manager_c::_invoke_action_with_input_event( input_event_c * input_event )
@@ -556,7 +538,7 @@ namespace cheonsa
 			input_action_c * action = _action_list[ i ];
 			if ( action->_scope == _action_scope )
 			{
-				if ( action->_shortcut.is_pressed( input_event ) )
+				if ( action->_shortcut.is_pressed_for_event( input_event ) )
 				{
 					action->on_invoked.invoke( action );
 				}
@@ -582,28 +564,6 @@ namespace cheonsa
 	//		}
 	//	}
 	//	return nullptr;
-	//}
-
-	//boolean_c input_manager_c::is_shortcut_pressed( input_shortcut_c const & shortcut ) const
-	//{
-	//	if ( _frame_snapshot_modifier_keys_state[ input_modifier_key_e_shift ] == ( ( shortcut._modifier_flags & input_modifier_flag_e_shift ) != 0 ) &&
-	//		_frame_snapshot_modifier_keys_state[ input_modifier_key_e_ctrl ] == ( ( shortcut._modifier_flags & input_modifier_flag_e_ctrl ) != 0 ) &&
-	//		_frame_snapshot_modifier_keys_state[ input_modifier_key_e_alt ] == ( ( shortcut._modifier_flags & input_modifier_flag_e_alt ) != 0 ) )
-	//	{
-	//		if ( shortcut._mouse_key != 0 )
-	//		{
-	//			return _frame_snapshot_mouse_keys_state[ shortcut._mouse_key ];
-	//		}
-	//		else if ( shortcut._keyboard_key != 0 )
-	//		{
-	//			return _frame_snapshot_keyboard_keys_state[ shortcut._keyboard_key ];
-	//		}
-	//		else if ( shortcut._gamepad_button != 0 )
-	//		{
-	//			return _frame_gamepad_state.get_button_state( shortcut._gamepad_button );
-	//		}
-	//	}
-	//	return false;
 	//}
 
 	boolean_c input_manager_c::get_plain_text_clip_board_value( string16_c & value )

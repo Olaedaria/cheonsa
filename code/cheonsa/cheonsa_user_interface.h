@@ -14,7 +14,7 @@ namespace cheonsa
 	class scene_c;
 	class scene_object_c;
 
-	// the user interfaces is the highest level interface between the human user and the game.
+	// the user interface is the highest level interface between the human user or player and the game.
 	//
 	// it manages a canvas (collection of texture render targets) which is associated with the client window.
 	//
@@ -34,6 +34,7 @@ namespace cheonsa
 	// input focus is managed between all of these things.
 	class user_interface_c
 	{
+		friend class engine_c;
 		friend class video_renderer_interface_c;
 
 	protected:
@@ -72,7 +73,6 @@ namespace cheonsa
 		// input events that are a result of interpreting inputs (clicks, multi-clicks) are not bubbled.
 		void_c _process_input_event( input_event_c * input_event ); // processes a single input event.
 
-	public:
 		user_interface_c();
 		~user_interface_c();
 
@@ -82,6 +82,7 @@ namespace cheonsa
 		void_c update( float32_c time_step ); // time_step here is the time since last update, updates animations, deletes controls that want to be deleted.
 		void_c render_and_present( float32_c time_step ); // time_step here is the time since last render, which is used to calculate per-second statistics. also resolves the 3d pixel perfect pick query.
 
+	public:
 		box32x2_c const & get_local_box() const; // gets a rectangle that can be used to lay out 2d menu controls in the client window.
 		core_event_c< void_c, user_interface_c * > on_local_box_changed; // is invoked when local box changes, and before 2d menu controls are laid out again.
 
@@ -93,8 +94,7 @@ namespace cheonsa
 		void_c bring_control_to_front( menu_control_c * control ); // moves the given control (which is already in the user interface) to front (layered above all other controls in the user interface).
 
 		// controls that do not respond to multi-clicks should call this in their _on_clicked() method.
-		// controls that do respond to multi-clicks should call this in their _on_multi_clicked() method when the multi-click count is equal to the maximum multi-click count that the control is programmed to respond to.
-		// this allows multi-click response behavior to wrap around (cycle) indefinitely.
+		// controls that do respond to multi-clicks should call this in their _on_multi_clicked() method when the multi-click count is equal to the maximum multi-click count that the control is programmed to respond to. this allows multi-click response behavior to wrap around cycle around indefinitely rather than count up indefinitely.
 		void_c reset_multi_click_detection();
 
 		boolean_c has_text_focus(); // returns true if this menu context has text input focus.

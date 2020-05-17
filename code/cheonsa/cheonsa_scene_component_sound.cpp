@@ -35,7 +35,7 @@ namespace cheonsa
 		, _interval_minimum( 0.0f )
 		, _interval_maximum( 0.0f )
 	{
-		_audio_scene_source = audio2_scene_source_c::make_new_instance();
+		_audio_scene_source = audio_scene_source_c::make_new_instance();
 		_audio_scene_source->add_reference();
 	}
 
@@ -60,12 +60,12 @@ namespace cheonsa
 		_sound_resource = value;
 	}
 
-	audio2_layer_e scene_component_sound_c::get_audio_layer() const
+	audio_layer_e scene_component_sound_c::get_audio_layer() const
 	{
 		return _audio_scene_source->get_wave_player()->get_layer();
 	}
 
-	void_c scene_component_sound_c::set_audio_layer( audio2_layer_e value )
+	void_c scene_component_sound_c::set_audio_layer( audio_layer_e value )
 	{
 		_audio_scene_source->get_wave_player()->set_layer( value );
 	}
@@ -131,7 +131,7 @@ namespace cheonsa
 			{
 				if ( _audio_scene_source->get_wave_player()->get_appears_to_be_playing() == false )
 				{
-					float32_c distance_squared = ops::length_squared_float32( vector32x3_c( _scene_object->get_world_space_transform().position - _scene_object->get_scene()->get_audio_scene()->get_scene_listener_world_space_position() ) );
+					float32_c distance_squared = ops::length_squared_float32( vector32x3_c( _scene_object->get_world_space_transform().position - _scene_object->get_scene()->get_audio_scene()->get_scene_listener().get_world_space_position() ) );
 					float32_c effective_range_squared = _audio_scene_source->get_effective_range_squared();
 					if ( distance_squared <= effective_range_squared )
 					{

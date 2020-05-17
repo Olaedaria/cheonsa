@@ -32,6 +32,7 @@ namespace cheonsa
 	// this means that potentially, data can be dragged and dropped between different menu contexts and scene contexts.
 	class input_manager_c
 	{
+		friend class engine_c;
 		friend class window_manager_members_c;
 
 	private:
@@ -46,12 +47,13 @@ namespace cheonsa
 		boolean_c _event_keyboard_keys_state[ input_keyboard_key_e_count_ ]; // snapshot of keyboard keys state, updated and saved with each input event.
 		boolean_c _event_gamepad_keys_state[ input_gamepad_key_e_count_ ]; // snapshot of gamepad keys state, updated and saved with each input event.
 
-		vector32x2_c _frame_mouse_position_last; // position of mouse at start of last frame.
+		input_modifier_flag_e _frame_modifier_flags; // modifier keys state at start of current frame.
+		vector32x2_c _frame_mouse_position_last; // position of mouse at start of current frame.
 		vector32x2_c _frame_mouse_position; // position of mouse at start of current frame.
 		vector32x2_c _frame_mouse_position_delta; // change in position between start of last frame and start of current frame.
-		boolean_c _frame_mouse_keys_state[ input_mouse_key_e_count_ ]; // snapshot of mouse keys state at start of current frame.
-		boolean_c _frame_keyboard_keys_state[ input_keyboard_key_e_count_ ]; // snapshot of keyboard keys state at start of current frame.
-		input_gamepad_state_c _frame_gamepad_state; // snapshot of gamepad keys state at start of current frame.
+		boolean_c _frame_mouse_keys_state[ input_mouse_key_e_count_ ]; // mouse keys state at start of current frame.
+		boolean_c _frame_keyboard_keys_state[ input_keyboard_key_e_count_ ]; // keyboard keys state at start of current frame.
+		input_gamepad_state_c _frame_gamepad_state; // gamepad keys state at start of current frame.
 
 		boolean_c _mouse_pointer_visibility;
 
@@ -73,10 +75,10 @@ namespace cheonsa
 
 		void_c _release_all_keys(); // is called when the engine's window loses focus. prevents keys from getting stuck in a pressed state if the user alt+tabs or if another program violates us for attention.
 
-	public:
 		input_manager_c();
 		~input_manager_c();
 
+	public:
 		boolean_c start(); // doesn't do anything right now.
 
 		void_c update(); // swaps input buffers.
@@ -92,11 +94,12 @@ namespace cheonsa
 		//boolean_c get_mouse_key_is_pressed( input_mouse_key_e key ) const; // gets state of a key in the frame's input state snapshot.
 		//boolean_c get_keyboard_key_is_pressed( input_keyboard_key_e key ) const; // gets state of a key in the frame's input state snapshot.
 
-		vector32x2_c get_frame_snapshot_mouse_position() const; // gets the position of the mouse pointer at the start of the current frame, relative to the client window's client area.
-		vector32x2_c get_frame_snapshot_mouse_position_delta() const; // gets the delta position of the mouse pointer between the start of the last frame and the start of the current frame.
-		boolean_c get_frame_snapshot_mouse_key_state( input_mouse_key_e mouse_key ) const;
-		boolean_c get_frame_snapshot_keyboard_key_state( input_keyboard_key_e keyboard_key ) const;
-		input_gamepad_state_c const & get_frame_snapshot_gamepad_state() const;
+		input_modifier_flag_e get_frame_modifier_flags() const;
+		vector32x2_c get_frame_mouse_position() const; // gets the position of the mouse pointer at the start of the current frame, relative to the client window's client area.
+		vector32x2_c get_frame_mouse_position_delta() const; // gets the delta position of the mouse pointer between the start of the last frame and the start of the current frame.
+		boolean_c get_frame_mouse_key_state( input_mouse_key_e mouse_key ) const;
+		boolean_c get_frame_keyboard_key_state( input_keyboard_key_e keyboard_key ) const;
+		input_gamepad_state_c const & get_frame_gamepad_state() const;
 
 		// the left motor is a heavier weight, higher amplitude, lower frequency.
 		// the right motor is a lighter weight, lower amplitude, higher frequency.
@@ -122,6 +125,7 @@ namespace cheonsa
 	public:
 		// adds an action to the end of the action list.
 		// the whole list should be initialized by the game at game initialization.
+		// these action instances are owned by the game.
 		void_c add_action( input_action_c * action );
 
 		// looks up an action that was previously added.
@@ -134,8 +138,6 @@ namespace cheonsa
 		// the action list is iterated through from bottom to top.
 		// a string_starts_with( context, action.context ) is done for each action to determine if it can be invoked by its shortcut.
 		void_c set_action_scope( string8_c const & value );
-
-		void_c _update_action_snapshot_states();
 
 		// called by the user interface manager when processing each input event.
 		// this gives input actions the opportunity to respond first, then (regardless of if an action is invoked or not) the input event is routed normally through the rest of the menu system and then the game.

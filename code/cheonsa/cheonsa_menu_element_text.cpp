@@ -230,8 +230,8 @@ namespace cheonsa
 								//		menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
 								//		if ( entity_sprite->value.get_is_ready() )
 								//		{
-								//			resource_file_sprite_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
-								//			resource_file_sprite_c::frame_c const * current_frame = entity_sprite->value.get_frame();
+								//			resource_file_sprites_c::sprite_c const * current_sprite = entity_sprite->value.get_sprite();
+								//			resource_file_sprites_c::frame_c const * current_frame = entity_sprite->value.get_frame();
 
 								//			float32_c scale_to_size = text_glyph_style->size / entity_sprite->value.get_sprite()->font_size;
 
@@ -456,13 +456,13 @@ namespace cheonsa
 		text_span_c * root_span = this;
 		assert( root_span->_mother_paragraph );
 		root_span->_mother_paragraph->_is_glyph_layout_dirty = true;
-		root_span->_mother_paragraph->_mother_element_text->_is_glyph_layout_dirty = true;
+		root_span->_mother_paragraph->_mother_text_element->_is_glyph_layout_dirty = true;
 	}
 
 	menu_element_text_c::text_span_c::text_span_c()
 		: _mother_paragraph( nullptr )
-		, _character_start( -1 )
-		, _character_end( -1 )
+		, _character_start( 0 )
+		, _character_end( 0 )
 		, _text_style_reference()
 	{
 	}
@@ -650,6 +650,26 @@ namespace cheonsa
 
 
 
+	//
+	//
+	// menu_element_text_c::text_entity_c
+	//
+	//
+
+	menu_element_text_c::text_entity_c::text_entity_c( text_paragraph_c * mother_paragraph )
+		: _mother_paragraph( mother_paragraph )
+		, _character_start( 0 )
+		, _character_end( 0 )
+		, _has_instance( false )
+		, _sprite_instance()
+		, _string_instance()
+		, _is_alive( false )
+	{
+
+	}
+
+
+
 
 	//
 	//
@@ -676,20 +696,34 @@ namespace cheonsa
 
 	void_c menu_element_text_c::text_paragraph_c::_handle_text_style_reference_on_resolved( menu_text_style_c::reference_c const * text_style_reference )
 	{
-		_mother_element_text->_is_glyph_layout_dirty = true;
+		_mother_text_element->_is_glyph_layout_dirty = true;
 		_is_glyph_layout_dirty = true;
 	}
 
 	void_c menu_element_text_c::text_paragraph_c::_handle_text_style_reference_on_unresolved( menu_text_style_c::reference_c const * text_style_reference )
 	{
-		_mother_element_text->_is_glyph_layout_dirty = true;
+		_mother_text_element->_is_glyph_layout_dirty = true;
 		_is_glyph_layout_dirty = true;
 	}
 
-	menu_element_text_c::text_paragraph_c::text_paragraph_c()
-		: _mother_element_text( nullptr )
-		, _character_start( -1 )
-		, _character_end( -1 )
+	menu_element_text_c::text_entity_c * menu_element_text_c::text_paragraph_c::_find_entity( sint32_c character_start, sint32_c character_end, string8_c const & key )
+	{
+		// brute force.
+		for ( sint32_c i = 0; i < _entity_list.get_length(); i++ )
+		{
+			text_entity_c * entity = _entity_list[ i ];
+			if ( entity->_character_start == character_start && entity->_character_end == character_end && entity->_key == key )
+			{
+				return entity;
+			}
+		}
+		return nullptr;
+	}
+
+	menu_element_text_c::text_paragraph_c::text_paragraph_c( menu_element_text_c * mother_text_element )
+		: _mother_text_element( mother_text_element )
+		, _character_start( 0 )
+		, _character_end( 0 )
 		, _text_style_reference()
 		, _span_list()
 		, _top( 0.0f )
@@ -698,7 +732,6 @@ namespace cheonsa
 		, _line_index_base( 0 )
 		, _line_list()
 		, _glyph_list()
-		, _entity_list()
 		, _is_glyph_layout_dirty( false )
 	{
 		_text_style_reference.on_resolved.subscribe( this, &text_paragraph_c::_handle_text_style_reference_on_resolved );
@@ -707,21 +740,20 @@ namespace cheonsa
 
 	menu_element_text_c::text_paragraph_c::~text_paragraph_c()
 	{
-		_entity_list.remove_and_delete_all();
 		_span_list.remove_and_delete_all();
 	}
 
 	void_c menu_element_text_c::text_paragraph_c::_do_glyph_layout()
 	{
 		assert( _character_end >= _character_start );
-		assert( _mother_element_text->_plain_text.character_list[ _character_end ] == L'\n' );
+		assert( _mother_text_element->_plain_text.character_list[ _character_end ] == L'\n' );
 		_content_width = 0.0f;
 		_line_list.remove_all();
 		_glyph_list.remove_all();
 
-		box32x2_c margin = _mother_element_text->_get_style_margin();
+		box32x2_c margin = _mother_text_element->_get_style_margin();
 
-		float32_c word_wrap_width = _mother_element_text->_local_box.get_width() - ( margin.minimum.a + margin.minimum.b );
+		float32_c word_wrap_width = _mother_text_element->_local_box.get_width() - ( margin.minimum.a + margin.minimum.b );
 		if ( word_wrap_width < 1.0f )
 		{
 			word_wrap_width = 1.0f;
@@ -740,6 +772,12 @@ namespace cheonsa
 		float32_c current_laid_out_descender; // current unquantized descender for the current style of the current character.
 		float32_c current_laid_out_glyph_spacing; // current unquantized glyph spacing (extra horizontal advance) for the current style of the current character.
 		float32_c current_scale_to_unquantize_size; // corrective scale, to scale glyph from size it was baked at (quantized) to arbitrary size that the style wants it to be rendered at (dequantized).
+
+		boolean_c entity_is_string = false;
+		sint32_c entity_character_start = -1;
+		sint32_c entity_character_end = -1;
+		string8_c entity_key;
+		text_entity_c * entity_instance = nullptr;
 
 		text_span_c const * current_span = nullptr; // span of the current character, may be nullptr.
 
@@ -789,7 +827,7 @@ namespace cheonsa
 				current_laid_out_ascender = current_text_glyph_style.font->get_unquantized_ascender( current_text_glyph_style.size );
 				current_laid_out_descender = current_text_glyph_style.font->get_unquantized_descender( current_text_glyph_style.size );
 				current_space_width = current_text_glyph_style.font->get_unquantized_horizontal_advance_for_space( current_text_glyph_style.size );
-				_mother_element_text->_cache_text_glyph_style( current_text_glyph_style, current_text_glyph_style_in_cache, current_text_glyph_style_in_cache_index );
+				_mother_text_element->_cache_text_glyph_style( current_text_glyph_style, current_text_glyph_style_in_cache, current_text_glyph_style_in_cache_index );
 			}
 
 			assert( current_text_glyph_style.color.d != 0.0f );
@@ -797,7 +835,72 @@ namespace cheonsa
 			// process the current character.
 			boolean_c current_character_is_space = false;
 			last_code_point = current_code_point;
-			current_code_point = _mother_element_text->_plain_text.character_list[ j ];
+			current_code_point = _mother_text_element->_plain_text.character_list[ j ];
+
+			/*
+			// scan for entity.
+			if ( current_code_point == ':' )
+			{
+				entity_is_string = false;
+				entity_character_start = j;
+				entity_character_end = -1;
+				entity_key.character_list.remove_all();
+				sint32_c k = j + 1;
+				if ( _mother_text_element->_plain_text.character_list[ k ] == '$' )
+				{
+					entity_key.character_list.insert( -1, '$' );
+					entity_is_string = true;
+					k++;
+				}
+				for ( ; k < _character_end && k - entity_character_start < 32; k++ )
+				{
+					char16_c scan = _mother_text_element->_plain_text.character_list[ k ];
+					if ( ( scan >= 'a' && scan <= 'z' ) || ( scan >= 'A' && scan <= 'Z' ) || ( scan >= '0' && scan <= '9' ) || ( scan == '_' ) )
+					{
+						entity_key.character_list.insert( -1, scan );
+					}
+					else if ( scan == ':' )
+					{
+						entity_character_end = k;
+						entity_key.character_list.insert( -1, '\0' );
+						break;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if ( entity_character_end - entity_character_start > 1 )
+				{
+					// check if an entity instance for this range of characters and key already exists, otherwise create a new one.
+					entity_instance = _find_entity( entity_character_start, entity_character_end, entity_key );
+					if ( entity_instance == nullptr )
+					{
+						entity_instance = new text_entity_c( this );
+						entity_instance->_character_start = entity_character_start;
+						entity_instance->_character_end = entity_character_end;
+						entity_instance->_key = entity_key;
+						if ( entity_instance->_key.character_list[ 0 ] == '$' )
+						{
+							entity_instance->_has_instance = engine.get_content_manager()->find_text_string( entity_instance->_key, entity_instance->_string_instance );
+						}
+						else
+						{
+							entity_instance->_has_instance = engine.get_content_manager()->find_text_sprite( entity_instance->_key, entity_instance->_sprite_instance );
+						}
+					}
+
+					if ( entity_instance->_has_instance )
+					{
+						// insert dummy glyphs, since glyph list has to map to plain text 1:1.
+						for ( sint32_c k = entity_character_start; k <= entity_character_end; k++ )
+						{
+						}
+					}
+				}
+			}
+			*/
+
 			text_glyph_c * current_glyph = _glyph_list.emplace( -1, 1 ); // create the laid out glyph instance that maps to the current character.
 			current_glyph->_glyph = nullptr;
 			current_glyph->_left = 0.0f; // will be set properly when _finalize_glyph_flow_for_line() is called.
@@ -909,7 +1012,7 @@ namespace cheonsa
 			//}
 
 			// perform word wrap if needed.
-			if ( _mother_element_text->_word_wrap && _mother_element_text->_multi_line )
+			if ( _mother_text_element->_word_wrap && _mother_text_element->_multi_line )
 			{
 				if ( !current_character_is_space )
 				{
@@ -984,7 +1087,7 @@ namespace cheonsa
 		}
 
 		// take into account horizontal text alignment.
-		line->_update_horizontal_layout( _get_style_text_align_horizontal(), _mother_element_text->_local_box.get_width() );
+		line->_update_horizontal_layout( _get_style_text_align_horizontal(), _mother_text_element->_local_box.get_width() );
 
 		// this is straight forward because it's relative to the paragraph's top, so we don't need to take into account vertical text alignment here, that is done in the paragraph.
 		line->_top = laid_out_top;
@@ -1062,8 +1165,8 @@ namespace cheonsa
 
 	sint32_c menu_element_text_c::text_paragraph_c::_handle_delete_character_range( sint32_c character_start, sint32_c character_count )
 	{
-		assert( _mother_element_text );
-		assert( _mother_element_text->_text_interact_mode == menu_text_interact_mode_e_editable );
+		assert( _mother_text_element );
+		assert( _mother_text_element->_text_interact_mode == menu_text_interact_mode_e_editable );
 
 		sint32_c result = menu_element_text_c::_handle_delete_character_range( character_start, character_count, _character_start, _character_end );
 		if ( result >= 0 )
@@ -1185,7 +1288,7 @@ namespace cheonsa
 
 	menu_text_align_horizontal_e menu_element_text_c::text_paragraph_c::_get_style_text_align_horizontal() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value())
 		{
 			if ( _text_style_reference.get_value()->text_align_horizontal_is_defined )
@@ -1193,12 +1296,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->text_align_horizontal;
 			}
 		}
-		return _mother_element_text->_get_style_text_align_horizontal();
+		return _mother_text_element->_get_style_text_align_horizontal();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_paragraph_spacing() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->paragraph_spacing_is_defined )
@@ -1206,12 +1309,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->paragraph_spacing;
 			}
 		}
-		return _mother_element_text->_get_style_paragraph_spacing();
+		return _mother_text_element->_get_style_paragraph_spacing();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_line_spacing() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->line_spacing_is_defined )
@@ -1219,12 +1322,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->line_spacing;
 			}
 		}
-		return _mother_element_text->_get_style_line_spacing();
+		return _mother_text_element->_get_style_line_spacing();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_glyph_spacing() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->glyph_spacing_is_defined )
@@ -1232,12 +1335,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->glyph_spacing;
 			}
 		}
-		return _mother_element_text->_get_style_glyph_spacing();
+		return _mother_text_element->_get_style_glyph_spacing();
 	}
 
 	resource_file_font_c * menu_element_text_c::text_paragraph_c::_get_style_font() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->font_is_defined )
@@ -1246,12 +1349,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->font;
 			}
 		}
-		return _mother_element_text->_get_style_font();
+		return _mother_text_element->_get_style_font();
 	}
 
 	vector32x4_c menu_element_text_c::text_paragraph_c::_get_style_color() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->color_is_defined )
@@ -1259,12 +1362,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->color;
 			}
 		}
-		return _mother_element_text->_get_style_color();
+		return _mother_text_element->_get_style_color();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_size() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->size_is_defined )
@@ -1272,12 +1375,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->size;
 			}
 		}
-		return _mother_element_text->_get_style_size();
+		return _mother_text_element->_get_style_size();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_skew() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->skew_is_defined )
@@ -1285,12 +1388,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->skew;
 			}
 		}
-		return _mother_element_text->_get_style_skew();
+		return _mother_text_element->_get_style_skew();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_weight() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->weight_is_defined )
@@ -1298,12 +1401,12 @@ namespace cheonsa
 				return _text_style_reference.get_value()->weight;
 			}
 		}
-		return _mother_element_text->_get_style_weight();
+		return _mother_text_element->_get_style_weight();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_softness() const
 	{
-		assert( _mother_element_text );
+		assert( _mother_text_element );
 		if ( _text_style_reference.get_value() )
 		{
 			if ( _text_style_reference.get_value()->softness_is_defined )
@@ -1311,7 +1414,7 @@ namespace cheonsa
 				return _text_style_reference.get_value()->softness;
 			}
 		}
-		return _mother_element_text->_get_style_softness();
+		return _mother_text_element->_get_style_softness();
 	}
 
 	menu_text_glyph_style_c menu_element_text_c::text_paragraph_c::_get_style() const
@@ -1377,6 +1480,7 @@ namespace cheonsa
 		for ( sint32_c paragraph_index = 0; paragraph_index < _paragraph_list.get_length(); paragraph_index++ )
 		{
 			text_paragraph_c * paragraph = _paragraph_list[ paragraph_index ];
+			paragraph->_entity_list.remove_and_delete_all();
 			paragraph->_is_glyph_layout_dirty = true;
 		}
 	}
@@ -1985,7 +2089,7 @@ namespace cheonsa
 					{
 						// close current paragraph, insert new paragraph.
 						// we can only get here if the user is pasting text from the clip board which contains a new line character.
-						// other wise the input_return() code path is invoked when the user presses enter|return on the key board.
+						// otherwise the input_return() code path is invoked when the user presses enter|return on the key board.
 						_insert_new_paragraph();
 						continue;
 					}
@@ -2460,8 +2564,7 @@ namespace cheonsa
 				_plain_text.character_list.insert( _cursor_index, L'\n' );
 				paragraph->_character_end = _cursor_index;
 				paragraph->_is_glyph_layout_dirty = true;
-				text_paragraph_c * new_paragraph = new text_paragraph_c();
-				new_paragraph->_mother_element_text = this;
+				text_paragraph_c * new_paragraph = new text_paragraph_c( this );
 				new_paragraph->_character_start = _cursor_index + 1;
 				new_paragraph->_character_end = paragraph->_character_end + 1;
 				new_paragraph->_is_glyph_layout_dirty = true;
@@ -2497,8 +2600,7 @@ namespace cheonsa
 		_text_select_anchor_index_end = 0;
 
 		// create and add paragraph to wrap plain text.
-		text_paragraph_c * paragraph = new text_paragraph_c();
-		paragraph->_mother_element_text = this;
+		text_paragraph_c * paragraph = new text_paragraph_c( this );
 		paragraph->_character_start = 0;
 		paragraph->_character_end = 0;
 		paragraph->_is_glyph_layout_dirty = true;
@@ -2531,8 +2633,7 @@ namespace cheonsa
 		{
 			if ( node->get_tag_type() == data_scribe_markup_c::node_c::tag_type_e_open && node->get_value() == "paragraph" )
 			{
-				text_paragraph_c * paragraph = new text_paragraph_c();
-				paragraph->_mother_element_text = this;
+				text_paragraph_c * paragraph = new text_paragraph_c( this );
 				paragraph->_character_start = _plain_text.get_length();
 				data_scribe_markup_c::attribute_c const * attribute = node->find_attribute( "key" );
 				if ( attribute )
@@ -2826,16 +2927,15 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
 		{
 			text_paragraph_c * paragraph = _paragraph_list[ i ];
-			for( sint32_c j = 0; j < paragraph->_entity_list.get_length(); j++ )
+			for ( sint32_c j = 0; j < paragraph->_entity_list.get_length(); j++ )
 			{
-				menu_text_entity_c * entity = paragraph->_entity_list[ j ];
-				if ( entity->type_code == menu_text_entity_sprite_c::type_code_static() )
+				text_entity_c * entity = paragraph->_entity_list[ j ];
+				if ( entity->_key.character_list[ 0 ] != '$' )
 				{
-					menu_text_entity_sprite_c * entity_sprite = static_cast< menu_text_entity_sprite_c * >( entity );
-					entity_sprite->value.update( time_step );
+					entity->_sprite_instance.update_animations( time_step );
 				}
 			}
-		}	
+		}
 	}
 
 	void_c menu_element_text_c::set_style_key( string8_c const & text_style_key )
@@ -3386,8 +3486,7 @@ namespace cheonsa
 		_plain_text.character_list.insert( -1, L"\n\0", 2 ); // append terminating new line character and null character.
 		sint32_c new_paragraph_character_end = _plain_text.get_length();
 
-		text_paragraph_c * new_paragraph = new text_paragraph_c();
-		new_paragraph->_mother_element_text = this;
+		text_paragraph_c * new_paragraph = new text_paragraph_c( this );
 		new_paragraph->_character_start = new_paragraph_character_start;
 		new_paragraph->_character_end = new_paragraph_character_end;
 		new_paragraph->_is_glyph_layout_dirty = true;

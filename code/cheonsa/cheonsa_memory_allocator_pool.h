@@ -1,15 +1,15 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_types.h"
 
 namespace cheonsa
 {
 
-	// used to allocate and deallocate fixed chunk_size size pieces of memory from a total_size size pool of memory.
-	// so maximum number of items that can be allocated in the pool is limited by total_size / chunk_size.
+	// used to allocate and deallocate fixed item_size size pieces of memory from a large pre-allocated contiguous buffer of memory.
+	// so maximum number of items that can be allocated in the pool is limited.
 	// uses a stack to track free allocations.
 	// has very good performance for lots of random allocation and deallocation.
-	// ideal for glyph storage and particle systems where particles can be created and freed as needed.
+	// ideal for glyph storage and particle systems where particles can be created and freed in irregular order.
 	class memory_allocator_pool_c
 	{
 	private:

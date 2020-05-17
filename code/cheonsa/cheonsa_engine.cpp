@@ -32,6 +32,7 @@ namespace cheonsa
 
 	void_c engine_c::_update( float32_c time_step )
 	{
+		_content_manager->update();
 		_input_manager->update(); // update input states.
 		_user_interface->update( time_step ); // respond to user input and update animations of active scene and menus.
 		_game->update( time_step );
@@ -178,10 +179,10 @@ namespace cheonsa
 		}
 
 		// 6. start audio interface.
-		_audio_interface = new audio2_interface_c();
+		_audio_interface = new audio_interface_c();
 		if ( !_audio_interface->start() )
 		{
-			debug_annoy( L"error", L"audio2_interface_c::start() failed." );
+			debug_annoy( L"error", L"audio_interface_c::start() failed." );
 			goto cancel;
 		}
 

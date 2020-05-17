@@ -399,7 +399,6 @@ namespace cheonsa
 		update_canvas();
 
 		// process input events.
-		engine.get_input_manager()->_update_action_snapshot_states();
 		boolean_c wants_to_refresh_resources = false;
 		core_list_c< input_event_c > & input_events = engine.get_input_manager()->get_events();
 		for ( sint32_c i = 0; i < input_events.get_length(); i++ )
@@ -423,7 +422,7 @@ namespace cheonsa
 				}
 				else if ( input_event.get_keyboard_key() == debug_key_refresh_resources )
 				{
-					wants_to_refresh_resources = true;
+					engine.get_content_manager()->queue_refresh();
 				}
 			}
 
@@ -432,14 +431,6 @@ namespace cheonsa
 
 			// let the game process the input event.
 			engine.get_game()->process_input_event( &input_event );
-		}
-
-		// reload resources.
-		if ( wants_to_refresh_resources )
-		{
-			engine.get_video_renderer_shader_manager()->refresh();
-			engine.get_resource_manager()->refresh();
-			engine.get_menu_style_manager()->refresh();
 		}
 
 		// update animations of controls, and remove any that want to be removed.

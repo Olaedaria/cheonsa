@@ -385,7 +385,7 @@ namespace cheonsa
 		}
 
 		data_scribe_binary_c scribe_binary;
-		scribe_binary.set_stream( &stream );
+		scribe_binary.open( &stream, ops::get_native_byte_order() );
 
 		sint32_c compiled_code_position = 0;
 		if ( !scribe_binary.load_sint32( compiled_code_position ) ) // skip the value that defines the position of where the compiled code begins.
@@ -583,7 +583,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_write ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.set_stream( &stream );
+			scribe_binary.open( &stream, ops::get_native_byte_order() );
 
 			sint32_c compiled_code_position = 0;
 			scribe_binary.save_sint32( 0 ); // place holder for where we will save the location of compiled code.
@@ -658,7 +658,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.set_stream( &stream );
+			scribe_binary.open( &stream, ops::get_native_byte_order() );
 
 			sint32_c compiled_code_position = 0;
 			if ( !scribe_binary.load_sint32( compiled_code_position ) )
@@ -704,7 +704,7 @@ namespace cheonsa
 		if ( stream.open( cache_file_path_absolute, data_stream_mode_e_read ) )
 		{
 			data_scribe_binary_c scribe_binary;
-			scribe_binary.set_stream( &stream );
+			scribe_binary.open( &stream, ops::get_native_byte_order() );
 
 			sint32_c compiled_code_position = 0;
 			if ( !scribe_binary.load_sint32( compiled_code_position ) )

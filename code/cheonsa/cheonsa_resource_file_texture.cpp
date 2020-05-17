@@ -38,7 +38,7 @@ namespace cheonsa
 			loaded_file_signature[ 7 ] == png_file_signature[ 7 ] )
 		{
 			image_c image;
-			if ( image_load_from_png( file_data, image, nullptr ) )
+			if ( image_c::load_from_png( file_data, image, nullptr ) )
 			{
 				if ( !create_video_texture_from_image( image, _video_texture ) )
 				{
@@ -53,7 +53,7 @@ namespace cheonsa
 			loaded_file_signature[ 3 ] == jpg_file_signature[ 3 ] )
 		{
 			image_c image;
-			if ( image_load_from_jpg( file_data, image ) )
+			if ( image_c::load_from_jpg( file_data, image ) )
 			{
 				if ( !create_video_texture_from_image( image, _video_texture ) )
 				{
@@ -127,61 +127,61 @@ namespace cheonsa
 	{
 		// validate inputs.
 		assert( video_texture == nullptr );
-		assert( image.data.get_length() > 0 );
-		assert( image.width >= 1 && image.width <= 4096 );
-		assert( image.height >= 1 && image.height <= 4096 );
-		assert( image.channel_count >= 1 && image.channel_count <= 4 );
-		assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
-		assert( image.data.get_length() == image.width * image.height * image.channel_count * ( image.channel_bit_depth / 8 ) );
+		assert( image.get_data().get_length() > 0 );
+		assert( image.get_width() >= 1 && image.get_width() <= 4096 );
+		assert( image.get_height() >= 1 && image.get_height() <= 4096 );
+		assert( image.get_channel_count() >= 1 && image.get_channel_count() <= 4 );
+		assert( image.get_channel_bit_depth() == 8 || image.get_channel_bit_depth() == 16 );
+		assert( image.get_data().get_length() == image.get_width() * image.get_height() * image.get_channel_count() * ( image.get_channel_bit_depth() / 8 ) );
 
 		// if needed, convert the input image format to a format that is compatible with the gpu.
-		sint32_c pixel_count = image.width * image.height;
+		sint32_c pixel_count = image.get_width() * image.get_height();
 		video_texture_format_e video_texture_format = video_texture_format_e_none;
 		uint32_c video_texture_data_size = 0; // size in bytes of the raw image, if ImageDataConverted is present then this is the size of ImageDataConverted, otherwise it is the size of ImageDataRaw.
 		uint8_c * video_texture_data = nullptr; // optional, if present then this contains the image converted to a certain pixel format that is compatible with Direct3D.
 
-		if ( image.channel_count == 1 )
+		if ( image.get_channel_count() == 1 )
 		{
-			if ( image.channel_bit_depth == 8 )
+			if ( image.get_channel_bit_depth() == 8 )
 			{
 				video_texture_format = video_texture_format_e_r8_unorm;
 			}
-			else if ( image.channel_bit_depth == 16 )
+			else if ( image.get_channel_bit_depth() == 16 )
 			{
 				video_texture_format = video_texture_format_e_r16_unorm;
-				video_texture_data_size = image.width * image.height * 2;
+				video_texture_data_size = image.get_width() * image.get_height() * 2;
 			}
 			else
 			{
 				return false;
 			}
 		}
-		else if ( image.channel_count == 2 )
+		else if ( image.get_channel_count() == 2 )
 		{
-			if ( image.channel_bit_depth == 8 )
+			if ( image.get_channel_bit_depth() == 8 )
 			{
 				video_texture_format = video_texture_format_e_r8g8_unorm;
-				video_texture_data_size = image.width * image.height * 2;
+				video_texture_data_size = image.get_width() * image.get_height() * 2;
 			}
-			else if ( image.channel_bit_depth == 16 )
+			else if ( image.get_channel_bit_depth() == 16 )
 			{
 				video_texture_format = video_texture_format_e_r16g16_unorm;
-				video_texture_data_size = image.width * image.height * 4;
+				video_texture_data_size = image.get_width() * image.get_height() * 4;
 			}
 			else
 			{
 				return false;
 			}
 		}
-		else if ( image.channel_count == 3 )
+		else if ( image.get_channel_count() == 3 )
 		{
 			// Direct3D doesn't support RGB textures, so we have to convert it to RGBA.
-			if ( image.channel_bit_depth == 8 )
+			if ( image.get_channel_bit_depth() == 8 )
 			{
 				video_texture_format = video_texture_format_e_r8g8b8a8_unorm;
-				video_texture_data_size = image.width * image.height * 4;
+				video_texture_data_size = image.get_width() * image.get_height() * 4;
 				video_texture_data = new uint8_c[ video_texture_data_size ];
-				uint8_c const * in_data_pointer = reinterpret_cast< uint8_c const * >( image.data.get_internal_array() );
+				uint8_c const * in_data_pointer = reinterpret_cast< uint8_c const * >( image.get_data().get_internal_array() );
 				uint8_c * out_data_pointer = reinterpret_cast< uint8_c * >( video_texture_data );
 				for ( sint32_c i = 0; i < pixel_count; i++ )
 				{
@@ -191,12 +191,12 @@ namespace cheonsa
 					*out_data_pointer++ = 0xFF;					// a
 				}
 			}
-			else if ( image.channel_bit_depth == 16 )
+			else if ( image.get_channel_bit_depth() == 16 )
 			{
 				video_texture_format = video_texture_format_e_r16g16b16a16_unorm;
-				video_texture_data_size = image.width * image.height * 8;
+				video_texture_data_size = image.get_width() * image.get_height() * 8;
 				video_texture_data = new uint8_c[ video_texture_data_size ];
-				uint16_c const * in_data_pointer = reinterpret_cast< uint16_c const * >( image.data.get_internal_array() );
+				uint16_c const * in_data_pointer = reinterpret_cast< uint16_c const * >( image.get_data().get_internal_array() );
 				uint16_c * out_data_pointer = reinterpret_cast< uint16_c * >( video_texture_data );
 				for ( sint32_c i = 0; i < pixel_count; i++ )
 				{
@@ -211,17 +211,17 @@ namespace cheonsa
 				return false;
 			}
 		}
-		else if ( image.channel_count == 4 )
+		else if ( image.get_channel_count() == 4 )
 		{
-			if ( image.channel_bit_depth == 8 )
+			if ( image.get_channel_bit_depth() == 8 )
 			{
 				video_texture_format = video_texture_format_e_r8g8b8a8_unorm;
-				video_texture_data_size = image.width * image.height * 4;
+				video_texture_data_size = image.get_width() * image.get_height() * 4;
 			}
-			else if ( image.channel_bit_depth == 16 )
+			else if ( image.get_channel_bit_depth() == 16 )
 			{
 				video_texture_format = video_texture_format_e_r16g16b16a16_unorm;
-				video_texture_data_size = image.width * image.height * 8;
+				video_texture_data_size = image.get_width() * image.get_height() * 8;
 			}
 			else
 			{
@@ -233,7 +233,7 @@ namespace cheonsa
 			return false;
 		}
 
-		video_texture = engine.get_video_interface()->create_texture( video_texture_format, image.width, image.height, 1, 1, video_texture_data ? video_texture_data : image.data.get_internal_array(), video_texture_data ? video_texture_data_size : image.data.get_length(), false, false, false, true );
+		video_texture = engine.get_video_interface()->create_texture( video_texture_format, image.get_width(), image.get_height(), 1, 1, video_texture_data ? video_texture_data : image.get_data().get_internal_array(), video_texture_data ? video_texture_data_size : image.get_data().get_internal_array_size(), false, false, false, true );
 
 		if ( video_texture_data )
 		{
@@ -251,77 +251,77 @@ namespace cheonsa
 	)
 	{
 		assert( video_texture != nullptr );
-		if ( image.channel_count != 0 || image.channel_bit_depth != 0 )
+		if ( image.get_channel_count() != 0 || image.get_channel_bit_depth() != 0 )
 		{
-			assert( image.channel_count >= 1 && image.channel_count <= 4 );
-			assert( image.channel_bit_depth == 8 || image.channel_bit_depth == 16 );
+			assert( image.get_channel_count() >= 1 && image.get_channel_count() <= 4 );
+			assert( image.get_channel_bit_depth() == 8 || image.get_channel_bit_depth() == 16 );
 		}
-		image.width = video_texture->get_width();
-		image.height = video_texture->get_height();
-		sint32_c image_pixel_count = image.width * image.height;
+		image.set_width( video_texture->get_width() );
+		image.set_height( video_texture->get_height() );
+		sint32_c image_pixel_count = image.get_width() * image.get_height();
 
 		image_c video_texture_image;
-		video_texture_image.width = image.width;
-		video_texture_image.height = image.height;
+		video_texture_image.set_width( image.get_width() );
+		video_texture_image.set_height( image.get_height() );
 		video_texture_format_e video_texture_format = video_texture->get_texture_format();
 		if ( video_texture_format == video_texture_format_e_r8_unorm )
 		{
-			video_texture_image.channel_count = 1;
-			video_texture_image.channel_bit_depth = 8;
-			if ( image.channel_count == 0 )
+			video_texture_image.set_channel_count( 1 );
+			video_texture_image.set_channel_bit_depth( 8 );
+			if ( image.get_channel_count() == 0 )
 			{
-				image.channel_count = 1;
-				image.channel_bit_depth = 8;
+				image.set_channel_count( 1 );
+				image.set_channel_bit_depth( 8 );
 			}
 		}
 		else if ( video_texture_format == video_texture_format_e_r8g8_unorm )
 		{
-			video_texture_image.channel_count = 2;
-			video_texture_image.channel_bit_depth = 8;
-			if ( image.channel_count == 0 )
+			video_texture_image.set_channel_count( 2 );
+			video_texture_image.set_channel_bit_depth( 8 );
+			if ( image.get_channel_count() == 0 )
 			{
-				image.channel_count = 2;
-				image.channel_bit_depth = 8;
+				image.set_channel_count( 2 );
+				image.set_channel_bit_depth( 8 );
 			}
 		}
 		else if ( video_texture_format == video_texture_format_e_r8g8b8a8_unorm )
 		{
-			video_texture_image.channel_count = 4;
-			video_texture_image.channel_bit_depth = 8;
-			if ( image.channel_count == 0 )
+			video_texture_image.set_channel_count( 4 );
+			video_texture_image.set_channel_bit_depth( 8 );
+			if ( image.get_channel_count() == 0 )
 			{
-				image.channel_count = 4;
-				image.channel_bit_depth = 8;
+				image.set_channel_count( 4 );
+				image.set_channel_bit_depth( 8 );
 			}
 		}
 		else if ( video_texture_format == video_texture_format_e_r16_unorm )
 		{
-			video_texture_image.channel_count = 1;
-			video_texture_image.channel_bit_depth = 16;
-			if ( image.channel_count == 0 )
+			video_texture_image.set_channel_count( 1 );
+			video_texture_image.set_channel_bit_depth( 16 );
+			if ( image.get_channel_count() == 0 )
 			{
-				image.channel_count = 1;
-				image.channel_bit_depth = 16;
+				image.set_channel_count( 1 );
+				image.set_channel_bit_depth( 16 );
 			}
 		}
 		else if ( video_texture_format == video_texture_format_e_r16g16_unorm )
 		{
-			video_texture_image.channel_count = 2;
-			video_texture_image.channel_bit_depth = 16;
-			if ( image.channel_count == 0 )
+			video_texture_image.set_channel_count( 2 );
+			video_texture_image.set_channel_bit_depth( 16 );
+			if ( image.get_channel_count() == 0 )
 			{
-				image.channel_count = 2;
-				image.channel_bit_depth = 16;
+				image.set_channel_count( 2 );
+				image.set_channel_bit_depth( 16 );
 			}
 		}
 		else if ( video_texture_format == video_texture_format_e_r16g16b16a16_unorm )
 		{
-			video_texture_image.channel_count = 4;
-			video_texture_image.channel_bit_depth = 16;
-			if ( image.channel_count == 0 )
+			video_texture_image.set_channel_count( 4 );
+			video_texture_image.set_channel_bit_depth( 16 );
+			if ( image.get_channel_count() == 0 )
 			{
-				image.channel_count = 4;
-				image.channel_bit_depth = 16;
+				image.set_channel_count( 4 );
+				image.set_channel_bit_depth( 16 );
 			}
 		}
 		else
@@ -330,9 +330,9 @@ namespace cheonsa
 			return false;
 		}
 		sint32_c video_texture_pixel_size = video_texture_format_size_get( video_texture_format );
-		video_texture_image.data.construct_mode_dynamic_from_array( video_texture_image.data.get_internal_array(), video_texture_image.data.get_length() );
+		video_texture_image.get_data().construct_mode_dynamic_from_array( video_texture_image.get_data().get_internal_array(), video_texture_image.get_data().get_internal_array_size() );
 
-		return image_copy_and_convert( video_texture_image, image );
+		return image_c::copy_and_convert( video_texture_image, image );
 	}
 
 	

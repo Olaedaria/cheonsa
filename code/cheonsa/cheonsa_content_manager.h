@@ -1,6 +1,8 @@
 #pragma once
 
-#include "cheonsa_localized_string_file.h"
+#include "cheonsa_resource_file_sprites.h"
+#include "cheonsa_resource_file_strings.h"
+#include "cheonsa_sprite.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_scribe_ini.h"
 #include "cheonsa_data_stream_file.h"
@@ -9,17 +11,33 @@ namespace cheonsa
 {
 
 	// there is one content manager instance per engine instance.
-	// tells other systems what folders to load content from and what locale setting to use.
-	// resolves relative file paths (of game content) to absolute file paths (which can be used to open actual files).
-	// it's done this way in part to support file modding as a feature.
-	// folders at the end of the list have higher priority than those at the start.
-	// the resource manager reinterprets paths that start with "engine/" to mean [engine_data_folder_path], this kind of compartmentalizes internal engine data from game data.
-	// all built-in internal use data files will have paths that start with "engine/".
-	// all game data will start with anything else.
-	// the engine and game needs to support loading game content after start up, so that the game editor tool can open, modify, save, and close game projects at will.
-	// so the game is responsible for working with the engine to load and unload the game data folder appropriately.
+	// manages data folder paths:
+	//     stores information about the engine/game executable, like what folder it's in and its file name.
+	//     stores the engine data folder path.
+	//     stores the game data folder path(s). the game will want to add at least one of these. if the game wants to support user made file sawp mods then it can add more of these.
+	//     folders at the end of the list have higher priority than those at the start.
+	//     supports modifying this list of folders at run time, which is mainly needed for the game editor, but it can also enable the game to hot-swap mods during run time rather than have a separate mod manager program.
+	//     the data folder paths are used by other systems to find engine and game content files.
+	// manages detecting (by scanning folder names) what locales are supported at start up, and manages changing the locale setting at run time.
+	// manages resolving relative file paths to absolute file paths with resolve_absolute_file_path():
+	//     it searches the locale folder first before falling back to the "_common/" folder.
+	//     the resource manager uses this to determine which files to load.
+	// manages loading and look up of localized text strings from "text.strings.xml" files.
+	//     each engine locale folder contains a "text.strings.xml" file which holds localized engine strings.
+	//     each game locale folder contains a "text.strings.xml" file which holds localized game strings.
+	//     the game may also programatically define its own strings via a call back, which can be used (for example) to put names of items and characters in character dialog.
+	//     text elements can insert these string values via ":$key:".
+	// manages loading and look up of localized text sprites from "text.sprites.xml" files.
+	//     this file is formatted the same as resource_file_sprites_c.
+	//     each game locale folder contains a "text.sprites.xml" file which holds localized text-in-line-able sprites.
+	//     
+	//         text elements can insert these sprites via ":key:".
+	// manages the engine's settings file.
+	//     other engine systems save to and load from this file.
 	class content_manager_c
 	{
+		friend class engine_c;
+
 	public:
 		// represents one of the locales that is detected as being supported by the engine and/or game.
 		class locale_c
@@ -40,8 +58,6 @@ namespace cheonsa
 		};
 
 	private:
-		friend class engine_c;
-
 		// absolute file path where engine exe is running out of.
 		string16_c _executable_folder_path;
 
@@ -62,7 +78,7 @@ namespace cheonsa
 		// the locale that is set as preferred, which will be used when it is available (detected).
 		string16_c _preferred_locale_code;
 
-		// the actual locale that is set to be in use, which may not match the preferred locale.
+		// the actual locale that is set to be in use, which may not match the preferred locale (in the case that the preferred locale is some how not available).
 		locale_c * _actual_locale;
 
 		// saves locale settings to a "locale" section in the ini file.
@@ -71,19 +87,34 @@ namespace cheonsa
 		// loads locale settings from a "locale" section in the ini file.
 		void_c _load_settings( data_scribe_ini_c & scribe );
 
-		// one string file is loaded for each data folder that contains a "strings.xml" file.
-		core_list_c< localized_string_file_c * > _string_file_list;
+		// 0 is common engine.
+		// 1 is localized engine.
+		// 2 is common game.
+		// 3 is localized game.
+		resource_file_strings_c::reference_c _text_strings_resources[ 4 ];
+		boolean_c _text_strings_users_are_dirty; // when set to true, the next update will refresh all text element instances (force re-evaluation of string entities).
+		void_c _handle_text_strings_on_loaded( resource_file_c * resource_file ); // subscribed to both the on_loaded and on_unloaded events on the text strings resources. this just sets _text_strings_users_are_dirty to true.
+
+		// 0 is common engine.
+		// 1 is localized engine.
+		// 2 is common game.
+		// 3 is localized game.
+		resource_file_sprites_c::reference_c _text_sprites_resources[ 4 ];
+		boolean_c _text_sprites_users_are_dirty; // when set to true, the next update will refresh all text element instances (force re-evaluation of sprite entities).
+		void_c _handle_text_sprites_on_loaded( resource_file_c * resource_file ); // subscribed to both the on_loaded an on_unloaded events on the text sprites resources. this just sets _text_sprites_users_are_dirty to true.
 
 		data_scribe_ini_c _settings_file;
 
-	public:
-		// base_data_folder_path is by default the folder that the exe is running out of.
-		// but it can be overridden by -data="[base_data_folder_path]" command line argument.
+		boolean_c _wants_to_refresh;
+
 		content_manager_c();
 		~content_manager_c();
 
 		boolean_c start( string16_c const & engine_data_folder_path, string16_c const & executable_folder_path, string16_c const & executable_file_name );
 
+		void_c update(); // called by engine after it updates resource manager.
+
+	public:
 		// gets platform specific absolute folder path of where to save user data, which can be used to save the user's settings, saved games, screen shots, etc.
 		// on windows this is "%LocalAppData%\[game_name]\".
 		string16_c get_user_data_folder_path() const;
@@ -109,13 +140,6 @@ namespace cheonsa
 		// you will need to call apply_changes() when you are done making all your updates.
 		void_c add_game_data_folder_path( string16_c const & game_data_folder_path );
 
-		// takes a relative file path and scans data folders for the first file that matches.
-		// relative_file_path is the file to search the data folders for.
-		// absolute_file_path will hold the result if the function returns true.
-		// search_game_data if true means that the game data folders will be searched. game data folders have higher priority and so are searched before engine data folders.
-		// search_engine_data if true means that the engine data folders will be searched.
-		boolean_c resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path, boolean_c search_game_data, boolean_c search_engine_data );
-
 		// gets the list of detected supported locales.
 		// this can be used to show a locale selection list to the user.
 		core_list_c< locale_c * > const & get_supported_locales() const;
@@ -127,13 +151,32 @@ namespace cheonsa
 		// gets the currently applied locale, which might be different from the preferred locale.
 		locale_c const * get_actual_locale() const;
 
-		// apply any data or locale changes made.
+		// apply any data folder and/or locale changes made.
 		// detects supported by scanning each engine data folder and each game data folder for sub folders, and the name of each sub folder defines a supported locale code (with the exception of the folder named "_common" which contains files common to all locales).
 		// this incurs a reload of resources and strings.
 		void_c apply_changes();
 
-		// looks up a string for the current locale.
-		localized_string_c const * find_string( string8_c const & key ) const; // looks up a string in this string file.
+		// takes a relative file path and scans data folders for the first file that matches.
+		// relative_file_path is the file to search the data folders for.
+		// absolute_file_path will hold the result if the function returns true.
+		// search_game_data if true means that the game data folders will be searched. game data folders have higher priority and so are searched before engine data folders.
+		// search_engine_data if true means that the engine data folders will be searched.
+		boolean_c resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path, boolean_c search_game_data, boolean_c search_engine_data );
+
+		// looks up a text string.
+		// key may start with '$', if it does then it will be skipped.
+		// returns true if match was found, false if not.
+		boolean_c find_text_string( string8_c const & key, string16_c & result ) const;
+
+		// looks up a text sprite.
+		// returns true if match was found, false if not.
+		boolean_c find_text_sprite( string8_c const & key, sprite_c & result ) const;
+
+		// queues a full refresh at next update, before the next game logic update.
+		// this will scan resource source files for changes and reload as needed.
+		// this is done outside of the game logic update to avoid complications with dependencies being deleted while in use.
+		void_c queue_refresh();
+
 
 		// loads the settings file state from the settings file on disk.
 		boolean_c load_settings_file();

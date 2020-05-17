@@ -2,20 +2,20 @@
 
 #include "cheonsa_types.h"
 #include "cheonsa_video_types.h"
-#include "cheonsa_string16.h"
-
-// this simple video API is primarily designed to wrap around Direct3D 10.1, but with the hope that it remains forward compatible enough so that Direct3D 11, Direct3D 12, and Vulkan can be implemented with it later.
-// this will enable the game engine to use different underlying video APIs, so long as we can write an implementation behind this interface.
 
 namespace cheonsa
 {
 
-	// this simple top level interface is responsible for rasterizing everything 3D and 2D.
+	// this simple video API is primarily designed to wrap around Direct3D 10.1, but with the hope that it remains forward compatible enough so that Direct3D 11, Direct3D 12, and Vulkan can be implemented with it later.
+	// this will enable the game engine to use different underlying video APIs, so long as we can write an implementation behind this interface.
 	class video_interface_c
 	{
+		friend class engine_c;
+
 	public:
 		virtual ~video_interface_c() = 0;
 
+	private:
 		virtual boolean_c start() = 0;
 
 	public:
