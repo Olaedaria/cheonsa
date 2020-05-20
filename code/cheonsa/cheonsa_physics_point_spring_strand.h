@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
 
 namespace cheonsa
@@ -30,9 +30,9 @@ namespace cheonsa
 		class spring_c
 		{
 		public:
-			basis_position_c local_transform;
-			basis_position_c world_target_transform;
-			basis_position_c world_transform;
+			transform3d_simple_c local_transform;
+			transform3d_simple_c world_target_transform;
+			transform3d_simple_c world_transform;
 			float64_c linear_tension; // strength of forces to apply to the spring to bring its length to its target.
 			float64_c angular_tension; // strength of forces to apply to the spring to bring its orientation to its target.
 			float64_c length_original; // base length of the spring, which is the length that the spring will try to maintain.
@@ -40,7 +40,7 @@ namespace cheonsa
 		};
 
 	public:
-		basis_position_c world_transform;
+		transform3d_simple_c world_transform;
 		float64_c gravity;
 		float64_c wind;
 		float64_c damping;

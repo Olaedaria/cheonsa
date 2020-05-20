@@ -1,5 +1,5 @@
 #include "cheonsa_resource_file_model.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 #include "cheonsa_debug_manager.h"
 
@@ -1255,6 +1255,71 @@ namespace cheonsa
 	resource_file_model_c::data_c const & resource_file_model_c::get_data() const
 	{
 		return _data;
+	}
+
+	void_c resource_file_model_c::sample_animation_object( sint32_c animation_object_index, float32_c time, vector32x3_c & result_position, quaternion32_c & result_rotation, vector32x3_c & result_scale ) const
+	{
+		animation_object_c const * animation_object = &_data.animation_object_list[ animation_object_index ];
+		for ( uint32_c i = animation_object->property_start; i < animation_object->property_end; i++ )
+		{
+			animation_property_c const * animation_property = &_data.animation_property_list[ i ];
+			animation_key_c const * animation_key_previous = nullptr;
+			animation_key_c const * animation_key = nullptr;
+			for ( uint32_c j = animation_property->key_start; j < animation_property->key_end; j++ )
+			{
+				animation_key_previous = animation_key;
+				animation_key = &_data.animation_key_list[ j ];
+				if ( animation_key->time >= time )
+				{
+					break;
+				}
+			}
+			if ( animation_property->type == animation_property_c::type_e_position )
+			{
+				if ( animation_key != nullptr )
+				{
+					if ( animation_key_previous == nullptr || animation_key->time < time )
+					{
+						result_position = vector32x3_c( animation_key->value );
+					}
+					else
+					{
+						assert( animation_key_previous != nullptr );
+						result_position = ops::interpolate_linear( vector32x3_c( animation_key_previous->value ), vector32x3_c( animation_key->value ), ( time - animation_key_previous->time ) / ( animation_key->time - animation_key_previous->time ) );
+					}
+				}
+			}
+			else if ( animation_property->type == animation_property_c::type_e_rotation )
+			{
+				if ( animation_key != nullptr )
+				{
+					if ( animation_key_previous == nullptr || animation_key->time < time )
+					{
+						result_rotation = quaternion32_c( animation_key->value );
+					}
+					else
+					{
+						assert( animation_key_previous != nullptr );
+						result_rotation = quaternion32_c( ops::interpolate_linear( vector32x4_c( animation_key_previous->value ), vector32x4_c( animation_key->value ), ( time - animation_key_previous->time ) / ( animation_key->time - animation_key_previous->time ) ).as_array() );
+					}
+				}
+			}
+			else if ( animation_property->type == animation_property_c::type_e_scale )
+			{
+				if ( animation_key != nullptr )
+				{
+					if ( animation_key_previous == nullptr || animation_key->time < time )
+					{
+						result_scale = vector32x3_c( animation_key->value );
+					}
+					else
+					{
+						assert( animation_key_previous  != nullptr );
+						result_scale = ops::interpolate_linear( vector32x3_c( animation_key_previous->value ), vector32x3_c( animation_key->value ), ( time - animation_key_previous->time ) / ( animation_key->time - animation_key_previous->time ) );
+					}
+				}
+			}
+		}
 	}
 
 	transform3d_c resource_file_model_c::make_bone_transform( vector64x3_c const & bone_head, vector64x3_c const & bone_tail, float32_c bone_roll, vector32x3_c const & global_up )

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_data_scribe_ini.h"
 #include "cheonsa_video_renderer_types.h"
@@ -54,7 +54,7 @@ namespace cheonsa
 		void_c add_debug_line( boolean_c xray, vector64x3_c const & a_position, vector64x3_c const & b_position, vector32x4_c const & a_color, vector32x4_c const & b_color );
 		void_c add_debug_box( boolean_c xray, box64x3_c const & box, vector32x4_c const & color );
 		void_c add_debug_box( boolean_c xray, box64x3_c const & box, transform3d_c & box_transform, vector32x4_c const & color );
-		void_c add_debug_axes( boolean_c xray, basis_position_c & transform, float32_c scale, float32_c alpha );
+		void_c add_debug_axes( boolean_c xray, transform3d_simple_c & transform, float32_c scale, float32_c alpha );
 		void_c add_debug_axes( boolean_c xray, transform3d_c & transform, float32_c scale, float32_c alpha );
 
 		//sint32_c get_shadow_view_count();

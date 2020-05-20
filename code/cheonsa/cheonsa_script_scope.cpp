@@ -1,7 +1,7 @@
 ﻿#include "cheonsa_script_scope.h"
 #include "cheonsa_script_context.h"
 #include "cheonsa_script_value.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include <cassert>
 
 namespace cheonsa

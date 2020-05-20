@@ -2,7 +2,7 @@
 #include "cheonsa_database_stack.h"
 #include "cheonsa_database_record.h"
 #include "cheonsa_database_table.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include <cassert>
 
 namespace cheonsa

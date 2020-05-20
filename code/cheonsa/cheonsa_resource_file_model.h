@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_video_types.h"
 #include "cheonsa_physics_types.h"
@@ -1071,6 +1071,22 @@ namespace cheonsa
 		resource_file_model_c( string16_c const & file_path );
 
 		data_c const & get_data() const;
+
+		// helper function for looking up strings.
+		inline string8_c get_string( uint16_c offset ) const
+		{
+			return string8_c( core_list_mode_e_static, &_data.string_table[ offset ] );
+		}
+
+		// helper function for looking up strings.
+		inline char8_c const * get_string_pointer( uint16_c offset ) const
+		{
+			return &_data.string_table[ offset ];
+		}
+
+		// helper function for one-off sampling of animation object spatial properties in this model resource.
+		// the animation player code in the model component is better optimized for sampling of animation data each frame, since there is temporal coherence between contiguous frames.
+		void_c sample_animation_object( sint32_c animation_object_index, float32_c time, vector32x3_c & result_position, quaternion32_c & result_rotation, vector32x3_c & result_scale ) const;
 
 		// builds rest pose bone transform in object space, without scale.
 		static transform3d_c make_bone_transform( vector64x3_c const & bone_head, vector64x3_c const & bone_tail, float32_c bone_roll, vector32x3_c const & global_up );

@@ -1,7 +1,7 @@
 #include "cheonsa_video_renderer_shader_manager.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_video_renderer_interface.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -528,7 +528,7 @@ namespace cheonsa
 		_resolve_cache_file_path_absolute( shader_variations->_source_file, variation, cache_file_path_absolute );
 		string16_c cache_file_name = ops::path_get_file_or_folder_name( cache_file_path_absolute );
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
-		ops::convert_string16_to_string8( shader_variations->_source_file._absolute_file_path.character_list, source_file_path_absolute );
+		ops::append_string16_to_string8( shader_variations->_source_file._absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
 		video_vertex_shader_c * shader = engine.get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ), shader_variations->_input_vertex_layout );
 		if ( shader )
@@ -557,7 +557,7 @@ namespace cheonsa
 		_resolve_cache_file_path_absolute( shader_variations->_source_file, variation, cache_file_path_absolute );
 		string16_c cache_file_name = ops::path_get_file_or_folder_name( cache_file_path_absolute );
 		core_list_c< char8_c > source_file_path_absolute; // need 8 bit path string for shader compiler.
-		ops::convert_string16_to_string8( shader_variations->_source_file._absolute_file_path.character_list, source_file_path_absolute );
+		ops::append_string16_to_string8( shader_variations->_source_file._absolute_file_path.character_list, source_file_path_absolute );
 		video_shader_includer_c shader_includer;
 		video_pixel_shader_c * shader = engine.get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), source_code, source_code_size, source_file_path_absolute.get_internal_array(), &shader_includer, get_variation_shader_defines( variation ) );
 		if ( shader )

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include <cassert>
 
 namespace cheonsa

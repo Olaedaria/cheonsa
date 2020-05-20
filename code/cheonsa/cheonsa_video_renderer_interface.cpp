@@ -8,7 +8,7 @@
 #include "cheonsa_scene_component_sprite.h"
 #include "cheonsa_scene_component_sound.h"
 #include "cheonsa_scene_component_menu_control.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -3343,7 +3343,7 @@ namespace cheonsa
 		add_debug_line( xray, maximum_minimum_minimum, maximum_maximum_minimum, color );
 	}
 
-	void_c video_renderer_interface_c::add_debug_axes( boolean_c xray, basis_position_c & transform, float32_c scale, float32_c alpha )
+	void_c video_renderer_interface_c::add_debug_axes( boolean_c xray, transform3d_simple_c & transform, float32_c scale, float32_c alpha )
 	{
 		add_debug_line( xray, transform.position, transform.position + vector64x3_c( transform.basis.a ) * scale, vector32x4_c( 1.000f, 0.279f, 0.000f, alpha ) );
 		add_debug_line( xray, transform.position, transform.position + vector64x3_c( transform.basis.b ) * scale, vector32x4_c( 0.671f, 1.000f, 0.000f, alpha ) );

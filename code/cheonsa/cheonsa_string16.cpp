@@ -1,6 +1,6 @@
 #include "cheonsa_string16.h"
 #include "cheonsa_string8.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include <cassert>
 
 namespace cheonsa
@@ -54,14 +54,14 @@ namespace cheonsa
 	string16_c & string16_c::operator = ( char8_c const * other )
 	{
 		character_list.remove_all();
-		ops::convert_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
+		ops::append_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
 
 	string16_c & string16_c::operator = ( string8_c const & other )
 	{
 		character_list.remove_all();
-		ops::convert_string8_to_string16( other.character_list, character_list );
+		ops::append_string8_to_string16( other.character_list, character_list );
 		return *this;
 	}
 
@@ -107,7 +107,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove( -1, 1 );
-		ops::convert_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
+		ops::append_string8_to_string16( core_list_c< char8_c >( core_list_mode_e_static, other, ops::string8_find_length( other ) + 1 ), character_list );
 		return *this;
 	}
 
@@ -130,7 +130,7 @@ namespace cheonsa
 			character_list.convert_from_static_to_dynamic();
 		}
 		character_list.remove( -1, 1 );
-		ops::convert_string8_to_string16( other.character_list, character_list );
+		ops::append_string8_to_string16( other.character_list, character_list );
 		return *this;
 	}
 

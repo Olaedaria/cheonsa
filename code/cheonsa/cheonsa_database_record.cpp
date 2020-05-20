@@ -3,7 +3,7 @@
 #include "cheonsa_database_field_schema.h"
 #include "cheonsa_database.h"
 #include "cheonsa_database_stack.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include <cassert>
 
 namespace cheonsa

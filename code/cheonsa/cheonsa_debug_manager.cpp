@@ -67,7 +67,7 @@ namespace cheonsa
 		if ( _log_file_is_open && type != log_type_e_information )
 		{
 			core_list_c< char8_c > utf8;
-			ops::convert_string16_to_string8( message.character_list, utf8 );
+			ops::append_string16_to_string8( message.character_list, utf8 );
 			_log_file.save( utf8.get_internal_array(), utf8.get_length() - 1 );
 			_log_file.save( "\n", 1 );
 		}

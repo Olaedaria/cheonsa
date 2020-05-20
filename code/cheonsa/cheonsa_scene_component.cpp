@@ -1,7 +1,7 @@
 #include "cheonsa_scene_component.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 
 namespace cheonsa
 {
@@ -83,21 +83,22 @@ namespace cheonsa
 		_remove_from_component_tree();
 	}
 
-	void_c scene_component_c::add_reference()
+	sint32_c scene_component_c::add_reference()
 	{
 		_reference_count++;
+		return _reference_count;
 	}
 
-	boolean_c scene_component_c::remove_reference()
+	sint32_c scene_component_c::remove_reference()
 	{
 		assert( _reference_count > 0 );
 		_reference_count--;
 		if ( _reference_count == 0 )
 		{
 			delete this;
-			return true;
+			return 0;
 		}
-		return false;
+		return _reference_count;
 	}
 
 	scene_object_c * scene_component_c::get_scene_object() const

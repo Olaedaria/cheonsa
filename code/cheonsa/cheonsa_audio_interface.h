@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_data_scribe_ini.h"
 #include "cheonsa_thread_critical_section.h"

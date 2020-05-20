@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_linked_list.h"
 #include "cheonsa_scene_types.h"
@@ -163,7 +163,7 @@ namespace cheonsa
 					{
 						if ( ops::intersect_segment_vs_box( segment, item_list_node->get_value()->get_world_space_aabb() ) )
 						{
-							result.insert_at_end( item_list_node->get_value() );
+							result.insert( -1, item_list_node->get_value() );
 						}
 						item_list_node = item_list_node->get_next();
 					}
@@ -186,7 +186,7 @@ namespace cheonsa
 					{
 						if ( ops::intersect_box_vs_box( box, item_list_node->get_value()->get_world_space_aabb() ) )
 						{
-							result.insert_at_end( item_list_node->get_value() );
+							result.insert( -1, item_list_node->get_value() );
 						}
 						item_list_node = item_list_node->get_next();
 					}
@@ -209,7 +209,7 @@ namespace cheonsa
 					{
 						if ( ops::intersect_box_vs_sphere( item_list_node->get_value()->get_world_space_aabb(), sphere ) )
 						{
-							result.insert_at_end( item_list_node->get_value() );
+							result.insert( -1, item_list_node->get_value() );
 						}
 						item_list_node = item_list_node->get_next();
 					}

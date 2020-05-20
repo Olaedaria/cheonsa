@@ -2,7 +2,7 @@
 
 // this file has two underscores in its name so that it appears at the top when the files are sorted alphabetically.
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 
 #include "cheonsa_user_interface.h"
 #include "cheonsa_window_manager.h"

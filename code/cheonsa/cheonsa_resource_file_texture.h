@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_resource_file.h"
 #include "cheonsa_video_interface.h"
 #include "cheonsa_image.h"

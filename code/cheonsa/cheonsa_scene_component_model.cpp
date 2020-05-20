@@ -2,7 +2,7 @@
 #include "cheonsa_scene_component_light_probe.h"
 #include "cheonsa_scene_object.h"
 #include "cheonsa_scene.h"
-#include "cheonsa_ops.h"
+#include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
 namespace cheonsa
@@ -58,7 +58,7 @@ namespace cheonsa
 
 
 	//
-	// model file resource binding.
+	// model resource binding.
 	//
 
 	void_c scene_component_model_c::_handle_model_resource_on_loaded( resource_file_c * resource )
@@ -102,7 +102,7 @@ namespace cheonsa
 		}
 
 		// apply custom material assignments.
-		_apply_custom_material_list();
+		apply_custom_materials();
 
 		// instantiate bones.
 		if ( _model_resource->get_data().bone_list.get_length() > 0 )
@@ -187,6 +187,7 @@ namespace cheonsa
 		}
 
 		// apply rest pose.
+		apply_rest_pose_adjustments();
 		_update_world_transforms();
 
 		// instantiate physics rigid bodies.
@@ -516,9 +517,9 @@ namespace cheonsa
 		return _model_resource;
 	}
 
-	void_c scene_component_model_c::set_model_resource( resource_file_model_c * resource )
+	void_c scene_component_model_c::set_model_resource( resource_file_model_c * model_resource )
 	{
-		if ( _model_resource == resource )
+		if ( _model_resource == model_resource )
 		{
 			return;
 		}
@@ -533,7 +534,7 @@ namespace cheonsa
 			}
 		}
 
-		_model_resource = resource;
+		_model_resource = model_resource;
 
 		if ( _model_resource )
 		{
@@ -555,7 +556,7 @@ namespace cheonsa
 
 
 	//
-	// animation file resource binding.
+	// model (animations) resource binding.
 	//
 
 	scene_component_model_c::animation_map_c::animation_map_c()
@@ -588,7 +589,7 @@ namespace cheonsa
 				animation_map_c animation_map;
 				animation_map.source_model = animation_resource;
 				animation_map.source_animation = &animation_resource->get_data().animation_list[ i ];
-				_animation_map_dictionary.insert( string8_c( core_list_mode_e_static, &animation_resource->get_data().string_table[ animation_map.source_animation->name ] ), animation_map );
+				_animation_map_dictionary.insert( animation_resource->get_string( animation_map.source_animation->name ), animation_map );
 			}
 		}
 	}
@@ -639,7 +640,7 @@ namespace cheonsa
 
 
 	//
-	// material map file resource binding.
+	// materials resource binding.
 	//
 
 	void_c scene_component_model_c::_handle_materials_resource_on_loaded( resource_file_c * resource )
@@ -708,20 +709,20 @@ namespace cheonsa
 	//
 
 	scene_component_model_c::mesh_c::shape_key_c::shape_key_c()
-		: _mother_mesh( nullptr )
+		: _mesh( nullptr )
 		, _source_mesh_shape_key( nullptr )
 		, _value( 0.0f )
 	{
 	}
 
-	scene_component_model_c::mesh_c * scene_component_model_c::mesh_c::shape_key_c::get_mother_mesh() const
+	scene_component_model_c::mesh_c * scene_component_model_c::mesh_c::shape_key_c::get_mesh() const
 	{
-		return _mother_mesh;
+		return _mesh;
 	}
 
 	string8_c scene_component_model_c::mesh_c::shape_key_c::get_name() const
 	{
-		return string8_c( core_list_mode_e_static_volatile, &_mother_mesh->get_mother_model()->get_model_resource()->get_data().string_table[ _source_mesh_shape_key->name ] );
+		return _mesh->get_mother_model()->get_model_resource()->get_string( _source_mesh_shape_key->name );
 	}
 
 	float32_c scene_component_model_c::mesh_c::shape_key_c::get_value() const
@@ -760,7 +761,7 @@ namespace cheonsa
 
 	string8_c scene_component_model_c::mesh_c::get_name() const
 	{
-		return string8_c( core_list_mode_e_static_volatile, &_mother_model->get_model_resource()->get_data().string_table[ _source_mesh->name ] );
+		return _mother_model->get_model_resource()->get_string( _source_mesh->name );
 	}
 
 	boolean_c scene_component_model_c::mesh_c::get_render_enabled() const
@@ -786,9 +787,10 @@ namespace cheonsa
 				name = ops::string8_sub_string( name, 0, name.get_length() - 1 );
 				for ( sint32_c j = 0; j < _mesh_list.get_length(); j++ )
 				{
-					if ( ops::string8_starts_with( &_model_resource->get_data().string_table[ _mesh_list[ j ]._source_mesh->name ], name.character_list.get_internal_array() ) )
+					mesh_c * mesh = &_mesh_list[ j ];
+					if ( ops::string8_starts_with( _model_resource->get_string_pointer( mesh->_source_mesh->name ), name.character_list.get_internal_array() ) )
 					{
-						result.insert( -1, &_mesh_list[ j ] );
+						result.insert( -1, mesh );
 					}
 				}
 			}
@@ -796,9 +798,10 @@ namespace cheonsa
 			{
 				for ( sint32_c j = 0; j < _mesh_list.get_length(); j++ )
 				{
-					if ( name == &_model_resource->get_data().string_table[ _mesh_list[ j ]._source_mesh->name ] )
+					mesh_c * mesh = &_mesh_list[ j ];
+					if ( name == _model_resource->get_string( mesh->_source_mesh->name ) )
 					{
-						result.insert( -1, &_mesh_list[ j ] );
+						result.insert( -1, mesh );
 					}
 				}
 			}
@@ -945,7 +948,7 @@ namespace cheonsa
 			// prioritize our model first, and traverse up the hierarchy until we find the bone.
 			for ( sint32_c i = 0; i < _bone_skin_matrix_list.get_length(); i++ )
 			{
-				string8_c & bone_name = string8_c( core_list_mode_e_static, &_model_resource->get_data().string_table[ _model_resource->get_data().mesh_bone_name_list[ i ].name ] );
+				string8_c bone_name = _model_resource->get_string( _model_resource->get_data().mesh_bone_name_list[ i ].name );
 				bone_c * bone = nullptr;
 				scene_component_model_c * model_component = this;
 				while ( model_component != nullptr )
@@ -974,21 +977,19 @@ namespace cheonsa
 	{
 		core_list_c< string8_c > path_nodes;
 		ops::string8_split_at_delimiter( path, string8_c( core_list_mode_e_static, "/" ), path_nodes );
-		bone_c * bone = nullptr;
 		core_linked_list_c< bone_c * >::node_c const * bone_list_node = _root_bone_list.get_first();
 		sint32_c i = 0;
 		while ( bone_list_node != nullptr && i < path_nodes.get_length() )
 		{
 			while ( bone_list_node != nullptr )
 			{
-				if ( path_nodes[ i ] == &_model_resource->get_data().string_table[ bone_list_node->get_value()->_source_bone->name ] )
+				if ( path_nodes[ i ] == _model_resource->get_string( bone_list_node->get_value()->_source_bone->name ) )
 				{
-					bone = bone_list_node->get_value();
 					if ( i + 1 == path_nodes.get_length() )
 					{
-						return bone;
+						return bone_list_node->get_value();
 					}
-					bone_list_node = bone->_daughter_bone_list.get_first();
+					bone_list_node = bone_list_node->get_value()->_daughter_bone_list.get_first();
 					break;
 				}
 				bone_list_node = bone_list_node->get_next();
@@ -1014,7 +1015,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _bone_list.get_length(); i++ )
 		{
 			bone_c * bone = &_bone_list[ i ];
-			if ( name == &_model_resource->get_data().string_table[ bone->_source_bone->name ] )
+			if ( name == _model_resource->get_string( bone->_source_bone->name ) )
 			{
 				return bone;
 			}
@@ -1035,7 +1036,8 @@ namespace cheonsa
 				name = ops::string8_sub_string( name, 0, name.get_length() - 1 );
 				for ( sint32_c j = 0; j < _bone_list.get_length(); j++ )
 				{
-					if ( ops::string8_starts_with( &_model_resource->get_data().string_table[ _bone_list[ j ]._source_bone->name ], name.character_list.get_internal_array() ) )
+					bone_c * bone = &_bone_list[ j ];
+					if ( ops::string8_starts_with( _model_resource->get_string_pointer( bone->_source_bone->name ), name.character_list.get_internal_array() ) )
 					{
 						result.insert( -1, &_bone_list[ j ] );
 					}
@@ -1045,9 +1047,10 @@ namespace cheonsa
 			{
 				for ( sint32_c j = 0; j < _bone_list.get_length(); j++ )
 				{
-					if ( name == &_model_resource->get_data().string_table[ _bone_list[ j ]._source_bone->name ] )
+					bone_c * bone = &_bone_list[ j ];
+					if ( name == _model_resource->get_string( bone->_source_bone->name ) )
 					{
-						result.insert( -1, &_bone_list[ j ] );
+						result.insert( -1, bone );
 					}
 				}
 			}
@@ -1060,7 +1063,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _bone_list.get_length(); i++ )
 		{
 			bone_c * bone = &_bone_list[ i ];
-			if ( name == &_model_resource->get_data().string_table[ bone->_source_bone->name ] )
+			if ( name == _model_resource->get_string( bone->_source_bone->name ) )
 			{
 				return i;
 			}
@@ -1265,7 +1268,7 @@ namespace cheonsa
 
 	scene_component_model_c::bone_logic_c * scene_component_model_c::_instantiate_new_bone_logic( resource_file_model_c::bone_logic_c const * source_bone_logic )
 	{
-		string8_c source_bone_logic_type( core_list_mode_e_static, &_model_resource->get_data().string_table[ source_bone_logic->type ] );
+		string8_c source_bone_logic_type = _model_resource->get_string( source_bone_logic->type );
 		if ( source_bone_logic_type == bone_logic_copy_transform_c::get_type_static() )
 		{
 			return new bone_logic_copy_transform_c( this, source_bone_logic );
@@ -1325,7 +1328,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _attachment_point_list.get_length(); i++ )
 		{
 			attachment_point_c * attachment_point = &_attachment_point_list[ i ];
-			if ( name == &_model_resource->get_data().string_table[ attachment_point->_source_attachment_point->name ] )
+			if ( name == _model_resource->get_string_pointer( attachment_point->_source_attachment_point->name ) )
 			{
 				return attachment_point;
 			}
@@ -1346,9 +1349,10 @@ namespace cheonsa
 				name = ops::string8_sub_string( name, 0, name.get_length() - 1 );
 				for ( sint32_c j = 0; j < _attachment_point_list.get_length(); j++ )
 				{
-					if ( ops::string8_starts_with( &_model_resource->get_data().string_table[ _attachment_point_list[ j ]._source_attachment_point->name ], name.character_list.get_internal_array() ) )
+					attachment_point_c * attachment_point = &_attachment_point_list[ j ];
+					if ( ops::string8_starts_with( _model_resource->get_string_pointer( attachment_point->_source_attachment_point->name ), name.character_list.get_internal_array() ) )
 					{
-						result.insert( -1, &_attachment_point_list[ j ] );
+						result.insert( -1, attachment_point );
 					}
 				}
 			}
@@ -1356,9 +1360,10 @@ namespace cheonsa
 			{
 				for ( sint32_c j = 0; j < _attachment_point_list.get_length(); j++ )
 				{
-					if ( name == &_model_resource->get_data().string_table[ _attachment_point_list[ j ]._source_attachment_point->name ] )
+					attachment_point_c * attachment_point = &_attachment_point_list[ j ];
+					if ( name == _model_resource->get_string_pointer( attachment_point->_source_attachment_point->name ) )
 					{
-						result.insert( -1, &_attachment_point_list[ j ] );
+						result.insert( -1, attachment_point );
 					}
 				}
 			}
@@ -1611,12 +1616,22 @@ namespace cheonsa
 	// custom material assignments.
 	//
 
+	scene_component_model_c::custom_material_c::color_entry_c::color_entry_c()
+		: enabled( false )
+		, value()
+	{
+	}
+
+	scene_component_model_c::custom_material_c::texture_entry_c::texture_entry_c()
+		: enabled( false )
+		, value()
+	{
+	}
+
 	scene_component_model_c::custom_material_c::custom_material_c()
 		: _target_mesh_names()
-		, _colors_enabled( false )
-		, _colors()
-		, _textures_enabled( false )
-		, _textures()
+		, _color_entries()
+		, _texture_entries()
 		, _pixel_shader_enabled( false )
 		, _pixel_shader()
 		, _reference_count( 0 )
@@ -1628,19 +1643,32 @@ namespace cheonsa
 		return new custom_material_c();
 	}
 
-	void_c scene_component_model_c::custom_material_c::add_reference()
+	sint32_c scene_component_model_c::custom_material_c::add_reference()
 	{
 		_reference_count++;
+		return _reference_count;
 	}
 
-	void_c scene_component_model_c::custom_material_c::remove_reference()
+	sint32_c scene_component_model_c::custom_material_c::remove_reference()
 	{
 		assert( _reference_count > 0 );
 		_reference_count--;
 		if ( _reference_count == 0 )
 		{
 			delete this;
+			return 0;
 		}
+		return _reference_count;
+	}
+
+	string8_c const & scene_component_model_c::custom_material_c::get_key() const
+	{
+		return _key;
+	}
+
+	void_c scene_component_model_c::custom_material_c::set_key( string8_c const & value )
+	{
+		_key = value;
 	}
 
 	string8_c const & scene_component_model_c::custom_material_c::get_target_mesh_names() const
@@ -1653,48 +1681,28 @@ namespace cheonsa
 		_target_mesh_names = value;
 	}
 
-	boolean_c scene_component_model_c::custom_material_c::get_colors_enabled() const
+	scene_component_model_c::custom_material_c::color_entry_c const & scene_component_model_c::custom_material_c::get_color_entry( sint32_c index ) const
 	{
-		return _colors_enabled;
+		assert( index >= 0 && index < video_renderer_interface_c::material_colors_count );
+		return _color_entries[ index ];
 	}
 
-	void_c scene_component_model_c::custom_material_c::set_colors_enabled( boolean_c value )
+	scene_component_model_c::custom_material_c::color_entry_c & scene_component_model_c::custom_material_c::get_color_entry( sint32_c index )
 	{
-		_colors_enabled = value;
+		assert( index >= 0 && index < video_renderer_interface_c::material_colors_count );
+		return _color_entries[ index ];
 	}
 
-	vector32x4_c const & scene_component_model_c::custom_material_c::get_colors( sint32_c index )
+	scene_component_model_c::custom_material_c::texture_entry_c const & scene_component_model_c::custom_material_c::get_texture_entry( sint32_c index ) const
 	{
-		assert( index >= 0 && index < 4 );
-		return _colors[ index ];
+		assert( index >= 0 && index < video_renderer_interface_c::material_textures_count );
+		return _texture_entries[ index ];
 	}
 
-	void_c scene_component_model_c::custom_material_c::set_colors( sint32_c index, vector32x4_c const & value )
+	scene_component_model_c::custom_material_c::texture_entry_c & scene_component_model_c::custom_material_c::get_texture_entry( sint32_c index )
 	{
-		assert( index >= 0 && index < 4 );
-		_colors[ index ] = value;
-	}
-
-	boolean_c scene_component_model_c::custom_material_c::get_textures_enabled() const
-	{
-		return _textures_enabled;
-	}
-
-	void_c scene_component_model_c::custom_material_c::set_textures_enabled( boolean_c value )
-	{
-		_textures_enabled = value;
-	}
-
-	resource_file_texture_c * scene_component_model_c::custom_material_c::get_textures( sint32_c index )
-	{
-		assert( index >= 0 && index < 4 );
-		return _textures[ index ];
-	}
-
-	void_c scene_component_model_c::custom_material_c::set_textures( sint32_c index, resource_file_texture_c * value )
-	{
-		assert( index >= 0 && index < 4 );
-		_textures[ index ] = value;
+		assert( index >= 0 && index < video_renderer_interface_c::material_textures_count );
+		return _texture_entries[ index ];
 	}
 
 	boolean_c scene_component_model_c::custom_material_c::get_pixel_shader_enabled() const
@@ -1717,40 +1725,99 @@ namespace cheonsa
 		_pixel_shader = value;
 	}
 
-	void_c scene_component_model_c::_apply_custom_material_list()
+	void_c scene_component_model_c::remove_all_custom_materials()
 	{
-		for ( sint32_c i = 0; i < _custom_material_list.get_length(); i++ )
-		{
-			custom_material_c * custom_material = _custom_material_list[ i ];
-			core_list_c< mesh_c * > mesh_list;
-			find_meshes( custom_material->_target_mesh_names, mesh_list );
-			for ( sint32_c j = 0; j < mesh_list.get_length(); j++ )
-			{
-				mesh_list[ j ]->_custom_material_assignment = custom_material;
-			}
-		}
-	}
-
-	void_c scene_component_model_c::set_custom_material_list( core_list_c< custom_material_c * > const & custom_material_list )
-	{
-		// release old.
 		for ( sint32_c i = 0; i < _custom_material_list.get_length(); i++ )
 		{
 			_custom_material_list[ i ]->remove_reference();
 		}
 		_custom_material_list.remove_all();
+	}
 
-		// hold new.
-		for ( sint32_c i = 0; i < custom_material_list.get_length(); i++ )
+	scene_component_model_c::custom_material_c * scene_component_model_c::find_custom_material( string8_c const & key )
+	{
+		for ( sint32_c i = 0; i < _custom_material_list.get_length(); i++ )
 		{
-			custom_material_c * custom_material = custom_material_list[ i ];
-			assert( custom_material != nullptr );
-			custom_material->add_reference();
-			_custom_material_list.insert( -1, custom_material );
+			custom_material_c * custom_material = _custom_material_list[ i ];
+			if ( custom_material->get_key() == key )
+			{
+				return custom_material;
+			}
+		}
+		return nullptr;
+	}
+
+	scene_component_model_c::custom_material_c * scene_component_model_c::get_custom_material( sint32_c index )
+	{
+		return _custom_material_list[ index ];
+	}
+
+	scene_component_model_c::custom_material_c * scene_component_model_c::add_custom_material()
+	{
+		custom_material_c * result = custom_material_c::make_new_instance();
+		result->add_reference();
+		_custom_material_list.insert( -1, result );
+		return result;
+	}
+
+	void_c scene_component_model_c::add_custom_material( custom_material_c * value )
+	{
+		assert( value );
+		value->add_reference();
+		_custom_material_list.insert( -1, value );
+	}
+
+	void_c scene_component_model_c::remove_custom_material( custom_material_c * value )
+	{
+		assert( value );
+		sint32_c value_index = _custom_material_list.find_index_of( value );
+		assert( value_index >= 0 );
+		if ( value_index >= 0 )
+		{
+			_custom_material_list.remove( value_index, 1 );
+			value->remove_reference();
+		}
+	}
+
+	void_c scene_component_model_c::apply_custom_materials()
+	{
+		for ( sint32_c i = 0; i < _mesh_list.get_length(); i++ )
+		{
+			mesh_c * mesh = &_mesh_list[ i ];
+			if ( mesh->_custom_material_assignment != nullptr )
+			{
+				mesh->_custom_material_assignment->remove_reference();
+				mesh->_custom_material_assignment = nullptr;
+			}
 		}
 
-		// apply new.
-		_apply_custom_material_list();
+		core_list_c< scene_component_model_c * > model_chain;
+		scene_component_model_c * mother = this;
+		while ( mother )
+		{
+			model_chain.insert( -1, mother );
+			mother = mother->_mother_model;
+		}
+
+		for ( sint32_c i = model_chain.get_length() - 1; i >= 0; i-- )
+		{
+			for ( sint32_c j = 0; j < model_chain[ i ]->_custom_material_list.get_length(); j++ )
+			{
+				custom_material_c * custom_material = model_chain[ i ]->_custom_material_list[ j ];
+				core_list_c< mesh_c * > mesh_list;
+				find_meshes( custom_material->get_target_mesh_names(), mesh_list );
+				for ( sint32_c k = 0; k < mesh_list.get_length(); k++ )
+				{
+					mesh_c * mesh = &_mesh_list[ k ];
+					if ( mesh->_custom_material_assignment != nullptr )
+					{
+						mesh->_custom_material_assignment->remove_reference();
+					}
+					mesh->_custom_material_assignment = custom_material;
+					mesh->_custom_material_assignment->add_reference();
+				}
+			}
+		}
 	}
 
 
@@ -1760,56 +1827,257 @@ namespace cheonsa
 	// custom base pose adjustments.
 	//
 
-	scene_component_model_c::base_pose_adjustment_c::base_pose_adjustment_c()
-		: _bone_name_list()
+	scene_component_model_c::rest_pose_animation_c::rest_pose_animation_c()
+		: _animation_name()
+		, _time_percent( 0.0f )
+		, _reference_count( 0 )
+	{
+	}
+
+	scene_component_model_c::rest_pose_animation_c * scene_component_model_c::rest_pose_animation_c::make_new_instance()
+	{
+		return new rest_pose_animation_c();
+	}
+
+	sint32_c scene_component_model_c::rest_pose_animation_c::add_reference()
+	{
+		_reference_count++;
+		return _reference_count;
+	}
+
+	sint32_c scene_component_model_c::rest_pose_animation_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+			return 0;
+		}
+		return _reference_count;
+	}
+
+	string8_c const & scene_component_model_c::rest_pose_animation_c::get_animation_name() const
+	{
+		return _animation_name;
+	}
+
+	void_c scene_component_model_c::rest_pose_animation_c::set_animation_name( string8_c const & value )
+	{
+		_animation_name = value;
+	}
+
+	float32_c scene_component_model_c::rest_pose_animation_c::get_time_percent() const
+	{
+		return _time_percent;
+	}
+
+	void_c scene_component_model_c::rest_pose_animation_c::set_time_percent( float32_c value )
+	{
+		_time_percent = value;
+	}
+
+	scene_component_model_c::rest_pose_adjustment_c::rest_pose_adjustment_c()
+		: _bone_names()
 		, _position()
 		, _rotation()
 		, _scale()
+		, _reference_count( 0 )
 	{
 	}
 
-	string8_c const & scene_component_model_c::base_pose_adjustment_c::get_bone_name_list() const
+	scene_component_model_c::rest_pose_adjustment_c * scene_component_model_c::rest_pose_adjustment_c::make_new_instance()
 	{
-		return _bone_name_list;
+		return new rest_pose_adjustment_c();
 	}
 
-	void_c scene_component_model_c::base_pose_adjustment_c::set_bone_name_list( string8_c const & value )
+	sint32_c scene_component_model_c::rest_pose_adjustment_c::add_reference()
 	{
-		_bone_name_list = value;
+		_reference_count++;
+		return _reference_count;
 	}
 
-	vector32x3_c const & scene_component_model_c::base_pose_adjustment_c::get_position() const
+	sint32_c scene_component_model_c::rest_pose_adjustment_c::remove_reference()
+	{
+		assert( _reference_count > 0 );
+		_reference_count--;
+		if ( _reference_count == 0 )
+		{
+			delete this;
+			return 0;
+		}
+		return _reference_count;
+	}
+
+	string8_c const & scene_component_model_c::rest_pose_adjustment_c::get_bone_names() const
+	{
+		return _bone_names;
+	}
+
+	void_c scene_component_model_c::rest_pose_adjustment_c::set_bone_names( string8_c const & value )
+	{
+		_bone_names = value;
+	}
+
+	vector32x3_c const & scene_component_model_c::rest_pose_adjustment_c::get_position() const
 	{
 		return _position;
 	}
 
-	void_c scene_component_model_c::base_pose_adjustment_c::set_position( vector32x3_c const & value )
+	void_c scene_component_model_c::rest_pose_adjustment_c::set_position( vector32x3_c const & value )
 	{
 		_position = value;
 	}
 
-	quaternion32_c const & scene_component_model_c::base_pose_adjustment_c::get_rotation() const
+	quaternion32_c const & scene_component_model_c::rest_pose_adjustment_c::get_rotation() const
 	{
 		return _rotation;
 	}
 
-	void_c scene_component_model_c::base_pose_adjustment_c::set_rotation( quaternion32_c const & value )
+	void_c scene_component_model_c::rest_pose_adjustment_c::set_rotation( quaternion32_c const & value )
 	{
 		_rotation = value;
 	}
 
-	vector32x3_c const & scene_component_model_c::base_pose_adjustment_c::get_scale() const
+	vector32x3_c const & scene_component_model_c::rest_pose_adjustment_c::get_scale() const
 	{
 		return _scale;
 	}
 
-	void_c scene_component_model_c::base_pose_adjustment_c::set_scale( vector32x3_c const & value )
+	void_c scene_component_model_c::rest_pose_adjustment_c::set_scale( vector32x3_c const & value )
 	{
 		_scale = value;
 	}
 
-	void_c scene_component_model_c::apply_base_pose_adjustments()
+	void_c scene_component_model_c::remove_all_rest_pose_animations()
 	{
+		for ( sint32_c i = 0; i < _rest_pose_animation_list.get_length(); i++ )
+		{
+			_rest_pose_animation_list[ i ]->remove_reference();
+		}
+		_rest_pose_animation_list.remove_all();
+	}
+
+	scene_component_model_c::rest_pose_animation_c * scene_component_model_c::get_rest_pose_animation( sint32_c index )
+	{
+		return _rest_pose_animation_list[ index ];
+	}
+
+	scene_component_model_c::rest_pose_animation_c * scene_component_model_c::add_rest_pose_animation()
+	{
+		rest_pose_animation_c * result = rest_pose_animation_c::make_new_instance();
+		result->add_reference();
+		_rest_pose_animation_list.insert( -1, result );
+		return result;
+	}
+
+	void_c scene_component_model_c::add_rest_pose_animation( rest_pose_animation_c * value )
+	{
+		assert( value );
+		value->add_reference();
+		_rest_pose_animation_list.insert( -1, value );
+	}
+
+	void_c scene_component_model_c::remove_rest_pose_animation( rest_pose_animation_c * value )
+	{
+		assert( value );
+		sint32_c value_index = _rest_pose_animation_list.find_index_of( value );
+		assert( value_index >= 0 );
+		if ( value_index >= 0 )
+		{
+			_rest_pose_animation_list.remove( value_index, 1 );
+			value->remove_reference();
+		}
+	}
+
+	void_c scene_component_model_c::remove_all_rest_pose_adjustments()
+	{
+		for ( sint32_c i = 0; i < _rest_pose_adjustment_list.get_length(); i++ )
+		{
+			_rest_pose_adjustment_list[ i ]->remove_reference();
+		}
+		_rest_pose_adjustment_list.remove_all();
+	}
+
+	scene_component_model_c::rest_pose_adjustment_c * scene_component_model_c::get_rest_pose_adjustment( sint32_c index )
+	{
+		return _rest_pose_adjustment_list[ index ];
+	}
+
+	scene_component_model_c::rest_pose_adjustment_c * scene_component_model_c::add_rest_pose_adjustment()
+	{
+		rest_pose_adjustment_c * result = rest_pose_adjustment_c::make_new_instance();
+		result->add_reference();
+		_rest_pose_adjustment_list.insert( -1, result );
+		return result;
+	}
+
+	void_c scene_component_model_c::add_rest_pose_adjustment( rest_pose_adjustment_c * value )
+	{
+		assert( value );
+		value->add_reference();
+		_rest_pose_adjustment_list.insert( -1, value );
+	}
+
+	void_c scene_component_model_c::remove_rest_pose_adjustment( rest_pose_adjustment_c * value )
+	{
+		assert( value );
+		sint32_c value_index = _rest_pose_adjustment_list.find_index_of( value );
+		assert( value_index >= 0 );
+		if ( value_index >= 0 )
+		{
+			_rest_pose_adjustment_list.remove( value_index, 1 );
+			value->remove_reference();
+		}
+	}
+
+	void_c scene_component_model_c::apply_rest_pose_adjustments()
+	{
+		if ( !_model_resource.get_is_value_set_and_loaded() )
+		{
+			return;
+		}
+
+		for ( sint32_c i = 0; i < _rest_pose_animation_list.get_length(); i++ )
+		{
+			rest_pose_animation_c const * rest_pose_animation = _rest_pose_animation_list[ i ];
+			animation_map_c * animation_map = _mother_model->_animation_map_dictionary.find_value_pointer( rest_pose_animation->get_animation_name() );
+			if ( animation_map != nullptr )
+			{
+				resource_file_model_c const * source_model = animation_map->source_model;
+				resource_file_model_c::animation_c const * source_animation = animation_map->source_animation;
+				float32_c time = ( rest_pose_animation->get_time_percent() * ( source_animation->time_out - source_animation->time_in ) ) + source_animation->time_in;
+				for ( uint32_c j = source_animation->object_start; j < source_animation->object_end; j++ )
+				{
+					resource_file_model_c::animation_object_c const * animation_object = &_model_resource->get_data().animation_object_list[ j ];
+					bone_c * bone = find_bone_with_name( _model_resource->get_string( animation_object->name ), false );
+					if ( bone != nullptr )
+					{
+						vector32x3_c sampled_position;
+						quaternion32_c sampled_rotation;
+						vector32x3_c sampled_scale;
+						_model_resource->sample_animation_object( j, time, sampled_position, sampled_rotation, sampled_scale );
+						bone->_local_space_transform_from_base_pose_adjustments.position += vector64x3_c( sampled_position );
+						bone->_local_space_transform_from_base_pose_adjustments.rotation *= sampled_rotation;
+						bone->_local_space_transform_from_base_pose_adjustments.scale *= sampled_scale;
+					}
+				}
+			}
+		}
+
+		for ( sint32_c i = 0; i < _rest_pose_adjustment_list.get_length(); i++ )
+		{
+			rest_pose_adjustment_c const * rest_pose_adjustment = _rest_pose_adjustment_list[ i ];
+			core_list_c< bone_c * > bone_list;
+			find_bones( rest_pose_adjustment->get_bone_names(), bone_list );
+			for ( sint32_c j = 0; j < bone_list.get_length(); j++ )
+			{
+				bone_c * bone = bone_list[ j ];
+				bone->_local_space_transform_from_base_pose_adjustments.position += vector64x3_c( rest_pose_adjustment->get_position() );
+				bone->_local_space_transform_from_base_pose_adjustments.rotation *= rest_pose_adjustment->get_rotation();
+				bone->_local_space_transform_from_base_pose_adjustments.scale *= rest_pose_adjustment->get_scale();
+			}
+		}
 	}
 
 
@@ -1877,7 +2145,7 @@ namespace cheonsa
 				object_player_c * animation_object_player = &_object_player_list[ i ];
 
 				// bind animation to bone.
-				animation_object_player->object_name = string8_c( core_list_mode_e_static, &_source_model->get_data().string_table[ source_animation_object->name ] );
+				animation_object_player->object_name = _source_model->get_string( source_animation_object->name );
 				animation_object_player->object_index_for_bone = _mother_model->find_bone_index_with_name( animation_object_player->object_name );
 				if ( animation_object_player->object_index_for_bone >= 0 )
 				{
@@ -2505,6 +2773,8 @@ namespace cheonsa
 		, _custom_object_textures_enabled( false )
 		, _custom_object_textures()
 		, _custom_material_list()
+		, _rest_pose_animation_list()
+		, _rest_pose_adjustment_list()
 		, _animation_player_list()
 		, _world_space_transform_inverse()
 		, _opacity( 1.0f )
@@ -2689,23 +2959,5 @@ namespace cheonsa
 			_daughter_model_list[ i ]->reseat();
 		}
 	}
-
-	//void_c scene_component_model_c::apply_mesh_shape_keys()
-	//{
-	//	if ( get_model_resource_is_bound() )
-	//	{
-	//		if ( _model_resource->get_data().mesh_shape_key_list.get_length() > 0 )
-	//		{
-	//			for ( sint32_c i = 0; i < _mesh_list.get_length(); i++ )
-	//			{
-	//				mesh_c & mesh = _mesh_list[ i ];
-	//				for ( sint32_c j = 0; j < mesh._shape_key_list.get_length(); j++ )
-	//				{
-	//					mesh_c::shape_key_c const & shape_key = mesh._shape_key_list[ j ];
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
 
 }

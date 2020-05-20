@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cheonsa_types.h"
+#include "cheonsa__types.h"
 #include "cheonsa_data_stream.h"
 #include "cheonsa_core_list.h"
 #include "cheonsa_core_linked_list.h"
@@ -192,8 +192,7 @@ namespace cheonsa
 		float32_c get_speed() const;
 		void_c set_speed( float32_c value );
 
-		// returns true if the mixing has a reference to this wave player.
-		// this might lag a bit.
+		// returns true if the player has been queued to play or is currently playing.
 		boolean_c get_appears_to_be_playing() const;
 
 	};

@@ -48,7 +48,7 @@ namespace cheonsa
 
 
 	//
-	// model file resource binding.
+	// model resource binding.
 	//
 	private:
 		boolean_c _model_resource_is_bound; // will be true if a model resource is loaded and bound (instanced) and this model component is ready to be rendered.
@@ -57,14 +57,14 @@ namespace cheonsa
 		void_c _handle_model_resource_on_unloaded( resource_file_c * resource ); // responds to when _model_resource is un loaded.
 	public:
 		resource_file_model_c * get_model_resource(); // will return the set model resource. this can be nullptr if none is set. this resource may or may not be loaded.
-		void_c set_model_resource( resource_file_model_c * resource ); // sets the model resource to bind to this model instance. it will bind as soon as it is able to, since a pointer to a yet-to-be-loaded model resource instance may be suppled.
+		void_c set_model_resource( resource_file_model_c * model_resource ); // sets the model resource to bind to this model instance. it will bind as soon as it is able to, since a pointer to a yet-to-be-loaded model resource instance may be suppled.
 		boolean_c get_model_resource_is_bound() const; // returns true only if the model resource is set, loaded, and bound.
 
 
 
 
 	//
-	// animation file resource binding.
+	// model (animations) resource binding.
 	//
 	public:
 		// used with animation dictionary, the key is the animation name, the value is this.
@@ -95,7 +95,7 @@ namespace cheonsa
 
 
 	//
-	// material map file resource binding.
+	// materials resource binding.
 	//
 	private:
 		resource_file_materials_c::reference_c _materials_resource;
@@ -126,14 +126,14 @@ namespace cheonsa
 				friend class scene_component_model_c;
 
 			private:
-				mesh_c * _mother_mesh;
+				mesh_c * _mesh; // the mesh that this shape key applies to.
 				resource_file_model_c::mesh_shape_key_c const * _source_mesh_shape_key;
 				float32_c _value;
 
 			public:
 				shape_key_c();
 
-				mesh_c * get_mother_mesh() const;
+				mesh_c * get_mesh() const;
 
 				string8_c get_name() const;
 
@@ -562,18 +562,31 @@ namespace cheonsa
 		class custom_material_c
 		{
 			friend class video_renderer_interface_c;
-			friend class scene_component_model_c;
+
+		public:
+			struct color_entry_c
+			{
+				boolean_c enabled;
+				vector32x4_c value;
+				color_entry_c();
+			};
+
+			struct texture_entry_c
+			{
+				boolean_c enabled;
+				resource_file_texture_c::reference_c value;
+				texture_entry_c();
+			};
 
 		private:
+			string8_c _key; // a unique name that the game can use to identify and find this custom material by during run time.
+
 			// a single mesh name or a comma separated list of mesh names that this assignment will apply to.
 			// each mesh name may end with a wild card ("*", asterisk) to indicate that it should match with all meshes with names that start with that string.
 			string8_c _target_mesh_names;
 
-			boolean_c _colors_enabled; // if true then the provided colors will be bound to the pixel shader's object_colors* constant buffer slot during render.
-			vector32x4_c _colors[ 4 ]; // colors to supply as input to the pixel shader. alpha defines transparency.
-
-			boolean_c _textures_enabled; // if true then the provided textures will be bound to the pixel shader's object_texture* texture slots during render.
-			resource_file_texture_c::reference_c _textures[ 4 ]; // textures to supply as input to the pixel shader.
+			color_entry_c _color_entries[ video_renderer_interface_c::material_colors_count ]; // colors to supply as input to the pixel shader. alpha defines transparency.
+			texture_entry_c _texture_entries[ video_renderer_interface_c::material_textures_count ]; // textures to supply as input to the pixel shader.
 
 			boolean_c _pixel_shader_enabled;
 			video_renderer_pixel_shader_c::reference_c _pixel_shader; // pixel shader to put it all together.
@@ -585,23 +598,20 @@ namespace cheonsa
 		public:
 			static custom_material_c * make_new_instance(); // creates a new instance with a reference count of 0. this is just to ensure that all instances of these are on the heap.
 
-			void_c add_reference();
-			void_c remove_reference();
+			sint32_c add_reference();
+			sint32_c remove_reference();
+
+			string8_c const & get_key() const;
+			void_c set_key( string8_c const & value );
 
 			string8_c const & get_target_mesh_names() const;
 			void_c set_target_mesh_names( string8_c const & value );
 
-			boolean_c get_colors_enabled() const;
-			void_c set_colors_enabled( boolean_c value );
+			color_entry_c const & get_color_entry( sint32_c index ) const;
+			color_entry_c & get_color_entry( sint32_c index );
 
-			vector32x4_c const & get_colors( sint32_c index );
-			void_c set_colors( sint32_c index, vector32x4_c const & value );
-
-			boolean_c get_textures_enabled() const;
-			void_c set_textures_enabled( boolean_c value );
-
-			resource_file_texture_c * get_textures( sint32_c index );
-			void_c set_textures( sint32_c index, resource_file_texture_c * value );
+			texture_entry_c const & get_texture_entry( sint32_c index ) const;
+			texture_entry_c & get_texture_entry( sint32_c index );
 
 			boolean_c get_pixel_shader_enabled() const;
 			void_c set_pixel_shader_enabled( boolean_c value );
@@ -613,33 +623,94 @@ namespace cheonsa
 
 	private:
 		core_list_c< custom_material_c * > _custom_material_list; // list of game defined material assignments to apply to mesh instances. this state persists even as the model resource is bound/unbound or loaded/unloaded. these assignments are applied when the model resource is bound and its mesh parts are instanced.
-		void_c _apply_custom_material_list();
 	public:
-		void_c set_custom_material_list( core_list_c< custom_material_c * > const & custom_material_list );
+		void_c remove_all_custom_materials();
+		custom_material_c * find_custom_material( string8_c const & key );
+		custom_material_c * get_custom_material( sint32_c index );
+		custom_material_c * add_custom_material();
+		void_c add_custom_material( custom_material_c * value );
+		void_c remove_custom_material( custom_material_c * value );
 
+		// call this after you make any changes to the custom materials list.
+		// this also applies custom materials to daughter models.
+		// in this way, daughter models (like hair) can have have their custom materials defined by the root model's custom materials.
+		// the game only needs to set the custom material on the root model.
+		void_c apply_custom_materials();
 
 
 
 	//
-	// custom base pose adjustments.
+	// custom rest pose adjustments.
 	//
 	public:
-		class animation_player_c;
-		// enables the game to define tweaks to the base (rest) pose of the model.
-		// designed for character model customization.
-		class base_pose_adjustment_c
+		class rest_pose_shape_key_c
 		{
 		private:
-			string8_c _bone_name_list;
-			vector32x3_c _position;
-			quaternion32_c _rotation;
-			vector32x3_c _scale;
+			string8_c _shape_key_name;
+			float32_c _value; // value between 0 and 1, where 0 is no influence and 1 is full influence. can also be outside of 0 and 1, if you want.
+
+			sint32_c _reference_count;
 
 		public:
-			base_pose_adjustment_c();
+			static rest_pose_shape_key_c * make_new_instance();
 
-			string8_c const & get_bone_name_list() const;
-			void_c set_bone_name_list( string8_c const & value );
+			sint32_c add_reference();
+			sint32_c remove_reference();
+
+			string8_c const & get_shape_key_name();
+			void_c set_shape_key_name( string8_c const & value );
+
+			float32_c get_value();
+			void_c set_value( float32_c value );
+
+		};
+
+		// enables the game to use an animation in the model file to define tweaks to the rest pose of the model.
+		// this lets the game select a specific animation and a specific time in that animation to apply. it is static. it does not play back the animation.
+		class rest_pose_animation_c
+		{
+		private:
+			string8_c _animation_name; // the name of the animation to apply to the base pose.
+			float32_c _time_percent; // value between 0 and 1, where 0 is the start of the animation and 1 is the end of the animation.
+
+			sint32_c _reference_count;
+
+			rest_pose_animation_c();
+
+		public:
+			static rest_pose_animation_c * make_new_instance(); // creates a new instance with a reference count of 0.
+
+			sint32_c add_reference();
+			sint32_c remove_reference();
+
+			string8_c const & get_animation_name() const;
+			void_c set_animation_name( string8_c const & value );
+
+			float32_c get_time_percent() const;
+			void_c set_time_percent( float32_c value );
+
+		};
+		// enables the game to apply rest pose adjustments to specific bones in the model.
+		class rest_pose_adjustment_c
+		{
+		private:
+			string8_c _bone_names; // name(s) of bones to apply this adjustment to, should be same format as what find_bones() expects.
+			vector32x3_c _position; // ( 0, 0, 0 ) means no change.
+			quaternion32_c _rotation; // ( 0, 0, 0, 1 ) (identity) means no change.
+			vector32x3_c _scale; // ( 1, 1, 1 ) means no change.
+
+			sint32_c _reference_count;
+
+			rest_pose_adjustment_c();
+
+		public:
+			static rest_pose_adjustment_c * make_new_instance(); // creates a new instance with a reference count of 0.
+
+			sint32_c add_reference();
+			sint32_c remove_reference();
+
+			string8_c const & get_bone_names() const;
+			void_c set_bone_names( string8_c const & value );
 
 			vector32x3_c const & get_position() const;
 			void_c set_position( vector32x3_c const & value );
@@ -651,10 +722,26 @@ namespace cheonsa
 			void_c set_scale( vector32x3_c const & value );
 
 		};
+
+		core_list_c< rest_pose_shape_key_c * > _rest_pose_shape_key_list;
+		core_list_c< rest_pose_animation_c * > _rest_pose_animation_list;
+		core_list_c< rest_pose_adjustment_c * > _rest_pose_adjustment_list;
+
 	public:
-		core_list_c< base_pose_adjustment_c * > custom_base_pose_adjustment_list;
-		core_list_c< animation_player_c * > custom_base_pose_animation_list;
-		void_c apply_base_pose_adjustments(); // for each bone in the model, evaluates base_pose_adjustment_list and base_pose_animation_list, accumulates transform adjustments and saves result in each bone's _local_space_transform_from_base_pose_adjustments.
+		void_c remove_all_rest_pose_animations();
+		rest_pose_animation_c * get_rest_pose_animation( sint32_c index );
+		rest_pose_animation_c * add_rest_pose_animation();
+		void_c add_rest_pose_animation( rest_pose_animation_c * value );
+		void_c remove_rest_pose_animation( rest_pose_animation_c * value );
+
+		void_c remove_all_rest_pose_adjustments();
+		rest_pose_adjustment_c * get_rest_pose_adjustment( sint32_c index );
+		rest_pose_adjustment_c * add_rest_pose_adjustment();
+		void_c add_rest_pose_adjustment( rest_pose_adjustment_c * value );
+		void_c remove_rest_pose_adjustment( rest_pose_adjustment_c * value );
+
+		// call this after you make any changes to any rest pose options.
+		void_c apply_rest_pose_adjustments();
 
 
 
@@ -875,8 +962,6 @@ namespace cheonsa
 		void_c invalidate_light_probes(); // invalidates all light probes that are in range of this model instance.
 
 		void_c reseat(); // call after large transformational changes (like teleportation) to reset simulated bone logics so that they don't spring around and look dumb or break.
-
-		//void_c apply_mesh_shape_keys();
 
 		core_event_c< void_c, scene_component_model_c * > on_model_resource_bound; // users may subscribe to this to be notified when the model resource or animation resource becomes bound.
 		core_event_c< void_c, scene_component_model_c * > on_model_resource_unbound; // users may subscribe to this to be notified when the model resource or animation resource is about to become unbound.

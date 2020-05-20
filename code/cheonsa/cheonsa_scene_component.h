@@ -56,8 +56,8 @@ namespace cheonsa
 	public:
 		virtual ~scene_component_c();
 
-		void_c add_reference();
-		boolean_c remove_reference(); // returns true if this deleted itself.
+		sint32_c add_reference();
+		sint32_c remove_reference();
 
 		scene_object_c * get_scene_object() const; // gets the scene object that this component belongs to.
 
