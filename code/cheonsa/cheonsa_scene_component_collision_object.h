@@ -6,6 +6,7 @@
 namespace cheonsa
 {
 
+	// provides a static collision object, for physics simulation.
 	class scene_component_collision_object_c
 		: public scene_component_c
 	{

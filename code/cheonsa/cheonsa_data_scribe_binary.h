@@ -51,7 +51,7 @@ namespace cheonsa
 		boolean_c load_float64( float64_c & value );
 		boolean_c load_char8( char8_c & value );
 		boolean_c load_char16( char16_c & value );
-		boolean_c load_four_character_code( uint32_c & value ); // always saves as big endian regardless of currently configured byte order.
+		boolean_c load_four_character_code( four_character_code_c & value ); // always saves as big endian regardless of currently configured byte order.
 		boolean_c load_string8( string8_c & value ); // loads a uint16_c length prefixed ascii or utf-8 encoded string.
 		boolean_c load_string16( string16_c & value ); // loads a uint16_c length prefixed char16_c string.
 
@@ -68,7 +68,7 @@ namespace cheonsa
 		boolean_c save_float64( float64_c value );
 		boolean_c save_char8( char8_c value );
 		boolean_c save_char16( char16_c value );
-		boolean_c save_four_character_code( uint32_c value );
+		boolean_c save_four_character_code( four_character_code_c const & value );
 		boolean_c save_string8( string8_c const & string ); // saves a uint16_c length prefixed char8_c string (not null terminated).
 		boolean_c save_string16( string16_c const & string ); // saves a uint16_c length prefixed char16_c string (not null terminated).
 

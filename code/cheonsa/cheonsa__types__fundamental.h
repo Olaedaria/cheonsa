@@ -32,8 +32,6 @@ namespace cheonsa
 	#error can't determine if compiling for 32 bit or 64 bit.
 #endif
 
-	uint32_c fourcc( char8_c const * chars, boolean_c flipped = false );
-
 	// using templates, because it's actually more convenient when writing templatized code.
 	// in particular, i need this when writing templatized string to int and int to string functions.
 	template< typename number_type_c > 
@@ -143,6 +141,46 @@ namespace cheonsa
 		byte_order_e_little,
 		byte_order_e_big,
 	};
+
+	struct four_character_code_c
+	{
+	public:
+		union
+		{
+			char8_c chars[ 4 ]; // magic bytes. byte order (since it's an array) will be the same regardless of cpu's byte order.
+			uint32_c value; // magic number. value will be different depending on cpu's byte order.
+		};
+
+	public:
+		inline four_character_code_c()
+		{
+			value = 0;
+		}
+
+		inline four_character_code_c( four_character_code_c const & other )
+		{
+			value = other.value;
+		}
+
+		inline four_character_code_c( char8_c const * four_character_code_string )
+		{
+			chars[ 0 ] = four_character_code_string[ 0 ];
+			chars[ 1 ] = four_character_code_string[ 1 ];
+			chars[ 2 ] = four_character_code_string[ 2 ];
+			chars[ 3 ] = four_character_code_string[ 3 ];
+		}
+
+	};
+
+	inline boolean_c operator == ( four_character_code_c const & a, four_character_code_c const & b )
+	{
+		return a.value == b.value;
+	}
+
+	inline boolean_c operator != ( four_character_code_c const & a, four_character_code_c const & b )
+	{
+		return a.value != b.value;
+	}
 
 	/*
 	enum box_point_index_e

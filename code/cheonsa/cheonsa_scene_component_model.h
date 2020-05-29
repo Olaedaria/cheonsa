@@ -12,14 +12,10 @@
 namespace cheonsa
 {
 
-	// to use:
-	//     optionally, add items to material_assignment_list and then call apply_material_assignments().
-	//     optionally, call add_animations_resource() to add additional model resources which contain animations that you want to make available to the model instance. animations are referenced by name.
-	//     call set_material_map_resource() with a pointer to an instance of a material map resource which defines how to render the meshes in the model. you can call this after set_model_resource(), but if you call it first it's more optimal.
-	//     call set_model_resource() with a pointer to an instance of a model resource.
-
-	// the model may define its own physics rigid body, if it does then the world space transform of the scene object will be driven by it.
-	// the model's bones may define their own physics rigid body and constraints, if it does then the world space transform of the scene object will be driven by the center of mass of the bones.
+	// does a little bit of everything.
+	// mainly provides 3d meshes.
+	// also provides bones, poses, animations, and vertex skinning.
+	// can also provide lights, physics, materials, etc.
 	class scene_component_model_c
 		: public scene_component_c
 	{
@@ -35,13 +31,19 @@ namespace cheonsa
 	//
 	// mother/daughter relations.
 	//
+	public:
+		class attachment_point_c;
 	private:
 		scene_component_model_c * _mother_model; // mother model component, of which this model might be influenced by.
+		string8_c _mother_attachment_point_name;
+		attachment_point_c * _mother_attachment_point;
 		core_list_c< scene_component_model_c * > _daughter_model_list; // daughter model components of this model component.
 	public:
 		scene_component_model_c * get_mother_model_root(); // recurses up the hierarchy to get the top-most mother model instance.
 		scene_component_model_c * get_mother_model(); // gets the immediate mother model instance of this model instance.
-		void_c add_daughter_model( scene_component_model_c * model ); // adds a daughter model to this model. this model will hold a one-way reference count on the daughter model.
+		string8_c const & get_mother_attachment_point_name() const;
+		void_c add_daughter_model( scene_component_model_c * model ); // adds a daughter model to this model. the daughter model should not be added as a component on any scene object. the daugher model will copy this model's world space transform, and its vertices may be skinned by this model's bones. adds a one-way reference to the daughter model (so that if this model gets deleted, then the daughters will be released and may be deleted as well (no circular references)).
+		void_c add_daughter_model_to_attachment_point( scene_component_model_c * model, string8_c const & attachment_point_name ); // adds a daughter model to this model. the daughter model will copy the attachment point's world space transform, and its vertices may be skinned by this model's bones (but probably would not produce desirable results). 
 		void_c remove_daughter_model( scene_component_model_c * model );
 
 
@@ -527,8 +529,8 @@ namespace cheonsa
 	public:
 		boolean_c get_custom_object_colors_enabled() const;
 		void_c set_custom_object_colors_enabled( boolean_c value );
-		vector32x4_c const & get_custom_object_colors( sint32_c index ) const;
-		void_c set_custom_object_colors( sint32_c index, vector32x4_c const & value );
+		vector32x4_c const & get_custom_object_color( sint32_c index ) const;
+		void_c set_custom_object_color( sint32_c index, vector32x4_c const & value );
 
 
 
@@ -542,8 +544,8 @@ namespace cheonsa
 	public:
 		boolean_c get_custom_object_textures_enabled() const;
 		void_c set_custom_object_textures_enabled( boolean_c value );
-		resource_file_texture_c * get_custom_object_textures( sint32_c index ) const;
-		void_c set_custom_object_textures( sint32_c index, resource_file_texture_c * value );
+		resource_file_texture_c * get_custom_object_texture( sint32_c index ) const;
+		void_c set_custom_object_texture( sint32_c index, resource_file_texture_c * value );
 
 
 
@@ -589,7 +591,7 @@ namespace cheonsa
 			texture_entry_c _texture_entries[ video_renderer_interface_c::material_textures_count ]; // textures to supply as input to the pixel shader.
 
 			boolean_c _pixel_shader_enabled;
-			video_renderer_pixel_shader_c::reference_c _pixel_shader; // pixel shader to put it all together.
+			video_renderer_pixel_shader_c::reference_c _pixel_shader_value; // pixel shader to put it all together.
 
 			sint32_c _reference_count;
 
@@ -607,17 +609,16 @@ namespace cheonsa
 			string8_c const & get_target_mesh_names() const;
 			void_c set_target_mesh_names( string8_c const & value );
 
-			color_entry_c const & get_color_entry( sint32_c index ) const;
-			color_entry_c & get_color_entry( sint32_c index );
+			vector32x4_c const & get_color( sint32_c index ) const;
+			void_c set_color( sint32_c index, vector32x4_c const & value );
+			void_c clear_color( sint32_c index );
 
-			texture_entry_c const & get_texture_entry( sint32_c index ) const;
-			texture_entry_c & get_texture_entry( sint32_c index );
+			resource_file_texture_c * get_texture( sint32_c index ) const;
+			void_c set_texture( sint32_c index, resource_file_texture_c * value );
+			void_c clear_texture( sint32_c index );
 
-			boolean_c get_pixel_shader_enabled() const;
-			void_c set_pixel_shader_enabled( boolean_c value );
-
-			video_renderer_pixel_shader_c * get_pixel_shader() const;
 			void_c set_pixel_shader( video_renderer_pixel_shader_c * value );
+			void_c clear_pixel_shader();
 
 		};
 
@@ -627,7 +628,6 @@ namespace cheonsa
 		void_c remove_all_custom_materials();
 		custom_material_c * find_custom_material( string8_c const & key );
 		custom_material_c * get_custom_material( sint32_c index );
-		custom_material_c * add_custom_material();
 		void_c add_custom_material( custom_material_c * value );
 		void_c remove_custom_material( custom_material_c * value );
 
@@ -650,6 +650,8 @@ namespace cheonsa
 			float32_c _value; // value between 0 and 1, where 0 is no influence and 1 is full influence. can also be outside of 0 and 1, if you want.
 
 			sint32_c _reference_count;
+
+			rest_pose_shape_key_c();
 
 		public:
 			static rest_pose_shape_key_c * make_new_instance();
@@ -730,13 +732,11 @@ namespace cheonsa
 	public:
 		void_c remove_all_rest_pose_animations();
 		rest_pose_animation_c * get_rest_pose_animation( sint32_c index );
-		rest_pose_animation_c * add_rest_pose_animation();
 		void_c add_rest_pose_animation( rest_pose_animation_c * value );
 		void_c remove_rest_pose_animation( rest_pose_animation_c * value );
 
 		void_c remove_all_rest_pose_adjustments();
 		rest_pose_adjustment_c * get_rest_pose_adjustment( sint32_c index );
-		rest_pose_adjustment_c * add_rest_pose_adjustment();
 		void_c add_rest_pose_adjustment( rest_pose_adjustment_c * value );
 		void_c remove_rest_pose_adjustment( rest_pose_adjustment_c * value );
 

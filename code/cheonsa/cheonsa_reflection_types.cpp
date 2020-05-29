@@ -1,4 +1,4 @@
-﻿#include "cheonsa_reflection_types.h"
+#include "cheonsa_reflection_types.h"
 #include "cheonsa_reflection_property.h"
 #include "cheonsa_reflection_object.h"
 #include "cheonsa_reflection_class.h"
@@ -8,6 +8,13 @@
 namespace cheonsa
 {
 
+	reflection_value_container_c::reflection_value_container_c()
+		: uint64{}
+		, string8()
+		, string16()
+	{
+	}
+
 	reflection_value_container_c & reflection_value_container_c::operator = ( reflection_value_container_c const & other )
 	{
 		for ( sint32_c i = 0; i < 4; i++ )
@@ -16,6 +23,31 @@ namespace cheonsa
 		}
 		string8 = other.string8;
 		string16 = other.string16;
+		return *this;
+	}
+
+	reflection_property_value_changed_information_c::reflection_property_value_changed_information_c()
+		: reflection_object( nullptr )
+		, reflection_property( nullptr )
+		, before_value()
+		, after_value()
+	{
+	}
+
+	reflection_property_value_changed_information_c::reflection_property_value_changed_information_c( reflection_property_value_changed_information_c const & other )
+		: reflection_object( other.reflection_object )
+		, reflection_property( other.reflection_property )
+		, before_value( other.before_value )
+		, after_value( other.after_value )
+	{
+	}
+
+	reflection_property_value_changed_information_c & reflection_property_value_changed_information_c::operator = ( reflection_property_value_changed_information_c const & other )
+	{
+		reflection_object = other.reflection_object;
+		reflection_property = other.reflection_property;
+		before_value = other.before_value;
+		after_value = other.after_value;
 		return *this;
 	}
 

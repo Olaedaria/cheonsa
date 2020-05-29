@@ -7,39 +7,35 @@
 namespace cheonsa
 {
 
-	// we use a hybrid approach of both input events and state snap shots.
-	// we record and process all input events received from the OS between frames, and we translate those to the state snapshot.
-	// during the frame, the game has access to both the sequence of input events that happened between the last frame and the current frame, and the state snapshot that is up to date for the current frame.
+	// there are two modalities of input:
+	//     input events: input events from the operating system are collected and processed at the next frame's update.
+	//     input snapshots: input states are snapshotted at the start of the current frame's update.
+	// this input manager supports both modes simultaneously, so the game has access to whatever it needs.
 	// for systems need to handle user input in a deterministic way, input events should be used.
-	// for systems that are bound to frame rate, snap shots are often easier and better, however not as reliable if frame rate is slow (fast down/up pressed/released inputs that last less than a frame will be invisible).
-	//
-	// information about multi clicks (double clicks and triple clicks):
-	// this input manager supports detection of multi clicks, up to 100 because why not even though it's impractical.
-	// multi click detection is only performed for the 3 primary mouse buttons: left, right, and middle.
-	// a multi click is triggered when a mouse button is pressed and it is within a small window of time and space from the last time it was pressed.
-	// super important: multi click events are triggered upon mouse key press, not release.
+	// for systems that are bound to frame rate, snap shots are often easier and better, however not as reliable if frame rate is slow (fast down/up pressed/released inputs that last less than a frame might not register at all, this can be frustrating to players, there's a way to fix this but i don't think i've implemented it).
 	// 
-	// information about single clicks:
-	// single click detection is not performed here, it is performed in the menu context, but here is some information about them regardless.
-	// a single click is triggered when a mouse button is pressed and released on the same control, regardless of distance moved and time between events.
-	// super important: single click events are triggered upon mouse key release.
+	// information about single-clicks:
+	// single-click detection is not performed here, it is performed in the user interface, but here is some information about them regardless.
+	// a single-click is triggered when a mouse button is pressed and released on the same control, regardless of distance moved and time between events.
+	// the single-click event is triggered by the mouse key release (up) event.
+	//
+	// information about multi-clicks (double-clicks, triple-clicks, and beyond):
+	// multi-click detection is not performed here, it is performed in the user interface, but here is some information about them regardless.
+	// a multi-click is triggered when a mouse button is pressed multiple times on the same control within a short window of time and space.
+	// the multi-click event is triggered by the mouse key press (down) event.
 	//
 	// information about mouse coordinates and screen coordinates:
 	// cheonsa's screen space coordinate space convention is that the origin is in the top left, and x coordinate ascends towards the right and y coordinate ascends towards the down.
-	//
-	// information about drag drop operations:
-	// drag drop operations are managed by the input manager, which is a high level and global system.
-	// this means that potentially, data can be dragged and dropped between different menu contexts and scene contexts.
 	class input_manager_c
 	{
 		friend class engine_c;
 		friend class window_manager_members_c;
 
 	private:
-		core_list_c< input_event_c > * _events_current; // input events for the current frame. points to _events_ping or _events_pong.
-		core_list_c< input_event_c > * _events_next; // input events for the next frame. points to the other list that _events_current does not point to.
-		core_list_c< input_event_c > _events_ping;
-		core_list_c< input_event_c > _events_pong;
+		core_list_c< input_event_c > * _events_current; // input events for the current frame to process. points to _events_ping or _events_pong.
+		core_list_c< input_event_c > * _events_next; // collects input events that are being gathered for the next frame to process. points to the other list that _events_current does not point to.
+		core_list_c< input_event_c > _events_ping; // one buffer of the double buffer.
+		core_list_c< input_event_c > _events_pong; // one buffer of the double buffer.
 
 		input_modifier_flag_e _event_modifier_flags; // snapshot of modifier key state, updated and saved with each input event.
 		vector32x2_c _event_mouse_position; // snapshot of mouse position state, updated and saved with each input event.

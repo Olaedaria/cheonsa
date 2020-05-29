@@ -39,8 +39,6 @@ namespace cheonsa
 
 	// 2d image, bitmap, texture, etc.
 	// this works as the intermediate exchange format between video api textures and various image file formats like png and jpg.
-	// if you use a load function, you will get one of these.
-	// you may also craft these by "hand" and submit them to a save function.
 	class image_c
 	{
 	private:

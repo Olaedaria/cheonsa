@@ -22,8 +22,8 @@ namespace cheonsa
 		void_c register_scope( string8_c const & scope_name, script_scope_c * scope );
 		script_scope_c * find_scope( string8_c const & scope_name );
 
-		void_c register_function( string8_c const & function_name, script_function_f function ); // call at startup to add a function * to the function registry.
-		boolean_c call_function( script_instance_c * caller, string8_c & function_name, core_list_c< script_value_c > & function_inputs, script_value_c & function_result ); // call to call a function.
+		void_c register_function( string8_c const & function_name, script_function_f function ); // the game calls this at start up to add function pointers to the function registry.
+		boolean_c call_function( script_instance_c * caller, string8_c & function_name, core_list_c< script_value_c > & function_inputs, script_value_c & function_result ); // functions in the script instances call this to call a function that was previously registered.
 
 	};
 

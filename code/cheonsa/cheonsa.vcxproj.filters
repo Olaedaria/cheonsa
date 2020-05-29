@@ -723,7 +723,6 @@
     <ClCompile Include="cheonsa__types_polygon32x2.cpp" />
     <ClCompile Include="cheonsa__types_triangle64.cpp" />
     <ClCompile Include="cheonsa__types_transform3d.cpp" />
-    <ClCompile Include="cheonsa__types__fundamental.cpp" />
     <ClCompile Include="cheonsa__types_transform3d_simple.cpp" />
   </ItemGroup>
 </Project>

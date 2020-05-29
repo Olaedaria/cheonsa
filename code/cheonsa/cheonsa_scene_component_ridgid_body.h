@@ -6,9 +6,7 @@
 namespace cheonsa
 {
 
-	// add this component to a scene object to enable rigid body physics simulation for that object.
-	// in order to initialize the body for use, you must provide the physics shapes as instances that you created on the heap with new.
-	// you must have initialized these shapes already as any non-compound type of shape.
+	// provides a ridgid body object, for physics simulation.
 	class scene_component_ridgid_body_c
 		: public scene_component_c
 	{

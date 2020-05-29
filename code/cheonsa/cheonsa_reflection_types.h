@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_data_types.h"
@@ -15,8 +15,10 @@ namespace cheonsa
 	class reflection_manager_c;
 	class reflection_object_c;
 
-	struct reflection_value_container_c
+	// used to hold before/after value states of a single property, regardless of the underlying type.
+	class reflection_value_container_c
 	{
+	public:
 		union
 		{
 			boolean_c boolean;
@@ -34,7 +36,26 @@ namespace cheonsa
 		string8_c string8;
 		string16_c string16;
 
+	public:
+		reflection_value_container_c();
+
 		reflection_value_container_c & operator = ( reflection_value_container_c const & other );
+
+	};
+
+	class reflection_property_value_changed_information_c
+	{
+	public:
+		reflection_object_c * reflection_object;
+		reflection_property_c const * reflection_property;
+		reflection_value_container_c before_value;
+		reflection_value_container_c after_value;
+
+	public:
+		reflection_property_value_changed_information_c();
+		reflection_property_value_changed_information_c( reflection_property_value_changed_information_c const & other );
+
+		reflection_property_value_changed_information_c & operator = ( reflection_property_value_changed_information_c const & other );
 
 	};
 

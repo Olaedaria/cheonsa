@@ -9,7 +9,8 @@ namespace cheonsa
 
 	// plays looping audio for ambient sound effects.
 	// randomizes upon on first play, so that upon loading into a scene for the first time everything isn't all synchronized.
-	// for one-off play-once sound effects, don't use this component.
+	// for play once sound effects in 2d, don't use this component, use engine.get_audio_interface()->add_wave_player() instead.
+	// for play once sound effects in 3d, your game will probably want to manage its own audio_scene_source_c instance, and add it to the audio scene each time it wants it to play.
 	class scene_component_sound_c
 		: public scene_component_c
 	{

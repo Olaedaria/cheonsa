@@ -870,7 +870,6 @@
     <ClCompile Include="cheonsa_menu_control_window_message.cpp" />
     <ClCompile Include="cheonsa_menu_control_window_file_picker.cpp" />
     <ClCompile Include="cheonsa_menu_control_property_inspector.cpp" />
-    <ClCompile Include="cheonsa__types__fundamental.cpp" />
     <ClCompile Include="third_party\jpgd.cpp" />
     <ClCompile Include="third_party\jpge.cpp" />
     <ClCompile Include="third_party\jsmn.cpp" />

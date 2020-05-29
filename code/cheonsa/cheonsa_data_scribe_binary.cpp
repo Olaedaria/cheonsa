@@ -188,10 +188,14 @@ namespace cheonsa
 		return ( this->*_load_function )( &value, sizeof( value ) );
 	}
 
-	boolean_c data_scribe_binary_c::load_four_character_code( uint32_c & value )
+	boolean_c data_scribe_binary_c::load_four_character_code( four_character_code_c & value )
 	{
 		assert( _stream != nullptr );
-		return _stream->load( &value, 4 );
+		_encountered_error |= !_stream->load( &value.chars[ 0 ], 1 );
+		_encountered_error |= !_stream->load( &value.chars[ 1 ], 1 );
+		_encountered_error |= !_stream->load( &value.chars[ 2 ], 1 );
+		_encountered_error |= !_stream->load( &value.chars[ 3 ], 1 );
+		return !_encountered_error;
 	}
 
 	boolean_c data_scribe_binary_c::load_string8( string8_c & value )
@@ -204,9 +208,8 @@ namespace cheonsa
 		}
 		value.character_list.construct_mode_dynamic( length + 1, length + 1 );
 		value.character_list[ length ] = 0;
-		boolean_c result = _stream->load( value.character_list.get_internal_array(), length );
-		_encountered_error |= !result;
-		return result;
+		_encountered_error |= !_stream->load( value.character_list.get_internal_array(), length );
+		return !_encountered_error;
 	}
 
 	boolean_c data_scribe_binary_c::load_string16( string16_c & value )
@@ -315,12 +318,14 @@ namespace cheonsa
 		return ( this->*_save_function )( &value, sizeof( value ) );
 	}
 
-	boolean_c data_scribe_binary_c::save_four_character_code( uint32_c value )
+	boolean_c data_scribe_binary_c::save_four_character_code( four_character_code_c const & value )
 	{
 		assert( _stream != nullptr );
-		boolean_c result = _stream->save( &value, 4 );
-		_encountered_error |= !result;
-		return result;
+		_encountered_error |= !_stream->save( &value.chars[ 0 ], 1 );
+		_encountered_error |= !_stream->save( &value.chars[ 1 ], 1 );
+		_encountered_error |= !_stream->save( &value.chars[ 2 ], 1 );
+		_encountered_error |= !_stream->save( &value.chars[ 3 ], 1 );
+		return !_encountered_error;
 	}
 
 	boolean_c data_scribe_binary_c::save_string8( string8_c const & value )
@@ -332,9 +337,8 @@ namespace cheonsa
 		{
 			return false;
 		}
-		boolean_c result = _stream->save( value.character_list.get_internal_array(), count );
-		_encountered_error |= !result;
-		return result;
+		_encountered_error |= !_stream->save( value.character_list.get_internal_array(), count );
+		return !_encountered_error;
 	}
 
 	boolean_c data_scribe_binary_c::save_string16( string16_c const & value )
@@ -349,9 +353,8 @@ namespace cheonsa
 		}
 		if ( _byte_order == ops::get_native_byte_order() )
 		{
-			boolean_c result = _stream->save( value.character_list.get_internal_array(), length * 2 );
-			_encountered_error |= !result;
-			return result;
+			_encountered_error |= !_stream->save( value.character_list.get_internal_array(), length * 2 );
+			return !_encountered_error;
 		}
 		else
 		{
@@ -363,9 +366,8 @@ namespace cheonsa
 				bytes[ i * 2 ] = bytes[ i * 2 + 1 ];
 				bytes[ i * 2 + 1 ] = temp;
 			}
-			boolean_c result = _stream->save( bytes, length * 2 );
-			_encountered_error |= !result;
-			return result;
+			_encountered_error |= !_stream->save( bytes, length * 2 );
+			return !_encountered_error;
 		}
 	}
 

@@ -9,9 +9,7 @@ namespace cheonsa
 
 	class user_interface_c;
 
-	// do not create scene component instances on the stack.
-	// always use new to create scene component instances on the heap.
-	// once a scene component is added to a scene object, that scene object owns it and will try to delete it when it is destructed.
+	// scene components are added to scene objects, and they define what the scene object does in the scene.
 	class scene_component_c
 	{
 		friend class scene_tree_octo_c< scene_component_c * >;

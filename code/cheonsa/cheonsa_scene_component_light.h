@@ -5,8 +5,8 @@
 namespace cheonsa
 {
 
-	// -z is light's forward.
-	// same as blender.
+	// shines a light into the scene.
+	// +y axis is the light's forward axis, for spot and directional light types.
 	class scene_component_light_c
 		: public scene_component_c
 	{

@@ -6,6 +6,8 @@
 namespace cheonsa
 {
 
+	// samples ambient light around the scene object.
+	// the renderer can then grab near by light probes when rendering a particular object in order to sample from to provide cube map reflections and ambient lighting.
 	class scene_component_light_probe_c
 		: public scene_component_c
 	{
