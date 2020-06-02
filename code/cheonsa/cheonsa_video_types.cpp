@@ -129,7 +129,7 @@ namespace cheonsa
 		, stride( stride )
 	{
 		//assert( stride % 32 == 0 ); // check that the struct size is a multiple of 32 bytes.
-		assert( elements != nullptr );
+		assert( elements );
 		assert( elements_count >= 1 && elements_count <= 8 ); // check that there are a valid number of elements defined.
 		sint32_c accounted_size = 0; // check that the size defined by the elements fits within the size of the struct.
 		for ( sint32_c i = 0; i < elements_count; i++ )
@@ -248,11 +248,11 @@ namespace cheonsa
 		, vertex_formats( vertex_formats )
 		, vertex_formats_count( vertex_formats_count )
 	{
+		assert( vertex_formats );
 		assert( vertex_formats_count >= 1 && vertex_formats_count <= 8 );
-		assert( vertex_formats != nullptr );
 		for ( sint32_c i = 0; i < vertex_formats_count; i++ )
 		{
-			assert( vertex_formats[ i ] != nullptr );
+			assert( vertex_formats[ i ] );
 		}
 	}
 

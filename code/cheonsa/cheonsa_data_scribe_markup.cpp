@@ -393,7 +393,8 @@ namespace cheonsa
 						// encountered too many close tags.
 						return false;
 					}
-					node_stack.remove( -1, 2 ); // recycle, reuse.
+					node_stack.remove( -1, 1 );
+					_node_heap.remove( -1, 1 ); // recycle, reuse.
 				}
 			}
 
@@ -869,7 +870,7 @@ namespace cheonsa
 
 	boolean_c data_scribe_markup_c::parse( data_stream_c * document_stream )
 	{
-		assert( document_stream != nullptr );
+		assert( document_stream );
 		assert( document_stream->get_position() == 0 );
 		reset();
 		sint32_c size = document_stream->get_size();

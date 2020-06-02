@@ -14,9 +14,13 @@ namespace cheonsa
 		, _default_font()
 		, _default_frame_style()
 		, _default_text_style()
-		, _engine_styles( string16_c( core_list_mode_e_static, L"[e]menus/styles.xml" ) )
-		, _game_styles( string16_c( core_list_mode_e_static, L"[g]menus/styles.xml" ) )
-	{	
+		, _engine_styles( string16_c( core_list_mode_e_static, L"menus/styles.xml" ) )
+		, _game_styles( string16_c( core_list_mode_e_static, L"menus/styles.xml" ) )
+	{
+		_engine_styles.set_search_engine_data( true );
+		_engine_styles.set_search_game_data( false );
+		_game_styles.set_search_engine_data( false );
+		_game_styles.set_search_game_data( true );
 	}
 
 	menu_style_manager_c::~menu_style_manager_c()
@@ -122,7 +126,7 @@ namespace cheonsa
 		set_shared_color_base_notes( shared_color_base_notes );
 
 		// load default font.
-		_default_font = engine.get_resource_manager()->load_font( string16_c( core_list_mode_e_static, L"[e]fonts/DXLBaB-KSCpc-EUC-H.ttf" ) );
+		_default_font = engine.get_resource_manager()->load_font( string16_c( core_list_mode_e_static, L"fonts/DXLBaB-KSCpc-EUC-H.ttf" ), true, false );
 		if ( !_default_font.get_is_value_set_and_loaded() )
 		{
 			debug_annoy( L"error", L"default_font could not be loaded." );
@@ -131,7 +135,7 @@ namespace cheonsa
 
 		// load default frame style.
 		_default_frame_style.key = string8_c( core_list_mode_e_static, "default" );
-		_default_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"[e]menus/atlas.png" ) );
+		_default_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/atlas.png" ), true, false );
 		if ( !_default_frame_style.texture.get_is_value_set_and_loaded() )
 		{
 			debug_annoy( L"error", L"default_frame_style.texture could not be loaded." );
@@ -139,38 +143,38 @@ namespace cheonsa
 		}
 		_default_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_nine_slice_stretch;
 		_default_frame_style.texture_map_fill_middle = true;
-		_default_frame_style.state_list[ 0 ].texture_map[ 0 ] = 1;
-		_default_frame_style.state_list[ 0 ].texture_map[ 1 ] = 1;
-		_default_frame_style.state_list[ 0 ].texture_map[ 2 ] = 24;
-		_default_frame_style.state_list[ 0 ].texture_map[ 3 ] = 24;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 0 ] = 6;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 1 ] = 6;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 2 ] = 6;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 3 ] = 6;
-		_default_frame_style.state_list[ 1 ].texture_map[ 0 ] = 1;
-		_default_frame_style.state_list[ 1 ].texture_map[ 1 ] = 1;
-		_default_frame_style.state_list[ 1 ].texture_map[ 2 ] = 24;
-		_default_frame_style.state_list[ 1 ].texture_map[ 3 ] = 12;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 0 ] = 6;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 1 ] = 6;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 2 ] = 6;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 3 ] = 6;
-		_default_frame_style.state_list[ 2 ].texture_map[ 0 ] = 1;
-		_default_frame_style.state_list[ 2 ].texture_map[ 1 ] = 1;
-		_default_frame_style.state_list[ 2 ].texture_map[ 2 ] = 24;
-		_default_frame_style.state_list[ 2 ].texture_map[ 3 ] = 24;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 0 ] = 6;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 1 ] = 6;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 2 ] = 6;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 3 ] = 6;
-		_default_frame_style.state_list[ 3 ].texture_map[ 0 ] = 1;
-		_default_frame_style.state_list[ 3 ].texture_map[ 1 ] = 1;
-		_default_frame_style.state_list[ 3 ].texture_map[ 2 ] = 24;
-		_default_frame_style.state_list[ 3 ].texture_map[ 3 ] = 24;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 0 ] = 6;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 1 ] = 6;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 2 ] = 6;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 3 ] = 6;
+		_default_frame_style.state_list[ 0 ].texture_map[ 0 ] = 21;
+		_default_frame_style.state_list[ 0 ].texture_map[ 1 ] = 11;
+		_default_frame_style.state_list[ 0 ].texture_map[ 2 ] = 29;
+		_default_frame_style.state_list[ 0 ].texture_map[ 3 ] = 19;
+		_default_frame_style.state_list[ 0 ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.state_list[ 0 ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.state_list[ 0 ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.state_list[ 0 ].texture_map_edges[ 3 ] = 3;
+		_default_frame_style.state_list[ 1 ].texture_map[ 0 ] = 21;
+		_default_frame_style.state_list[ 1 ].texture_map[ 1 ] = 11;
+		_default_frame_style.state_list[ 1 ].texture_map[ 2 ] = 29;
+		_default_frame_style.state_list[ 1 ].texture_map[ 3 ] = 19;
+		_default_frame_style.state_list[ 1 ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.state_list[ 1 ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.state_list[ 1 ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.state_list[ 1 ].texture_map_edges[ 3 ] = 3;
+		_default_frame_style.state_list[ 2 ].texture_map[ 0 ] = 21;
+		_default_frame_style.state_list[ 2 ].texture_map[ 1 ] = 11;
+		_default_frame_style.state_list[ 2 ].texture_map[ 2 ] = 29;
+		_default_frame_style.state_list[ 2 ].texture_map[ 3 ] = 19;
+		_default_frame_style.state_list[ 2 ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.state_list[ 2 ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.state_list[ 2 ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.state_list[ 2 ].texture_map_edges[ 3 ] = 3;
+		_default_frame_style.state_list[ 3 ].texture_map[ 0 ] = 21;
+		_default_frame_style.state_list[ 3 ].texture_map[ 1 ] = 11;
+		_default_frame_style.state_list[ 3 ].texture_map[ 2 ] = 29;
+		_default_frame_style.state_list[ 3 ].texture_map[ 3 ] = 19;
+		_default_frame_style.state_list[ 3 ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.state_list[ 3 ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.state_list[ 3 ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.state_list[ 3 ].texture_map_edges[ 3 ] = 3;
 
 		// load default text style.
 		_default_text_style.key = string8_c( core_list_mode_e_static, "default" );

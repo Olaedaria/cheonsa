@@ -9,7 +9,7 @@ namespace cheonsa
 	{
 		assert( _can_be_selected == true ); // this function should only be called if this type of list item is designed to have a toggleable selected state.
 		menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
-		if ( mother_list != nullptr )
+		if ( mother_list )
 		{
 			// work with mother.
 			mother_list->_set_selected_item( this, is_selected, try_to_multi_select );
@@ -53,7 +53,7 @@ namespace cheonsa
 			return;
 		}
 		menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
-		assert( mother_list != nullptr );
+		assert( mother_list );
 		box32x2_c new_local_box;
 		new_local_box.minimum.a = mother_list->_client->get_local_box().minimum.a;
 		new_local_box.maximum.a = mother_list->_client->get_local_box().maximum.a;
@@ -91,7 +91,7 @@ namespace cheonsa
 
 	void_c menu_control_list_item_text_i::_handle_element_text_on_value_changed( menu_element_text_c * element )
 	{
-		if ( _mother_control != nullptr )
+		if ( _mother_control )
 		{
 			_update_transform_and_layout();
 		}
@@ -117,7 +117,7 @@ namespace cheonsa
 		assert( _mother_control );
 		menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
 		assert( mother_list );
-		if ( mother_list != nullptr )
+		if ( mother_list )
 		{
 			_set_is_selected( true, input_event->get_modifier_flags() == input_modifier_flag_e_ctrl );
 		}
@@ -142,7 +142,7 @@ namespace cheonsa
 			return;
 		}
 		menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
-		assert( mother_list != nullptr );
+		assert( mother_list );
 		box32x2_c new_local_box;
 		new_local_box.minimum.a = mother_list->_client->get_local_box().minimum.a;
 		new_local_box.maximum.a = mother_list->_client->get_local_box().maximum.a;
@@ -246,12 +246,12 @@ namespace cheonsa
 		core_linked_list_c< menu_control_c * >::node_c const * client_daughter_control_list_node = _client->get_daughter_control_list().get_first();
 		while ( client_daughter_control_list_node )
 		{
-			client_daughter_control_list_node = client_daughter_control_list_node->get_next();
 			menu_control_list_item_i * list_item = static_cast< menu_control_list_item_i * >( client_daughter_control_list_node->get_value() );
 			list_item->_local_origin.a = 0.0f;
 			list_item->_local_origin.b = list_item_top + ( list_item->_local_box.get_height() * 0.5f );
 			list_item->_update_global_space_properties();
 			list_item_top += list_item->_local_box.get_height();
+			client_daughter_control_list_node = client_daughter_control_list_node->get_next();
 		}
 		float32_c content_height = list_item_top - _client->get_local_box().minimum.b;
 
@@ -419,7 +419,7 @@ namespace cheonsa
 		}
 		_selected_item_list.remove_all();
 
-		if ( item != nullptr )
+		if ( item )
 		{
 			item->_is_selected = true;
 			item->_on_is_selected_changed();
@@ -431,7 +431,7 @@ namespace cheonsa
 
 	void_c menu_control_list_i::_set_selected_item( menu_control_list_item_i * item, boolean_c is_selected, boolean_c try_to_multi_select )
 	{
-		assert( item != nullptr );
+		assert( item );
 		assert( item->_can_be_selected == true );
 		assert( item->get_mother_control() == _client );
 		if ( _selected_item_limit != 0 && item->_is_selected != is_selected )

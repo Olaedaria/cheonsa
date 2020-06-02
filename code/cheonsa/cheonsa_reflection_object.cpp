@@ -1,4 +1,4 @@
-﻿#include "cheonsa_reflection_object.h"
+#include "cheonsa_reflection_object.h"
 #include "cheonsa_reflection_class.h"
 #include <cassert>
 
@@ -9,7 +9,7 @@ namespace cheonsa
 		: _this( this_in )
 		, _reflection_class( reflection_class )
 	{
-		assert( _reflection_class != nullptr );
+		assert( _reflection_class );
 	}
 
 	string16_c reflection_object_c::get_reflection_display_name() const

@@ -82,7 +82,7 @@ namespace cheonsa
 
 	boolean_c physics_collision_object_c::get_is_initialized() const
 	{
-		return _bullet_collision_object != nullptr;
+		return _bullet_collision_object;
 	}
 
 	void_c physics_collision_object_c::get_world_space_transform( transform3d_c & world_space_transform ) const

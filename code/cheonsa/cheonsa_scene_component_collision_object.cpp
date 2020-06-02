@@ -66,11 +66,6 @@ namespace cheonsa
 		_shape_list.remove_all();
 	}
 
-	scene_component_collision_object_c * scene_component_collision_object_c::make_new_instance()
-	{
-		return new scene_component_collision_object_c();
-	}
-
 	void_c scene_component_collision_object_c::remove_all_shapes()
 	{
 		assert( _collision_object->get_is_initialized() == false );
@@ -111,12 +106,12 @@ namespace cheonsa
 		}
 		else
 		{
-			_master_shape = physics_shape_c::make_new_instance();
+			_master_shape = new physics_shape_c();
 			_master_shape->add_reference();
 			_master_shape->initialize_compound( _shape_list );
 		}
 
-		// initialize ridgid body.
+		// initialize rigid body.
 		_collision_object->initialize(
 			this,
 			_master_shape,
@@ -144,7 +139,7 @@ namespace cheonsa
 			_scene_object->get_scene()->get_physics_scene()->remove_collision_object( _collision_object );
 		}
 
-		// uninitialize ridgid body.
+		// uninitialize rigid body.
 		_collision_object->uninitialize();
 
 		// uninitialize frame.

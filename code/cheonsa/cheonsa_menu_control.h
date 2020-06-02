@@ -57,8 +57,8 @@ namespace cheonsa
 
 		string8_c _name; // used to identify this control in the hierarchy, it should be unique within the context of its immediate superior (context or control), but it doesn't need to be globally unique.
 
-		user_interface_c * _user_interface; // the mother user interface, only set on the root control.
-		void_c _set_user_interface_recursive( user_interface_c * value ); // called by the user interface to associate or disassociate the entire hierarchy of controls with the user interface.
+		user_interface_c * _mother_user_interface; // the mother user interface, only set on the root control.
+		void_c _set_mother_user_interface_recursive( user_interface_c * value ); // called by the user interface to associate or disassociate the entire hierarchy of controls with the user interface.
 
 		menu_control_c * _mother_control; // the mother control.
 
@@ -220,8 +220,7 @@ namespace cheonsa
 
 		sint32_c get_index() const; // gets the index of this control within it's mother's daughter list.
 
-		//user_interface_c * get_user_interface_root(); // returns the menu context of the root mother control.
-		user_interface_c * get_user_interface() const;
+		user_interface_c * get_mother_user_interface() const;
 
 		menu_control_c * get_root_mother_control(); // returns the root mother control of this control, also called a window (regardless of if it acts like one or not), which is the control that is directly added to the menu context.
 

@@ -96,29 +96,31 @@ namespace cheonsa
 		}
 
 		// shifts element values at index by amount.
-		// if amount is positive then elements will be shifted down, towards then end of the list.
-		// if amount is negative then elements will be shifted up, towards the start of the list.
+		// if amount is positive then elements will be shifted towards the end of the list. used to make room for new values in the middle of the list.
+		// if amount is negative then elements will be shifted towards the start of the list. used to remove values from the middle of the list.
 		void_c _shift( sint32_c index, sint32_c amount )
 		{
 			assert( index >= 0 && index < _array_length_used );
-			if ( amount < 0 )
-			{
-				assert( index - amount >= 0 );
-				value_type_c * in = &_array[ index ];
-				value_type_c * out = &_array[ index + amount ];
-				for ( sint32_c i = index; i < _array_length_used; i++ )
-				{
-					*out++ = *in++;
-				}
-			}
-			else if ( amount > 0 )
+			if ( amount > 0 )
 			{
 				assert( index + amount < _array_length_allocated );
-				value_type_c * in = &_array[ _array_length_used - 1 - amount ];
-				value_type_c * out = &_array[ _array_length_used - 1 ];
-				for ( sint32_c i = _array_length_used - amount; i > index; i-- )
+				value_type_c * a = &_array[ _array_length_used - 1 ]; // from.
+				value_type_c * b = &_array[ _array_length_used - 1 + amount ]; // to.
+				sint32_c count = _array_length_used - index;
+				for ( sint32_c i = 0; i < count; i++ )
 				{
-					*out-- = *in--;
+					*b-- = *a--;
+				}
+			}
+			else if ( amount < 0 )
+			{
+				assert( index + amount >= 0 );
+				value_type_c * a = &_array[ index + amount ];
+				value_type_c * b = &_array[ index ];
+				sint32_c count = _array_length_used - index;
+				for ( sint32_c i = 0; i < count; i++ )
+				{
+					*b++ = *a++;
 				}
 			}
 		}
@@ -159,7 +161,7 @@ namespace cheonsa
 			}
 			else
 			{
-				assert( array != nullptr );
+				assert( array );
 			}
 			if ( mode < 0 )
 			{
@@ -254,7 +256,7 @@ namespace cheonsa
 		// reallocates if needed, otherwise uses exsisting allocation.
 		void_c construct_mode_dynamic_from_array( value_type_c const * array, sint32_c array_length )
 		{
-			assert( array != nullptr );
+			assert( array );
 			assert( array_length > 0 );
 			if ( array_length > _array_length_allocated )
 			{
@@ -360,11 +362,11 @@ namespace cheonsa
 				index = _array_length_used;
 			}
 			_reallocate_to_fuzzy_length( _array_length_used + 1 );
-			_array_length_used++;
 			if ( index < _array_length_used )
 			{
 				_shift( index, 1 );
 			}
+			_array_length_used += 1;
 			_array[ index ] = value;
 		}
 
@@ -374,20 +376,23 @@ namespace cheonsa
 		{
 			assert( _array_length_allocated >= 0 );
 			assert( index >= -1 && index <= _array_length_used );
-			assert( values_count > 0 );
-			if ( index == -1 )
+			if ( values_count > 0 )
 			{
-				index = _array_length_used;
-			}
-			_reallocate_to_fuzzy_length( _array_length_used + values_count );
-			_array_length_used += values_count;
-			if ( index < _array_length_used )
-			{
-				_shift( index, values_count );
-			}
-			for ( sint32_c i = 0; i < values_count; i++ )
-			{
-				_array[ i + index ] = values[ i ];
+				assert( values );
+				if ( index == -1 )
+				{
+					index = _array_length_used;
+				}
+				_reallocate_to_fuzzy_length( _array_length_used + values_count );
+				if ( index < _array_length_used )
+				{
+					_shift( index, values_count );
+				}
+				_array_length_used += values_count;
+				for ( sint32_c i = 0; i < values_count; i++ )
+				{
+					_array[ i + index ] = values[ i ];
+				}
 			}
 		}
 
@@ -403,13 +408,12 @@ namespace cheonsa
 				index = _array_length_used;
 			}
 			_reallocate_to_fuzzy_length( _array_length_used + values_count );
-			value_type_c * result = &_array[ index ];
-			_array_length_used += values_count;
 			if ( index < _array_length_used )
 			{
 				_shift( index, values_count );
 			}
-			return result;
+			_array_length_used += values_count;
+			return &_array[ index ];
 		}
 
 		// returns the index of the first occurrence of value.

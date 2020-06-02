@@ -170,16 +170,16 @@ namespace cheonsa
 	{
 		if ( _mouse_key != input_mouse_key_e_none )
 		{
-			if ( engine.get_input_manager()->get_frame_modifier_flags() == _modifier_flags )
+			if ( _modifier_flags == input_modifier_flag_e_any || _modifier_flags == engine.get_input_manager()->get_frame_modifier_flags() )
 			{
 				return engine.get_input_manager()->get_frame_mouse_key_state( _mouse_key );
 			}
 		}
 		if ( _keyboard_key != input_keyboard_key_e_none )
 		{
-			if ( engine.get_input_manager()->get_frame_modifier_flags() == _modifier_flags )
+			if ( _modifier_flags == input_modifier_flag_e_any || _modifier_flags == engine.get_input_manager()->get_frame_modifier_flags() )
 			{
-				engine.get_input_manager()->get_frame_keyboard_key_state( _keyboard_key );
+				return engine.get_input_manager()->get_frame_keyboard_key_state( _keyboard_key );
 			}
 		}
 		if ( _gamepad_button != input_gamepad_key_e_none )

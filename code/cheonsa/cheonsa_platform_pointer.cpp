@@ -32,7 +32,7 @@ namespace cheonsa
 		if ( engine.get_content_manager()->resolve_absolute_file_path( file_path, full_file_path, true, true ) )
 		{
 			pointer_handle = LoadCursorFromFileW( full_file_path.character_list.get_internal_array() );
-			if ( pointer_handle != nullptr )
+			if ( pointer_handle )
 			{
 				return true;
 			}
@@ -45,7 +45,7 @@ namespace cheonsa
 	void_c platform_pointer_c::unload()
 	{
 #if defined( cheonsa_platform_windows )
-		if ( pointer_handle != nullptr )
+		if ( pointer_handle )
 		{
 			DestroyCursor( static_cast< HCURSOR >( pointer_handle ) );
 			pointer_handle = LoadCursor( NULL, IDC_ARROW );

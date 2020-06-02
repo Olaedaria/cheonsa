@@ -273,7 +273,7 @@ namespace cheonsa
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_selected = is_ascendant_of( _user_interface->get_mouse_overed() );
+		boolean_c is_selected = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];

@@ -49,7 +49,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture_path" );
 		if ( attribute )
 		{
-			_element_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+			_element_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ), true, true );
 		}
 	}
 

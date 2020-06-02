@@ -1,5 +1,5 @@
 #include "cheonsa_physics_constraint.h"
-#include "cheonsa_physics_ridgid_body.h"
+#include "cheonsa_physics_rigid_body.h"
 #include "btBulletDynamicsCommon.h"
 #include <cassert>
 
@@ -8,8 +8,8 @@ namespace cheonsa
 
 	physics_constraint_c::physics_constraint_c()
 		: _type( physics_constraint_type_e_none )
-		, _ridgid_body_a( nullptr )
-		, _ridgid_body_b( nullptr )
+		, _rigid_body_a( nullptr )
+		, _rigid_body_b( nullptr )
 		, _bullet_constraint( nullptr )
 		, _reference_count( 0 )
 	{
@@ -19,11 +19,6 @@ namespace cheonsa
 	{
 		assert( _reference_count == 0 );
 		uninitialize();
-	}
-
-	physics_constraint_c * physics_constraint_c::make_new_instance()
-	{
-		return new physics_constraint_c();
 	}
 
 	void_c physics_constraint_c::add_reference()
@@ -43,12 +38,12 @@ namespace cheonsa
 
 	physics_rigid_body_c * physics_constraint_c::get_object_a()
 	{
-		return _ridgid_body_a;
+		return _rigid_body_a;
 	}
 
 	physics_rigid_body_c * physics_constraint_c::get_object_b()
 	{
-		return _ridgid_body_b;
+		return _rigid_body_b;
 	}
 
 	physics_constraint_type_e physics_constraint_c::get_type() const
@@ -80,8 +75,8 @@ namespace cheonsa
 	void_c physics_constraint_c::initialize_fixed( physics_rigid_body_c * a, physics_rigid_body_c * b, transform3d_c const & frame_in_world_space )
 	{
 		assert( _type == physics_constraint_type_e_none );
-		assert( a != nullptr );
-		assert( b != nullptr );
+		assert( a );
+		assert( b );
 		assert( a != b );
 
 		transform3d_c frame_in_a_local_space;
@@ -93,10 +88,10 @@ namespace cheonsa
 		btTransform frame_in_b_local_space_btTransform = make_btTransform_frame( frame_in_world_space, frame_in_b_local_space );
 
 		_type = physics_constraint_type_e_fixed;
-		_ridgid_body_a = a;
-		_ridgid_body_a->add_reference();
-		_ridgid_body_b = b;
-		_ridgid_body_b->add_reference();
+		_rigid_body_a = a;
+		_rigid_body_a->add_reference();
+		_rigid_body_b = b;
+		_rigid_body_b->add_reference();
 		_bullet_constraint = new btFixedConstraint(
 			*a->_bullet_rigid_body,
 			*b->_bullet_rigid_body,
@@ -108,8 +103,8 @@ namespace cheonsa
 	void_c physics_constraint_c::initialize_point( physics_rigid_body_c * a, physics_rigid_body_c * b, transform3d_c const & frame_in_world_space )
 	{
 		assert( _type == physics_constraint_type_e_none );
-		assert( a != nullptr );
-		assert( b != nullptr );
+		assert( a );
+		assert( b );
 		assert( a != b );
 
 		transform3d_c frame_in_a_local_space;
@@ -121,10 +116,10 @@ namespace cheonsa
 		btVector3 frame_in_b_local_space_btVector3 = make_btVector3_frame( frame_in_world_space, frame_in_b_local_space );
 
 		_type = physics_constraint_type_e_point;
-		_ridgid_body_a = a;
-		_ridgid_body_a->add_reference();
-		_ridgid_body_b = b;
-		_ridgid_body_b->add_reference();
+		_rigid_body_a = a;
+		_rigid_body_a->add_reference();
+		_rigid_body_b = b;
+		_rigid_body_b->add_reference();
 		_bullet_constraint = new btPoint2PointConstraint(
 			*a->_bullet_rigid_body,
 			*b->_bullet_rigid_body,
@@ -135,8 +130,8 @@ namespace cheonsa
 	void_c physics_constraint_c::initialize_hinge( physics_rigid_body_c * a, physics_rigid_body_c * b, transform3d_c const & frame_in_world_space )
 	{
 		assert( _type == physics_constraint_type_e_none );
-		assert( a != nullptr );
-		assert( b != nullptr );
+		assert( a );
+		assert( b );
 		assert( a != b );
 
 		transform3d_c frame_in_a_local_space;
@@ -148,10 +143,10 @@ namespace cheonsa
 		btTransform frame_in_b_local_space_btTransform = make_btTransform_frame( frame_in_world_space, frame_in_b_local_space );
 
 		_type = physics_constraint_type_e_hinge;
-		_ridgid_body_a = a;
-		_ridgid_body_a->add_reference();
-		_ridgid_body_b = b;
-		_ridgid_body_b->add_reference();
+		_rigid_body_a = a;
+		_rigid_body_a->add_reference();
+		_rigid_body_b = b;
+		_rigid_body_b->add_reference();
 		_bullet_constraint = new btHingeConstraint(
 			*a->_bullet_rigid_body,
 			*b->_bullet_rigid_body,
@@ -175,8 +170,8 @@ namespace cheonsa
 	void_c physics_constraint_c::initialize_cone( physics_rigid_body_c * a, physics_rigid_body_c * b, transform3d_c const & frame_in_world_space )
 	{
 		assert( _type == physics_constraint_type_e_none );
-		assert( a != nullptr );
-		assert( b != nullptr );
+		assert( a );
+		assert( b );
 		assert( a != b );
 
 		transform3d_c frame_in_a_local_space;
@@ -188,10 +183,10 @@ namespace cheonsa
 		btTransform frame_in_b_local_space_btTransform = make_btTransform_frame( frame_in_world_space, frame_in_b_local_space );
 
 		_type = physics_constraint_type_e_cone;
-		_ridgid_body_a = a;
-		_ridgid_body_a->add_reference();
-		_ridgid_body_b = b;
-		_ridgid_body_b->add_reference();
+		_rigid_body_a = a;
+		_rigid_body_a->add_reference();
+		_rigid_body_b = b;
+		_rigid_body_b->add_reference();
 		_bullet_constraint = new btConeTwistConstraint(
 			*a->_bullet_rigid_body,
 			*b->_bullet_rigid_body,
@@ -216,8 +211,8 @@ namespace cheonsa
 	void_c physics_constraint_c::initialize_generic( physics_rigid_body_c * a, physics_rigid_body_c * b, transform3d_c const & frame_in_world_space )
 	{
 		assert( _type == physics_constraint_type_e_none );
-		assert( a != nullptr );
-		assert( b != nullptr );
+		assert( a );
+		assert( b );
 		assert( a != b );
 
 		transform3d_c frame_in_a_local_space;
@@ -229,10 +224,10 @@ namespace cheonsa
 		btTransform frame_in_b_local_space_btTransform = make_btTransform_frame( frame_in_world_space, frame_in_b_local_space );
 
 		_type = physics_constraint_type_e_cone;
-		_ridgid_body_a = a;
-		_ridgid_body_a->add_reference();
-		_ridgid_body_b = b;
-		_ridgid_body_b->add_reference();
+		_rigid_body_a = a;
+		_rigid_body_a->add_reference();
+		_rigid_body_b = b;
+		_rigid_body_b->add_reference();
 		_bullet_constraint = new btGeneric6DofConstraint(
 			*a->_bullet_rigid_body,
 			*b->_bullet_rigid_body,
@@ -293,10 +288,10 @@ namespace cheonsa
 		{
 			delete _bullet_constraint;
 			_bullet_constraint = nullptr;
-			_ridgid_body_a->remove_reference();
-			_ridgid_body_a = nullptr;
-			_ridgid_body_b->remove_reference();
-			_ridgid_body_b = nullptr;
+			_rigid_body_a->remove_reference();
+			_rigid_body_a = nullptr;
+			_rigid_body_b->remove_reference();
+			_rigid_body_b = nullptr;
 			_type = physics_constraint_type_e_none;
 		}
 	}

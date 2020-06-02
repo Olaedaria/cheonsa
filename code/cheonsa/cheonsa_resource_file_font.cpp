@@ -94,7 +94,7 @@ namespace cheonsa
 
 	void_c resource_file_font_c::size_metrics_c::_unload()
 	{
-		if ( free_type_size_handle != nullptr )
+		if ( free_type_size_handle )
 		{
 			FT_Done_Size( reinterpret_cast< FT_Size >( free_type_size_handle ) );
 			free_type_size_handle = nullptr;
@@ -107,7 +107,7 @@ namespace cheonsa
 
 	void_c resource_file_font_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		_file_size = stream->get_size();
@@ -139,7 +139,7 @@ namespace cheonsa
 		return;
 
 	cancel:
-		if ( _free_type_face_handle != nullptr )
+		if ( _free_type_face_handle )
 		{
 			for ( sint32_c i = 0; i < glyph_manager_c::quantized_count; i++ )
 			{
@@ -148,7 +148,7 @@ namespace cheonsa
 			FT_Done_Face( reinterpret_cast< FT_Face >( _free_type_face_handle ) );
 			_free_type_face_handle = nullptr;
 		}
-		if ( _file != nullptr )
+		if ( _file )
 		{
 			delete[] _file;
 			_file = nullptr;

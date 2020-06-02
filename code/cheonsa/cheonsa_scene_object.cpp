@@ -68,21 +68,16 @@ namespace cheonsa
 
 	scene_object_c::~scene_object_c()
 	{
-		assert( _reference_count == 0 );
-
-		// these components should all be on the heap.
-		core_linked_list_c< scene_component_c * >::node_c const * scene_component_list_node = _scene_component_list.get_first();
+		core_linked_list_c< scene_component_c * >::node_c * scene_component_list_node = _scene_component_list.get_first();
 		while ( scene_component_list_node )
 		{
-			delete scene_component_list_node->get_value();
-			scene_component_list_node = scene_component_list_node->get_next();
+			core_linked_list_c< scene_component_c * >::node_c * scene_component_list_node_next = scene_component_list_node->get_next(); // get next now, because current node might be deleted.
+			scene_component_list_node->get_value()->_handle_before_removed_from_scene();
+			_scene_component_list.remove( scene_component_list_node );
+			scene_component_list_node->get_value()->_scene_object = nullptr;
+			scene_component_list_node->get_value()->remove_reference(); // this may delete the component if its reference count reaches 0.
+			scene_component_list_node = scene_component_list_node_next;
 		}
-		_scene_component_list.remove_all_quick_and_dirty();
-	}
-
-	scene_object_c * scene_object_c::make_new_instance()
-	{
-		return new scene_object_c();
 	}
 
 	void_c scene_object_c::add_reference()
@@ -140,7 +135,7 @@ namespace cheonsa
 
 	void_c scene_object_c::add_component( scene_component_c * component )
 	{
-		assert( component != nullptr );
+		assert( component );
 		assert( component->_scene_object == nullptr );
 		component->add_reference();
 		component->_scene_object = this;
@@ -153,7 +148,7 @@ namespace cheonsa
 
 	void_c scene_object_c::remove_component( scene_component_c * component )
 	{
-		assert( component != nullptr );
+		assert( component );
 		assert( component->_scene_object == this );
 		if ( _scene )
 		{

@@ -71,9 +71,9 @@ namespace cheonsa
 
 		void_c insert_at_front( node_c * node )
 		{
-			assert( node != nullptr );
+			assert( node );
 			assert( node->_previous == nullptr && node->_next == nullptr );
-			if ( _first != nullptr )
+			if ( _first )
 			{
 				if ( _first != _last )
 				{
@@ -98,9 +98,9 @@ namespace cheonsa
 
 		void_c insert_at_end( node_c * node )
 		{
-			assert( node != nullptr );
+			assert( node );
 			assert( node->_previous == nullptr && node->_next == nullptr );
-			if ( _last != nullptr )
+			if ( _last )
 			{
 				if ( _last != _first )
 				{
@@ -125,9 +125,9 @@ namespace cheonsa
 
 		void_c insert_at_index( node_c * node, sint32_c index )
 		{
-			assert( node != nullptr );
+			assert( node );
 			assert( node->_previous == nullptr && node->_next == nullptr );
-			assert( index >= 0 && index < _length );
+			assert( index >= 0 && index <= _length );
 			if ( index == 0 )
 			{
 				insert_at_front( node );
@@ -149,13 +149,13 @@ namespace cheonsa
 
 		void_c insert_before( node_c * node, node_c * before )
 		{
-			assert( _first != nullptr && _last != nullptr );
-			assert( node != nullptr && before != nullptr );
+			assert( _first && _last );
+			assert( node && before );
 			if ( _first != _last )
 			{
 				node->_next = before;
 				node->_previous = before->_previous;
-				if ( before->_previous != nullptr )
+				if ( before->_previous )
 				{
 					before->_previous->_next = node;
 				}
@@ -178,14 +178,14 @@ namespace cheonsa
 
 		void_c insert_after( node_c * node, node_c * after )
 		{
-			assert( _first != nullptr && _last != nullptr );
-			assert( node != nullptr && after != nullptr );
+			assert( _first && _last );
+			assert( node && after );
 			assert( node != after );
 			if ( _first != _last )
 			{
 				node->_previous = after;
 				node->_next = after->_next;
-				if ( after->_next != nullptr )
+				if ( after->_next )
 				{
 					after->_next->_previous = node;
 				}
@@ -218,7 +218,7 @@ namespace cheonsa
 		// removes a single node from this list.
 		void_c remove( node_c * node )
 		{
-			assert( node != nullptr );
+			assert( node );
 			if ( _first == node )
 			{
 				_first = node->_next;
@@ -227,11 +227,11 @@ namespace cheonsa
 			{
 				_last = node->_previous;
 			}
-			if ( node->_next != nullptr )
+			if ( node->_next )
 			{
 				node->_next->_previous = node->_previous;
 			}
-			if ( node->_previous != nullptr )
+			if ( node->_previous )
 			{
 				node->_previous->_next = node->_next;
 			}

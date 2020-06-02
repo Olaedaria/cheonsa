@@ -6,7 +6,7 @@ namespace cheonsa
 {
 
 	// a static collision object in the physics simulation scene.
-	// ridgid bodies can collide with it, but it does not react.
+	// rigid bodies can collide with it, but it does not react.
 	class physics_collision_object_c
 	{
 		friend class physics_scene_c;

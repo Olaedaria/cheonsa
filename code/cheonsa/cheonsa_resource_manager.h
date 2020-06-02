@@ -38,7 +38,7 @@ namespace cheonsa
 		static uint32_c _worker_thread_function( thread_c * platform_thread );
 
 		template< typename resource_file_type_c >
-		resource_file_type_c * _load( string16_c const & file_path, boolean_c load_now );
+		resource_file_type_c * _load( string16_c const & file_path, boolean_c scan_engine_data, boolean_c scan_game_data, boolean_c load_now );
 
 		sint32_c _cpu_memory_usage; // tracks roughly how much cpu RAM is used by currently loaded resources.
 		sint32_c _gpu_memory_usage; // tracks roughly how much gpu RAM is used by currently loaded resources.
@@ -54,13 +54,13 @@ namespace cheonsa
 		void_c refresh();
 
 	public:
-		resource_file_font_c * load_font( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_materials_c * load_materials( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_menu_layout_c * load_menu_layout( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_model_c * load_model( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_sprites_c * load_sprites( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_strings_c * load_strings( string16_c const & relative_file_path, boolean_c load_now = true );
-		resource_file_texture_c * load_texture( string16_c const & relative_file_path, boolean_c load_now = true );
+		resource_file_font_c * load_font( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now = true );
+		resource_file_materials_c * load_materials( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now = true );
+		resource_file_menu_layout_c * load_menu_layout( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now = true );
+		resource_file_model_c * load_model( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now = true );
+		resource_file_sprites_c * load_sprites( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now = true );
+		resource_file_strings_c * load_strings( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now = true );
+		resource_file_texture_c * load_texture( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now = true );
 
 	};
 

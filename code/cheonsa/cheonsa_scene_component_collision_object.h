@@ -30,29 +30,26 @@ namespace cheonsa
 		virtual void_c _handle_after_added_to_scene() override;
 		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
-		scene_component_collision_object_c();
-
 	public:
+		scene_component_collision_object_c();
 		~scene_component_collision_object_c();
-
-		static scene_component_collision_object_c * make_new_instance();
 
 		void_c remove_all_shapes(); // removes all shapes from this body.
 		void_c add_shape( physics_shape_c * shape ); // adds a shape to this body.
 		physics_shape_c const * get_shape_at_index( sint32_c index ) const;
-		physics_shape_c * get_shape_at_index( sint32_c index ); // you may use function only when the ridgid body is in an uninitialized shape. you can use this to modify (uninitialzie and initialize) existing shape instances that you added before.
+		physics_shape_c * get_shape_at_index( sint32_c index ); // you may use function only when the rigid body is in an uninitialized shape. you can use this to modify (uninitialzie and initialize) existing shape instances that you added before.
 
-		// when you call this function, this initializes the ridgid body with the shapes that you added with add_shape().
-		// adds the ridgid body to the physics simulation scene if able.
+		// when you call this function, this initializes the rigid body with the shapes that you added with add_shape().
+		// adds the rigid body to the physics simulation scene if able.
 		void_c initialize( transform3d_c const & frame, float64_c mass, uint32_c layer, uint32_c layer_mask, boolean_c kinematic );
 
-		// removes the ridgid body from the physics simulation scene if needed.
-		// releases the ridgid body.
+		// removes the rigid body from the physics simulation scene if needed.
+		// releases the rigid body.
 		void_c uninitialize();
 
-		// you can set physics properties on the ridgid body with this.
+		// you can set physics properties on the rigid body with this.
 		// don't set world space transform properties from here though, do so from the scene object.
-		// will return nullptr of the ridgid body is not initialized.
+		// will return nullptr of the rigid body is not initialized.
 		physics_collision_object_c * get_collision_object() const;
 
 	};

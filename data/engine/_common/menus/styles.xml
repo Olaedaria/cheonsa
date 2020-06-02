@@ -253,6 +253,7 @@
 
 	<map key="e_window">
 		<item element_name="frame" style_key="e_window_frame"/>
+		<item element_name="border_frame" style_key=""/>
 		<item element_name="text" style_key="e_window_text"/>
 		<item element_name="client_panel" style_key=""/>
 	</map>
@@ -318,6 +319,7 @@
 
 	<map key="e_menu_list">
 		<item element_name="frame" style_key="e_field_frame"/>
+		<item element_name="border_frame" style_key="e_field_border_frame"/>
 	</map>
 
 	<map key="e_menu_list_item">
@@ -368,6 +370,7 @@
 	</map>
 
 	<map key="e_color_slider">
+		<item element_name="slider" style_key="e_precision_slider_frame"/>
 		<item element_name="border_frame" style_key="e_field_border_frame"/>
 	</map>
 

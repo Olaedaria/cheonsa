@@ -206,7 +206,7 @@ namespace cheonsa
 		data_stream_c * png_file_stream,
 		core_list_c< image_png_chunk_c * > & extra_chunk_list )
 	{
-		assert( png_file_stream != nullptr );
+		assert( png_file_stream );
 		assert( extra_chunk_list.get_length() == 0 ); // we aren't responsible for deleting or forgetting pointers.
 
 		data_stream_c * & stream = png_file_stream;
@@ -272,7 +272,7 @@ namespace cheonsa
 			assert( image._channel_bit_depth == 8 || image._channel_bit_depth == 16 );
 		}
 
-		if ( extra_chunk_list != nullptr )
+		if ( extra_chunk_list )
 		{
 			extra_chunk_list->remove_all();
 		}
@@ -398,7 +398,7 @@ namespace cheonsa
 		}
 		
 		// add custom chunks to state.
-		if ( extra_chunk_list != nullptr )
+		if ( extra_chunk_list )
 		{
 			for ( sint32_c i = 0; i < extra_chunk_list->get_length(); i++ )
 			{

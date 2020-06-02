@@ -71,7 +71,7 @@ namespace cheonsa
 	
 	boolean_c engine_c::start( game_i * game, char16_c const * const * arguments, sint32_c arguments_count )
 	{
-		assert( game != nullptr );
+		assert( game );
 		
 #if defined( cheonsa_platform_windows )
 		// resolve executable path, executable folder path, and executable file name.
@@ -330,85 +330,85 @@ namespace cheonsa
 
 	cancel:
 		// stop and delete sub-systems.
-		if ( _user_interface != nullptr )
+		if ( _user_interface )
 		{
 			delete _user_interface;
 			_user_interface = nullptr;
 		}
 
-		if ( _glyph_manager != nullptr )
+		if ( _glyph_manager )
 		{
 			delete _glyph_manager;
 			_glyph_manager = nullptr;
 		}
 
-		if ( _menu_style_manager != nullptr )
+		if ( _menu_style_manager )
 		{
 			delete _menu_style_manager;
 			_menu_style_manager = nullptr;
 		}
 
-		if ( _video_renderer_interface != nullptr )
+		if ( _video_renderer_interface )
 		{
 			delete _video_renderer_interface;
 			_video_renderer_interface = nullptr;
 		}
 
-		if ( _video_renderer_shader_manager != nullptr )
+		if ( _video_renderer_shader_manager )
 		{
 			delete _video_renderer_shader_manager;
 			_video_renderer_shader_manager = nullptr;
 		}
 
-		if ( _input_manager != nullptr )
+		if ( _input_manager )
 		{
 			delete _input_manager;
 			_input_manager = nullptr;
 		}
 
-		if ( _resource_manager != nullptr )
+		if ( _resource_manager )
 		{
 			delete _resource_manager;
 			_resource_manager = nullptr;
 		}
 
-		if ( _script_manager != nullptr )
+		if ( _script_manager )
 		{
 			delete _script_manager;
 			_script_manager = nullptr;
 		}
 
-		if ( _reflection_manager != nullptr )
+		if ( _reflection_manager )
 		{
 			delete _reflection_manager;
 			_reflection_manager = nullptr;
 		}
 
-		if ( _content_manager != nullptr )
+		if ( _content_manager )
 		{
 			delete _content_manager;
 			_content_manager = nullptr;
 		}
 
-		if ( _video_interface != nullptr )
+		if ( _video_interface )
 		{
 			delete _video_interface;
 			_video_interface = nullptr;
 		}
 
-		if ( _audio_interface != nullptr )
+		if ( _audio_interface )
 		{
 			delete _audio_interface;
 			_audio_interface = nullptr;
 		}
 
-		if ( _window_manager != nullptr )
+		if ( _window_manager )
 		{
 			delete _window_manager;
 			_window_manager = nullptr;
 		}
 
-		if ( _debug_manager != nullptr )
+		if ( _debug_manager )
 		{
 			delete _debug_manager;
 			_debug_manager = nullptr;

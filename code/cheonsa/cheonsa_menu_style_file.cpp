@@ -9,7 +9,7 @@ namespace cheonsa
 
 	void_c menu_style_file_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		data_scribe_markup_c markup( '<' );

@@ -161,7 +161,7 @@ namespace cheonsa
 		// absolute_file_path will hold the result if the function returns true.
 		// search_game_data if true means that the game data folders will be searched. game data folders have higher priority and so are searched before engine data folders.
 		// search_engine_data if true means that the engine data folders will be searched.
-		boolean_c resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path, boolean_c search_game_data, boolean_c search_engine_data );
+		boolean_c resolve_absolute_file_path( string16_c const & relative_file_path, string16_c & absolute_file_path, boolean_c search_engine_data, boolean_c search_game_data );
 
 		// looks up a text string.
 		// key may start with '$', if it does then it will be skipped.

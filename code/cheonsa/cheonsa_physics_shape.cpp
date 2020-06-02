@@ -21,11 +21,6 @@ namespace cheonsa
 		uninitialize();
 	}
 
-	physics_shape_c * physics_shape_c::make_new_instance()
-	{
-		return new physics_shape_c();
-	}
-
 	void_c physics_shape_c::add_reference()
 	{
 		_reference_count++;
@@ -230,7 +225,7 @@ namespace cheonsa
 
 	boolean_c physics_shape_c::get_is_initialized() const
 	{
-		return _bullet_shape != nullptr;
+		return _bullet_shape;
 	}
 
 	transform3d_c const & physics_shape_c::get_frame() const

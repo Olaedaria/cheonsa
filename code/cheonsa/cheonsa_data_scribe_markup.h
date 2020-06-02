@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_string8.h"
@@ -116,7 +116,7 @@ namespace cheonsa
 			sint32_c _depth;
 
 			sint32_c _mother; // the index of the mother node of this node within _node_heap. the mother node will always be a tag type of node.
-			sint32_c _first_daughter; // the index of the first daughter node of this node within _node_heap, or -1 if none. one way to iterate through the daughters, data_scribe_markup_c::node_c const * daughter = this->xml->get_node( this->node_daughter ), then while ( daughter != nullptr ) { daughter = this->xml->get_node( daughter->node_sister_next ); }.
+			sint32_c _first_daughter; // the index of the first daughter node of this node within _node_heap, or -1 if none. one way to iterate through the daughters, data_scribe_markup_c::node_c const * daughter = this->xml->get_node( this->node_daughter ), then while ( daughter ) { daughter = this->xml->get_node( daughter->node_sister_next ); }.
 			sint32_c _daughter_count; // number of daughter nodes.
 			sint32_c _next_sister; // the index of the next sister node of this node in _node_heap, or -1 if none.
 

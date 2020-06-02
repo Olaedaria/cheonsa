@@ -6,7 +6,7 @@ namespace cheonsa
 {
 
 	// shines a light into the scene.
-	// +y axis is the light's forward axis, for spot and directional light types.
+	// +y axis is the light's forward axis for spot and directional light types.
 	class scene_component_light_c
 		: public scene_component_c
 	{
@@ -21,15 +21,12 @@ namespace cheonsa
 		virtual void_c _handle_after_added_to_scene() override;
 		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
-		scene_component_light_c();
-
 	public:
+		scene_component_light_c();
 		virtual ~scene_component_light_c() override;
 
-		static scene_component_light_c * make_new_instance();
-
-		scene_light_c const & get_data() const;
-		scene_light_c & get_data();
+		scene_light_c const & get_scene_light() const;
+		scene_light_c & get_scene_light();
 
 	};
 

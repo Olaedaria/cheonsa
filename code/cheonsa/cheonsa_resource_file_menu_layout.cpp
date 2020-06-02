@@ -5,7 +5,7 @@ namespace cheonsa
 
 	void_c resource_file_menu_layout_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		_is_loaded = _markup.parse( stream );

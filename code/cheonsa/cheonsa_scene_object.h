@@ -44,12 +44,9 @@ namespace cheonsa
 
 		sint32_c _reference_count;
 
-		scene_object_c();
-
 	public:
+		scene_object_c();
 		~scene_object_c(); // deletes all of the components in this scene object.
-
-		static scene_object_c * make_new_instance();
 
 		void_c add_reference();
 		void_c remove_reference();

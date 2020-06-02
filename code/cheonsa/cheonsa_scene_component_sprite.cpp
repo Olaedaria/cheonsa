@@ -42,11 +42,6 @@ namespace cheonsa
 	{
 	}
 
-	scene_component_sprite_c * scene_component_sprite_c::make_new_instance()
-	{
-		return new scene_component_sprite_c();
-	}
-
 	sprite_c & scene_component_sprite_c::get_sprite()
 	{
 		return _sprite;

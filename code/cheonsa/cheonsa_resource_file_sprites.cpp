@@ -64,7 +64,7 @@ namespace cheonsa
 
 	void_c resource_file_sprites_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		data_scribe_markup_c markup( '<' );
@@ -99,7 +99,7 @@ namespace cheonsa
 			attribute = sprite_tag->find_attribute( "texture" );
 			if ( attribute )
 			{
-				sprite->_texture_resource = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+				sprite->_texture_resource = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ), true, true );
 			}
 
 			attribute = sprite_tag->find_attribute( "font_size" );

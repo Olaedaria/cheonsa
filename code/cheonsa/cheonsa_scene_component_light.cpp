@@ -37,19 +37,14 @@ namespace cheonsa
 	{
 	}
 
-	scene_component_light_c * scene_component_light_c::make_new_instance()
+	scene_light_c const & scene_component_light_c::get_scene_light() const
 	{
-		return new scene_component_light_c();
+		return _scene_light; // two layer onion.
 	}
 
-	scene_light_c const & scene_component_light_c::get_data() const
+	scene_light_c & scene_component_light_c::get_scene_light()
 	{
-		return _scene_light;
-	}
-
-	scene_light_c & scene_component_light_c::get_data()
-	{
-		return _scene_light;
+		return _scene_light; // two layer onion.
 	}
 
 }

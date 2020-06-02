@@ -49,9 +49,8 @@ namespace cheonsa
 		// initiator may optionally be set. if it is set, it is the scene component that initiated the change. this lets the initator choose not to respond to the modification if it knows that it was the one that initiated it.
 		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator );
 
-		scene_component_c();
-
 	public:
+		scene_component_c();
 		virtual ~scene_component_c();
 
 		sint32_c add_reference();

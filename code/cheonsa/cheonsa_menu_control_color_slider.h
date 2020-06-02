@@ -31,8 +31,8 @@ namespace cheonsa
 
 	protected:
 		menu_element_mesh_c _element_mesh;
-		menu_element_frame_c _element_slider;
-		menu_element_frame_c _element_border_frame;
+		menu_element_frame_c _element_slider; // name is "slider".
+		menu_element_frame_c _element_border_frame; // name is "border_frame".
 
 		mode_e _mode;
 

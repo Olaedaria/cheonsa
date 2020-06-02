@@ -37,7 +37,7 @@ namespace cheonsa
 
 	void_c scene_component_model_c::add_daughter_model( scene_component_model_c * model )
 	{
-		assert( model != nullptr );
+		assert( model );
 		assert( model->_mother_model == nullptr );
 		model->add_reference();
 		model->_mother_model = this;
@@ -48,7 +48,7 @@ namespace cheonsa
 
 	void_c scene_component_model_c::add_daughter_model_to_attachment_point( scene_component_model_c * model, string8_c const & attachment_point_name )
 	{
-		assert( model != nullptr );
+		assert( model );
 		assert( model->_mother_model == nullptr );
 		model->add_reference();
 		model->_mother_model = this;
@@ -59,7 +59,7 @@ namespace cheonsa
 
 	void_c scene_component_model_c::remove_daughter_model( scene_component_model_c * model )
 	{
-		assert( model != nullptr );
+		assert( model );
 		assert( model->_mother_model == this );
 		_daughter_model_list.remove_value( model );
 		model->_mother_model = nullptr;
@@ -153,7 +153,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _model_resource->get_data().bone_logic_list.get_length(); i++ )
 		{
 			bone_logic_c * bone_logic = _instantiate_new_bone_logic( &_model_resource->get_data().bone_logic_list[ i ] );
-			if ( bone_logic != nullptr )
+			if ( bone_logic )
 			{
 				_bone_logic_list.insert( -1, bone_logic );
 			}
@@ -207,7 +207,7 @@ namespace cheonsa
 				light->_scene_light.set_cone_angle( light->_source_light->cone_angle );
 				light->_scene_light.set_render_enabled( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e_render_enabled ) ) != 0 );
 				light->_scene_light.set_shadow_cast_enabled( ( light->_source_light->flags & static_cast< uint16_c >( resource_file_model_c::light_c::flags_e_shadow_cast_enabled ) ) != 0 );
-				if ( _scene_object != nullptr && _scene_object->get_scene() != nullptr )
+				if ( _scene_object && _scene_object->get_scene() )
 				{
 					_scene_object->get_scene()->add_light( &light->_scene_light );
 				}
@@ -243,12 +243,12 @@ namespace cheonsa
 
 					if ( source_physics_shape->get_physics_shape_type() == physics_shape_type_e_sphere )
 					{
-						physics_shape = physics_shape_c::make_new_instance();
+						physics_shape = new physics_shape_c();
 						physics_shape->initialize_sphere( physics_shape_local_space_transform, source_physics_shape->sphere.radius, source_physics_shape->margin );
 					}
 					else if ( source_physics_shape->get_physics_shape_type() == physics_shape_type_e_box )
 					{
-						physics_shape = physics_shape_c::make_new_instance();
+						physics_shape = new physics_shape_c();
 						physics_shape->initialize_box( physics_shape_local_space_transform, vector64x3_c( source_physics_shape->box.width, source_physics_shape->box.depth, source_physics_shape->box.height ), source_physics_shape->margin );
 					}
 					else if ( source_physics_shape->get_physics_shape_type() == physics_shape_type_e_capsule )
@@ -258,17 +258,17 @@ namespace cheonsa
 						{
 							capsule_segment_length = 0.0f;
 						}
-						physics_shape = physics_shape_c::make_new_instance();
+						physics_shape = new physics_shape_c();
 						physics_shape->initialize_capsule( physics_shape_local_space_transform, source_physics_shape->capsule.radius, capsule_segment_length, source_physics_shape->margin );
 					}
 					else if ( source_physics_shape->get_physics_shape_type() == physics_shape_type_e_cylinder )
 					{
-						physics_shape = physics_shape_c::make_new_instance();
+						physics_shape = new physics_shape_c();
 						physics_shape->initialize_cylinder( physics_shape_local_space_transform, source_physics_shape->cylinder.radius, source_physics_shape->cylinder.height, source_physics_shape->margin );
 					}
 					else if ( source_physics_shape->get_physics_shape_type() == physics_shape_type_e_cone )
 					{
-						physics_shape = physics_shape_c::make_new_instance();
+						physics_shape = new physics_shape_c();
 						physics_shape->initialize_cone( physics_shape_local_space_transform, source_physics_shape->cone.radius, source_physics_shape->cone.height, source_physics_shape->margin );
 					}
 					else if ( source_physics_shape->get_physics_shape_type() == physics_shape_type_e_convex_hull )
@@ -283,7 +283,7 @@ namespace cheonsa
 							vertex_list[ k ].b = source_physics_vertex_list[ k ].position[ 1 ];
 							vertex_list[ k ].c = source_physics_vertex_list[ k ].position[ 2 ];
 						}
-						physics_shape = physics_shape_c::make_new_instance();
+						physics_shape = new physics_shape_c();
 						physics_shape->initialize_convex_hull( physics_shape_local_space_transform, vertex_count, vertex_list.get_internal_array(), source_physics_shape->margin );
 					}
 					else if ( source_physics_shape->get_physics_shape_type() == physics_shape_type_e_triangle_mesh )
@@ -306,17 +306,17 @@ namespace cheonsa
 						{
 							index_list[ k ] = source_physics_index_list[ k ].value;
 						}
-						physics_shape = physics_shape_c::make_new_instance();
+						physics_shape = new physics_shape_c();
 						physics_shape->initialize_triangle_mesh( physics_shape_local_space_transform, vertex_count, vertex_list.get_internal_array(), index_count, index_list.get_internal_array(), source_physics_shape->margin );
 					}
 
-					if ( physics_shape != nullptr )
+					if ( physics_shape )
 					{
 						if ( source_physics_body->mother_bone_name == 0 )
 						{
 							if ( _physics_rigid_body == nullptr )
 							{
-								_physics_rigid_body = physics_rigid_body_c::make_new_instance();
+								_physics_rigid_body = new physics_rigid_body_c();
 								_physics_rigid_body->add_reference();
 								_physics_rigid_body->initialize( this, &scene_component_model_c::_physics_copy_world_space_transform_from_game_to_physics, &scene_component_model_c::_physics_copy_world_space_transform_from_physics_to_game, physics_shape, source_physics_body->mass, false, source_physics_body->get_physics_layer(), source_physics_body->get_physics_layer_mask() );
 								_physics_shape = physics_shape;
@@ -330,7 +330,7 @@ namespace cheonsa
 						{
 							string8_c mother_bone_name = string8_c( core_list_mode_e_static_volatile, &_model_resource->get_data().string_table[ source_physics_body->mother_bone_name ] );
 							bone_c * mother_bone = find_bone_with_name( mother_bone_name, false );
-							if ( mother_bone != nullptr )
+							if ( mother_bone )
 							{
 								if ( mother_bone->_physics_rigid_body == nullptr )
 								{
@@ -365,12 +365,12 @@ namespace cheonsa
 				physics_rigid_body_c * physics_rigid_body_a = physics_rigid_body_list[ source_physics_constraint->body_a_index ];
 				physics_rigid_body_c * physics_rigid_body_b = physics_rigid_body_list[ source_physics_constraint->body_b_index ];
 
-				if ( physics_rigid_body_a != nullptr && physics_rigid_body_b != nullptr )
+				if ( physics_rigid_body_a && physics_rigid_body_b )
 				{
 					transform3d_c frame;
 					frame.position = vector64x3_c( source_physics_constraint->frame_position[ 0 ], source_physics_constraint->frame_position[ 1 ], source_physics_constraint->frame_position[ 2 ] );
 					frame.rotation = quaternion32_c( source_physics_constraint->frame_rotation[ 0 ], source_physics_constraint->frame_rotation[ 1 ], source_physics_constraint->frame_rotation[ 2 ], source_physics_constraint->frame_rotation[ 3 ] );
-					if ( _scene_object != nullptr )
+					if ( _scene_object )
 					{
 						frame = frame * _scene_object->get_world_space_transform();
 					}
@@ -408,7 +408,7 @@ namespace cheonsa
 					{
 					}
 
-					if ( physics_constraint != nullptr )
+					if ( physics_constraint )
 					{
 						physics_constraint->add_reference();
 						_physics_constraint_list.insert_at_end( physics_constraint );
@@ -463,7 +463,7 @@ namespace cheonsa
 		_refresh_animation_map_dictionary();
 
 		// remove and delete physics.
-		if ( _physics_is_added_to_simulation )
+		if ( _physics_added_to_simulation )
 		{
 			_physics_remove_from_simulation();
 		}
@@ -477,17 +477,18 @@ namespace cheonsa
 			bone_c * bone = &_bone_list[ i ];
 			if ( bone->_physics_rigid_body || bone->_physics_shape )
 			{
-				delete bone->_physics_rigid_body;
+				bone->_physics_rigid_body->remove_reference();
 				bone->_physics_rigid_body = nullptr;
-				delete bone->_physics_shape;
+				bone->_physics_shape->remove_reference();
 				bone->_physics_shape = nullptr;
 			}
 		}
-		if ( _physics_rigid_body || _physics_shape )
+		if ( _physics_rigid_body )
 		{
-			delete _physics_rigid_body;
+			assert( _physics_shape );
+			_physics_rigid_body->remove_reference();
 			_physics_rigid_body = nullptr;
-			delete _physics_shape;
+			_physics_shape->remove_reference();
 			_physics_shape = nullptr;
 		}
 
@@ -542,7 +543,7 @@ namespace cheonsa
 		_reset_local_space_obb();
 	}
 
-	resource_file_model_c * scene_component_model_c::get_model_resource()
+	resource_file_model_c * scene_component_model_c::get_model_resource() const
 	{
 		return _model_resource;
 	}
@@ -925,7 +926,7 @@ namespace cheonsa
 		build_object_space_skin_matrix_from_world_space_transform();
 
 		core_linked_list_c< bone_c * >::node_c const * daughter_bone_list_node = _daughter_bone_list.get_first();
-		while ( daughter_bone_list_node != nullptr )
+		while ( daughter_bone_list_node )
 		{
 			daughter_bone_list_node->get_value()->update_transforms_recursive();
 			daughter_bone_list_node = daughter_bone_list_node->get_next();
@@ -981,19 +982,19 @@ namespace cheonsa
 				string8_c bone_name = _model_resource->get_string( _model_resource->get_data().mesh_bone_name_list[ i ].name );
 				bone_c * bone = nullptr;
 				scene_component_model_c * model_component = this;
-				while ( model_component != nullptr )
+				while ( model_component )
 				{
 					if ( model_component->_model_resource_is_bound )
 					{
 						bone = model_component->find_bone_with_name( bone_name, false );
-						if ( bone != nullptr )
+						if ( bone )
 						{
 							break;
 						}
 					}
 					model_component = model_component->_mother_model;
 				}
-				_bone_skin_matrix_list[ i ] = bone != nullptr ? & bone->_object_space_skin_matrix : nullptr;
+				_bone_skin_matrix_list[ i ] = bone ? & bone->_object_space_skin_matrix : nullptr;
 			}
 		}
 
@@ -1009,9 +1010,9 @@ namespace cheonsa
 		ops::string8_split_at_delimiter( path, string8_c( core_list_mode_e_static, "/" ), path_nodes );
 		core_linked_list_c< bone_c * >::node_c const * bone_list_node = _root_bone_list.get_first();
 		sint32_c i = 0;
-		while ( bone_list_node != nullptr && i < path_nodes.get_length() )
+		while ( bone_list_node && i < path_nodes.get_length() )
 		{
-			while ( bone_list_node != nullptr )
+			while ( bone_list_node )
 			{
 				if ( path_nodes[ i ] == _model_resource->get_string( bone_list_node->get_value()->_source_bone->name ) )
 				{
@@ -1031,9 +1032,9 @@ namespace cheonsa
 
 	scene_component_model_c::bone_c * scene_component_model_c::find_bone_with_name( string8_c const & name, boolean_c search_mother_first )
 	{
-		assert( _model_resource != nullptr && _model_resource_is_bound );
+		assert( _model_resource && _model_resource_is_bound );
 
-		if ( search_mother_first && _mother_model != nullptr && _mother_model->get_model_resource_is_bound() )
+		if ( search_mother_first && _mother_model && _mother_model->get_model_resource_is_bound() )
 		{
 			bone_c * bone = _mother_model->find_bone_with_name( name, false );
 			if ( bone )
@@ -1089,7 +1090,7 @@ namespace cheonsa
 
 	sint32_c scene_component_model_c::find_bone_index_with_name( string8_c const & name )
 	{
-		assert( _model_resource != nullptr );
+		assert( _model_resource );
 		for ( sint32_c i = 0; i < _bone_list.get_length(); i++ )
 		{
 			bone_c * bone = &_bone_list[ i ];
@@ -1267,7 +1268,7 @@ namespace cheonsa
 	{
 		_is_ready = false;
 		_this_bone = _mother_model->find_bone_with_name( _this_bone_name, false );
-		if ( _this_bone != nullptr )
+		if ( _this_bone )
 		{
 			_head_particle.position = _this_bone->_world_space_transform.position;
 			_tail_particle.position = _this_bone->_world_space_transform.position + ( _this_bone->_world_space_transform.get_scaled_basis_z() * _this_bone->_source_bone_extras->length );
@@ -1354,7 +1355,7 @@ namespace cheonsa
 
 	scene_component_model_c::attachment_point_c * scene_component_model_c::find_attachment_point( string8_c const & name )
 	{
-		assert( _model_resource != nullptr );
+		assert( _model_resource );
 		for ( sint32_c i = 0; i < _attachment_point_list.get_length(); i++ )
 		{
 			attachment_point_c * attachment_point = &_attachment_point_list[ i ];
@@ -1448,14 +1449,14 @@ namespace cheonsa
 		assert( _model_resource_is_bound );
 		if ( _bone_skin_matrix_list.get_length() > 0 )
 		{
-			assert( _gpu_vertex_buffer_mesh_base_shape_and_bone_transformed != nullptr );
+			assert( _gpu_vertex_buffer_mesh_base_shape_and_bone_transformed );
 			return _gpu_vertex_buffer_mesh_base_shape_and_bone_transformed;
 		}
 		else
 		{
-			assert( _model_resource != nullptr );
+			assert( _model_resource );
 			assert( _model_resource->get_is_loaded() );
-			assert( _model_resource->get_data()._gpu_vertex_buffer_mesh_base != nullptr );
+			assert( _model_resource->get_data()._gpu_vertex_buffer_mesh_base );
 			return _model_resource->get_data()._gpu_vertex_buffer_mesh_base;
 		}
 	}
@@ -1492,11 +1493,11 @@ namespace cheonsa
 
 	void_c scene_component_model_c::_physics_add_to_simulation()
 	{
-		assert( _physics_is_added_to_simulation == false );
+		assert( _physics_added_to_simulation == false );
 		assert( _scene_object );
 		assert( _scene_object->get_scene() );
 
-		_physics_is_added_to_simulation = true;
+		_physics_added_to_simulation = true;
 		physics_scene_c * physics_scene = _scene_object->get_scene()->get_physics_scene();
 		if ( _physics_rigid_body && _physics_shape )
 		{
@@ -1520,11 +1521,11 @@ namespace cheonsa
 
 	void_c scene_component_model_c::_physics_remove_from_simulation()
 	{
-		assert( _physics_is_added_to_simulation );
+		assert( _physics_added_to_simulation );
 		assert( _scene_object );
 		assert( _scene_object->get_scene() );
 
-		_physics_is_added_to_simulation = false;
+		_physics_added_to_simulation = false;
 		physics_scene_c * physics_scene = _scene_object->get_scene()->get_physics_scene();
 		for ( sint32_c i = 0; i < _physics_constraint_list.get_length(); i++ )
 		{
@@ -1538,8 +1539,9 @@ namespace cheonsa
 				physics_scene->remove_rigid_body( bone->_physics_rigid_body );
 			}
 		}
-		if ( _physics_rigid_body && _physics_shape )
+		if ( _physics_rigid_body )
 		{
+			assert( _physics_shape );
 			physics_scene->remove_rigid_body( _physics_rigid_body );
 		}
 	}
@@ -1560,21 +1562,21 @@ namespace cheonsa
 		instance->get_scene_object()->set_world_space_transform( transform );
 	}
 
-	boolean_c scene_component_model_c::get_physics_enable() const
+	boolean_c scene_component_model_c::get_physics_enabled() const
 	{
-		return _physics_is_enabled;
+		return _physics_enabled;
 	}
 
-	void_c scene_component_model_c::set_physics_enable( boolean_c value )
+	void_c scene_component_model_c::set_physics_enabled( boolean_c value )
 	{
-		_physics_is_enabled = value;
+		_physics_enabled = value;
 		if ( _scene_object && _scene_object->get_scene() )
 		{
-			if ( _physics_is_enabled && !_physics_is_added_to_simulation )
+			if ( _physics_enabled && !_physics_added_to_simulation )
 			{
 				_physics_add_to_simulation();
 			}
-			else if ( !_physics_is_enabled && _physics_is_added_to_simulation )
+			else if ( !_physics_enabled && _physics_added_to_simulation )
 			{
 				_physics_remove_from_simulation();
 			}
@@ -1814,7 +1816,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _mesh_list.get_length(); i++ )
 		{
 			mesh_c * mesh = &_mesh_list[ i ];
-			if ( mesh->_custom_material_assignment != nullptr )
+			if ( mesh->_custom_material_assignment )
 			{
 				mesh->_custom_material_assignment->remove_reference();
 				mesh->_custom_material_assignment = nullptr;
@@ -1839,7 +1841,7 @@ namespace cheonsa
 				for ( sint32_c k = 0; k < mesh_list.get_length(); k++ )
 				{
 					mesh_c * mesh = &_mesh_list[ k ];
-					if ( mesh->_custom_material_assignment != nullptr )
+					if ( mesh->_custom_material_assignment )
 					{
 						mesh->_custom_material_assignment->remove_reference();
 					}
@@ -2106,7 +2108,7 @@ namespace cheonsa
 		{
 			rest_pose_animation_c const * rest_pose_animation = _rest_pose_animation_list[ i ];
 			animation_map_c * animation_map = _mother_model->_animation_map_dictionary.find_value_pointer( rest_pose_animation->get_animation_name() );
-			if ( animation_map != nullptr )
+			if ( animation_map )
 			{
 				resource_file_model_c const * source_model = animation_map->source_model;
 				resource_file_model_c::animation_c const * source_animation = animation_map->source_animation;
@@ -2115,7 +2117,7 @@ namespace cheonsa
 				{
 					resource_file_model_c::animation_object_c const * animation_object = &_model_resource->get_data().animation_object_list[ j ];
 					bone_c * bone = find_bone_with_name( _model_resource->get_string( animation_object->name ), false );
-					if ( bone != nullptr )
+					if ( bone )
 					{
 						vector32x3_c sampled_position;
 						quaternion32_c sampled_rotation;
@@ -2194,7 +2196,7 @@ namespace cheonsa
 
 		// acquire new animation.
 		animation_map_c * animation_map = _mother_model->_animation_map_dictionary.find_value_pointer( _animation_name );
-		if ( animation_map != nullptr )
+		if ( animation_map )
 		{
 			_source_model = animation_map->source_model;
 			_source_animation = animation_map->source_animation;
@@ -2278,7 +2280,7 @@ namespace cheonsa
 		//, _time_from_other( nullptr )
 		, _reference_count( 0 )
 	{
-		assert( _mother_model != nullptr );
+		assert( _mother_model );
 		_mother_model->_on_animation_resources_updated.subscribe( this, &animation_player_c::_handle_on_animation_resources_updated );
 	}
 
@@ -2304,7 +2306,7 @@ namespace cheonsa
 
 	void_c scene_component_model_c::animation_player_c::update( float32_c time_step )
 	{
-		assert( _source_animation != nullptr );
+		assert( _source_animation );
 
 		if ( _blend_weight == 0.0f )
 		{
@@ -2414,7 +2416,7 @@ namespace cheonsa
 	{
 		_loop_count_current = 0;
 		_loop_count_target = loop_count;
-		if ( _source_animation != nullptr )
+		if ( _source_animation )
 		{
 			set_time( _source_animation->time_in );
 		}
@@ -2485,7 +2487,7 @@ namespace cheonsa
 	{
 		//_time_from_other = nullptr;
 		_time_to_bind_type = time_to_bind_type_e_seconds;
-		if ( _source_animation != nullptr )
+		if ( _source_animation )
 		{
 			_time = value;
 			for ( sint32_c object_player_index = 0; object_player_index < _object_player_list.get_length(); object_player_index++ )
@@ -2524,7 +2526,7 @@ namespace cheonsa
 	{
 		//_time_from_other = nullptr;
 		_time_to_bind_type = time_to_bind_type_e_percent;
-		if ( _source_animation != nullptr )
+		if ( _source_animation )
 		{
 			set_time( value * ( _source_animation->time_out - _source_animation->time_in ) + _source_animation->time_in );
 		}
@@ -2569,7 +2571,7 @@ namespace cheonsa
 	boolean_c scene_component_model_c::animation_player_c::sample_position( sint32_c object_player_index, vector32x3_c & result )
 	{
 		object_player_c & object_player = _object_player_list[ object_player_index ];
-		if ( object_player.property_player_for_position != nullptr )
+		if ( object_player.property_player_for_position )
 		{
 			vector32x4_c intermediate_result;
 			sample_property_player( object_player.property_player_for_position, intermediate_result );
@@ -2584,7 +2586,7 @@ namespace cheonsa
 	boolean_c scene_component_model_c::animation_player_c::sample_rotation( sint32_c object_player_index, quaternion32_c & result )
 	{
 		object_player_c & object_player = _object_player_list[ object_player_index ];
-		if ( object_player.property_player_for_rotation != nullptr )
+		if ( object_player.property_player_for_rotation )
 		{
 			vector32x4_c intermediate_result;
 			sample_property_player( object_player.property_player_for_rotation, intermediate_result );
@@ -2601,7 +2603,7 @@ namespace cheonsa
 	boolean_c scene_component_model_c::animation_player_c::sample_scale( sint32_c object_player_index, vector32x3_c & result )
 	{
 		object_player_c & object_player = _object_player_list[ object_player_index ];
-		if ( object_player.property_player_for_scale != nullptr )
+		if ( object_player.property_player_for_scale )
 		{
 			vector32x4_c intermediate_result;
 			sample_property_player( object_player.property_player_for_scale, intermediate_result );
@@ -2710,7 +2712,7 @@ namespace cheonsa
 			if ( _local_light_probe_enabled )
 			{
 				assert( _local_light_probe_component == nullptr );
-				_local_light_probe_component = scene_component_light_probe_c::make_new_instance();
+				_local_light_probe_component = new scene_component_light_probe_c();
 				_local_light_probe_component->set_local_model( this );
 				_scene_object->add_component( _local_light_probe_component );
 			}
@@ -2734,7 +2736,7 @@ namespace cheonsa
 	{
 		// update world space transforms of bones from animated local space properties.
 		core_linked_list_c< bone_c * >::node_c const * root_bone_list_node = _root_bone_list.get_first();
-		while ( root_bone_list_node != nullptr )
+		while ( root_bone_list_node )
 		{
 			root_bone_list_node->get_value()->update_transforms_recursive();
 			root_bone_list_node = root_bone_list_node->get_next();
@@ -2830,8 +2832,8 @@ namespace cheonsa
 		, _physics_rigid_body( nullptr )
 		, _physics_shape( nullptr )
 		, _physics_constraint_list()
-		, _physics_is_enabled( true )
-		, _physics_is_added_to_simulation( false ) 
+		, _physics_enabled( true )
+		, _physics_added_to_simulation( false ) 
 		, _custom_object_colors_enabled( false )
 		, _custom_object_colors()
 		, _custom_object_textures_enabled( false )
@@ -2869,11 +2871,6 @@ namespace cheonsa
 		set_materials_resource( nullptr ); // releases reference and unsubscribes from events.
 
 		set_model_resource( nullptr ); // releases reference and unsubscribes from events. also removes physics objects from physics simulation scene, and deletes them.
-	}
-
-	scene_component_model_c * scene_component_model_c::make_new_instance()
-	{
-		return new scene_component_model_c();
 	}
 
 	void_c scene_component_model_c::update_animations( float32_c time_step )

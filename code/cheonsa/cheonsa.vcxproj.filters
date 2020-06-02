@@ -502,8 +502,6 @@
     <ClInclude Include="cheonsa_scene_object.h" />
     <ClInclude Include="cheonsa_resource_file_materials.h" />
     <ClInclude Include="cheonsa_sprite.h" />
-    <ClInclude Include="cheonsa_scene_component_ridgid_body.h" />
-    <ClInclude Include="cheonsa_physics_ridgid_body.h" />
     <ClInclude Include="cheonsa_physics_collision_object.h" />
     <ClInclude Include="cheonsa_scene_component_collision_object.h" />
     <ClInclude Include="cheonsa_audio_interface.h" />
@@ -555,6 +553,8 @@
     <ClInclude Include="cheonsa__types__fundamental.h" />
     <ClInclude Include="cheonsa__types.h" />
     <ClInclude Include="cheonsa__ops.h" />
+    <ClInclude Include="cheonsa_physics_rigid_body.h" />
+    <ClInclude Include="cheonsa_scene_component_rigid_body.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -674,8 +674,6 @@
     <ClCompile Include="cheonsa_menu_control_window_text_editor.cpp" />
     <ClCompile Include="cheonsa_scene_object.cpp" />
     <ClCompile Include="cheonsa_resource_file_materials.cpp" />
-    <ClCompile Include="cheonsa_scene_component_ridgid_body.cpp" />
-    <ClCompile Include="cheonsa_physics_ridgid_body.cpp" />
     <ClCompile Include="cheonsa_physics_collision_object.cpp" />
     <ClCompile Include="cheonsa_scene_component_collision_object.cpp" />
     <ClCompile Include="cheonsa_video_interface.cpp" />
@@ -715,14 +713,11 @@
     <ClCompile Include="cheonsa__types_box64x2.cpp" />
     <ClCompile Include="cheonsa__types_box32x3.cpp" />
     <ClCompile Include="cheonsa__types_box64x3.cpp" />
-    <ClCompile Include="cheonsa__types_circle64.cpp" />
-    <ClCompile Include="cheonsa__types_sphere64.cpp" />
-    <ClCompile Include="cheonsa__types_ray64.cpp" />
-    <ClCompile Include="cheonsa__types_segment64.cpp" />
-    <ClCompile Include="cheonsa__types_capsule64.cpp" />
     <ClCompile Include="cheonsa__types_polygon32x2.cpp" />
     <ClCompile Include="cheonsa__types_triangle64.cpp" />
     <ClCompile Include="cheonsa__types_transform3d.cpp" />
     <ClCompile Include="cheonsa__types_transform3d_simple.cpp" />
+    <ClCompile Include="cheonsa_physics_rigid_body.cpp" />
+    <ClCompile Include="cheonsa_scene_component_rigid_body.cpp" />
   </ItemGroup>
 </Project>

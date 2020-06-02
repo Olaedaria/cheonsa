@@ -114,7 +114,7 @@ namespace cheonsa
 	{
 		_audio_scene->get_scene_listener().set_world_space_transform( _scene_camera.get_world_space_transform() );
 		core_linked_list_c< scene_component_sound_c * >::node_c const * sound_list_node = _sound_list.get_first();
-		while ( sound_list_node != nullptr )
+		while ( sound_list_node )
 		{
 			scene_component_sound_c * sound = sound_list_node->get_value();
 			sound_list_node = sound_list_node->get_next();

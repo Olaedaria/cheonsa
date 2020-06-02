@@ -14,9 +14,9 @@ namespace cheonsa
 	{
 		if ( _is_deep_text_focused != 0 )
 		{
-			if ( _user_interface != nullptr )
+			if ( _mother_user_interface )
 			{
-				_user_interface->bring_control_to_front( this );
+				_mother_user_interface->bring_daughter_control_to_front( this );
 			}
 		}
 		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
@@ -218,12 +218,12 @@ namespace cheonsa
 
 	void_c menu_control_window_c::update_animations( float32_c time_step )
 	{
-		assert( _user_interface );
+		assert( _mother_user_interface );
 
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_selected = is_ascendant_of( _user_interface->get_mouse_overed() ) || get_is_deep_text_focused();
+		boolean_c is_selected = is_ascendant_of( _mother_user_interface->get_mouse_overed() ) || get_is_deep_text_focused();
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];
@@ -239,27 +239,27 @@ namespace cheonsa
 	void_c menu_control_window_c::constrain_transform()
 	{
 		// constrain window title bar to stay in bounds of user interface.
-		if ( _user_interface != nullptr )
+		if ( _mother_user_interface )
 		{
-			float32_c cap_bottom = _user_interface->get_local_box().maximum.b - engine.get_window_manager()->get_window_edge_thickness() - _top_bar_size;
+			float32_c cap_bottom = _mother_user_interface->get_local_box().maximum.b - engine.get_window_manager()->get_window_edge_thickness() - _top_bar_size;
 			if ( _local_origin.b > cap_bottom )
 			{
 				_local_origin.b = cap_bottom;
 			}
 
-			float32_c cap_top = _user_interface->get_local_box().minimum.b + engine.get_window_manager()->get_window_edge_thickness() + engine.get_window_manager()->get_window_edge_thickness();
+			float32_c cap_top = _mother_user_interface->get_local_box().minimum.b + engine.get_window_manager()->get_window_edge_thickness() + engine.get_window_manager()->get_window_edge_thickness();
 			if ( _local_origin.b < cap_top )
 			{
 				_local_origin.b = cap_top;
 			}
 
-			float32_c cap_left = _user_interface->get_local_box().minimum.a + engine.get_window_manager()->get_window_edge_thickness() - _local_box.maximum.a + 60.0f;
+			float32_c cap_left = _mother_user_interface->get_local_box().minimum.a + engine.get_window_manager()->get_window_edge_thickness() - _local_box.maximum.a + 60.0f;
 			if ( _local_origin.a < cap_left )
 			{
 				_local_origin.a = cap_left;
 			}
 
-			float32_c cap_right = _user_interface->get_local_box().maximum.a - engine.get_window_manager()->get_window_edge_thickness() - 60.0f;
+			float32_c cap_right = _mother_user_interface->get_local_box().maximum.a - engine.get_window_manager()->get_window_edge_thickness() - 60.0f;
 			if ( _local_origin.a > cap_right )
 			{
 				_local_origin.a = cap_right;
@@ -431,10 +431,10 @@ namespace cheonsa
 
 	void_c menu_control_window_c::center()
 	{
-		if ( _user_interface )
+		if ( _mother_user_interface )
 		{
-			_local_origin.a = ops::math_round_down( _user_interface->get_local_box().get_width() * 0.5f - ( _local_box.get_width() * 0.5f ) );
-			_local_origin.b = ops::math_round_down( _user_interface->get_local_box().get_height() * 0.5f - ( _local_box.get_height() * 0.5f ) );
+			_local_origin.a = ops::math_round_down( _mother_user_interface->get_local_box().get_width() * 0.5f - ( _local_box.get_width() * 0.5f ) );
+			_local_origin.b = ops::math_round_down( _mother_user_interface->get_local_box().get_height() * 0.5f - ( _local_box.get_height() * 0.5f ) );
 			_update_transform_and_layout();
 		}
 	}
@@ -452,7 +452,7 @@ namespace cheonsa
 	void_c menu_control_window_c::hide_dialog()
 	{
 		set_is_showed( false );
-		if ( _modal_screen != nullptr )
+		if ( _modal_screen )
 		{
 			_modal_screen->set_is_showed( false, true );
 			_modal_screen = nullptr;

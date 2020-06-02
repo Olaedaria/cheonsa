@@ -6,7 +6,7 @@ namespace cheonsa
 
 	void_c resource_file_texture_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		static uint8_c png_file_signature[ 8 ] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
@@ -66,7 +66,7 @@ namespace cheonsa
 			return;
 		}
 
-		assert( _video_texture != nullptr );
+		assert( _video_texture );
 
 		_is_loaded = true;
 
@@ -117,7 +117,7 @@ namespace cheonsa
 	{
 		assert( _is_wrapper );
 		_video_texture = video_texture;
-		_is_loaded = _video_texture != nullptr;
+		_is_loaded = _video_texture;
 	}
 
 	boolean_c resource_file_texture_c::create_video_texture_from_image(
@@ -242,7 +242,7 @@ namespace cheonsa
 			video_texture_data_size = 0;
 		}
 
-		return video_texture != nullptr;
+		return video_texture;
 	}
 
 	boolean_c resource_file_texture_c::get_image_from_video_texture(
@@ -250,7 +250,7 @@ namespace cheonsa
 		image_c & image
 	)
 	{
-		assert( video_texture != nullptr );
+		assert( video_texture );
 		if ( image.get_channel_count() != 0 || image.get_channel_bit_depth() != 0 )
 		{
 			assert( image.get_channel_count() >= 1 && image.get_channel_count() <= 4 );

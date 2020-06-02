@@ -939,7 +939,7 @@ namespace cheonsa
 
 	void_c glyph_manager_c::glyph_atlas_c::copy_sub_image( glyph_atlas_c * from, sint32_c from_left, sint32_c from_top, glyph_atlas_c * to, sint32_c to_left, sint32_c to_top, sint32_c width, sint32_c height )
 	{
-		assert( from != nullptr && to != nullptr );
+		assert( from && to );
 		//assert( from->_texture_width == to->_texture_width && from->_texture_height == to->_texture_height );
 		assert( from_left >= 0 && from_left + width <= glyph_manager_c::glyph_atlas_width && from_top >= 0 && from_top + height <= glyph_manager_c::glyph_atlas_height );
 		assert( to_left >= 0 && to_left + width <= glyph_manager_c::glyph_atlas_width && to_top >= 0 && to_top + height <= glyph_manager_c::glyph_atlas_height );
@@ -1565,7 +1565,7 @@ namespace cheonsa
 				image_png_chunk_c * chunk = chunk_list[ j ];
 				if ( ops::memory_compare( chunk->get_type(), glyph_list_signature, 4 ) )
 				{
-					if ( i != 0 || glyph_list_chunk != nullptr )
+					if ( i != 0 || glyph_list_chunk )
 					{
 						goto cancel;
 					}
@@ -1628,7 +1628,7 @@ namespace cheonsa
 				}
 				else if ( ops::memory_compare( chunk->get_type(), row_list_signature, 4 ) )
 				{
-					if ( row_list_chunk != nullptr )
+					if ( row_list_chunk )
 					{
 						goto cancel;
 					}

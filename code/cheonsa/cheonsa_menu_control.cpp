@@ -19,15 +19,15 @@ namespace cheonsa
 			for ( sint32_c j = 0; j < daughter_element_list.get_length(); j++ )
 			{
 				menu_element_c * daughter_element = daughter_element_list[ j ];
-				if ( entry->get_style_key() == "" )
-				{
-					daughter_element->_is_showed_from_style = false;
-					daughter_element->set_style_key( string8_c() );
-				}
-				else
+				if ( entry->get_style_key().is_set() )
 				{
 					daughter_element->_is_showed_from_style = true;
 					daughter_element->set_style_key( entry->get_style_key() );
+				}
+				else
+				{
+					daughter_element->_is_showed_from_style = false;
+					daughter_element->set_style_key( string8_c() );
 				}
 			}
 		}
@@ -42,13 +42,13 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_c::_set_user_interface_recursive( user_interface_c * value )
+	void_c menu_control_c::_set_mother_user_interface_recursive( user_interface_c * value )
 	{
-		_user_interface = value;
+		_mother_user_interface = value;
 		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
 		while ( daughter_control_list_node )
 		{
-			daughter_control_list_node->get_value()->_set_user_interface_recursive( value );
+			daughter_control_list_node->get_value()->_set_mother_user_interface_recursive( value );
 			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 	}
@@ -103,7 +103,7 @@ namespace cheonsa
 
 	void_c menu_control_c::_remove_daughter_element( menu_element_c * element )
 	{
-		assert( element != nullptr );
+		assert( element );
 		assert( element->_mother_control == this );
 
 		_daughter_element_list.remove_value( element );
@@ -126,7 +126,7 @@ namespace cheonsa
 	void_c menu_control_c::_update_global_space_properties()
 	{
 		// update _global_origin and _global_basis and _global_basis_inverted.
-		if ( _mother_control != nullptr )
+		if ( _mother_control )
 		{
 			_global_origin = ops::rotate_and_scale_vector32x2( _local_origin + _mother_control->_content_offset, _mother_control->_global_basis ) + _mother_control->_global_origin;
 			_global_basis = _mother_control->_global_basis * _local_basis;
@@ -143,7 +143,7 @@ namespace cheonsa
 
 	void_c menu_control_c::_handle_menu_layout_resource_on_loaded( resource_file_c * resource_file )
 	{
-		assert( resource_file != nullptr );
+		assert( resource_file );
 		assert( resource_file->get_is_loaded() );
 		assert( _menu_layout_resource == resource_file );
 		load_static_data_properties_recursive( _menu_layout_resource->get_markup().get_node( 1 ) );
@@ -151,7 +151,7 @@ namespace cheonsa
 
 	void_c menu_control_c::_handle_menu_layout_resource_on_unloaded( resource_file_c * resource_file )
 	{
-		assert( resource_file != nullptr );
+		assert( resource_file );
 		assert( resource_file->get_is_loaded() );
 		load_static_data_properties_recursive( nullptr );
 	}
@@ -203,7 +203,7 @@ namespace cheonsa
 	{
 		if ( _is_enabled )
 		{
-			get_user_interface()->reset_multi_click_detection();
+			get_mother_user_interface()->reset_multi_click_detection();
 			on_clicked.invoke( menu_event_information_c( this, input_event ) );
 		}
 	}
@@ -222,7 +222,7 @@ namespace cheonsa
 
 	void_c menu_control_c::_update_transform_and_layout()
 	{
-		if ( _user_interface == nullptr )
+		if ( _mother_user_interface == nullptr )
 		{
 			return;
 		}
@@ -233,7 +233,7 @@ namespace cheonsa
 		// layout _local_box.
 		if ( _layout_mode == menu_layout_mode_e_box_anchor )
 		{
-			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : _user_interface->get_local_box();
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : _mother_user_interface->get_local_box();
 			if ( ( _local_anchor & menu_anchor_e_left ) && ( _local_anchor & menu_anchor_e_right ) )
 			{
 				// anchor left and right edges.
@@ -299,7 +299,7 @@ namespace cheonsa
 		}
 		else if ( _layout_mode == menu_layout_mode_e_point_anchor )
 		{
-			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : _user_interface->get_local_box();
+			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : _mother_user_interface->get_local_box();
 			_local_origin = vector32x2_c();
 			if ( _local_anchor & menu_anchor_e_left )
 			{
@@ -350,7 +350,7 @@ namespace cheonsa
 	menu_control_c::menu_control_c( string8_c const & name )
 		: _global_list_node( this )
 		, _name( name )
-		, _user_interface( nullptr )
+		, _mother_user_interface( nullptr )
 		, _mother_control( nullptr )
 		, _daughter_control_list()
 		, _daughter_control_list_node( this )
@@ -410,7 +410,7 @@ namespace cheonsa
 
 		_global_list.remove( &_global_list_node );
 
-		if ( _control_group_texture != nullptr )
+		if ( _control_group_texture )
 		{
 			_control_group_texture_wrapper.set_video_texture( nullptr );
 			delete _control_group_texture;
@@ -443,12 +443,12 @@ namespace cheonsa
 
 	void_c menu_control_c::update_animations( float32_c time_step )
 	{
-		assert( _user_interface );
+		assert( _mother_user_interface );
 
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_descendant_mouse_focused = is_ascendant_of( _user_interface->get_mouse_overed() );
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];
@@ -485,7 +485,7 @@ namespace cheonsa
 				if ( type_attribute && name_attribute )
 				{
 					menu_control_c * daughter_control = find_daughter_control( name_attribute->get_value(), type_attribute->get_value() );
-					if ( daughter_control != nullptr )
+					if ( daughter_control )
 					{
 						daughter_control->load_static_data_properties_recursive( sub_node );
 					}
@@ -633,7 +633,7 @@ namespace cheonsa
 		while ( daughter_control_list_node )
 		{
 			menu_control_c * pick_control = daughter_control_list_node->get_value()->pick_control_with_global_point( global_point, layer );
-			if ( pick_control != nullptr )
+			if ( pick_control )
 			{
 				best_pick_control = pick_control;
 			}
@@ -641,7 +641,7 @@ namespace cheonsa
 		}
 
 		// return daughter if we found one.
-		if ( best_pick_control != nullptr )
+		if ( best_pick_control )
 		{
 			return best_pick_control;
 		}
@@ -713,14 +713,9 @@ namespace cheonsa
 		return _index;
 	}
 
-	//user_interface_c * menu_control_c::get_user_interface_root()
-	//{
-	//	return get_root_mother_control()->_user_interface;
-	//}
-
-	user_interface_c * menu_control_c::get_user_interface() const
+	user_interface_c * menu_control_c::get_mother_user_interface() const
 	{
-		return _user_interface;
+		return _mother_user_interface;
 	}
 
 	menu_control_c * menu_control_c::get_root_mother_control()
@@ -747,7 +742,7 @@ namespace cheonsa
 	{
 		assert( control );
 		assert( control != this );
-		assert( control->_user_interface == nullptr );
+		assert( control->_mother_user_interface == nullptr );
 		assert( control->_mother_control == nullptr );
 		assert( control->_index == -1 );
 		assert( index >= -1 && index <= _daughter_control_list.get_length() );
@@ -756,12 +751,12 @@ namespace cheonsa
 		control->add_reference();
 		control->_mother_control = this;
 		control->_index = index < 0 ? _daughter_control_list.get_length() : index;
-		control->_set_user_interface_recursive( _user_interface );
+		control->_set_mother_user_interface_recursive( _mother_user_interface );
 		_daughter_control_list.insert_at_index( &control->_daughter_control_list_node, control->_index );
 
 		// reindex controls after insertion point.
-		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
 		sint32_c reindex_index = control->_index + 1;
+		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
 		while ( reindex_node )
 		{
 			reindex_node->get_value()->_index = reindex_index;
@@ -788,7 +783,7 @@ namespace cheonsa
 		// update layout.
 		//_content_bounds_is_dirty = true;
 		control->_update_transform_and_layout();
-		if ( _user_interface )
+		if ( _mother_user_interface )
 		{
 			control->_handle_after_added_to_user_interface();
 		}
@@ -796,19 +791,19 @@ namespace cheonsa
 
 	void_c menu_control_c::remove_daughter_control( menu_control_c * control )
 	{
-		assert( control->_user_interface == _user_interface );
+		assert( control->_mother_user_interface == _mother_user_interface );
 		assert( control->_mother_control == this );
 
 		// suspend control from user interface.
-		if ( _user_interface )
+		if ( _mother_user_interface )
 		{
 			control->_handle_before_removed_from_user_interface();
-			_user_interface->_suspend_control( control );
+			_mother_user_interface->_suspend_control( control );
 		}
 
 		// reindex controls after removal point.
-		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
 		sint32_c reindex_index = control->_index;
+		core_linked_list_c< menu_control_c * >::node_c const * reindex_node = control->_daughter_control_list_node.get_next();
 		while ( reindex_node )
 		{
 			reindex_node->get_value()->_index = reindex_index;
@@ -819,7 +814,7 @@ namespace cheonsa
 		// update relationships and remove control from list.
 		control->_mother_control = nullptr;
 		control->_index = -1;
-		control->_set_user_interface_recursive( nullptr );
+		control->_set_mother_user_interface_recursive( nullptr );
 		_daughter_control_list.remove( &control->_daughter_control_list_node );
 		control->remove_reference();
 	}
@@ -829,13 +824,13 @@ namespace cheonsa
 		while ( core_linked_list_c< menu_control_c * >::node_c * daughter_control_list_node = _daughter_control_list.get_first() )
 		{
 			menu_control_c * daughter_control = daughter_control_list_node->get_value();
-			if ( _user_interface )
+			if ( _mother_user_interface )
 			{
-				_user_interface->_suspend_control( daughter_control );
+				_mother_user_interface->_suspend_control( daughter_control );
 			}
 			daughter_control->_mother_control = nullptr;
 			daughter_control->_index = -1;
-			daughter_control->_set_user_interface_recursive( nullptr );
+			daughter_control->_set_mother_user_interface_recursive( nullptr );
 			_daughter_control_list.remove( daughter_control_list_node );
 			daughter_control->remove_reference();
 		}
@@ -859,7 +854,7 @@ namespace cheonsa
 
 	boolean_c menu_control_c::is_ascendant_of( menu_control_c * control )
 	{
-		while ( control != nullptr )
+		while ( control )
 		{
 			if ( control == this )
 			{
@@ -873,7 +868,7 @@ namespace cheonsa
 	menu_layer_e menu_control_c::get_expressed_layer()
 	{
 		menu_control_c * control = this;
-		while ( control != nullptr )
+		while ( control )
 		{
 			if ( control->_layer != menu_layer_e_undefined )
 			{
@@ -927,9 +922,9 @@ namespace cheonsa
 				_is_showed = false;
 				_wants_to_be_deleted = and_wants_to_be_deleted;
 				_on_is_showed_changed();
-				if ( _user_interface )
+				if ( _mother_user_interface )
 				{
-					_user_interface->_suspend_control( this );
+					_mother_user_interface->_suspend_control( this );
 				}
 			}
 		}
@@ -950,9 +945,9 @@ namespace cheonsa
 			_is_showed_weight = 0.0f;
 			_wants_to_be_deleted = false;
 			_on_is_showed_changed();
-			if ( _user_interface )
+			if ( _mother_user_interface )
 			{
-				_user_interface->_suspend_control( this );
+				_mother_user_interface->_suspend_control( this );
 			}
 		}
 	}
@@ -968,9 +963,9 @@ namespace cheonsa
 		_on_is_enabled_changed();
 		if ( value == false )
 		{
-			if ( _user_interface )
+			if ( _mother_user_interface )
 			{
-				_user_interface->_suspend_control( this );
+				_mother_user_interface->_suspend_control( this );
 			}
 		}
 	}
@@ -1194,9 +1189,9 @@ namespace cheonsa
 
 	void_c menu_control_c::bring_to_front()
 	{
-		if ( _user_interface )
+		if ( _mother_user_interface )
 		{
-			_user_interface->bring_control_to_front( this );
+			_mother_user_interface->bring_daughter_control_to_front( this );
 		}
 		else if ( _mother_control )
 		{
@@ -1215,9 +1210,9 @@ namespace cheonsa
 
 	void_c menu_control_c::give_text_focus()
 	{
-		if ( _user_interface )
+		if ( _mother_user_interface )
 		{
-			_user_interface->set_text_focused( this );
+			_mother_user_interface->set_text_focused( this );
 		}
 	}
 
@@ -1287,7 +1282,7 @@ namespace cheonsa
 	void_c menu_control_c::get_control_group_clip_planes( core_list_c< vector32x4_c > & result )
 	{
 		menu_control_c * control = this;
-		while ( control != nullptr && !control->_control_group_is_root )
+		while ( control && !control->_control_group_is_root )
 		{
 			matrix32x2x2_c control_group_basis = control->get_control_group_basis();
 			vector32x2_c control_group_origin = control->get_control_group_origin();
@@ -1333,7 +1328,7 @@ namespace cheonsa
 
 	void_c menu_control_c::_compile_control_groups_and_draw_lists( core_list_c< menu_control_c * > & control_group_list, core_list_c< menu_draw_list_c * > & draw_list_list )
 	{
-		if ( _scene_component != nullptr )
+		if ( _scene_component )
 		{
 			// todo: control is 3d, we can return here if it is not visible to the primary (camera) view.
 		}
@@ -1348,13 +1343,13 @@ namespace cheonsa
 		_control_group_mother = nullptr;
 		_control_group_daughter_list.remove_all();
 		_control_group_draw_list.reset();
-		if ( _mother_control != nullptr )
+		if ( _mother_control )
 		{
 			_control_group_mother = _mother_control;
 			while ( _control_group_mother->_control_group_is_root == false )
 			{
 				_control_group_mother = _control_group_mother->_mother_control;
-				assert( _control_group_mother != nullptr );
+				assert( _control_group_mother );
 			}
 			if ( _control_group_is_root )
 			{
@@ -1370,14 +1365,14 @@ namespace cheonsa
 			sint32_c needed_height = ops::math_maximum( 16, static_cast< sint32_c >( _local_box.get_height() + 0.5f ) );
 			if ( _control_group_texture == nullptr || ( _control_group_texture->get_width() < needed_width || _control_group_texture->get_height() < needed_height ) )
 			{
-				if ( _control_group_texture != nullptr )
+				if ( _control_group_texture )
 				{
 					delete _control_group_texture;
 					_control_group_texture = nullptr;
 				}
 				assert( needed_width <= 4096 && needed_height <= 4096 );
 				_control_group_texture = engine.get_video_interface()->create_texture( video_texture_format_e_r8g8b8a8_unorm, needed_width, needed_height, 1, 1, nullptr, 0, false, false, true, false );
-				assert( _control_group_texture != nullptr );
+				assert( _control_group_texture );
 				_control_group_texture_wrapper.set_video_texture( _control_group_texture );
 			}
 
@@ -1398,10 +1393,10 @@ namespace cheonsa
 		}
 		else
 		{
-			assert( _mother_control != nullptr );
+			assert( _mother_control );
 
 			// release control group texture target.
-			if ( _control_group_texture != nullptr )
+			if ( _control_group_texture )
 			{
 				delete _control_group_texture;
 				_control_group_texture = nullptr;

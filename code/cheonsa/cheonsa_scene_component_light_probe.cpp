@@ -56,11 +56,6 @@ namespace cheonsa
 		}
 	}
 
-	scene_component_light_probe_c * scene_component_light_probe_c::make_new_instance()
-	{
-		return new scene_component_light_probe_c();
-	}
-
 	scene_component_model_c * scene_component_light_probe_c::get_local_model() const
 	{
 		return _local_model;

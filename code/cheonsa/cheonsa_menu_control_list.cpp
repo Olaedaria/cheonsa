@@ -76,7 +76,7 @@ namespace cheonsa
 
 	void_c menu_control_list_c::add_item( menu_control_list_item_i * item, sint32_c index )
 	{
-		assert( dynamic_cast< menu_control_list_item_separator_c * >( item ) != nullptr || dynamic_cast< menu_control_list_item_text_c * >( item ) != nullptr );
+		assert( dynamic_cast< menu_control_list_item_separator_c * >( item ) || dynamic_cast< menu_control_list_item_text_c * >( item ) );
 		_add_item( item, index );
 	}
 

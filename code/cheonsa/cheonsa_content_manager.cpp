@@ -204,7 +204,7 @@ namespace cheonsa
 
 	void_c content_manager_c::apply_changes()
 	{
-		assert( engine.get_resource_manager() != nullptr );
+		assert( engine.get_resource_manager() );
 
 		// detect supported locales.
 		// scan sub folders, each sub folder should be another supported locale.
@@ -263,7 +263,7 @@ namespace cheonsa
 				
 				// find the name from the markup.
 				data_scribe_markup_c::attribute_c const * attribute = markup.get_node( 0 )->find_attribute( "language" );
-				if ( attribute != nullptr )
+				if ( attribute )
 				{
 					locale->_name = attribute->get_value();
 				}
@@ -305,12 +305,12 @@ namespace cheonsa
 			core_list_c< string16_c > const & game_data_folder_path_list = engine.get_content_manager()->get_game_data_folder_path_list();
 			for ( sint32_c i = game_data_folder_path_list.get_length() - 1; i >= 0; i-- )
 			{
-				for ( sint32_c j = locale != nullptr ? 1 : 0; j >= 0; j-- )
+				for ( sint32_c j = locale ? 1 : 0; j >= 0; j-- )
 				{
 					string16_c scan_path = game_data_folder_path_list[ i ];
 					if ( j != 0 )
 					{
-						assert( locale != nullptr );
+						assert( locale );
 						scan_path += locale->get_code();
 #if defined( cheonsa_platform_windows )
 						scan_path += "\\";
@@ -348,7 +348,7 @@ namespace cheonsa
 				string16_c scan_path = engine.get_content_manager()->get_engine_data_folder_path();
 				if ( j != 0 )
 				{
-					assert( locale != nullptr );
+					assert( locale );
 					scan_path += locale->get_code();
 #if defined( cheonsa_platform_windows )
 					scan_path += "\\";

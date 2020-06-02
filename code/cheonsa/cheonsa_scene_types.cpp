@@ -176,7 +176,7 @@ namespace cheonsa
 	matrix32x4x4_c scene_camera_c::make_view_transform_relative_to_origin( vector64x3_c origin ) const
 	{
 		matrix32x4x4_c result;
-		result = ops::view_matrix32x4x4_from_look_at( vector32x3_c( _world_space_transform.position - origin ), _world_space_transform.get_unscaled_basis_y(), -_world_space_transform.get_unscaled_basis_z() );
+		result = ops::view_matrix32x4x4_from_look_at( vector32x3_c( _world_space_transform.position - origin ), _world_space_transform.get_unscaled_basis_y(), _world_space_transform.get_unscaled_basis_z() );
 		return result;
 	}
 
@@ -285,7 +285,7 @@ namespace cheonsa
 		if ( _render_enabled != value )
 		{
 			_render_enabled = value;
-			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
+			if ( _scene && _scene->_automatic_light_probe_invalidation_enabled )
 			{
 				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
@@ -302,7 +302,7 @@ namespace cheonsa
 		if ( _shadow_cast_enabled != value )
 		{
 			_shadow_cast_enabled = value;
-			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
+			if ( _scene && _scene->_automatic_light_probe_invalidation_enabled )
 			{
 				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
@@ -320,7 +320,7 @@ namespace cheonsa
 		{
 			boolean_c was_global = _type == scene_light_type_e_direction;
 			boolean_c now_global = value == scene_light_type_e_direction;
-			if ( _scene != nullptr )
+			if ( _scene )
 			{
 				if ( _scene->_automatic_light_probe_invalidation_enabled )
 				{
@@ -347,12 +347,15 @@ namespace cheonsa
 		return _color;
 	}
 
-	void_c scene_light_c::set_color( vector32x3_c const & value )
+	void_c scene_light_c::set_color( vector32x3_c value )
 	{
+		value.a = ops::math_saturate( value.a );
+		value.b = ops::math_saturate( value.b );
+		value.c = ops::math_saturate( value.c );
 		if ( _color != value )
 		{
 			_color = value;
-			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
+			if ( _scene && _scene->_automatic_light_probe_invalidation_enabled )
 			{
 				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
@@ -366,10 +369,11 @@ namespace cheonsa
 
 	void_c scene_light_c::set_strength( float32_c value )
 	{
+		value = ops::math_clamp( value, 0.0f, 1000000.0f );
 		if ( _strength != value )
 		{
 			_strength = value;
-			if ( _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
+			if ( _scene && _scene->_automatic_light_probe_invalidation_enabled )
 			{
 				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
@@ -403,9 +407,10 @@ namespace cheonsa
 
 	void_c scene_light_c::set_cone_angle( float32_c value )
 	{
+		value = ops::math_clamp( value, 0.0001f, constants< float32_c >::pi() );
 		if ( _cone_angle != value )
 		{
-			if ( _type == scene_light_type_e_cone && _scene != nullptr && _scene->_automatic_light_probe_invalidation_enabled )
+			if ( _type == scene_light_type_e_cone && _scene && _scene->_automatic_light_probe_invalidation_enabled )
 			{
 				_scene->invalidate_light_probes_with_light( this, nullptr );
 			}
@@ -462,7 +467,7 @@ namespace cheonsa
 
 		_world_space_aabb = ops::make_aabb_from_obb( box64x3_c( _local_space_obb ), _world_space_transform );
 
-		if ( _scene != nullptr )
+		if ( _scene )
 		{
 			if ( _type != scene_light_type_e_direction )
 			{

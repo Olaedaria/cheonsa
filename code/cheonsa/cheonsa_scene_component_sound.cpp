@@ -9,15 +9,15 @@ namespace cheonsa
 
 	void_c scene_component_sound_c::_handle_after_added_to_scene()
 	{
-		assert( _scene_object != nullptr );
-		assert( _scene_object->get_scene() != nullptr );
+		assert( _scene_object );
+		assert( _scene_object->get_scene() );
 		_scene_object->get_scene()->_sound_list.insert_at_end( &_sound_list_node );
 	}
 
 	void_c scene_component_sound_c::_handle_before_removed_from_scene()
 	{
-		assert( _scene_object != nullptr );
-		assert( _scene_object->get_scene() != nullptr );
+		assert( _scene_object );
+		assert( _scene_object->get_scene() );
 		_scene_object->get_scene()->_sound_list.remove( &_sound_list_node );
 	}
 
@@ -43,11 +43,6 @@ namespace cheonsa
 	{
 		_audio_scene_source->remove_reference();
 		_audio_scene_source = nullptr;
-	}
-
-	scene_component_sound_c * scene_component_sound_c::make_new_instance()
-	{
-		return new scene_component_sound_c();
 	}
 
 	resource_file_sound_c * scene_component_sound_c::get_sound_resource() const

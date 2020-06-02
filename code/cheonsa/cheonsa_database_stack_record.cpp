@@ -27,7 +27,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _record_stack.get_length(); i++ )
 		{
 			database_record_c const * record = _record_stack[ i ];
-			if ( record != nullptr )
+			if ( record )
 			{
 				assert( !record->get_is_hidden() );
 				uint8_c * field_data_pointer = nullptr;

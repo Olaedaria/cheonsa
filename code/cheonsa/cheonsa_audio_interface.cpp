@@ -150,11 +150,11 @@ namespace cheonsa
 		assert( input_channel_count == 1 || input_channel_count == 2 || input_channel_count == 6 );
 		assert( input_sample_format == audio_sample_format_e_sint8 || input_sample_format == audio_sample_format_e_sint16 || input_sample_format == audio_sample_format_e_float32 );
 		assert( input_sample_count > 0 );
-		assert( input_sample_buffer != nullptr );
+		assert( input_sample_buffer );
 		assert( output_channel_count == 1 || output_channel_count == 2 || output_channel_count == 6 );
 		assert( output_sample_count > 0 );
-		assert( output_sample_buffer != nullptr );
-		assert( output_channel_volumes != nullptr );
+		assert( output_sample_buffer );
+		assert( output_channel_volumes );
 		assert( input_sample_count * input_channel_count < 0xFFFF );
 		assert( output_sample_count * output_channel_count < 0xFFFF );
 
@@ -453,7 +453,7 @@ namespace cheonsa
 
 			// mix 2d wave players.
 			core_linked_list_c< audio_wave_player_c * >::node_c * wave_player_list_node = audio_interface->_wave_player_list.get_first();
-			while ( wave_player_list_node != nullptr )
+			while ( wave_player_list_node )
 			{
 				audio_wave_player_c * wave_player = wave_player_list_node->get_value();
 				wave_player_list_node = wave_player_list_node->get_next();
@@ -528,7 +528,7 @@ namespace cheonsa
 
 					// mix scene sources.
 					core_linked_list_c< audio_scene_source_c * >::node_c const * scene_source_list_node = scene->_scene_source_list.get_first();
-					while ( scene_source_list_node != nullptr )
+					while ( scene_source_list_node )
 					{
 						audio_scene_source_c * scene_source = scene_source_list_node->get_value();
 						scene_source_list_node = scene_source_list_node->get_next();
@@ -799,7 +799,7 @@ namespace cheonsa
 		_critical_section.enter();
 
 		core_linked_list_c< audio_wave_player_c * >::node_c * wave_player_list_node = _wave_player_list.get_first();
-		while ( wave_player_list_node != nullptr )
+		while ( wave_player_list_node )
 		{
 			audio_wave_player_c * wave_player = wave_player_list_node->get_value();
 			wave_player_list_node = wave_player_list_node->get_next();
@@ -902,7 +902,7 @@ namespace cheonsa
 		// iterate over each wave buffer instance.
 		_critical_section.enter();
 		core_linked_list_c< audio_wave_player_c * >::node_c const * wave_player_list_node = audio_wave_player_c::_instance_list.get_first();
-		while ( wave_player_list_node != nullptr )
+		while ( wave_player_list_node )
 		{
 			audio_wave_player_c * wave_player = wave_player_list_node->get_value();
 			wave_player_list_node = wave_player_list_node->get_next();
@@ -945,7 +945,7 @@ namespace cheonsa
 
 	boolean_c audio_interface_c::add_wave_player( audio_wave_player_c * value )
 	{
-		assert( value != nullptr );
+		assert( value );
 		if ( value->add_reference() != 0 )
 		{
 			if ( value->_is_queued == false )
@@ -964,7 +964,7 @@ namespace cheonsa
 
 	boolean_c audio_interface_c::remove_wave_player( audio_wave_player_c * value )
 	{
-		assert( value != nullptr );
+		assert( value );
 		if ( value->add_reference() != 0 )
 		{
 			_critical_section.enter();

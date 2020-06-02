@@ -8,7 +8,7 @@ namespace cheonsa
 	{
 		if ( _is_mouse_overed )
 		{
-			assert( _mother_control != nullptr );
+			assert( _mother_control );
 			menu_control_combo_list_c * mother_combo_list = dynamic_cast< menu_control_combo_list_c * >( _mother_control->get_mother_control() );
 			assert( mother_combo_list );
 			mother_combo_list->on_selected_item_changed_preview.invoke( this );
@@ -84,7 +84,7 @@ namespace cheonsa
 
 	void_c menu_control_combo_list_c::add_item( menu_control_list_item_i * item, sint32_c index )
 	{
-		assert( dynamic_cast< menu_control_combo_list_item_text_c * >( item ) != nullptr );
+		assert( dynamic_cast< menu_control_combo_list_item_text_c * >( item ) );
 		_add_item( item, index );
 	}
 
@@ -127,10 +127,10 @@ namespace cheonsa
 	void_c menu_control_combo_c::_handle_on_selected_item_changed( menu_control_combo_list_c * combo_list )
 	{
 		menu_control_list_item_i const * selected_item = _combo_list->get_selected_item();
-		if ( selected_item != nullptr )
+		if ( selected_item )
 		{
 			menu_control_combo_list_item_text_c const * selected_combo_list_item_text = dynamic_cast< menu_control_combo_list_item_text_c const * >( selected_item );
-			if ( selected_combo_list_item_text != nullptr )
+			if ( selected_combo_list_item_text )
 			{
 				_element_text.set_plain_text_value( selected_combo_list_item_text->get_plain_text_value() );
 			}
@@ -169,8 +169,8 @@ namespace cheonsa
 
 	void_c menu_control_combo_c::show_combo_list()
 	{
-		assert( _user_interface );
-		_combo_list->set_layout_simple( _user_interface->find_combo_list_pop_up_box( this, _combo_list->get_local_box().get_size(), false ) );
+		assert( _mother_user_interface );
+		_combo_list->set_layout_simple( _mother_user_interface->find_combo_list_pop_up_box( this, _combo_list->get_local_box().get_size(), false ) );
 		_combo_list->set_is_showed_immediately( true );
 		_combo_list->give_text_focus();
 	}

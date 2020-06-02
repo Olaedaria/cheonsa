@@ -35,7 +35,7 @@ namespace cheonsa
 	{
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
-		if ( members->_handle != nullptr )
+		if ( members->_handle )
 		{
 			stop();
 		}
@@ -59,7 +59,7 @@ namespace cheonsa
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
 		assert( members->_handle == nullptr );
-		assert( function != nullptr );
+		assert( function );
 		_keep_alive = true;
 		_function = function;
 		_parameter = parameter;
@@ -71,7 +71,7 @@ namespace cheonsa
 	{
 		platform_thread_members_c * members = reinterpret_cast< platform_thread_members_c * >( _members );
 #if defined( cheonsa_platform_windows )
-		assert( members->_handle != nullptr );
+		assert( members->_handle );
 		_keep_alive = false;
 		WaitForSingleObject( members->_handle, INFINITE );
 		CloseHandle( members->_handle );

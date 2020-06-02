@@ -20,11 +20,11 @@ namespace cheonsa
 	{
 		if ( _is_folder )
 		{
-			return engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_folder.png" ) );
+			return engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_folder.png" ), true, true );
 		}
 		else
 		{
-			return engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_file.png" ) );
+			return engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_file.png" ), true, true );
 		}
 		return nullptr;
 	}
@@ -44,7 +44,7 @@ namespace cheonsa
 
 	void_c menu_control_window_file_picker_c::_try_to_okay()
 	{
-		assert( _user_interface );
+		assert( _mother_user_interface );
 		string16_c file_path = get_file_path();
 		if ( _mode == mode_e_load )
 		{
@@ -60,7 +60,7 @@ namespace cheonsa
 					_message_dialog->set_mode( menu_control_window_message_c::mode_e_okay );
 					_message_dialog->set_title_text_value( string16_c( core_list_mode_e_static, L"unrecognized file type." ) );
 					_message_dialog->set_message_text_value( string16_c( core_list_mode_e_static, L"this program does not recognize that type of file." ) );
-					_message_dialog->show_dialog( _user_interface->open_modal_screen() );
+					_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
 					_message_dialog->center();
 				}
 			}
@@ -72,7 +72,7 @@ namespace cheonsa
 				_message_dialog->set_mode( menu_control_window_message_c::mode_e_no_yes );
 				_message_dialog->set_title_text_value( string16_c( core_list_mode_e_static, L"that file already exists." ) );
 				_message_dialog->set_message_text_value( string16_c( core_list_mode_e_static, L"do you want to over write the existing file?" ) );
-				_message_dialog->show_dialog( _user_interface->open_modal_screen() );
+				_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
 				_message_dialog->center();
 				_message_dialog_is_asking_for_over_write = true;
 			}
@@ -225,14 +225,14 @@ namespace cheonsa
 
 	void_c menu_control_window_file_picker_c::_handle_after_added_to_user_interface()
 	{
-		assert( _user_interface );
-		_user_interface->add_control( _message_dialog );
+		assert( _mother_user_interface );
+		_mother_user_interface->add_daughter_control( _message_dialog );
 	}
 
 	void_c menu_control_window_file_picker_c::_handle_before_removed_from_user_interface()
 	{
-		assert( _user_interface );
-		_user_interface->remove_control( _message_dialog );
+		assert( _mother_user_interface );
+		_mother_user_interface->remove_daughter_control( _message_dialog );
 	}
 
 	void_c menu_control_window_file_picker_c::_on_input( input_event_c * input_event )

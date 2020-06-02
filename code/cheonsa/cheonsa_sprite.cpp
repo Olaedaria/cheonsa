@@ -145,7 +145,7 @@ namespace cheonsa
 		if ( _sprites_resource.get_is_value_set_and_loaded() )
 		{
 			_handle_sprite_sheet_resource_on_loaded( _sprites_resource );
-			return _sprite != nullptr;
+			return _sprite;
 		}
 
 		return false;

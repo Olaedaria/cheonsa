@@ -24,7 +24,7 @@ namespace cheonsa
 
 	void_c resource_file_materials_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		data_scribe_markup_c markup( '<' );
@@ -160,25 +160,25 @@ namespace cheonsa
 				attribute = sub_node->find_attribute( "texture_0" );
 				if ( attribute )
 				{
-					thing->_material.textures[ 0 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->_material.textures[ 0 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ), true, true );
 				}
 
 				attribute = sub_node->find_attribute( "texture_1" );
 				if ( attribute )
 				{
-					thing->_material.textures[ 1 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->_material.textures[ 1 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ), true, true );
 				}
 
 				attribute = sub_node->find_attribute( "texture_2" );
 				if ( attribute )
 				{
-					thing->_material.textures[ 2 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->_material.textures[ 2 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ), true, true );
 				}
 
 				attribute = sub_node->find_attribute( "texture_3" );
 				if ( attribute )
 				{
-					thing->_material.textures[ 3 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+					thing->_material.textures[ 3 ] = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ), true, true );
 				}
 			}
 			sub_node = sub_node->get_next_sister();

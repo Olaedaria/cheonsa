@@ -5,12 +5,20 @@
 namespace cheonsa
 {
 
+	void_c resource_file_c::_load( data_stream_c * stream )
+	{
+	}
+
+	void_c resource_file_c::_unload()
+	{
+	}
+
 	resource_file_c::resource_file_c( string16_c const & file_path )
 		: _file_path( file_path )
 		, _file_path_absolute()
 		, _file_last_write_time( 0 )
-		, _search_game_data( true )
 		, _search_engine_data( true )
+		, _search_game_data( true )
 		, _is_loaded( false )
 		, _reference_count( 0 )
 	{
@@ -80,7 +88,7 @@ namespace cheonsa
 	{
 		string16_c file_path_absolute = _file_path_absolute;
 		sint64_c file_last_write_time = _file_last_write_time;
-		if ( !engine.get_content_manager()->resolve_absolute_file_path( _file_path, file_path_absolute, _search_game_data, _search_engine_data ) )
+		if ( !engine.get_content_manager()->resolve_absolute_file_path( _file_path, file_path_absolute, _search_engine_data, _search_game_data ) )
 		{
 			return;
 		}

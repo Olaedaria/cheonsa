@@ -53,8 +53,8 @@ namespace cheonsa
 			}
 			else
 			{
-				assert( _user_interface );
-				_user_interface->set_text_focused( nullptr ); // this should have the effect of hiding the whole popup menu hierarchy.
+				assert( _mother_user_interface );
+				_mother_user_interface->set_text_focused( nullptr ); // this should have the effect of hiding the whole popup menu hierarchy.
 			}
 			menu_control_list_item_i::_on_clicked( input_event );
 		}
@@ -116,8 +116,8 @@ namespace cheonsa
 	void_c menu_control_menu_list_item_text_c::give_sub_menu( menu_control_menu_list_c * menu )
 	{
 		assert( _sub_menu == nullptr );
-		assert( menu != nullptr );
-		assert( menu->get_user_interface() == nullptr );
+		assert( menu );
+		assert( menu->get_mother_user_interface() == nullptr );
 		assert( menu->get_mother_control() == nullptr );
 		add_daughter_control( menu );
 		_sub_menu = menu;
@@ -125,7 +125,7 @@ namespace cheonsa
 
 	menu_control_menu_list_c * menu_control_menu_list_item_text_c::take_sub_menu()
 	{
-		assert( _sub_menu != nullptr );
+		assert( _sub_menu );
 		return _sub_menu;
 		_sub_menu = nullptr;
 	}
@@ -161,8 +161,8 @@ namespace cheonsa
 
 	void_c menu_control_menu_list_c::show_like_context_menu( vector32x2_c const & screen_space_point_to_spawn_pop_up_around )
 	{
-		assert( _user_interface );
-		box32x2_c new_local_box = _user_interface->find_context_menu_pop_up_box( screen_space_point_to_spawn_pop_up_around, _local_box.get_size() );
+		assert( _mother_user_interface );
+		box32x2_c new_local_box = _mother_user_interface->find_context_menu_pop_up_box( screen_space_point_to_spawn_pop_up_around, _local_box.get_size() );
 		set_layout_simple( new_local_box );
 		set_is_showed_immediately( true );
 		bring_to_front();
@@ -171,8 +171,8 @@ namespace cheonsa
 
 	void_c menu_control_menu_list_c::show_like_sub_menu( menu_control_c * menu_item_to_spawn_pop_up_around )
 	{
-		assert( _user_interface );
-		box32x2_c new_local_box = _user_interface->find_sub_menu_pop_up_box( menu_item_to_spawn_pop_up_around, _local_box.get_size(), true );
+		assert( _mother_user_interface );
+		box32x2_c new_local_box = _mother_user_interface->find_sub_menu_pop_up_box( menu_item_to_spawn_pop_up_around, _local_box.get_size(), true );
 		set_layout_simple( new_local_box );
 		set_is_showed_immediately( true );
 		bring_to_front();
@@ -181,8 +181,8 @@ namespace cheonsa
 
 	void_c menu_control_menu_list_c::show_like_combo_list( menu_control_c * combo_to_spawn_pop_up_around )
 	{
-		assert( _user_interface );
-		box32x2_c new_local_box = _user_interface->find_combo_list_pop_up_box( combo_to_spawn_pop_up_around, _local_box.get_size(), true );
+		assert( _mother_user_interface );
+		box32x2_c new_local_box = _mother_user_interface->find_combo_list_pop_up_box( combo_to_spawn_pop_up_around, _local_box.get_size(), true );
 		set_layout_simple( new_local_box );
 		set_is_showed_immediately( true );
 		bring_to_front();
@@ -206,7 +206,7 @@ namespace cheonsa
 
 	void_c menu_control_menu_list_c::add_item( menu_control_list_item_i * item, sint32_c index )
 	{
-		assert( dynamic_cast< menu_control_menu_list_item_separator_c * >( item ) != nullptr || dynamic_cast< menu_control_menu_list_item_text_c * >( item ) != nullptr );
+		assert( dynamic_cast< menu_control_menu_list_item_separator_c * >( item ) || dynamic_cast< menu_control_menu_list_item_text_c * >( item ) );
 		_add_item( item, index );
 	}
 

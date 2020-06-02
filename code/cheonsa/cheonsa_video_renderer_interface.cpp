@@ -817,7 +817,7 @@ namespace cheonsa
 
 	boolean_c video_renderer_interface_c::start()
 	{
-		assert( engine.get_video_interface() != nullptr );
+		assert( engine.get_video_interface() );
 
 		_views.construct_mode_dynamic( 0, 4 );
 
@@ -944,8 +944,8 @@ namespace cheonsa
 
 		// iterate through light probes.
 		sint32_c baked_count = 0;
-		core_linked_list_c< scene_component_light_probe_c * >::node_c const * light_probe_list_node = _scene->_last_baked_light_probe != nullptr ? &_scene->_last_baked_light_probe->_scene_light_probe_list_node : _scene->_light_probe_list.get_first(); // continue from where we last left off at, or start over.
-		while ( ( light_probe_list_node != nullptr ) && ( baked_count < count || count < 0 ) )
+		core_linked_list_c< scene_component_light_probe_c * >::node_c const * light_probe_list_node = _scene->_last_baked_light_probe ? &_scene->_last_baked_light_probe->_scene_light_probe_list_node : _scene->_light_probe_list.get_first(); // continue from where we last left off at, or start over.
+		while ( ( light_probe_list_node ) && ( baked_count < count || count < 0 ) )
 		{
 			scene_component_light_probe_c * light_probe = light_probe_list_node->get_value();
 			if ( light_probe->_is_up_to_date == true )
@@ -957,7 +957,7 @@ namespace cheonsa
 			// at some point, we should prioritize light probes nearest to the primary view, and have a way to release probes when the primary view moves far away.
 			if ( light_probe->_cube_color == nullptr || light_probe->_cube_color->get_width() != light_probe_resolution )
 			{
-				if ( light_probe->_cube_color != nullptr )
+				if ( light_probe->_cube_color )
 				{
 					delete light_probe->_cube_color;
 					light_probe->_cube_color = nullptr;
@@ -1059,9 +1059,9 @@ namespace cheonsa
 
 	void_c video_renderer_interface_c::render_scene( scene_c * scene, scene_camera_c const * camera, video_renderer_canvas_c * canvas )
 	{
-		assert( scene != nullptr );
-		assert( camera != nullptr );
-		assert( canvas != nullptr );
+		assert( scene );
+		assert( camera );
+		assert( canvas );
 
 		static sint32_c const pick_limit = 128; // maximum number of things that can be sampled for pixel perfect pick at once. if the pick ray intersects with more than this number, the pick will still function but it may not give the correct or desired result.
 		static core_list_c< scene_component_model_c * > pixel_perfect_pick_models;
@@ -1183,7 +1183,7 @@ namespace cheonsa
 			//for ( sint32_c i = 0; i < _menu_controls_to_render.get_length(); i++ )
 			//{
 			//	scene_component_menu_control_c * menu_control = _menu_controls_to_render[ i ];
-			//	if ( menu_control->_control != nullptr )
+			//	if ( menu_control->_control )
 			//	{
 			//		menu_render_procedure.add_control( menu_control->_control );
 			//	}
@@ -1836,7 +1836,7 @@ namespace cheonsa
 				engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 
 				// render post process to final output target.
-				video_texture_c * output_target = view.canvas->_output != nullptr ? view.canvas->_output->get_texture_resource() : view.canvas->_target_color_final;
+				video_texture_c * output_target = view.canvas->_output ? view.canvas->_output->get_texture_resource() : view.canvas->_target_color_final;
 				assert( output_target );
 				textures_to_bind[ 0 ] = view.canvas->_target_outline;
 				textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
@@ -2538,7 +2538,7 @@ namespace cheonsa
 
 	void_c video_renderer_interface_c::_bind_model_properties( scene_component_model_c const * model, vector64x3_c const & view_position, boolean_c with_lights, boolean_c with_ambience, boolean_c with_outline )
 	{
-		if ( model->_mother_model != nullptr )
+		if ( model->_mother_model )
 		{
 			return; // model properties would already be bound.
 		}
@@ -2583,7 +2583,7 @@ namespace cheonsa
 		if ( with_ambience )
 		{
 			scene_component_light_probe_c * light_probe = _scene->find_light_probe_with_point( model->get_scene_object()->_world_space_transform.position );
-			textures_to_bind[ 0 ] = light_probe != nullptr ? light_probe->_cube_color : nullptr;
+			textures_to_bind[ 0 ] = light_probe ? light_probe->_cube_color : nullptr;
 			textures_to_bind_types[ 0 ] = video_texture_type_e_texturecube;
 		}
 		engine.get_video_interface()->bind_pixel_shader_textures( video_renderer_interface_c::_texture_bind_index_for_light_probe_texture, 1, textures_to_bind, textures_to_bind_types );
@@ -3412,11 +3412,11 @@ namespace cheonsa
 		// the elements that will render are ones that have ( element->_is_showing && element->_is_showing_from_style ).
 
 		// gather control groups.
-		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = user_interface->_control_list.get_first();
-		while ( control_list_node )
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = user_interface->_daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			control_list_node->get_value()->_compile_control_groups_and_draw_lists( _menu_root_control_group_list, _menu_draw_list_list );
-			control_list_node = control_list_node->get_next();
+			daughter_control_list_node->get_value()->_compile_control_groups_and_draw_lists( _menu_root_control_group_list, _menu_draw_list_list );
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 
 		// compile big lists and base offsets.
@@ -3438,7 +3438,7 @@ namespace cheonsa
 		// upload vertices to vertex buffer.
 		if ( _menu_vertex_buffer == nullptr || _menu_vertex_list.get_length() > _menu_vertex_buffer->get_vertex_count() )
 		{
-			if ( _menu_vertex_buffer != nullptr )
+			if ( _menu_vertex_buffer )
 			{
 				delete _menu_vertex_buffer;
 				_menu_vertex_buffer = nullptr;
@@ -3450,7 +3450,7 @@ namespace cheonsa
 		// upload indices to index buffer.
 		if ( _menu_index_buffer == nullptr || _menu_index_list.get_length() > _menu_index_buffer->get_index_count() )
 		{
-			if ( _menu_index_buffer != nullptr )
+			if ( _menu_index_buffer )
 			{
 				delete _menu_index_buffer;
 				_menu_index_buffer = nullptr;
@@ -3518,7 +3518,7 @@ namespace cheonsa
 		// as this function recurses, this render state will be preserved.
 		if ( control->_control_group_is_root )
 		{
-			assert( control->_control_group_texture != nullptr );
+			assert( control->_control_group_texture );
 			engine.get_video_interface()->clear_texture( control->_control_group_texture, 1.0f, 1.0f, 1.0f, 0.0f );
 			textures_to_bind[ 0 ] = control->_control_group_texture;
 			engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
@@ -3631,7 +3631,7 @@ namespace cheonsa
 		}
 
 		video_renderer_canvas_c const * canvas = user_interface->_canvas_and_output;
-		video_texture_c * output_target = canvas->_output != nullptr ? canvas->_output->get_texture_resource() : canvas->_target_color_final;
+		video_texture_c * output_target = canvas->_output ? canvas->_output->get_texture_resource() : canvas->_target_color_final;
 		assert( output_target );
 
 		_constant_buffers.menu_block->menu_target_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( output_target->get_width() ), 1.0f / static_cast< float32_c >( output_target->get_height() ) );
@@ -3647,23 +3647,23 @@ namespace cheonsa
 		vertex_buffers_to_bind[ 0 ] = _menu_vertex_buffer;
 		engine.get_video_interface()->bind_vertex_buffers( 1, vertex_buffers_to_bind );
 		engine.get_video_interface()->bind_index_buffer( _menu_index_buffer );
-		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = user_interface->_control_list.get_first();
-		while ( control_list_node )
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = user_interface->_daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			menu_control_c * control = control_list_node->get_value();
-			if ( control->_scene_component == nullptr && control->_is_showed_weight > 0.0f && control->_local_color.d > 0.0f )
+			menu_control_c * daughter_control = daughter_control_list_node->get_value();
+			if ( daughter_control->_scene_component == nullptr && daughter_control->_is_showed_weight > 0.0f && daughter_control->_local_color.d > 0.0f )
 			{
-				assert( control->_control_group_draw_list.draw_list.get_length() == 1 );
-				_constant_buffers.menu_batch_block->menu_basis = control->_global_basis.as_vector32x4();
-				_constant_buffers.menu_batch_block->menu_origin = control->_global_origin;
-				_constant_buffers.menu_batch_block->menu_color = control->_local_color;
-				_constant_buffers.menu_batch_block->menu_color.d *= control->_is_showed_weight;
+				assert( daughter_control->_control_group_draw_list.draw_list.get_length() == 1 );
+				_constant_buffers.menu_batch_block->menu_basis = daughter_control->_global_basis.as_vector32x4();
+				_constant_buffers.menu_batch_block->menu_origin = daughter_control->_global_origin;
+				_constant_buffers.menu_batch_block->menu_color = daughter_control->_local_color;
+				_constant_buffers.menu_batch_block->menu_color.d *= daughter_control->_is_showed_weight;
 				_constant_buffers.menu_batch_block->menu_saturation = 1.0f;
 				_constant_buffers.menu_batch_block->menu_clip_plane_stack_length = 0;
 				_constant_buffers.menu_batch_block_constant_buffer->set_data( _constant_buffers.menu_batch_block, sizeof( menu_batch_block_c ) );
-				_render_menu_draw_list( control->_control_group_draw_list );
+				_render_menu_draw_list( daughter_control->_control_group_draw_list );
 			}
-			control_list_node = control_list_node->get_next();
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 
 		// unbind.

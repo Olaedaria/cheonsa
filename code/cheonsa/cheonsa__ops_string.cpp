@@ -1477,7 +1477,7 @@ namespace cheonsa
 
 		boolean_c string8_compare( char8_c const * a, char8_c const * b )
 		{
-			assert( a != nullptr && b != nullptr );
+			assert( a && b );
 
 			if ( a == b )
 			{
@@ -1497,7 +1497,7 @@ namespace cheonsa
 
 		boolean_c string8_compare_case_insensitive( char8_c const * a, char8_c const * b )
 		{
-			assert( a != nullptr && b != nullptr );
+			assert( a && b );
 			if ( a == b )
 			{
 				return true;
@@ -1516,7 +1516,7 @@ namespace cheonsa
 
 		boolean_c string16_compare( char16_c const * a, char16_c const * b )
 		{
-			assert( a != nullptr && b != nullptr );
+			assert( a && b );
 			if ( a == b )
 			{
 				return true;
@@ -1535,7 +1535,7 @@ namespace cheonsa
 
 		boolean_c string16_compare_case_insensitive( char16_c const * a, char16_c const * b )
 		{
-			assert( a != nullptr && b != nullptr );
+			assert( a && b );
 			if ( a == b )
 			{
 				return true;
@@ -1554,7 +1554,7 @@ namespace cheonsa
 
 		boolean_c string16_compare( char16_c const * a, char8_c const * b )
 		{
-			assert( a != nullptr && b != nullptr );
+			assert( a && b );
 			while ( *a != 0 && *b != 0 )
 			{
 				char16_c character;
@@ -1570,7 +1570,7 @@ namespace cheonsa
 
 		boolean_c string16_compare_case_insensitive( char16_c const * a, char8_c const * b )
 		{
-			assert( a != nullptr && b != nullptr );
+			assert( a && b );
 			while ( *a != 0 && *b != 0 )
 			{
 				if ( char16_to_lower( *a ) != char16_to_lower( *b ) )
@@ -1622,7 +1622,7 @@ namespace cheonsa
 
 		uint8_c convert_utf8_to_char16( char8_c const * & in, char16_c & out )
 		{
-			assert( in != nullptr );
+			assert( in );
 			out = 0;
 			if ( ( in[ 0 ] & 0x80 ) == 0x00 )
 			{

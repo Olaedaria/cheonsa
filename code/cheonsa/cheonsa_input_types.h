@@ -21,7 +21,8 @@ namespace cheonsa
 		input_modifier_flag_e_none = 0x00,
 		input_modifier_flag_e_shift = 0x01,
 		input_modifier_flag_e_ctrl = 0x02,
-		input_modifier_flag_e_alt = 0x04
+		input_modifier_flag_e_alt = 0x04,
+		input_modifier_flag_e_any = 0xFF,
 	};
 
 	enum input_mouse_key_e : uint8_c

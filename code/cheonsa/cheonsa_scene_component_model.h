@@ -2,7 +2,7 @@
 
 #include "cheonsa_scene_component.h"
 #include "cheonsa_physics_shape.h"
-#include "cheonsa_physics_ridgid_body.h"
+#include "cheonsa_physics_rigid_body.h"
 #include "cheonsa_physics_constraint.h"
 #include "cheonsa_resource_file_model.h"
 #include "cheonsa_resource_file_materials.h"
@@ -58,7 +58,7 @@ namespace cheonsa
 		void_c _handle_model_resource_on_loaded( resource_file_c * resource ); // responds to when _model_resource is loaded.
 		void_c _handle_model_resource_on_unloaded( resource_file_c * resource ); // responds to when _model_resource is un loaded.
 	public:
-		resource_file_model_c * get_model_resource(); // will return the set model resource. this can be nullptr if none is set. this resource may or may not be loaded.
+		resource_file_model_c * get_model_resource() const; // will return the set model resource. this can be nullptr if none is set. this resource may or may not be loaded.
 		void_c set_model_resource( resource_file_model_c * model_resource ); // sets the model resource to bind to this model instance. it will bind as soon as it is able to, since a pointer to a yet-to-be-loaded model resource instance may be suppled.
 		boolean_c get_model_resource_is_bound() const; // returns true only if the model resource is set, loaded, and bound.
 
@@ -507,15 +507,15 @@ namespace cheonsa
 		physics_rigid_body_c * _physics_rigid_body; // physics body to link with the game object (if any).
 		physics_shape_c * _physics_shape; // physics shape for _physics_rigid_body.
 		core_list_c< physics_constraint_c * > _physics_constraint_list; // all the physics constraints in this model.
-		boolean_c _physics_is_enabled; // keeps track of if this model instance is set to contribute to the physics simulation scene.
-		boolean_c _physics_is_added_to_simulation; // keeps track of if physics rigid bodies have been added to the scene or not.
+		boolean_c _physics_enabled; // keeps track of if this model instance is set to contribute to the physics simulation scene.
+		boolean_c _physics_added_to_simulation; // keeps track of if physics rigid bodies have been added to the scene or not.
 		void_c _physics_add_to_simulation(); // adds physics rigid bodies of this model to the physics simulation scene.
 		void_c _physics_remove_from_simulation(); // removes physics rigid bodies of this model from the physics simulation scene.
 		static void_c _physics_copy_world_space_transform_from_game_to_physics( void_c * object, vector64x3_c & world_space_position, matrix32x3x3_c & world_space_basis );
 		static void_c _physics_copy_world_space_transform_from_physics_to_game( void_c * object, vector64x3_c const & world_space_position, matrix32x3x3_c const & world_space_basis );
 	public:
-		boolean_c get_physics_enable() const;
-		void_c set_physics_enable( boolean_c value );
+		boolean_c get_physics_enabled() const;
+		void_c set_physics_enabled( boolean_c value );
 
 
 
@@ -944,12 +944,9 @@ namespace cheonsa
 		virtual void_c _handle_after_added_to_scene(); // is called when the scene object is removed from a scene. the scene may or may not already be associated with the engine's user interface at this point.
 		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
-		scene_component_model_c();
-
 	public:
+		scene_component_model_c();
 		virtual ~scene_component_model_c() override;
-
-		static scene_component_model_c * make_new_instance(); // creates a new instance on the heap with reference count of 0.
 
 		// samples motion state of non-kinematic dynamic rigid bodies.
 		// updates animations.

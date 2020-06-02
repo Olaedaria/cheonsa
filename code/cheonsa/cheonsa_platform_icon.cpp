@@ -30,12 +30,12 @@ namespace cheonsa
 			icon_handle = static_cast< void_c * >( LoadImageW( NULL, absolute_file_path.character_list.get_internal_array(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE ) );
 		}
 #endif
-		return icon_handle != nullptr;
+		return icon_handle;
 	}
 
 	void_c platform_icon_c::un_load()
 	{
-		if ( icon_handle != nullptr )
+		if ( icon_handle )
 		{
 			DestroyIcon( static_cast< HICON >( icon_handle ) );
 			icon_handle = nullptr;

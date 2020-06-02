@@ -888,7 +888,7 @@ namespace cheonsa
 		}
 
 		// if the left operand is set then it is our final result
-		if ( l_operand != nullptr )
+		if ( l_operand )
 		{
 			result.insert( -1, *l_operand );
 		}

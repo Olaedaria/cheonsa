@@ -31,10 +31,7 @@ namespace cheonsa
 		{
 			return extended ? input_keyboard_key_e_r_alt : input_keyboard_key_e_l_alt;
 		}
-		else
-		{
-			return input_convert_windows_virtual_key_code_to_cheonsa_keyboard_key_code( wParam );
-		}
+		return input_convert_windows_virtual_key_code_to_cheonsa_keyboard_key_code( wParam );
 	}
 
 	class window_manager_members_c
@@ -54,7 +51,7 @@ namespace cheonsa
 				case WM_KEYDOWN:
 				case WM_SYSKEYDOWN:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_keyboard_key_pressed( get_keyboard_key( wParam, lParam ) );
 					}
@@ -78,7 +75,7 @@ namespace cheonsa
 				case WM_KEYUP:
 				case WM_SYSKEYUP:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_keyboard_key_released( get_keyboard_key( wParam, lParam ) );
 					}
@@ -93,7 +90,7 @@ namespace cheonsa
 				{
 					// only pass through messages for visible characters.
 					// ignore all messages for characters less than 32, as these are for control characters that we can ignore.
-					if ( wParam >= 32 && engine.get_input_manager() != nullptr )
+					if ( wParam >= 32 && engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_character( static_cast< char16_c >( wParam ), static_cast< uint8_c >( lParam & 0xFFFF ) );
 					}
@@ -118,7 +115,7 @@ namespace cheonsa
 
 				case WM_MOUSEMOVE:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_move( (int)(short)LOWORD( lParam ), (int)(short)HIWORD( lParam ) );
 					}
@@ -127,7 +124,7 @@ namespace cheonsa
 
 				case WM_MOUSEWHEEL:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_wheel( static_cast< float32_c >( GET_WHEEL_DELTA_WPARAM( wParam ) ) / 120.0f );
 					}
@@ -136,7 +133,7 @@ namespace cheonsa
 
 				case WM_LBUTTONDOWN:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_pressed( input_mouse_key_e_left );
 					}
@@ -145,7 +142,7 @@ namespace cheonsa
 
 				case WM_LBUTTONUP:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_released( input_mouse_key_e_left );
 					}
@@ -154,7 +151,7 @@ namespace cheonsa
 
 				case WM_RBUTTONDOWN:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_pressed( input_mouse_key_e_right );
 					}
@@ -163,7 +160,7 @@ namespace cheonsa
 
 				case WM_RBUTTONUP:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_released( input_mouse_key_e_right );
 					}
@@ -172,7 +169,7 @@ namespace cheonsa
 
 				case WM_MBUTTONDOWN:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_pressed( input_mouse_key_e_middle );
 					}
@@ -181,7 +178,7 @@ namespace cheonsa
 
 				case WM_MBUTTONUP:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_released( input_mouse_key_e_middle );
 					}
@@ -190,7 +187,7 @@ namespace cheonsa
 
 				case WM_XBUTTONDOWN:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_pressed( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
 					}
@@ -199,7 +196,7 @@ namespace cheonsa
 
 				case WM_XBUTTONUP:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_push_mouse_key_released( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 ? input_mouse_key_e_extra1 : input_mouse_key_e_extra2 );
 					}
@@ -225,7 +222,7 @@ namespace cheonsa
 
 				case WM_MOVING:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_release_all_keys();
 					}
@@ -248,7 +245,7 @@ namespace cheonsa
 					{
 						engine.get_window_manager()->_window_state = window_state_e_normaled;
 					}
-					//if ( engine->interfaces._game != nullptr )
+					//if ( engine->interfaces._game )
 					//{
 					//	engine->interfaces._game->on_window_state_changed();
 					//}
@@ -257,7 +254,7 @@ namespace cheonsa
 
 				case WM_SIZING:
 				{
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_release_all_keys();
 					}
@@ -319,7 +316,7 @@ namespace cheonsa
 				case WM_KILLFOCUS:
 				{
 					engine.get_window_manager()->_window_is_focused = false;
-					if ( engine.get_input_manager() != nullptr )
+					if ( engine.get_input_manager() )
 					{
 						engine.get_input_manager()->_release_all_keys();
 					}

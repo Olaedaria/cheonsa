@@ -12,13 +12,13 @@ namespace cheonsa
 	void_c data_scribe_text_c::open( data_stream_c * stream )
 	{
 		assert( _stream == nullptr );
-		assert( stream != nullptr );
+		assert( stream );
 		_stream = stream;
 	}
 
 	void_c data_scribe_text_c::close()
 	{
-		assert( _stream != nullptr );
+		assert( _stream );
 		_stream = nullptr;
 	}
 
@@ -29,7 +29,7 @@ namespace cheonsa
 		// even though the operating system can probably deal with loading bytes one by one from a file without much performance hit.
 		static sint32_c const chunk_size = 100;
 
-		assert( _stream != nullptr );
+		assert( _stream );
 
 		result.character_list.construct_mode_dynamic( 0 );
 		sint32_c stream_size = _stream->get_size();

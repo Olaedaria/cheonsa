@@ -43,7 +43,7 @@ namespace cheonsa
 		if ( stream_mode == data_stream_mode_e_read )
 		{
 			file_c * file = _find_existing_file( file_path );
-			if ( file != nullptr )
+			if ( file )
 			{
 				file->stream.set_position( 0 );
 				return & file->stream;
@@ -61,7 +61,7 @@ namespace cheonsa
 
 	boolean_c data_directory_memory_c::file_system_does_file_exist( string16_c const & file_path )
 	{
-		return _find_existing_file( file_path ) != nullptr;
+		return _find_existing_file( file_path );
 	}
 
 	boolean_c data_directory_memory_c::delete_file( string16_c const & file_path )

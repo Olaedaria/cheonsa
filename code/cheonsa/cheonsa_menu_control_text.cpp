@@ -23,7 +23,7 @@ namespace cheonsa
 		_element_text.handle_on_multi_clicked( input_event );
 		if ( input_event->get_menu_multi_click_count() == 3 )
 		{
-			_user_interface->reset_multi_click_detection();
+			_mother_user_interface->reset_multi_click_detection();
 		}
 	}
 
@@ -75,7 +75,7 @@ namespace cheonsa
 
 	menu_control_text_c::~menu_control_text_c()
 	{
-		if ( _element_place_holder_text != nullptr )
+		if ( _element_place_holder_text )
 		{
 			_remove_daughter_element( _element_place_holder_text );
 			delete _element_place_holder_text;
@@ -108,7 +108,7 @@ namespace cheonsa
 		_element_text.set_content_offset( content_offset );
 		_element_text.update_animations( time_step );
 
-		boolean_c is_descendant_mouse_focused = is_ascendant_of( _user_interface->get_mouse_focused() );
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_focused() );
 
 		_element_frame.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_frame.set_is_pressed( false );
@@ -119,7 +119,7 @@ namespace cheonsa
 
 	string16_c menu_control_text_c::get_place_holder_text_value() const
 	{
-		if ( _element_place_holder_text != nullptr )
+		if ( _element_place_holder_text )
 		{
 			return _element_place_holder_text->get_plain_text_value();
 		}
@@ -150,7 +150,7 @@ namespace cheonsa
 
 	void_c menu_control_text_c::clear_place_holder_text_value()
 	{
-		if ( _element_place_holder_text != nullptr )
+		if ( _element_place_holder_text )
 		{
 			_remove_daughter_element( _element_place_holder_text );
 			delete _element_place_holder_text;
@@ -302,13 +302,13 @@ namespace cheonsa
 		}
 		else
 		{
-			if ( _horizontal_scroll_bar != nullptr )
+			if ( _horizontal_scroll_bar )
 			{
 				remove_daughter_control( _horizontal_scroll_bar ); // this will remove a reference from _horizontal_scroll_bar, which will (probably) delete it.
 				_horizontal_scroll_bar = nullptr;
 			}
 		}
-		if ( _horizontal_scroll_bar != nullptr )
+		if ( _horizontal_scroll_bar )
 		{
 			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _element_text.get_content_width(), _local_box.get_width() );
 			_horizontal_scroll_bar->update_visibility( value );
@@ -334,13 +334,13 @@ namespace cheonsa
 		}
 		else
 		{
-			if ( _vertical_scroll_bar != nullptr )
+			if ( _vertical_scroll_bar )
 			{
 				remove_daughter_control( _vertical_scroll_bar ); // this will remove a reference from _vertical_scroll_bar, which will (probably) delete it.
 				_vertical_scroll_bar = nullptr;
 			}
 		}
-		if ( _vertical_scroll_bar != nullptr )
+		if ( _vertical_scroll_bar )
 		{
 			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _element_text.get_content_height(), _local_box.get_height() );
 			_vertical_scroll_bar->update_visibility( value );

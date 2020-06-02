@@ -30,12 +30,9 @@ namespace cheonsa
 		virtual void_c _handle_after_added_to_scene() override;
 		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
-		scene_component_light_probe_c();
-
 	public:
+		scene_component_light_probe_c();
 		~scene_component_light_probe_c() override;
-
-		static scene_component_light_probe_c * make_new_instance();
 
 		scene_component_model_c * get_local_model() const;
 		void_c set_local_model( scene_component_model_c * value );

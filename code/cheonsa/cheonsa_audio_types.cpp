@@ -16,7 +16,7 @@ namespace cheonsa
 		, _data_buffer( nullptr )
 		, _data_buffer_size( 0 )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( stream->get_position() == 0 );
 
 		data_scribe_binary_c scribe;
@@ -204,7 +204,7 @@ namespace cheonsa
 
 	audio_wave_buffer_c::state_c::~state_c()
 	{
-		if ( _data_buffer != nullptr )
+		if ( _data_buffer )
 		{
 			delete[] _data_buffer;
 			_data_buffer = nullptr;
@@ -243,7 +243,7 @@ namespace cheonsa
 
 	audio_wave_buffer_c::~audio_wave_buffer_c()
 	{
-		if ( _state != nullptr )
+		if ( _state )
 		{
 			_state->remove_reference();
 			_state = nullptr;
@@ -276,7 +276,7 @@ namespace cheonsa
 		state_c * old_state = _state;
 		_state = state_c::make_new_instance( stream );
 		_state->add_reference(); // it would never return 0 at this point.
-		if ( old_state != nullptr )
+		if ( old_state )
 		{
 			old_state->remove_reference();
 		}
@@ -286,7 +286,7 @@ namespace cheonsa
 	{
 		state_c * old_state = _state;
 		_state = nullptr;
-		if ( old_state != nullptr )
+		if ( old_state )
 		{
 			old_state->remove_reference();
 		}
@@ -310,9 +310,9 @@ namespace cheonsa
 			if ( _wave_buffer->_state->add_reference() != 0 ) // try to get reference to new state.
 			{
 				// forget old state.
-				if ( _wave_buffer_state != nullptr )
+				if ( _wave_buffer_state )
 				{
-					if ( _ogg_stb_vorbis != nullptr )
+					if ( _ogg_stb_vorbis )
 					{
 						stb_vorbis_close( _ogg_stb_vorbis );
 						_ogg_stb_vorbis = nullptr;
@@ -363,7 +363,7 @@ namespace cheonsa
 
 	boolean_c audio_wave_player_c::_sample_and_mix( sint32_c output_channel_count, sint32_c output_sample_rate, sint32_c output_sample_count, float32_c * output_sample_buffer, float32_c * output_channel_volumes )
 	{
-		assert( _is_playing && _wave_buffer_state != nullptr && _wave_buffer_state->_format != audio_wave_buffer_format_e_none );
+		assert( _is_playing && _wave_buffer_state && _wave_buffer_state->_format != audio_wave_buffer_format_e_none );
 
 		// sample from the wave buffer and mix with output.
 		if ( _wave_buffer_state->_format == audio_wave_buffer_format_e_raw )
@@ -396,7 +396,7 @@ namespace cheonsa
 		else if ( _wave_buffer_state->_format == audio_wave_buffer_format_e_ogg )
 		{
 			// audio thread should not call us if we aren't ready.
-			assert( _ogg_stb_vorbis != nullptr );
+			assert( _ogg_stb_vorbis );
 
 			// decode the ogg, sample from and advance the stream.
 			float64_c output_duration = static_cast< float64_c >( output_sample_count ) / static_cast< float64_c >( output_sample_rate );
@@ -446,17 +446,17 @@ namespace cheonsa
 	audio_wave_player_c::~audio_wave_player_c()
 	{
 		_instance_list.remove( &_instance_list_node );
-		if ( _ogg_stb_vorbis != nullptr )
+		if ( _ogg_stb_vorbis )
 		{
 			stb_vorbis_close( _ogg_stb_vorbis );
 			_ogg_stb_vorbis = nullptr;
 		}
-		if ( _wave_buffer_state != nullptr )
+		if ( _wave_buffer_state )
 		{
 			_wave_buffer_state->remove_reference();
 			_wave_buffer_state = nullptr;
 		}
-		if ( _wave_buffer != nullptr )
+		if ( _wave_buffer )
 		{
 			_wave_buffer->remove_reference();
 			_wave_buffer = nullptr;
@@ -490,7 +490,7 @@ namespace cheonsa
 
 	void_c audio_wave_player_c::set_wave_buffer( audio_wave_buffer_c * value )
 	{
-		if ( _wave_buffer != nullptr )
+		if ( _wave_buffer )
 		{
 			_wave_buffer->remove_reference();
 			_wave_buffer = nullptr;
@@ -694,7 +694,7 @@ namespace cheonsa
 		_queued_scene_source_list.remove_all();
 
 		core_linked_list_c< audio_scene_source_c * >::node_c const * sources_node = _scene_source_list.get_first();
-		while ( sources_node != nullptr )
+		while ( sources_node )
 		{
 			sources_node->get_value()->remove_reference();
 			sources_node = sources_node->get_next();
@@ -760,7 +760,7 @@ namespace cheonsa
 
 	boolean_c audio_scene_c::add_scene_source( audio_scene_source_c * value, boolean_c randomize_seek )
 	{
-		assert( value != nullptr );
+		assert( value );
 		if ( value->add_reference() != 0 )
 		{
 			if ( value->_wave_player->_is_queued == false )
@@ -779,7 +779,7 @@ namespace cheonsa
 
 	boolean_c audio_scene_c::remove_scene_source( audio_scene_source_c * value )
 	{
-		assert( value != nullptr );
+		assert( value );
 		if ( value->add_reference() != 0 )
 		{
 			_critical_section.enter();

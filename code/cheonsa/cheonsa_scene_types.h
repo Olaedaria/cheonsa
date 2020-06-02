@@ -13,7 +13,7 @@ namespace cheonsa
 	class scene_c;
 	class scene_object_c;
 	class scene_component_c;
-	class scene_component_ridgid_body_c;
+	class scene_component_rigid_body_c;
 	class scene_component_emitter_c;
 	class scene_component_light_c;
 	class scene_component_light_probe_c;
@@ -34,7 +34,7 @@ namespace cheonsa
 		scene_component_type_e_model,
 		scene_component_type_e_sound,
 		scene_component_type_e_sprite,
-		scene_component_type_e_ridgid_body,
+		scene_component_type_e_rigid_body,
 		scene_component_type_e_collision_object,
 	};
 
@@ -216,7 +216,7 @@ namespace cheonsa
 		vector32x3_c _color;
 		float32_c _strength;
 		float32_c _range; // range is a function of brightness, so it can't be set.
-		float32_c _cone_angle;
+		float32_c _cone_angle; // value in radians.
 		box32x3_c _local_space_obb;
 		box64x3_c _world_space_aabb;
 		sint32_c _shadow_view_start; // used by scene renderer to keep track of this light's shadow atlas allocation.
@@ -245,7 +245,7 @@ namespace cheonsa
 		void_c set_type( scene_light_type_e value );
 
 		vector32x3_c const & get_color() const;
-		void_c set_color( vector32x3_c const & value );
+		void_c set_color( vector32x3_c value );
 
 		float32_c get_strength() const;
 		void_c set_strength( float32_c value );
@@ -253,8 +253,8 @@ namespace cheonsa
 		float32_c get_range() const;
 		//void_c set_range( float32_c value );
 
-		float32_c get_cone_angle() const;
-		void_c set_cone_angle( float32_c value );
+		float32_c get_cone_angle() const; // value in radians.
+		void_c set_cone_angle( float32_c value ); // value in radians.
 
 		box32x3_c const & get_local_space_obb() const;
 

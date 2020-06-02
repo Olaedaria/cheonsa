@@ -1,7 +1,7 @@
 #include "cheonsa_physics_scene.h"
 #include "cheonsa_physics_shape.h"
 #include "cheonsa_physics_collision_object.h"
-#include "cheonsa_physics_ridgid_body.h"
+#include "cheonsa_physics_rigid_body.h"
 #include "cheonsa_physics_constraint.h"
 #include "cheonsa_physics_bullet_debug_drawer.h"
 #include "cheonsa__ops.h"

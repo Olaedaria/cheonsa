@@ -1,4 +1,4 @@
-﻿#include "cheonsa_memory_allocator_pool.h"
+#include "cheonsa_memory_allocator_pool.h"
 #include "cheonsa__ops.h"
 #include <cassert>
 #include <cstring> // cstring for memcpy and memset... makes a lot of sense... just kidding, it doesn't, it's stupid.
@@ -60,7 +60,7 @@ namespace cheonsa
 	void_c * memory_allocator_pool_c::allocate()
 	{
 		stack_linked_list_c::node_c * free_position = _free_list.pop();
-		assert( free_position != nullptr && "pool allocator is full." );
+		assert( free_position && "pool allocator is full." );
 		return reinterpret_cast< void_c * >( free_position );
 	}
 

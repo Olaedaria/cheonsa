@@ -24,12 +24,9 @@ namespace cheonsa
 		core_list_c< physics_shape_c * > _sub_shape_list; // if this is a compound shape, then this list will hold references to those sub shapes.
 		sint32_c _reference_count; // since shapes can be shared between multiple rigid bodies.
 
-		physics_shape_c();
-
 	public:
+		physics_shape_c();
 		~physics_shape_c();
-
-		static physics_shape_c * make_new_instance(); // creates a new instance with a reference count of 0.
 
 		void_c add_reference(); // adds a reference count.
 		void_c remove_reference(); // removes a reference count, and if it reaches 0 then deletes this instance.

@@ -1,4 +1,4 @@
-﻿#include "cheonsa_reflection_property.h"
+#include "cheonsa_reflection_property.h"
 #include "cheonsa_reflection_enumeration.h"
 #include "cheonsa__ops.h"
 #include <cassert>
@@ -18,7 +18,7 @@ namespace cheonsa
 		, _defaults_and_limits()
 		, _accessors()
 	{
-		assert( reflection_class != nullptr );
+		assert( reflection_class );
 		ops::memory_zero( &_defaults_and_limits, sizeof( _defaults_and_limits ) ); // i'm not sure if this is needed in modern c++.
 		ops::memory_zero( &_accessors, sizeof( _accessors ) ); // i'm not sure if this is needed in modern c++.
 	}
@@ -73,7 +73,7 @@ namespace cheonsa
 	{
 		assert( _type >= data_type_e_uint8 && _type <= data_type_e_float64 );
 		assert( _type_count == 1 );
-		assert( minimum != nullptr && maximum != nullptr );
+		assert( minimum && maximum );
 		sint32_c type_size = ops::get_data_type_size( _type );
 		uint8_c * target = _defaults_and_limits._uint8_default;
 		ops::memory_copy( minimum, target + ( type_size * 4 ), type_size );

@@ -27,8 +27,8 @@ namespace cheonsa
 		string16_c _file_path_absolute; // the resolved absolute file path of the file in the operating system's file system.
 		sint64_c _file_last_write_time; // the last write time of the loaded file.
 
-		boolean_c _search_game_data; // default is true. if true then the content manager will search the game data folders for a match when trying to resolve _file_path to _file_path_absolute.
 		boolean_c _search_engine_data; // default is true. if true then the content manager will search the engine data folders for a match when trying to resolve _file_path to _file_path_absolute.
+		boolean_c _search_game_data; // default is true. if true then the content manager will search the game data folders for a match when trying to resolve _file_path to _file_path_absolute.
 		boolean_c _is_loaded; // tracks if this resource is loaded and ready to be used or not.
 
 		sint32_c _reference_count; // tracks the number of users using this resource. this resource does not delete itself when this count reaches 0.
@@ -140,12 +140,12 @@ namespace cheonsa
 
 		boolean_c get_is_value_set() const
 		{
-			return _value != nullptr;
+			return _value;
 		}
 
 		boolean_c get_is_value_set_and_loaded() const
 		{
-			return ( _value != nullptr ) && ( _value->get_is_loaded() );
+			return ( _value ) && ( _value->get_is_loaded() );
 		}
 
 	};

@@ -66,13 +66,13 @@ namespace cheonsa
 	{
 		for ( sint32_c i = 0; i < _resource_list.get_length(); i++ )
 		{
-			resource_file_c * resource_file = _resource_list[ i ];
-			resource_file->refresh();
+			resource_file_c * resource = _resource_list[ i ];
+			resource->refresh();
 		}
 	}
 
 	template< typename resource_file_type_c >
-	resource_file_type_c * resource_manager_c::_load( string16_c const & file_path, boolean_c load_now )
+	resource_file_type_c * resource_manager_c::_load( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
 		if ( file_path == "" )
 		{
@@ -90,61 +90,63 @@ namespace cheonsa
 		}
 
 		// create new resource instance.
-		resource_file_type_c * resource_file = new resource_file_type_c( file_path );
-		_resource_list.insert( -1, resource_file );
+		resource_file_type_c * resource = new resource_file_type_c( file_path );
+		_resource_list.insert( -1, resource );
+		resource->set_search_engine_data( search_engine_data );
+		resource->set_search_game_data( search_game_data );
 
 		// load.
 		if ( load_now )
 		{
 			// load the resource data now on this main thread.
-			resource_file->refresh();
+			resource->refresh();
 		}
 		else
 		{
 			// add the resource to the load queue
-			resource_file->add_reference();
+			resource->add_reference();
 			_worker_thread_critical_section.enter();
-			_load_queue.insert( -1, resource_file );
+			_load_queue.insert( -1, resource );
 			_worker_thread_critical_section.exit();
 		}
 
 		// return the new resource instance.
-		return resource_file;
+		return resource;
 	}
 
-	resource_file_font_c * resource_manager_c::load_font( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_font_c * resource_manager_c::load_font( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
-		return _load< resource_file_font_c >( relative_file_path, load_now );
+		return _load< resource_file_font_c >( file_path, search_engine_data, search_game_data, load_now );
 	}
 
-	resource_file_materials_c * resource_manager_c::load_materials( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_materials_c * resource_manager_c::load_materials( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
-		return _load< resource_file_materials_c >( relative_file_path, load_now );
+		return _load< resource_file_materials_c >( file_path, search_engine_data, search_game_data, load_now );
 	}
 
-	resource_file_menu_layout_c * resource_manager_c::load_menu_layout( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_menu_layout_c * resource_manager_c::load_menu_layout( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
-		return _load< resource_file_menu_layout_c >( relative_file_path, load_now );
+		return _load< resource_file_menu_layout_c >( file_path, search_engine_data, search_game_data, load_now );
 	}
 
-	resource_file_model_c * resource_manager_c::load_model( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_model_c * resource_manager_c::load_model( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
-		return _load< resource_file_model_c >( relative_file_path, load_now );
+		return _load< resource_file_model_c >( file_path, search_engine_data, search_game_data, load_now );
 	}
 	
-	resource_file_sprites_c * resource_manager_c::load_sprites( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_sprites_c * resource_manager_c::load_sprites( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
-		return _load< resource_file_sprites_c >( relative_file_path, load_now );
+		return _load< resource_file_sprites_c >( file_path, search_engine_data, search_game_data, load_now );
 	}
 
-	resource_file_strings_c * resource_manager_c::load_strings( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_strings_c * resource_manager_c::load_strings( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
-		return _load< resource_file_strings_c >( relative_file_path, load_now );
+		return _load< resource_file_strings_c >( file_path, search_engine_data, search_game_data, load_now );
 	}
 
-	resource_file_texture_c * resource_manager_c::load_texture( string16_c const & relative_file_path, boolean_c load_now )
+	resource_file_texture_c * resource_manager_c::load_texture( string16_c const & file_path, boolean_c search_engine_data, boolean_c search_game_data, boolean_c load_now )
 	{
-		return _load< resource_file_texture_c >( relative_file_path, load_now );
+		return _load< resource_file_texture_c >( file_path, search_engine_data, search_game_data, load_now );
 	}
 
 }

@@ -267,7 +267,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture" );
 		if ( attribute )
 		{
-			texture = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ) );
+			texture = engine.get_resource_manager()->load_texture( string16_c( attribute->get_value() ), true, true );
 		}
 
 		boolean_c texture_map_origin_is_defined = false;
@@ -588,7 +588,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "font" );
 		if ( attribute )
 		{
-			font = engine.get_resource_manager()->load_font( string16_c( attribute->get_value() ) );
+			font = engine.get_resource_manager()->load_font( string16_c( attribute->get_value() ), true, true );
 			font_is_defined = font.get_is_value_set_and_loaded();
 		}
 
@@ -947,7 +947,7 @@ namespace cheonsa
 		}
 
 		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
-		while ( sub_node != nullptr )
+		while ( sub_node )
 		{
 			if ( sub_node->get_value() == "item" )
 			{
@@ -1196,7 +1196,7 @@ namespace cheonsa
 		draw->pixel_shader = pixel_shader;
 		draw->texture = texture;
 		draw->color = color;
-		if ( shared_colors != nullptr )
+		if ( shared_colors )
 		{
 			draw->shared_colors[ 0 ] = shared_colors[ 0 ];
 			draw->shared_colors[ 1 ] = shared_colors[ 1 ];
@@ -1233,7 +1233,7 @@ namespace cheonsa
 		draw->pixel_shader = pixel_shader;
 		draw->texture = texture;
 		draw->color = color;
-		if ( shared_colors != nullptr )
+		if ( shared_colors )
 		{
 			draw->shared_colors[ 0 ] = shared_colors[ 0 ];
 			draw->shared_colors[ 1 ] = shared_colors[ 1 ];

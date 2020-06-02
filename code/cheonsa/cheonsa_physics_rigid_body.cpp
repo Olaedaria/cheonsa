@@ -1,4 +1,4 @@
-#include "cheonsa_physics_ridgid_body.h"
+#include "cheonsa_physics_rigid_body.h"
 #include "cheonsa_physics_scene.h"
 #include "btBulletDynamicsCommon.h"
 #include <cassert>
@@ -6,13 +6,14 @@
 namespace cheonsa
 {
 
-	class physics_bullet_motion_state_c : public btMotionState
+	class physics_motion_state_c : public btMotionState
 	{
 	public:
 		void_c * _object;
-		void_c ( *_copy_world_space_transform_from_game_to_physics )( void_c * object, vector64x3_c & world_space_position, matrix32x3x3_c & world_space_basis ); // gets the world space transform of the physics body in the physics simulation.
-		void_c ( *_copy_world_space_transform_from_physics_to_game )( void_c * object, vector64x3_c const & world_space_position, matrix32x3x3_c const & world_space_basis ); // sets the world space transform of the physics body in the physics simulation.
-		physics_bullet_motion_state_c(
+		void_c ( *_copy_world_space_transform_from_game_to_physics )( void_c * object, vector64x3_c & world_space_position, matrix32x3x3_c & world_space_basis );
+		void_c ( *_copy_world_space_transform_from_physics_to_game )( void_c * object, vector64x3_c const & world_space_position, matrix32x3x3_c const & world_space_basis );
+
+		physics_motion_state_c(
 			void_c * object,
 			void_c ( *copy_world_space_transform_from_game_to_physics )( void_c * object, vector64x3_c & world_space_position, matrix32x3x3_c & world_space_basis ),
 			void_c ( *copy_world_space_transform_from_physics_to_game )( void_c * object, vector64x3_c const & world_space_position, matrix32x3x3_c const & world_space_basis ) )
@@ -25,7 +26,7 @@ namespace cheonsa
 
 		// bullet calls this to read transform of our object in our scene and copy it to the bullet scene.
 		// it calls it for the first time when the body is created.
-		// bullet grabs the initial position of the body from the motionstate when the body enters the simulation.
+		// bullet grabs the initial position of the body from the motion state when the body enters the simulation.
 		// it also calls it once each update tick (right?) for kinematic bodies.
 		virtual void_c getWorldTransform( btTransform & worldTrans ) const override
 		{
@@ -38,7 +39,7 @@ namespace cheonsa
 		}
 
 		// bullet calls this to set the transform of our object in our scene.
-		// bullet calls this for each update tick after the first.
+		// i think bullet calls this for each physics simulation update tick.
 		virtual void_c setWorldTransform( const btTransform & worldTrans ) override
 		{
 			btVector3 const & bullet_origin = worldTrans.getOrigin();
@@ -79,6 +80,7 @@ namespace cheonsa
 		, _layer_mask( 0 )
 		, _reference_count( 0 )
 	{
+
 	}
 
 	physics_rigid_body_c::~physics_rigid_body_c()
@@ -88,11 +90,6 @@ namespace cheonsa
 		{
 			uninitialize();
 		}
-	}
-
-	physics_rigid_body_c * physics_rigid_body_c::make_new_instance()
-	{
-		return new physics_rigid_body_c();
 	}
 
 	void_c physics_rigid_body_c::add_reference()
@@ -147,7 +144,7 @@ namespace cheonsa
 			bullet_flags |= btRigidBody::CF_KINEMATIC_OBJECT;
 		}
 
-		_bullet_motion_state = new physics_bullet_motion_state_c( object, copy_world_space_transform_from_game_to_physics, copy_world_space_transform_from_physics_to_game );
+		_bullet_motion_state = new physics_motion_state_c( object, copy_world_space_transform_from_game_to_physics, copy_world_space_transform_from_physics_to_game );
 		_bullet_rigid_body = new btRigidBody( mass, _bullet_motion_state, _shape->_bullet_shape, bullet_local_inertia );
 		_bullet_rigid_body->setUserPointer( this );
 		_bullet_rigid_body->setCollisionFlags( bullet_flags );
@@ -173,7 +170,7 @@ namespace cheonsa
 
 	boolean_c physics_rigid_body_c::get_is_initialized() const
 	{
-		return _bullet_rigid_body != nullptr;
+		return _bullet_rigid_body;
 	}
 
 	void_c physics_rigid_body_c::get_world_space_transform( transform3d_c & world_space_transform ) const

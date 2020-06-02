@@ -35,12 +35,9 @@ namespace cheonsa
 
 		void_c _update_local_space_obb();
 
-		scene_component_sprite_c();
-
 	public:
+		scene_component_sprite_c();
 		virtual ~scene_component_sprite_c() override;
-
-		static scene_component_sprite_c * make_new_instance();
 
 		sprite_c & get_sprite();
 

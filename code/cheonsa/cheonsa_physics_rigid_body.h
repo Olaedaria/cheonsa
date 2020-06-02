@@ -1,6 +1,8 @@
 #pragma once
 
 #include "cheonsa_physics_shape.h"
+//#include "third_party/bullet/LinearMath/btMotionState.h"
+//#include "third_party/bullet/BulletDynamics/Dynamics/btRigidBody.h"
 
 namespace cheonsa
 {
@@ -13,36 +15,28 @@ namespace cheonsa
 		friend class physics_scene_c;
 
 	private:
-		btMotionState * _bullet_motion_state;
-		btRigidBody * _bullet_rigid_body;
+		btMotionState * _bullet_motion_state; // i want to encapsulate this instance instead of have it on the heap, but i also don't want to include bullet headers in our headers.
+		btRigidBody * _bullet_rigid_body; // i want to encapsulate this instance instead of have it on the heap, but i also don't want to include bullet headers in our headers.
 		physics_shape_c * _shape;
 		uint32_c _layer;
 		uint32_c _layer_mask;
 		sint32_c _reference_count;
 
-		physics_rigid_body_c();
-
 	public:
+		physics_rigid_body_c();
 		~physics_rigid_body_c();
-
-		static physics_rigid_body_c * make_new_instance(); // creates a new instance with a reference count of 0.
 
 		void_c add_reference(); // adds a reference count.
 		void_c remove_reference(); // removes a reference count, and if it reaches 0 then deletes this instance.
 
+		// object: a pointer to the game object instance that we want to link with this physics rigid body, it can be any type of object.
+		// copy_world_space_transform_from_game_to_physics: the physics simulation system calls this function when it wants to take the world space transform from the linked object instance.
+		// copy_world_space_transform_from_physics_to_game: the physics simulation system calls this function when it wants to give the world space transform to the linked object instance.
+		// shape: the shape to use for the rigid body.
 		void_c initialize(
-			// a pointer to the game object instance that we want to link with this physics rigid body.
-			// this can be any type of object with spatial properties.
 			void_c * object,
-			// the physics simulation engine calls this function when it wants to take the world space transform from the linked game object instance and assign it to its linked physics rigid body.
-			// this function should copy the requested world_space_position and world_space_basis properties from the game object instance.
 			void_c ( *copy_world_space_transform_from_game_to_physics )( void_c * object, vector64x3_c & world_space_position, matrix32x3x3_c & world_space_basis ),
-			// the physics simulation engine calls this function when it wants update the world space transform of the game object to match the world space transform of the linked physics rigid body.
-			// this function should copy the provided world_space_position and world_space_basis properties to the game object instance.
 			void_c ( *copy_world_space_transform_from_physics_to_game )( void_c * object, vector64x3_c const & world_space_position, matrix32x3x3_c const & world_space_basis ),
-			// a shape to link with this physics body.
-			// this shape will not be owned by the physics body.
-			// it will be the user's responsibility to delete the shape instance if needed when it's no longer in use so as to not leak memory.
 			physics_shape_c * shape,
 			float64_c mass,
 			boolean_c kinematic,

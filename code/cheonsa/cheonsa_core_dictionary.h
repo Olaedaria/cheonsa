@@ -199,15 +199,15 @@ namespace cheonsa
 			{
 				if ( bucket[ i ].key == key )
 				{
-					if ( out_bucket != nullptr )
+					if ( out_bucket )
 					{
 						*out_bucket = const_cast< core_list_c< entry_c > * >( &bucket );
 					}
-					if ( out_entry_index != nullptr )
+					if ( out_entry_index )
 					{
 						*out_entry_index = i;
 					}
-					if ( out_entry != nullptr )
+					if ( out_entry )
 					{
 						*out_entry = const_cast< entry_c * >( &bucket[ i ] );
 					}

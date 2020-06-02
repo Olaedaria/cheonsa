@@ -1,4 +1,4 @@
-﻿#include "cheonsa_video_renderer_canvas.h"
+#include "cheonsa_video_renderer_canvas.h"
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 #include <cassert>
@@ -32,7 +32,7 @@ namespace cheonsa
 		, _output( nullptr )
 		//, _reflections_canvas( nullptr )
 	{
-		assert( engine.get_video_interface() != nullptr );
+		assert( engine.get_video_interface() );
 
 		//if ( _primary_enable )
 		//{
@@ -147,7 +147,7 @@ namespace cheonsa
 		_statistic_triangle_count = 0;
 
 		// if we are associated with a window output, then acquire our desired size from the output.
-		if ( _output != nullptr )
+		if ( _output )
 		{
 			if ( _output->update() )
 			{
@@ -176,7 +176,7 @@ namespace cheonsa
 		}
 
 		// release existing targets.
-		if ( _target_depth_stencil != nullptr )
+		if ( _target_depth_stencil )
 		{
 			delete _target_depth_stencil;
 			_target_depth_stencil = nullptr;
@@ -244,7 +244,7 @@ namespace cheonsa
 		engine.get_video_interface()->clear_texture( _target_normal, 0.0f, 0.0f, 0.0f, 0.0f );
 		engine.get_video_interface()->clear_texture( _target_depth, constants< float32_c >::maximum(), 0.0f, 0.0f, 0.0f ); // float32_maximum or view->clip_far?
 		engine.get_video_interface()->clear_texture( _target_color, clear_color.a, clear_color.b, clear_color.c, clear_color.d );
-		if ( _output != nullptr )
+		if ( _output )
 		{
 			engine.get_video_interface()->clear_texture( _output, clear_color.a, clear_color.b, clear_color.c, clear_color.d );
 		}
@@ -261,7 +261,7 @@ namespace cheonsa
 		//_scene_triangle_count = 0;
 		//_scene_skinned_vertex_count = 0;
 
-		if ( _output != nullptr )
+		if ( _output )
 		{
 			_output->present();
 		}
@@ -303,7 +303,7 @@ namespace cheonsa
 		{
 			_target_color_final_readable = engine.get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, true, false, false );
 		}
-		assert( _target_color_final_readable != nullptr );
+		assert( _target_color_final_readable );
 		engine.get_video_interface()->copy_sub_resource( _target_color_final_readable, 0, _target_color_final, 0 );
 		return _target_color_final_readable;
 	}

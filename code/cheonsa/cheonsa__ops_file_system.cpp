@@ -398,8 +398,7 @@ namespace cheonsa
 
 		string16_c file_system_convert_path_format_from_cheonsa_to_windows( string16_c const & path )
 		{
-			string16_c result;
-			result = path;
+			string16_c result( core_list_mode_e_dynamic, path.character_list.get_internal_array(), path.character_list.get_length() );
 			char16_c * character_pointer = result.character_list.get_internal_array();
 			while ( *character_pointer )
 			{
@@ -572,7 +571,7 @@ namespace cheonsa
 			}
 
 			core_list_c< string16_c > file_extension_filter_list;
-			if ( file_extension_filter != nullptr )
+			if ( file_extension_filter )
 			{
 				ops::string16_split_at_delimiter( string16_c( file_extension_filter ), string16_c( core_list_mode_e_static, L"|" ), file_extension_filter_list );
 			}

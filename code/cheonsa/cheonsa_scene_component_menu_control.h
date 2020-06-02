@@ -27,12 +27,9 @@ namespace cheonsa
 		virtual void_c _handle_before_removed_from_scene() override;
 		virtual void_c _handle_after_added_to_scene() override;
 
-		scene_component_menu_control_c();
-
 	public:
+		scene_component_menu_control_c();
 		virtual ~scene_component_menu_control_c() override;
-
-		static scene_component_menu_control_c * make_new_instance();
 
 		menu_control_c * get_control() const;
 		void_c set_control( menu_control_c * control );

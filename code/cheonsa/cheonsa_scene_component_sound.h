@@ -43,12 +43,9 @@ namespace cheonsa
 		virtual void_c _handle_after_added_to_scene() override;
 		virtual void_c _handle_before_removed_from_scene() override;
 
-		scene_component_sound_c();
-
 	public:
+		scene_component_sound_c();
 		virtual ~scene_component_sound_c() override;
-
-		static scene_component_sound_c * make_new_instance();
 
 		resource_file_sound_c * get_sound_resource() const;
 		void_c set_sound_resource( resource_file_sound_c * value );

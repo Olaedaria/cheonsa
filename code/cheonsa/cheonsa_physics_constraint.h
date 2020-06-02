@@ -12,17 +12,14 @@ namespace cheonsa
 
 	private:
 		physics_constraint_type_e _type;
-		physics_rigid_body_c * _ridgid_body_a;
-		physics_rigid_body_c * _ridgid_body_b;
+		physics_rigid_body_c * _rigid_body_a;
+		physics_rigid_body_c * _rigid_body_b;
 		btTypedConstraint * _bullet_constraint;
 		sint32_c _reference_count;
 
-		physics_constraint_c();
-
 	public:
+		physics_constraint_c();
 		~physics_constraint_c();
-
-		static physics_constraint_c * make_new_instance(); // creates a new instance with a reference count of 0.
 
 		void_c add_reference(); // adds a reference count.
 		void_c remove_reference(); // removes a reference count, and if it reaches 0 then deletes this instance.

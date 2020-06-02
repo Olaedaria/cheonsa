@@ -97,14 +97,14 @@ namespace cheonsa
 		{
 			if ( value )
 			{
-				if ( _mode == mode_e_single && _mother_control != nullptr )
+				if ( _mode == mode_e_single && _mother_control )
 				{
 					// un-check all other related single mode check boxes.
 					core_linked_list_c< menu_control_c * >::node_c const * check_list_node = _mother_control->get_daughter_control_list().get_first();
 					while ( check_list_node )
 					{
 						menu_control_check_c * other_check = dynamic_cast< menu_control_check_c * >( check_list_node->get_value() );
-						if ( other_check != nullptr && other_check != this && other_check->_mode == mode_e_single )
+						if ( other_check && other_check != this && other_check->_mode == mode_e_single )
 						{
 							other_check->set_is_checked( false );
 						}
@@ -126,11 +126,11 @@ namespace cheonsa
 
 	void_c menu_control_check_c::update_animations( float32_c time_step )
 	{
-		assert( _user_interface );
+		assert( _mother_user_interface );
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_descendant_mouse_focused = is_ascendant_of( _user_interface->get_mouse_focused() );
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_focused() );
 		_element_box.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
 		_element_box.set_is_pressed( _is_pressed );
 		_element_mark.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );

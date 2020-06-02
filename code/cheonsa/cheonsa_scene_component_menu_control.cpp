@@ -11,7 +11,7 @@ namespace cheonsa
 		if ( _control )
 		{
 			assert( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() );
-			_scene_object->get_scene()->get_user_interface()->remove_control( _control );
+			_scene_object->get_scene()->get_user_interface()->remove_daughter_control( _control );
 		}
 	}
 
@@ -20,7 +20,7 @@ namespace cheonsa
 		if ( _control )
 		{
 			assert( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() );
-			_scene_object->get_scene()->get_user_interface()->add_control( _control );
+			_scene_object->get_scene()->get_user_interface()->add_daughter_control( _control );
 		}
 	}
 
@@ -29,7 +29,7 @@ namespace cheonsa
 		scene_component_c::_handle_before_removed_from_scene();
 		if ( _control && _scene_object->get_scene()->get_user_interface() )
 		{
-			_scene_object->get_scene()->get_user_interface()->remove_control( _control );
+			_scene_object->get_scene()->get_user_interface()->remove_daughter_control( _control );
 		}
 	}
 
@@ -38,7 +38,7 @@ namespace cheonsa
 		scene_component_c::_handle_after_added_to_scene();
 		if ( _control && _scene_object->get_scene()->get_user_interface() )
 		{
-			_scene_object->get_scene()->get_user_interface()->add_control( _control );
+			_scene_object->get_scene()->get_user_interface()->add_daughter_control( _control );
 		}
 	}
 
@@ -52,18 +52,13 @@ namespace cheonsa
 	{
 		if ( _control )
 		{
-			if ( _scene_object && _scene_object->get_scene() && _control->get_user_interface() )
+			if ( _scene_object && _scene_object->get_scene() && _control->get_mother_user_interface() )
 			{
-				_scene_object->get_scene()->get_user_interface()->remove_control( _control );
+				_scene_object->get_scene()->get_user_interface()->remove_daughter_control( _control );
 			}
 			_control->remove_reference();
 			_control = nullptr;
 		}
-	}
-
-	scene_component_menu_control_c * scene_component_menu_control_c::make_new_instance()
-	{
-		return new scene_component_menu_control_c();
 	}
 
 	menu_control_c * scene_component_menu_control_c::get_control() const
@@ -79,7 +74,7 @@ namespace cheonsa
 			{
 				if ( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
 				{
-					_scene_object->get_scene()->get_user_interface()->remove_control( _control );
+					_scene_object->get_scene()->get_user_interface()->remove_daughter_control( _control );
 				}
 				_control->set_scene_component( nullptr );
 				_control->remove_reference();
@@ -93,7 +88,7 @@ namespace cheonsa
 				_control->set_scene_component( this );
 				if ( _scene_object && _scene_object->get_scene() && _scene_object->get_scene()->get_user_interface() )
 				{
-					_scene_object->get_scene()->get_user_interface()->add_control( _control );
+					_scene_object->get_scene()->get_user_interface()->add_daughter_control( _control );
 				}
 			}
 		}

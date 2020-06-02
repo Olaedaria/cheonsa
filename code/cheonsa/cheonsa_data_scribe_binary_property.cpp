@@ -21,13 +21,13 @@ namespace cheonsa
 	void_c data_scribe_binary_property_c::open( data_scribe_binary_c * scribe_binary )
 	{
 		assert( _scribe_binary == nullptr );
-		assert( scribe_binary != nullptr );
+		assert( scribe_binary );
 		_scribe_binary = scribe_binary;
 	}
 
 	void_c data_scribe_binary_property_c::close()
 	{
-		assert( _scribe_binary != nullptr );
+		assert( _scribe_binary );
 		_scribe_binary = nullptr;
 		_loaded_key = "";
 		_loaded_type = 0;

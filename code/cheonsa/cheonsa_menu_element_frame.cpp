@@ -16,7 +16,7 @@ namespace cheonsa
 			return;
 		}
 
-		menu_frame_style_c const * frame_style = _override_style != nullptr ? _override_style : _style_reference.get_value();
+		menu_frame_style_c const * frame_style = _override_style ? _override_style : _style_reference.get_value();
 		if ( frame_style == nullptr )
 		{
 			frame_style = engine.get_menu_style_manager()->get_default_frame_style();
@@ -50,7 +50,7 @@ namespace cheonsa
 		draw_shared_colors[ 2 ] = shared_color->value;
 
 		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference ? frame_style->pixel_shader_reference->get_ps() : engine.get_video_renderer_shader_manager()->get_menu_ps_frame();
-		assert( pixel_shader != nullptr );
+		assert( pixel_shader );
 
 		// to hold calculated measurements of what to draw.
 		float32_c texture_width = static_cast< float32_c >( texture->get_video_texture()->get_width() );

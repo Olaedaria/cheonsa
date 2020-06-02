@@ -19,7 +19,7 @@ namespace cheonsa
 
 	void_c resource_file_strings_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		// parse the stream.

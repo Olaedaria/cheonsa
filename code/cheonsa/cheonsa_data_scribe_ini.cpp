@@ -102,7 +102,7 @@ namespace cheonsa
 				{
 					// current line is a section.
 					char8_c * end = find_first_instance( c, ']' );
-					if ( end != nullptr )
+					if ( end )
 					{
 						end = 0; // zero the ']'.
 						item_c * item = _item_list.emplace( -1, 1 );
@@ -121,7 +121,7 @@ namespace cheonsa
 				{
 					// current line is a property.
 					char8_c * equal_sign = find_first_instance( c, '=' );
-					if ( equal_sign != nullptr && equal_sign > c )
+					if ( equal_sign && equal_sign > c )
 					{
 						count_and_zero_spaces_at_end( equal_sign - 1, c );
 						equal_sign++;

@@ -86,11 +86,11 @@ namespace cheonsa
 	{
 		if ( other != _value )
 		{
-			if ( other != nullptr )
+			if ( other )
 			{
 				other->add_reference();
 			}
-			if ( _value != nullptr )
+			if ( _value )
 			{
 				_value->remove_reference();
 			}
@@ -122,12 +122,12 @@ namespace cheonsa
 
 	boolean_c video_renderer_pixel_shader_c::reference_c::get_value_is_set() const
 	{
-		return _value != nullptr;
+		return _value;
 	}
 
 	boolean_c video_renderer_pixel_shader_c::reference_c::get_value_is_set_and_loaded() const
 	{
-		return _value != nullptr && _value->_ps != nullptr;
+		return _value && _value->_ps;
 	}
 
 	video_renderer_shader_manager_c::file_dependency_c::file_dependency_c()
@@ -252,17 +252,17 @@ namespace cheonsa
 		switch ( variation )
 		{
 		case variation_e_vs:
-			return _vs != nullptr;
+			return _vs;
 		case variation_e_vs_waved:
-			return _vs_waved != nullptr;
+			return _vs_waved;
 		case variation_e_vs_clipped:
-			return _vs_clipped != nullptr;
+			return _vs_clipped;
 		case variation_e_vs_waved_clipped:
-			return _vs_waved_clipped != nullptr;
+			return _vs_waved_clipped;
 		case variation_e_ps:
-			return _ps != nullptr;
+			return _ps;
 		case variation_e_ps_masked:
-			return _ps_masked != nullptr;
+			return _ps_masked;
 		}
 		return false;
 	}
@@ -541,7 +541,7 @@ namespace cheonsa
 			sint32_c compiled_code_size;
 			shader->get_compiled_code( compiled_code, compiled_code_size );
 			__save_to_cache( shader_variations, cache_file_path_absolute, compiled_code, compiled_code_size );
-			if ( *result != nullptr )
+			if ( *result )
 			{
 				delete *result;
 			}
@@ -567,7 +567,7 @@ namespace cheonsa
 			shader->get_compiled_code( compiled_code, compiled_code_size );
 			
 			__save_to_cache( shader_variations, cache_file_path_absolute, compiled_code, compiled_code_size );
-			if ( *result != nullptr )
+			if ( *result )
 			{
 				delete *result;
 			}
@@ -683,9 +683,9 @@ namespace cheonsa
 			stream.close();
 
 			video_vertex_shader_c * shader = engine.get_video_interface()->create_vertex_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size, vertex_layout );
-			if ( shader != nullptr )
+			if ( shader )
 			{
-				if ( *result != nullptr)
+				if ( *result)
 				{
 					delete *result;
 				}
@@ -726,9 +726,9 @@ namespace cheonsa
 			stream.close();
 
 			video_pixel_shader_c * shader = engine.get_video_interface()->create_pixel_shader( cache_file_name.character_list.get_internal_array(), compiled_code.get_internal_array(), compiled_code_size );
-			if ( shader != nullptr )
+			if ( shader )
 			{
-				if ( *result != nullptr )
+				if ( *result )
 				{
 					delete *result;
 				}
@@ -785,7 +785,7 @@ namespace cheonsa
 	{
 		_internal_shader_list.remove_and_delete_all();
 
-		if ( _scene_camera_color_ps_mesh != nullptr )
+		if ( _scene_camera_color_ps_mesh )
 		{
 			_scene_camera_color_ps_mesh->remove_reference();
 			_scene_camera_color_ps_mesh = nullptr;
@@ -952,8 +952,8 @@ namespace cheonsa
 
 	boolean_c video_renderer_shader_manager_c::refresh()
 	{
-		assert( engine.get_resource_manager() != nullptr );
-		assert( engine.get_video_interface() != nullptr );
+		assert( engine.get_resource_manager() );
+		assert( engine.get_video_interface() );
 
 		for ( sint32_c i = 0; i < _external_shader_list.get_length(); i++ )
 		{
@@ -972,28 +972,28 @@ namespace cheonsa
 			shader_variations_c * shader_variations = _internal_shader_list[ i ];
 			if ( shader_variations->_input_vertex_layout )
 			{
-				if ( shader_variations->_vs != nullptr )
+				if ( shader_variations->_vs )
 				{
 					if ( *shader_variations->_vs == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->_vs_waved != nullptr )
+				if ( shader_variations->_vs_waved )
 				{
 					if ( *shader_variations->_vs_waved == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->_vs_clipped != nullptr )
+				if ( shader_variations->_vs_clipped )
 				{
 					if ( *shader_variations->_vs_clipped == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->_vs_waved_clipped != nullptr )
+				if ( shader_variations->_vs_waved_clipped )
 				{
 					if ( *shader_variations->_vs_waved_clipped == nullptr )
 					{
@@ -1003,14 +1003,14 @@ namespace cheonsa
 			}
 			else
 			{
-				if ( shader_variations->_ps != nullptr )
+				if ( shader_variations->_ps )
 				{
 					if ( *shader_variations->_ps == nullptr )
 					{
 						return false;
 					}
 				}
-				if ( shader_variations->_ps_masked != nullptr )
+				if ( shader_variations->_ps_masked )
 				{
 					if ( *shader_variations->_ps_masked == nullptr )
 					{

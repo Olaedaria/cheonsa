@@ -79,8 +79,6 @@ namespace cheonsa
 
 	scene_component_c::~scene_component_c()
 	{
-		assert( _reference_count == 0 );
-		_remove_from_component_tree();
 	}
 
 	sint32_c scene_component_c::add_reference()

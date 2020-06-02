@@ -1,4 +1,4 @@
-﻿#include "cheonsa_script_manager.h"
+#include "cheonsa_script_manager.h"
 #include "cheonsa_script_instance.h"
 #include "cheonsa_engine.h"
 #include "cheonsa__ops.h"
@@ -41,7 +41,7 @@ namespace cheonsa
 	boolean_c script_manager_c::call_function( script_instance_c * caller, string8_c & function_name, core_list_c< script_value_c > & function_inputs, script_value_c & function_result )
 	{
 		script_function_f * result = _function_dictionary.find_value_pointer( function_name );
-		if ( result != nullptr )
+		if ( result )
 		{
 			return ( *result )( caller, function_inputs, function_result );
 		}

@@ -89,13 +89,13 @@ namespace cheonsa
 		}
 		else
 		{
-			if ( _horizontal_scroll_bar != nullptr )
+			if ( _horizontal_scroll_bar )
 			{
 				remove_daughter_control( _horizontal_scroll_bar ); // this will remove a reference from _horizontal_scroll_bar, which will (probably) delete it.
 				_horizontal_scroll_bar = nullptr;
 			}
 		}
-		if ( _horizontal_scroll_bar != nullptr )
+		if ( _horizontal_scroll_bar )
 		{
 			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _client->get_content_bounds().get_width(), _client->get_local_box().get_width() );
 			_horizontal_scroll_bar->update_visibility( value );
@@ -104,7 +104,7 @@ namespace cheonsa
 
 	void_c menu_control_panel_i::_lay_out_horizontal_scroll_bar()
 	{
-		if ( _horizontal_scroll_bar != nullptr )
+		if ( _horizontal_scroll_bar )
 		{
 			box32x2_c const & client_margins = _get_client_margins();
 			_horizontal_scroll_bar->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( client_margins.minimum.a, _horizontal_scroll_bar->get_preferred_thickness(), client_margins.maximum.a, client_margins.maximum.b ) );
@@ -132,13 +132,13 @@ namespace cheonsa
 		}
 		else
 		{
-			if ( _vertical_scroll_bar != nullptr )
+			if ( _vertical_scroll_bar )
 			{
 				remove_daughter_control( _vertical_scroll_bar ); // this will remove a reference from _vertical_scroll_bar, which will (probably) delete it.
 				_vertical_scroll_bar = nullptr;
 			}
 		}
-		if ( _vertical_scroll_bar != nullptr )
+		if ( _vertical_scroll_bar )
 		{
 			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _client->get_content_bounds().get_height(), _client->get_local_box().get_height() );
 			_vertical_scroll_bar->update_visibility( value );
@@ -147,7 +147,7 @@ namespace cheonsa
 
 	void_c menu_control_panel_i::_lay_out_vertical_scroll_bar()
 	{
-		if ( _vertical_scroll_bar != nullptr )
+		if ( _vertical_scroll_bar )
 		{
 			box32x2_c const & client_margins = _get_client_margins();
 			_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( _vertical_scroll_bar->get_preferred_thickness(), client_margins.minimum.b, client_margins.maximum.a, client_margins.maximum.b ) );
@@ -156,13 +156,13 @@ namespace cheonsa
 
 	void_c menu_control_panel_i::_update_scroll_bar_visibility()
 	{
-		if ( _horizontal_scroll_bar != nullptr )
+		if ( _horizontal_scroll_bar )
 		{
 			_horizontal_scroll_bar->set_value_range_and_page_size( _client->get_content_bounds().minimum.a, _client->get_content_bounds().maximum.b, _local_box.get_width() );
 			_horizontal_scroll_bar->set_line_size( 60.0f );
 			_horizontal_scroll_bar->update_visibility( _horizontal_scroll_bar_visibility_mode );
 		}
-		if ( _vertical_scroll_bar != nullptr )
+		if ( _vertical_scroll_bar )
 		{
 			_vertical_scroll_bar->set_value_range_and_page_size( _client->get_content_bounds().minimum.b, _client->get_content_bounds().maximum.b, _local_box.get_height() );
 			_vertical_scroll_bar->set_line_size( 60.0f );

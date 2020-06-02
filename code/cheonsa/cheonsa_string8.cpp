@@ -25,7 +25,7 @@ namespace cheonsa
 	string8_c::string8_c( char16_c const * other )
 		: character_list( core_list_mode_e_static, nullptr, 0 )
 	{
-		assert( other != nullptr );
+		assert( other );
 		*this = other;
 	}
 
@@ -123,7 +123,7 @@ namespace cheonsa
 
 	string8_c & string8_c::operator += ( char8_c const * other )
 	{
-		assert( other != nullptr );
+		assert( other );
 		if ( character_list.get_mode_is_static() )
 		{
 			character_list.convert_from_static_to_dynamic();
@@ -135,7 +135,7 @@ namespace cheonsa
 
 	string8_c & string8_c::operator += ( char16_c const * other )
 	{
-		assert( other != nullptr );
+		assert( other );
 		if ( character_list.get_mode_is_static() )
 		{
 			character_list.convert_from_static_to_dynamic();

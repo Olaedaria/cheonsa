@@ -64,7 +64,7 @@ namespace cheonsa
 
 	boolean_c menu_control_collection_c::item_i::get_value( string8_c const & property_key, string16_c & display_value, sint64_c & absolute_value ) const
 	{
-		assert( _value_cache != nullptr );
+		assert( _value_cache );
 		for ( sint32_c i = 0; i < _mother_collection->_column_list.get_length(); i++ )
 		{
 			if ( _mother_collection->_column_list[ i ]->get_key() == property_key )
@@ -341,7 +341,7 @@ namespace cheonsa
 						item_icon_frame->set_is_showed( true );
 						resource_file_texture_c * icon_texture = item->get_icon_texture();
 						item_icon_frame->set_override_texture( icon_texture );
-						if ( icon_texture != nullptr )
+						if ( icon_texture )
 						{
 							float32_c cx = item_box.minimum.a + _icons_item_width * 0.5f;
 							float32_c cy = item_box.minimum.b + _icons_icon_height * 0.5f;
@@ -650,12 +650,12 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::update_animations( float32_c time_step )
 	{
-		assert( _user_interface );
+		assert( _mother_user_interface );
 
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_selected = is_ascendant_of( _user_interface->get_mouse_overed() );
+		boolean_c is_selected = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];
@@ -921,7 +921,7 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::give_item( item_i * item )
 	{
-		assert( item != nullptr );
+		assert( item );
 		assert( item->_mother_collection == nullptr );
 		assert( _column_list.get_length() > 0 );
 		item->_mother_collection = this;

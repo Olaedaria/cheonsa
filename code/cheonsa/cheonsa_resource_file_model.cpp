@@ -35,18 +35,18 @@ namespace cheonsa
 		bone_extras_list.remove_all();
 
 		_cpu_vertex_buffer_mesh_base.remove_all();
-		if ( _gpu_vertex_buffer_mesh_base != nullptr )
+		if ( _gpu_vertex_buffer_mesh_base )
 		{
 			delete _gpu_vertex_buffer_mesh_base;
 			_gpu_vertex_buffer_mesh_base = nullptr;
 		}
 		_cpu_vertex_buffer_mesh_bone_weight.remove_all();
-		if ( _gpu_vertex_buffer_mesh_bone_weight != nullptr )
+		if ( _gpu_vertex_buffer_mesh_bone_weight )
 		{
 			delete _gpu_vertex_buffer_mesh_bone_weight;
 			_gpu_vertex_buffer_mesh_bone_weight = nullptr;
 		}
-		if ( _gpu_mesh_index_buffer != nullptr )
+		if ( _gpu_mesh_index_buffer )
 		{
 			delete _gpu_mesh_index_buffer;
 			_gpu_mesh_index_buffer = nullptr;
@@ -86,7 +86,7 @@ namespace cheonsa
 	boolean_c resource_file_model_c::find_bone_logic_property_as_sint32( bone_logic_c const * logic, string8_c const & name, sint32_c & value )
 	{
 		assert( _is_loaded );
-		assert( logic != nullptr );
+		assert( logic );
 		value = 0;
 		for ( uint32_c i = logic->property_start; i < logic->property_end; i++ )
 		{
@@ -103,7 +103,7 @@ namespace cheonsa
 	boolean_c resource_file_model_c::find_bone_logic_property_as_float32( bone_logic_c const * logic, string8_c const & name, float32_c & value )
 	{
 		assert( _is_loaded );
-		assert( logic != nullptr );
+		assert( logic );
 		value = 0.0f;
 		for ( uint32_c i = logic->property_start; i < logic->property_end; i++ )
 		{
@@ -120,7 +120,7 @@ namespace cheonsa
 	boolean_c resource_file_model_c::find_bone_logic_property_as_string8( bone_logic_c const * logic, string8_c const & name, string8_c & value )
 	{
 		assert( _is_loaded );
-		assert( logic != nullptr );
+		assert( logic );
 		value = "";
 		for ( uint32_c i = logic->property_start; i < logic->property_end; i++ )
 		{
@@ -146,7 +146,7 @@ namespace cheonsa
 
 	void_c resource_file_model_c::_load( data_stream_c * stream )
 	{
-		assert( stream != nullptr );
+		assert( stream );
 		assert( _is_loaded == false );
 
 		sint32_c stream_size = stream->get_size();
@@ -1276,7 +1276,7 @@ namespace cheonsa
 			}
 			if ( animation_property->type == animation_property_c::type_e_position )
 			{
-				if ( animation_key != nullptr )
+				if ( animation_key )
 				{
 					if ( animation_key_previous == nullptr || animation_key->time < time )
 					{
@@ -1284,14 +1284,14 @@ namespace cheonsa
 					}
 					else
 					{
-						assert( animation_key_previous != nullptr );
+						assert( animation_key_previous );
 						result_position = ops::interpolate_linear( vector32x3_c( animation_key_previous->value ), vector32x3_c( animation_key->value ), ( time - animation_key_previous->time ) / ( animation_key->time - animation_key_previous->time ) );
 					}
 				}
 			}
 			else if ( animation_property->type == animation_property_c::type_e_rotation )
 			{
-				if ( animation_key != nullptr )
+				if ( animation_key )
 				{
 					if ( animation_key_previous == nullptr || animation_key->time < time )
 					{
@@ -1299,14 +1299,14 @@ namespace cheonsa
 					}
 					else
 					{
-						assert( animation_key_previous != nullptr );
+						assert( animation_key_previous );
 						result_rotation = quaternion32_c( ops::interpolate_linear( vector32x4_c( animation_key_previous->value ), vector32x4_c( animation_key->value ), ( time - animation_key_previous->time ) / ( animation_key->time - animation_key_previous->time ) ).as_array() );
 					}
 				}
 			}
 			else if ( animation_property->type == animation_property_c::type_e_scale )
 			{
-				if ( animation_key != nullptr )
+				if ( animation_key )
 				{
 					if ( animation_key_previous == nullptr || animation_key->time < time )
 					{
@@ -1314,7 +1314,7 @@ namespace cheonsa
 					}
 					else
 					{
-						assert( animation_key_previous  != nullptr );
+						assert( animation_key_previous  );
 						result_scale = ops::interpolate_linear( vector32x3_c( animation_key_previous->value ), vector32x3_c( animation_key->value ), ( time - animation_key_previous->time ) / ( animation_key->time - animation_key_previous->time ) );
 					}
 				}

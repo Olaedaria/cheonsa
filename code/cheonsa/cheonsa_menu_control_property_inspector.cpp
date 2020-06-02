@@ -55,9 +55,9 @@ namespace cheonsa
 		_property_inspector->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0, 0, 0, 46 ) );
 		_property_inspector_window->add_daughter_control_to_client( _property_inspector );
 
-		if ( _user_interface )
+		if ( _mother_user_interface )
 		{
-			_user_interface->add_control( _property_inspector_window );
+			_mother_user_interface->add_daughter_control( _property_inspector_window );
 			_property_inspector_window->center();
 		}
 	}
@@ -75,7 +75,7 @@ namespace cheonsa
 
 	void_c menu_control_property_inspector_c::_layout_controls_for_property( property_field_c * property_field )
 	{
-		assert( property_field->_label != nullptr );
+		assert( property_field->_label );
 		if ( property_field->_reflection_property )
 		{
 			if ( property_field->_reflection_property->_type != data_type_e_category_label )
@@ -115,12 +115,12 @@ namespace cheonsa
 				
 				if ( property_field->_item_list )
 				{
-					assert( property_field->_item_list != nullptr );
-					assert( property_field->_item_add != nullptr );
-					assert( property_field->_item_remove != nullptr );
-					assert( property_field->_item_move_up != nullptr );
-					assert( property_field->_item_move_down != nullptr );
-					assert( property_field->_item_sort != nullptr );
+					assert( property_field->_item_list );
+					assert( property_field->_item_add );
+					assert( property_field->_item_remove );
+					assert( property_field->_item_move_up );
+					assert( property_field->_item_move_down );
+					assert( property_field->_item_sort );
 
 					float32_c right = styled_properties.width_for_property_control + styled_properties.width_for_property_control_padding;
 
@@ -148,7 +148,7 @@ namespace cheonsa
 			else
 			{
 				// category label.
-				assert( property_field->_label != nullptr );
+				assert( property_field->_label );
 				property_field->_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 0.0f, _y, 0.0f, styled_properties.height_for_category_row ) );
 				_y += styled_properties.height_for_category_row + styled_properties.height_for_category_row_padding;
 			}
@@ -156,7 +156,7 @@ namespace cheonsa
 		else
 		{
 			// class label.
-			assert( property_field->_label != nullptr );
+			assert( property_field->_label );
 			property_field->_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 0.0f, _y, 0.0f, styled_properties.height_for_class_row ) );
 			_y += styled_properties.height_for_class_row + styled_properties.height_for_class_row_padding;
 		}
@@ -352,7 +352,7 @@ namespace cheonsa
 		if ( _reflection_object == nullptr )
 		{
 			// it should only be possible to reach here if _fixed_reflection_class is set.
-			assert( _fixed_reflection_class != nullptr );
+			assert( _fixed_reflection_class );
 			if ( property_field->_label )
 			{
 				property_field->_label->set_is_enabled( false );
@@ -514,7 +514,7 @@ namespace cheonsa
 
 	void_c menu_control_property_inspector_c::_update_property_from_ui( property_field_c * property_field, menu_control_c * control, boolean_c and_commit )
 	{
-		assert( property_field != nullptr && control != nullptr );
+		assert( property_field && control );
 
 		if ( _reflection_object == nullptr )
 		{
@@ -536,7 +536,7 @@ namespace cheonsa
 		if ( control == property_field->_scroll )
 		{
 		}
-		else if ( property_field->_combo != nullptr && control == property_field->_combo->get_combo_list() )
+		else if ( property_field->_combo && control == property_field->_combo->get_combo_list() )
 		{
 			assert( property->_view == data_view_e_enumeration );
 			assert( property->_type_count == 1 );
@@ -607,7 +607,7 @@ namespace cheonsa
 					reflection_property_value_changed_information.before_value = before_value;
 					reflection_property_value_changed_information.after_value = after_value;
 					menu_control_property_inspector_c * handler = this;
-					while ( handler->_mother_property_inspector != nullptr ) // bubble to the top level so subscribers can respond to nested changes.
+					while ( handler->_mother_property_inspector ) // bubble to the top level so subscribers can respond to nested changes.
 					{
 						handler = _mother_property_inspector;
 					}
@@ -672,7 +672,7 @@ namespace cheonsa
 
 	void_c menu_control_property_inspector_c::_handle_value_edit_on_clicked( menu_event_information_c event_information )
 	{
-		if ( _editing_property_field != nullptr )
+		if ( _editing_property_field )
 		{
 			return;
 		}
@@ -754,7 +754,7 @@ namespace cheonsa
 		{
 			property_field_c * property_field = static_cast< property_field_c * >( list->get_user_pointer() );
 			reflection_object_c * reflection_object = property_field->_reflection_property->_accessors._object_list_item_getter( _reflection_object, list->get_selected_item_index() );
-			if ( _property_inspector_window != nullptr )
+			if ( _property_inspector_window )
 			{
 				_property_inspector_window->show_dialog( nullptr );
 				_property_inspector->bind_reflection_object( reflection_object );
@@ -840,7 +840,7 @@ namespace cheonsa
 
 	void_c menu_control_property_inspector_c::_handle_dialog_on_result( menu_control_window_c * window )
 	{
-		assert( _editing_property_field != nullptr );
+		assert( _editing_property_field );
 		reflection_value_container_c new_value; // might be new value, or old one of canceling.
 		if ( window == _message_dialog )
 		{
@@ -897,27 +897,27 @@ namespace cheonsa
 
 	void_c menu_control_property_inspector_c::_handle_after_added_to_user_interface()
 	{
-		assert( _user_interface );
-		_user_interface->add_control( _message_dialog );
-		_user_interface->add_control( _color_picker_dialog );
-		_user_interface->add_control( _file_picker_dialog );
-		_user_interface->add_control( _text_editor_dialog );
-		if ( _property_inspector != nullptr )
+		assert( _mother_user_interface );
+		_mother_user_interface->add_daughter_control( _message_dialog );
+		_mother_user_interface->add_daughter_control( _color_picker_dialog );
+		_mother_user_interface->add_daughter_control( _file_picker_dialog );
+		_mother_user_interface->add_daughter_control( _text_editor_dialog );
+		if ( _property_inspector )
 		{
-			_user_interface->add_control( _property_inspector ); // this should recurse as needed.
+			_mother_user_interface->add_daughter_control( _property_inspector ); // this should recurse as needed.
 		}
 	}
 
 	void_c menu_control_property_inspector_c::_handle_before_removed_from_user_interface()
 	{
-		assert( _user_interface );
-		_user_interface->remove_control( _message_dialog );
-		_user_interface->remove_control( _color_picker_dialog );
-		_user_interface->remove_control( _file_picker_dialog );
-		_user_interface->remove_control( _text_editor_dialog );
-		if ( _property_inspector != nullptr )
+		assert( _mother_user_interface );
+		_mother_user_interface->remove_daughter_control( _message_dialog );
+		_mother_user_interface->remove_daughter_control( _color_picker_dialog );
+		_mother_user_interface->remove_daughter_control( _file_picker_dialog );
+		_mother_user_interface->remove_daughter_control( _text_editor_dialog );
+		if ( _property_inspector )
 		{
-			_user_interface->remove_control( _property_inspector ); // this should recurse as needed.
+			_mother_user_interface->remove_daughter_control( _property_inspector ); // this should recurse as needed.
 		}
 	}
 
@@ -941,15 +941,19 @@ namespace cheonsa
 		, _is_muted( false )
 	{
 		_message_dialog = menu_control_window_message_c::make_new_instance( string8_c( core_list_mode_e_static, "message_dialog" ) );
+		_message_dialog->set_is_showed_immediately( false );
 		_message_dialog->add_reference();
 
 		_color_picker_dialog = menu_control_window_color_picker_c::make_new_instance( string8_c( core_list_mode_e_static, "color_picker_dialog" ) );
+		_color_picker_dialog->set_is_showed_immediately( false );
 		_color_picker_dialog->add_reference();
 
 		_file_picker_dialog = menu_control_window_file_picker_c::make_new_instance( string8_c( core_list_mode_e_static, "file_picker_dialog" ) );
+		_file_picker_dialog->set_is_showed_immediately( false );
 		_file_picker_dialog->add_reference();
 
 		_text_editor_dialog = menu_control_window_text_editor_c::make_new_instance( string8_c( core_list_mode_e_static, "text_editor_dialog" ) );
+		_text_editor_dialog->set_is_showed_immediately( false );
 		_text_editor_dialog->add_reference();
 
 		//if ( _fixed_reflection_class )
@@ -962,7 +966,7 @@ namespace cheonsa
 
 	menu_control_property_inspector_c::~menu_control_property_inspector_c()
 	{
-		assert( _user_interface == nullptr );
+		assert( _mother_user_interface == nullptr );
 
 		_clear();
 
@@ -995,7 +999,7 @@ namespace cheonsa
 	{
 		_reflection_object = value;
 		_clear();
-		if ( _reflection_object != nullptr )
+		if ( _reflection_object )
 		{
 			_add( _reflection_object->_reflection_class );
 			refresh_ui();
