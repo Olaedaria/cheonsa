@@ -315,19 +315,19 @@ namespace cheonsa
 
 	user_interface_c::~user_interface_c()
 	{
-		core_list_c< menu_control_c * > controls_to_remove; // take stock of the non-supplemental controls to remove.
-		core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _daughter_control_list.get_first();
-		while ( control_list_node )
+		core_list_c< menu_control_c * > daughter_controls_to_remove; // take stock of the non-supplemental controls to remove.
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
 		{
-			if ( !control_list_node->get_value()->get_is_supplemental() )
+			if ( !daughter_control_list_node->get_value()->_is_supplemental )
 			{
-				controls_to_remove.insert( -1, control_list_node->get_value() );
+				daughter_controls_to_remove.insert( -1, daughter_control_list_node->get_value() );
 			}
-			control_list_node = control_list_node->get_next();
+			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
-		for ( sint32_c i = 0; i < controls_to_remove.get_length(); i++ ) // remove the non-supplemental controls.
+		for ( sint32_c i = 0; i < daughter_controls_to_remove.get_length(); i++ ) // remove the non-supplemental controls.
 		{
-			remove_daughter_control( controls_to_remove[ i ] );
+			remove_daughter_control( daughter_controls_to_remove[ i ] );
 		}
 		assert( _daughter_control_list.get_length() == 0 ); // all controls (non-supplemental and supplemental) should be removed now.
 
@@ -525,7 +525,6 @@ namespace cheonsa
 		control->add_reference();
 		control->_mother_control = nullptr;
 		control->_index = index < 0 ? _daughter_control_list.get_length() : index;
-		control->_set_mother_user_interface_recursive( this );
 		_daughter_control_list.insert_at_index( &control->_daughter_control_list_node, control->_index );
 
 		// reindex controls after insertion point.
@@ -539,8 +538,8 @@ namespace cheonsa
 		}
 
 		// update layout.
+		control->_handle_added_to_user_interface( this );
 		control->_update_transform_and_layout();
-		control->_handle_after_added_to_user_interface();
 	}
 
 	void_c user_interface_c::remove_daughter_control( menu_control_c * control )
@@ -551,8 +550,8 @@ namespace cheonsa
 		assert( control->_index >= 0 && control->_index < _daughter_control_list.get_length() );
 
 		// suspend control from user interface.
-		control->_handle_before_removed_from_user_interface();
 		_suspend_control( control );
+		control->_handle_removed_from_user_interface();
 
 		// reindex controls after removal point.
 		sint32_c reindex_index = control->_index;
@@ -567,7 +566,6 @@ namespace cheonsa
 		// update relationships and remove control from list.
 		control->_mother_control = nullptr;
 		control->_index = -1;
-		control->_set_mother_user_interface_recursive( nullptr );
 		_daughter_control_list.remove( &control->_daughter_control_list_node );
 		control->remove_reference();
 	}

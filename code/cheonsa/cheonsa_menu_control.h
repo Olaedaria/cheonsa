@@ -58,7 +58,6 @@ namespace cheonsa
 		string8_c _name; // used to identify this control in the hierarchy, it should be unique within the context of its immediate superior (context or control), but it doesn't need to be globally unique.
 
 		user_interface_c * _mother_user_interface; // the mother user interface, only set on the root control.
-		void_c _set_mother_user_interface_recursive( user_interface_c * value ); // called by the user interface to associate or disassociate the entire hierarchy of controls with the user interface.
 
 		menu_control_c * _mother_control; // the mother control.
 
@@ -71,13 +70,15 @@ namespace cheonsa
 		void_c _remove_daughter_element( menu_element_c * element );
 		void_c _find_daughter_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result ); // searches private daughter elements for all elements that match the given name.
 
+		core_list_c< menu_control_c * > _supplemental_control_list; // these are controls that will be added to or removed from the root level of the user interface when this control is added to or removed from the user interface.
+		boolean_c _is_supplemental; // will be set to true on root-level controls that are created and managed by other controls. this tells the user interface's destructor not to remove these controls directly, and to only remove non supplemental controls directly, in this way the supplemental controls will be removed indirectly by the non supplemental controls.
+		void_c _add_supplemental_control( menu_control_c * control );
+
 		sint32_c _index; // this control's index within its mother's _control_list or _private_control_list.
 
 		vector32x2_c _content_offset; // scroll bars can plug in to this to scroll the daughter controls of this control.
 		box32x2_c _content_bounds; // minimum axis aligned bounding box that contains all of the daughter controls and elements.
 		boolean_c _content_bounds_is_dirty; // if true then _content_bounds is out of date and needs to be recalculated.
-
-		boolean_c _is_supplemental; // will be set to true on root-level controls that are created and managed by other controls. this tells the user interface's destructor not to remove these controls directly, and to only remove non supplemental controls directly, in this way the supplemental controls will be removed indirectly by the non supplemental controls.
 
 		menu_style_map_c::reference_c _style_map_reference; // the style map that is currently applied to this control.
 		void_c _handle_style_map_reference_on_resolved( menu_style_map_c::reference_c const * style_map ); // responds to when _style_map_resource is loaded.
@@ -149,8 +150,8 @@ namespace cheonsa
 
 		void_c * _user_pointer; // can be set by the user to associate some other kind of data with this control.
 
-		virtual void_c _handle_after_added_to_user_interface();
-		virtual void_c _handle_before_removed_from_user_interface();
+		virtual void_c _handle_added_to_user_interface( user_interface_c * user_interface ); // sets _mother_user_interface to user_interface, and recurses.
+		virtual void_c _handle_removed_from_user_interface(); // sets _mother_user_interface to nullptr and recurses.
 		virtual void_c _on_is_showed_changed(); // is called right after _is_showed state is changed. after performing control specific implementation, it should in turn invoke the is_showed_changed event.
 		virtual void_c _on_is_enabled_changed(); // is called right after _is_enabled state is changed. after performing control specific implementation, it should in turn invoke the is_enabled_changed event.
 		virtual void_c _on_is_deep_text_focused_changed(); // is called right after _is_deep_text_focused state is changed. after performing control specific implementation, it should in turn invoke the is_deep_text_focused_changed event.
@@ -214,9 +215,6 @@ namespace cheonsa
 
 		string8_c const & get_name() const;
 		//void_c set_name( string8_c const & value );
-
-		boolean_c get_is_supplemental() const;
-		void_c _set_is_supplemental( boolean_c value );
 
 		sint32_c get_index() const; // gets the index of this control within it's mother's daughter list.
 

@@ -115,8 +115,8 @@ namespace cheonsa
 			else if ( amount < 0 )
 			{
 				assert( index + amount >= 0 );
-				value_type_c * a = &_array[ index + amount ];
-				value_type_c * b = &_array[ index ];
+				value_type_c * a = &_array[ index ];
+				value_type_c * b = &_array[ index + amount ];
 				sint32_c count = _array_length_used - index;
 				for ( sint32_c i = 0; i < count; i++ )
 				{

@@ -51,7 +51,7 @@
 		texture_map_edges="3 3 3 3"/>
 
 	<frame
-		key="e_field_border_frame"
+		key="e_line_border_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
@@ -181,7 +181,8 @@
 		line_spacing="0.0"
 		glyph_spacing="0.0"
 		align_horizontal="left"
-		align_vertical="center"/>
+		align_vertical="center"
+		margin="8 0 8 0"/>
 
 	<frame
 		key="e_combo_frame"
@@ -260,7 +261,7 @@
 
 	<map key="e_panel">
 		<item element_name="frame" style_key="e_panel_frame"/>
-		<item element_name="border_frame" style_key="e_field_border_frame"/>
+		<item element_name="border_frame" style_key="e_line_border_frame"/>
 	</map>
 
 	<map key="e_panel_borderless">
@@ -276,7 +277,7 @@
 	<map key="e_text">
 		<item element_name="frame" style_key="e_field_frame"/>
 		<item element_name="text" style_key="e_field_text" anchor_measures="4 4 4 4"/>
-		<item element_name="border_frame" style_key="e_field_border_frame"/>
+		<item element_name="border_frame" style_key="e_line_border_frame"/>
 	</map>
 
 	<map key="e_button">
@@ -307,7 +308,7 @@
 
 	<map key="e_list">
 		<item element_name="frame" style_key="e_field_frame"/>
-		<item element_name="border_frame" style_key="e_field_border_frame"/>
+		<item element_name="border_frame" style_key="e_line_border_frame"/>
 	</map>
 
 	<map key="e_list_item">
@@ -319,7 +320,7 @@
 
 	<map key="e_menu_list">
 		<item element_name="frame" style_key="e_field_frame"/>
-		<item element_name="border_frame" style_key="e_field_border_frame"/>
+		<item element_name="border_frame" style_key="e_line_border_frame"/>
 	</map>
 
 	<map key="e_menu_list_item">
@@ -356,7 +357,7 @@
 
 	<map key="e_collection">
 		<item element_name="frame" style_key=""/>
-		<item element_name="border_frame" style_key="e_field_border_frame"/>
+		<item element_name="border_frame" style_key="e_line_border_frame"/>
 		<item element_name="last_selected_frame" style_key="e_list_item_outlined_frame"/>
 		<item element_name="highlighted_frame" style_key="e_list_item_outlined_frame"/>
 		<item element_name="column_frame" style_key="e_collection_column_frame"/>
@@ -371,7 +372,7 @@
 
 	<map key="e_color_slider">
 		<item element_name="slider" style_key="e_precision_slider_frame"/>
-		<item element_name="border_frame" style_key="e_field_border_frame"/>
+		<item element_name="border_frame" style_key="e_line_border_frame"/>
 	</map>
 
 </styles>

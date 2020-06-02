@@ -36,7 +36,6 @@ namespace cheonsa
 		assert( _property_inspector_window == nullptr );
 
 		_property_inspector_window = menu_control_window_c::make_new_instance( string8_c( core_list_mode_e_static, "property_inspector_window" ) );
-		_property_inspector_window->_set_is_supplemental( true );
 		_property_inspector_window->set_layout_simple( box32x2_c( 0, 0, 300, 800 ) );
 		_property_inspector_window->set_is_showed_immediately( false );
 		_property_inspector_cancel_button = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "cancel_button" ) );
@@ -44,6 +43,7 @@ namespace cheonsa
 		_property_inspector_cancel_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"cancel" ) );
 		_property_inspector_cancel_button->on_clicked.subscribe( this, &menu_control_property_inspector_c::_handle_property_inspector_button_on_clicked );
 		_property_inspector_window->add_daughter_control_to_client( _property_inspector_cancel_button );
+		_add_supplemental_control( _property_inspector_window );
 
 		_property_inspector_okay_button = menu_control_button_c::make_new_instance( string8_c( core_list_mode_e_static, "okay_button" ) );
 		_property_inspector_okay_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
@@ -895,32 +895,6 @@ namespace cheonsa
 		window->hide_dialog();
 	}
 
-	void_c menu_control_property_inspector_c::_handle_after_added_to_user_interface()
-	{
-		assert( _mother_user_interface );
-		_mother_user_interface->add_daughter_control( _message_dialog );
-		_mother_user_interface->add_daughter_control( _color_picker_dialog );
-		_mother_user_interface->add_daughter_control( _file_picker_dialog );
-		_mother_user_interface->add_daughter_control( _text_editor_dialog );
-		if ( _property_inspector )
-		{
-			_mother_user_interface->add_daughter_control( _property_inspector ); // this should recurse as needed.
-		}
-	}
-
-	void_c menu_control_property_inspector_c::_handle_before_removed_from_user_interface()
-	{
-		assert( _mother_user_interface );
-		_mother_user_interface->remove_daughter_control( _message_dialog );
-		_mother_user_interface->remove_daughter_control( _color_picker_dialog );
-		_mother_user_interface->remove_daughter_control( _file_picker_dialog );
-		_mother_user_interface->remove_daughter_control( _text_editor_dialog );
-		if ( _property_inspector )
-		{
-			_mother_user_interface->remove_daughter_control( _property_inspector ); // this should recurse as needed.
-		}
-	}
-
 	menu_control_property_inspector_c::menu_control_property_inspector_c( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class )
 		: menu_control_panel_i( name )
 		, _mother_property_inspector( mother_property_inspector )
@@ -941,20 +915,24 @@ namespace cheonsa
 		, _is_muted( false )
 	{
 		_message_dialog = menu_control_window_message_c::make_new_instance( string8_c( core_list_mode_e_static, "message_dialog" ) );
-		_message_dialog->set_is_showed_immediately( false );
 		_message_dialog->add_reference();
+		_message_dialog->set_is_showed_immediately( false );
+		_add_supplemental_control( _message_dialog );
 
 		_color_picker_dialog = menu_control_window_color_picker_c::make_new_instance( string8_c( core_list_mode_e_static, "color_picker_dialog" ) );
-		_color_picker_dialog->set_is_showed_immediately( false );
 		_color_picker_dialog->add_reference();
-
+		_color_picker_dialog->set_is_showed_immediately( false );
+		_add_supplemental_control( _color_picker_dialog );
+		
 		_file_picker_dialog = menu_control_window_file_picker_c::make_new_instance( string8_c( core_list_mode_e_static, "file_picker_dialog" ) );
-		_file_picker_dialog->set_is_showed_immediately( false );
 		_file_picker_dialog->add_reference();
+		_file_picker_dialog->set_is_showed_immediately( false );
+		_add_supplemental_control( _file_picker_dialog );
 
 		_text_editor_dialog = menu_control_window_text_editor_c::make_new_instance( string8_c( core_list_mode_e_static, "text_editor_dialog" ) );
-		_text_editor_dialog->set_is_showed_immediately( false );
 		_text_editor_dialog->add_reference();
+		_text_editor_dialog->set_is_showed_immediately( false );
+		_add_supplemental_control( _text_editor_dialog );
 
 		//if ( _fixed_reflection_class )
 		//{

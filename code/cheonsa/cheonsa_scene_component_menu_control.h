@@ -21,11 +21,11 @@ namespace cheonsa
 	private:
 		menu_control_c * _control;
 
-		virtual void_c _handle_before_removed_from_user_interface() override;
 		virtual void_c _handle_after_added_to_user_interface() override;
-
-		virtual void_c _handle_before_removed_from_scene() override;
+		virtual void_c _handle_before_removed_from_user_interface() override;
+		
 		virtual void_c _handle_after_added_to_scene() override;
+		virtual void_c _handle_before_removed_from_scene() override;
 
 	public:
 		scene_component_menu_control_c();

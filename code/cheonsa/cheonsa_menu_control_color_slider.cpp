@@ -242,6 +242,7 @@ namespace cheonsa
 		_element_border_frame.set_is_overlay( true );
 		_add_daughter_element( &_element_border_frame );
 
+		set_shared_color_class( menu_shared_color_class_e_button );
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_color_slider" ) );
 	}
 

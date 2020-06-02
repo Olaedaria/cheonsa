@@ -80,8 +80,6 @@ namespace cheonsa
 		void_c _handle_file_collection_on_selected_items_changed( menu_control_collection_c * collection );
 		void_c _handle_file_collection_on_selected_items_invoked( menu_control_collection_c * collection );
 
-		virtual void_c _handle_after_added_to_user_interface() override;
-		virtual void_c _handle_before_removed_from_user_interface() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 		menu_control_window_file_picker_c( string8_c const & name );

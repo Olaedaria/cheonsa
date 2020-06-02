@@ -166,13 +166,6 @@ namespace cheonsa
 		_orthographic_field_of_view = value;
 	}
 
-	//matrix32x4x4_c scene_camera_c::make_view_transform_at_origin() const
-	//{
-	//	matrix32x4x4_c result;
-	//	result = ops::make_view_matrix32x4x4( vector32x3_c( 0.0f, 0.0f, 0.0f ), _world_space_transform.get_unscaled_basis_b(), _world_space_transform.get_unscaled_basis_c() );
-	//	return result;
-	//}
-
 	matrix32x4x4_c scene_camera_c::make_view_transform_relative_to_origin( vector64x3_c origin ) const
 	{
 		matrix32x4x4_c result;

@@ -223,18 +223,6 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_window_file_picker_c::_handle_after_added_to_user_interface()
-	{
-		assert( _mother_user_interface );
-		_mother_user_interface->add_daughter_control( _message_dialog );
-	}
-
-	void_c menu_control_window_file_picker_c::_handle_before_removed_from_user_interface()
-	{
-		assert( _mother_user_interface );
-		_mother_user_interface->remove_daughter_control( _message_dialog );
-	}
-
 	void_c menu_control_window_file_picker_c::_on_input( input_event_c * input_event )
 	{
 		menu_control_window_c::_on_input( input_event );
@@ -329,10 +317,13 @@ namespace cheonsa
 		_message_dialog->add_reference();
 		_message_dialog->set_is_showed_immediately( false );
 		_message_dialog->on_dialog_result.subscribe( this, &menu_control_window_file_picker_c::_handle_on_dialog_result );
+		_add_supplemental_control( _message_dialog );
 	}
 
 	menu_control_window_file_picker_c::~menu_control_window_file_picker_c()
 	{
+		assert( _mother_user_interface == nullptr );
+
 		_message_dialog->remove_reference();
 		_message_dialog = nullptr;
 	}

@@ -133,9 +133,6 @@ namespace cheonsa
 		void_c _handle_item_sort_on_clicked( menu_event_information_c event_information );
 		void_c _handle_dialog_on_result( menu_control_window_c * window );
 
-		virtual void_c _handle_after_added_to_user_interface() override;
-		virtual void_c _handle_before_removed_from_user_interface() override;
-
 		menu_control_property_inspector_c( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
 
 	public:
