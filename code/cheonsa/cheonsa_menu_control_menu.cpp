@@ -13,16 +13,11 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_menu_list_item_separator_c * menu_control_menu_list_item_separator_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_menu_list_item_separator_c( name );
-	}
-
 	void_c menu_control_menu_list_item_text_c::_on_is_mouse_overed_changed()
 	{
 		if ( _is_mouse_overed )
 		{
-			_element_highlighted_frame.set_is_showed( true );
+			_highlighted_frame_element.set_is_showed( true );
 			//if ( _sub_menu )
 			//{
 			//	_sub_menu->show_like_sub_menu( this );
@@ -30,13 +25,13 @@ namespace cheonsa
 		}
 		else
 		{
-			_element_highlighted_frame.set_is_showed( false );
+			_highlighted_frame_element.set_is_showed( false );
 			//if ( _sub_menu )
 			//{
 			//	_sub_menu->set_is_showed( false );
 			//}
 		}
-		on_is_mouse_overed_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_mouse_overed_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_menu_list_item_text_c::_on_clicked( input_event_c * input_event )
@@ -71,11 +66,6 @@ namespace cheonsa
 
 	menu_control_menu_list_item_text_c::~menu_control_menu_list_item_text_c()
 	{
-	}
-
-	menu_control_menu_list_item_text_c * menu_control_menu_list_item_text_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_menu_list_item_text_c( name );
 	}
 
 	boolean_c menu_control_menu_list_item_text_c::get_can_be_checked() const
@@ -130,17 +120,28 @@ namespace cheonsa
 		_sub_menu = nullptr;
 	}
 
-	void_c menu_control_menu_list_c::_on_is_deep_text_focused_changed()
+	void_c menu_control_menu_list_c::_handle_user_interface_local_box_changed()
+	{
+		if ( _tab_button && _is_showed )
+		{
+			show_like_combo_list( _tab_button );
+		}
+	}
+
+	void_c menu_control_menu_list_c::_on_is_deep_text_focused_changed( menu_control_c * next_control )
 	{
 		if ( _is_deep_text_focused == false )
 		{
+			_was_just_hidden = _tab_button == next_control;
 			set_is_showed( false );
 		}
-		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
 
 	menu_control_menu_list_c::menu_control_menu_list_c( string8_c const & name )
 		: menu_control_list_i( name )
+		, _tab_button( nullptr )
+		, _was_just_hidden( false )
 	{
 		_layer = menu_layer_e_popup;
 		_selected_item_limit = 0;
@@ -154,9 +155,24 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_menu_list_c * menu_control_menu_list_c::make_new_instance( string8_c const & name )
+	menu_control_c * menu_control_menu_list_c::get_tab_button() const
 	{
-		return new menu_control_menu_list_c( name );
+		return _tab_button;
+	}
+
+	void_c menu_control_menu_list_c::set_tab_button( menu_control_c * value )
+	{
+		_tab_button = value;
+	}
+
+	boolean_c menu_control_menu_list_c::get_was_just_hidden() const
+	{
+		return _was_just_hidden;
+	}
+
+	void_c menu_control_menu_list_c::set_was_just_hidden( boolean_c value )
+	{
+		_was_just_hidden = value;
 	}
 
 	void_c menu_control_menu_list_c::show_like_context_menu( vector32x2_c const & screen_space_point_to_spawn_pop_up_around )

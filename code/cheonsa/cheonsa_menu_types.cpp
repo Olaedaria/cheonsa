@@ -114,9 +114,8 @@ namespace cheonsa
 	//
 
 	menu_frame_style_c::state_c::state_c()
-		//: color_style()
-		//: color( 1.0f, 1.0f, 1.0f, 1.0f )
-		: saturation( 1.0f )
+		: is_showed( true )
+		, saturation( 1.0f )
 		, apparent_scale( 1.0f )
 		, texture_map()
 		, texture_map_edges()
@@ -337,6 +336,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 			{
 				state_c & state = state_list[ i ];
+				state.is_showed = true;
 				state.texture_map[ 0 ] = texture_map_origin[ 0 ];
 				state.texture_map[ 1 ] = texture_map_origin[ 1 ];
 				state.texture_map[ 2 ] = texture_map_origin[ 0 ] + texture_map_size[ 0 ];
@@ -382,17 +382,13 @@ namespace cheonsa
 				{
 					state_c & state = state_list[ state_index ];
 
-					//attribute = sub_node->find_attribute( "color_style" );
-					//if ( attribute )
-					//{
-					//	state.color_style.set_key( attribute->get_value() );
-					//}
+					state.is_showed = true;
 
-					//attribute = sub_node->find_attribute( "color" );
-					//if ( attribute )
-					//{
-					//	ops::convert_string8_to_rgba( attribute->get_value(), state.color );
-					//}
+					attribute = sub_node->find_attribute( "is_showed" );
+					if ( attribute )
+					{
+						ops::convert_string8_to_boolean( attribute->get_value(), state.is_showed );
+					}
 
 					attribute = sub_node->find_attribute( "saturation" );
 					if ( attribute )
@@ -1106,12 +1102,14 @@ namespace cheonsa
 
 	menu_event_information_c::menu_event_information_c()
 		: control( nullptr )
+		, next_control( nullptr )
 		, event( nullptr )
 	{
 	}
 
-	menu_event_information_c::menu_event_information_c( menu_control_c * control, input_event_c * event )
+	menu_event_information_c::menu_event_information_c( menu_control_c * control, menu_control_c * next_control, input_event_c * event )
 		: control( control )
+		, next_control( next_control )
 		, event( event )
 	{
 	}

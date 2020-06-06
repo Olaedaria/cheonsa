@@ -51,12 +51,9 @@ namespace cheonsa
 	protected:
 		virtual void_c _on_selected_item_list_changed() override;
 
-		menu_control_list_c( string8_c const & name );
-
 	public:
+		menu_control_list_c( string8_c const & name );
 		virtual ~menu_control_list_c() override;
-
-		static menu_control_list_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		sint32_c get_item_count() const;
 		menu_control_list_item_i const * get_item_at_index( sint32_c item_index ) const;

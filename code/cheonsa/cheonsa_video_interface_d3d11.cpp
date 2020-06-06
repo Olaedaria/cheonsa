@@ -3436,8 +3436,7 @@ namespace cheonsa
 	void_c video_interface_d3d11_c::bind_pixel_shader( video_pixel_shader_c * pixel_shader )
 	{
 		video_pixel_shader_d3d11_c * pixel_shader_d3d11 = dynamic_cast< video_pixel_shader_d3d11_c * >( pixel_shader );
-		assert( pixel_shader_d3d11 );
-		_members->d3d11_device_context->PSSetShader( pixel_shader_d3d11 ? pixel_shader_d3d11->_d3d11_pixel_shader : 0, NULL, 0 );
+		_members->d3d11_device_context->PSSetShader( pixel_shader_d3d11 ? pixel_shader_d3d11->_d3d11_pixel_shader : NULL, NULL, 0 );
 	}
 
 	void_c video_interface_d3d11_c::bind_pixel_shader_constant_buffers( sint32_c bind_index, sint32_c constant_buffers_count, video_constant_buffer_c * * constant_buffers )

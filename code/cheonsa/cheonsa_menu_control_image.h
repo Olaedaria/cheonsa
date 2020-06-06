@@ -27,15 +27,12 @@ namespace cheonsa
 		};
 
 	protected:
-		menu_element_frame_c _element_frame; // name is "frame".
-		menu_frame_style_c _element_frame_style;
-
-		menu_control_image_c( string8_c const & name );
+		menu_element_frame_c _frame_element; // name is "frame".
+		menu_frame_style_c _frame_style; // override style which plugs in to _frame_element.
 
 	public:
+		menu_control_image_c( string8_c const & name );
 		virtual ~menu_control_image_c() override;
-
-		static menu_control_image_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 

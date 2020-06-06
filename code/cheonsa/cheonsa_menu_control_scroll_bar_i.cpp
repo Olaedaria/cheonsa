@@ -24,7 +24,7 @@ namespace cheonsa
 				_grip_element.set_is_pressed( false );
 			}
 		}
-		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_scroll_bar_i::_on_input( input_event_c * input_event )

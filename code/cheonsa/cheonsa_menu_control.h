@@ -120,13 +120,13 @@ namespace cheonsa
 		void_c _update_global_space_properties(); // updates global space properties of this control based on local properties and mother. these properties need to be up to date in order for mouse picking to work correctly.
 
 		// off screen rendering system.
-		// controls are batched together for rendering into what are called control groups.
+		// controls are batched together for rendering into what are called control (render) groups.
 		// each control in the user interface that is at root level or not full opacity defines the root control of a control group.
 		// each control group has an off screen render target texture in which to render all of the controls that belong to that control group.
 		// for each control group, for each control (recursive), for each element, that element is rendered at (full opacity (and for the root only: no scale and no angle)) to the control group's off-screen texture.
 		// control group textures are then eventually composited|rendered (with their specified opacity, scale, and angle) into other control group textures or the canvas's target texture.
 		// this solves the problem that arises with the naive approach of rendering two overlapping elements at 50% opacity which results in 75% actual opacity when 50% is what is desired.
-		// the _control_group_texture is only created and used for the root control of each group. otherwise it is deleted.
+		// the _control_group_texture is only created and used for the root control of each control group. otherwise it is deleted.
 		boolean_c _control_group_is_root; // will be true if this control is the root control of a control group. which is true when the control is a root control in the user interface or is not full opacity.
 		menu_control_c * _control_group_mother; // if this control is the root control of a control group, then this points to the control that is the root control of the control group that is the mother of this control group.
 		core_list_c< menu_control_c * > _control_group_daughter_list; // points to daughter controls that are root controls of the control groups that are daughter to this control group.
@@ -152,10 +152,11 @@ namespace cheonsa
 
 		virtual void_c _handle_added_to_user_interface( user_interface_c * user_interface ); // sets _mother_user_interface to user_interface, and recurses.
 		virtual void_c _handle_removed_from_user_interface(); // sets _mother_user_interface to nullptr and recurses.
+		virtual void_c _handle_user_interface_local_box_changed(); // is called on root level controls when user interface local box changes, so that these controls are given an opportunity to update their layout.
 		virtual void_c _on_is_showed_changed(); // is called right after _is_showed state is changed. after performing control specific implementation, it should in turn invoke the is_showed_changed event.
 		virtual void_c _on_is_enabled_changed(); // is called right after _is_enabled state is changed. after performing control specific implementation, it should in turn invoke the is_enabled_changed event.
-		virtual void_c _on_is_deep_text_focused_changed(); // is called right after _is_deep_text_focused state is changed. after performing control specific implementation, it should in turn invoke the is_deep_text_focused_changed event.
-		virtual void_c _on_is_text_focused_changed(); // is called right after _is_text_focused state is changed. after performing control specific implementation, it should in turn invoke the on_is_text_focused_changed event.
+		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ); // is called right after _is_deep_text_focused state is changed. after performing control specific implementation, it should in turn invoke the is_deep_text_focused_changed event.
+		virtual void_c _on_is_text_focused_changed( menu_control_c * next_control ); // is called right after _is_text_focused state is changed. after performing control specific implementation, it should in turn invoke the on_is_text_focused_changed event.
 		virtual void_c _on_is_mouse_overed_changed(); // is called right after _is_mouse_overed state is changed. after performing control specific implementation, it should in turn invoke the on_is_mouse_overed_changed event.
 		virtual void_c _on_is_mouse_focused_changed(); // is called right after _is_mouse_focused state is changed. after performing control specific implementation, it should in turn invoke the on_is_mouse_focused_changed event.
 		virtual void_c _on_is_pressed_changed(); // is called right after _is_pressed state is changed. after performing control specific implementation, it should in turn invoke the on_is_pressed_changed event.
@@ -165,12 +166,9 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout(); // updates global space properties based on inheritance and local space properties.
 
-		menu_control_c( string8_c const & name );
-
 	public:
+		menu_control_c( string8_c const & name );
 		virtual ~menu_control_c();
-
-		static menu_control_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		void_c add_reference();
 		void_c remove_reference();
@@ -208,7 +206,7 @@ namespace cheonsa
 		vector32x2_c transform_local_point_to_global_point( vector32x2_c const & local_point ) const;
 
 		boolean_c contains_global_point( vector32x2_c const & global_point ) const;
-		boolean_c contains_local_point( vector32x2_c const & local_point ) const;
+		virtual boolean_c contains_local_point( vector32x2_c const & local_point ) const; // can override if you want to implement non-rectangular shape.
 
 		string8_c const & get_style_map_key() const;
 		void_c set_style_map_key( string8_c const & value );

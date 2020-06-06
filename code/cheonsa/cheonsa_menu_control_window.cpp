@@ -6,11 +6,12 @@ namespace cheonsa
 
 	void_c menu_control_window_c::_apply_client_margins()
 	{
-		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
-		_set_client_margins( box32x2_c( _edge_size, _edge_size + _top_bar_size, _edge_size, _edge_size + _bottom_bar_size ) );
+		_title_bar_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
+		_title_bar_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
+		_set_client_margins( box32x2_c( _edge_size, _edge_size + _top_bar_size + _edge_size, _edge_size, _edge_size + _bottom_bar_size ) );
 	}
 
-	void_c menu_control_window_c::_on_is_deep_text_focused_changed()
+	void_c menu_control_window_c::_on_is_deep_text_focused_changed( menu_control_c * next_control )
 	{
 		if ( _is_deep_text_focused != 0 )
 		{
@@ -19,7 +20,7 @@ namespace cheonsa
 				_mother_user_interface->bring_daughter_control_to_front( this );
 			}
 		}
-		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
 
 	void_c menu_control_window_c::_on_is_mouse_focused_changed()
@@ -28,7 +29,7 @@ namespace cheonsa
 		{
 			_grabbed_element = grabbed_element_e_none;
 		}
-		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_window_c::_on_input( input_event_c * input_event )
@@ -41,7 +42,7 @@ namespace cheonsa
 			{
 				if ( _user_can_resize )
 				{
-					// check for intersection with horizontal edge.
+					// check for intersection with left or right edge.
 					if ( local_mouse_position.a >= _local_box.minimum.a && local_mouse_position.a <= _local_box.minimum.a + _edge_size )
 					{
 						_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_left );
@@ -53,7 +54,7 @@ namespace cheonsa
 						_grabbed_point_local.a = _local_box.maximum.a - local_mouse_position.a;
 					}
 
-					// check for intersection with vertical edge.
+					// check for intersection with top or bottom edge.
 					if ( local_mouse_position.b >= _local_box.minimum.b && local_mouse_position.b <= _local_box.minimum.b + _edge_size )
 					{
 						_grabbed_element = static_cast< grabbed_element_e >( _grabbed_element | grabbed_element_e_edge_top );
@@ -184,7 +185,8 @@ namespace cheonsa
 
 	menu_control_window_c::menu_control_window_c( string8_c const & name )
 		: menu_control_panel_i( name )
-		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
+		, _title_bar_frame_element( string8_c( core_list_mode_e_static, "title_bar_frame" ) )
+		, _title_bar_text_element( string8_c( core_list_mode_e_static, "title_bar_text" ) )
 		, _edge_size( 8.0f )
 		, _top_bar_size( 30.0f )
 		, _bottom_bar_size( 0.0f )
@@ -198,9 +200,13 @@ namespace cheonsa
 	{
 		set_size( vector32x2_c( 500, 500 ) );
 
-		_element_text.set_shared_color_class( menu_shared_color_class_e_window );
-		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
-		_add_daughter_element( &_element_text );
+		_title_bar_frame_element.set_shared_color_class( menu_shared_color_class_e_window, true );
+		_title_bar_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
+		_add_daughter_element( &_title_bar_frame_element );
+
+		_title_bar_text_element.set_shared_color_class( menu_shared_color_class_e_window, true );
+		_title_bar_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
+		_add_daughter_element( &_title_bar_text_element );
 
 		_apply_client_margins();
 
@@ -267,24 +273,24 @@ namespace cheonsa
 		}
 	}
 
-	string16_c menu_control_window_c::get_title_text_value() const
+	string16_c menu_control_window_c::get_title_bar_text_value() const
 	{
-		return _element_text.get_plain_text_value();
+		return _title_bar_text_element.get_plain_text_value();
 	}
 
-	void_c menu_control_window_c::set_title_text_value( string8_c const & plain_text )
+	void_c menu_control_window_c::set_title_bar_text_value( string8_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_title_bar_text_element.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_control_window_c::set_title_text_value( string16_c const & plain_text )
+	void_c menu_control_window_c::set_title_bar_text_value( string16_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_title_bar_text_element.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_control_window_c::clear_title_text_value()
+	void_c menu_control_window_c::clear_title_bar_text_value()
 	{
-		_element_text.clear_text_value();
+		_title_bar_text_element.clear_text_value();
 	}
 
 	boolean_c menu_control_window_c::get_user_can_move() const

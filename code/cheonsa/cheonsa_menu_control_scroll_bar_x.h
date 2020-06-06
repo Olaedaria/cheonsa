@@ -14,13 +14,9 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "scroll_bar_x"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	protected:
-		menu_control_scroll_bar_x_c( string8_c const & name );
-
 	public:
+		menu_control_scroll_bar_x_c( string8_c const & name );
 		virtual ~menu_control_scroll_bar_x_c() override;
-
-		static menu_control_scroll_bar_x_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 	};
 

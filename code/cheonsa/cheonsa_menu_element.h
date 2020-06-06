@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_menu_types.h"
@@ -31,6 +31,7 @@ namespace cheonsa
 		string8_c _name; // name to identify this element by, unique within the control that this element belongs to, can be used by the control to find the element and map styles to it.
 
 		menu_shared_color_class_e _shared_color_class; // defines which set of shared colors are used to draw this control's elements.
+		boolean_c _shared_color_class_swapped; // if true then swaps primary and secondary colors when uploading to gpu.
 
 		vector32x4_c _local_color; // color tint of this element to upload to menu_colors[ 3 ]. opacity defined here is ignored. actual opacity is always inherited from control, this is a limitation to keep the render procedure (layering, compositing) design simple.
 
@@ -46,7 +47,7 @@ namespace cheonsa
 		boolean_c _is_overlay; // if true then this element will be rendered after and layered over after the other elements.
 
 		menu_draw_list_c _draw_list; // used to build render procedure for this element.
-		boolean_c _draw_list_is_dirty; // if true then _draw_unit needs to be rebuilt.
+		boolean_c _draw_list_is_dirty; // if true then _draw_list needs to be rebuilt.
 		virtual void_c _build_draw_list() = 0;
 
 		virtual void_c _on_local_box_modified(); // override in sub-classes to be notified about local_box value changing and enable response.
@@ -61,7 +62,8 @@ namespace cheonsa
 		virtual void_c set_style_key( string8_c const & value ) = 0;
 
 		void_c set_layout_simple( box32x2_c const & local_box ); // sets layout mode to simple and sets metrics.
-		void_c set_layout_box_anchor( menu_anchor_e local_anchor, box32x2_c anchor_measures ); // sets layout mode to anchor and sets metrices.
+		void_c set_layout_box_anchor( menu_anchor_e local_box_anchor, box32x2_c const & local_box_anchor_measures ); // sets layout mode to anchor and sets metrices.
+		void_c set_layout_box_anchor_measures( box32x2_c const & local_box_anchor_measures );
 		void_c update_layout( box32x2_c const & mother_local_box ); // if anchor layout is enabled then this recalculates _local_box.
 
 		box32x2_c const & get_local_box() const;
@@ -76,7 +78,7 @@ namespace cheonsa
 		void_c set_local_color( vector32x4_c const & value );
 
 		menu_shared_color_class_e get_shared_color_class() const;
-		void_c set_shared_color_class( menu_shared_color_class_e value );
+		void_c set_shared_color_class( menu_shared_color_class_e value, boolean_c swapped = false );
 
 		boolean_c get_is_showed() const;
 		void_c set_is_showed( boolean_c value );

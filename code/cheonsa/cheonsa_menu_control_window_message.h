@@ -39,12 +39,9 @@ namespace cheonsa
 
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-		menu_control_window_message_c( string8_c const & name );
-
 	public:
+		menu_control_window_message_c( string8_c const & name );
 		virtual ~menu_control_window_message_c() override;
-
-		static menu_control_window_message_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );

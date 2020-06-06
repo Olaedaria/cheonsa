@@ -6,55 +6,50 @@ namespace cheonsa
 
 	menu_control_button_c::menu_control_button_c( string8_c const & name )
 		: menu_control_c( name )
-		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
-		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
+		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
+		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_element_frame.set_shared_color_class( menu_shared_color_class_e_button );
-		_add_daughter_element( &_element_frame );
+		_frame_element.set_shared_color_class( menu_shared_color_class_e_button );
+		_add_daughter_element( &_frame_element );
 
-		_element_text.set_shared_color_class( menu_shared_color_class_e_button );
-		_element_text.set_text_format_mode( menu_text_format_mode_e_rich );
-		_element_text.set_text_interact_mode( menu_text_interact_mode_e_static );
-		_add_daughter_element( &_element_text );
+		_text_element.set_shared_color_class( menu_shared_color_class_e_button );
+		_text_element.set_text_format_mode( menu_text_format_mode_e_rich );
+		_text_element.set_text_interact_mode( menu_text_interact_mode_e_static );
+		_add_daughter_element( &_text_element );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_button" ) );
 	}
 
-	menu_control_button_c * menu_control_button_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_button_c( name );
-	}
-
 	string16_c menu_control_button_c::get_plain_text_value() const
 	{
-		return _element_text.get_plain_text_value();
+		return _text_element.get_plain_text_value();
 	}
 
 	void_c menu_control_button_c::set_plain_text_value( string8_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_text_element.set_plain_text_value( plain_text );
 	}
 
 	void_c menu_control_button_c::set_plain_text_value( string16_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_text_element.set_plain_text_value( plain_text );
 	}
 
 	void_c menu_control_button_c::set_rich_text_value( string8_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		_text_element.set_rich_text_value( plain_text_with_mark_up );
 	}
 
 	void_c menu_control_button_c::set_rich_text_value( string16_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		_text_element.set_rich_text_value( plain_text_with_mark_up );
 	}
 
 	void_c menu_control_button_c::clear_text_value()
 	{
-		_element_text.clear_text_value();
+		_text_element.clear_text_value();
 	}
 
 	void_c menu_control_button_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )

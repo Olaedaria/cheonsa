@@ -174,10 +174,10 @@ namespace cheonsa
 		//     { column_frame, column_text }
 		//   per item elements: one frame for selected state background, one frame for icon, [ display mode details: one text per column | display mode icons: one text ]:
 		//     { item_selected_frame, item_icon_frame, item_text, ... }
-		menu_element_frame_c _element_frame; // name is "frame", the background of this collection.
-		menu_element_frame_c _element_last_selected_frame; // name is "last_selected_frame". is laid out and drawn behind the _last_selected_item.
-		menu_element_frame_c _element_highlighted_frame; // name is "highlighted_frame". is laid out and drawn behind the _mouse_selected_item.
-		menu_element_frame_c _element_border_frame; // name is "border_frame", is overlayed.
+		menu_element_frame_c _frame_element; // name is "frame", the background of this collection.
+		menu_element_frame_c _last_selected_frame_element; // name is "last_selected_frame". is laid out and drawn behind the _last_selected_item.
+		menu_element_frame_c _highlighted_frame_element; // name is "highlighted_frame". is laid out and drawn behind the _mouse_selected_item.
+		menu_element_frame_c _border_frame_element; // name is "border_frame", is overlayed.
 
 		item_i * _last_selected_item; // is set to the first item that was added to the collection, or the item that was last selected in the collection. this is the item that directional keyboard input will originate from. analogs: in modern windows this item would be outlined with a solid blue line, in legacy windows this item would be outlined with a dotted black line.
 		item_i * _mouse_selected_item; // is set to the item that the mouse is currently over. analogs: in modern windows this item would be highlighted with a light blue background, in legacy windows i don't think there was an analog.
@@ -232,12 +232,9 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override;
 
-		menu_control_collection_c( string8_c const & name );
-
 	public:
+		menu_control_collection_c( string8_c const & name );
 		virtual ~menu_control_collection_c() override;
-
-		static menu_control_collection_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c update_animations( float32_c time_step ) override;
 

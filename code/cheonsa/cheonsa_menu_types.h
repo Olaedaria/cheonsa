@@ -33,18 +33,8 @@ scroll bars control the transform properties of a container, so when a scroll oc
 namespace cheonsa
 {
 
-	class user_interface_c;
-	class menu_control_c;
 	class menu_element_c;
-	class menu_element_frame_c;
-	class menu_element_text_c;
-	class menu_color_style_c;
-	class menu_frame_style_c;
-	class menu_text_style_c;
-	class menu_text_glyph_style_c;
-	class menu_style_map_c;
-	class menu_style_file_c;
-	class menu_style_manager_c;
+	class menu_control_c;
 	class input_event_c;
 
 	// these values are used with non-client hit testing.
@@ -234,6 +224,8 @@ namespace cheonsa
 		menu_shared_color_slot_e_count_,
 	};
 
+	sint32_c const shared_color_count = menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_;
+
 	inline sint32_c get_shared_color_index( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot )
 	{
 		return ( color_class * menu_state_e_count_ * menu_shared_color_slot_e_count_ ) + ( color_state * menu_shared_color_slot_e_count_ ) + color_slot;
@@ -348,8 +340,7 @@ namespace cheonsa
 		class state_c
 		{
 		public:
-			//menu_color_style_c::reference_c color_style; // color tint, multiplied with texture. if resolved then it takes precedence over color.
-			//vector32x4_c color; // color tint, multiplied with texture.
+			boolean_c is_showed;
 			float32_c saturation; // color saturation, applied to ( element_color.rgb * texture.rgb ).
 			float32_c apparent_scale; // when rendered, the frame is scaled by this factor around its center point. this is an apparent scale, meaning that it affects the visual representation only, and does not affect the actual scale of the control itself or hit detection.
 			sint16_c texture_map[ 4 ]; // left, top, right, and bottom coordinates in pixels of edges of texture map rectangle.
@@ -601,55 +592,17 @@ namespace cheonsa
 
 	};
 
-	//// a text entity is a thing that is may not be text but is inlined in the text, like a sprite or emoji, or another string.
-	//// each entity has a corresponding text_glyph_c instance, which may store additional info about how to lay out the entity.
-	//// that is why we don't store too much info in the entity.
-	//class menu_text_entity_c
-	//{
-	//public:
-	//	sint32_c type_code;
-
-	//public:
-	//	menu_text_entity_c( sint32_c type_code );
-
-	//};
-
-	//// stores layout of a sprite entity in a paragraph.
-	//class menu_text_entity_sprite_c
-	//	: public menu_text_entity_c
-	//{
-	//public:
-	//	static sint32_c type_code_static() { return 2; }
-
-	//public:
-	//	sprite_c value; // sprite instance.
-
-	//public:
-	//	menu_text_entity_sprite_c();
-
-	//};
-
-	//// stores layout of a string entity in a paragraph.
-	//class menu_text_entity_string_c
-	//	: public menu_text_entity_c
-	//{
-	//	static sint32_c type_code_static() { return 3; }
-	//	string8_c _key; // key that is used to reference and look up a string.
-	//	string16_c _value; // string instance, resolved from key.
-	//	menu_text_entity_string_c();
-	//};
-
-
 	// used to pass additional info about input events to event handlers.
 	class menu_event_information_c
 	{
 	public:
 		menu_control_c * control; // the control that is receiving the event.
+		menu_control_c * next_control; // for text focus and deep text focus changed events, this is the next control will receive text focus next.
 		input_event_c * event; // the input event that caused the menu control event to trigger. currently only set for on_clicked and on_double_clicked events. otherwise always nullptr.
 
 	public:
 		menu_event_information_c();
-		menu_event_information_c( menu_control_c * control, input_event_c * event );
+		menu_event_information_c( menu_control_c * control, menu_control_c * next_control, input_event_c * event );
 
 	};
 

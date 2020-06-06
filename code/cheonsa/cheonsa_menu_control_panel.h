@@ -16,13 +16,9 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "panel"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	protected:
-		menu_control_panel_c( string8_c const & name );
-
 	public:
+		menu_control_panel_c( string8_c const & name );
 		virtual ~menu_control_panel_c() override;
-
-		static menu_control_panel_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		menu_visibility_mode_e get_horizontal_scroll_bar_visibility_mode() const;
 		void_c set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value );

@@ -27,8 +27,17 @@
 		texture_map_size="8 8"
 		texture_map_edges="3 3 3 3"/>
 
+	<frame
+		key="e_window_title_bar_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_origin="1 1"
+		texture_map_size="8 8"
+		texture_map_edges="3 3 3 3"/>
+
 	<text
-		key="e_window_text"
+		key="e_window_title_bar_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
 		align_horizontal="left"
@@ -37,7 +46,14 @@
 	<text
 		key="e_label_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
-		size="14.0"
+		size="12.0"
+		align_horizontal="left"
+		align_vertical="center"/>
+
+	<text
+		key="e_label_head_text"
+		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
+		size="16.0"
 		align_horizontal="left"
 		align_vertical="center"/>
 
@@ -106,6 +122,30 @@
 		weight="0.0125"
 		align_horizontal="center"
 		align_vertical="center"/>
+
+	<frame
+		key="e_menu_button_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_origin="1 1"
+		texture_map_size="8 8"
+		texture_map_edges="3 3 3 3">
+		<state
+			key="normal"
+			is_showed="false"/>
+		<state
+			key="selected"
+			texture_map_origin="1 21"
+			texture_map_edges="3 3 3 3"/>
+		<state
+			key="pressed"
+			texture_map_origin="1 21"
+			texture_map_edges="3 3 3 3"/>
+		<state
+			key="disabled"
+			is_showed="false"/>
+	</frame>
 
 	<frame
 		key="e_check_mark_frame"
@@ -255,7 +295,8 @@
 	<map key="e_window">
 		<item element_name="frame" style_key="e_window_frame"/>
 		<item element_name="border_frame" style_key=""/>
-		<item element_name="text" style_key="e_window_text"/>
+		<item element_name="title_bar_frame" style_key="e_window_title_bar_frame"/>
+		<item element_name="title_bar_text" style_key="e_window_title_bar_text"/>
 		<item element_name="client_panel" style_key=""/>
 	</map>
 
@@ -270,8 +311,11 @@
 	</map>
 
 	<map key="e_label">
-		<item element_name="frame" style_key=""/>
 		<item element_name="text" style_key="e_label_text"/>
+	</map>
+
+	<map key="e_label_head">
+		<item element_name="text" style_key="e_label_head_text"/>
 	</map>
 
 	<map key="e_text">
@@ -285,13 +329,13 @@
 		<item element_name="text" style_key="e_button_text"/>
 	</map>
 
-	<map key="e_button_frameless">
-		<item element_name="frame" style_key=""/>
+	<map key="e_menu_button">
+		<item element_name="frame" style_key="e_menu_button_frame"/>
 		<item element_name="text" style_key="e_button_text"/>
 	</map>
 
-	<map key="e_button_frameless_small">
-		<item element_name="frame" style_key=""/>
+	<map key="e_menu_button_small">
+		<item element_name="frame" style_key="e_menu_button_frame"/>
 		<item element_name="text" style_key="e_button_text_small"/>
 	</map>
 
@@ -371,7 +415,7 @@
 	</map>
 
 	<map key="e_color_slider">
-		<item element_name="slider" style_key="e_precision_slider_frame"/>
+		<item element_name="slider_frame" style_key="e_precision_slider_frame"/>
 		<item element_name="border_frame" style_key="e_line_border_frame"/>
 	</map>
 

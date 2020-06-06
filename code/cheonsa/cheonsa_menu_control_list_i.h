@@ -51,7 +51,7 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	protected:
-		menu_element_frame_c _element_frame; // name is "frame".
+		menu_element_frame_c _frame_element; // name is "frame".
 
 		float32_c _height; // height of this separator in pixels.
 
@@ -75,10 +75,10 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	protected:
-		menu_element_frame_c _element_frame; // name is "frame".
-		menu_element_frame_c _element_selected_frame; // name is "selected_frame". this frame's visibility is toggled when this list item is selected.
-		menu_element_frame_c _element_highlighted_frame; // name is "highlighted_frame". this frame's visiblity is toggled when the mouse is over the list item or the list item is highlighted with a directional input.
-		menu_element_text_c _element_text; // name is "text".
+		menu_element_frame_c _frame_element; // name is "frame".
+		menu_element_frame_c _selected_frame_element; // name is "selected_frame". this frame's visibility is toggled when this list item is selected.
+		menu_element_frame_c _highlighted_frame_element; // name is "highlighted_frame". this frame's visiblity is toggled when the mouse is over the list item or the list item is highlighted with a directional input.
+		menu_element_text_c _text_element; // name is "text".
 
 		void_c _handle_element_text_on_value_changed( menu_element_text_c * element ); // need to invalidate layout of list if text value changes to force reflow of list items.
 
@@ -144,7 +144,7 @@ namespace cheonsa
 
 		virtual void_c _on_selected_item_list_changed(); // is called when the selected items change. does nothing in this base class, but in derived classes it should invoke the associated event.
 		virtual void_c _on_is_mouse_overed_changed() override;
-		virtual void_c _on_is_deep_text_focused_changed() override;
+		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 		menu_control_list_i( string8_c const & name );

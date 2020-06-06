@@ -6,8 +6,8 @@ namespace cheonsa
 
 	void_c menu_control_color_slider_c::_build_mesh()
 	{
-		_element_mesh.vertex_list.remove_all();
-		_element_mesh.index_list.remove_all();
+		_mesh_element.vertex_list.remove_all();
+		_mesh_element.index_list.remove_all();
 		if ( _mode != mode_e_hue )
 		{
 			// 0-2
@@ -15,30 +15,30 @@ namespace cheonsa
 			// 1-3
 
 			// build vertices.
-			_element_mesh.vertex_list.set_length_absolute( 4 );
-			video_renderer_vertex_menu_c * vertex = &_element_mesh.vertex_list[ 0 ];
+			_mesh_element.vertex_list.set_length_absolute( 4 );
+			video_renderer_vertex_menu_c * vertex = &_mesh_element.vertex_list[ 0 ];
 			vertex->position.a = _local_box.minimum.a;
 			vertex->position.b = _local_box.minimum.b;
-			vertex = &_element_mesh.vertex_list[ 1 ];
+			vertex = &_mesh_element.vertex_list[ 1 ];
 			vertex->position.a = _local_box.minimum.a;
 			vertex->position.b = _local_box.maximum.b;
-			vertex = &_element_mesh.vertex_list[ 2 ];
+			vertex = &_mesh_element.vertex_list[ 2 ];
 			vertex->position.a = _local_box.maximum.a;
 			vertex->position.b = _local_box.minimum.b;
-			vertex = &_element_mesh.vertex_list[ 3 ];
+			vertex = &_mesh_element.vertex_list[ 3 ];
 			vertex->position.a = _local_box.maximum.a;
 			vertex->position.b = _local_box.maximum.b;
 
 			// build indices.
-			_element_mesh.index_list.set_length_absolute( 6 );
-			_element_mesh.index_list[  0 ] = 0; // triangle 1.
-			_element_mesh.index_list[  1 ] = 1;
-			_element_mesh.index_list[  2 ] = 2;
-			_element_mesh.index_list[  3 ] = 2; // triangle 2.
-			_element_mesh.index_list[  4 ] = 1;
-			_element_mesh.index_list[  5 ] = 3;
+			_mesh_element.index_list.set_length_absolute( 6 );
+			_mesh_element.index_list[  0 ] = 0; // triangle 1.
+			_mesh_element.index_list[  1 ] = 1;
+			_mesh_element.index_list[  2 ] = 2;
+			_mesh_element.index_list[  3 ] = 2; // triangle 2.
+			_mesh_element.index_list[  4 ] = 1;
+			_mesh_element.index_list[  5 ] = 3;
 
-			//_element_mesh.pixel_shader = engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color();
+			//_mesh_element.pixel_shader = engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color();
 		}
 		else
 		{
@@ -53,27 +53,27 @@ namespace cheonsa
 			//        w       t
 			//                 a
 			// build vertices.
-			_element_mesh.vertex_list.set_length_absolute( 14 );
+			_mesh_element.vertex_list.set_length_absolute( 14 );
 			for ( sint32_c i = 0; i < 7; i++ )
 			{
 				float32_c x = ops::interpolate_linear( _local_box.minimum.a, _local_box.maximum.a, i / 6.0f );
-				_element_mesh.vertex_list[ i * 2     ].position = vector32x3_c( x, _local_box.minimum.b, 0.0f );
-				_element_mesh.vertex_list[ i * 2 + 1 ].position = vector32x3_c( x, _local_box.maximum.b, 0.0f );
+				_mesh_element.vertex_list[ i * 2     ].position = vector32x3_c( x, _local_box.minimum.b, 0.0f );
+				_mesh_element.vertex_list[ i * 2 + 1 ].position = vector32x3_c( x, _local_box.maximum.b, 0.0f );
 			}
 
 			// build indices.
-			_element_mesh.index_list.set_length_absolute( 36 );
+			_mesh_element.index_list.set_length_absolute( 36 );
 			for ( uint16_c i = 0, j = 0; i < 6; i++, j += 2 )
 			{
-				_element_mesh.index_list[ i * 6     ] = j;
-				_element_mesh.index_list[ i * 6 + 1 ] = j + 1;
-				_element_mesh.index_list[ i * 6 + 2 ] = j + 2;
-				_element_mesh.index_list[ i * 6 + 3 ] = j + 2;
-				_element_mesh.index_list[ i * 6 + 4 ] = j + 1;
-				_element_mesh.index_list[ i * 6 + 5 ] = j + 3;
+				_mesh_element.index_list[ i * 6     ] = j;
+				_mesh_element.index_list[ i * 6 + 1 ] = j + 1;
+				_mesh_element.index_list[ i * 6 + 2 ] = j + 2;
+				_mesh_element.index_list[ i * 6 + 3 ] = j + 2;
+				_mesh_element.index_list[ i * 6 + 4 ] = j + 1;
+				_mesh_element.index_list[ i * 6 + 5 ] = j + 3;
 			}
 
-			//_element_mesh.pixel_shader = engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color_hue_slider();
+			//_mesh_element.pixel_shader = engine.get_video_renderer_shader_manager()->get_menu_ps_solid_color_hue_slider();
 		}
 		_mesh_box = _local_box;
 	}
@@ -82,77 +82,77 @@ namespace cheonsa
 	{
 		if ( _mode == mode_e_hue )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 14 );
-			_element_mesh.vertex_list[  0 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[  1 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[  2 ].color = vector32x4_c( 1.0f, 1.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[  3 ].color = vector32x4_c( 1.0f, 1.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[  4 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[  5 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[  6 ].color = vector32x4_c( 0.0f, 1.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[  7 ].color = vector32x4_c( 0.0f, 1.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[  8 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[  9 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[ 10 ].color = vector32x4_c( 1.0f, 0.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[ 11 ].color = vector32x4_c( 1.0f, 0.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[ 12 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 13 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 14 );
+			_mesh_element.vertex_list[  0 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[  1 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[  2 ].color = vector32x4_c( 1.0f, 1.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[  3 ].color = vector32x4_c( 1.0f, 1.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[  4 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[  5 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[  6 ].color = vector32x4_c( 0.0f, 1.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[  7 ].color = vector32x4_c( 0.0f, 1.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[  8 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[  9 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[ 10 ].color = vector32x4_c( 1.0f, 0.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[ 11 ].color = vector32x4_c( 1.0f, 0.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[ 12 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 13 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
 		}
 		else if ( _mode == mode_e_red )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 4 );
-			_element_mesh.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 2 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 3 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 4 );
+			_mesh_element.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 2 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 3 ].color = vector32x4_c( 1.0f, 0.0f, 0.0f, 1.0f );
 		}
 		else if ( _mode == mode_e_green )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 4 );
-			_element_mesh.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 2 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 3 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 4 );
+			_mesh_element.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 2 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 3 ].color = vector32x4_c( 0.0f, 1.0f, 0.0f, 1.0f );
 		}
 		else if ( _mode == mode_e_blue )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 4 );
-			_element_mesh.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 2 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[ 3 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 4 );
+			_mesh_element.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 2 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[ 3 ].color = vector32x4_c( 0.0f, 0.0f, 1.0f, 1.0f );
 		}
 		else if ( _mode == mode_e_alpha )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 4 );
-			_element_mesh.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 2 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[ 3 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 4 );
+			_mesh_element.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 2 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[ 3 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
 		}
 		else if ( _mode == mode_e_saturation )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 4 );
-			_element_mesh.vertex_list[ 0 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[ 1 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-			_element_mesh.vertex_list[ 2 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
-			_element_mesh.vertex_list[ 3 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 4 );
+			_mesh_element.vertex_list[ 0 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[ 1 ].color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+			_mesh_element.vertex_list[ 2 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			_mesh_element.vertex_list[ 3 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
 		}
 		else if ( _mode == mode_e_value )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 4 );
-			_element_mesh.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
-			_element_mesh.vertex_list[ 2 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
-			_element_mesh.vertex_list[ 3 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 4 );
+			_mesh_element.vertex_list[ 0 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 1 ].color = vector32x4_c( 0.0f, 0.0f, 0.0f, 1.0f );
+			_mesh_element.vertex_list[ 2 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			_mesh_element.vertex_list[ 3 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
 		}
 		else if ( _mode == mode_e_swatch )
 		{
-			assert( _element_mesh.vertex_list.get_length() == 4 );
-			_element_mesh.vertex_list[ 0 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
-			_element_mesh.vertex_list[ 1 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
-			_element_mesh.vertex_list[ 2 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
-			_element_mesh.vertex_list[ 3 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			assert( _mesh_element.vertex_list.get_length() == 4 );
+			_mesh_element.vertex_list[ 0 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			_mesh_element.vertex_list[ 1 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			_mesh_element.vertex_list[ 2 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
+			_mesh_element.vertex_list[ 3 ].color = vector32x4_c( _color.a, _color.b, _color.c, 1.0f );
 		}
 	}
 
@@ -168,7 +168,7 @@ namespace cheonsa
 				_mouse_is_grabbed = false;
 			}
 		}
-		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_color_slider_c::_on_input( input_event_c * input_event )
@@ -219,28 +219,28 @@ namespace cheonsa
 			value /= 360.0;
 		}
 		float32_c slider_position = ops::math_round_down( static_cast< float32_c >( value * _local_box.get_width() ) );
-		_element_slider.set_layout_simple( box32x2_c( _local_box.minimum.a + slider_position - 1, _local_box.minimum.b, _local_box.minimum.a + slider_position + 2, _local_box.maximum.b ) );
+		_slider_frame_element.set_layout_simple( box32x2_c( _local_box.minimum.a + slider_position - 1, _local_box.minimum.b, _local_box.minimum.a + slider_position + 2, _local_box.maximum.b ) );
 	}
 
 	menu_control_color_slider_c::menu_control_color_slider_c( string8_c const & name )
 		: menu_control_c( name )
-		, _element_mesh( string8_c( core_list_mode_e_static, "mesh" ) )
-		, _element_slider( string8_c( core_list_mode_e_static, "slider" ) )
-		, _element_border_frame( string8_c( core_list_mode_e_static, "border_frame" ) )
+		, _mesh_element( string8_c( core_list_mode_e_static, "mesh" ) )
+		, _slider_frame_element( string8_c( core_list_mode_e_static, "slider_frame" ) )
+		, _border_frame_element( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _mode( mode_e_red )
 		, _value( 0.0f )
 		, _color()
 		, _mesh_box()
 		, _mouse_is_grabbed( false )
 	{
-		_element_mesh.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
-		_add_daughter_element( &_element_mesh );
+		_mesh_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
+		_add_daughter_element( &_mesh_element );
 
-		_element_slider.set_style_key( string8_c( core_list_mode_e_static, "e_precision_slider_frame" ) );
-		_add_daughter_element( &_element_slider );
+		_slider_frame_element.set_style_key( string8_c( core_list_mode_e_static, "e_precision_slider_frame" ) );
+		_add_daughter_element( &_slider_frame_element );
 
-		_element_border_frame.set_is_overlay( true );
-		_add_daughter_element( &_element_border_frame );
+		_border_frame_element.set_is_overlay( true );
+		_add_daughter_element( &_border_frame_element );
 
 		set_shared_color_class( menu_shared_color_class_e_button );
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_color_slider" ) );
@@ -248,11 +248,6 @@ namespace cheonsa
 
 	menu_control_color_slider_c::~menu_control_color_slider_c()
 	{
-	}
-
-	menu_control_color_slider_c * menu_control_color_slider_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_color_slider_c( name );
 	}
 
 	void_c menu_control_color_slider_c::update_animations( float32_c time_step )
@@ -272,7 +267,7 @@ namespace cheonsa
 	void_c menu_control_color_slider_c::set_mode( mode_e value )
 	{
 		_mode = value;
-		_element_slider.set_is_showed( _mode != mode_e_swatch );
+		_slider_frame_element.set_is_showed( _mode != mode_e_swatch );
 		set_value( _value );
 		_build_mesh();
 		_update_mesh_colors();

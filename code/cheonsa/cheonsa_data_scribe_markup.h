@@ -135,6 +135,9 @@ namespace cheonsa
 
 			attribute_c const * find_attribute( char8_c const * name ) const;
 
+			sint32_c get_attribute_count() const;
+			attribute_c const * get_attribute( sint32_c index ) const;
+
 			node_c const * find_tag( char8_c const * name ) const;
 			void_c find_tags( char8_c const * name, core_list_c< node_c const * > & result ) const;
 

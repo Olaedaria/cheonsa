@@ -45,6 +45,8 @@ namespace cheonsa
 
 		void_c accumulate_bounds( box32x2_c const & other );
 
+		box32x2_c & integralize();
+
 	};
 
 	boolean_c operator == ( box32x2_c const & a, box32x2_c const & b );

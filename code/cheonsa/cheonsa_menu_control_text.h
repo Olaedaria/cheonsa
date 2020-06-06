@@ -19,18 +19,17 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	protected:
-		menu_element_frame_c _element_frame; // name is "frame".
-		menu_element_text_c _element_text; // name is "text".
-		menu_element_text_c * _element_place_holder_text; // name is "place_holder_text". this element is only newed if a placeholder is enabled, and is deleted if it is disabled.
-		string8_c _place_holder_text_style_key; // place holder style key, stored separately from element because element may not be persistent.
-		menu_element_frame_c _element_border_frame; // name is "border_frame".
+		menu_element_frame_c _frame_element; // name is "frame".
+		menu_element_text_c _text_element; // name is "text".
+		menu_element_text_c * _place_holder_text_element; // name is "place_holder_text". this element is only newed if a placeholder is enabled, and is deleted if it is disabled.
+		menu_element_frame_c _border_frame_element; // name is "border_frame".
 
 		menu_visibility_mode_e _horizontal_scroll_bar_visibility_mode;
 		menu_control_scroll_bar_x_c * _horizontal_scroll_bar;
 		menu_visibility_mode_e _vertical_scroll_bar_visibility_mode;
 		menu_control_scroll_bar_y_c * _vertical_scroll_bar;
 
-		virtual void_c _on_is_text_focused_changed() override;
+		virtual void_c _on_is_text_focused_changed( menu_control_c * next_control ) override;
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
 		virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
@@ -38,12 +37,9 @@ namespace cheonsa
 		void_c _handle_on_value_changed_preview( menu_element_text_c * text );
 		void_c _handle_on_value_changed( menu_element_text_c * text );
 
-		menu_control_text_c( string8_c const & name ); // defaults to single line, plain text, editable, no scroll bars.
-
 	public:
+		menu_control_text_c( string8_c const & name ); // defaults to single line, plain text, editable, no scroll bars.
 		virtual ~menu_control_text_c() override;
-
-		static menu_control_text_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c update_animations( float32_c time_step ) override;
 

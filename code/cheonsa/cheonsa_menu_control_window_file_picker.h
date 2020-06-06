@@ -82,12 +82,9 @@ namespace cheonsa
 
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-		menu_control_window_file_picker_c( string8_c const & name );
-
 	public:
+		menu_control_window_file_picker_c( string8_c const & name );
 		virtual ~menu_control_window_file_picker_c() override;
-
-		static menu_control_window_file_picker_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );
@@ -98,12 +95,14 @@ namespace cheonsa
 		boolean_c go_forward(); // tries to go forward in the history.
 		boolean_c go_up(); // tries to go up and adds the new folder to the history.
 
-		string16_c get_folder_path() const; // gets the folder path of the folder that is currently displaying in the file collection.
+		string16_c get_folder_path_absolute() const; // gets the folder path of the folder that is currently displaying in the file collection.
 
 		string16_c get_file_name() const; // gets the current text value of the file name text control.
 		void_c set_file_name( string16_c const & value ); // sets the value of the file name text control.
 
-		string16_c get_file_path() const;
+		void_c set_user_can_pick_file_name( boolean_c value ); // if true then the user can edit the file name, otherwise the user can't (it should be set to a fixed value by the program).
+
+		string16_c get_file_path_absolute() const;
 
 		void_c refresh_short_cut_list(); // refreshes shortcut list, may need to be called when drives are added or removed.
 

@@ -341,6 +341,10 @@ namespace cheonsa
 
 	void_c input_manager_c::_push_keyboard_key_released( input_keyboard_key_e keyboard_key )
 	{
+		if ( keyboard_key == input_keyboard_key_e_none )
+		{
+			return;
+		}
 		input_event_c * input_event = _emplace_input_event();
 		input_event->reset();
 		input_event->_type = input_event_c::type_e_keyboard_key_released;

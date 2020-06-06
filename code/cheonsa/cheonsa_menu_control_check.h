@@ -30,16 +30,13 @@ namespace cheonsa
 		boolean_c _is_checked;
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
 
-		menu_element_frame_c _element_box; // name is "box_frame".
-		menu_element_frame_c _element_mark; // name is "mark_frame".
-		menu_element_text_c _element_text; // name is "text".
-
-		menu_control_check_c( string8_c const & name );
+		menu_element_frame_c _box_element; // name is "box_frame".
+		menu_element_frame_c _mark_element; // name is "mark_frame".
+		menu_element_text_c _text_element; // name is "text".
 
 	public:
+		menu_control_check_c( string8_c const & name );
 		virtual ~menu_control_check_c() override;
-
-		static menu_control_check_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		string16_c get_plain_text_value() const;
 		void_c set_plain_text_value( string8_c const & plain_text );

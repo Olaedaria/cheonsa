@@ -39,7 +39,9 @@ namespace cheonsa
 		void_c set_shared_color_base_notes( menu_shared_color_base_notes_c const & values );
 		void_c get_shared_color_base_notes( menu_shared_color_base_notes_c & values );
 
-		menu_color_style_c * find_shared_color_style( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot );
+		menu_color_style_c * get_shared_color_style( sint32_c shared_color_index ); // flat index, compiled from color_class, color_state, and color_slot.
+		menu_color_style_c * get_shared_color_style( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot );
+		
 		menu_color_style_c * find_shared_color_style( string8_c key );
 
 		menu_color_style_c const * find_color_style( string8_c const & key ) const;

@@ -12,9 +12,4 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_scrub_bar_y_c * menu_control_scrub_bar_y_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_scrub_bar_y_c( name );
-	}
-
 }

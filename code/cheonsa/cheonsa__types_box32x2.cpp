@@ -52,6 +52,15 @@ namespace cheonsa
 		}
 	}
 
+	box32x2_c & box32x2_c::integralize()
+	{
+		minimum.a = static_cast< float32_c >( static_cast< sint32_c >( minimum.a ) );
+		minimum.b = static_cast< float32_c >( static_cast< sint32_c >( minimum.b ) );
+		maximum.a = static_cast< float32_c >( static_cast< sint32_c >( maximum.a ) );
+		maximum.b = static_cast< float32_c >( static_cast< sint32_c >( maximum.b ) );
+		return *this;
+	}
+
 	boolean_c operator == ( box32x2_c const & a, box32x2_c const & b )
 	{
 		return ( a.minimum == b.minimum ) && ( a.maximum == b.maximum );

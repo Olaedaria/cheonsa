@@ -688,13 +688,14 @@ namespace cheonsa
 	}
 
 	video_renderer_interface_c::video_renderer_interface_c()
-		: _menu_draw_debug( false )
-		, _menu_root_control_group_list()
+		: _menu_control_group_list()
 		, _menu_draw_list_list()
 		, _menu_vertex_list()
 		, _menu_index_list()
 		, _menu_vertex_buffer( nullptr )
 		, _menu_index_buffer( nullptr )
+		, _menu_debug_draw_list()
+		, _menu_debug_vertex_list()
 		, _menu_debug_vertex_buffer( nullptr )
 		, _scene( nullptr )
 		, _white_pixel_texture()
@@ -3390,22 +3391,14 @@ namespace cheonsa
 	//	_voxel_tree_resolution = power( 2, _voxel_tree_depth );
 	//}
 
-	boolean_c video_renderer_interface_c::get_menu_draw_debug()
-	{
-		return _menu_draw_debug;
-	}
-
-	void_c video_renderer_interface_c::set_menu_draw_debug( boolean_c value )
-	{
-		_menu_draw_debug = value;
-	}
-
 	void_c video_renderer_interface_c::pre_render_menus( user_interface_c * user_interface )
 	{
-		_menu_root_control_group_list.remove_all();
+		_menu_control_group_list.remove_all();
 		_menu_draw_list_list.remove_all();
 		_menu_vertex_list.remove_all();
 		_menu_index_list.remove_all();
+		_menu_debug_vertex_list.remove_all();
+		_menu_debug_draw_list.remove_all();
 
 		// the controls that count as root controls of control groups have ( _mother_control == nullptr || _local_color.d < 1.0f ).
 		// the controls that will render are ones that have ( _is_showing_weight > 0.0f && _local_color.d > 0.0f ).
@@ -3415,7 +3408,7 @@ namespace cheonsa
 		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = user_interface->_daughter_control_list.get_first();
 		while ( daughter_control_list_node )
 		{
-			daughter_control_list_node->get_value()->_compile_control_groups_and_draw_lists( _menu_root_control_group_list, _menu_draw_list_list );
+			daughter_control_list_node->get_value()->_compile_control_groups_and_draw_lists( _menu_control_group_list, _menu_draw_list_list );
 			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 
@@ -3429,35 +3422,56 @@ namespace cheonsa
 			_menu_index_list.insert( -1, draw_list->index_list.get_internal_array(), draw_list->index_list.get_length() );
 		}
 
-		// if there's nothing going on then we can return now.
-		if ( _menu_vertex_list.get_length() == 0 )
+		// upload vertices to vertex buffer.
+		if ( _menu_vertex_list.get_length() > 0 )
+		{
+			if ( _menu_vertex_buffer == nullptr || _menu_vertex_list.get_length() > _menu_vertex_buffer->get_vertex_count() )
+			{
+				if ( _menu_vertex_buffer )
+				{
+					delete _menu_vertex_buffer;
+					_menu_vertex_buffer = nullptr;
+				}
+				_menu_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, _menu_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
+			}
+			_menu_vertex_buffer->set_data( _menu_vertex_list.get_internal_array(), _menu_vertex_list.get_internal_array_size() );
+		}
+
+		// upload indices to index buffer.
+		if ( _menu_index_list.get_length() > 0 )
+		{
+			if ( _menu_index_buffer == nullptr || _menu_index_list.get_length() > _menu_index_buffer->get_index_count() )
+			{
+				if ( _menu_index_buffer )
+				{
+					delete _menu_index_buffer;
+					_menu_index_buffer = nullptr;
+				}
+				_menu_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint16, _menu_index_list.get_length_allocated(), nullptr, 0, true, false );
+			}
+			_menu_index_buffer->set_data( _menu_index_list.get_internal_array(), _menu_index_list.get_internal_array_size() );
+		}
+
+		// upload debug vertices to debug vertex buffer.
+		if ( _menu_debug_vertex_list.get_length() > 0 )
+		{
+			if ( _menu_debug_vertex_buffer == nullptr || _menu_debug_vertex_list.get_length() > _menu_debug_vertex_buffer->get_vertex_count() )
+			{
+				if ( _menu_debug_vertex_buffer )
+				{
+					delete _menu_debug_vertex_buffer;
+					_menu_debug_vertex_buffer = nullptr;
+				}
+				_menu_debug_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_debug, _menu_debug_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
+			}
+			_menu_debug_vertex_buffer->set_data( _menu_debug_vertex_list.get_internal_array(), _menu_debug_vertex_list.get_internal_array_size() );
+		}
+
+		// we can return early if there's nothing going on.
+		if ( _menu_vertex_list.get_length() == 0 && _menu_debug_vertex_list.get_length() == 0 )
 		{
 			return;
 		}
-
-		// upload vertices to vertex buffer.
-		if ( _menu_vertex_buffer == nullptr || _menu_vertex_list.get_length() > _menu_vertex_buffer->get_vertex_count() )
-		{
-			if ( _menu_vertex_buffer )
-			{
-				delete _menu_vertex_buffer;
-				_menu_vertex_buffer = nullptr;
-			}
-			_menu_vertex_buffer = engine.get_video_interface()->create_vertex_buffer( &video_renderer_interface_c::vertex_format_menu, _menu_vertex_list.get_length_allocated(), nullptr, 0, true, false, false );
-		}
-		_menu_vertex_buffer->set_data( _menu_vertex_list.get_internal_array(), _menu_vertex_list.get_internal_array_size() );
-
-		// upload indices to index buffer.
-		if ( _menu_index_buffer == nullptr || _menu_index_list.get_length() > _menu_index_buffer->get_index_count() )
-		{
-			if ( _menu_index_buffer )
-			{
-				delete _menu_index_buffer;
-				_menu_index_buffer = nullptr;
-			}
-			_menu_index_buffer = engine.get_video_interface()->create_index_buffer( video_index_format_e_uint16, _menu_index_list.get_length_allocated(), nullptr, 0, true, false );
-		}
-		_menu_index_buffer->set_data( _menu_index_list.get_internal_array(), _menu_index_list.get_internal_array_size() );
 
 		// update and bind glyph map texture.
 		engine.get_glyph_manager()->update_glyph_map_texture();
@@ -3478,9 +3492,9 @@ namespace cheonsa
 		// render control groups, in reverse order, so that it goes depth first.
 		// so that deeper level control groups finish rendering first.
 		// so that they can copy the results of their renders to the control group render targets of higher level control groups.
-		for ( sint32_c i = _menu_root_control_group_list.get_length() - 1; i >= 0; i-- )
+		for ( sint32_c i = _menu_control_group_list.get_length() - 1; i >= 0; i-- )
 		{
-			menu_control_c * control_group = _menu_root_control_group_list[ i ];
+			menu_control_c * control_group = _menu_control_group_list[ i ];
 			_render_control_for_control_group( control_group );
 		}
 
@@ -3515,7 +3529,7 @@ namespace cheonsa
 		assert( control && control->_is_showed_weight >= 0.0f && control->_local_color.d >= 0.0f );
 
 		// clear and bind control group texture as target if this control is a root of a control group.
-		// as this function recurses, this render state will be preserved.
+		// as this function recurses to daughter controls, this render state will be preserved.
 		if ( control->_control_group_is_root )
 		{
 			assert( control->_control_group_texture );
@@ -3578,7 +3592,7 @@ namespace cheonsa
 			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 
-		// render extra elements that are part of this control.
+		// render extra overlay layer elements that are part of this control.
 		if ( overlay_element_list.get_length() > 0 )
 		{
 			if ( render_state_needs_reset )
@@ -3623,7 +3637,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c video_renderer_interface_c::render_2d_menus( user_interface_c * user_interface )
+	void_c video_renderer_interface_c::render_menu2( user_interface_c * user_interface )
 	{
 		if ( _menu_vertex_list.get_length() == 0 )
 		{
@@ -3666,11 +3680,62 @@ namespace cheonsa
 			daughter_control_list_node = daughter_control_list_node->get_next();
 		}
 
-		// unbind.
+		// unbind some render states.
 		engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, nullptr, nullptr );
+		engine.get_video_interface()->bind_index_buffer( nullptr );
+
+		// render debug lines.
+		if ( engine.get_debug_manager()->get_draw_menu_bounds() )
+		{
+			engine.get_video_interface()->bind_primitive_type( video_primitive_type_e_line_strip );
+			engine.get_video_interface()->bind_vertex_buffers( 1, &_menu_debug_vertex_buffer );
+			engine.get_video_interface()->bind_vertex_shader( engine.get_video_renderer_shader_manager()->get_menu2_vs_debug() );
+			engine.get_video_interface()->bind_pixel_shader( engine.get_video_renderer_shader_manager()->get_menu_ps_debug() );
+			for ( sint32_c i = 0; i < _menu_debug_draw_list.get_length(); i++ )
+			{
+				menu_debug_draw_c const & menu_debug_draw = _menu_debug_draw_list[ i ];
+				engine.get_video_interface()->draw( menu_debug_draw.vertex_start, menu_debug_draw.vertex_count );
+			}
+		}
+
+		// unbind some render states.
 		engine.get_video_interface()->bind_target_textures( 0, nullptr, nullptr, video_texture_type_e_none );
 		engine.get_video_interface()->bind_vertex_buffers( 0, nullptr );
-		engine.get_video_interface()->bind_index_buffer( nullptr );
+		engine.get_video_interface()->bind_vertex_shader( nullptr );
+		engine.get_video_interface()->bind_pixel_shader( nullptr );
+	}
+
+	void_c video_renderer_interface_c::add_menu2_debug_rectangle( matrix32x2x2_c const & global_basis, vector32x2_c const & global_origin, box32x2_c const & local_box, vector32x4_c const & color )
+	{
+		menu_debug_draw_c * menu_debug_draw = _menu_debug_draw_list.emplace( -1, 1 );
+		menu_debug_draw->vertex_start = _menu_debug_vertex_list.get_length();
+		menu_debug_draw->vertex_count = 5;
+
+		video_renderer_vertex_debug_c * debug_vertex = _menu_debug_vertex_list.emplace( -1, 5 );
+		vector32x2_c points[ 4 ];
+		points[ 0 ] = ops::rotate_and_scale_vector32x2( vector32x2_c( local_box.minimum.a, local_box.minimum.b ), global_basis ) + global_origin; points[ 0 ].a += 0.5f; points[ 0 ].b += 0.5f; // need to bias top left edges by half a pixel so that line rasterization aligns with triangle rasterization.
+		points[ 1 ] = ops::rotate_and_scale_vector32x2( vector32x2_c( local_box.minimum.a, local_box.maximum.b ), global_basis ) + global_origin; points[ 1 ].a += 0.5f;
+		points[ 2 ] = ops::rotate_and_scale_vector32x2( vector32x2_c( local_box.maximum.a, local_box.maximum.b ), global_basis ) + global_origin;
+		points[ 3 ] = ops::rotate_and_scale_vector32x2( vector32x2_c( local_box.maximum.a, local_box.minimum.b ), global_basis ) + global_origin; points[ 3 ].b += 0.5f;
+
+		debug_vertex->position = vector32x3_c( points[ 0 ].a, points[ 0 ].b, 0.0f );
+		debug_vertex->color = color;
+
+		debug_vertex++;
+		debug_vertex->position = vector32x3_c( points[ 1 ].a, points[ 1 ].b, 0.0f );
+		debug_vertex->color = color;
+
+		debug_vertex++;
+		debug_vertex->position = vector32x3_c( points[ 2 ].a, points[ 2 ].b, 0.0f );
+		debug_vertex->color = color;
+
+		debug_vertex++;
+		debug_vertex->position = vector32x3_c( points[ 3 ].a, points[ 3 ].b, 0.0f );
+		debug_vertex->color = color;
+
+		debug_vertex++;
+		debug_vertex->position = vector32x3_c( points[ 0 ].a, points[ 0 ].b, 0.0f );
+		debug_vertex->color = color;
 	}
 
 	void_c video_renderer_interface_c::set_settings( settings_c const & desired_settings )

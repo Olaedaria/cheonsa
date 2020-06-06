@@ -40,15 +40,21 @@ namespace cheonsa
 		vector32x4_c draw_color = _local_color;
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
 		menu_color_style_c * shared_color = nullptr;
-		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
+		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
 		assert( shared_color );
 		draw_shared_colors[ 0 ] = shared_color->value;
-		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
+		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
 		assert( shared_color );
 		draw_shared_colors[ 1 ] = shared_color->value;
-		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
+		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
+		if ( _shared_color_class_swapped )
+		{
+			vector32x4_c t = draw_shared_colors[ 0 ];
+			draw_shared_colors[ 0 ] = draw_shared_colors[ 1 ];
+			draw_shared_colors[ 1 ] = t;
+		}
 
 		// these lists will be used to simultaniously build geometry for different layers.
 		// at the end, they will be appened to the draw batch so that the layers are drawn in the correct order.
@@ -124,7 +130,7 @@ namespace cheonsa
 							float32_c selection_top = line_top;
 							float32_c selection_bottom = line_bottom;
 
-							menu_color_style_c const * selection_color_style = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
+							menu_color_style_c const * selection_color_style = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
 							assert( selection_color_style );
 							vector32x4_c selection_color = selection_color_style->value;
 							selection_color.d *= 0.25f;
@@ -266,7 +272,7 @@ namespace cheonsa
 
 		// render the cursor.
 		// do this out-of-line with glyph rendering, because in the case that the text element has no text then we still want to be able to render the cursor.
-		if ( _is_text_focused && _text_interact_mode != menu_text_interact_mode_e_static )
+		if ( _mother_control->get_is_enabled() && _is_text_focused && _text_interact_mode != menu_text_interact_mode_e_static )
 		{
 			glyph_information_c cursor_glyph_information = _get_glyph_information( _cursor_index );
 			text_paragraph_c * cursor_paragraph = _paragraph_list[ cursor_glyph_information.paragraph_index ];
@@ -279,7 +285,7 @@ namespace cheonsa
 			boolean_c do_cursor = false;
 			float32_c cursor_left;
 
-			menu_color_style_c const * cursor_color_style =  engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
+			menu_color_style_c const * cursor_color_style =  engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, get_state(), menu_shared_color_slot_e_accent );
 			assert( cursor_color_style );
 			vector32x4_c cursor_color = cursor_color_style->value;
 			if ( !_cursor_is_on_previous_line )
@@ -3335,7 +3341,7 @@ namespace cheonsa
 
 	boolean_c menu_element_text_c::handle_on_input( input_event_c * input_event )
 	{
-		if ( _text_interact_mode == menu_text_interact_mode_e_static )
+		if ( _text_interact_mode == menu_text_interact_mode_e_static || !_mother_control->get_is_enabled() )
 		{
 			return false;
 		}

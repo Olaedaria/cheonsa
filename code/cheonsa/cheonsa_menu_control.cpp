@@ -188,39 +188,43 @@ namespace cheonsa
 		}
 	}
 
+	void_c menu_control_c::_handle_user_interface_local_box_changed()
+	{
+	}
+
 	void_c menu_control_c::_on_is_showed_changed()
 	{
-		on_is_showed_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_showed_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_is_enabled_changed()
 	{
-		on_is_enabled_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_enabled_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
-	void_c menu_control_c::_on_is_deep_text_focused_changed()
+	void_c menu_control_c::_on_is_deep_text_focused_changed( menu_control_c * next_control )
 	{
-		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
 
-	void_c menu_control_c::_on_is_text_focused_changed()
+	void_c menu_control_c::_on_is_text_focused_changed( menu_control_c * next_control )
 	{
-		on_is_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_is_mouse_overed_changed()
 	{
-		on_is_mouse_overed_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_mouse_overed_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_is_mouse_focused_changed()
 	{
-		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_mouse_focused_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_is_pressed_changed()
 	{
-		on_is_pressed_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_pressed_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
 	void_c menu_control_c::_on_clicked( input_event_c * input_event )
@@ -228,7 +232,7 @@ namespace cheonsa
 		if ( _is_enabled )
 		{
 			get_mother_user_interface()->reset_multi_click_detection();
-			on_clicked.invoke( menu_event_information_c( this, input_event ) );
+			on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
 		}
 	}
 
@@ -236,7 +240,7 @@ namespace cheonsa
 	{
 		if ( _is_enabled )
 		{
-			on_multi_clicked.invoke( menu_event_information_c( this, input_event ) );
+			on_multi_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
 		}
 	}
 
@@ -444,11 +448,6 @@ namespace cheonsa
 
 		// release controls.
 		remove_all_daughter_controls();
-	}
-
-	menu_control_c * menu_control_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_c( name );
 	}
 
 	void_c menu_control_c::add_reference()
@@ -1390,7 +1389,7 @@ namespace cheonsa
 			}
 
 			// control group spatial transform.
-			_control_group_basis = matrix32x2x2_c( 1.0f, 0.0f, 0.0f, 1.0f );
+			_control_group_basis = matrix32x2x2_c( 1.0f, 0.0f, 0.0f, 1.0f ); // if this is root of control group, then we use identity as basis.
 			_control_group_origin = vector32x2_c( 0.0f, 0.0f );
 			_control_group_color = _local_color;
 
@@ -1420,6 +1419,12 @@ namespace cheonsa
 			_control_group_basis = _mother_control->_control_group_basis * _local_basis;
 			_control_group_origin = ops::rotate_and_scale_vector32x2( _local_origin, _mother_control->_control_group_basis ) + _mother_control->_control_group_origin;
 			_control_group_color = _mother_control->_control_group_color * _local_color;
+		}
+
+		// draw debug bounds.
+		if ( engine.get_debug_manager()->get_draw_menu_bounds() )
+		{
+			engine.get_video_renderer_interface()->add_menu2_debug_rectangle( _global_basis, _global_origin, _local_box, engine.get_debug_manager()->get_menu_bounds_color() );
 		}
 
 		// compile daughter elements.

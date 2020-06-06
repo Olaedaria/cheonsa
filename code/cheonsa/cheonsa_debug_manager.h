@@ -31,6 +31,7 @@ namespace cheonsa
 		vector32x4_c _axis_c_color;
 		vector32x4_c _axis_d_color;
 		vector32x4_c _bone_color;
+		vector32x4_c _menu_bounds_color;
 
 		boolean_c _draw_menu_bounds; // draws boxes around menu controls.
 		boolean_c _draw_world_axes; // draws axes at center of scene.
@@ -81,6 +82,9 @@ namespace cheonsa
 
 		inline vector32x4_c const & get_bone_color() const { return _bone_color; }
 		inline void_c set_bone_color( vector32x4_c const & value ) { _bone_color = value; }
+
+		inline vector32x4_c const & get_menu_bounds_color() const { return _menu_bounds_color; }
+		inline void_c set_menu_bounds_color( vector32x4_c const & value ) { _menu_bounds_color = value; }
 
 		inline boolean_c get_draw_menu_bounds() const { return _draw_menu_bounds; }
 		inline void_c set_draw_menu_bounds( boolean_c value ) { _draw_menu_bounds = value; }

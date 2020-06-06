@@ -23,7 +23,8 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	protected:
-		menu_element_text_c _element_text; // name is "text"
+		menu_element_frame_c _title_bar_frame_element; // name is "title_bar".
+		menu_element_text_c _title_bar_text_element; // name is "text".
 
 		float32_c _edge_size; // thickness of each grab-able edge, used for hit testing, user can grab this to resize the window.
 		float32_c _top_bar_size; // extra thickness of top edge, for title bar, for hit testing, user can grab this to move the window.
@@ -54,7 +55,7 @@ namespace cheonsa
 
 		void_c _apply_client_margins();
 
-		virtual void_c _on_is_deep_text_focused_changed() override;
+		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 		virtual void_c _on_is_mouse_focused_changed() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
@@ -70,10 +71,10 @@ namespace cheonsa
 		virtual void_c update_animations( float32_c time_step ) override;
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
 
-		string16_c get_title_text_value() const;
-		void_c set_title_text_value( string8_c const & plain_text );
-		void_c set_title_text_value( string16_c const & plain_text );
-		void_c clear_title_text_value();
+		string16_c get_title_bar_text_value() const;
+		void_c set_title_bar_text_value( string8_c const & plain_text );
+		void_c set_title_bar_text_value( string16_c const & plain_text );
+		void_c clear_title_bar_text_value();
 
 		boolean_c get_user_can_move() const;
 		void_c set_user_can_move( boolean_c value );

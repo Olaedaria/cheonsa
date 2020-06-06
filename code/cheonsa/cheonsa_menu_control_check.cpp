@@ -15,24 +15,24 @@ namespace cheonsa
 		: menu_control_c( name )
 		, _mode( mode_e_normal )
 		, _is_checked( false )
-		, _element_box( string8_c( core_list_mode_e_static, "box_frame" ) )
-		, _element_mark( string8_c( core_list_mode_e_static, "mark_frame" ) )
-		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
+		, _box_element( string8_c( core_list_mode_e_static, "box_frame" ) )
+		, _mark_element( string8_c( core_list_mode_e_static, "mark_frame" ) )
+		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_element_box.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_box.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
-		_add_daughter_element( &_element_box );
+		_box_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_box_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
+		_add_daughter_element( &_box_element );
 
-		_element_mark.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_mark.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
-		_element_mark.set_is_showed( _is_checked );
-		_add_daughter_element( &_element_mark );
+		_mark_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_mark_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
+		_mark_element.set_is_showed( _is_checked );
+		_add_daughter_element( &_mark_element );
 
-		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_text.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 18.0f, 0.0f, 0.0f, 0.0f ) );
-		_add_daughter_element( &_element_text );
+		_text_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 18.0f, 0.0f, 0.0f, 0.0f ) );
+		_add_daughter_element( &_text_element );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_check" ) );
 	}
@@ -41,39 +41,34 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_check_c * menu_control_check_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_check_c( name );
-	}
-
 	string16_c menu_control_check_c::get_plain_text_value() const
 	{
-		return _element_text.get_plain_text_value();
+		return _text_element.get_plain_text_value();
 	}
 
 	void_c menu_control_check_c::set_plain_text_value( string8_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_text_element.set_plain_text_value( plain_text );
 	}
 
 	void_c menu_control_check_c::set_plain_text_value( string16_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_text_element.set_plain_text_value( plain_text );
 	}
 
 	void_c menu_control_check_c::set_rich_text_value( string8_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		_text_element.set_rich_text_value( plain_text_with_mark_up );
 	}
 
 	void_c menu_control_check_c::set_rich_text_value( string16_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		_text_element.set_rich_text_value( plain_text_with_mark_up );
 	}
 
 	void_c menu_control_check_c::clear_text_value()
 	{
-		_element_text.clear_text_value();
+		_text_element.clear_text_value();
 	}
 
 	menu_control_check_c::mode_e menu_control_check_c::get_mode() const
@@ -112,13 +107,13 @@ namespace cheonsa
 					}
 				}
 				_is_checked = true;
-				_element_mark.set_is_showed( true );
+				_mark_element.set_is_showed( true );
 				on_checked_changed.invoke( this );
 			}
 			else
 			{
 				_is_checked = false;
-				_element_mark.set_is_showed( false );
+				_mark_element.set_is_showed( false );
 				on_checked_changed.invoke( this );
 			}
 		}
@@ -131,12 +126,12 @@ namespace cheonsa
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
 		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_focused() );
-		_element_box.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_box.set_is_pressed( _is_pressed );
-		_element_mark.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_mark.set_is_pressed( _is_pressed );
-		_element_text.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_element_text.set_is_pressed( _is_pressed );
+		_box_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_box_element.set_is_pressed( _is_pressed );
+		_mark_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_mark_element.set_is_pressed( _is_pressed );
+		_text_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_text_element.set_is_pressed( _is_pressed );
 
 		_update_daughter_control_animations( time_step );
 	}

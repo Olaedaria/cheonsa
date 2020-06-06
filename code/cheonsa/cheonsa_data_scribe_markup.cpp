@@ -117,6 +117,17 @@ namespace cheonsa
 		return nullptr;
 	}
 
+	sint32_c data_scribe_markup_c::node_c::get_attribute_count() const
+	{
+		return _attribute_count;
+	}
+
+	data_scribe_markup_c::attribute_c const * data_scribe_markup_c::node_c::get_attribute( sint32_c index ) const
+	{
+		assert( index >= 0 && index < _attribute_count );
+		return &_markup->_attribute_heap[ _attribute_start + index ];
+	}
+
 	data_scribe_markup_c::node_c const * data_scribe_markup_c::node_c::find_tag( char8_c const * name ) const
 	{
 		sint32_c node_index = _first_daughter;

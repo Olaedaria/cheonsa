@@ -24,11 +24,6 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_combo_list_item_text_c * menu_control_combo_list_item_text_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_combo_list_item_text_c( name );
-	}
-
 	void_c menu_control_combo_list_item_text_c::select()
 	{
 		_set_is_selected( true, false );
@@ -39,13 +34,13 @@ namespace cheonsa
 		on_selected_item_changed.invoke( this );
 	}
 
-	void_c menu_control_combo_list_c::_on_is_deep_text_focused_changed()
+	void_c menu_control_combo_list_c::_on_is_deep_text_focused_changed( menu_control_c * next_control )
 	{
 		if ( _is_deep_text_focused == false )
 		{
 			set_is_showed( false );
 		}
-		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
 
 	menu_control_combo_list_c::menu_control_combo_list_c( string8_c const & name )
@@ -60,11 +55,6 @@ namespace cheonsa
 
 	menu_control_combo_list_c::~menu_control_combo_list_c()
 	{
-	}
-
-	menu_control_combo_list_c * menu_control_combo_list_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_combo_list_c( name );
 	}
 
 	sint32_c menu_control_combo_list_c::get_item_count() const
@@ -132,16 +122,16 @@ namespace cheonsa
 			menu_control_combo_list_item_text_c const * selected_combo_list_item_text = dynamic_cast< menu_control_combo_list_item_text_c const * >( selected_item );
 			if ( selected_combo_list_item_text )
 			{
-				_element_text.set_plain_text_value( selected_combo_list_item_text->get_plain_text_value() );
+				_text_element.set_plain_text_value( selected_combo_list_item_text->get_plain_text_value() );
 			}
 			else
 			{
-				_element_text.clear_text_value();
+				_text_element.clear_text_value();
 			}
 		}
 		else
 		{
-			_element_text.clear_text_value();
+			_text_element.clear_text_value();
 		}
 	}
 
@@ -151,7 +141,7 @@ namespace cheonsa
 	{
 		_name = string8_c( core_list_mode_e_static, "combo" );
 
-		_combo_list = menu_control_combo_list_c::make_new_instance( string8_c( core_list_mode_e_static, "combo_list" ) );
+		_combo_list = new menu_control_combo_list_c( string8_c( core_list_mode_e_static, "combo_list" ) );
 		_combo_list->on_selected_item_changed.subscribe( this, &menu_control_combo_c::_handle_on_selected_item_changed );
 		add_daughter_control( _combo_list );
 
@@ -160,11 +150,6 @@ namespace cheonsa
 
 	menu_control_combo_c::~menu_control_combo_c()
 	{
-	}
-
-	menu_control_combo_c * menu_control_combo_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_combo_c( name );
 	}
 
 	void_c menu_control_combo_c::show_combo_list()

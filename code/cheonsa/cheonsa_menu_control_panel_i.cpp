@@ -29,21 +29,21 @@ namespace cheonsa
 
 	menu_control_panel_i::menu_control_panel_i( string8_c const & name )
 		: menu_control_c( name )
-		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
-		, _element_border_frame( string8_c( core_list_mode_e_static, "border_frame" ) )
+		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
+		, _border_frame_element( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _client()
 		, _horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
 		, _horizontal_scroll_bar( nullptr )
 		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
 		, _vertical_scroll_bar( nullptr )
 	{
-		_element_frame.set_shared_color_class( menu_shared_color_class_e_window );
-		_add_daughter_element( &_element_frame );
+		_frame_element.set_shared_color_class( menu_shared_color_class_e_window );
+		_add_daughter_element( &_frame_element );
 
-		_element_border_frame.set_is_overlay( true );
-		_add_daughter_element( &_element_border_frame );
+		_border_frame_element.set_is_overlay( true );
+		_add_daughter_element( &_border_frame_element );
 
-		_client = menu_control_c::make_new_instance( string8_c( core_list_mode_e_static, "client" ) );
+		_client = new menu_control_c( string8_c( core_list_mode_e_static, "client" ) );
 		_client->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		add_daughter_control( _client );
 
@@ -52,7 +52,7 @@ namespace cheonsa
 
 	void_c menu_control_panel_i::update_animations( float32_c time_step )
 	{
-		_element_frame.set_is_selected( _is_mouse_focused || _is_text_focused );
+		_frame_element .set_is_selected( _is_mouse_focused || _is_text_focused );
 		menu_control_c::update_animations( time_step );
 	}
 
@@ -80,7 +80,7 @@ namespace cheonsa
 		{
 			if ( _horizontal_scroll_bar == nullptr )
 			{
-				_horizontal_scroll_bar = menu_control_scroll_bar_x_c::make_new_instance( string8_c( core_list_mode_e_static, "horizontal_scroll_bar" ) );
+				_horizontal_scroll_bar = new menu_control_scroll_bar_x_c( string8_c( core_list_mode_e_static, "horizontal_scroll_bar" ) );
 				_horizontal_scroll_bar->on_value_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_value_changed );
 				_horizontal_scroll_bar->on_preferred_thickness_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_preferred_thickness_changed );
 				_lay_out_horizontal_scroll_bar();
@@ -123,7 +123,7 @@ namespace cheonsa
 		{
 			if ( _vertical_scroll_bar == nullptr )
 			{
-				_vertical_scroll_bar = menu_control_scroll_bar_y_c::make_new_instance( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
+				_vertical_scroll_bar = new menu_control_scroll_bar_y_c( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 				_vertical_scroll_bar->on_value_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_value_changed );
 				_vertical_scroll_bar->on_preferred_thickness_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_preferred_thickness_changed );
 				_lay_out_vertical_scroll_bar();

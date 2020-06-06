@@ -1,4 +1,4 @@
-﻿#include "cheonsa_menu_element.h"
+#include "cheonsa_menu_element.h"
 #include "cheonsa_menu_element_frame.h"
 #include "cheonsa_menu_element_text.h"
 #include "cheonsa__ops.h"
@@ -69,6 +69,7 @@ namespace cheonsa
 		: _mother_control( nullptr )
 		, _name( name )
 		, _shared_color_class( menu_shared_color_class_e_window )
+		, _shared_color_class_swapped( false )
 		, _local_color( 1.0f, 1.0f, 1.0f, 1.0f )
 		, _local_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom )
 		, _local_box_anchor_measures( 0.0f, 0.0f, 0.0f, 0.0f )
@@ -101,9 +102,14 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_element_c::set_layout_box_anchor( menu_anchor_e local_box_anchor, box32x2_c local_box_anchor_measures )
+	void_c menu_element_c::set_layout_box_anchor( menu_anchor_e local_box_anchor, box32x2_c const & local_box_anchor_measures )
 	{
 		_local_box_anchor = local_box_anchor;
+		_local_box_anchor_measures = local_box_anchor_measures;
+	}
+
+	void_c menu_element_c::set_layout_box_anchor_measures( box32x2_c const & local_box_anchor_measures )
+	{
 		_local_box_anchor_measures = local_box_anchor_measures;
 	}
 
@@ -196,9 +202,10 @@ namespace cheonsa
 		return _shared_color_class;
 	}
 
-	void_c menu_element_c::set_shared_color_class( menu_shared_color_class_e value )
+	void_c menu_element_c::set_shared_color_class( menu_shared_color_class_e value, boolean_c swapped )
 	{
 		_shared_color_class = value;
+		_shared_color_class_swapped = swapped;
 	}
 
 	boolean_c menu_element_c::get_is_showed() const

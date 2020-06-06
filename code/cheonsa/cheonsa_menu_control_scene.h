@@ -24,8 +24,8 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const { return get_type_name_static(); }
 
 	protected:
-		menu_element_frame_c _element_frame; // does not have a name.
-		menu_frame_style_c _element_frame_style; // style override for frame element.
+		menu_element_frame_c _frame_element; // does not have a name.
+		menu_frame_style_c _frame_style; // style override for frame element.
 
 		video_renderer_canvas_c * _canvas; // canvas, sized to be same as size of _local_box.
 		resource_file_texture_c _canvas_wrapper; // canvas wrapper, so that the contents of the canvas can be bound as a texture input and rendered like a menu frame. this has to be resized each time the canvas is resized.
@@ -36,12 +36,9 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override;
 
-		menu_control_scene_c( string8_c const & name );
-
 	public:
+		menu_control_scene_c( string8_c const & name );
 		virtual ~menu_control_scene_c() override;
-
-		static menu_control_scene_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		scene_c * get_scene() const; // gets the scene that this scene control will render.
 		void_c set_scene( scene_c * value ); // sets the scene that this scene control will render.

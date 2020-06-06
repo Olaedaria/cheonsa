@@ -17,12 +17,9 @@ namespace cheonsa
 	protected:
 		virtual void_c _on_is_mouse_overed_changed() override;
 
-		menu_control_combo_list_item_text_c( string8_c const & name );
-
 	public:
+		menu_control_combo_list_item_text_c( string8_c const & name );
 		virtual ~menu_control_combo_list_item_text_c() override;
-
-		static menu_control_combo_list_item_text_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		void_c select(); // sets this item as the selected item in the combo box.
 
@@ -38,14 +35,11 @@ namespace cheonsa
 
 	protected:
 		virtual void_c _on_selected_item_list_changed() override;
-		virtual void_c _on_is_deep_text_focused_changed() override;
-
-		menu_control_combo_list_c( string8_c const & name );
+		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 
 	public:
+		menu_control_combo_list_c( string8_c const & name );
 		virtual ~menu_control_combo_list_c() override;
-
-		static menu_control_combo_list_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		sint32_c get_item_count() const;
 		menu_control_list_item_i const * get_item_at_index( sint32_c item_index ) const;
@@ -85,12 +79,9 @@ namespace cheonsa
 
 		void_c _handle_on_selected_item_changed( menu_control_combo_list_c * combo_list );
 
-		menu_control_combo_c( string8_c const & name );
-
 	public:
+		menu_control_combo_c( string8_c const & name );
 		virtual ~menu_control_combo_c() override;
-
-		static menu_control_combo_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		void_c show_combo_list(); // shows/opens the combo box list box drop down.
 		void_c hide_combo_list(); // hides/closes the combo box list box drop down.

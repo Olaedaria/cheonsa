@@ -378,7 +378,6 @@ namespace cheonsa
 		if ( _local_box != local_box )
 		{
 			_local_box = local_box;
-			on_local_box_changed.invoke( this );
 
 			core_linked_list_c< menu_control_c * >::node_c const * control_list_node = _daughter_control_list.get_first();
 			while ( control_list_node )
@@ -386,10 +385,13 @@ namespace cheonsa
 				menu_control_c * control = control_list_node->get_value();
 				if ( control->_scene_component == nullptr )
 				{
+					control->_handle_user_interface_local_box_changed();
 					control->_update_transform_and_layout();
 				}
 				control_list_node = control_list_node->get_next();
 			}
+
+			on_local_box_changed.invoke( this );
 		}
 	}
 
@@ -468,14 +470,14 @@ namespace cheonsa
 		}
 		_canvas_and_output->clear( clear_color );
 
-		// render 3d scene and 3d menu controls to canvas.
+		// render 3d scene and 3d menus to canvas.
 		if ( _scene )
 		{
 			engine.get_video_renderer_interface()->render_scene( _scene, &_scene->get_camera(), _canvas_and_output );
 		}
 
 		// render 2d menus to canvas.
-		engine.get_video_renderer_interface()->render_2d_menus( this );
+		engine.get_video_renderer_interface()->render_menu2( this );
 
 		// flip canvas back buffer to output window.
 		_canvas_and_output->present();
@@ -615,14 +617,14 @@ namespace cheonsa
 		return _text_focused;
 	}
 
-	void_c user_interface_c::set_text_focused( menu_control_c * menu_control )
+	void_c user_interface_c::set_text_focused( menu_control_c * control )
 	{
 		assert( _is_set_text_focused_changing == false );
 		_is_set_text_focused_changing = true;
 
-		if ( menu_control )
+		if ( control )
 		{
-			assert( menu_control->_mother_user_interface == this );
+			assert( control->_mother_user_interface == this );
 		}
 
 		// clear text focus.
@@ -631,12 +633,12 @@ namespace cheonsa
 		{
 			assert( _text_focused->_is_text_focused );
 			_text_focused->_is_text_focused = false;
-			_text_focused->_on_is_text_focused_changed(); // this has a possibility to nest and cascade.
+			_text_focused->_on_is_text_focused_changed( control ); // this has a possibility to nest and cascade.
 			_text_focused = nullptr;
 		}
 
 		// increment _is_deep_text_focused first, so that we don't send _on_deep_text_focus_lost() to controls that won't be affected.
-		menu_control_c * deep_text_focused = menu_control;
+		menu_control_c * deep_text_focused = control;
 		while ( deep_text_focused )
 		{
 			assert( deep_text_focused->_is_deep_text_focused == 0 || deep_text_focused->_is_deep_text_focused == 1 );
@@ -651,27 +653,27 @@ namespace cheonsa
 			deep_text_focused->_is_deep_text_focused--;
 			if ( deep_text_focused->_is_deep_text_focused == 0 )
 			{
-				deep_text_focused->_on_is_deep_text_focused_changed();
+				deep_text_focused->_on_is_deep_text_focused_changed( control );
 			}
 			deep_text_focused = deep_text_focused->get_mother_control();
 		}
 
 		// set text focus.
-		_text_focused = menu_control;
+		_text_focused = control;
 		if ( _text_focused )
 		{
 			assert( _text_focused->_is_text_focused == 0 );
 			_text_focused->_is_text_focused++;
-			_text_focused->_on_is_text_focused_changed();
+			_text_focused->_on_is_text_focused_changed( control );
 		}
 
-		deep_text_focused = menu_control;
+		deep_text_focused = control;
 		while ( deep_text_focused )
 		{
 			assert( deep_text_focused->_is_deep_text_focused == 0 || deep_text_focused->_is_deep_text_focused == 1 );
 			if ( deep_text_focused->_is_deep_text_focused == 1 )
 			{
-				deep_text_focused->_on_is_deep_text_focused_changed();
+				deep_text_focused->_on_is_deep_text_focused_changed( control );
 			}
 			deep_text_focused = deep_text_focused->get_mother_control();
 		}
@@ -686,13 +688,13 @@ namespace cheonsa
 			if ( control->is_ascendant_of( _text_focused ) )
 			{
 				_text_focused->_is_text_focused = false;
-				_text_focused->_on_is_text_focused_changed();
+				_text_focused->_on_is_text_focused_changed( control );
 				menu_control_c * deep_text_focused = _text_focused;
 				while ( deep_text_focused )
 				{
 					assert ( deep_text_focused->_is_deep_text_focused == 1 );
 					deep_text_focused->_is_deep_text_focused--;
-					deep_text_focused->_on_is_deep_text_focused_changed();
+					deep_text_focused->_on_is_deep_text_focused_changed( control );
 					deep_text_focused = deep_text_focused->get_mother_control();
 				}
 				_text_focused = nullptr;
@@ -740,14 +742,19 @@ namespace cheonsa
 	{
 		if ( _mouse_focused )
 		{
-			_mouse_focused->_is_pressed = false;
-			_mouse_focused->_on_is_pressed_changed();
+			if ( _mouse_focused->_is_pressed )
+			{
+				_mouse_focused->_is_pressed = false;
+				_mouse_focused->_on_is_pressed_changed();
+			}
+			assert( _mouse_focused->_is_mouse_focused );
 			_mouse_focused->_is_mouse_focused = false;
 			_mouse_focused->_on_is_mouse_focused_changed();
 			_mouse_focused = nullptr;
 		}
 		if ( _mouse_overed )
 		{
+			assert( _mouse_overed->_is_mouse_overed );
 			_mouse_overed->_is_mouse_overed = false;
 			_mouse_overed->_on_is_mouse_overed_changed();
 			_mouse_overed = nullptr;
@@ -1001,7 +1008,7 @@ namespace cheonsa
 
 	menu_control_c * user_interface_c::open_modal_screen()
 	{
-		menu_control_frame_c * result = menu_control_frame_c::make_new_instance( string8_c( core_list_mode_e_static, "modal_screen" ) );
+		menu_control_frame_c * result = new menu_control_frame_c( string8_c( core_list_mode_e_static, "modal_screen" ) );
 		result->set_style_map_key( string8_c( core_list_mode_e_static, "e_modal" ) );
 		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
 		add_daughter_control( result );

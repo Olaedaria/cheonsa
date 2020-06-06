@@ -30,9 +30,9 @@ namespace cheonsa
 		};
 
 	protected:
-		menu_element_mesh_c _element_mesh;
-		menu_element_frame_c _element_slider; // name is "slider".
-		menu_element_frame_c _element_border_frame; // name is "border_frame".
+		menu_element_mesh_c _mesh_element;
+		menu_element_frame_c _slider_frame_element; // name is "slider_frame".
+		menu_element_frame_c _border_frame_element; // name is "border_frame".
 
 		mode_e _mode;
 
@@ -50,12 +50,9 @@ namespace cheonsa
 		
 		virtual void_c _update_transform_and_layout() override; // updates layout of elements based on current mode and value.
 
-		menu_control_color_slider_c( string8_c const & name );
-
 	public:
+		menu_control_color_slider_c( string8_c const & name );
 		virtual ~menu_control_color_slider_c() override;
-
-		static menu_control_color_slider_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		virtual void_c update_animations( float32_c time_step ) override;
 

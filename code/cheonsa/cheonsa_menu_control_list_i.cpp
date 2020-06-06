@@ -57,7 +57,7 @@ namespace cheonsa
 		box32x2_c new_local_box;
 		new_local_box.minimum.a = mother_list->_client->get_local_box().minimum.a;
 		new_local_box.maximum.a = mother_list->_client->get_local_box().maximum.a;
-		new_local_box.minimum.b = 0.0f;
+		new_local_box.minimum.b = 0.0f; // don't worry about correct vertical layout at this time. this will be corrected in _lay_out_item_origins().
 		new_local_box.maximum.b = _height;
 		if ( new_local_box != _local_box )
 		{
@@ -73,7 +73,7 @@ namespace cheonsa
 
 	menu_control_list_item_separator_i::menu_control_list_item_separator_i( string8_c const & name )
 		: menu_control_list_item_i( name )
-		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
+		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
 		, _height( 10.0f )
 	{
 	}
@@ -121,7 +121,7 @@ namespace cheonsa
 		{
 			_set_is_selected( true, input_event->get_modifier_flags() == input_modifier_flag_e_ctrl );
 		}
-		on_clicked.invoke( menu_event_information_c( this, input_event ) );
+		on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
 	}
 
 	void_c menu_control_list_item_text_i::_update_element_states()
@@ -132,7 +132,7 @@ namespace cheonsa
 			daughter_element->set_is_selected( _is_mouse_focused || _is_mouse_overed );
 			daughter_element->set_is_pressed( _is_enabled && _is_pressed );
 		}
-		_element_highlighted_frame.set_is_showed( _is_enabled && _is_mouse_overed );
+		_highlighted_frame_element.set_is_showed( _is_enabled && _is_mouse_overed );
 	}
 
 	void_c menu_control_list_item_text_i::_update_transform_and_layout()
@@ -146,18 +146,18 @@ namespace cheonsa
 		box32x2_c new_local_box;
 		new_local_box.minimum.a = mother_list->_client->get_local_box().minimum.a;
 		new_local_box.maximum.a = mother_list->_client->get_local_box().maximum.a;
-		new_local_box.minimum.b = 0.0f; // does not really matter right now.
-		new_local_box.maximum.b = 100.0f; // does not really matter right now.
+		new_local_box.minimum.b = 0.0f; // don't worry about correct vertical layout at this time. this will be corrected in _lay_out_item_origins().
+		new_local_box.maximum.b = 100.0f;
 		if ( new_local_box != _local_box )
 		{
 			_local_box = new_local_box;
-			_element_text.update_layout( _local_box );
-			float32_c content_height = _element_text.get_content_height(); // this will reflow text element text.
+			_text_element.update_layout( _local_box );
+			float32_c content_height = _text_element.get_content_height(); // this will reflow text element text.
 			if ( content_height < 8.0f ) // this is somewhat arbitrary.
 			{
 				content_height = 8.0f;
 			}
-			content_height = ops::math_round_up( content_height + _element_text.get_default_size() );
+			content_height = ops::math_round_up( content_height + _text_element.get_default_size() );
 			new_local_box.minimum.b = content_height * -0.5f;
 			new_local_box.maximum.b = content_height * 0.5f;
 			_local_box = new_local_box;
@@ -172,10 +172,10 @@ namespace cheonsa
 
 	menu_control_list_item_text_i::menu_control_list_item_text_i( string8_c const & name )
 		: menu_control_list_item_i( name )
-		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
-		, _element_selected_frame( string8_c( core_list_mode_e_static, "selected_frame" ) )
-		, _element_highlighted_frame( string8_c( core_list_mode_e_static, "highlighted_frame" ) )
-		, _element_text( string8_c( core_list_mode_e_static, "text" ) )
+		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
+		, _selected_frame_element( string8_c( core_list_mode_e_static, "selected_frame" ) )
+		, _highlighted_frame_element( string8_c( core_list_mode_e_static, "highlighted_frame" ) )
+		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
 	{
 		_can_be_selected = true;
 
@@ -184,20 +184,20 @@ namespace cheonsa
 
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_add_daughter_element( &_element_frame );
+		_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_add_daughter_element( &_frame_element );
 
-		_element_selected_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_selected_frame.set_is_showed( false );
-		_add_daughter_element( &_element_selected_frame );
+		_selected_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_selected_frame_element.set_is_showed( false );
+		_add_daughter_element( &_selected_frame_element );
 
-		_element_highlighted_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_highlighted_frame.set_is_showed( false );
-		_add_daughter_element( &_element_highlighted_frame );
+		_highlighted_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_highlighted_frame_element.set_is_showed( false );
+		_add_daughter_element( &_highlighted_frame_element );
 
-		_element_text.set_shared_color_class( menu_shared_color_class_e_field );
-		_element_text.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
-		_add_daughter_element( &_element_text );
+		_text_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_text_element.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
+		_add_daughter_element( &_text_element );
 
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_list_item" ) );
 	}
@@ -209,32 +209,32 @@ namespace cheonsa
 
 	string16_c menu_control_list_item_text_i::get_plain_text_value() const
 	{
-		return _element_text.get_plain_text_value();
+		return _text_element.get_plain_text_value();
 	}
 
 	void_c menu_control_list_item_text_i::set_plain_text_value( string8_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_text_element.set_plain_text_value( plain_text );
 	}
 
 	void_c menu_control_list_item_text_i::set_plain_text_value( string16_c const & plain_text )
 	{
-		_element_text.set_plain_text_value( plain_text );
+		_text_element.set_plain_text_value( plain_text );
 	}
 
 	void_c menu_control_list_item_text_i::set_rich_text_value( string8_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		_text_element.set_rich_text_value( plain_text_with_mark_up );
 	}
 
 	void_c menu_control_list_item_text_i::set_rich_text_value( string16_c const & plain_text_with_mark_up )
 	{
-		_element_text.set_rich_text_value( plain_text_with_mark_up );
+		_text_element.set_rich_text_value( plain_text_with_mark_up );
 	}
 
 	void_c menu_control_list_item_text_i::clear_text_value()
 	{
-		_element_text.clear_text_value();
+		_text_element.clear_text_value();
 	}
 
 	void_c menu_control_list_i::_lay_out_item_origins()
@@ -485,10 +485,10 @@ namespace cheonsa
 				set_is_showed( false );
 			}
 		}
-		on_is_mouse_overed_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_mouse_overed_changed.invoke( menu_event_information_c( this, nullptr, nullptr ) );
 	}
 
-	void_c menu_control_list_i::_on_is_deep_text_focused_changed()
+	void_c menu_control_list_i::_on_is_deep_text_focused_changed( menu_control_c * next_control )
 	{
 		if ( _is_deep_text_focused == false )
 		{
@@ -497,7 +497,7 @@ namespace cheonsa
 				set_is_showed( false );
 			}
 		}
-		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, nullptr ) );
+		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
 
 	void_c menu_control_list_i::_on_input( input_event_c * input_event )

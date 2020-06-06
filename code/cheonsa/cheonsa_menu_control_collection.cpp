@@ -541,10 +541,8 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::_on_input( input_event_c * input_event )
 	{
-		refresh();
-
-		_element_highlighted_frame.set_is_showed( false );
-		_element_last_selected_frame.set_is_showed( false );
+		_highlighted_frame_element.set_is_showed( false );
+		_last_selected_frame_element.set_is_showed( false );
 
 		if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 		{
@@ -558,15 +556,15 @@ namespace cheonsa
 				_mouse_selected_item = _pick_item_at_local_point( local_mouse_position );
 				if ( _mouse_selected_item )
 				{
-					_element_highlighted_frame.set_is_showed( true );
+					_highlighted_frame_element.set_is_showed( true );
 					box32x2_c item_box = _get_item_box( _mouse_selected_item->_index );
-					_element_highlighted_frame.set_layout_simple( item_box );
+					_highlighted_frame_element.set_layout_simple( item_box );
 				}
 				if ( _last_selected_item )
 				{
-					_element_last_selected_frame.set_is_showed( true );
+					_last_selected_frame_element.set_is_showed( true );
 					box32x2_c item_box = _get_item_box( _last_selected_item->_index );
-					_element_last_selected_frame.set_layout_simple( item_box );
+					_last_selected_frame_element.set_layout_simple( item_box );
 				}
 			}
 		}
@@ -589,10 +587,10 @@ namespace cheonsa
 
 	menu_control_collection_c::menu_control_collection_c( string8_c const & name )
 		: menu_control_c( name )
-		, _element_frame( string8_c( core_list_mode_e_static, "frame" ) )
-		, _element_last_selected_frame( string8_c( core_list_mode_e_static, "last_selected_frame" ) )
-		, _element_highlighted_frame( string8_c( core_list_mode_e_static, "highlighted_frame" ) )
-		, _element_border_frame( string8_c( core_list_mode_e_static, "border_frame" ) )
+		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
+		, _last_selected_frame_element( string8_c( core_list_mode_e_static, "last_selected_frame" ) )
+		, _highlighted_frame_element( string8_c( core_list_mode_e_static, "highlighted_frame" ) )
+		, _border_frame_element( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _last_selected_item( nullptr )
 		, _mouse_selected_item( nullptr )
 		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic )
@@ -612,20 +610,20 @@ namespace cheonsa
 		, _item_list()
 		, _selected_item_list()
 	{
-		_element_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_add_daughter_element( &_element_frame );
+		_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_add_daughter_element( &_frame_element );
 
-		_element_last_selected_frame.set_is_showed( false );
-		_add_daughter_element( &_element_last_selected_frame );
+		_last_selected_frame_element.set_is_showed( false );
+		_add_daughter_element( &_last_selected_frame_element );
 
-		_element_highlighted_frame.set_is_showed( false );
-		_add_daughter_element( &_element_highlighted_frame );
+		_highlighted_frame_element.set_is_showed( false );
+		_add_daughter_element( &_highlighted_frame_element );
 
-		_element_border_frame.set_is_overlay( true );
-		_element_border_frame.set_shared_color_class( menu_shared_color_class_e_field );
-		_add_daughter_element( &_element_border_frame );
+		_border_frame_element.set_is_overlay( true );
+		_border_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_add_daughter_element( &_border_frame_element );
 
-		_vertical_scroll_bar = menu_control_scroll_bar_y_c::make_new_instance( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
+		_vertical_scroll_bar = new menu_control_scroll_bar_y_c( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
 		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_scroll_bar_on_value_changed );
 		add_daughter_control( _vertical_scroll_bar );
@@ -641,11 +639,6 @@ namespace cheonsa
 		_column_list.remove_and_delete_all();
 		_item_list.remove_and_delete_all();
 		_selected_item_list.remove_all();
-	}
-
-	menu_control_collection_c * menu_control_collection_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_collection_c( name );
 	}
 
 	void_c menu_control_collection_c::update_animations( float32_c time_step )
@@ -963,8 +956,8 @@ namespace cheonsa
 	void_c menu_control_collection_c::remove_and_delete_all_items()
 	{
 		_item_list.remove_and_delete_all();
-		_element_last_selected_frame.set_is_showed( false );
-		_element_highlighted_frame.set_is_showed( false );
+		_last_selected_frame_element.set_is_showed( false );
+		_highlighted_frame_element.set_is_showed( false );
 		_vertical_scroll_bar->set_value_range_and_page_size( 0.0, 0.0f, _local_box.get_height() );
 		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
 		_value_cache_is_dirty = false;

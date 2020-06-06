@@ -12,11 +12,6 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_panel_c * menu_control_panel_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_panel_c( name );
-	}
-
 	menu_visibility_mode_e menu_control_panel_c::get_horizontal_scroll_bar_visibility_mode() const
 	{
 		return _get_horizontal_scroll_bar_visibility_mode();

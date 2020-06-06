@@ -35,19 +35,29 @@ namespace cheonsa
 		// state color and saturation.
 		menu_state_e state = get_state();
 		menu_frame_style_c::state_c const & frame_style_state = frame_style->state_list[ state ];
+		if ( frame_style_state.is_showed == false )
+		{
+			return;
+		}
 
 		vector32x4_c draw_color = _local_color;
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
 		menu_color_style_c * shared_color = nullptr;
-		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
+		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
 		assert( shared_color );
 		draw_shared_colors[ 0 ] = shared_color->value;
-		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
+		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
 		assert( shared_color );
 		draw_shared_colors[ 1 ] = shared_color->value;
-		shared_color = engine.get_menu_style_manager()->find_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
+		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
+		if ( _shared_color_class_swapped )
+		{
+			vector32x4_c t = draw_shared_colors[ 0 ];
+			draw_shared_colors[ 0 ] = draw_shared_colors[ 1 ];
+			draw_shared_colors[ 1 ] = t;
+		}
 
 		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference ? frame_style->pixel_shader_reference->get_ps() : engine.get_video_renderer_shader_manager()->get_menu_ps_frame();
 		assert( pixel_shader );

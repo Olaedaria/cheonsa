@@ -24,6 +24,7 @@ namespace cheonsa
 	class video_renderer_interface_c
 	{
 		friend class engine_c;
+		friend class menu_control_c;
 
 	private:
 		video_renderer_interface_c();
@@ -66,19 +67,23 @@ namespace cheonsa
 		//sint32_c get_voxel_tree_depth();
 		//void_c set_voxel_tree_depth( sint32_c value );
 
-		boolean_c get_menu_draw_debug();
-		void_c set_menu_draw_debug( boolean_c value );
-
 	private:
-		boolean_c _menu_draw_debug;
-		core_list_c< menu_control_c * > _menu_root_control_group_list;
+		core_list_c< menu_control_c * > _menu_control_group_list;
 		core_list_c< menu_draw_list_c * > _menu_draw_list_list;
 		core_list_c< video_renderer_vertex_menu_c > _menu_vertex_list; // vertices for rendering menu elements.
-		core_list_c< video_renderer_vertex_debug_c > _menu_debug_vertex_list;
-		core_list_c< uint16_c > _menu_index_list; // indices into _menu_vertex_list, formatted as a triangle list.
 		video_vertex_buffer_c * _menu_vertex_buffer;
+		core_list_c< uint16_c > _menu_index_list; // indices into _menu_vertex_list, formatted as a triangle list.
 		video_index_buffer_c * _menu_index_buffer;
+
+		struct menu_debug_draw_c
+		{
+			uint32_c vertex_start;
+			uint32_c vertex_count;
+		};
+		core_list_c< menu_debug_draw_c > _menu_debug_draw_list;
+		core_list_c< video_renderer_vertex_debug_c > _menu_debug_vertex_list;
 		video_vertex_buffer_c * _menu_debug_vertex_buffer;
+
 		void_c _bind_constants_for_control( menu_control_c * control, matrix32x2x2_c const & control_group_basis, vector32x2_c const & control_group_origin );
 		void_c _render_control_for_control_group( menu_control_c * control_group );
 		void_c _render_menu_draw_list( menu_draw_list_c const & draw_list );
@@ -93,7 +98,10 @@ namespace cheonsa
 		void_c pre_render_menus( user_interface_c * user_interface );
 
 		// renders the 2d controls in the user interface to the canvas of the user interface.
-		void_c render_2d_menus( user_interface_c * user_interface );
+		// there's not really an analogous function for rendering 3d menus, those are rendered in render_scene().
+		void_c render_menu2( user_interface_c * user_interface );
+
+		void_c add_menu2_debug_rectangle( matrix32x2x2_c const & global_basis, vector32x2_c const & global_origin, box32x2_c const & local_box, vector32x4_c const & color );
 
 	public:
 		// variable renderer settings are stored in here.

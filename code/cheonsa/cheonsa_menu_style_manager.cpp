@@ -352,7 +352,13 @@ namespace cheonsa
 		values = _shared_color_base_notes;
 	}
 
-	menu_color_style_c * menu_style_manager_c::find_shared_color_style( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot )
+	menu_color_style_c * menu_style_manager_c::get_shared_color_style( sint32_c shared_color_index )
+	{
+		assert( shared_color_index >= 0 && shared_color_index < menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_ );
+		return &_shared_color_style_list[ shared_color_index ];
+	}
+
+	menu_color_style_c * menu_style_manager_c::get_shared_color_style( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot )
 	{
 		sint32_c shared_color_index = get_shared_color_index( color_class, color_state, color_slot );
 		return &_shared_color_style_list[ shared_color_index ];

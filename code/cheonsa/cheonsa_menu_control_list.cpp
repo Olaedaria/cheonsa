@@ -54,11 +54,6 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_list_c * menu_control_list_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_list_c( name );
-	}
-
 	sint32_c menu_control_list_c::get_item_count() const
 	{
 		return _client->get_daughter_control_list().get_length();
