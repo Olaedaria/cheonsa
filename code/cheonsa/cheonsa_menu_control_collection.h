@@ -230,13 +230,13 @@ namespace cheonsa
 		// handles click and drag box selection.
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
+		virtual void_c _update_daughter_element_animations( float32_c time_step ) override;
+
 		virtual void_c _update_transform_and_layout() override;
 
 	public:
-		menu_control_collection_c( string8_c const & name );
+		menu_control_collection_c();
 		virtual ~menu_control_collection_c() override;
-
-		virtual void_c update_animations( float32_c time_step ) override;
 
 		// call this after changing columns around or after adding or removing items.
 		// queries and caches item property values if needed.

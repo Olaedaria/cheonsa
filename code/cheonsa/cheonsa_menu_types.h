@@ -15,7 +15,7 @@ transform only needs to be recalculated when a local transform property changes.
 
 layout consists of 2D rectangles.
 layout only needs to be recalculated when the rectangular area changes.
-layout recalculation propagates down the daughter chain as needed.
+layout recalculation propagates down the daughter hierarchy as needed.
 
 transform and layout properties are independent of each other, so changing one does not require an update to the other.
 
@@ -340,7 +340,8 @@ namespace cheonsa
 		class state_c
 		{
 		public:
-			boolean_c is_showed;
+			boolean_c show; // if true then this element will be shown in this state.
+			boolean_c swap_shared_colors; // swaps primary and secondary shared colors.
 			float32_c saturation; // color saturation, applied to ( element_color.rgb * texture.rgb ).
 			float32_c apparent_scale; // when rendered, the frame is scaled by this factor around its center point. this is an apparent scale, meaning that it affects the visual representation only, and does not affect the actual scale of the control itself or hit detection.
 			sint16_c texture_map[ 4 ]; // left, top, right, and bottom coordinates in pixels of edges of texture map rectangle.
@@ -409,6 +410,8 @@ namespace cheonsa
 		class state_c
 		{
 		public:
+			boolean_c show;
+			boolean_c swap_shared_colors; // swaps primary and secondary shared colors.
 			float32_c saturation; // multiplicative color saturation.
 			float32_c apparent_scale; // multiplicative apparent element scale.
 
@@ -516,14 +519,9 @@ namespace cheonsa
 
 			string8_c _element_name; // the name of the element(s) in the control that this entry maps a style to.
 			string8_c _style_key; // the key of element style to map to the element(s) targeted by element_key.
-			//menu_anchor_e anchor; // used to adjust the insets of the element rectangle relative to the control rectangle.
-			//box32x2_c anchor_measures;
 
 		public:
 			entry_c();
-
-			//string8_c get_target_type() const; // everything before the ":" in target, should be "frame", "text", or "control".
-			//string8_c get_target_name() const; // everything after the ":" in target.
 
 			string8_c const & get_element_name() const;
 			string8_c const & get_style_key() const;

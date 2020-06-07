@@ -51,7 +51,7 @@ namespace cheonsa
 		virtual void_c _update_transform_and_layout() override; // updates layout of elements based on current mode and value.
 
 	public:
-		menu_control_color_slider_c( string8_c const & name );
+		menu_control_color_slider_c();
 		virtual ~menu_control_color_slider_c() override;
 
 		virtual void_c update_animations( float32_c time_step ) override;

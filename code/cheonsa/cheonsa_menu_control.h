@@ -63,7 +63,6 @@ namespace cheonsa
 
 		core_linked_list_c< menu_control_c * > _daughter_control_list; // daughter controls.
 		core_linked_list_c< menu_control_c * >::node_c _daughter_control_list_node;
-		void_c _update_daughter_control_animations( float32_c time_step ); // to enable reuse of the code that removes controls that want to be removed.
 
 		core_list_c< menu_element_c * > _daughter_element_list; // private daughter elements are added by this control's private implementation.
 		void_c _add_daughter_element( menu_element_c * element );
@@ -164,10 +163,14 @@ namespace cheonsa
 		virtual void_c _on_multi_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been multi-(double, triple)-clicked on.
 		virtual void_c _on_input( input_event_c * input_event ); // is called for any other user input events.
 
+		void_c _update_daughter_control_animations_and_prune( float32_c time_step ); // to enable reuse of the code that removes controls that want to be removed.
+
+		virtual void_c _update_daughter_element_animations( float32_c time_step );
+
 		virtual void_c _update_transform_and_layout(); // updates global space properties based on inheritance and local space properties.
 
 	public:
-		menu_control_c( string8_c const & name );
+		menu_control_c();
 		virtual ~menu_control_c();
 
 		void_c add_reference();
@@ -212,7 +215,7 @@ namespace cheonsa
 		void_c set_style_map_key( string8_c const & value );
 
 		string8_c const & get_name() const;
-		//void_c set_name( string8_c const & value );
+		void_c set_name( string8_c const & value );
 
 		sint32_c get_index() const; // gets the index of this control within it's mother's daughter list.
 

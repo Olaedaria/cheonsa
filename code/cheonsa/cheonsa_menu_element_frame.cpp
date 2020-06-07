@@ -35,7 +35,7 @@ namespace cheonsa
 		// state color and saturation.
 		menu_state_e state = get_state();
 		menu_frame_style_c::state_c const & frame_style_state = frame_style->state_list[ state ];
-		if ( frame_style_state.is_showed == false )
+		if ( frame_style_state.show == false )
 		{
 			return;
 		}
@@ -52,7 +52,7 @@ namespace cheonsa
 		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
-		if ( _shared_color_class_swapped )
+		if ( frame_style_state.swap_shared_colors )
 		{
 			vector32x4_c t = draw_shared_colors[ 0 ];
 			draw_shared_colors[ 0 ] = draw_shared_colors[ 1 ];

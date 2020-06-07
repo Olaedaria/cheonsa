@@ -114,18 +114,14 @@ namespace cheonsa
 	//
 
 	menu_frame_style_c::state_c::state_c()
-		: is_showed( true )
-		, saturation( 1.0f )
-		, apparent_scale( 1.0f )
-		, texture_map()
-		, texture_map_edges()
 	{
+		reset();
 	}
 
 	void_c menu_frame_style_c::state_c::reset()
 	{
-		//color_style.set_key( string8_c() );
-		//color = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+		show = true;
+		swap_shared_colors = false;
 		saturation = 1.0f;
 		apparent_scale = 1.0f;
 		texture_map[ 0 ] = 0;
@@ -137,12 +133,6 @@ namespace cheonsa
 		texture_map_edges[ 2 ] = 0;
 		texture_map_edges[ 3 ] = 0;
 	}
-
-	//vector32x4_c menu_frame_style_c::state_c::get_expressed_color() const
-	//{
-	//	//return color_style.get_value() ? color_style.get_value()->value * color : color;
-	//	return color;
-	//}
 
 
 
@@ -330,13 +320,28 @@ namespace cheonsa
 			pixel_shader_reference = engine.get_video_renderer_shader_manager()->load_ps( string16_c( attribute->get_value() ) );
 		}
 
+		boolean_c show = true;
+		attribute = node->find_attribute( "show" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_boolean( attribute->get_value(), show );
+		}
+
+		boolean_c swap_shared_colors = false;
+		attribute = node->find_attribute( "swap_shared_colors" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_boolean( attribute->get_value(), swap_shared_colors );
+		}
+
 		// apply defaults if they were defined.
 		if ( texture_map_origin_is_defined && texture_map_size_is_defined && texture_map_edges_is_defined )
 		{
 			for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 			{
 				state_c & state = state_list[ i ];
-				state.is_showed = true;
+				state.show = show;
+				state.swap_shared_colors = swap_shared_colors;
 				state.texture_map[ 0 ] = texture_map_origin[ 0 ];
 				state.texture_map[ 1 ] = texture_map_origin[ 1 ];
 				state.texture_map[ 2 ] = texture_map_origin[ 0 ] + texture_map_size[ 0 ];
@@ -382,12 +387,18 @@ namespace cheonsa
 				{
 					state_c & state = state_list[ state_index ];
 
-					state.is_showed = true;
+					state.show = true;
 
-					attribute = sub_node->find_attribute( "is_showed" );
+					attribute = sub_node->find_attribute( "show" );
 					if ( attribute )
 					{
-						ops::convert_string8_to_boolean( attribute->get_value(), state.is_showed );
+						ops::convert_string8_to_boolean( attribute->get_value(), state.show );
+					}
+
+					attribute = sub_node->find_attribute( "swap_shared_colors" );
+					if ( attribute )
+					{
+						ops::convert_string8_to_boolean( attribute->get_value(), state.swap_shared_colors );
 					}
 
 					attribute = sub_node->find_attribute( "saturation" );
@@ -525,6 +536,8 @@ namespace cheonsa
 
 	void_c menu_text_style_c::state_c::reset()
 	{
+		show = true;
+		swap_shared_colors = false;
 		saturation = 1.0f;
 		apparent_scale = 1.0f;
 	}
@@ -688,6 +701,28 @@ namespace cheonsa
 			margin_is_defined = ops::convert_string8_to_float32xn( attribute->get_value(), core_list_c< float32_c >( core_list_mode_e_static, margin.as_array(), 4 ) );
 		}
 
+		boolean_c show = true;
+		attribute = node->find_attribute( "show" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_boolean( attribute->get_value(), show );
+		}
+
+		boolean_c swap_shared_colors = false;
+		attribute = node->find_attribute( "swap_shared_colors" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_boolean( attribute->get_value(), swap_shared_colors );
+		}
+
+		// apply defaults.
+		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
+		{
+			state_c & state = state_list[ i ];
+			state.show = show;
+			state.swap_shared_colors = swap_shared_colors;
+		}
+
 		sint32_c state_index = 0;
 		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
 		while ( sub_node )
@@ -718,6 +753,18 @@ namespace cheonsa
 				if ( state_index < menu_state_e_count_ )
 				{
 					state_c & state = state_list[ state_index ];
+
+					attribute = sub_node->find_attribute( "show" );
+					if ( attribute )
+					{
+						ops::convert_string8_to_boolean( attribute->get_value(), state.show );
+					}
+
+					attribute = sub_node->find_attribute( "swap_shared_colors" );
+					if ( attribute )
+					{
+						ops::convert_string8_to_boolean( attribute->get_value(), state.swap_shared_colors );
+					}
 
 					attribute = sub_node->find_attribute( "saturation" );
 					if ( attribute )
@@ -845,36 +892,10 @@ namespace cheonsa
 	//
 
 	menu_style_map_c::entry_c::entry_c()
-		//: target_type( target_type_e_none )
-		//, target_name()
 		: _element_name()
 		, _style_key()
-		//, anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom ) // anchor to all sides by default, so that element takes up full area of mother.
-		//, anchor_measures() // default all measures to 0, so that element takes up full area of mother.
 	{
 	}
-
-	//string8_c menu_style_map_c::entry_c::get_target_type() const
-	//{
-	//	string8_c result;
-	//	sint32_c index = 0;
-	//	if ( ops::string8_find_index_of( target, string8_c( core_list_mode_e_static, ":" ), index ) )
-	//	{
-	//		result = ops::string8_sub_string( target, 0, index );
-	//	}
-	//	return result;
-	//}
-
-	//string8_c menu_style_map_c::entry_c::get_target_name() const
-	//{
-	//	string8_c result;
-	//	sint32_c index = 0;
-	//	if ( ops::string8_find_index_of( target, string8_c( core_list_mode_e_static, ":" ), index ) )
-	//	{
-	//		result = ops::string8_sub_string( target, index + 1, target.get_length() - ( index + 1 ) );
-	//	}
-	//	return result;
-	//}
 
 	string8_c const & menu_style_map_c::entry_c::get_element_name() const
 	{
@@ -885,30 +906,6 @@ namespace cheonsa
 	{
 		return _style_key;
 	}
-
-
-
-	////
-	////
-	//// menu_style_map_c::property_c
-	////
-	////
-
-	//menu_style_map_c::property_c::property_c()
-	//	: _name()
-	//	, _value()
-	//{
-	//}
-
-	//string8_c const & menu_style_map_c::property_c::get_name() const
-	//{
-	//	return _name;
-	//}
-
-	//string8_c const & menu_style_map_c::property_c::get_value() const
-	//{
-	//	return _value;
-	//}
 
 
 

@@ -579,14 +579,26 @@ namespace cheonsa
 		refresh();
 	}
 
+	void_c menu_control_collection_c::_update_daughter_element_animations( float32_c time_step )
+	{
+		boolean_c is_selected = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
+		{
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_selected( _is_mouse_focused || is_selected );
+			daughter_element->update_animations( time_step );
+		}
+	}
+
 	void_c menu_control_collection_c::_update_transform_and_layout()
 	{
 		menu_control_c::_update_transform_and_layout();
 		_update_item_layout();
 	}
 
-	menu_control_collection_c::menu_control_collection_c( string8_c const & name )
-		: menu_control_c( name )
+	menu_control_collection_c::menu_control_collection_c()
+		: menu_control_c()
 		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
 		, _last_selected_frame_element( string8_c( core_list_mode_e_static, "last_selected_frame" ) )
 		, _highlighted_frame_element( string8_c( core_list_mode_e_static, "highlighted_frame" ) )
@@ -623,7 +635,8 @@ namespace cheonsa
 		_border_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
 		_add_daughter_element( &_border_frame_element );
 
-		_vertical_scroll_bar = new menu_control_scroll_bar_y_c( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
+		_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
+		_vertical_scroll_bar->set_name( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
 		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_scroll_bar_on_value_changed );
 		add_daughter_control( _vertical_scroll_bar );
@@ -639,25 +652,6 @@ namespace cheonsa
 		_column_list.remove_and_delete_all();
 		_item_list.remove_and_delete_all();
 		_selected_item_list.remove_all();
-	}
-
-	void_c menu_control_collection_c::update_animations( float32_c time_step )
-	{
-		assert( _mother_user_interface );
-
-		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
-		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
-
-		boolean_c is_selected = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
-		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
-		{
-			menu_element_c * daughter_element = _daughter_element_list[ i ];
-			daughter_element->set_is_enabled( _is_enabled );
-			daughter_element->set_is_selected( _is_mouse_focused || is_selected );
-			daughter_element->update_animations( time_step );
-		}
-
-		_update_daughter_control_animations( time_step );
 	}
 
 	void_c menu_control_collection_c::refresh()

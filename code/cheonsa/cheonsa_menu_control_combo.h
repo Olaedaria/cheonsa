@@ -18,7 +18,7 @@ namespace cheonsa
 		virtual void_c _on_is_mouse_overed_changed() override;
 
 	public:
-		menu_control_combo_list_item_text_c( string8_c const & name );
+		menu_control_combo_list_item_text_c();
 		virtual ~menu_control_combo_list_item_text_c() override;
 
 		void_c select(); // sets this item as the selected item in the combo box.
@@ -38,7 +38,7 @@ namespace cheonsa
 		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 
 	public:
-		menu_control_combo_list_c( string8_c const & name );
+		menu_control_combo_list_c();
 		virtual ~menu_control_combo_list_c() override;
 
 		sint32_c get_item_count() const;
@@ -80,7 +80,7 @@ namespace cheonsa
 		void_c _handle_on_selected_item_changed( menu_control_combo_list_c * combo_list );
 
 	public:
-		menu_control_combo_c( string8_c const & name );
+		menu_control_combo_c();
 		virtual ~menu_control_combo_c() override;
 
 		void_c show_combo_list(); // shows/opens the combo box list box drop down.

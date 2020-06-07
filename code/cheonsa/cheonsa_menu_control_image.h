@@ -31,7 +31,7 @@ namespace cheonsa
 		menu_frame_style_c _frame_style; // override style which plugs in to _frame_element.
 
 	public:
-		menu_control_image_c( string8_c const & name );
+		menu_control_image_c();
 		virtual ~menu_control_image_c() override;
 
 		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
@@ -40,6 +40,8 @@ namespace cheonsa
 		void_c set_mode( mode_e mode );
 
 		void_c set_image( resource_file_texture_c * value );
+
+		void_c set_pixel_shader( video_renderer_pixel_shader_c * pixel_shader );
 
 	};
 

@@ -33,7 +33,7 @@ namespace cheonsa
 		void_c _set_is_selected( boolean_c is_selected, boolean_c try_to_multi_select ); // sets the selected state of this list item.
 		virtual void_c _on_is_selected_changed(); // is called after _is_selected value is changed.
 
-		menu_control_list_item_i( string8_c const & name );
+		menu_control_list_item_i();
 
 	public:
 		boolean_c get_can_be_selected() const;
@@ -57,7 +57,7 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override; // needs to respond to if mother resizes.
 
-		menu_control_list_item_separator_i( string8_c const & name );
+		menu_control_list_item_separator_i();
 
 	public:
 		float32_c get_height() const;
@@ -77,20 +77,17 @@ namespace cheonsa
 	protected:
 		menu_element_frame_c _frame_element; // name is "frame".
 		menu_element_frame_c _selected_frame_element; // name is "selected_frame". this frame's visibility is toggled when this list item is selected.
-		menu_element_frame_c _highlighted_frame_element; // name is "highlighted_frame". this frame's visiblity is toggled when the mouse is over the list item or the list item is highlighted with a directional input.
 		menu_element_text_c _text_element; // name is "text".
 
 		void_c _handle_element_text_on_value_changed( menu_element_text_c * element ); // need to invalidate layout of list if text value changes to force reflow of list items.
 
-		virtual void_c _on_is_mouse_overed_changed() override;
-		virtual void_c _on_is_mouse_focused_changed() override;
-		virtual void_c _on_is_pressed_changed() override;
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
-		void_c _update_element_states();
+
+		virtual void_c _update_daughter_element_animations( float32_c time_step ) override;
 
 		virtual void_c _update_transform_and_layout() override; // needs to respond to if mother resizes.
 
-		menu_control_list_item_text_i( string8_c const & name );
+		menu_control_list_item_text_i();
 
 	public:
 		void_c set_is_selected( boolean_c value, boolean_c try_to_multi_select ); // sets the selected state of this item. if selecting this item would go over the select limit, then the oldest selected items will be deselected.
@@ -147,7 +144,7 @@ namespace cheonsa
 		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-		menu_control_list_i( string8_c const & name );
+		menu_control_list_i();
 
 	public:
 		virtual void_c update_animations( float32_c time_step ) override;

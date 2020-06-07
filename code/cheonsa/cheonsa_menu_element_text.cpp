@@ -34,8 +34,10 @@ namespace cheonsa
 		// state color and saturation.
 		menu_state_e state = get_state();
 		menu_text_style_c::state_c const & text_style_state = text_style->state_list[ state ];
-		//vector32x4_c element_color = text_style->state_list[ state ].get_expressed_color() * _local_color;
-		//float32_c element_saturation = text_style->state_list[ state ].saturation;
+		if ( text_style_state.show == false )
+		{
+			return;
+		}
 
 		vector32x4_c draw_color = _local_color;
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
@@ -49,7 +51,7 @@ namespace cheonsa
 		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
-		if ( _shared_color_class_swapped )
+		if ( text_style_state.swap_shared_colors )
 		{
 			vector32x4_c t = draw_shared_colors[ 0 ];
 			draw_shared_colors[ 0 ] = draw_shared_colors[ 1 ];

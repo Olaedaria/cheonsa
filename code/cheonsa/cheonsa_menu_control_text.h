@@ -38,7 +38,7 @@ namespace cheonsa
 		void_c _handle_on_value_changed( menu_element_text_c * text );
 
 	public:
-		menu_control_text_c( string8_c const & name ); // defaults to single line, plain text, editable, no scroll bars.
+		menu_control_text_c(); // defaults to single line, plain text, editable, no scroll bars.
 		virtual ~menu_control_text_c() override;
 
 		virtual void_c update_animations( float32_c time_step ) override;

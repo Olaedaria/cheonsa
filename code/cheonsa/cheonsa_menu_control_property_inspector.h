@@ -134,7 +134,7 @@ namespace cheonsa
 		void_c _handle_dialog_on_result( menu_control_window_c * window );
 
 	public:
-		menu_control_property_inspector_c( string8_c const & name, menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
+		menu_control_property_inspector_c( menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
 		virtual ~menu_control_property_inspector_c() override;
 
 		void_c bind_reflection_object( reflection_object_c * value ); // sets the object that is to be reflected by this property inspector.

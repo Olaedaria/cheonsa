@@ -23,7 +23,7 @@ namespace cheonsa
 		//input_action_c::reference_c _input_action; // if this reference is set, then this is the action that will be invoked when this control is activated.
 
 	public:
-		menu_control_button_c( string8_c const & name );
+		menu_control_button_c();
 
 		string16_c get_plain_text_value() const;
 		void_c set_plain_text_value( string8_c const & plain_text );

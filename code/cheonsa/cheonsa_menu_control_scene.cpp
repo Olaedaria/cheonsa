@@ -25,8 +25,8 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_scene_c::menu_control_scene_c( string8_c const & name )
-		: menu_control_c( name )
+	menu_control_scene_c::menu_control_scene_c()
+		: menu_control_c()
 		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
 		, _frame_style()
 		, _scene( nullptr )

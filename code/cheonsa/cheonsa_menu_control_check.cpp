@@ -11,8 +11,19 @@ namespace cheonsa
 		set_is_checked( !_is_checked );
 	}
 
-	menu_control_check_c::menu_control_check_c( string8_c const & name )
-		: menu_control_c( name )
+	void_c menu_control_check_c::_update_daughter_element_animations( float32_c time_step )
+	{
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_focused() );
+		_box_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_box_element.set_is_pressed( _is_pressed );
+		_mark_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_mark_element.set_is_pressed( _is_pressed );
+		_text_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
+		_text_element.set_is_pressed( _is_pressed );
+	}
+
+	menu_control_check_c::menu_control_check_c()
+		: menu_control_c()
 		, _mode( mode_e_normal )
 		, _is_checked( false )
 		, _box_element( string8_c( core_list_mode_e_static, "box_frame" ) )
@@ -117,23 +128,6 @@ namespace cheonsa
 				on_checked_changed.invoke( this );
 			}
 		}
-	}
-
-	void_c menu_control_check_c::update_animations( float32_c time_step )
-	{
-		assert( _mother_user_interface );
-		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
-		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
-
-		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_focused() );
-		_box_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_box_element.set_is_pressed( _is_pressed );
-		_mark_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_mark_element.set_is_pressed( _is_pressed );
-		_text_element.set_is_selected( _is_mouse_focused || is_descendant_mouse_focused );
-		_text_element.set_is_pressed( _is_pressed );
-
-		_update_daughter_control_animations( time_step );
 	}
 
 	void_c menu_control_check_c::load_static_data_properties( data_scribe_markup_c::node_c const * node )

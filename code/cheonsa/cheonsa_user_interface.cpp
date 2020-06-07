@@ -1008,7 +1008,8 @@ namespace cheonsa
 
 	menu_control_c * user_interface_c::open_modal_screen()
 	{
-		menu_control_frame_c * result = new menu_control_frame_c( string8_c( core_list_mode_e_static, "modal_screen" ) );
+		menu_control_frame_c * result = new menu_control_frame_c();
+		result->set_name( string8_c( core_list_mode_e_static, "modal_screen" ) );
 		result->set_style_map_key( string8_c( core_list_mode_e_static, "e_modal" ) );
 		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
 		add_daughter_control( result );

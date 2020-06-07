@@ -24,7 +24,7 @@ namespace cheonsa
 		void_c _handle_button_on_clicked( menu_event_information_c event_information );
 
 	public:
-		menu_control_window_text_editor_c( string8_c const & name );
+		menu_control_window_text_editor_c();
 		virtual ~menu_control_window_text_editor_c() override;
 
 		string16_c get_text_value();

@@ -45,7 +45,7 @@ namespace cheonsa
 		void_c _handle_scroll_bar_on_value_changed( menu_control_scroll_bar_i * scroll_bar );
 		void_c _handle_scroll_bar_on_preferred_thickness_changed( menu_control_scroll_bar_i * scroll_bar );
 
-		menu_control_panel_i( string8_c const & name );
+		menu_control_panel_i();
 
 	public:
 		virtual void_c update_animations( float32_c time_step ) override;

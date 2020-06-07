@@ -34,8 +34,10 @@ namespace cheonsa
 		menu_element_frame_c _mark_element; // name is "mark_frame".
 		menu_element_text_c _text_element; // name is "text".
 
+		virtual void_c _update_daughter_element_animations( float32_c time_step ) override;
+
 	public:
-		menu_control_check_c( string8_c const & name );
+		menu_control_check_c();
 		virtual ~menu_control_check_c() override;
 
 		string16_c get_plain_text_value() const;
@@ -53,8 +55,6 @@ namespace cheonsa
 
 		core_event_c< void_c, menu_control_c * > on_checked_changed; // occurs after _checked value is changed.
 
-	public:
-		virtual void_c update_animations( float32_c time_step ) override;
 		virtual void_c load_static_data_properties( data_scribe_markup_c::node_c const * node ) override;
 
 	};

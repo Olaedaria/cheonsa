@@ -16,7 +16,7 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	public:
-		menu_control_menu_list_item_separator_c( string8_c const & name );
+		menu_control_menu_list_item_separator_c();
 		virtual ~menu_control_menu_list_item_separator_c() override;
 
 	};
@@ -35,11 +35,10 @@ namespace cheonsa
 		boolean_c _is_checked; // this menu item's checked state.
 		menu_control_menu_list_c * _sub_menu; // optional menu that will open when this menu item is clicked on, which is also a non-client daughter of this control.
 
-		virtual void_c _on_is_mouse_overed_changed() override;
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
 
 	public:
-		menu_control_menu_list_item_text_c( string8_c const & name );
+		menu_control_menu_list_item_text_c();
 		virtual ~menu_control_menu_list_item_text_c() override;
 
 		boolean_c get_can_be_checked() const;
@@ -82,7 +81,7 @@ namespace cheonsa
 		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 
 	public:
-		menu_control_menu_list_c( string8_c const & name );
+		menu_control_menu_list_c();
 		virtual ~menu_control_menu_list_c() override;
 
 		menu_control_c * get_tab_button() const;

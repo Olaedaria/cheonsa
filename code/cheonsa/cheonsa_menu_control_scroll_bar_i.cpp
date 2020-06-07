@@ -163,8 +163,8 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_scroll_bar_i::menu_control_scroll_bar_i( string8_c const & name, mode_e mode, orientation_e orientation )
-		: menu_control_c( name )
+	menu_control_scroll_bar_i::menu_control_scroll_bar_i( mode_e mode, orientation_e orientation )
+		: menu_control_c()
 		, _rail_element( string8_c( core_list_mode_e_static, "rail_frame" ) )
 		, _grip_element( string8_c( core_list_mode_e_static, "grip_frame" ) )
 		, _mode( mode )
@@ -283,7 +283,7 @@ namespace cheonsa
 			daughter_element->update_animations( time_step );
 		}
 
-		_update_daughter_control_animations( time_step );
+		_update_daughter_control_animations_and_prune( time_step );
 	}
 
 	void_c menu_control_scroll_bar_i::load_static_data_properties( data_scribe_markup_c::node_c const * node )

@@ -42,8 +42,8 @@ namespace cheonsa
 		on_value_changed.invoke( this );
 	}
 
-	menu_control_text_c::menu_control_text_c( string8_c const & name )
-		: menu_control_c( name )
+	menu_control_text_c::menu_control_text_c()
+		: menu_control_c()
 		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
 		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
 		, _place_holder_text_element( nullptr )
@@ -287,7 +287,8 @@ namespace cheonsa
 		{
 			if ( _horizontal_scroll_bar == nullptr )
 			{
-				_horizontal_scroll_bar = new menu_control_scroll_bar_x_c( string8_c( core_list_mode_e_static, "horizontal_scroll_bar" ) );
+				_horizontal_scroll_bar = new menu_control_scroll_bar_x_c();
+				_horizontal_scroll_bar->set_name( string8_c( core_list_mode_e_static, "horizontal_scroll_bar" ) );
 				_horizontal_scroll_bar->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, _horizontal_scroll_bar->get_preferred_thickness(), 0.0f, 0.0f ) );
 				add_daughter_control( _horizontal_scroll_bar );
 			}
@@ -319,7 +320,8 @@ namespace cheonsa
 		{
 			if ( _vertical_scroll_bar == nullptr )
 			{
-				_vertical_scroll_bar = new menu_control_scroll_bar_y_c( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
+				_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
+				_vertical_scroll_bar->set_name( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 				_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( _vertical_scroll_bar->get_preferred_thickness(), 0.0f, 0.0f, 0.0f ) );
 				add_daughter_control( _vertical_scroll_bar );
 			}

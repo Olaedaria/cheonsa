@@ -40,7 +40,7 @@ namespace cheonsa
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 	public:
-		menu_control_window_message_c( string8_c const & name );
+		menu_control_window_message_c();
 		virtual ~menu_control_window_message_c() override;
 
 		mode_e get_mode() const;

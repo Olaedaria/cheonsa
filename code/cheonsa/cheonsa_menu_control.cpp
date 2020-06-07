@@ -55,7 +55,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_c::_update_daughter_control_animations( float32_c time_step )
+	void_c menu_control_c::_update_daughter_control_animations_and_prune( float32_c time_step )
 	{
 		sint32_c index = 0;
 		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
@@ -248,6 +248,19 @@ namespace cheonsa
 	{
 	}
 
+	void_c menu_control_c::_update_daughter_element_animations( float32_c time_step )
+	{
+		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
+		{
+			menu_element_c * daughter_element = _daughter_element_list[ i ];
+			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_selected( is_descendant_mouse_focused );
+			daughter_element->set_is_pressed( _is_pressed && _is_mouse_overed );
+			daughter_element->update_animations( time_step );
+		}
+	}
+
 	void_c menu_control_c::_update_transform_and_layout()
 	{
 		if ( _mother_user_interface == nullptr )
@@ -375,9 +388,9 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_c::menu_control_c( string8_c const & name )
+	menu_control_c::menu_control_c()
 		: _global_list_node( this )
-		, _name( name )
+		, _name()
 		, _mother_user_interface( nullptr )
 		, _mother_control( nullptr )
 		, _daughter_control_list()
@@ -472,17 +485,9 @@ namespace cheonsa
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
-		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
-		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
-		{
-			menu_element_c * daughter_element = _daughter_element_list[ i ];
-			daughter_element->set_is_enabled( _is_enabled );
-			daughter_element->set_is_selected( is_descendant_mouse_focused );
-			daughter_element->set_is_pressed( _is_pressed && _is_mouse_overed );
-			daughter_element->update_animations( time_step );
-		}
+		_update_daughter_element_animations( time_step );
 
-		_update_daughter_control_animations( time_step );
+		_update_daughter_control_animations_and_prune( time_step );
 	}
 
 	void_c menu_control_c::load_static_data_properties_recursive( data_scribe_markup_c::node_c const * node )
@@ -717,10 +722,10 @@ namespace cheonsa
 		return _name;
 	}
 
-	//void_c menu_control_c::set_name( string8_c const & value )
-	//{
-	//	_name = value;
-	//}
+	void_c menu_control_c::set_name( string8_c const & value )
+	{
+		_name = value;
+	}
 
 	sint32_c menu_control_c::get_index() const
 	{

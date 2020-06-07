@@ -12,13 +12,9 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "list_item_separator"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	protected:
-		menu_control_list_item_separator_c( string8_c const & name );
-
 	public:
+		menu_control_list_item_separator_c();
 		virtual ~menu_control_list_item_separator_c() override;
-
-		static menu_control_list_item_separator_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 	};
 
@@ -29,13 +25,9 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "list_item_text"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
-	protected:
-		menu_control_list_item_text_c( string8_c const & name );
-
 	public:
+		menu_control_list_item_text_c();
 		virtual ~menu_control_list_item_text_c() override;
-
-		static menu_control_list_item_text_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
 
 		void_c set_is_selected( boolean_c is_selected, boolean_c try_to_multi_select );
 
@@ -52,7 +44,7 @@ namespace cheonsa
 		virtual void_c _on_selected_item_list_changed() override;
 
 	public:
-		menu_control_list_c( string8_c const & name );
+		menu_control_list_c();
 		virtual ~menu_control_list_c() override;
 
 		sint32_c get_item_count() const;

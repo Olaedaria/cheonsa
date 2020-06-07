@@ -4,8 +4,8 @@
 namespace cheonsa
 {
 
-	menu_control_image_c::menu_control_image_c( string8_c const & name )
-		: menu_control_c( name )
+	menu_control_image_c::menu_control_image_c()
+		: menu_control_c()
 		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
 		, _frame_style()
 	{
@@ -86,6 +86,11 @@ namespace cheonsa
 	void_c menu_control_image_c::set_image( resource_file_texture_c * value )
 	{
 		_frame_style.texture = value;
+	}
+
+	void_c menu_control_image_c::set_pixel_shader( video_renderer_pixel_shader_c * pixel_shader )
+	{
+		_frame_style.pixel_shader_reference = pixel_shader;
 	}
 
 }

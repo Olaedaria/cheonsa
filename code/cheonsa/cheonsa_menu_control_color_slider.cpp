@@ -222,8 +222,8 @@ namespace cheonsa
 		_slider_frame_element.set_layout_simple( box32x2_c( _local_box.minimum.a + slider_position - 1, _local_box.minimum.b, _local_box.minimum.a + slider_position + 2, _local_box.maximum.b ) );
 	}
 
-	menu_control_color_slider_c::menu_control_color_slider_c( string8_c const & name )
-		: menu_control_c( name )
+	menu_control_color_slider_c::menu_control_color_slider_c()
+		: menu_control_c()
 		, _mesh_element( string8_c( core_list_mode_e_static, "mesh" ) )
 		, _slider_frame_element( string8_c( core_list_mode_e_static, "slider_frame" ) )
 		, _border_frame_element( string8_c( core_list_mode_e_static, "border_frame" ) )

@@ -59,16 +59,14 @@ namespace cheonsa
 		virtual void_c _on_is_mouse_focused_changed() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
+		virtual void_c _update_daughter_element_animations( float32_c time_step ) override;
+
 		virtual void_c _update_transform_and_layout() override;
 
-		menu_control_window_c( string8_c const & name );
-
 	public:
+		menu_control_window_c();
 		virtual ~menu_control_window_c() override;
 
-		static menu_control_window_c * make_new_instance( string8_c const & name ); // creates a new instance on the heap with reference count of 0.
-
-		virtual void_c update_animations( float32_c time_step ) override;
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
 
 		string16_c get_title_bar_text_value() const;

@@ -34,14 +34,16 @@
 		texture_map_mode="nine_slice_stretch"
 		texture_map_origin="1 1"
 		texture_map_size="8 8"
-		texture_map_edges="3 3 3 3"/>
+		texture_map_edges="3 3 3 3"
+		swap_shared_colors="true"/>
 
 	<text
 		key="e_window_title_bar_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
 		align_horizontal="left"
-		align_vertical="center"/>
+		align_vertical="center"
+		swap_shared_colors="true"/>
 
 	<text
 		key="e_label_text"
@@ -133,7 +135,7 @@
 		texture_map_edges="3 3 3 3">
 		<state
 			key="normal"
-			is_showed="false"/>
+			show="false"/>
 		<state
 			key="selected"
 			texture_map_origin="1 21"
@@ -144,7 +146,7 @@
 			texture_map_edges="3 3 3 3"/>
 		<state
 			key="disabled"
-			is_showed="false"/>
+			show="false"/>
 	</frame>
 
 	<frame
@@ -192,15 +194,6 @@
 		texture_map_edges="3 3 3 3"/>
 
 	<frame
-		key="e_list_item_highlighted_frame"
-		pixel_shader="menu_ps_frame_keyed.hlsl"
-		texture="menus/atlas.png"
-		texture_map_mode="nine_slice_stretch"
-		texture_map_origin="21 11"
-		texture_map_size="8 8"
-		texture_map_edges="3 3 3 3"/>
-
-	<frame
 		key="e_list_item_outlined_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
@@ -223,6 +216,69 @@
 		align_horizontal="left"
 		align_vertical="center"
 		margin="8 0 8 0"/>
+
+	<frame
+		key="e_menu_list_item_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_origin="1 11"
+		texture_map_size="8 8"
+		texture_map_edges="3 3 3 3">
+		<state
+			key="normal"
+			show="false"
+			swap_shared_colors="false"/>
+		<state
+			key="selected"
+			show="true"
+			swap_shared_colors="true"/>
+		<state
+			key="pressed"
+			show="true"
+			swap_shared_colors="true"/>
+		<state
+			key="disabled"
+			show="false"
+			swap_shared_colors="false"/>
+	</frame>
+
+	<frame
+		key="e_menu_list_item_selected_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_origin="11 11"
+		texture_map_size="8 8"
+		texture_map_edges="3 3 3 3"/>
+
+	<text
+		key="e_menu_list_item_text"
+		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
+		size="14.0"
+		offset="0.0 0.0"
+		skew="0.0"
+		weight="0.0"
+		softness="0.0"
+		paragraph_spacing="5.0"
+		line_spacing="0.0"
+		glyph_spacing="0.0"
+		align_horizontal="left"
+		align_vertical="center"
+		margin="8 0 8 0">
+		<state
+			key="normal"
+			swap_shared_colors="false"/>
+		<state
+			key="selected"
+			swap_shared_colors="true"/>
+		<state
+			key="pressed"
+			swap_shared_colors="true"/>
+		<state
+			key="disabled"
+			swap_shared_colors="false"/>
+	</text>
 
 	<frame
 		key="e_combo_frame"
@@ -358,7 +414,6 @@
 	<map key="e_list_item">
 		<item element_name="frame" style_key=""/>
 		<item element_name="selected_frame" style_key="e_list_item_selected_frame"/>
-		<item element_name="highlighted_frame" style_key="e_list_item_highlighted_frame"/>
 		<item element_name="text" style_key="e_list_item_text"/>
 	</map>
 
@@ -368,10 +423,9 @@
 	</map>
 
 	<map key="e_menu_list_item">
-		<item element_name="frame" style_key=" "/>
-		<item element_name="selected_frame" style_key="e_list_item_selected_frame"/>
-		<item element_name="highlighted_frame" style_key="e_list_item_selected_frame"/>
-		<item element_name="text" style_key="e_list_item_text"/>
+		<item element_name="frame" style_key="e_menu_list_item_frame"/>
+		<item element_name="selected_frame" style_key="e_menu_list_item_selected_frame"/>
+		<item element_name="text" style_key="e_menu_list_item_text"/>
 	</map>
 
 	<map key="e_combo">

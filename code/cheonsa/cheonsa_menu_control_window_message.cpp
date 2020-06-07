@@ -57,8 +57,8 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_window_message_c::menu_control_window_message_c( string8_c const & name )
-		: menu_control_window_c( name )
+	menu_control_window_message_c::menu_control_window_message_c()
+		: menu_control_window_c()
 		, _message_label( nullptr )
 		, _a_button( nullptr )
 		, _b_button( nullptr )
@@ -71,21 +71,25 @@ namespace cheonsa
 		_bottom_bar_size = 30.0f + 8.0f;
 		_apply_client_margins();
 
-		_message_label = new menu_control_label_c( string8_c( core_list_mode_e_static, "message_label" ) );
+		_message_label = new menu_control_label_c();
+		_message_label->set_name( string8_c( core_list_mode_e_static, "message_label" ) );
 		_message_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		add_daughter_control_to_client( _message_label );
 
-		_a_button = new menu_control_button_c( string8_c( core_list_mode_e_static, "button_a" ) );
+		_a_button = new menu_control_button_c();
+		_a_button->set_name( string8_c( core_list_mode_e_static, "button_a" ) );
 		_a_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
 		_a_button->on_clicked.subscribe( this, &menu_control_window_message_c::_handle_button_on_clicked );
 		add_daughter_control( _a_button );
 
-		_b_button = new menu_control_button_c( string8_c( core_list_mode_e_static, "button_b" ) );
+		_b_button = new menu_control_button_c();
+		_b_button->set_name( string8_c( core_list_mode_e_static, "button_b" ) );
 		_b_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 116, 8 ) );
 		_b_button->on_clicked.subscribe( this, &menu_control_window_message_c::_handle_button_on_clicked );
 		add_daughter_control( _b_button );
 
-		_c_button = new menu_control_button_c( string8_c( core_list_mode_e_static, "button_c" ) );
+		_c_button = new menu_control_button_c();
+		_c_button->set_name( string8_c( core_list_mode_e_static, "button_c" ) );
 		_c_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 224, 8 ) );
 		_c_button->on_clicked.subscribe( this, &menu_control_window_message_c::_handle_button_on_clicked );
 		add_daughter_control( _c_button );

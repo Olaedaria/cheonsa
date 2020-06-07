@@ -4,8 +4,8 @@
 namespace cheonsa
 {
 
-	menu_control_list_item_separator_c::menu_control_list_item_separator_c( string8_c const & name )
-		: menu_control_list_item_separator_i( name )
+	menu_control_list_item_separator_c::menu_control_list_item_separator_c()
+		: menu_control_list_item_separator_i()
 	{
 	}
 
@@ -13,24 +13,14 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_list_item_separator_c * menu_control_list_item_separator_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_list_item_separator_c( name );
-	}
-
-	menu_control_list_item_text_c::menu_control_list_item_text_c( string8_c const & name )
-		: menu_control_list_item_text_i( name )
+	menu_control_list_item_text_c::menu_control_list_item_text_c()
+		: menu_control_list_item_text_i()
 	{
 		_name = string8_c( core_list_mode_e_static, "list_item" );
 	}
 
 	menu_control_list_item_text_c::~menu_control_list_item_text_c()
 	{
-	}
-
-	menu_control_list_item_text_c * menu_control_list_item_text_c::make_new_instance( string8_c const & name )
-	{
-		return new menu_control_list_item_text_c( name );
 	}
 
 	void_c menu_control_list_item_text_c::set_is_selected( boolean_c is_selected, boolean_c try_to_multi_select )
@@ -43,8 +33,8 @@ namespace cheonsa
 		on_selected_item_list_changed.invoke( this );
 	}
 
-	menu_control_list_c::menu_control_list_c( string8_c const & name )
-		: menu_control_list_i( name )
+	menu_control_list_c::menu_control_list_c()
+		: menu_control_list_i()
 	{
 		_name = string8_c( core_list_mode_e_static, "list" );
 		set_style_map_key( string8_c( core_list_mode_e_static, "e_list" ) );

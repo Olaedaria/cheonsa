@@ -4,8 +4,8 @@
 namespace cheonsa
 {
 
-	menu_control_button_c::menu_control_button_c( string8_c const & name )
-		: menu_control_c( name )
+	menu_control_button_c::menu_control_button_c()
+		: menu_control_c()
 		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
 		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
 	{

@@ -27,8 +27,8 @@ namespace cheonsa
 		}
 	}
 
-	menu_control_panel_i::menu_control_panel_i( string8_c const & name )
-		: menu_control_c( name )
+	menu_control_panel_i::menu_control_panel_i()
+		: menu_control_c()
 		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
 		, _border_frame_element( string8_c( core_list_mode_e_static, "border_frame" ) )
 		, _client()
@@ -43,7 +43,8 @@ namespace cheonsa
 		_border_frame_element.set_is_overlay( true );
 		_add_daughter_element( &_border_frame_element );
 
-		_client = new menu_control_c( string8_c( core_list_mode_e_static, "client" ) );
+		_client = new menu_control_c();
+		_client->set_name( string8_c( core_list_mode_e_static, "client" ) );
 		_client->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		add_daughter_control( _client );
 
@@ -80,7 +81,8 @@ namespace cheonsa
 		{
 			if ( _horizontal_scroll_bar == nullptr )
 			{
-				_horizontal_scroll_bar = new menu_control_scroll_bar_x_c( string8_c( core_list_mode_e_static, "horizontal_scroll_bar" ) );
+				_horizontal_scroll_bar = new menu_control_scroll_bar_x_c();
+				_horizontal_scroll_bar->set_name( string8_c( core_list_mode_e_static, "horizontal_scroll_bar" ) );
 				_horizontal_scroll_bar->on_value_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_value_changed );
 				_horizontal_scroll_bar->on_preferred_thickness_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_preferred_thickness_changed );
 				_lay_out_horizontal_scroll_bar();
@@ -123,7 +125,8 @@ namespace cheonsa
 		{
 			if ( _vertical_scroll_bar == nullptr )
 			{
-				_vertical_scroll_bar = new menu_control_scroll_bar_y_c( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
+				_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
+				_vertical_scroll_bar->set_name( string8_c( core_list_mode_e_static, "vertical_scroll_bar" ) );
 				_vertical_scroll_bar->on_value_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_value_changed );
 				_vertical_scroll_bar->on_preferred_thickness_changed.subscribe( this, &menu_control_panel_i::_handle_scroll_bar_on_preferred_thickness_changed );
 				_lay_out_vertical_scroll_bar();

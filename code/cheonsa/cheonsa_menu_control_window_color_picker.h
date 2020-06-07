@@ -77,7 +77,7 @@ namespace cheonsa
 		void_c _handle_button_on_clicked( menu_event_information_c event_information );
 
 	public:
-		menu_control_window_color_picker_c( string8_c const & name );
+		menu_control_window_color_picker_c();
 		virtual ~menu_control_window_color_picker_c() override;
 
 		vector64x3_c get_rgb() const;

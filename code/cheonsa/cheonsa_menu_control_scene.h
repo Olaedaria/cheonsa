@@ -37,7 +37,7 @@ namespace cheonsa
 		virtual void_c _update_transform_and_layout() override;
 
 	public:
-		menu_control_scene_c( string8_c const & name );
+		menu_control_scene_c();
 		virtual ~menu_control_scene_c() override;
 
 		scene_c * get_scene() const; // gets the scene that this scene control will render.

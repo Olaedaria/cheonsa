@@ -69,7 +69,6 @@ namespace cheonsa
 		: _mother_control( nullptr )
 		, _name( name )
 		, _shared_color_class( menu_shared_color_class_e_window )
-		, _shared_color_class_swapped( false )
 		, _local_color( 1.0f, 1.0f, 1.0f, 1.0f )
 		, _local_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom )
 		, _local_box_anchor_measures( 0.0f, 0.0f, 0.0f, 0.0f )
@@ -182,11 +181,6 @@ namespace cheonsa
 		return _name;
 	}
 
-	//void_c menu_element_c::set_name( string8_c const & value )
-	//{
-	//	_name = value;
-	//}
-
 	vector32x4_c const & menu_element_c::get_local_color() const
 	{
 		return _local_color;
@@ -202,10 +196,9 @@ namespace cheonsa
 		return _shared_color_class;
 	}
 
-	void_c menu_element_c::set_shared_color_class( menu_shared_color_class_e value, boolean_c swapped )
+	void_c menu_element_c::set_shared_color_class( menu_shared_color_class_e value )
 	{
 		_shared_color_class = value;
-		_shared_color_class_swapped = swapped;
 	}
 
 	boolean_c menu_element_c::get_is_showed() const

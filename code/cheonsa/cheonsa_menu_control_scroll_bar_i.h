@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_menu_control.h"
 #include "cheonsa_menu_element_frame.h"
@@ -69,7 +69,7 @@ namespace cheonsa
 
 		virtual void_c _update_transform_and_layout() override; // updates layout of elements based on current mode and value.
 
-		menu_control_scroll_bar_i( string8_c const & name, mode_e mode, orientation_e orientation );
+		menu_control_scroll_bar_i( mode_e mode, orientation_e orientation );
 
 	public:
 		virtual void_c update_animations( float32_c time_step ) override; // updates scrubber, updates smooth scroll, which may invoke a layout of daughter elements and controls.
