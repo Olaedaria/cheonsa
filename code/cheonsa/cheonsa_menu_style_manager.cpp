@@ -33,97 +33,85 @@ namespace cheonsa
 		sint32_c shared_color_style_index = 0;
 		// window
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_normal_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_normal_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_normal_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_normal_secondary" ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_normal_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_normal_accent" ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_selected_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_selected_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_selected_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_selected_secondary" ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_selected_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_selected_accent" ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_pressed_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_pressed_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_pressed_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_pressed_secondary" ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_pressed_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_pressed_accent" ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_disabled_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_disabled_primary" ), vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_disabled_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_disabled_secondary" ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_window_disabled_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_window_disabled_accent" ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
 		// button
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_normal_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_normal_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_normal_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_normal_secondary" ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_normal_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_normal_accent" ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_selected_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_selected_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_selected_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_selected_secondary" ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_selected_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_selected_accent" ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_pressed_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_pressed_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_pressed_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_pressed_secondary" ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_pressed_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_pressed_accent" ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_disabled_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_disabled_primary" ), vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_disabled_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_disabled_secondary" ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_button_disabled_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_button_disabled_accent" ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
 		// field
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_normal_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_normal_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_normal_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_normal_secondary" ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_normal_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_normal_accent" ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_selected_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_selected_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_selected_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_selected_secondary" ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_selected_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_selected_accent" ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_pressed_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_pressed_primary" ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_pressed_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_pressed_secondary" ), vector32x4_c( 0.8000f, 0.8000f, 0.8000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_pressed_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_pressed_accent" ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_disabled_primary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_disabled_primary" ), vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_disabled_secondary" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_disabled_secondary" ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
 		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( shared_color_style_index, string8_c( core_list_mode_e_static, "e_field_disabled_accent" ) );
+		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( core_list_mode_e_static, "e_field_disabled_accent" ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
 		// insert into dictionary.
 		sint32_c shared_color_count = menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_;
 		for ( sint32_c i = 0; i < shared_color_count; i++ )
 		{
 			_shared_color_style_dictionary.insert( _shared_color_style_list[ i ].key, &_shared_color_style_list[ i ] );
 		}
-		// set default colors.
-		menu_shared_color_base_notes_c shared_color_base_notes;
-		shared_color_base_notes.window_primary = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		shared_color_base_notes.window_secondary = vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f );
-		shared_color_base_notes.window_accent = vector32x4_c( 0.64f, 1.0f, 0.15f, 1.0f );
-		shared_color_base_notes.button_primary = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		shared_color_base_notes.button_secondary = vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f );
-		shared_color_base_notes.button_accent = vector32x4_c( 0.64f, 1.0f, 0.15f, 1.0f );
-		shared_color_base_notes.field_primary = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
-		shared_color_base_notes.field_secondary = vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f );
-		shared_color_base_notes.field_accent = vector32x4_c( 0.64f, 1.0f, 0.15f, 1.0f );
-		set_shared_color_base_notes( shared_color_base_notes );
 
 		// load default font.
 		_default_font = engine.get_resource_manager()->load_font( string16_c( core_list_mode_e_static, L"fonts/DXLBaB-KSCpc-EUC-H.ttf" ), true, false );
@@ -263,93 +251,6 @@ namespace cheonsa
 			style_map_list_node->get_value()->resolve();
 			style_map_list_node = style_map_list_node->get_next();
 		}
-	}
-
-	void_c menu_style_manager_c::set_shared_color_base_notes( menu_shared_color_base_notes_c const & values )
-	{
-		_shared_color_base_notes = values;
-
-		sint32_c shared_color_style_index = 0;
-		// window
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = values.window_primary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = values.window_secondary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = values.window_secondary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_primary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_secondary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_accent, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_primary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_secondary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_contrast( values.window_accent, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.window_primary, vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f ), 0.25f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.window_secondary, values.window_primary, 0.25f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.window_secondary, values.window_primary, 0.25f );
-		// button
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = values.button_primary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = values.button_secondary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = values.button_secondary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_primary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_secondary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_accent, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_primary, -0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_secondary, -0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.button_accent, -0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.button_primary, vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f ), 0.25f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.button_secondary, values.button_primary, 0.25f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.button_secondary, values.button_primary, 0.25f );
-		// field
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = values.field_primary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = values.field_secondary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = values.field_secondary;
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_primary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_secondary, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_accent, 0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_primary, -0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_secondary, -0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::adjust_color_brightness( values.field_accent, -0.1f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.field_primary, vector32x4_c( 0.5f, 0.5f, 0.5f, 1.0f ), 0.25f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.field_secondary, values.field_primary, 0.25f );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].value = ops::interpolate_linear( values.field_secondary, values.field_primary, 0.25f );
-	}
-
-	void_c menu_style_manager_c::get_shared_color_base_notes( menu_shared_color_base_notes_c & values )
-	{
-		values = _shared_color_base_notes;
 	}
 
 	menu_color_style_c * menu_style_manager_c::get_shared_color_style( sint32_c shared_color_index )

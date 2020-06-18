@@ -21,6 +21,7 @@ namespace cheonsa
 		explicit string16_c( string8_c const & other ); // constructs dynamic mode copy of other string. other string may be utf-8 encoded.
 		         string16_c( string16_c const & other ); // constructs copy of other string. if other string is static mode, then this string will also be a static mode wrapper. otherwise if other string is dynamic or static volatile, then this string will be a dynamic mode copy.
 		explicit string16_c( char8_c const * other ); // constructs dynamic mode copy of other string. other string must be null terminated. other string may be utf-8 encoded.
+		explicit string16_c( char16_c const * other, core_list_mode_e mode = core_list_mode_e_dynamic ); // constructs dynamic mode copy of other string. other string must be null terminated.
 		explicit string16_c( core_list_mode_e mode, char16_c const * other ); // constructs static or dynamic mode copy of other string.
 		explicit string16_c( core_list_mode_e mode, char16_c const * other, sint32_c other_length_with_null_terminator ); // constructs static or dynamic mode copy of other string. other_length is length of other string including the terminating null character.
 

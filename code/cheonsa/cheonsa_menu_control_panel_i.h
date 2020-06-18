@@ -8,13 +8,26 @@
 namespace cheonsa
 {
 
-	// provides a basic private implementation for menu_control_list_c, menu_control_menu_c, and menu_control_combo_list_c.
+	// provides a basic private implementation for menu_control_list_c, menu_control_menu_c, and menu_control_combo_c.
 	// holds daughter controls within a _client daughter control, which is sized to fit within specified client margins.
 	// vertical and horizontal scroll bars may optionally be enabled or disabled.
 	// the scroll bars overlap the right and bottom edges of the _client daughter control, so they may inadvertently obstruct some of the contents of the _client.
 	class menu_control_panel_i
 		: public menu_control_c
 	{
+
+		// overrides some first responders so we can route them through the mother panel instead.
+		// users will subscribe to those event handlers instead of these.
+		// we only override three here, the other ones are okay as they are.
+		class menu_control_client_c
+			: public menu_control_c
+		{
+			virtual void_c _on_clicked( input_event_c * input_event ) override;
+			virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
+			virtual void_c _on_input( input_event_c * input_event ) override;
+
+		};
+
 	public:
 		static inline char8_c const * get_type_name_static() { return "panel_i"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }

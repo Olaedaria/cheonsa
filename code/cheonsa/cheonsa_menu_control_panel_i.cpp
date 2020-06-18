@@ -1,7 +1,33 @@
 #include "cheonsa_menu_control_panel.h"
+#include "cheonsa_user_interface.h"
 
 namespace cheonsa
 {
+
+	void_c menu_control_panel_i::menu_control_client_c::_on_clicked( input_event_c * input_event )
+	{
+		_mother_user_interface->reset_multi_click_detection();
+		if ( _mother_control->get_is_actually_enabled() )
+		{
+			_mother_control->on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+	}
+
+	void_c menu_control_panel_i::menu_control_client_c::_on_multi_clicked( input_event_c * input_event )
+	{
+		if ( _mother_control->get_is_actually_enabled() )
+		{
+			_mother_control->on_multi_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+	}
+
+	void_c menu_control_panel_i::menu_control_client_c::_on_input( input_event_c * input_event )
+	{
+		if ( _mother_control->get_is_actually_enabled() )
+		{
+			_mother_control->on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+	}
 
 	void_c menu_control_panel_i::_handle_scroll_bar_on_value_changed( menu_control_scroll_bar_i * scroll_bar )
 	{
@@ -43,7 +69,7 @@ namespace cheonsa
 		_border_frame_element.set_is_overlay( true );
 		_add_daughter_element( &_border_frame_element );
 
-		_client = new menu_control_c();
+		_client = new menu_control_client_c();
 		_client->set_name( string8_c( core_list_mode_e_static, "client" ) );
 		_client->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		add_daughter_control( _client );

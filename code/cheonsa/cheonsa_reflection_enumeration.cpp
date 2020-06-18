@@ -3,7 +3,7 @@
 namespace cheonsa
 {
 
-	reflection_enumeration_c::value_c::value_c( string8_c const & name, string8_c const & description, sint32_c value )
+	reflection_enumeration_c::value_c::value_c( string8_c const & name, string8_c const & description, sint64_c value )
 		: _name( name )
 		, _description( description )
 		, _value( value )
@@ -20,7 +20,7 @@ namespace cheonsa
 		return _description;
 	}
 
-	sint32_c reflection_enumeration_c::value_c::get_value() const
+	sint64_c reflection_enumeration_c::value_c::get_value() const
 	{
 		return _value;
 	}
@@ -73,7 +73,7 @@ namespace cheonsa
 		return _value_list[ index ];
 	}
 
-	boolean_c reflection_enumeration_c::find_name_with_value( string8_c & name, uint32_c value ) const
+	boolean_c reflection_enumeration_c::find_name_with_value( string8_c & name, sint64_c value ) const
 	{
 		for ( sint32_c i = 0; i < _value_list.get_length(); i++ )
 		{
@@ -92,7 +92,7 @@ namespace cheonsa
 		return true;
 	}
 
-	boolean_c reflection_enumeration_c::find_value_with_name( uint32_c & value, string8_c const & name ) const
+	boolean_c reflection_enumeration_c::find_value_with_name( sint64_c & value, string8_c const & name ) const
 	{
 		for ( sint32_c i = 0; i < _value_list.get_length(); i++ )
 		{
@@ -105,7 +105,7 @@ namespace cheonsa
 		return false;
 	}
 
-	boolean_c reflection_enumeration_c::find_value_with_index( uint32_c & value, sint32_c index ) const
+	boolean_c reflection_enumeration_c::find_value_with_index( sint64_c & value, sint32_c index ) const
 	{
 		value = _value_list[ index ]->get_value();
 		return true;
@@ -124,7 +124,7 @@ namespace cheonsa
 		return false;
 	}
 
-	boolean_c reflection_enumeration_c::find_index_with_value( sint32_c & index, uint32_c value ) const
+	boolean_c reflection_enumeration_c::find_index_with_value( sint32_c & index, sint64_c value ) const
 	{
 		index = -1;
 		for ( sint32_c i = 0; i < _value_list.get_length(); i++ )

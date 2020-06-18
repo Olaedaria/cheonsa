@@ -4,11 +4,6 @@
 namespace cheonsa
 {
 
-	void_c menu_control_scene_c::_on_input( input_event_c * input_event )
-	{
-		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
-	}
-
 	void_c menu_control_scene_c::_update_transform_and_layout()
 	{
 		menu_control_c::_update_transform_and_layout();

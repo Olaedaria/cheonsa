@@ -30,6 +30,11 @@ namespace cheonsa
 		*this = other;
 	}
 
+	string16_c::string16_c( char16_c const * other, core_list_mode_e mode )
+		: character_list( mode, other, ops::string16_find_length( other ) + 1 )
+	{
+	}
+
 	string16_c::string16_c( core_list_mode_e mode, char16_c const * other )
 		: character_list( mode, other, ops::string16_find_length( other ) + 1 )
 	{

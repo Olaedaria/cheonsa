@@ -55,6 +55,8 @@ namespace cheonsa
 
 		void_c _apply_client_margins();
 
+		void_c _handle_modal_screen_on_input( menu_event_information_c event_information );
+
 		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 		virtual void_c _on_is_mouse_focused_changed() override;
 		virtual void_c _on_input( input_event_c * input_event ) override;

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_reflection_types.h"
 
@@ -13,13 +13,14 @@ namespace cheonsa
 	{
 	public:
 		// value type must point to a buffer|instance of the same type that is defined by the property type and type count.
+		// the property's value_type and value_count are passed in each time just so that the programmer can verify that they're casting to the same data type that they said they would when they initialized the reflection property.
 		// so if property _type is data_type_e_float32 and _type_count is 4, then value must point to a buffer of 4 float32_c, or an instance of vector32x4_c.
 		// if property _type is data_type_e_string8 and _type_count is 1, then value must point to a string8_c instance.
 		// if property _type is data_type_e_string16 and _type_count is 1, then value must point to a string16_c instance.
 		// if property _type is data_type_e_object, then use object_getter_f instead.
 		// if property _type is data_type_e_object_list, then use the set of object_list_*_f functions instead.
-		typedef boolean_c (*value_getter_f)( reflection_object_c * instance, void_c * value );
-		typedef boolean_c (*value_setter_f)( reflection_object_c * instance, void_c const * value );
+		typedef boolean_c (*value_getter_f)( reflection_object_c * instance, void_c * value, data_type_e value_type, uint8_c value_type_count );
+		typedef boolean_c (*value_setter_f)( reflection_object_c * instance, void_c const * value, data_type_e value_type, uint8_c value_type_count );
 
 		typedef reflection_object_c * (*object_getter_f)( reflection_object_c * instance ); // for type_e_object.
 
@@ -166,13 +167,13 @@ namespace cheonsa
 		void_c initialize_basic( data_type_e type, uint8_c type_count, value_getter_f value_getter, value_setter_f value_setter ); // initializes reflector for numeric and string types.
 		void_c initialize_basic_default( void_c const * default ); // default must point to a buffer of appropriate type and count that contains the default values for the property.
 		void_c initialize_basic_limits( void_c * minimum, void_c * maximum ); // minimum and maximum must point to a values of appropriate type.
-		void_c initialize_basic_view_boolean(); // type must be uint8.
 		void_c initialize_basic_view_color(); // type must be uint32x1 (rgba), or uint8x3 (rgb), or uint8x4 (rgba), or float32x3 (rgb), or float32x4 (rgba), or float64x3 (rgb), or float64x4 (rgba).
 		void_c initialize_basic_view_scroll_bar(); // type must be float32x1 or float64x1. limits must be set so that the slider has a range to slide around in.
 		void_c initialize_basic_view_scrub_bar(); // type must be float32x1 or float64x1.
 		void_c initialize_basic_view_text(); // type must be string8x1 or string16x1.
-		void_c initialize_basic_view_euler_angles(); // type must be float32x3 (euler), float32x4 (quaternion), float64x3 (euler), or float64x4 (quaternion).
-		void_c initialize_basic_view_enumeration( reflection_enumeration_c const * enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1.
+		void_c initialize_basic_view_euler_angles(); // type must be float32x3 (euler), float32x4 (quaternion), float64x3 (euler), or float64x4 (quaternion). if the type is a quaternion then it does the conversion to and from euler angles.
+		void_c initialize_basic_view_enumeration( reflection_enumeration_c const * enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1. will display a combo box that allows the user to select at most one item.
+		void_c initialize_basic_view_enumeration_flags( reflection_enumeration_c const * enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1. will display a combo box that allows the user to check on and off each item in the enumeration.
 		void_c initialize_basic_view_file_path( string8_c file_type_filter ); // enables file picker. file_type_filter is a vertical slash separated list of file extensions, for example "*.txt|*.log".
 
 		void_c initialize_object( reflection_class_c const * _class, object_getter_f object_getter );

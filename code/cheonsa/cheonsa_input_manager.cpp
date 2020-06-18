@@ -15,7 +15,7 @@ namespace cheonsa
 	input_event_c * input_manager_c::_emplace_input_event()
 	{
 		input_event_c * input_event = _events_next->emplace( -1, 1 );
-		ops::memory_zero( input_event, sizeof( input_event_c ) );
+		input_event->reset();
 		return input_event;
 	}
 
@@ -332,7 +332,6 @@ namespace cheonsa
 			return;
 		}
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_keyboard_key_pressed;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_keyboard_key = keyboard_key;
@@ -346,7 +345,6 @@ namespace cheonsa
 			return;
 		}
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_keyboard_key_released;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_keyboard_key = keyboard_key;
@@ -356,7 +354,6 @@ namespace cheonsa
 	void_c input_manager_c::_push_character( char16_c character, uint8_c character_repeat_count )
 	{
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_character;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_character = character;
@@ -367,7 +364,6 @@ namespace cheonsa
 	void_c input_manager_c::_push_mouse_move( sint32_c mouse_position_x, sint32_c mouse_position_y )
 	{
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_mouse_move;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_mouse_position.a = static_cast< float32_c >( mouse_position_x );
@@ -378,7 +374,6 @@ namespace cheonsa
 	void_c input_manager_c::_push_mouse_wheel( float32_c mouse_wheel_delta )
 	{
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_mouse_wheel;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_mouse_wheel_delta = mouse_wheel_delta;
@@ -388,7 +383,6 @@ namespace cheonsa
 	void_c input_manager_c::_push_mouse_key_pressed( input_mouse_key_e mouse_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_mouse_key_pressed;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_mouse_key = mouse_key;
@@ -398,7 +392,6 @@ namespace cheonsa
 	void_c input_manager_c::_push_mouse_key_released( input_mouse_key_e mouse_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_mouse_key_released;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_mouse_key = mouse_key;
@@ -408,7 +401,6 @@ namespace cheonsa
 	void_c input_manager_c::_push_gamepad_key_pressed( input_gamepad_key_e gamepad_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_gamepad_key_pressed;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_gamepad_key = gamepad_key;
@@ -418,7 +410,6 @@ namespace cheonsa
 	void_c input_manager_c::_push_gamepad_key_released( input_gamepad_key_e gamepad_key )
 	{
 		input_event_c * input_event = _emplace_input_event();
-		input_event->reset();
 		input_event->_type = input_event_c::type_e_gamepad_key_released;
 		input_event->_time = ops::time_get_high_resolution_timer_count();
 		input_event->_gamepad_key = gamepad_key;

@@ -119,6 +119,7 @@ namespace cheonsa
 			daughter_element->set_is_pressed( _is_enabled && _is_pressed );
 			daughter_element->update_animations( time_step );
 		}
+		_text_element.set_invert_shared_colors( _is_selected );
 		_selected_frame_element.set_is_showed( _is_selected );
 	}
 
@@ -484,9 +485,14 @@ namespace cheonsa
 
 	void_c menu_control_list_i::_on_input( input_event_c * input_event )
 	{
-		if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
+		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		if ( !input_event->get_was_handled() )
 		{
-			_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
+			if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
+			{
+				_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
+				input_event->set_was_handled( true );
+			}
 		}
 	}
 

@@ -29,17 +29,21 @@ namespace cheonsa
 
 	void_c menu_control_text_c::_on_input( input_event_c * input_event )
 	{
-		_text_element.handle_on_input( input_event );
+		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		if ( !input_event->get_was_handled() )
+		{
+			_text_element.handle_on_input( input_event );
+		}
 	}
 
-	void_c menu_control_text_c::_handle_on_value_changed_preview( menu_element_text_c * text )
+	void_c menu_control_text_c::_handle_on_plain_text_value_changed_preview( menu_element_text_c * text )
 	{
-		on_value_changed_preview.invoke( this );
+		on_plain_text_value_changed_preview.invoke( this );
 	}
 
-	void_c menu_control_text_c::_handle_on_value_changed( menu_element_text_c * text )
+	void_c menu_control_text_c::_handle_on_plain_text_value_changed( menu_element_text_c * text )
 	{
-		on_value_changed.invoke( this );
+		on_plain_text_value_changed.invoke( this );
 	}
 
 	menu_control_text_c::menu_control_text_c()
@@ -62,8 +66,8 @@ namespace cheonsa
 		_text_element.set_text_format_mode( menu_text_format_mode_e_plain );
 		_text_element.set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
-		_text_element.on_text_value_changed_preview.subscribe( this, &menu_control_text_c::_handle_on_value_changed_preview );
-		_text_element.on_text_value_changed.subscribe( this, &menu_control_text_c::_handle_on_value_changed );
+		_text_element.on_text_value_changed_preview.subscribe( this, &menu_control_text_c::_handle_on_plain_text_value_changed_preview );
+		_text_element.on_text_value_changed.subscribe( this, &menu_control_text_c::_handle_on_plain_text_value_changed );
 		_add_daughter_element( &_text_element );
 
 		_border_frame_element.set_is_overlay( true );
@@ -215,14 +219,14 @@ namespace cheonsa
 		_text_element.set_text_filter_string( value );
 	}
 
-	sint32_c menu_control_text_c::get_text_value_length_limit() const
+	sint32_c menu_control_text_c::get_character_limit() const
 	{
-		return _text_element.get_text_value_length_limit();
+		return _text_element.get_character_limit();
 	}
 
-	void_c menu_control_text_c::set_text_value_length_limit( sint32_c value )
+	void_c menu_control_text_c::set_character_limit( sint32_c value )
 	{
-		_text_element.set_text_value_length_limit( value );
+		_text_element.set_character_limit( value );
 	}
 
 	boolean_c menu_control_text_c::get_multi_line() const

@@ -41,19 +41,19 @@ namespace cheonsa
 			reflection_property_c const * _reflection_property; // the reflection property associated with this field. this will not be set for the class label.
 			//database_field_schema_c const * bound_database_field_schema;
 
-			menu_control_text_c * _label; // class name, category name, or property name.
+			menu_control_text_c * _label_control; // class name, category name, or property name.
 
-			menu_control_text_c * _text; // text box for editing string values. also used with sliders to display and edit the value of the slider.
-			menu_control_combo_c * _combo; // combo box for editing enumerated values.
-			menu_control_scroll_bar_i * _scroll; // might be a horizontal scroll bar or a horizontal scrub bar, for editing number values that are constrained to a certain range.
-			menu_control_button_c * _button; // optional edit button that appears to the right of text box, for values that can be edited by dialog windows.
+			menu_control_text_c * _text_control; // text box for editing string values. also used with sliders to display and edit the value of the slider.
+			menu_control_combo_button_c * _combo_button_control; // combo box for editing enumerated values.
+			menu_control_scroll_bar_i * _scroll_bar_control; // might be a horizontal scroll bar or a horizontal scrub bar, for editing number values that are constrained to a certain range.
+			menu_control_button_c * _button_control; // optional edit button that appears to the right of text box, for values that can be edited by dialog windows.
 
-			menu_control_list_c * _item_list;
-			menu_control_button_c * _item_add;
-			menu_control_button_c * _item_remove;
-			menu_control_button_c * _item_move_up;
-			menu_control_button_c * _item_move_down;
-			menu_control_button_c * _item_sort;
+			menu_control_list_c * _item_list_control;
+			menu_control_button_c * _item_add_button_control;
+			menu_control_button_c * _item_remove_button_control;
+			menu_control_button_c * _item_move_up_button_control;
+			menu_control_button_c * _item_move_down_button_control;
+			menu_control_button_c * _item_sort_button_control;
 
 		public:
 			property_field_c();
@@ -121,8 +121,8 @@ namespace cheonsa
 		void_c _handle_value_text_on_value_changed( menu_control_text_c * text );
 		void_c _handle_value_scroll_on_value_changed_preview( menu_control_scroll_bar_i * scroll );
 		void_c _handle_value_scroll_on_value_changed( menu_control_scroll_bar_i * scroll );
-		void_c _handle_value_combo_on_selected_item_changed_preview( menu_control_combo_list_c * combo_list ); // is called as user mouses over options in combo list.
-		void_c _handle_value_combo_on_selected_item_changed( menu_control_combo_list_c * combo_list ); // is called when user clicks on an option in combo list.
+		void_c _handle_value_combo_on_selected_item_changed_preview( menu_control_combo_c * combo_list ); // is called as user mouses over options in combo list.
+		void_c _handle_value_combo_on_selected_item_changed( menu_control_combo_c * combo_list ); // is called when user clicks on an option in combo list.
 		void_c _handle_value_edit_on_clicked( menu_event_information_c event_information );
 		void_c _handle_color_picker_on_value_changed( menu_control_window_color_picker_c * color_picker_panel );
 		void_c _handle_item_list_on_selected_item_changed( menu_control_list_c * list );

@@ -82,7 +82,7 @@ namespace cheonsa
 		class iterator_c
 		{
 		public:
-			core_dictionary_c * _dictionary;
+			core_dictionary_c const * _dictionary;
 			sint32_c _current_bucket;
 			sint32_c _current_entry;
 
@@ -133,7 +133,7 @@ namespace cheonsa
 				return _dictionary->_buckets[ _current_bucket ][ _current_entry ].key;
 			}
 
-			value_type_c & get_value() const
+			value_type_c const & get_value() const
 			{
 				return _dictionary->_buckets[ _current_bucket ][ _current_entry ].value;
 			}
@@ -144,7 +144,7 @@ namespace cheonsa
 		// use like:
 		// core_dictionary_c< x, x >::iterator_c iterator = my_dictionary.get_iterator();
 		// while ( iterator.next() ) { do stuff }
-		iterator_c get_iterator()
+		iterator_c get_iterator() const
 		{
 			iterator_c result;
 			result._dictionary = this;
@@ -364,7 +364,7 @@ namespace cheonsa
 		}
 
 		// gets a copy of all the keys in this dictionary (in the order that they were bucketed in which probably isn't useful).
-		core_list_c< key_type_c > get_key_list()
+		core_list_c< key_type_c > get_key_list() const
 		{
 			core_list_c< key_type_c > result;
 			for ( sint32_c i = 0; i < _buckets.get_length(); i++ )
@@ -373,6 +373,23 @@ namespace cheonsa
 				for ( sint32_c j = 0; j < bucket.get_length(); j++ )
 				{
 					result.insert( -1, bucket[ j ].key );
+				}
+			}
+			return result;
+		}
+
+		// gets all of the keys in this dictionary.
+		// in cases where pointers is cheaper than copying by value.
+		// treat these pointers as volatile, as they will no longer be valid after the dictionary is modified.
+		core_list_c< key_type_c const * > get_key_pointer_list() const
+		{
+			core_list_c< key_type_c const * > result;
+			for ( sint32_c i = 0; i < _buckets.get_length(); i++ )
+			{
+				core_list_c< entry_c > const & bucket = _buckets[ i ];
+				for ( sint32_c j = 0; j < bucket.get_length(); j++ )
+				{
+					result.insert( -1, &bucket[ j ].key );
 				}
 			}
 			return result;

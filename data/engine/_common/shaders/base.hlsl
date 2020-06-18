@@ -101,8 +101,10 @@ cbuffer material_block : register( b5 )
 
 cbuffer menu_block : register( b6 )
 {
-	float2 menu_target_size_inverse;
+	float2 menu_actual_target_size_inverse;
+	float2 menu_apparent_target_size_inverse;
 	float2 menu_target_offset;
+	float2 menu_unused_0;
 };
 
 cbuffer menu_batch_block : register( b7 )
@@ -111,10 +113,10 @@ cbuffer menu_batch_block : register( b7 )
 	float4 menu_basis; // 2D basis (rotation and scale) matrix.
 	float2 menu_origin; // 2D position translation offset.
 	float menu_saturation;
-	float menu_unused_0;
+	float menu_unused_1;
 	float4 menu_color;
 	int menu_clip_plane_stack_length; // number of clip planes to use, generally come in multiples of 4 because menu system uses clip rectangles.
-	int3 menu_unused_1;
+	int3 menu_unused_2;
 	float4 menu_clip_plane_stack[ menu_clip_plane_stack_count ]; // these work as long as each set of planes defines an enclosed convex shape, then we can have shapes within shapes.
 };
 

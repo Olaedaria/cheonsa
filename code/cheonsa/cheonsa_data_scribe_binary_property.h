@@ -13,7 +13,7 @@ namespace cheonsa
 
 		data_scribe_binary_c * _scribe_binary; // binary stream that we are reading from or writing to.
 
-		string16_c _loaded_key; // currently loaded key.
+		string8_c _loaded_key; // currently loaded key.
 
 		uint8_c _loaded_type; // currently loaded value type.
 		uint8_c _loaded_type_count; // number of consecutive elements in value.
@@ -52,7 +52,7 @@ namespace cheonsa
 		boolean_c load(); // loads the next property from the stream. returns false when the end of the property stream was reached.
 		boolean_c loaded_check( char8_c const * expected_key, data_type_e expected_type, uint8_c expected_type_count = 1 ); // expected_length should be set to 1 if expected_type is list or string.
 
-		string16_c const & loaded_key(); // gets the currently loaded property key.
+		string8_c const & loaded_key(); // gets the currently loaded property key.
 		data_type_e loaded_type(); // gets the currently loaded property type.
 		uint8_c loaded_type_length(); // gets the number of elements in type.
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_video_interface.h"
@@ -61,7 +61,7 @@ namespace cheonsa
 		video_texture_c * _target_color_eighth_blurred_xy; // eighth width, eighth height.
 
 		video_texture_c * _target_color_final; // full size. only initialized and used if _output is not set. this is the target for the scene post process or resolve, so it holds the final image after post processing is applied. is also the target for 2d menu rendering.
-		video_texture_c * _target_color_final_readable; // full size. only used if _output is not set. only used if _read_enable is true. this is a staging texture of which the contents of _target_color_final can be copied to, and of which can then be read by the cpu, and usually be saved as a screen shot.
+		//video_texture_c * _target_color_final_readable; // full size. only used if _output is not set. only used if _read_enable is true. this is a staging texture of which the contents of _target_color_final can be copied to, and of which can then be read by the cpu, and usually be saved as a screen shot.
 
 		video_output_c * _output; // if set, then this canvas is associated with an operating system window, it will be resized as the window is resized, and it will output to the window.
 
@@ -89,7 +89,10 @@ namespace cheonsa
 		sint32_c get_apparent_height() const; // the apparent height of the canvas in pixels. the actual canvas may be larger than this, in order to accommodate multiple-of-four dimensions needed for down sampling (blur) effects.
 		void_c set_apparent_size( sint32_c width, sint32_c height ); // render target textures will be resized if needed on next call to update().
 
-		video_texture_c * get_readable_copy(); // returns a copy of the final color render target that can be read by the CPU (which basically means that get_data can be called on the returned texture to get a copy of the the pixels of the canvas).
+		video_texture_c * create_readable_copy(); // creates a new instance of a texture that can be read by the CPU. please delete it when you're done using it so you don't waste or leak.
+
+		//video_texture_c * get_readable_copy(); // creates a copy of the final color render target that can be read by the CPU (which basically means that get_data can be called on the returned texture to get a copy of the the pixels of the canvas). this copy instance's lifetime is managed by this canvas, so call release_readable_copy() when you want to let it go.
+		//void_c release_readable_copy();
 
 		//float64_c get_frame_rate();
 		sint32_c get_statistic_object_count();

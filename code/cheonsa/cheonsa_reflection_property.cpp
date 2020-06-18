@@ -80,13 +80,6 @@ namespace cheonsa
 		ops::memory_copy( maximum, target + ( type_size * 4 ) + type_size, type_size );
 	}
 
-	void_c reflection_property_c::initialize_basic_view_boolean()
-	{
-		assert( _view == data_view_e_default );
-		assert( _type == data_type_e_uint8 );
-		_view = data_view_e_boolean;
-	}
-
 	void_c reflection_property_c::initialize_basic_view_color()
 	{
 		assert( _view == data_view_e_default );
@@ -144,6 +137,16 @@ namespace cheonsa
 		assert( _type_count == 1 );
 		assert( enumeration );
 		_view = data_view_e_enumeration;
+		_enumeration = enumeration;
+	}
+
+	void_c reflection_property_c::initialize_basic_view_enumeration_flags( reflection_enumeration_c const * enumeration )
+	{
+		assert( _view == data_view_e_default );
+		assert( _type >= data_type_e_uint8 && _type <= data_type_e_sint64 );
+		assert( _type_count == 1 );
+		assert( enumeration );
+		_view = data_view_e_enumeration_flags;
 		_enumeration = enumeration;
 	}
 

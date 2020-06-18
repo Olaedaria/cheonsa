@@ -28,7 +28,7 @@ namespace cheonsa
 		, _target_color_eighth_blurred_x( nullptr )
 		, _target_color_eighth_blurred_xy( nullptr )
 		, _target_color_final( nullptr )
-		, _target_color_final_readable( nullptr )
+		//, _target_color_final_readable( nullptr )
 		, _output( nullptr )
 		//, _reflections_canvas( nullptr )
 	{
@@ -125,11 +125,11 @@ namespace cheonsa
 			_target_color_final = nullptr;
 		}
 
-		if ( _target_color_final_readable )
-		{
-			delete _target_color_final_readable;
-			_target_color_final_readable = nullptr;
-		}
+		//if ( _target_color_final_readable )
+		//{
+		//	delete _target_color_final_readable;
+		//	_target_color_final_readable = nullptr;
+		//}
 
 		if ( _output )
 		{
@@ -204,8 +204,8 @@ namespace cheonsa
 			_target_color_eighth_blurred_xy = nullptr;
 			delete _target_color_final;
 			_target_color_final = nullptr;
-			delete _target_color_final_readable;
-			_target_color_final_readable = nullptr;
+			//delete _target_color_final_readable;
+			//_target_color_final_readable = nullptr;
 		}
 
 		// create new targets.
@@ -296,17 +296,26 @@ namespace cheonsa
 		_apparent_height = height;
 	}
 
-	video_texture_c * video_renderer_canvas_c::get_readable_copy()
+	video_texture_c * video_renderer_canvas_c::create_readable_copy()
 	{
 		assert( _target_color_final );
-		if ( _target_color_final_readable == nullptr )
-		{
-			_target_color_final_readable = engine.get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, true, false, false );
-		}
-		assert( _target_color_final_readable );
-		engine.get_video_interface()->copy_sub_resource( _target_color_final_readable, 0, _target_color_final, 0 );
-		return _target_color_final_readable;
+		video_texture_c * result = engine.get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, true, false, false );
+		assert( result );
+		engine.get_video_interface()->copy_sub_resource( result, 0, _target_color_final, 0 );
+		return result;
 	}
+
+	//video_texture_c * video_renderer_canvas_c::get_readable_copy()
+	//{
+	//	assert( _target_color_final );
+	//	if ( _target_color_final_readable == nullptr )
+	//	{
+	//		_target_color_final_readable = engine.get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, true, false, false );
+	//	}
+	//	assert( _target_color_final_readable );
+	//	engine.get_video_interface()->copy_sub_resource( _target_color_final_readable, 0, _target_color_final, 0 );
+	//	return _target_color_final_readable;
+	//}
 
 	sint32_c video_renderer_canvas_c::get_statistic_object_count()
 	{

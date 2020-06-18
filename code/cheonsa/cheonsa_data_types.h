@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_string8.h"
 
@@ -39,9 +39,6 @@ namespace cheonsa
 		// for all data types, single line of plain text.
 		data_view_e_default,
 
-		// only for uint8 type.
-		data_view_e_boolean,
-
 		// provides a scroll bar with a value range of minimum to maximum.
 		// only for float32x1 and float64x1 types.
 		// asserts when used with other types.
@@ -69,9 +66,13 @@ namespace cheonsa
 		// for float types of length 4, value is interpreted as quaternion, but does conversion to let the user interface with it as euler angles in degrees.
 		data_view_e_euler_angles,
 
-		// provides a combo list is used to select from a set of named values.
-		// for uint8, sint8, uint16, sint16, uint32, sint32 types only.
+		// provides a combo list that enables the user to select a single value from an enumerated set of named values.
+		// for uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1 types only.
 		data_view_e_enumeration,
+
+		// provides a combo list that enables the user to check on and off any number of values from an enumerated set of named bit flag values.
+		// for uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1 types only.
+		data_view_e_enumeration_flags,
 
 		// for string8 and string16 types, expects a file path, and provides a button that opens a file picker dialog.
 		// asserts when used with other types.

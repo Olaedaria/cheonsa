@@ -12,6 +12,8 @@ namespace cheonsa
 	void_c menu_control_c::_add_supplemental_control( menu_control_c * control )
 	{
 		assert( control );
+		assert( control->_mother_control == nullptr );
+		assert( control->_mother_user_interface == nullptr );
 		assert( !control->_is_supplemental );
 		assert( _supplemental_control_list.find_index_of( control ) == -1 );
 		control->_is_supplemental = true;
@@ -19,6 +21,21 @@ namespace cheonsa
 		if ( _mother_user_interface )
 		{
 			_mother_user_interface->add_daughter_control( control );
+		}
+	}
+
+	void_c menu_control_c::_remove_supplemental_control( menu_control_c * control )
+	{
+		assert( control );
+		assert( control->_is_supplemental );
+		assert( control->_mother_control == nullptr );
+		assert( control->_mother_user_interface == _mother_user_interface );
+		assert( _supplemental_control_list.find_index_of( control ) != -1 );
+		control->_is_supplemental = false;
+		_supplemental_control_list.remove_value( control );
+		if ( _mother_user_interface )
+		{
+			_mother_user_interface->remove_daughter_control( control );
 		}
 	}
 
@@ -229,16 +246,16 @@ namespace cheonsa
 
 	void_c menu_control_c::_on_clicked( input_event_c * input_event )
 	{
-		if ( _is_enabled )
+		_mother_user_interface->reset_multi_click_detection();
+		if ( get_is_actually_enabled() )
 		{
-			get_mother_user_interface()->reset_multi_click_detection();
 			on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
 		}
 	}
 
 	void_c menu_control_c::_on_multi_clicked( input_event_c * input_event )
 	{
-		if ( _is_enabled )
+		if ( get_is_actually_enabled() )
 		{
 			on_multi_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
 		}
@@ -246,15 +263,20 @@ namespace cheonsa
 
 	void_c menu_control_c::_on_input( input_event_c * input_event )
 	{
+		if ( get_is_actually_enabled() )
+		{
+			on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
 	}
 
 	void_c menu_control_c::_update_daughter_element_animations( float32_c time_step )
 	{
+		boolean_c is_actually_enabled = get_is_actually_enabled();
 		boolean_c is_descendant_mouse_focused = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];
-			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_enabled( is_actually_enabled );
 			daughter_element->set_is_selected( is_descendant_mouse_focused );
 			daughter_element->set_is_pressed( _is_pressed && _is_mouse_overed );
 			daughter_element->update_animations( time_step );
@@ -341,18 +363,32 @@ namespace cheonsa
 		else if ( _layout_mode == menu_layout_mode_e_point_anchor )
 		{
 			box32x2_c mother_rectangle = _mother_control ? _mother_control->_local_box : _mother_user_interface->get_local_box();
-			_local_origin = vector32x2_c();
+			_local_origin = vector32x2_c( 0.0f, 0.0f );
 			if ( _local_anchor & menu_anchor_e_left )
 			{
-				_local_origin.a = mother_rectangle.minimum.a + _local_anchor_measures.minimum.a;
+				if ( _local_anchor & menu_anchor_e_right )
+				{
+					_local_origin.a = ( mother_rectangle.minimum.a + mother_rectangle.maximum.a ) * 0.5f;
+				}
+				else
+				{
+					_local_origin.a = mother_rectangle.minimum.a;
+				}
 			}
 			else if ( _local_anchor & menu_anchor_e_right )
 			{
-				_local_origin.a = mother_rectangle.maximum.a - _local_anchor_measures.minimum.a;
+				_local_origin.a = mother_rectangle.maximum.a;
 			}
 			if ( _local_anchor & menu_anchor_e_top )
 			{
-				_local_origin.b = mother_rectangle.minimum.b + _local_anchor_measures.minimum.b;
+				if ( _local_anchor & menu_anchor_e_bottom )
+				{
+					_local_origin.b = ( mother_rectangle.minimum.b + mother_rectangle.maximum.b ) * 0.5f;
+				}
+				else
+				{
+					_local_origin.b = mother_rectangle.minimum.b;
+				}
 			}
 			else if ( _local_anchor & menu_anchor_e_bottom )
 			{
@@ -752,6 +788,11 @@ namespace cheonsa
 		return _mother_control;
 	}
 
+	menu_control_c const * menu_control_c::get_mother_control() const
+	{
+		return _mother_control;
+	}
+
 	core_linked_list_c< menu_control_c * > const & menu_control_c::get_daughter_control_list() const
 	{
 		return _daughter_control_list;
@@ -969,6 +1010,20 @@ namespace cheonsa
 		}
 	}
 
+	boolean_c menu_control_c::get_is_actually_enabled() const
+	{
+		menu_control_c const * control = this;
+		while ( control )
+		{
+			if ( !control->get_is_enabled() )
+			{
+				return false;
+			}
+			control = control->get_mother_control();
+		}
+		return true;
+	}
+
 	boolean_c menu_control_c::get_is_enabled() const
 	{
 		return _is_enabled;
@@ -1069,12 +1124,11 @@ namespace cheonsa
 		_update_transform_and_layout();
 	}
 
-	void_c menu_control_c::set_layout_point_anchor( menu_anchor_e local_anchor, vector32x2_c const & local_anchor_measures, box32x2_c const & local_box, float32_c local_angle, float32_c local_scale )
+	void_c menu_control_c::set_layout_point_anchor( menu_anchor_e local_anchor, box32x2_c const & local_box, float32_c local_angle, float32_c local_scale )
 	{
 		_layout_mode = menu_layout_mode_e_point_anchor;
 		_local_anchor = local_anchor;
-		_local_anchor_measures.minimum = local_anchor_measures;
-		_local_anchor_measures.maximum = vector32x2_c();
+		_local_anchor_measures = box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f );
 		_local_box = local_box;
 		_local_angle = local_angle;
 		_local_scale = local_scale;
@@ -1398,14 +1452,14 @@ namespace cheonsa
 			_control_group_origin = vector32x2_c( 0.0f, 0.0f );
 			_control_group_color = _local_color;
 
-			// compile draw list that will copy the _control_group_texture to the mother control group.
+			// compile draw list that will copy (composite) the _control_group_texture to the mother control group.
 			box32x2_c map;
 			map.minimum.a = 0.0f;
 			map.minimum.b = 0.0f;
 			map.maximum.a = static_cast< float32_c >( _local_box.get_width() ) / static_cast< float32_c >( _control_group_texture->get_width() );
 			map.maximum.b = static_cast< float32_c >( _local_box.get_height() ) / static_cast< float32_c >( _control_group_texture->get_height() );
 			box32x2_c box = _local_box;
-			_control_group_draw_list.append_rectangle( box, map, engine.get_video_renderer_shader_manager()->get_menu_ps_frame(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), nullptr );
+			_control_group_draw_list.append_rectangle( box, map, _mother_control ? engine.get_video_renderer_shader_manager()->get_menu_ps_frame() : engine.get_video_renderer_shader_manager()->get_menu_ps_frame_blurred(), &_control_group_texture_wrapper, vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f ), nullptr );
 			draw_list_list.insert( -1, &_control_group_draw_list );
 		}
 		else

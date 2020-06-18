@@ -22,6 +22,11 @@ namespace cheonsa
 		*this = other;
 	}
 
+	string8_c::string8_c( char8_c const * other, core_list_mode_e mode )
+		: character_list( mode, other, ops::string8_find_length( other ) + 1 )
+	{
+	}
+
 	string8_c::string8_c( char16_c const * other )
 		: character_list( core_list_mode_e_static, nullptr, 0 )
 	{

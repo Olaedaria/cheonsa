@@ -52,7 +52,7 @@ namespace cheonsa
 		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
-		if ( frame_style_state.swap_shared_colors )
+		if ( frame_style_state.swap_shared_colors != _invert_shared_colors )
 		{
 			vector32x4_c t = draw_shared_colors[ 0 ];
 			draw_shared_colors[ 0 ] = draw_shared_colors[ 1 ];

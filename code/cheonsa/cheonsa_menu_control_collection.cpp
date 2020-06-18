@@ -358,6 +358,7 @@ namespace cheonsa
 						item_text->set_is_showed( true );
 						item_text->set_layout_simple( box32x2_c( item_box.minimum.a, item_box.minimum.b + _icons_icon_height + 1.0f, item_box.maximum.a, item_box.maximum.b ) );
 						item_text->set_plain_text_value( item->_value_cache[ 0 ].display_value );
+						item_text->set_invert_shared_colors( item->get_is_selected() );
 						continue;
 					}
 				}
@@ -450,6 +451,7 @@ namespace cheonsa
 							item_text->set_is_showed( true );
 							item_text->set_layout_simple( box32x2_c( item_box.minimum.a + _details_item_height + column->_position, item_box.minimum.b, item_box.minimum.a + _details_item_height + column->_position + column->_width, item_box.maximum.b ) );
 							item_text->set_plain_text_value( item->_value_cache[ k ].display_value );
+							item_text->set_invert_shared_colors( item->get_is_selected() );
 						}
 						continue;
 					}
@@ -541,51 +543,56 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::_on_input( input_event_c * input_event )
 	{
-		_highlighted_frame_element.set_is_showed( false );
-		_last_selected_frame_element.set_is_showed( false );
+		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
 
-		if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
+		if ( !input_event->get_was_handled() )
 		{
-			_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
-		}
-		else if ( input_event->get_type() == input_event_c::type_e_mouse_move || input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
-		{
-			if ( _is_mouse_overed )
+			_highlighted_frame_element.set_is_showed( false );
+			_last_selected_frame_element.set_is_showed( false );
+			if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 			{
-				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
-				_mouse_selected_item = _pick_item_at_local_point( local_mouse_position );
-				if ( _mouse_selected_item )
+				_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
+				refresh();
+			}
+			else if ( input_event->get_type() == input_event_c::type_e_mouse_move || input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
+			{
+				refresh();
+				if ( _is_mouse_overed )
 				{
-					_highlighted_frame_element.set_is_showed( true );
-					box32x2_c item_box = _get_item_box( _mouse_selected_item->_index );
-					_highlighted_frame_element.set_layout_simple( item_box );
+					vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
+					_mouse_selected_item = _pick_item_at_local_point( local_mouse_position );
+					if ( _mouse_selected_item )
+					{
+						_highlighted_frame_element.set_is_showed( true );
+						box32x2_c item_box = _get_item_box( _mouse_selected_item->_index );
+						_highlighted_frame_element.set_layout_simple( item_box );
+					}
+					if ( _last_selected_item )
+					{
+						_last_selected_frame_element.set_is_showed( true );
+						box32x2_c item_box = _get_item_box( _last_selected_item->_index );
+						_last_selected_frame_element.set_layout_simple( item_box );
+					}
 				}
-				if ( _last_selected_item )
+			}
+			else if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
+			{
+				if ( input_event->get_keyboard_key() == input_keyboard_key_e_enter )
 				{
-					_last_selected_frame_element.set_is_showed( true );
-					box32x2_c item_box = _get_item_box( _last_selected_item->_index );
-					_last_selected_frame_element.set_layout_simple( item_box );
+					on_selected_items_invoked.invoke( this );
 				}
 			}
 		}
-		else if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
-		{
-			if ( input_event->get_keyboard_key() == input_keyboard_key_e_enter )
-			{
-				on_selected_items_invoked.invoke( this );
-			}
-		}
-
-		refresh();
 	}
 
 	void_c menu_control_collection_c::_update_daughter_element_animations( float32_c time_step )
 	{
+		boolean_c is_actually_enabled = get_is_actually_enabled();
 		boolean_c is_selected = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];
-			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_enabled( is_actually_enabled );
 			daughter_element->set_is_selected( _is_mouse_focused || is_selected );
 			daughter_element->update_animations( time_step );
 		}

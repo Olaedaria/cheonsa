@@ -117,6 +117,7 @@ namespace cheonsa
 			engine.get_video_renderer_shader_manager()->refresh();
 			engine.get_resource_manager()->refresh();
 			engine.get_menu_style_manager()->refresh();
+			engine.get_game()->refresh();
 			_wants_to_refresh = false;
 		}
 		if ( _text_strings_users_are_dirty || _text_sprites_users_are_dirty )

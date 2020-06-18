@@ -32,8 +32,6 @@ namespace cheonsa
 
 		scene_c * _scene; // the 3d scene that this menu control will render. this needs to be provided by and managed by the game.
 
-		virtual void_c _on_input( input_event_c * input_event ) override;
-
 		virtual void_c _update_transform_and_layout() override;
 
 	public:
@@ -44,9 +42,6 @@ namespace cheonsa
 		void_c set_scene( scene_c * value ); // sets the scene that this scene control will render.
 
 		video_renderer_canvas_c * get_canvas() const; // gets the canvas that this scene control renders to.
-
-		core_event_c< void_c, float32_c > on_update;
-		core_event_c< void_c, menu_event_information_c > on_input;
 
 	};
 

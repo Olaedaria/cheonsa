@@ -98,10 +98,10 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_color_style_c::initialize( sint32_c index, string8_c const & key )
+	void_c menu_color_style_c::initialize( string8_c const & key, vector32x4_c const & value )
 	{
-		//this->_index = index;
 		this->key = key;
+		this->value = value;
 	}
 
 
@@ -1100,14 +1100,14 @@ namespace cheonsa
 	menu_event_information_c::menu_event_information_c()
 		: control( nullptr )
 		, next_control( nullptr )
-		, event( nullptr )
+		, input_event( nullptr )
 	{
 	}
 
-	menu_event_information_c::menu_event_information_c( menu_control_c * control, menu_control_c * next_control, input_event_c * event )
+	menu_event_information_c::menu_event_information_c( menu_control_c * control, menu_control_c * next_control, input_event_c * input_event )
 		: control( control )
 		, next_control( next_control )
-		, event( event )
+		, input_event( input_event )
 	{
 	}
 

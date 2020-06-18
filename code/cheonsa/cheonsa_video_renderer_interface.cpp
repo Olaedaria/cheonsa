@@ -893,7 +893,7 @@ namespace cheonsa
 		constant_buffers_to_bind[ 3 ] = _constant_buffers.camera_block_constant_buffer;
 		constant_buffers_to_bind[ 4 ] = _constant_buffers.object_block_constant_buffer;
 		constant_buffers_to_bind[ 5 ] = _constant_buffers.material_block_constant_buffer;
-		constant_buffers_to_bind[ 6 ] = nullptr;
+		constant_buffers_to_bind[ 6 ] = _constant_buffers.menu_block_constant_buffer;
 		constant_buffers_to_bind[ 7 ] = _constant_buffers.menu_batch_block_constant_buffer;
 		constant_buffers_to_bind[ 8 ] = _constant_buffers.menu_draw_block_constant_buffer;
 		engine.get_video_interface()->bind_pixel_shader_constant_buffers( 0, 9, constant_buffers_to_bind );
@@ -3404,7 +3404,7 @@ namespace cheonsa
 		// the controls that will render are ones that have ( _is_showing_weight > 0.0f && _local_color.d > 0.0f ).
 		// the elements that will render are ones that have ( element->_is_showing && element->_is_showing_from_style ).
 
-		// gather control groups.
+		// compile control groups and draw lists.
 		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = user_interface->_daughter_control_list.get_first();
 		while ( daughter_control_list_node )
 		{
@@ -3536,7 +3536,8 @@ namespace cheonsa
 			engine.get_video_interface()->clear_texture( control->_control_group_texture, 1.0f, 1.0f, 1.0f, 0.0f );
 			textures_to_bind[ 0 ] = control->_control_group_texture;
 			engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
-			_constant_buffers.menu_block->menu_target_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( control->_control_group_texture->get_width() ), 1.0f / static_cast< float32_c >( control->_control_group_texture->get_height() ) );
+			_constant_buffers.menu_block->menu_actual_target_size_inverse = vector32x2_c();
+			_constant_buffers.menu_block->menu_apparent_target_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( control->_control_group_texture->get_width() ), 1.0f / static_cast< float32_c >( control->_control_group_texture->get_height() ) );
 			_constant_buffers.menu_block->menu_target_offset = -control->_local_box.minimum;
 			_constant_buffers.menu_block_constant_buffer->set_data( _constant_buffers.menu_block, sizeof( menu_block_c ) );
 		}
@@ -3648,9 +3649,21 @@ namespace cheonsa
 		video_texture_c * output_target = canvas->_output ? canvas->_output->get_texture_resource() : canvas->_target_color_final;
 		assert( output_target );
 
-		_constant_buffers.menu_block->menu_target_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( output_target->get_width() ), 1.0f / static_cast< float32_c >( output_target->get_height() ) );
+		vector32x2_c bias;
+		_constant_buffers.menu_block->menu_actual_target_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( canvas->get_actual_width() ), 1.0f / static_cast< float32_c >( canvas->get_actual_height() ) );
+		_constant_buffers.menu_block->menu_apparent_target_size_inverse = vector32x2_c( 1.0f / static_cast< float32_c >( canvas->get_apparent_width() ), 1.0f / static_cast< float32_c >( canvas->get_apparent_height() ) );
 		_constant_buffers.menu_block->menu_target_offset = vector32x2_c( 0.0f, 0.0f );
 		_constant_buffers.menu_block_constant_buffer->set_data( _constant_buffers.menu_block, sizeof( menu_block_c ) );
+
+		textures_to_bind[ 0 ] = canvas->_target_color;
+		textures_to_bind_types[ 0 ] = video_texture_type_e_texture2d;
+		textures_to_bind[ 1 ] = canvas->_target_color_half_blurred_xy;
+		textures_to_bind_types[ 1 ] = video_texture_type_e_texture2d;
+		textures_to_bind[ 2 ] = canvas->_target_color_quarter_blurred_xy;
+		textures_to_bind_types[ 2 ] = video_texture_type_e_texture2d;
+		textures_to_bind[ 3 ] = canvas->_target_color_eighth_blurred_xy;
+		textures_to_bind_types[ 3 ] = video_texture_type_e_texture2d;
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures + 3, 4, textures_to_bind, textures_to_bind_types );
 
 		textures_to_bind[ 0 ] = output_target;
 		engine.get_video_interface()->bind_target_textures( 1, textures_to_bind, nullptr, video_texture_type_e_texture2d );
@@ -3681,6 +3694,7 @@ namespace cheonsa
 		}
 
 		// unbind some render states.
+		engine.get_video_interface()->bind_pixel_shader_textures( _texture_bind_index_for_target_textures + 3, 4, nullptr, nullptr );
 		engine.get_video_interface()->bind_pixel_shader_textures( 0, 1, nullptr, nullptr );
 		engine.get_video_interface()->bind_index_buffer( nullptr );
 

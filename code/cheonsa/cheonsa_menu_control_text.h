@@ -34,8 +34,8 @@ namespace cheonsa
 		virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
-		void_c _handle_on_value_changed_preview( menu_element_text_c * text );
-		void_c _handle_on_value_changed( menu_element_text_c * text );
+		void_c _handle_on_plain_text_value_changed_preview( menu_element_text_c * text );
+		void_c _handle_on_plain_text_value_changed( menu_element_text_c * text );
 
 	public:
 		menu_control_text_c(); // defaults to single line, plain text, editable, no scroll bars.
@@ -65,8 +65,8 @@ namespace cheonsa
 		void_c set_text_filter_mode( menu_text_filter_mode_e value );
 		void_c set_text_filter_string( string16_c const & value );
 
-		sint32_c get_text_value_length_limit() const;
-		void_c set_text_value_length_limit( sint32_c value );
+		sint32_c get_character_limit() const;
+		void_c set_character_limit( sint32_c value );
 
 		boolean_c get_multi_line() const;
 		void_c set_multi_line( boolean_c value );
@@ -89,8 +89,8 @@ namespace cheonsa
 		menu_visibility_mode_e get_vertical_scroll_visibility_mode() const;
 		void_c set_vertical_scroll_visibility_mode( menu_visibility_mode_e value );
 
-		core_event_c< void_c, menu_control_text_c * > on_value_changed_preview; // occurs whenever the text value changes as the user types.
-		core_event_c< void_c, menu_control_text_c * > on_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
+		core_event_c< void_c, menu_control_text_c * > on_plain_text_value_changed_preview; // occurs whenever the text value changes as the user types.
+		core_event_c< void_c, menu_control_text_c * > on_plain_text_value_changed; // occurs if the text value was modified and the user presses enter or the element loses text input focus.
 
 	};
 

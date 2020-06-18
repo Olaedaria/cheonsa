@@ -2,10 +2,10 @@
 
 	<frame
 		key="e_modal_frame"
-		pixel_shader="menu_ps_frame_keyed.hlsl"
+		pixel_shader="menu_ps_frame.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="stretch"
-		texture_map_origin="13 3"
+		texture_map_origin="33 3"
 		texture_map_size="4 4"
 		texture_map_edges="0 0 0 0"/>
 
@@ -81,7 +81,7 @@
 	<text
 		key="e_field_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
-		size="16.0"
+		size="12.0"
 		align_horizontal="left"
 		align_vertical="center"/>
 
@@ -92,14 +92,30 @@
 		texture_map_mode="nine_slice_stretch"
 		texture_map_origin="1 21"
 		texture_map_size="8 8"
-		texture_map_edges="3 3 3 3"/>
+		texture_map_edges="3 3 3 3">
+		<state
+			key="selected"
+			texture_map_origin="21 1"
+			texture_map_edges="3 3 3 3"/>
+		<state
+			key="pressed"
+			texture_map_origin="21 1"
+			texture_map_edges="3 3 3 3"/>
+	</frame>
 
 	<text
 		key="e_button_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
 		align_horizontal="center"
-		align_vertical="center"/>
+		align_vertical="center">
+		<state
+			key="selected"
+			swap_shared_colors="true"/>
+		<state
+			key="pressed"
+			swap_shared_colors="true"/>
+	</text>
 
 	<text
 		key="e_button_text_small"
@@ -149,6 +165,22 @@
 			show="false"/>
 	</frame>
 
+	<text
+		key="e_menu_button_text"
+		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
+		size="16.0"
+		align_horizontal="center"
+		align_vertical="center">
+	</text>
+
+	<text
+		key="e_menu_button_text_small"
+		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
+		size="12.0"
+		align_horizontal="center"
+		align_vertical="center">
+	</text>
+
 	<frame
 		key="e_check_mark_frame"
 		texture="menus/atlas.png"
@@ -180,9 +212,26 @@
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
-		texture_map_origin="11 1"
+		texture_map_origin="21 11"
 		texture_map_size="8 8"
-		texture_map_edges="3 3 3 3"/>
+		texture_map_edges="3 3 3 3">
+		<state
+			key="normal"
+			show="false"
+			swap_shared_colors="false"/>
+		<state
+			key="selected"
+			show="true"
+			swap_shared_colors="true"/>
+		<state
+			key="pressed"
+			show="true"
+			swap_shared_colors="true"/>
+		<state
+			key="disabled"
+			show="false"
+			swap_shared_colors="false"/>
+	</frame>
 
 	<frame
 		key="e_list_item_selected_frame"
@@ -215,10 +264,23 @@
 		glyph_spacing="0.0"
 		align_horizontal="left"
 		align_vertical="center"
-		margin="8 0 8 0"/>
+		margin="8 0 8 0">
+		<state
+			key="normal"
+			swap_shared_colors="false"/>
+		<state
+			key="selected"
+			swap_shared_colors="false"/>
+		<state
+			key="pressed"
+			swap_shared_colors="false"/>
+		<state
+			key="disabled"
+			swap_shared_colors="false"/>
+	</text>
 
 	<frame
-		key="e_menu_list_item_frame"
+		key="e_menu_item_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
@@ -244,7 +306,7 @@
 	</frame>
 
 	<frame
-		key="e_menu_list_item_selected_frame"
+		key="e_menu_item_selected_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
@@ -253,7 +315,7 @@
 		texture_map_edges="3 3 3 3"/>
 
 	<text
-		key="e_menu_list_item_text"
+		key="e_menu_item_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="14.0"
 		offset="0.0 0.0"
@@ -387,12 +449,12 @@
 
 	<map key="e_menu_button">
 		<item element_name="frame" style_key="e_menu_button_frame"/>
-		<item element_name="text" style_key="e_button_text"/>
+		<item element_name="text" style_key="e_menu_button_text"/>
 	</map>
 
 	<map key="e_menu_button_small">
 		<item element_name="frame" style_key="e_menu_button_frame"/>
-		<item element_name="text" style_key="e_button_text_small"/>
+		<item element_name="text" style_key="e_menu_button_text_small"/>
 	</map>
 
 	<map key="e_button_priority">
@@ -412,20 +474,20 @@
 	</map>
 
 	<map key="e_list_item">
-		<item element_name="frame" style_key=""/>
+		<item element_name="frame" style_key="e_list_item_frame"/>
 		<item element_name="selected_frame" style_key="e_list_item_selected_frame"/>
 		<item element_name="text" style_key="e_list_item_text"/>
 	</map>
 
-	<map key="e_menu_list">
+	<map key="e_menu">
 		<item element_name="frame" style_key="e_field_frame"/>
 		<item element_name="border_frame" style_key="e_line_border_frame"/>
 	</map>
 
-	<map key="e_menu_list_item">
-		<item element_name="frame" style_key="e_menu_list_item_frame"/>
-		<item element_name="selected_frame" style_key="e_menu_list_item_selected_frame"/>
-		<item element_name="text" style_key="e_menu_list_item_text"/>
+	<map key="e_menu_item">
+		<item element_name="frame" style_key="e_menu_item_frame"/>
+		<item element_name="selected_frame" style_key="e_menu_item_selected_frame"/>
+		<item element_name="text" style_key="e_menu_item_text"/>
 	</map>
 
 	<map key="e_combo">

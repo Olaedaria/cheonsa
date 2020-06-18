@@ -140,6 +140,8 @@ namespace cheonsa
 		boolean_c string16_ends_with( char16_c const * a, char8_c const * b );
 		boolean_c string16_ends_with( char16_c const * a, char16_c const * b );
 
+		boolean_c string8_sort_compare( string8_c const * const & a, string8_c const * const & b );
+
 		boolean_c string8_sort_compare( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
 		boolean_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
 

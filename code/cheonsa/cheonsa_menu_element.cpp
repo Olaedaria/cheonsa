@@ -69,6 +69,7 @@ namespace cheonsa
 		: _mother_control( nullptr )
 		, _name( name )
 		, _shared_color_class( menu_shared_color_class_e_window )
+		, _invert_shared_colors( false )
 		, _local_color( 1.0f, 1.0f, 1.0f, 1.0f )
 		, _local_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom )
 		, _local_box_anchor_measures( 0.0f, 0.0f, 0.0f, 0.0f )
@@ -199,6 +200,16 @@ namespace cheonsa
 	void_c menu_element_c::set_shared_color_class( menu_shared_color_class_e value )
 	{
 		_shared_color_class = value;
+	}
+
+	boolean_c menu_element_c::get_invert_shared_colors() const
+	{
+		return _invert_shared_colors;
+	}
+
+	void_c menu_element_c::set_invert_shared_colors( boolean_c value )
+	{
+		_invert_shared_colors = value;
 	}
 
 	boolean_c menu_element_c::get_is_showed() const

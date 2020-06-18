@@ -72,6 +72,7 @@ namespace cheonsa
 		core_list_c< menu_control_c * > _supplemental_control_list; // these are controls that will be added to or removed from the root level of the user interface when this control is added to or removed from the user interface.
 		boolean_c _is_supplemental; // will be set to true on root-level controls that are created and managed by other controls. this tells the user interface's destructor not to remove these controls directly, and to only remove non supplemental controls directly, in this way the supplemental controls will be removed indirectly by the non supplemental controls.
 		void_c _add_supplemental_control( menu_control_c * control );
+		void_c _remove_supplemental_control( menu_control_c * control );
 
 		sint32_c _index; // this control's index within its mother's _control_list or _private_control_list.
 
@@ -96,10 +97,10 @@ namespace cheonsa
 		boolean_c _is_enabled; // controls visual state.
 
 		sint32_c _is_deep_text_focused; // is incremented when this or any of this control's daughters gains text input focus. is decremented when this or any of this control's daughters loses text input focus. it's valid values are 0 and 1, if it settles at a value besides 0 or 1 then there's a bug with state transition management. we use a counter so that we can call _on_is_deep_text_focused only once per transition between 0 and 1, and because it may count higher than 1 if it is transitioning.
-		boolean_c _is_text_focused; // controls visual state effects. is true if this control has trapped text input (will receive text events), is false if not.
-		boolean_c _is_mouse_overed; // controls visual state effects for buttons. is true if this control intersects with the mouse pointer, false if not. or this may be used by the context if directional input is used to select controls rather than the mouse.
-		boolean_c _is_mouse_focused; // controls visual state effects. is true if this control has trapped mouse input (will receive mouse input events even if the mouse is not over this control), is false if not.
-		boolean_c _is_pressed; // controls visual state effects. is true if this control is pressed by a mouse click.
+		uint8_c _is_text_focused; // controls visual state effects. is true if this control has trapped text input (will receive text events), is false if not.
+		uint8_c _is_mouse_overed; // controls visual state effects for buttons. is true if this control intersects with the mouse pointer, false if not. or this may be used by the context if directional input is used to select controls rather than the mouse.
+		uint8_c _is_mouse_focused; // controls visual state effects. is true if this control has trapped mouse input (will receive mouse input events even if the mouse is not over this control), is false if not.
+		uint8_c _is_pressed; // controls visual state effects. will have different bits set based on which inputs are pressing this control. 0x01 for left mouse key, 0x02 for right mouse key, 0x04 for middle mouse key, and 0x08 for keyboard enter key.
 
 		menu_layout_mode_e _layout_mode; // how to calculate _local_box.
 		vector32x2_c _local_origin; // origin point defines the point that the control will rotate and scale around. it is relative to the parent's local basis.
@@ -159,8 +160,8 @@ namespace cheonsa
 		virtual void_c _on_is_mouse_overed_changed(); // is called right after _is_mouse_overed state is changed. after performing control specific implementation, it should in turn invoke the on_is_mouse_overed_changed event.
 		virtual void_c _on_is_mouse_focused_changed(); // is called right after _is_mouse_focused state is changed. after performing control specific implementation, it should in turn invoke the on_is_mouse_focused_changed event.
 		virtual void_c _on_is_pressed_changed(); // is called right after _is_pressed state is changed. after performing control specific implementation, it should in turn invoke the on_is_pressed_changed event.
-		virtual void_c _on_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been clicked on.
-		virtual void_c _on_multi_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been multi-(double, triple)-clicked on.
+		virtual void_c _on_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been clicked on. this can be triggered with the left mouse key, right mouse key, middle mouse key, or enter keyboard key.
+		virtual void_c _on_multi_clicked( input_event_c * input_event ); // is called when the user interface determines that this control has been multi-(double, triple)-clicked on. multi-clicks are only registered with the left mouse key.
 		virtual void_c _on_input( input_event_c * input_event ); // is called for any other user input events.
 
 		void_c _update_daughter_control_animations_and_prune( float32_c time_step ); // to enable reuse of the code that removes controls that want to be removed.
@@ -224,6 +225,7 @@ namespace cheonsa
 		menu_control_c * get_root_mother_control(); // returns the root mother control of this control, also called a window (regardless of if it acts like one or not), which is the control that is directly added to the menu context.
 
 		menu_control_c * get_mother_control(); // returns the control that is the immediate mother of this control.
+		menu_control_c const * get_mother_control() const; // returns the control that is the immediate mother of this control.
 
 		core_linked_list_c< menu_control_c * > const & get_daughter_control_list() const;
 		void_c add_daughter_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end. this control will hold a one-way reference count on the daughter control.
@@ -245,6 +247,7 @@ namespace cheonsa
 		virtual void_c set_is_showed( boolean_c value, boolean_c and_wants_to_be_deleted = false ); // and_wants_to_be_deleted will be respected if value is false.
 		virtual void_c set_is_showed_immediately( boolean_c value );
 
+		boolean_c get_is_actually_enabled() const; // returns true if this control and all controls up the hierarchy are enabled, false if not.
 		boolean_c get_is_enabled() const;
 		void_c set_is_enabled( boolean_c value );
 
@@ -258,13 +261,13 @@ namespace cheonsa
 		void_c set_layout_simple( vector32x2_c const & local_origin, box32x2_c const & local_box_around_origin, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // spatial properties are in mother's coordinate space.
 		void_c set_layout_simple( box32x2_c const & local_box, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // spatial properties are in mother's coordinate space. origin will be placed at center of local_box.
 		void_c set_layout_box_anchor( menu_anchor_e local_anchor, box32x2_c const & local_anchor_measures, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // enables anchor layout. measurements are in mother control's coordinate space.
-		void_c set_layout_point_anchor( menu_anchor_e local_anchor, vector32x2_c const & local_anchor_measures, box32x2_c const & local_box, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f );
+		void_c set_layout_point_anchor( menu_anchor_e local_anchor, box32x2_c const & local_box, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f );
 
 		vector32x2_c const & get_local_origin() const;
 		void_c set_local_origin( vector32x2_c const & value );
 
 		box32x2_c const & get_local_box() const;
-		box32x2_c & get_local_box(); // in rare siutations, to enable direct modification of local box.
+		box32x2_c & get_local_box(); // in rare siutations, to enable direct modification of local box members.
 
 		box32x2_c const & get_local_anchor_measures() const;
 		void_c set_local_anchor_measures( box32x2_c const & value );
@@ -322,6 +325,7 @@ namespace cheonsa
 		core_event_c< void_c, menu_event_information_c > on_is_pressed_changed;
 		core_event_c< void_c, menu_event_information_c > on_clicked;
 		core_event_c< void_c, menu_event_information_c > on_multi_clicked;
+		core_event_c< void_c, menu_event_information_c > on_input;
 
 	};
 

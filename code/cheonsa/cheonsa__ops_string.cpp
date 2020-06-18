@@ -1455,6 +1455,12 @@ namespace cheonsa
 			return _string_ends_with< char16_c >( a, b );
 		}
 
+		boolean_c string8_sort_compare( string8_c const * const & a, string8_c const * const & b )
+		{
+			assert( a != nullptr && b != nullptr );
+			return strnatcmp::strnatcmp0< char8_c >( a->character_list.get_internal_array(), b->character_list.get_internal_array(), false ) > 0;
+		}
+
 		boolean_c string8_sort_compare( string8_c const & a, string8_c const & b )
 		{
 			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false ) > 0;

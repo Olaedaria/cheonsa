@@ -75,8 +75,8 @@ namespace cheonsa
 		menu_control_window_message_c * _message_dialog; // used to ask the user if they want to overwrite an existing file or not.
 
 		void_c _handle_on_dialog_result( menu_control_window_c * window_dialog );
-		void_c _handle_button_on_clicked( menu_event_information_c event_information );
-		void_c _handle_text_on_value_changed( menu_control_text_c * control );
+		void_c _handle_on_clicked( menu_event_information_c event_information );
+		void_c _handle_on_plain_text_value_changed( menu_control_text_c * control );
 		void_c _handle_file_collection_on_selected_items_changed( menu_control_collection_c * collection );
 		void_c _handle_file_collection_on_selected_items_invoked( menu_control_collection_c * collection );
 

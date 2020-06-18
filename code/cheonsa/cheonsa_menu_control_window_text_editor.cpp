@@ -19,6 +19,22 @@ namespace cheonsa
 		}
 	}
 
+	void_c menu_control_window_text_editor_c::_on_input( input_event_c * input_event )
+	{
+		menu_control_window_c::_on_input( input_event );
+		if ( !input_event->get_was_handled() )
+		{
+			if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
+			{
+				if ( input_event->get_keyboard_key() == input_keyboard_key_e_escape )
+				{
+					_dialog_result = menu_dialog_result_e_cancel;
+					on_dialog_result.invoke( this );
+				}
+			}
+		}
+	}
+
 	menu_control_window_text_editor_c::menu_control_window_text_editor_c()
 		: menu_control_window_c()
 		, _text( nullptr )
@@ -52,14 +68,49 @@ namespace cheonsa
 	{
 	}
 
-	string16_c menu_control_window_text_editor_c::get_text_value()
+	menu_control_window_text_editor_c::mode_e menu_control_window_text_editor_c::get_mode() const
+	{
+		return _text->get_multi_line() ? mode_e_multi_line : mode_e_single_line;
+	}
+
+	void_c menu_control_window_text_editor_c::set_mode( mode_e value )
+	{
+		_text->set_multi_line( value == mode_e_multi_line );
+	}
+
+	sint32_c menu_control_window_text_editor_c::get_character_limit() const
+	{
+		return _text->get_character_limit();
+	}
+
+	void_c menu_control_window_text_editor_c::set_character_limit( sint32_c value )
+	{
+		_text->set_character_limit( value );
+	}
+
+	string16_c menu_control_window_text_editor_c::get_plain_text_value()
 	{
 		return _text->get_plain_text_value();
 	}
 
-	void_c menu_control_window_text_editor_c::set_text_value( string16_c const & value )
+	void_c menu_control_window_text_editor_c::set_plain_text_value( string16_c const & value )
 	{
 		_text->set_plain_text_value( value );
+	}
+
+	menu_control_text_c * menu_control_window_text_editor_c::get_text_control()
+	{
+		return _text;
+	}
+
+	menu_control_button_c * menu_control_window_text_editor_c::get_cancel_button()
+	{
+		return _cancel_button;
+	}
+
+	menu_control_button_c * menu_control_window_text_editor_c::get_okay_button()
+	{
+		return _okay_button;
 	}
 
 }

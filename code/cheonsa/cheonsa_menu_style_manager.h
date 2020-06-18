@@ -17,7 +17,6 @@ namespace cheonsa
 	private:
 		float32_c _shared_transition_speed; // speed in units per second of visual state transitions. a speed of 1 will take 1 second, a speed of 100 will take 1/100th of a second.
 		
-		menu_shared_color_base_notes_c _shared_color_base_notes;
 		menu_color_style_c _shared_color_style_list[ menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_ ]; // engine and/or game can set these programatically to customize the color scheme. style files may reference these with keys "[n]", where n is a number between 0 and 7.
 		core_dictionary_c< string8_c, menu_color_style_c * > _shared_color_style_dictionary;
 
@@ -35,9 +34,6 @@ namespace cheonsa
 
 	public:
 		void_c refresh(); // reloads engine and game style files.
-
-		void_c set_shared_color_base_notes( menu_shared_color_base_notes_c const & values );
-		void_c get_shared_color_base_notes( menu_shared_color_base_notes_c & values );
 
 		menu_color_style_c * get_shared_color_style( sint32_c shared_color_index ); // flat index, compiled from color_class, color_state, and color_slot.
 		menu_color_style_c * get_shared_color_style( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot );

@@ -317,7 +317,7 @@ namespace cheonsa
 		menu_text_style_c::reference_c _text_style_reference; // the base text style to apply to text in this text element when no other text style is defined (via paragraph and/or span).
 		menu_text_align_horizontal_e _text_align_horizontal; // horizontal text alignment to apply to all of the text, if set then it overrides the value defined by the text _style_reference.
 		menu_text_align_vertical_e _text_align_vertical; // vertical text alignment to apply to all of the text, if set then it overrides the value defined by the text _style_reference.
-		sint32_c _text_value_length_limit; // if greater than or equal to 0 then a character limit enforced on the _plain_text string (this does not include the terminating '\n' and '\0' characters).
+		sint32_c _character_limit; // if greater than or equal to 0 then a character limit enforced on the _plain_text string (this does not include the terminating '\n' and '\0' characters).
 		boolean_c _multi_line; // if true, then pressing enter will insert a new line. if false, and if _is_text_value_modified is true, then pressing enter will invoke on_value_committed and _is_text_value_modified will be set to false.
 		boolean_c _word_wrap; // if true, then automatic word wrapping will be performed.
 		vector32x2_c _content_offset; // translation (usually from scroll bars) that offsets where text is placed within the text element.
@@ -426,8 +426,8 @@ namespace cheonsa
 		menu_text_align_vertical_e get_text_align_vertical() const;
 		void_c set_text_align_vertical( menu_text_align_vertical_e value );
 
-		sint32_c get_text_value_length_limit() const;
-		void_c set_text_value_length_limit( sint32_c value ); // if needed then this will truncate the existing text value to fit within the new character limit.
+		sint32_c get_character_limit() const;
+		void_c set_character_limit( sint32_c value ); // if needed then this will truncate the existing text value to fit within the new character limit.
 
 		boolean_c get_multi_line() const;
 		void_c set_multi_line( boolean_c value ); // if needed then this will trucnate the existing text value to a single line.

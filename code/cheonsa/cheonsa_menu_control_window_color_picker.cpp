@@ -235,6 +235,22 @@ namespace cheonsa
 		on_dialog_result.invoke( this );
 	}
 
+	void_c menu_control_window_color_picker_c::_on_input( input_event_c * input_event )
+	{
+		menu_control_window_c::_on_input( input_event );
+		if ( !input_event->get_was_handled() )
+		{
+			if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
+			{
+				if ( input_event->get_keyboard_key() == input_keyboard_key_e_escape )
+				{
+					_dialog_result = menu_dialog_result_e_cancel;
+					on_dialog_result.invoke( this );
+				}
+			}
+		}
+	}
+
 	menu_control_window_color_picker_c::menu_control_window_color_picker_c()
 		: menu_control_window_c()
 		, _is_muted( false )
@@ -309,9 +325,9 @@ namespace cheonsa
 		_h_text->set_name( string8_c( core_list_mode_e_static, "h_text" ) );
 		_h_text->set_multi_line( false );
 		_h_text->set_word_wrap( false );
-		_h_text->set_text_value_length_limit( 50 );
+		_h_text->set_character_limit( 50 );
 		_h_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
-		_h_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_h_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _h_text );
 		row_top += row_height + 8;
 
@@ -330,11 +346,11 @@ namespace cheonsa
 		_s_text->set_name( string8_c( core_list_mode_e_static, "s_text" ) );
 		_s_text->set_multi_line( false );
 		_s_text->set_word_wrap( false );
-		_s_text->set_text_value_length_limit( 50 );
+		_s_text->set_character_limit( 50 );
 		_s_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_s_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_s_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
-		_s_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_s_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _s_text );
 		row_top += row_height + 8;
 
@@ -353,11 +369,11 @@ namespace cheonsa
 		_v_text->set_name( string8_c( core_list_mode_e_static, "v_text" ) );
 		_v_text->set_multi_line( false );
 		_v_text->set_word_wrap( false );
-		_v_text->set_text_value_length_limit( 50 );
+		_v_text->set_character_limit( 50 );
 		_v_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_v_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_v_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
-		_v_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_v_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _v_text );
 		row_top += row_height + 8;
 
@@ -376,11 +392,11 @@ namespace cheonsa
 		_r_text->set_name( string8_c( core_list_mode_e_static, "r_text" ) );
 		_r_text->set_multi_line( false );
 		_r_text->set_word_wrap( false );
-		_r_text->set_text_value_length_limit( 50 );
+		_r_text->set_character_limit( 50 );
 		_r_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_r_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_r_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
-		_r_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_r_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _r_text );
 		row_top += row_height + 8;
 
@@ -399,11 +415,11 @@ namespace cheonsa
 		_g_text->set_name( string8_c( core_list_mode_e_static, "g_text" ) );
 		_g_text->set_multi_line( false );
 		_g_text->set_word_wrap( false );
-		_g_text->set_text_value_length_limit( 50 );
+		_g_text->set_character_limit( 50 );
 		_g_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_g_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_g_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
-		_g_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_g_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _g_text );
 		row_top += row_height + 8;
 
@@ -422,11 +438,11 @@ namespace cheonsa
 		_b_text->set_name( string8_c( core_list_mode_e_static, "b_text" ) );
 		_b_text->set_multi_line( false );
 		_b_text->set_word_wrap( false );
-		_b_text->set_text_value_length_limit( 50 );
+		_b_text->set_character_limit( 50 );
 		_b_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_b_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_b_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
-		_b_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_b_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _b_text );
 		row_top += row_height + 8;
 
@@ -445,11 +461,11 @@ namespace cheonsa
 		_a_text->set_name( string8_c( core_list_mode_e_static, "a_text" ) );
 		_a_text->set_multi_line( false );
 		_a_text->set_word_wrap( false );
-		_a_text->set_text_value_length_limit( 50 );
+		_a_text->set_character_limit( 50 );
 		_a_text->set_text_filter_mode( menu_text_filter_mode_e_number_real );
 		_a_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_a_text->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( text_width, row_top, text_right, row_height ) );
-		_a_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_a_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _a_text );
 		row_top += row_height + 8;
 
@@ -462,10 +478,10 @@ namespace cheonsa
 		_rgba_hex_text->set_name( string8_c( core_list_mode_e_static, "rgba_hex_text" ) );
 		_rgba_hex_text->set_multi_line( false );
 		_rgba_hex_text->set_word_wrap( false );
-		_rgba_hex_text->set_text_value_length_limit( 16 );
+		_rgba_hex_text->set_character_limit( 16 );
 		_rgba_hex_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_rgba_hex_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, text_right, row_height) );
-		_rgba_hex_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_rgba_hex_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _rgba_hex_text );
 		row_top += row_height + 8;
 
@@ -478,10 +494,10 @@ namespace cheonsa
 		_rgba_float_text->set_name( string8_c( core_list_mode_e_static, "rgba_float_text" ) );
 		_rgba_float_text->set_multi_line( false );
 		_rgba_float_text->set_word_wrap( false );
-		_rgba_float_text->set_text_value_length_limit( 64 );
+		_rgba_float_text->set_character_limit( 64 );
 		_rgba_float_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		_rgba_float_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( slider_left, row_top, text_right, row_height ) );
-		_rgba_float_text->on_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
+		_rgba_float_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_color_picker_c::_handle_text_on_value_changed );
 		add_daughter_control_to_client( _rgba_float_text );
 		row_top += row_height + 8;
 

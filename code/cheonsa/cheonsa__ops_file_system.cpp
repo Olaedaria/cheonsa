@@ -14,6 +14,26 @@ namespace cheonsa
 	namespace ops
 	{
 
+		boolean_c path_is_file_or_folder_name_allowable( string16_c const & value )
+		{
+			if ( !value.is_set() || value.get_length() > 60 )
+			{
+				return false;
+			}
+			for ( sint32_c i = 0; i < value.get_length(); i++ )
+			{
+				char16_c c = value.character_list[ i ];
+				if ( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' ) || ( c == '_' ) )
+				{
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
 		string16_c path_get_folder_path( string16_c const & a )
 		{
 			string16_c result;
@@ -427,23 +447,23 @@ namespace cheonsa
 			return result;
 		}
 
-		boolean_c file_system_does_file_exist( string16_c const & file_path )
+		boolean_c file_system_does_file_exist( string16_c const & file_path_absolute )
 		{
 #if defined( cheonsa_platform_windows )
 			//assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_file ) );
-			DWORD file_attributes = GetFileAttributes( file_path.character_list.get_internal_array() );
+			DWORD file_attributes = GetFileAttributes( file_path_absolute.character_list.get_internal_array() );
 			return ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 ) );
 #else
 #error ops::file_system_does_file_exist() is not implemented.
 #endif
 		}
 
-		boolean_c file_system_create_file( string16_c const & file_path )
+		boolean_c file_system_create_file( string16_c const & file_path_absolute )
 		{
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_file ) );
+			assert( file_system_is_path_formatted_for_windows( file_path_absolute, file_system_path_type_e_file ) );
 			FILE * file = nullptr;
-			errno_t asdkgjfhawe = _wfopen_s( &file, file_path.character_list.get_internal_array(), L"wb" );
+			errno_t asdkgjfhawe = _wfopen_s( &file, file_path_absolute.character_list.get_internal_array(), L"wb" );
 			if ( asdkgjfhawe != 0 )
 			{
 				return false;
@@ -459,37 +479,37 @@ namespace cheonsa
 #endif
 		}
 
-		boolean_c file_system_does_folder_exist( string16_c const & folder_path )
+		boolean_c file_system_does_folder_exist( string16_c const & folder_path_absolute )
 		{
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
-			DWORD file_attributes = GetFileAttributes( folder_path.character_list.get_internal_array() );
+			assert( file_system_is_path_formatted_for_windows( folder_path_absolute, file_system_path_type_e_folder ) );
+			DWORD file_attributes = GetFileAttributes( folder_path_absolute.character_list.get_internal_array() );
 			return ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 ) );
 #else
 #error ops::file_system_does_folder_exist() is not implemented.
 #endif
 		}
 
-		boolean_c file_system_create_folder( string16_c const & folder_path )
+		boolean_c file_system_create_folder( string16_c const & folder_path_absolute )
 		{
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
+			assert( file_system_is_path_formatted_for_windows( folder_path_absolute, file_system_path_type_e_folder ) );
 			// windows doesn't let us create a set of nested folders in one call, so we have to create folders at each level one by one.
 			BOOL result = FALSE;
-			sint32_c final_end = folder_path.get_length();
+			sint32_c final_end = folder_path_absolute.get_length();
 			sint32_c end = 7; // skip the "\\?\C:\".
 			while ( end < final_end )
 			{
 				while ( end < final_end )
 				{
-					if ( folder_path.character_list[ end ] == '\\' )
+					if ( folder_path_absolute.character_list[ end ] == '\\' )
 					{
 						end++;
 						break;
 					}
 					end++;
 				}
-				string16_c sub_folder_path = ops::string16_sub_string( folder_path, 0, end );
+				string16_c sub_folder_path = ops::string16_sub_string( folder_path_absolute, 0, end );
 				DWORD file_attributes = GetFileAttributes( sub_folder_path.character_list.get_internal_array() );
 				BOOL folder_exists = ( ( file_attributes != INVALID_FILE_ATTRIBUTES ) && ( ( file_attributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 ) );
 				if ( folder_exists == false )
@@ -503,13 +523,12 @@ namespace cheonsa
 #endif
 		}
 
-		boolean_c file_system_move_file_or_folder( string16_c const & from_file_path, string16_c const & to_file_path )
+		boolean_c file_system_move_file_or_folder( string16_c const & from_file_or_folder_path_absolute, string16_c const & to_file_or_folder_path_absolute )
 		{
-			assert( false );
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( from_file_path, file_system_path_type_e_dont_care ) );
-			assert( file_system_is_path_formatted_for_windows( to_file_path, file_system_path_type_e_dont_care ) );
-			BOOL result = MoveFileW( from_file_path.character_list.get_internal_array(), to_file_path.character_list.get_internal_array() );
+			assert( file_system_is_path_formatted_for_windows( from_file_or_folder_path_absolute, file_system_path_type_e_dont_care ) );
+			assert( file_system_is_path_formatted_for_windows( to_file_or_folder_path_absolute, file_system_path_type_e_dont_care ) );
+			BOOL result = MoveFileW( from_file_or_folder_path_absolute.character_list.get_internal_array(), to_file_or_folder_path_absolute.character_list.get_internal_array() );
 			return result != 0;
 #else
 #error ops::file_system_move_file_or_folder() is not implemented.
@@ -518,7 +537,6 @@ namespace cheonsa
 
 		boolean_c file_system_delete_file_or_folder( string16_c const & file_path )
 		{
-			assert( false );
 #if defined( cheonsa_platform_windows )
 			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_dont_care ) );
 			BOOL result = DeleteFileW( file_path.character_list.get_internal_array() );
@@ -528,12 +546,12 @@ namespace cheonsa
 #endif
 		}
 
-		boolean_c file_system_get_file_or_folder_last_write_time( string16_c const & file_path, sint64_c & last_write_time )
+		boolean_c file_system_get_file_or_folder_last_write_time( string16_c const & file_or_folder_path_absolute, sint64_c & last_write_time )
 		{
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( file_path, file_system_path_type_e_dont_care ) );
+			assert( file_system_is_path_formatted_for_windows( file_or_folder_path_absolute, file_system_path_type_e_dont_care ) );
 			boolean_c result = false;
-			HANDLE file_handle = CreateFileW( file_path.character_list.get_internal_array(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+			HANDLE file_handle = CreateFileW( file_or_folder_path_absolute.character_list.get_internal_array(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 			if ( file_handle != INVALID_HANDLE_VALUE )
 			{
 				FILETIME file_time;
@@ -553,13 +571,13 @@ namespace cheonsa
 #endif
 		}
 
-		void_c file_system_get_file_information_list( core_list_c< file_system_file_information_c > & result, string16_c const & folder_path, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter )
+		void_c file_system_get_file_information_list( core_list_c< file_system_file_information_c > & result, string16_c const & folder_path_absolute, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter )
 		{
 			result.remove_all();
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
+			assert( file_system_is_path_formatted_for_windows( folder_path_absolute, file_system_path_type_e_folder ) );
 
-			string16_c folder_path_with_wild_card = folder_path;
+			string16_c folder_path_with_wild_card = folder_path_absolute;
 			folder_path_with_wild_card += "*";
 
 			HANDLE find_handle = INVALID_HANDLE_VALUE;
@@ -591,7 +609,7 @@ namespace cheonsa
 				if ( get_folders && ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 )
 				{
 					file_system_file_information_c * result_item = result.emplace( -1, 1 );
-					result_item->path = folder_path;
+					result_item->path = folder_path_absolute;
 					result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
 					result_item->path += L'\\';
 					windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
@@ -620,7 +638,7 @@ namespace cheonsa
 					if ( add )
 					{
 						file_system_file_information_c * result_item = result.emplace( -1, 1 );
-						result_item->path = folder_path;
+						result_item->path = folder_path_absolute;
 						result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
 						windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
 						windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
@@ -638,12 +656,12 @@ namespace cheonsa
 #endif
 		}
 
-		void_c _file_system_get_files_recursive( core_list_c< string16_c >& result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * extension_filter )
+		void_c _file_system_get_files_recursive( core_list_c< string16_c >& result, string16_c const & folder_path_absolute, boolean_c const search_sub_folders, char8_c const * extension_filter )
 		{
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
+			assert( file_system_is_path_formatted_for_windows( folder_path_absolute, file_system_path_type_e_folder ) );
 
-			string16_c folder_path_with_wild_card = folder_path;
+			string16_c folder_path_with_wild_card = folder_path_absolute;
 			folder_path_with_wild_card += "*";
 
 			HANDLE find_handle = INVALID_HANDLE_VALUE;
@@ -662,7 +680,7 @@ namespace cheonsa
 					if ( ( extension_filter == nullptr ) || ( string16_ends_with( sub_file_name.character_list.get_internal_array(), extension_filter ) ) )
 					{
 						string16_c sub_file_path;
-						sub_file_path += folder_path;
+						sub_file_path += folder_path_absolute;
 						sub_file_path += sub_file_name;
 						result.insert( -1, sub_file_path );
 					}
@@ -671,7 +689,7 @@ namespace cheonsa
 				{
 					string16_c sub_folder_name = string16_c( core_list_mode_e_static, find_file_data.cFileName );
 					string16_c sub_folder_path;
-					sub_folder_path += folder_path;
+					sub_folder_path += folder_path_absolute;
 					sub_folder_path += sub_folder_name;
 					sub_folder_path += "\\";
 					_file_system_get_files_recursive( result, sub_folder_path, search_sub_folders, extension_filter );
@@ -683,17 +701,17 @@ namespace cheonsa
 #endif
 		}
 
-		void_c file_system_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * file_extension_filter )
+		void_c file_system_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path_absolute, boolean_c const search_sub_folders, char8_c const * file_extension_filter )
 		{
-			_file_system_get_files_recursive( result, folder_path, search_sub_folders, file_extension_filter );
+			_file_system_get_files_recursive( result, folder_path_absolute, search_sub_folders, file_extension_filter );
 		}
 
-		void_c _file_system_get_folders_recursive( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
+		void_c _file_system_get_folders_recursive( core_list_c< string16_c > & result, string16_c const & folder_path_absolute, boolean_c const search_sub_folders )
 		{
 #if defined( cheonsa_platform_windows )
-			assert( file_system_is_path_formatted_for_windows( folder_path, file_system_path_type_e_folder ) );
+			assert( file_system_is_path_formatted_for_windows( folder_path_absolute, file_system_path_type_e_folder ) );
 
-			string16_c folder_path_with_wild_card = folder_path;
+			string16_c folder_path_with_wild_card = folder_path_absolute;
 			folder_path_with_wild_card += "*";
 
 			HANDLE find_handle = INVALID_HANDLE_VALUE;
@@ -712,7 +730,7 @@ namespace cheonsa
 					if ( sub_folder_name != "." && sub_folder_name != ".." )
 					{
 						string16_c sub_folder_path;
-						sub_folder_path += folder_path;
+						sub_folder_path += folder_path_absolute;
 						sub_folder_path += sub_folder_name;
 						sub_folder_path += '\\';
 						result.insert( -1, sub_folder_path );
@@ -720,7 +738,7 @@ namespace cheonsa
 					if ( search_sub_folders )
 					{
 						string16_c sub_folder_path;
-						sub_folder_path += folder_path;
+						sub_folder_path += folder_path_absolute;
 						sub_folder_path += sub_folder_name;
 						sub_folder_path += "\\";
 						_file_system_get_folders_recursive( result, sub_folder_path, search_sub_folders );
@@ -733,12 +751,12 @@ namespace cheonsa
 #endif
 		}
 
-		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders )
+		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path_absolute, boolean_c const search_sub_folders )
 		{
-			_file_system_get_folders_recursive( result, folder_path, search_sub_folders );
+			_file_system_get_folders_recursive( result, folder_path_absolute, search_sub_folders );
 		}
 
-		boolean_c file_system_get_quick_access_folder_path( file_system_quick_access_folder_e folder, string16_c & result_folder_path )
+		boolean_c file_system_get_quick_access_folder_path( file_system_quick_access_folder_e folder, string16_c & result_folder_path_absolute )
 		{
 #if defined( cheonsa_platform_windows )
 			PWSTR ppszPath = NULL;
@@ -746,7 +764,7 @@ namespace cheonsa
 			{
 				if ( S_OK == SHGetKnownFolderPath( FOLDERID_Desktop, 0, NULL, &ppszPath ) )
 				{
-					result_folder_path = ppszPath;
+					result_folder_path_absolute = ppszPath;
 					CoTaskMemFree( ppszPath );
 					return true;
 				}
@@ -755,7 +773,7 @@ namespace cheonsa
 			{
 				if ( S_OK == SHGetKnownFolderPath( FOLDERID_Documents, 0, NULL, &ppszPath ) )
 				{
-					result_folder_path  = ppszPath;
+					result_folder_path_absolute  = ppszPath;
 					CoTaskMemFree( ppszPath );
 					return true;
 				}

@@ -5,7 +5,7 @@
 namespace cheonsa
 {
 
-	vector32x2_c menu_control_window_message_c::default_size = vector32x2_c( 600, 400 );
+	vector32x2_c menu_control_window_message_c::default_size = vector32x2_c( 600, 300 );
 
 	void_c menu_control_window_message_c::_handle_button_on_clicked( menu_event_information_c event_information )
 	{
@@ -66,7 +66,6 @@ namespace cheonsa
 		, _mode( mode_e_okay )
 	{
 		set_size( vector32x2_c( default_size.a, default_size.b ) );
-		set_user_can_move( false );
 
 		_bottom_bar_size = 30.0f + 8.0f;
 		_apply_client_margins();
@@ -74,6 +73,7 @@ namespace cheonsa
 		_message_label = new menu_control_label_c();
 		_message_label->set_name( string8_c( core_list_mode_e_static, "message_label" ) );
 		_message_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
+		_message_label->set_text_align_horizontal( menu_text_align_horizontal_e_center );
 		add_daughter_control_to_client( _message_label );
 
 		_a_button = new menu_control_button_c();

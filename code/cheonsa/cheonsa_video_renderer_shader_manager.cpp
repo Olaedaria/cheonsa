@@ -743,6 +743,7 @@ namespace cheonsa
 		: _skin_mesh( nullptr )
 		, _menu_ps_debug( nullptr )
 		, _menu_ps_frame( nullptr )
+		, _menu_ps_frame_blurred( nullptr )
 		, _menu_ps_frame_keyed( nullptr )
 		, _menu_ps_solid_color( nullptr )
 		, _menu_ps_text( nullptr )
@@ -815,6 +816,10 @@ namespace cheonsa
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_frame.hlsl" ), true );
 		shader_variations->_ps = &_menu_ps_frame;
+		_internal_shader_list.insert( -1, shader_variations );
+
+		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_frame_blurred.hlsl" ), true );
+		shader_variations->_ps = &_menu_ps_frame_blurred;
 		_internal_shader_list.insert( -1, shader_variations );
 
 		shader_variations = new shader_variations_c( string16_c( core_list_mode_e_static, L"menu_ps_frame_keyed.hlsl" ), true );

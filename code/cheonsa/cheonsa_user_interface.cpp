@@ -91,13 +91,13 @@ namespace cheonsa
 		{
 			if ( _mouse_overed )
 			{
-				_mouse_overed->_is_mouse_overed = false;
+				_mouse_overed->_is_mouse_overed = 0;
 				_mouse_overed->_on_is_mouse_overed_changed();
 			}
 			_mouse_overed = picked_control;
 			if ( _mouse_overed )
 			{
-				_mouse_overed->_is_mouse_overed = true;
+				_mouse_overed->_is_mouse_overed = 1;
 				_mouse_overed->_on_is_mouse_overed_changed();
 			}
 		}
@@ -197,16 +197,17 @@ namespace cheonsa
 				{
 					if ( _mouse_focused->_is_pressed )
 					{
-						_mouse_focused->_is_pressed = false;
+						_mouse_focused->_is_pressed = 0;
 						_mouse_focused->_on_is_pressed_changed();
 					}
-					_mouse_focused->_is_mouse_focused = false;
+					_mouse_focused->_is_mouse_focused = 0;
 					_mouse_focused->_on_is_mouse_focused_changed();
 				}
 				_mouse_focused = _mouse_overed;
 				if ( _mouse_focused )
 				{
-					_mouse_focused->_is_mouse_focused = true;
+					_is_pressed = 0;
+					_mouse_focused->_is_mouse_focused = 1;
 					_mouse_focused->_on_is_mouse_focused_changed();
 				}
 			}
@@ -225,36 +226,70 @@ namespace cheonsa
 			}
 			if ( _mouse_focused )
 			{
+				uint8_c mouse_focus_was_pressed = _mouse_focused->_is_pressed;
 				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 				{
-					_mouse_focused->_is_pressed = true;
+					_mouse_focused->_is_pressed |= 0x01;
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_right )
+				{
+					_mouse_focused->_is_pressed |= 0x02;
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_middle )
+				{
+					_mouse_focused->_is_pressed |= 0x04;
+				}
+				if ( mouse_focus_was_pressed == 0 && _mouse_focused->_is_pressed != 0 )
+				{
 					_mouse_focused->_on_is_pressed_changed();
-					if ( _multi_click_control != _mouse_focused ||
-						ops::length_squared_float32( input_event->get_mouse_position() - _multi_click_position ) > _get_multi_click_space() ||
-						( static_cast< float64_c >( input_event->get_time() - _multi_click_time ) / static_cast< float64_c >( ops::time_get_high_resolution_timer_frequency() ) ) > _get_multi_click_time() )
+					if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 					{
-						_multi_click_count = 1;
-					}
-					else
-					{
-						_multi_click_count++;
-						if ( _multi_click_count > 3 )
+						if ( _multi_click_control != _mouse_focused ||
+							ops::length_squared_float32( input_event->get_mouse_position() - _multi_click_position ) > _get_multi_click_space() ||
+							( static_cast< float64_c >( input_event->get_time() - _multi_click_time ) / static_cast< float64_c >( ops::time_get_high_resolution_timer_frequency() ) ) > _get_multi_click_time() )
 						{
 							_multi_click_count = 1;
 						}
-					}
-					_multi_click_control = _mouse_focused;
-					_multi_click_time = input_event->get_time();
-					_multi_click_position = input_event->get_mouse_position();
-					if ( _multi_click_count != 1 )
-					{
-						input_event->_menu_multi_click_count = _multi_click_count;
-						_mouse_focused->_on_multi_clicked( input_event );
+						else
+						{
+							_multi_click_count++;
+							if ( _multi_click_count > 3 )
+							{
+								_multi_click_count = 1;
+							}
+						}
+						_multi_click_control = _mouse_focused;
+						_multi_click_time = input_event->get_time();
+						_multi_click_position = input_event->get_mouse_position();
+						if ( _multi_click_count == 1 )
+						{
+							_bubble_input_event( _mouse_focused, input_event );
+						}
+						else
+						{
+							input_event->_menu_multi_click_count = _multi_click_count;
+							_mouse_focused->_on_multi_clicked( input_event );
+						}
 					}
 					else
 					{
-						_bubble_input_event( _mouse_focused, input_event );
+						_multi_click_count = 1;
 					}
+				}
+			}
+			else
+			{
+				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
+				{
+					_is_pressed |= 0x01;
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_right )
+				{
+					_is_pressed |= 0x02;
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_middle )
+				{
+					_is_pressed |= 0x04;
 				}
 			}
 		}
@@ -262,21 +297,48 @@ namespace cheonsa
 		{
 			if ( _mouse_focused )
 			{
+				uint8_c mouse_focused_was_pressed = _mouse_focused->_is_pressed;
 				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 				{
-					_mouse_focused->_is_pressed = false;
+					_mouse_focused->_is_pressed &= ~0x01;
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_right )
+				{
+					_mouse_focused->_is_pressed &= ~0x02;
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_middle )
+				{
+					_mouse_focused->_is_pressed &= ~0x04;
+				}
+				if ( mouse_focused_was_pressed != 0 && _mouse_focused->_is_pressed == 0 )
+				{
 					_mouse_focused->_on_is_pressed_changed();
 				}
-				_bubble_input_event( _mouse_focused, input_event );
-			}
-			if ( input_event->get_mouse_key() == input_mouse_key_e_left || input_event->get_mouse_key() == input_mouse_key_e_right || input_event->get_mouse_key() == input_mouse_key_e_middle )
-			{
-				if ( original_mouse_focused && original_mouse_focused == _mouse_overed && input_event->get_mouse_key() == input_mouse_key_e_left )
+				if ( original_mouse_focused && original_mouse_focused == _mouse_overed && _multi_click_count <= 1 )
 				{
-					if ( _multi_click_count == 1 )
-					{
-						original_mouse_focused->_on_clicked( input_event );
-					}
+					original_mouse_focused->_on_clicked( input_event );
+				}
+				if ( _mouse_focused ) // it's possible for _mouse_focused to be lost if _on_is_pressed_changed or _on_clicked did something.
+				{
+					_bubble_input_event( _mouse_focused, input_event );
+				}
+			}
+			else
+			{
+				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
+				{
+					_is_pressed &= ~0x01;
+					on_clicked.invoke( input_event );
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_right )
+				{
+					_is_pressed &= ~0x02;
+					on_clicked.invoke( input_event );
+				}
+				else if ( input_event->get_mouse_key() == input_mouse_key_e_middle )
+				{
+					_is_pressed &= ~0x04;
+					on_clicked.invoke( input_event );
 				}
 			}
 		}
@@ -284,7 +346,7 @@ namespace cheonsa
 		{
 			_bubble_input_event( _mouse_overed, input_event );
 		}
-		else //if ( input_event->type == input_event_c::type_e_character )
+		else if ( input_event->get_type() != input_event_c::type_e_mouse_move ) // because we bubbled the input event for mouse move at the start (special treatment), we'll pass bubbling it here if event was mouse move.
 		{
 			if ( _text_focused )
 			{
@@ -297,11 +359,20 @@ namespace cheonsa
 		//input_event->was_handled |= _mouse_focused || _mouse_overed;
 	}
 
+	void_c user_interface_c::_handle_modal_screen_on_is_showed_changed( menu_event_information_c event_information )
+	{
+		assert( _text_focused_stack.get_length() > 0 );
+		menu_control_c * next_text_focused = _text_focused_stack[ _text_focused_stack.get_length() - 1 ];
+		_text_focused_stack.remove( -1, 1 );
+		set_text_focused( next_text_focused );
+	}
+
 	user_interface_c::user_interface_c()
 		: _local_box()
 		, _canvas_and_output( nullptr )
 		, _scene( nullptr )
 		, _daughter_control_list()
+		, _text_focused_stack()
 		, _mouse_overed( nullptr )
 		, _mouse_focused( nullptr )
 		, _text_focused( nullptr )
@@ -594,12 +665,7 @@ namespace cheonsa
 		_multi_click_time = 0;
 		_multi_click_position.a = 0.0f;
 		_multi_click_position.b = 0.0f;
-		_multi_click_count = 0;
-	}
-
-	boolean_c user_interface_c::has_text_focus()
-	{
-		return _text_focused;
+		_multi_click_count = 1;
 	}
 
 	menu_control_c * user_interface_c::get_mouse_overed() const
@@ -1008,10 +1074,13 @@ namespace cheonsa
 
 	menu_control_c * user_interface_c::open_modal_screen()
 	{
+		_text_focused_stack.insert( -1, _text_focused );
+
 		menu_control_frame_c * result = new menu_control_frame_c();
 		result->set_name( string8_c( core_list_mode_e_static, "modal_screen" ) );
 		result->set_style_map_key( string8_c( core_list_mode_e_static, "e_modal" ) );
 		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
+		result->on_is_showed_changed.subscribe( this, &user_interface_c::_handle_modal_screen_on_is_showed_changed );
 		add_daughter_control( result );
 		return result;
 	}

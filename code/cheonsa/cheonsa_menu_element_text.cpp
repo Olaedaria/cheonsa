@@ -51,7 +51,7 @@ namespace cheonsa
 		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
 		assert( shared_color );
 		draw_shared_colors[ 2 ] = shared_color->value;
-		if ( text_style_state.swap_shared_colors )
+		if ( text_style_state.swap_shared_colors != _invert_shared_colors )
 		{
 			vector32x4_c t = draw_shared_colors[ 0 ];
 			draw_shared_colors[ 0 ] = draw_shared_colors[ 1 ];
@@ -2009,8 +2009,8 @@ namespace cheonsa
 				}
 				if ( _text_filter_mode == menu_text_filter_mode_e_number_integer )
 				{
-					assert( _text_value_length_limit > 1 );
-					if ( value.get_length() + filtered_value.get_length() >= _text_value_length_limit - 1 ) // minus 1 to exclude optional leading - sign.
+					assert( _character_limit > 1 );
+					if ( value.get_length() + filtered_value.get_length() >= _character_limit - 1 ) // minus 1 to exclude optional leading - sign.
 					{
 						break;
 					}
@@ -2025,8 +2025,8 @@ namespace cheonsa
 				}
 				else if ( _text_filter_mode == menu_text_filter_mode_e_number_real )
 				{
-					assert( _text_value_length_limit > 1 );
-					if ( value.get_length() + filtered_value.get_length() >= _text_value_length_limit - 1 ) // minus 1 to exclude optional leading - sign.
+					assert( _character_limit > 1 );
+					if ( value.get_length() + filtered_value.get_length() >= _character_limit - 1 ) // minus 1 to exclude optional leading - sign.
 					{
 						break;
 					}
@@ -2072,7 +2072,10 @@ namespace cheonsa
 			}
 
 			// insert filtered values.
-			_insert_plain_text( filtered_value.character_list.get_internal_array(), filtered_value.get_length(), -1 );
+			if ( filtered_value.get_length() > 0 )
+			{
+				_insert_plain_text( filtered_value.character_list.get_internal_array(), filtered_value.get_length(), -1 );
+			}
 		}
 		else
 		{
@@ -2119,9 +2122,9 @@ namespace cheonsa
 		{
 			assert( values[ i ] != L'\0' );
 		}
-		if ( _text_value_length_limit >= 0 && ( _plain_text.character_list.get_length() - 2 ) + values_count > _text_value_length_limit )
+		if ( _character_limit >= 0 && ( _plain_text.character_list.get_length() - 2 ) + values_count > _character_limit )
 		{
-			values_count = _text_value_length_limit - ( _plain_text.character_list.get_length() - 2 );
+			values_count = _character_limit - ( _plain_text.character_list.get_length() - 2 );
 			if ( values_count == 0 )
 			{
 				return;
@@ -2894,7 +2897,7 @@ namespace cheonsa
 		, _text_style_reference()
 		, _text_align_horizontal( menu_text_align_horizontal_e_inherit_from_style )
 		, _text_align_vertical( menu_text_align_vertical_e_inherit_from_style )
-		, _text_value_length_limit( -1 )
+		, _character_limit( -1 )
 		, _multi_line( true )
 		, _word_wrap( true )
 		, _content_offset()
@@ -3005,26 +3008,6 @@ namespace cheonsa
 		_text_filter_string = value;
 	}
 
-	sint32_c menu_element_text_c::get_text_value_length_limit() const
-	{
-		return _text_value_length_limit;
-	}
-
-	void_c menu_element_text_c::set_text_value_length_limit( sint32_c value )
-	{
-		_text_value_length_limit = value < -1 ? -1 : value;
-		if ( _text_value_length_limit >= 0 && _plain_text.character_list.get_length() - 2 > _text_value_length_limit )
-		{
-			sint32_c count = _plain_text.character_list.get_length() - 2 - _text_value_length_limit;
-			sint32_c start = _plain_text.character_list.get_length() - 2 - count;
-			_delete_text( start, count );
-			_plain_text.character_list.set_length( _text_value_length_limit );
-			_plain_text.character_list.insert( -1, L'\n' );
-			_plain_text.character_list.insert( -1, L'\0' );
-			_invalidate_glyph_layout_in_all_paragraphs();
-		}
-	}
-
 	menu_text_align_horizontal_e menu_element_text_c::get_text_align_horizontal() const
 	{
 		return _text_align_horizontal;
@@ -3067,16 +3050,22 @@ namespace cheonsa
 		}
 	}
 
-	boolean_c menu_element_text_c::get_word_wrap() const
+	sint32_c menu_element_text_c::get_character_limit() const
 	{
-		return _word_wrap;
+		return _character_limit;
 	}
 
-	void_c menu_element_text_c::set_word_wrap( boolean_c value )
+	void_c menu_element_text_c::set_character_limit( sint32_c value )
 	{
-		if ( _word_wrap != value )
+		_character_limit = value < -1 ? -1 : value;
+		if ( _character_limit >= 0 && _plain_text.character_list.get_length() - 2 > _character_limit )
 		{
-			_word_wrap = value;
+			sint32_c count = _plain_text.character_list.get_length() - 2 - _character_limit;
+			sint32_c start = _plain_text.character_list.get_length() - 2 - count;
+			_delete_text( start, count );
+			_plain_text.character_list.set_length( _character_limit );
+			_plain_text.character_list.insert( -1, L'\n' );
+			_plain_text.character_list.insert( -1, L'\0' );
 			_invalidate_glyph_layout_in_all_paragraphs();
 		}
 	}
@@ -3090,6 +3079,20 @@ namespace cheonsa
 	{
 		_clear_text_value();
 		_multi_line = value;
+	}
+
+	boolean_c menu_element_text_c::get_word_wrap() const
+	{
+		return _word_wrap;
+	}
+
+	void_c menu_element_text_c::set_word_wrap( boolean_c value )
+	{
+		if ( _word_wrap != value )
+		{
+			_word_wrap = value;
+			_invalidate_glyph_layout_in_all_paragraphs();
+		}
 	}
 
 	float32_c menu_element_text_c::get_default_size() const

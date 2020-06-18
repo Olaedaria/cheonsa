@@ -76,6 +76,8 @@ namespace cheonsa
 		void_c _handle_text_on_value_changed( menu_control_text_c * text );
 		void_c _handle_button_on_clicked( menu_event_information_c event_information );
 
+		virtual void_c _on_input( input_event_c * input_event ) override;
+
 	public:
 		menu_control_window_color_picker_c();
 		virtual ~menu_control_window_color_picker_c() override;

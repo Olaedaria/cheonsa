@@ -59,15 +59,15 @@ namespace cheonsa
 		assert( property->_accessors._value_getter );
 		if ( property->_type == data_type_e_string8 )
 		{
-			return property->_accessors._value_getter( object, &value.string8 );
+			return property->_accessors._value_getter( object, &value.string8, property->_type, property->_type_count );
 		}
 		else if ( property->_type == data_type_e_string16 )
 		{
-			return property->_accessors._value_getter( object, &value.string16 );
+			return property->_accessors._value_getter( object, &value.string16, property->_type, property->_type_count );
 		}
 		else
 		{
-			return property->_accessors._value_getter( object, &value );
+			return property->_accessors._value_getter( object, &value, property->_type, property->_type_count );
 		}
 	}
 
@@ -79,15 +79,15 @@ namespace cheonsa
 		assert( property->_accessors._value_setter );
 		if ( property->_type == data_type_e_string8 )
 		{
-			return property->_accessors._value_setter( object, &value.string8 );
+			return property->_accessors._value_setter( object, &value.string8, property->_type, property->_type_count );
 		}
 		else if ( property->_type == data_type_e_string16 )
 		{
-			return property->_accessors._value_setter( object, &value.string16 );
+			return property->_accessors._value_setter( object, &value.string16, property->_type, property->_type_count );
 		}
 		else
 		{
-			return property->_accessors._value_setter( object, &value );
+			return property->_accessors._value_setter( object, &value, property->_type, property->_type_count );
 		}
 	}
 

@@ -31,6 +31,7 @@ namespace cheonsa
 		string8_c _name; // name to identify this element by, unique within the control that this element belongs to, can be used by the control to find the element and map styles to it.
 
 		menu_shared_color_class_e _shared_color_class; // defines which set of shared colors are used to draw this control's elements.
+		boolean_c _invert_shared_colors; // if true then inverts the primary and secondary shared colors.
 
 		vector32x4_c _local_color; // color tint of this element to upload to menu_colors[ 3 ]. opacity defined here is ignored. actual opacity is always inherited from control, this is a limitation to keep the render procedure (layering, compositing) design simple.
 
@@ -77,6 +78,9 @@ namespace cheonsa
 
 		menu_shared_color_class_e get_shared_color_class() const;
 		void_c set_shared_color_class( menu_shared_color_class_e value );
+
+		boolean_c get_invert_shared_colors() const;
+		void_c set_invert_shared_colors( boolean_c value );
 
 		boolean_c get_is_showed() const;
 		void_c set_is_showed( boolean_c value );

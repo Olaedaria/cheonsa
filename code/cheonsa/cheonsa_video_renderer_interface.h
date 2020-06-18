@@ -275,7 +275,7 @@ namespace cheonsa
 		static sint32_c const _texture_bind_index_for_light_probe_texture = 8; // bind index of cube map of nearest light probe of model that is being rendered.
 		static sint32_c const _texture_bind_index_for_shadow_map_texture = 9; // bind index of shadow_map_texture, texture array of shadow maps, each element corresponds to a shadow map view.
 		static sint32_c const _texture_bind_index_for_glyph_atlas_texture = 10; // glyph_map_texture, texture array of font glyphs, texture atlas.
-		static sint32_c const _texture_bind_index_for_target_textures = 11; // target_outline, target_normal, target_depth, target_color, target_color_quarter, target_color_quarter_blurred, target_color_reflections.
+		static sint32_c const _texture_bind_index_for_target_textures = 11; // target_outline, target_normal, target_depth, target_color, target_color_half_blurred, target_color_quarter_blurred, target_color_eighth_blurred, target_color_reflections.
 		static sint32_c const _texture_bind_index_for_bones_texture_buffer = 30;
 		static sint32_c const _texture_bind_index_for_lights_texture_buffer = 31;
 		static sint32_c const _texture_bind_index_for_shadow_views_texture_buffer = 32;
@@ -378,8 +378,10 @@ namespace cheonsa
 
 		struct menu_block_c
 		{
-			vector32x2_c menu_target_size_inverse;
+			vector32x2_c menu_actual_target_size_inverse; // for pixel shader, to convert pixel units to texture space units.
+			vector32x2_c menu_apparent_target_size_inverse; // for vertex shader, to convert pixel units to view space units (which may be slightly smaller than the texture space).
 			vector32x2_c menu_target_offset;
+			vector32x2_c menu_unused_0;
 		};
 
 		struct menu_batch_block_c
@@ -388,10 +390,10 @@ namespace cheonsa
 			vector32x4_c menu_basis; // 2d basis rotation and scale matrix, to rotate and scale the vertices around the origin.
 			vector32x2_c menu_origin; // 2d position offset, applied after rotation and scale to position the vertex at its final position on the screen.
 			float32_c menu_saturation;
-			float32_c menu_unused_0;
+			float32_c menu_unused_1;
 			vector32x4_c menu_color;
 			sint32_c menu_clip_plane_stack_length; // number of clip planes to use, generally come in multiples of 4 because menu system uses clip rectangles.
-			sint32_c menu_unused_1[ 3 ];
+			sint32_c menu_unused_2[ 3 ];
 			vector32x4_c menu_clip_plane_stack[ menu_clip_plane_stack_count ]; // these work as long as each set of planes defines an enclosed convex shape, then we can have shapes within shapes.
 		};
 

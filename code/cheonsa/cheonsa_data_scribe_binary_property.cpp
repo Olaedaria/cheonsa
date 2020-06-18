@@ -58,15 +58,14 @@ namespace cheonsa
 			_list_instance_stack.remove( -1, 1 );
 		}
 
-		// check if done.
-		if ( _scribe_binary->get_stream()->get_position() == _scribe_binary->get_stream()->get_size() )
+		// load type.
+		if ( !_scribe_binary->load_uint8( _loaded_type ) )
 		{
 			return false;
 		}
 
-		// load type.
-		_loaded_type;
-		if ( !_scribe_binary->load_uint8( _loaded_type ) )
+		// check if done.
+		if ( _loaded_type == 0 )
 		{
 			return false;
 		}
@@ -84,10 +83,8 @@ namespace cheonsa
 		}
 
 		// load key.
-		string8_c loaded_key;
-		if ( !_scribe_binary->load_string8( loaded_key ) )
+		if ( !_scribe_binary->load_string8( _loaded_key ) )
 		{
-			_loaded_key = loaded_key;
 			return false;
 		}
 
@@ -140,7 +137,7 @@ namespace cheonsa
 		return ( _loaded_type == expected_type ) && ( _loaded_type_count == expected_length ) && ( _loaded_key == expected_key );
 	}
 
-	string16_c const & data_scribe_binary_property_c::loaded_key()
+	string8_c const & data_scribe_binary_property_c::loaded_key()
 	{
 		return _loaded_key;
 	}

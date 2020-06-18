@@ -8,6 +8,8 @@ namespace cheonsa
 	namespace ops
 	{
 
+		boolean_c path_is_file_or_folder_name_allowable( string16_c const & value ); // returns true if value is set, is less than an arbitrary length, and contains only alpha numeric and underscore characters.
+
 		string16_c path_get_folder_path( string16_c const & path ); // removes the last node from the given path and returns it. works with forward slashes and back slashes. works with and without trailing slash.
 		string16_c path_get_file_or_folder_extension( string16_c const & path ); // returns the file extension (including the dot) of the last node in the path, or an empty string if there is no file extension. works with forward slashes and back slashes. works with and without trailing slash. works with multi-dot file extensions.
 		string16_c path_get_file_or_folder_name( string16_c const & path ); // returns the name of the last node in the path (including the file extension). works with forward slashes and back slashes. works with and without trailing slash.
@@ -34,7 +36,7 @@ namespace cheonsa
 			string16_c label; // drives in windows may be given a user friendly label. we may want to use this to display to the user.
 			sint64_c creation_time; // milliseconds since epoch that tells us when the file was first created.
 			sint64_c last_write_time; // milliseconds since epoch that tells us when the file was last modified.
-			boolean_c is_folder; // if true, then the thing is a folder, otherwise it is a file.
+			boolean_c is_folder; // if true then the thing is a folder, otherwise it is a file.
 
 			file_system_file_information_c()
 				: path()
@@ -99,54 +101,56 @@ namespace cheonsa
 #endif
 
 		// returns true if a file exists at file_path, false if not.
-		boolean_c file_system_does_file_exist( string16_c const & file_path );
+		boolean_c file_system_does_file_exist( string16_c const & file_path_absolute );
 		// creates a new and empty file at file_path, returns true if successful, false if not.
 		// if the file already exists, then it overwrites it.
 		// the folder must already exist in order for this to work.
-		boolean_c file_system_create_file( string16_c const & file_path );
+		// you could also use a data_stream_file_c (file stream) to do this.
+		boolean_c file_system_create_file( string16_c const & file_path_absolute );
 
 		// returns true if a folder exists at folder_path, false if not.
-		boolean_c file_system_does_folder_exist( string16_c const & folder_path );
+		boolean_c file_system_does_folder_exist( string16_c const & folder_path_absolute );
 		// creates a new and empty folder at folder_path.
 		// if the given folder_path references a folder that lies within a range of non-existent sub-folders, then each non-existent sub-folder will also be created.
-		boolean_c file_system_create_folder( string16_c const & folder_path );
+		boolean_c file_system_create_folder( string16_c const & folder_path_absolute );
 
 		// moves or renames an existing file or folder.
 		// please be super careful with this.
 		// when trying to rename files, if only the case changes, maybe nothing will happen, i might take a look at it again later.
-		boolean_c file_system_move_file_or_folder( string16_c const & from_file_path, string16_c const & to_file_path );
+		// this will fail if the destination file or folder already exists.
+		boolean_c file_system_move_file_or_folder( string16_c const & from_file_or_folder_path_absolute, string16_c const & to_file_or_folder_path_absolute );
 
 		// deletes an existing file or folder.
 		// please be super careful with this.
-		boolean_c file_system_delete_file_or_folder( string16_c const & file_path );
+		boolean_c file_system_delete_file_or_folder( string16_c const & file_or_folder_path_absolute );
 
 		// gets the last time that the file was written to, in milliseconds since epoch.
-		boolean_c file_system_get_file_or_folder_last_write_time( string16_c const & file_path, sint64_c & last_write_time );
+		boolean_c file_system_get_file_or_folder_last_write_time( string16_c const & file_or_folder_path_absolute, sint64_c & last_write_time );
 
 		// gets file information of all files and folders in the given folder path. it excludes system and hidden files and folders from the result.
 		// result will hold the result after the function returns.
 		// folder_path must be an absolute folder path (in the windows path format).
 		// file_extension_filter is optional, but if set then it will be used to filter the results to only include files that have the given file extension(s). it should be formatted as a vertical slash separated list of file extensions, like: ".jpg|.png".
-		void_c file_system_get_file_information_list( core_list_c< file_system_file_information_c > & result, string16_c const & folder_path, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter = nullptr );
+		void_c file_system_get_file_information_list( core_list_c< file_system_file_information_c > & result, string16_c const & folder_path_absolute, boolean_c get_files, boolean_c get_folders, char8_c const * file_extension_filter = nullptr );
 
 		// gets a list of absolute file paths (in the windows path format) in the given folder path.
 		// result will hold absolute file paths (in the windows path format) after the function returns.
 		// folder_path must be an absolute folder path (in the windows path format).
 		// search_sub_folders if true searches all sub folders recursively.
 		// file_extension_filter is optional, but if set then it will be used to filter the results to only include files that have the given file extension(s). it should be formatted as a vertical slash separated list of file extensions, like: ".jpg|.png".
-		void_c file_system_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders, char8_c const * file_extension_filter );
+		void_c file_system_get_file_path_list( core_list_c< string16_c > & result, string16_c const & folder_path_absolute, boolean_c const search_sub_folders, char8_c const * file_extension_filter );
 
 		// gets a list of absolute folder paths (in the windows path format) in the given folder path.
 		// result will hold absolute folder paths (in the windows path format) after the function returns.
 		// folder_path must be an absolute folder path (in the windows path format).
 		// seach_sub_folders if true searches all sub folders recursively.
-		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path, boolean_c const search_sub_folders );
+		void_c file_system_get_folder_path_list( core_list_c< string16_c > & result, string16_c const & folder_path_absolute, boolean_c const search_sub_folders );
 
 		// sets the last write time of a file or folder.
 		//boolean_c file_system_set_file_or_folder_last_write_time( string16_c const & file_path, sint64_c milliseconds_since_epoch );
 
 		// returns true if the current operating system and user supports the given type of quick access folder.	
-		boolean_c file_system_get_quick_access_folder_path( file_system_quick_access_folder_e folder, string16_c & result_folder_path );
+		boolean_c file_system_get_quick_access_folder_path( file_system_quick_access_folder_e folder, string16_c & result_folder_path_absolute );
 
 		// gets a list of folder paths, one for each drives that is mounted in the operating system.
 		// only sets the path and label members of each result.

@@ -103,7 +103,7 @@ namespace cheonsa
 	{
 		menu_layout_mode_e_simple, // _local_box is what it is.
 		menu_layout_mode_e_box_anchor, // _local_box is calculated from _local_anchor and _local_anchor_measures, then _local_origin set to center of _local_box, then _local_box is translated by negative _local_origin.
-		menu_layout_mode_e_point_anchor, // _local_box is what it is. _local_origin is calculated from _local_anchor and _local_anchor_measures.minimum.
+		menu_layout_mode_e_point_anchor, // _local_box is what it is. _local_origin is calculated from _local_anchor.
 	};
 
 	// anchor bit flags tell the layout logic which edges of a control should be anchored to the same edge of the mother control.
@@ -231,23 +231,6 @@ namespace cheonsa
 		return ( color_class * menu_state_e_count_ * menu_shared_color_slot_e_count_ ) + ( color_state * menu_shared_color_slot_e_count_ ) + color_slot;
 	}
 
-	class menu_shared_color_base_notes_c
-	{
-	public:
-		vector32x4_c window_primary;
-		vector32x4_c window_secondary;
-		vector32x4_c window_accent;
-
-		vector32x4_c button_primary;
-		vector32x4_c button_secondary;
-		vector32x4_c button_accent;
-
-		vector32x4_c field_primary;
-		vector32x4_c field_secondary;
-		vector32x4_c field_accent;
-
-	};
-
 	// these define color values that can be shared and used by any number of elements.
 	// the menu style manager holds a built in fixed length collection of these, one for each enum menu_shared_color_e, these built in shared colors are intended to be controlled by the program at run time.
 	// the menu "styles.xml" files may define (in a data driven way) additional color styles.
@@ -289,7 +272,7 @@ namespace cheonsa
 		void_c reset();
 		void_c load( data_scribe_markup_c::node_c const * node );
 
-		void_c initialize( sint32_c index, string8_c const & key );
+		void_c initialize( string8_c const & key, vector32x4_c const & value );
 
 	};
 
@@ -596,11 +579,11 @@ namespace cheonsa
 	public:
 		menu_control_c * control; // the control that is receiving the event.
 		menu_control_c * next_control; // for text focus and deep text focus changed events, this is the next control will receive text focus next.
-		input_event_c * event; // the input event that caused the menu control event to trigger. currently only set for on_clicked and on_double_clicked events. otherwise always nullptr.
+		input_event_c * input_event; // the input event that caused the menu control event to trigger. currently only set for on_clicked and on_double_clicked events. otherwise always nullptr.
 
 	public:
 		menu_event_information_c();
-		menu_event_information_c( menu_control_c * control, menu_control_c * next_control, input_event_c * event );
+		menu_event_information_c( menu_control_c * control, menu_control_c * next_control, input_event_c * input_event );
 
 	};
 

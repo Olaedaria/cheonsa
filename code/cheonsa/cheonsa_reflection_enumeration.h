@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa__types.h"
 #include "cheonsa_core_list.h"
@@ -16,14 +16,15 @@ namespace cheonsa
 		private:
 			string8_c _name;
 			string8_c _description;
-			uint32_c _value;
+			sint64_c _value;
 
 		public:
-			value_c( string8_c const & name, string8_c const & description, sint32_c value );
+			value_c( string8_c const & name, string8_c const & description, sint64_c value );
 
 			string8_c const & get_name() const;
 			string8_c const & get_description() const;
-			sint32_c get_value() const;
+
+			sint64_c get_value() const;
 
 		};
 
@@ -47,14 +48,14 @@ namespace cheonsa
 		sint32_c get_value_count() const;
 		value_c const * get_value( sint32_c index ) const;
 
-		boolean_c find_name_with_value( string8_c & name, uint32_c value ) const;
+		boolean_c find_name_with_value( string8_c & name, sint64_c value ) const;
 		boolean_c find_name_with_index( string8_c & name, sint32_c index ) const;
 
-		boolean_c find_value_with_name( uint32_c & value, string8_c const & name ) const;
-		boolean_c find_value_with_index( uint32_c & value, sint32_c index ) const;
+		boolean_c find_value_with_name( sint64_c & value, string8_c const & name ) const;
+		boolean_c find_value_with_index( sint64_c & value, sint32_c index ) const;
 
 		boolean_c find_index_with_name( sint32_c & index, string8_c const & name ) const;
-		boolean_c find_index_with_value( sint32_c & index, uint32_c value ) const;
+		boolean_c find_index_with_value( sint32_c & index, sint64_c value ) const;
 
 		boolean_c contains_value( uint32_c value ) const;
 

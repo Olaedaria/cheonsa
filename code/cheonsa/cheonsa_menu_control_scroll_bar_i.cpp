@@ -32,72 +32,78 @@ namespace cheonsa
 		// we input response from layout here.
 		// current layout state informs how we interpret the input event to drive changes to _value.
 		// but layout state of the grip is driven by the _value (for scroll bar) or _scrub_input (for scrub wheel).
-
-		if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
+		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		if ( !input_event->get_was_handled() )
 		{
-			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
+			if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 			{
-				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
-				if ( ops::intersect_box_vs_point( _grip_element.get_local_box(), local_mouse_position ) )
+				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 				{
-					_mouse_is_grabbed = true;
-					_value_original = _value;
-					if ( _orientation == orientation_e_y )
+					vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
+					if ( ops::intersect_box_vs_point( _grip_element.get_local_box(), local_mouse_position ) )
 					{
-						_mouse_is_grabbed_offset = local_mouse_position.b - _grip_element.get_local_box().minimum.b;
+						_mouse_is_grabbed = true;
+						_value_original = _value;
+						if ( _orientation == orientation_e_y )
+						{
+							_mouse_is_grabbed_offset = local_mouse_position.b - _grip_element.get_local_box().minimum.b;
+						}
+						else
+						{
+							_mouse_is_grabbed_offset = local_mouse_position.a - _grip_element.get_local_box().minimum.a;
+						}
+						_grip_element.set_is_pressed( true );
+						input_event->set_was_handled( true );
 					}
-					else
-					{
-						_mouse_is_grabbed_offset = local_mouse_position.a - _grip_element.get_local_box().minimum.a;
-					}
-					_grip_element.set_is_pressed( true );
 				}
 			}
-		}
-		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_released )
-		{
-			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
+			else if ( input_event->get_type() == input_event_c::type_e_mouse_key_released )
 			{
-				_mouse_is_grabbed = false;
-				_mouse_is_grabbed_offset = 0.0f;
-				_scrub_input = 0.0;
-				_grip_element.set_is_pressed( false );
-				if ( _value_original != _value )
+				if ( input_event->get_mouse_key() == input_mouse_key_e_left )
 				{
-					on_value_changed.invoke( this );
-					_value_original = 0.0;
+					_mouse_is_grabbed = false;
+					_mouse_is_grabbed_offset = 0.0f;
+					_scrub_input = 0.0;
+					_grip_element.set_is_pressed( false );
+					if ( _value_original != _value )
+					{
+						on_value_changed.invoke( this );
+						_value_original = 0.0;
+					}
+					input_event->set_was_handled( true );
 				}
 			}
-		}
-		else if ( input_event->get_type() == input_event_c::type_e_mouse_move )
-		{
-			if ( _mouse_is_grabbed )
+			else if ( input_event->get_type() == input_event_c::type_e_mouse_move )
 			{
-				vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
-				float32_c grip_effective_range = ( _orientation == orientation_e_y ? _local_box.get_height() : _local_box.get_width() ) - _dynamic_grip_length;
-				float64_c grip_position = ops::math_clamp( ( _orientation == orientation_e_y ? local_mouse_position.b : local_mouse_position.a ) - _mouse_is_grabbed_offset - ( _orientation == orientation_e_y ? _local_box.minimum.b : _local_box.minimum.a ), 0.0f, grip_effective_range );
-				float64_c grip_position_percent = grip_position / grip_effective_range;
-				float64_c value_effective_range = _value_maximum - _value_minimum - _page_size;
-				if ( value_effective_range < 0.0 )
+				if ( _mouse_is_grabbed )
 				{
-					value_effective_range = 0.0;
-				}
-				if ( _mode == mode_e_scroll_bar )
-				{
-					float64_c old_value = _value;
-					_value = value_effective_range * grip_position_percent + _value_minimum;
-					if ( _value_increment > 0.0 )
+					vector32x2_c local_mouse_position = transform_global_point_to_local_point( input_event->get_menu_mouse_position() );
+					float32_c grip_effective_range = ( _orientation == orientation_e_y ? _local_box.get_height() : _local_box.get_width() ) - _dynamic_grip_length;
+					float64_c grip_position = ops::math_clamp( ( _orientation == orientation_e_y ? local_mouse_position.b : local_mouse_position.a ) - _mouse_is_grabbed_offset - ( _orientation == orientation_e_y ? _local_box.minimum.b : _local_box.minimum.a ), 0.0f, grip_effective_range );
+					float64_c grip_position_percent = grip_position / grip_effective_range;
+					float64_c value_effective_range = _value_maximum - _value_minimum - _page_size;
+					if ( value_effective_range < 0.0 )
 					{
-						_value = ops::math_nearest_multiple( _value - _value_minimum, _value_increment ) + _value_minimum;
+						value_effective_range = 0.0;
 					}
-					if ( _value != old_value )
+					if ( _mode == mode_e_scroll_bar )
 					{
-						on_value_changed_preview.invoke( this );
+						float64_c old_value = _value;
+						_value = value_effective_range * grip_position_percent + _value_minimum;
+						if ( _value_increment > 0.0 )
+						{
+							_value = ops::math_nearest_multiple( _value - _value_minimum, _value_increment ) + _value_minimum;
+						}
+						if ( _value != old_value )
+						{
+							on_value_changed_preview.invoke( this );
+						}
 					}
-				}
-				else if ( _mode == mode_e_scrub_bar )
-				{
-					_scrub_input = grip_position_percent * 2.0 - 1.0;
+					else if ( _mode == mode_e_scrub_bar )
+					{
+						_scrub_input = grip_position_percent * 2.0 - 1.0;
+					}
+					input_event->set_was_handled( true );
 				}
 			}
 		}
@@ -273,11 +279,12 @@ namespace cheonsa
 		float32_c transition_step = engine.get_menu_style_manager()->get_shared_transition_speed() * time_step;
 		_is_showed_weight = ops::math_saturate( _is_showed_weight + ( _is_showed ? transition_step : -transition_step ) );
 
+		boolean_c is_actually_enabled = get_is_actually_enabled();
 		boolean_c is_selected = is_ascendant_of( _mother_user_interface->get_mouse_overed() );
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];
-			daughter_element->set_is_enabled( _is_enabled );
+			daughter_element->set_is_enabled( is_actually_enabled );
 			daughter_element->set_is_selected( is_selected );
 			daughter_element->set_is_pressed( ( _is_pressed && _is_mouse_overed ) || _is_mouse_focused );
 			daughter_element->update_animations( time_step );

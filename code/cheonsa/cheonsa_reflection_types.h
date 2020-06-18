@@ -16,6 +16,7 @@ namespace cheonsa
 	class reflection_object_c;
 
 	// used to hold before/after value states of a single property, regardless of the underlying type.
+	// this is so that we can use a set of generic functions for all types instead of making a set of functions for each type.
 	class reflection_value_container_c
 	{
 	public:
