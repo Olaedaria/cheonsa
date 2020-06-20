@@ -44,21 +44,21 @@ namespace cheonsa
 		set_layout_simple( box32x2_c( 0, 0, default_size.a, default_size.b ) );
 
 		_text = new menu_control_text_c();
-		_text->set_name( string8_c( core_list_mode_e_static, "text" ) );
+		_text->set_name( string8_c( "text", core_list_mode_e_static ) );
 		_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0, 0, 0, 46 ) );
 		_text->set_text_interact_mode( menu_text_interact_mode_e_editable );
 		add_daughter_control_to_client( _text );
 
 		_cancel_button = new menu_control_button_c();
-		_cancel_button->set_name( string8_c( core_list_mode_e_static, "cancel_button" ) );
-		_cancel_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"cancel" ) );
+		_cancel_button->set_name( string8_c( "cancel_button", core_list_mode_e_static ) );
+		_cancel_button->set_plain_text_value( string16_c( L"cancel", core_list_mode_e_static ) );
 		_cancel_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 116, 8 ) );
 		_cancel_button->on_clicked.subscribe( this, &menu_control_window_text_editor_c::_handle_button_on_clicked );
 		add_daughter_control_to_client( _cancel_button );
 		
 		_okay_button = new menu_control_button_c();
-		_okay_button->set_name( string8_c( core_list_mode_e_static, "okay_button" ) );
-		_okay_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"okay" ) );
+		_okay_button->set_name( string8_c( "okay_button", core_list_mode_e_static ) );
+		_okay_button->set_plain_text_value( string16_c( L"okay", core_list_mode_e_static ) );
 		_okay_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
 		_okay_button->on_clicked.subscribe( this, &menu_control_window_text_editor_c::_handle_button_on_clicked );
 		add_daughter_control_to_client( _okay_button );

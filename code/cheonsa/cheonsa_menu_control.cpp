@@ -605,19 +605,19 @@ namespace cheonsa
 		{
 			sint32_c dummy = 0;
 			_local_anchor = menu_anchor_e_none;
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "left" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "left", core_list_mode_e_static ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_left;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "top" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "top", core_list_mode_e_static ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_top;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "right" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "right", core_list_mode_e_static ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_right;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "bottom" ), dummy ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "bottom", core_list_mode_e_static ), dummy ) )
 			{
 				_local_anchor |= menu_anchor_e_bottom;
 			}

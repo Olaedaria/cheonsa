@@ -418,7 +418,7 @@ namespace cheonsa
 
 		string16_c file_system_convert_path_format_from_cheonsa_to_windows( string16_c const & path )
 		{
-			string16_c result( core_list_mode_e_dynamic, path.character_list.get_internal_array(), path.character_list.get_length() );
+			string16_c result( path.character_list.get_internal_array(), core_list_mode_e_dynamic, path.character_list.get_length() );
 			char16_c * character_pointer = result.character_list.get_internal_array();
 			while ( *character_pointer )
 			{
@@ -591,7 +591,7 @@ namespace cheonsa
 			core_list_c< string16_c > file_extension_filter_list;
 			if ( file_extension_filter )
 			{
-				ops::string16_split_at_delimiter( string16_c( file_extension_filter ), string16_c( core_list_mode_e_static, L"|" ), file_extension_filter_list );
+				ops::string16_split_at_delimiter( string16_c( file_extension_filter ), string16_c( L"|", core_list_mode_e_static ), file_extension_filter_list );
 			}
 
 			do
@@ -610,7 +610,7 @@ namespace cheonsa
 				{
 					file_system_file_information_c * result_item = result.emplace( -1, 1 );
 					result_item->path = folder_path_absolute;
-					result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
+					result_item->path += string16_c( find_file_data.cFileName, core_list_mode_e_static );
 					result_item->path += L'\\';
 					windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
 					windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
@@ -639,7 +639,7 @@ namespace cheonsa
 					{
 						file_system_file_information_c * result_item = result.emplace( -1, 1 );
 						result_item->path = folder_path_absolute;
-						result_item->path += string16_c( core_list_mode_e_static, find_file_data.cFileName );
+						result_item->path += string16_c( find_file_data.cFileName, core_list_mode_e_static );
 						windows_time.LowPart = find_file_data.ftCreationTime.dwLowDateTime;
 						windows_time.HighPart = find_file_data.ftCreationTime.dwHighDateTime;
 						result_item->creation_time = time_convert_time_format_from_windows_to_cheonsa( windows_time.QuadPart );
@@ -676,7 +676,7 @@ namespace cheonsa
 			{
 				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 )
 				{
-					string16_c sub_file_name = string16_c( core_list_mode_e_static, find_file_data.cFileName );
+					string16_c sub_file_name = string16_c( find_file_data.cFileName, core_list_mode_e_static );
 					if ( ( extension_filter == nullptr ) || ( string16_ends_with( sub_file_name.character_list.get_internal_array(), extension_filter ) ) )
 					{
 						string16_c sub_file_path;
@@ -687,7 +687,7 @@ namespace cheonsa
 				}
 				else if ( search_sub_folders )
 				{
-					string16_c sub_folder_name = string16_c( core_list_mode_e_static, find_file_data.cFileName );
+					string16_c sub_folder_name = string16_c( find_file_data.cFileName, core_list_mode_e_static );
 					string16_c sub_folder_path;
 					sub_folder_path += folder_path_absolute;
 					sub_folder_path += sub_folder_name;
@@ -726,7 +726,7 @@ namespace cheonsa
 			{
 				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 )
 				{
-					string16_c sub_folder_name = string16_c( core_list_mode_e_static, find_file_data.cFileName );
+					string16_c sub_folder_name = string16_c( find_file_data.cFileName, core_list_mode_e_static );
 					if ( sub_folder_name != "." && sub_folder_name != ".." )
 					{
 						string16_c sub_folder_path;

@@ -26,9 +26,9 @@ namespace cheonsa
 		: menu_control_c()
 		, _mode( mode_e_normal )
 		, _is_checked( false )
-		, _box_element( string8_c( core_list_mode_e_static, "box_frame" ) )
-		, _mark_element( string8_c( core_list_mode_e_static, "mark_frame" ) )
-		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
+		, _box_element( string8_c( "box_frame", core_list_mode_e_static ) )
+		, _mark_element( string8_c( "mark_frame", core_list_mode_e_static ) )
+		, _text_element( string8_c( "text", core_list_mode_e_static ) )
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
@@ -45,7 +45,7 @@ namespace cheonsa
 		_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 18.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_daughter_element( &_text_element );
 
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_check" ) );
+		set_style_map_key( string8_c( "e_check", core_list_mode_e_static ) );
 	}
 
 	menu_control_check_c::~menu_control_check_c()

@@ -643,23 +643,23 @@ namespace cheonsa
 	void_c audio_interface_c::_save_settings( data_scribe_ini_c & scribe )
 	{
 		// [audio]
-		scribe.add_section( string8_c( core_list_mode_e_static, "audio" ) );
+		scribe.add_section( string8_c( "audio", core_list_mode_e_static ) );
 		// master_volume
 		string8_c value2;
 		ops::convert_sint32_to_string8( static_cast< sint32_c >( settings.master_volume * 100.0f ), value2 );
-		scribe.add_property( string8_c( core_list_mode_e_static, "master_volume" ), value2 );
+		scribe.add_property( string8_c( "master_volume", core_list_mode_e_static ), value2 );
 		// music_volume
 		ops::convert_sint32_to_string8( static_cast< sint32_c >( settings.music_volume * 100.0f ), value2 );
-		scribe.add_property( string8_c( core_list_mode_e_static, "music_volume" ), value2 );
+		scribe.add_property( string8_c( "music_volume", core_list_mode_e_static ), value2 );
 		// ambient_volume
 		ops::convert_sint32_to_string8( static_cast< sint32_c >( settings.ambient_volume * 100.0f ), value2 );
-		scribe.add_property( string8_c( core_list_mode_e_static, "ambient_voume" ), value2 );
+		scribe.add_property( string8_c( "ambient_voume", core_list_mode_e_static ), value2 );
 		// effect_volume
 		ops::convert_sint32_to_string8( static_cast< sint32_c >( settings.effect_volume * 100.0f ), value2 );
-		scribe.add_property( string8_c( core_list_mode_e_static, "effect_volume" ), value2 );
+		scribe.add_property( string8_c( "effect_volume", core_list_mode_e_static ), value2 );
 		// voice_volume
 		ops::convert_sint32_to_string8( static_cast< sint32_c >( settings.voice_volume * 100.0f ), value2 );
-		scribe.add_property( string8_c( core_list_mode_e_static, "voice_volume" ), value2 );
+		scribe.add_property( string8_c( "voice_volume", core_list_mode_e_static ), value2 );
 	}
 
 	void_c audio_interface_c::_load_settings( data_scribe_ini_c & scribe )
@@ -668,7 +668,7 @@ namespace cheonsa
 
 		string8_c value;
 
-		if ( scribe.find_property_value( string8_c( core_list_mode_e_static, "audio" ), string8_c( core_list_mode_e_static, "master_volume" ), value ) )
+		if ( scribe.find_property_value( string8_c( "audio", core_list_mode_e_static ), string8_c( "master_volume", core_list_mode_e_static ), value ) )
 		{
 			sint32_c value2;
 			if ( ops::convert_string8_to_sint32( value, value2 ) )
@@ -677,7 +677,7 @@ namespace cheonsa
 			}
 		}
 
-		if ( scribe.find_property_value( string8_c( core_list_mode_e_static, "audio" ), string8_c( core_list_mode_e_static, "music_volume" ), value ) )
+		if ( scribe.find_property_value( string8_c( "audio", core_list_mode_e_static ), string8_c( "music_volume", core_list_mode_e_static ), value ) )
 		{
 			sint32_c value2;
 			if ( ops::convert_string8_to_sint32( value, value2 ) )
@@ -686,7 +686,7 @@ namespace cheonsa
 			}
 		}
 
-		if ( scribe.find_property_value( string8_c( core_list_mode_e_static, "audio" ), string8_c( core_list_mode_e_static, "ambient_volume" ), value ) )
+		if ( scribe.find_property_value( string8_c( "audio", core_list_mode_e_static ), string8_c( "ambient_volume", core_list_mode_e_static ), value ) )
 		{
 			sint32_c value2;
 			if ( ops::convert_string8_to_sint32( value, value2 ) )
@@ -695,7 +695,7 @@ namespace cheonsa
 			}
 		}
 
-		if ( scribe.find_property_value( string8_c( core_list_mode_e_static, "audio" ), string8_c( core_list_mode_e_static, "effect_volume" ), value ) )
+		if ( scribe.find_property_value( string8_c( "audio", core_list_mode_e_static ), string8_c( "effect_volume", core_list_mode_e_static ), value ) )
 		{
 			sint32_c value2;
 			if ( ops::convert_string8_to_sint32( value, value2 ) )
@@ -704,7 +704,7 @@ namespace cheonsa
 			}
 		}
 
-		if ( scribe.find_property_value( string8_c( core_list_mode_e_static, "audio" ), string8_c( core_list_mode_e_static, "voice_volume" ), value ) )
+		if ( scribe.find_property_value( string8_c( "audio", core_list_mode_e_static ), string8_c( "voice_volume", core_list_mode_e_static ), value ) )
 		{
 			sint32_c value2;
 			if ( ops::convert_string8_to_sint32( value, value2 ) )
@@ -713,7 +713,7 @@ namespace cheonsa
 			}
 		}
 
-		if ( scribe.find_property_value( string8_c( core_list_mode_e_static, "audio" ), string8_c( core_list_mode_e_static, "menu_volume" ), value ) )
+		if ( scribe.find_property_value( string8_c( "audio", core_list_mode_e_static ), string8_c( "menu_volume", core_list_mode_e_static ), value ) )
 		{
 			sint32_c value2;
 			if ( ops::convert_string8_to_sint32( value, value2 ) )

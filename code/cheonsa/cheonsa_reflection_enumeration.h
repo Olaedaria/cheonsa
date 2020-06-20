@@ -36,14 +36,13 @@ namespace cheonsa
 		core_list_c< value_c * > _value_list;
 
 	public:
-		reflection_enumeration_c( reflection_manager_c * reflection_manager, string8_c const & name, string8_c const & description );
+		reflection_enumeration_c( reflection_manager_c * reflection_manager, string8_c const & name, string8_c const & description, boolean_c is_for_bit_flags );
 		~reflection_enumeration_c();
 
 		string8_c const & get_name() const;
 		string8_c const & get_description() const;
 
-		void_c initialize_for_bit_flags(); // if called then the values in this enum represent bit flags and so the property inspector will allow multiple values to be enabled at a time.
-		void_c initialize_value( string8_c const & name, string8_c const & description, sint32_c value ); // adds a value to this enumeration.
+		void_c add_value( string8_c const & name, string8_c const & description, sint32_c value ); // adds a value to this enumeration.
 
 		sint32_c get_value_count() const;
 		value_c const * get_value( sint32_c index ) const;

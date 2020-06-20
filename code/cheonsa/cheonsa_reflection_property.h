@@ -164,9 +164,11 @@ namespace cheonsa
 
 		void_c initialize_category_label();
 
-		void_c initialize_basic( data_type_e type, uint8_c type_count, value_getter_f value_getter, value_setter_f value_setter ); // initializes reflector for numeric and string types.
-		void_c initialize_basic_default( void_c const * default ); // default must point to a buffer of appropriate type and count that contains the default values for the property.
-		void_c initialize_basic_limits( void_c * minimum, void_c * maximum ); // minimum and maximum must point to a values of appropriate type.
+		void_c initialize_basic( data_type_e type, uint8_c type_count, value_getter_f value_getter, value_setter_f value_setter ); // initializes reflector for numeric and string types. returns this in case you want to daisy chain.
+
+		void_c initialize_basic_value_default( void_c const * default ); // default must point to a buffer of appropriate type and count that contains the default value of the property. returns this in case you want to daisy chain.
+		void_c initialize_basic_value_limits( void_c * minimum, void_c * maximum ); // minimum and maximum must point to a values of appropriate type. returns this in case you want to daisy chain.
+
 		void_c initialize_basic_view_color(); // type must be uint32x1 (rgba), or uint8x3 (rgb), or uint8x4 (rgba), or float32x3 (rgb), or float32x4 (rgba), or float64x3 (rgb), or float64x4 (rgba).
 		void_c initialize_basic_view_scroll_bar(); // type must be float32x1 or float64x1. limits must be set so that the slider has a range to slide around in.
 		void_c initialize_basic_view_scrub_bar(); // type must be float32x1 or float64x1.

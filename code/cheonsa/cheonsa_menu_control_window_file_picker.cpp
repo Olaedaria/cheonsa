@@ -20,11 +20,11 @@ namespace cheonsa
 	{
 		if ( _is_folder )
 		{
-			return engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_folder.png" ), true, true );
+			return engine.get_resource_manager()->load_texture( string16_c( L"menus/icon_folder.png", core_list_mode_e_static ), true, true );
 		}
 		else
 		{
-			return engine.get_resource_manager()->load_texture( string16_c( core_list_mode_e_static, L"menus/icon_file.png" ), true, true );
+			return engine.get_resource_manager()->load_texture( string16_c( L"menus/icon_file.png", core_list_mode_e_static ), true, true );
 		}
 		return nullptr;
 	}
@@ -58,8 +58,8 @@ namespace cheonsa
 				else
 				{
 					_message_dialog->set_mode( menu_control_window_message_c::mode_e_okay );
-					_message_dialog->set_title_bar_text_value( string16_c( core_list_mode_e_static, L"unrecognized file type." ) );
-					_message_dialog->set_message_text_value( string16_c( core_list_mode_e_static, L"this program does not recognize that type of file." ) );
+					_message_dialog->set_title_bar_text_value( string16_c( L"unrecognized file type.", core_list_mode_e_static ) );
+					_message_dialog->set_message_text_value( string16_c( L"this program does not recognize that type of file.", core_list_mode_e_static ) );
 					_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
 					_message_dialog->center();
 				}
@@ -70,8 +70,8 @@ namespace cheonsa
 			if ( ops::file_system_does_file_exist( file_path_absolute ) )
 			{
 				_message_dialog->set_mode( menu_control_window_message_c::mode_e_no_yes );
-				_message_dialog->set_title_bar_text_value( string16_c( core_list_mode_e_static, L"that file already exists." ) );
-				_message_dialog->set_message_text_value( string16_c( core_list_mode_e_static, L"do you want to over write the existing file?" ) );
+				_message_dialog->set_title_bar_text_value( string16_c( L"that file already exists.", core_list_mode_e_static ) );
+				_message_dialog->set_message_text_value( string16_c( L"do you want to over write the existing file?", core_list_mode_e_static ) );
 				_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
 				_message_dialog->center();
 				_message_dialog_is_asking_for_over_write = true;
@@ -210,7 +210,7 @@ namespace cheonsa
 				string16_c display_value;
 				sint64_c absolute_value;
 				item_c * item = static_cast< item_c * >( _files_collection->get_selected_items()[ 0 ] );
-				if ( item->get_value( string8_c( core_list_mode_e_static, "name" ), display_value, absolute_value ) )
+				if ( item->get_value( string8_c( "name", core_list_mode_e_static ), display_value, absolute_value ) )
 				{
 					if ( item->_is_folder == true )
 					{
@@ -267,68 +267,68 @@ namespace cheonsa
 		set_size( vector32x2_c( default_size.a, default_size.b ) );
 
 		_folder_path_text = new menu_control_text_c();
-		_folder_path_text->set_name( string8_c( core_list_mode_e_static, "folder_path_text" ) );
+		_folder_path_text->set_name( string8_c( "folder_path_text", core_list_mode_e_static ) );
 		_folder_path_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_file_picker_c::_handle_on_plain_text_value_changed );
 		_folder_path_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 152, 8, 8, 30 ) );
 		add_daughter_control_to_client( _folder_path_text );
 
 		_file_name_text = new menu_control_text_c();
-		_file_name_text->set_name( string8_c( core_list_mode_e_static, "file_name_text" ) );
+		_file_name_text->set_name( string8_c( "file_name_text", core_list_mode_e_static ) );
 		_file_name_text->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 152, 30, 8, 46 ) );
 		_file_name_text->on_plain_text_value_changed.subscribe( this, &menu_control_window_file_picker_c::_handle_on_plain_text_value_changed );
 		add_daughter_control_to_client( _file_name_text );
 
 		_back_button = new menu_control_button_c();
-		_back_button->set_name( string8_c( core_list_mode_e_static, "back_button" ) );
-		_back_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"\uE3F6" ) ); // the code point references a custom (not standard) glyph in the engine's built-in font.
+		_back_button->set_name( string8_c( "back_button", core_list_mode_e_static ) );
+		_back_button->set_plain_text_value( string16_c( L"\uE3F6", core_list_mode_e_static ) ); // the code point references a custom (not standard) glyph in the engine's built-in font.
 		_back_button->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( 8, 8, 40, 30 ) );
 		_back_button->on_clicked.subscribe( this, &menu_control_window_file_picker_c::_handle_on_clicked );
 		add_daughter_control_to_client( _back_button );
 
 		_forward_button = new menu_control_button_c();
-		_forward_button->set_name( string8_c( core_list_mode_e_static, "forward_button" ) );
-		_forward_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"\uE3F7" ) ); // the code point references a custom (not standard) glyph in the engine's built-in font.
+		_forward_button->set_name( string8_c( "forward_button", core_list_mode_e_static ) );
+		_forward_button->set_plain_text_value( string16_c( L"\uE3F7", core_list_mode_e_static ) ); // the code point references a custom (not standard) glyph in the engine's built-in font.
 		_forward_button->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( 56, 8, 40, 30 ) );
 		_forward_button->on_clicked.subscribe( this, &menu_control_window_file_picker_c::_handle_on_clicked );
 		add_daughter_control_to_client( _forward_button );
 
 		_up_button = new menu_control_button_c();
-		_up_button->set_name( string8_c( core_list_mode_e_static, "up_button" ) );
-		_up_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"\uE3F9" ) ); // the code point references a custom (not standard) glyph in the engine's built-in font.
+		_up_button->set_name( string8_c( "up_button", core_list_mode_e_static ) );
+		_up_button->set_plain_text_value( string16_c( L"\uE3F9", core_list_mode_e_static ) ); // the code point references a custom (not standard) glyph in the engine's built-in font.
 		_up_button->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top, box32x2_c( 104, 8, 40, 30 ) );
 		_up_button->on_clicked.subscribe( this, &menu_control_window_file_picker_c::_handle_on_clicked );
 		add_daughter_control_to_client( _up_button );
 
 		_files_collection = new menu_control_collection_c();
-		_files_collection->set_name( string8_c( core_list_mode_e_static, "files_collection" ) );
+		_files_collection->set_name( string8_c( "files_collection", core_list_mode_e_static ) );
 		_files_collection->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 152, 46, 8, 84 ) );
-		_files_collection->add_column( string8_c( core_list_mode_e_static, "name" ), string16_c( core_list_mode_e_static, L"name" ), 500, menu_control_collection_c::sort_by_e_display_value, false );
-		_files_collection->set_sort( string8_c( core_list_mode_e_static, "name" ), menu_control_collection_c::sort_order_e_ascending );
+		_files_collection->add_column( string8_c( "name", core_list_mode_e_static ), string16_c( L"name", core_list_mode_e_static ), 500, menu_control_collection_c::sort_by_e_display_value, false );
+		_files_collection->set_sort( string8_c( "name", core_list_mode_e_static ), menu_control_collection_c::sort_order_e_ascending );
 		_files_collection->on_selected_items_changed.subscribe( this, &menu_control_window_file_picker_c::_handle_file_collection_on_selected_items_changed );
 		_files_collection->on_selected_items_invoked.subscribe( this, &menu_control_window_file_picker_c::_handle_file_collection_on_selected_items_invoked );
 		add_daughter_control_to_client( _files_collection );
 
 		_short_cut_list = new menu_control_list_c();
-		_short_cut_list->set_name( string8_c( core_list_mode_e_static, "short_cut_list" ) );
+		_short_cut_list->set_name( string8_c( "short_cut_list", core_list_mode_e_static ) );
 		_short_cut_list->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 8, 46, 136, 46 ) );
 		add_daughter_control_to_client( _short_cut_list );
 
 		_cancel_button = new menu_control_button_c();
-		_cancel_button->set_name( string8_c( core_list_mode_e_static, "cancel_button" ) );
+		_cancel_button->set_name( string8_c( "cancel_button", core_list_mode_e_static ) );
 		_cancel_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 116, 8 ) );
-		_cancel_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"cancel" ) );
+		_cancel_button->set_plain_text_value( string16_c( L"cancel", core_list_mode_e_static ) );
 		_cancel_button->on_clicked.subscribe( this, &menu_control_window_file_picker_c::_handle_on_clicked );
 		add_daughter_control_to_client( _cancel_button );
 
 		_okay_button = new menu_control_button_c();
-		_okay_button->set_name( string8_c( core_list_mode_e_static, "okay_button" ) );
+		_okay_button->set_name( string8_c( "okay_button", core_list_mode_e_static ) );
 		_okay_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
-		_okay_button->set_plain_text_value( string16_c( core_list_mode_e_static, L"okay" ) );
+		_okay_button->set_plain_text_value( string16_c( L"okay", core_list_mode_e_static ) );
 		_okay_button->on_clicked.subscribe( this, &menu_control_window_file_picker_c::_handle_on_clicked );
 		add_daughter_control_to_client( _okay_button );
 
 		_message_dialog = new menu_control_window_message_c();
-		_message_dialog->set_name( string8_c( core_list_mode_e_static, "message_dialog" ) );
+		_message_dialog->set_name( string8_c( "message_dialog", core_list_mode_e_static ) );
 		_message_dialog->add_reference();
 		_message_dialog->set_is_showed_immediately( false );
 		_message_dialog->on_dialog_result.subscribe( this, &menu_control_window_file_picker_c::_handle_on_dialog_result );
@@ -532,8 +532,8 @@ namespace cheonsa
 		{
 			_short_cut_path_list.insert( -1, folder_path );
 			menu_control_list_item_text_c * item = new menu_control_list_item_text_c();
-			item->set_name( string8_c( core_list_mode_e_static_volatile, "list_item" ) );
-			item->set_plain_text_value( string16_c( core_list_mode_e_static_volatile, L"Desktop" ) );
+			item->set_name( string8_c( "list_item", core_list_mode_e_static ) );
+			item->set_plain_text_value( string16_c( L"Desktop", core_list_mode_e_static ) );
 			item->on_clicked.subscribe( this, &menu_control_window_file_picker_c::_handle_short_cut_on_clicked );
 			_short_cut_list->add_item( item );
 		}
@@ -542,8 +542,8 @@ namespace cheonsa
 		{
 			_short_cut_path_list.insert( -1, folder_path );
 			menu_control_list_item_text_c * item = new menu_control_list_item_text_c();
-			item->set_name( string8_c( core_list_mode_e_static_volatile, "list_item" ) );
-			item->set_plain_text_value( string16_c( core_list_mode_e_static_volatile, L"Documents" ) );
+			item->set_name( string8_c( "list_item", core_list_mode_e_static ) );
+			item->set_plain_text_value( string16_c( L"Documents", core_list_mode_e_static ) );
 			item->on_clicked.subscribe( this, &menu_control_window_file_picker_c::_handle_short_cut_on_clicked );
 			_short_cut_list->add_item( item );
 		}
@@ -554,7 +554,7 @@ namespace cheonsa
 		{
 			_short_cut_path_list.insert( -1, drive_path_list[ i ].path );
 			menu_control_list_item_text_c * item = new menu_control_list_item_text_c();
-			item->set_name( string8_c( core_list_mode_e_static, "list_item" ) );
+			item->set_name( string8_c( "list_item", core_list_mode_e_static ) );
 			string16_c label = drive_path_list[ i ].path;
 			if ( drive_path_list[ i ].label.get_length() > 0 )
 			{

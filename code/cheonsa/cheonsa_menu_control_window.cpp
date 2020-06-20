@@ -231,8 +231,8 @@ namespace cheonsa
 
 	menu_control_window_c::menu_control_window_c()
 		: menu_control_panel_i()
-		, _title_bar_frame_element( string8_c( core_list_mode_e_static, "title_bar_frame" ) )
-		, _title_bar_text_element( string8_c( core_list_mode_e_static, "title_bar_text" ) )
+		, _title_bar_frame_element( string8_c( "title_bar_frame", core_list_mode_e_static ) )
+		, _title_bar_text_element( string8_c( "title_bar_text", core_list_mode_e_static ) )
 		, _edge_size( 8.0f )
 		, _top_bar_size( 30.0f )
 		, _bottom_bar_size( 0.0f )
@@ -256,7 +256,7 @@ namespace cheonsa
 
 		_apply_client_margins();
 
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_window" ) );
+		set_style_map_key( string8_c( "e_window", core_list_mode_e_static ) );
 	}
 
 	menu_control_window_c::~menu_control_window_c()

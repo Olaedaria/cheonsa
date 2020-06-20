@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "cheonsa_reflection_types.h"
 
@@ -26,9 +26,9 @@ namespace cheonsa
 
 		reflection_class_c * get_base_class() const;
 
-		// adds a new property to the class and returns it.
-		// then you must call one of the _initialize functions on the returned property.
-		reflection_property_c * initialize_property( string8_c const & name, string8_c const & description );
+		// adds a new and uninitialized property to the class and returns it.
+		// you must initialize the returned property.
+		reflection_property_c * add_property( string8_c const & name, string8_c const & description );
 
 		sint32_c get_property_count() const;
 		reflection_property_c const * get_property( sint32_c index ) const;

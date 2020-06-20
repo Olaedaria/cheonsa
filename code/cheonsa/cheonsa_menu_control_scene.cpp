@@ -22,7 +22,7 @@ namespace cheonsa
 
 	menu_control_scene_c::menu_control_scene_c()
 		: menu_control_c()
-		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
+		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
 		, _frame_style()
 		, _scene( nullptr )
 		, _canvas( nullptr )

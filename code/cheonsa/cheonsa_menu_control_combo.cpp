@@ -224,9 +224,9 @@ namespace cheonsa
 		: menu_control_button_c()
 		, _combo_control( nullptr )
 	{
-		_name = string8_c( core_list_mode_e_static, "combo" );
+		_name = string8_c( "combo", core_list_mode_e_static );
 
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_combo" ) );
+		set_style_map_key( string8_c( "e_combo", core_list_mode_e_static ) );
 	}
 
 	menu_control_combo_button_c::~menu_control_combo_button_c()

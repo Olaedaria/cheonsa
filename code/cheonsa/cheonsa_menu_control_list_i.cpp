@@ -73,7 +73,7 @@ namespace cheonsa
 
 	menu_control_list_item_separator_i::menu_control_list_item_separator_i()
 		: menu_control_list_item_i()
-		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
+		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
 		, _height( 10.0f )
 	{
 	}
@@ -160,9 +160,9 @@ namespace cheonsa
 
 	menu_control_list_item_text_i::menu_control_list_item_text_i()
 		: menu_control_list_item_i()
-		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
-		, _selected_frame_element( string8_c( core_list_mode_e_static, "selected_frame" ) )
-		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
+		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
+		, _selected_frame_element( string8_c( "selected_frame", core_list_mode_e_static ) )
+		, _text_element( string8_c( "text", core_list_mode_e_static ) )
 	{
 		_can_be_selected = true;
 
@@ -182,7 +182,7 @@ namespace cheonsa
 		_text_element.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
 		_add_daughter_element( &_text_element );
 
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_list_item" ) );
+		set_style_map_key( string8_c( "e_list_item", core_list_mode_e_static ) );
 	}
 
 	void_c menu_control_list_item_text_i::set_is_selected( boolean_c value, boolean_c try_to_multi_select )

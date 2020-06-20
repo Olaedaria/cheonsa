@@ -60,7 +60,7 @@ namespace cheonsa
 		_accessors._value_setter = value_setter;
 	}
 
-	void_c reflection_property_c::initialize_basic_default( void_c const * default )
+	void_c reflection_property_c::initialize_basic_value_default( void_c const * default )
 	{
 		assert( _type >= data_type_e_uint8 && _type <= data_type_e_float64 );
 		assert( _type_count >= 1 && _type_count <= 4 );
@@ -69,7 +69,7 @@ namespace cheonsa
 		ops::memory_copy( default, target, ops::get_data_type_size( _type ) * _type_count );
 	}
 
-	void_c reflection_property_c::initialize_basic_limits( void_c * minimum, void_c * maximum )
+	void_c reflection_property_c::initialize_basic_value_limits( void_c * minimum, void_c * maximum )
 	{
 		assert( _type >= data_type_e_uint8 && _type <= data_type_e_float64 );
 		assert( _type_count == 1 );

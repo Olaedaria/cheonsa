@@ -566,7 +566,7 @@ namespace cheonsa
 				{
 					if ( sub_expression_result.get_length() != 1 ) // make sure that sub_expression_result resolved to a single value
 					{
-						_set_error( string16_c( core_list_mode_e_static, L"sub expression did not evaluate to exactly one value." ), token->original_line, token->original_column );
+						_set_error( string16_c( L"sub expression did not evaluate to exactly one value.", core_list_mode_e_static ), token->original_line, token->original_column );
 						return false;
 					}
 
@@ -577,7 +577,7 @@ namespace cheonsa
 			}
 			else if ( token->type >= token_c::type_e_none && token->type <= token_c::type_e_keyword_else )
 			{
-				_set_error( string16_c( core_list_mode_e_static, L"illegal keyword encountered in expression." ), token->original_line, token->original_column );
+				_set_error( string16_c( L"illegal keyword encountered in expression.", core_list_mode_e_static ), token->original_line, token->original_column );
 				return false;
 			}
 			else
@@ -616,7 +616,7 @@ namespace cheonsa
 				}
 				else
 				{
-					_set_error( string16_c( core_list_mode_e_static, L"times operator only works with number value types." ), token->original_line, token->original_column );
+					_set_error( string16_c( L"times operator only works with number value types.", core_list_mode_e_static ), token->original_line, token->original_column );
 					return false;
 				}
 			}
@@ -651,7 +651,7 @@ namespace cheonsa
 				}
 				else
 				{
-					_set_error( string16_c( core_list_mode_e_static, L"plus operator only works with number value types." ), token->original_line, token->original_column );
+					_set_error( string16_c( L"plus operator only works with number value types.", core_list_mode_e_static ), token->original_line, token->original_column );
 					return false;
 				}
 			}
@@ -694,7 +694,7 @@ namespace cheonsa
 				}
 				else
 				{
-					_set_error( string16_c( core_list_mode_e_static,L"relational comparison operators only works with number value types." ), token->original_line, token->original_column );
+					_set_error( string16_c( L"relational comparison operators only works with number value types.", core_list_mode_e_static ), token->original_line, token->original_column );
 					return false;
 				}
 			}
@@ -850,14 +850,14 @@ namespace cheonsa
 				// get left operand, it needs to be a name
 				if ( i == 0 )
 				{
-					_set_error( string16_c( core_list_mode_e_static, L"coult not find left operand for assignment operator." ), token->original_line, token->original_column );
+					_set_error( string16_c( L"coult not find left operand for assignment operator.", core_list_mode_e_static ), token->original_line, token->original_column );
 					return false;
 				}
 				i--;
 				token_c * l_token = token_list_a[ i - 1 ];
 				if ( l_token->type != token_c::type_e_value_name )
 				{
-					_set_error( string16_c( core_list_mode_e_static, L"left operand for assignment operator must be a name." ), token->original_line, token->original_column );
+					_set_error( string16_c( L"left operand for assignment operator must be a name.", core_list_mode_e_static ), token->original_line, token->original_column );
 					return false;
 				}
 				l_operand = _add_or_get_variable( l_token->string ); // this will get an existing property or make a new property in its proper scope
@@ -904,14 +904,14 @@ namespace cheonsa
 		token_c * operator_token = token_list[ operator_token_index ];
 		if ( resolved_token_list.get_length() == 0 )
 		{
-			_set_error( string16_c( core_list_mode_e_static, L"operator does not have operand." ), operator_token->original_line, operator_token->original_column );
+			_set_error( string16_c( L"operator does not have operand.", core_list_mode_e_static ), operator_token->original_line, operator_token->original_column );
 			return false;
 		}
 
 		sint32_c r_token_index = operator_token_index + 1;
 		if ( r_token_index >= token_list.get_length() )
 		{
-			_set_error( string16_c( core_list_mode_e_static, L"operator does not have right operand." ), operator_token->original_line, operator_token->original_column );
+			_set_error( string16_c( L"operator does not have right operand.", core_list_mode_e_static ), operator_token->original_line, operator_token->original_column );
 			return false;
 		}
 
@@ -941,7 +941,7 @@ namespace cheonsa
 		}
 		else
 		{
-			_set_error( string16_c( core_list_mode_e_static, L"left operand must be a value." ), l_token->original_line, l_token->original_column );
+			_set_error( string16_c( L"left operand must be a value.", core_list_mode_e_static ), l_token->original_line, l_token->original_column );
 			return false;
 		}
 
@@ -969,7 +969,7 @@ namespace cheonsa
 		}
 		else
 		{
-			_set_error( string16_c( core_list_mode_e_static, L"right operand must be a value." ), r_token->original_line, r_token->original_column );
+			_set_error( string16_c( L"right operand must be a value.", core_list_mode_e_static ), r_token->original_line, r_token->original_column );
 			return false;
 		}
 
@@ -985,7 +985,7 @@ namespace cheonsa
 		sint32_c r_token_index = operator_token_index + 1;
 		if ( r_token_index >= token_list.get_length() )
 		{
-			_set_error( string16_c( core_list_mode_e_static, L"right operand was not found." ), operator_token->original_line, operator_token->original_column );
+			_set_error( string16_c( L"right operand was not found.", core_list_mode_e_static ), operator_token->original_line, operator_token->original_column );
 			return status_e_error;
 		}
 
@@ -1015,7 +1015,7 @@ namespace cheonsa
 		}
 		else
 		{
-			_set_error( string16_c( core_list_mode_e_static, L"right operand must be a value." ), r_token->original_line, r_token->original_column );
+			_set_error( string16_c( L"right operand must be a value.", core_list_mode_e_static ), r_token->original_line, r_token->original_column );
 			return false;
 		}
 
@@ -1025,7 +1025,7 @@ namespace cheonsa
 	script_scope_c * script_instance_c::_resolve_scope( string8_c const & full_name, string8_c & name )
 	{
 		core_list_c< string8_c > path_elements;
-		ops::string8_split_at_delimiter( full_name, string8_c( core_list_mode_e_static, "." ), path_elements );
+		ops::string8_split_at_delimiter( full_name, string8_c( ".", core_list_mode_e_static ), path_elements );
 		if ( path_elements.get_length() == 1 )
 		{
 			name = path_elements[ 0 ];
@@ -1204,13 +1204,13 @@ namespace cheonsa
 			{
 				if ( line.token_count != 2 )
 				{
-					_set_error( string16_c( core_list_mode_e_static, L"label line must contain exactly 2 tokens." ), i, 0 );
+					_set_error( string16_c( L"label line must contain exactly 2 tokens.", core_list_mode_e_static ), i, 0 );
 					return false;
 				}
 
 				if ( line.token_array[ 1 ].type != token_c::type_e_value_name )
 				{
-					_set_error( string16_c( core_list_mode_e_static, L"label must have a name." ), i, 0 );
+					_set_error( string16_c( L"label must have a name.", core_list_mode_e_static ), i, 0 );
 					return false;
 				}
 
@@ -1245,7 +1245,7 @@ namespace cheonsa
 			}
 			else if ( line.indentation > _indentation )
 			{
-				_set_error( string16_c( core_list_mode_e_static, L"bad indentation." ), line.token_array[ 0 ].original_line, line.token_array[ 0 ].original_column );
+				_set_error( string16_c( L"bad indentation.", core_list_mode_e_static ), line.token_array[ 0 ].original_line, line.token_array[ 0 ].original_column );
 				_status = status_e_error;
 				return false;
 			}
@@ -1265,7 +1265,7 @@ namespace cheonsa
 
 						if ( if_expression_result.get_length() != 1 )
 						{
-							_set_error( string16_c( core_list_mode_e_static, L"if conditional expression did not resolve into a single value." ), line.token_array[ 0 ].original_line, line.token_array[ 0 ].original_column );
+							_set_error( string16_c( L"if conditional expression did not resolve into a single value.", core_list_mode_e_static ), line.token_array[ 0 ].original_line, line.token_array[ 0 ].original_column );
 							_status = status_e_error;
 							return false;
 						}
@@ -1305,7 +1305,7 @@ namespace cheonsa
 
 				if ( if_expression_result.get_length() != 1 )
 				{
-					_set_error( string16_c( core_list_mode_e_static, L"if conditional expression did not resolve into a single value." ), line.token_array[ 0 ].original_line, line.token_array[ 0 ].original_column );
+					_set_error( string16_c( L"if conditional expression did not resolve into a single value.", core_list_mode_e_static ), line.token_array[ 0 ].original_line, line.token_array[ 0 ].original_column );
 					_status = status_e_error;
 					return false;
 				}

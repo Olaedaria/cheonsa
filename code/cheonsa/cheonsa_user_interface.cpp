@@ -1077,8 +1077,8 @@ namespace cheonsa
 		_text_focused_stack.insert( -1, _text_focused );
 
 		menu_control_frame_c * result = new menu_control_frame_c();
-		result->set_name( string8_c( core_list_mode_e_static, "modal_screen" ) );
-		result->set_style_map_key( string8_c( core_list_mode_e_static, "e_modal" ) );
+		result->set_name( string8_c( "modal_screen", core_list_mode_e_static ) );
+		result->set_style_map_key( string8_c( "e_modal", core_list_mode_e_static ) );
 		result->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( -10.0f, -10.0f, -10.0f, -10.0f ) );
 		result->on_is_showed_changed.subscribe( this, &user_interface_c::_handle_modal_screen_on_is_showed_changed );
 		add_daughter_control( result );

@@ -6,7 +6,7 @@ namespace cheonsa
 
 	menu_control_image_c::menu_control_image_c()
 		: menu_control_c()
-		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
+		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
 		, _frame_style()
 	{
 		_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;

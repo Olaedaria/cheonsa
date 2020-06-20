@@ -7,7 +7,7 @@ namespace cheonsa
 	menu_control_menu_item_separator_c::menu_control_menu_item_separator_c()
 		: menu_control_list_item_separator_i()
 	{
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_menu_item" ) );
+		set_style_map_key( string8_c( "e_menu_item", core_list_mode_e_static ) );
 	}
 
 	menu_control_menu_item_separator_c::~menu_control_menu_item_separator_c()
@@ -45,7 +45,7 @@ namespace cheonsa
 		, _is_checked( false )
 		, _sub_menu( nullptr )
 	{
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_menu_item" ) );
+		set_style_map_key( string8_c( "e_menu_item", core_list_mode_e_static ) );
 	}
 
 	menu_control_menu_item_text_c::~menu_control_menu_item_text_c()
@@ -132,7 +132,7 @@ namespace cheonsa
 		_vertical_size_mode = menu_size_mode_e_fit_content;
 		_vertical_size_maximum = 0.0f;
 		set_is_showed_immediately( false );
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_menu" ) );
+		set_style_map_key( string8_c( "e_menu", core_list_mode_e_static ) );
 	}
 
 	menu_control_menu_c::~menu_control_menu_c()

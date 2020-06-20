@@ -608,11 +608,11 @@ namespace cheonsa
 		{
 			if ( in )
 			{
-				out = string8_c( core_list_mode_e_static, "true" );
+				out = string8_c( "true", core_list_mode_e_static );
 			}
 			else
 			{
-				out = string8_c( core_list_mode_e_static, "false" );
+				out = string8_c( "false", core_list_mode_e_static );
 			}
 		}
 

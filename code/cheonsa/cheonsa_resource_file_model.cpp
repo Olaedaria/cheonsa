@@ -93,7 +93,7 @@ namespace cheonsa
 			bone_logic_property_c const * bone_logic_property = &_data.bone_logic_property_list[ i ];
 			if ( name == &_data.string_table[ bone_logic_property->name ] )
 			{
-				string8_c value_string( core_list_mode_e_static_volatile, &_data.string_table[ bone_logic_property->value ] );
+				string8_c value_string( &_data.string_table[ bone_logic_property->value ], core_list_mode_e_static_volatile );
 				return ops::convert_string8_to_sint32( value_string, value );
 			}
 		}
@@ -110,7 +110,7 @@ namespace cheonsa
 			bone_logic_property_c const * bone_logic_property = &_data.bone_logic_property_list[ i ];
 			if ( name == &_data.string_table[ bone_logic_property->name ] )
 			{
-				string8_c value_string( core_list_mode_e_static_volatile, &_data.string_table[ bone_logic_property->value ] );
+				string8_c value_string( &_data.string_table[ bone_logic_property->value ], core_list_mode_e_static_volatile );
 				return ops::convert_string8_to_float32( value_string, value );
 			}
 		}
@@ -127,7 +127,7 @@ namespace cheonsa
 			bone_logic_property_c const * bone_logic_property = &_data.bone_logic_property_list[ i ];
 			if ( name == &_data.string_table[ bone_logic_property->name ] )
 			{
-				value = string8_c( core_list_mode_e_static_volatile, &_data.string_table[ bone_logic_property->value ] );
+				value = string8_c( &_data.string_table[ bone_logic_property->value ], core_list_mode_e_static_volatile );
 				return true;
 			}
 		}

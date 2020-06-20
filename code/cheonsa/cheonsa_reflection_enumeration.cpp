@@ -25,11 +25,11 @@ namespace cheonsa
 		return _value;
 	}
 
-	reflection_enumeration_c::reflection_enumeration_c( reflection_manager_c * reflection_manager, string8_c const & name, string8_c const & description )
+	reflection_enumeration_c::reflection_enumeration_c( reflection_manager_c * reflection_manager, string8_c const & name, string8_c const & description, boolean_c is_for_bit_flags )
 		: _reflection_manager( reflection_manager )
 		, _name( name )
 		, _description( description )
-		, _is_for_bit_flags( false )
+		, _is_for_bit_flags( is_for_bit_flags )
 		, _value_list()
 	{
 	}
@@ -52,12 +52,7 @@ namespace cheonsa
 		return _description;
 	}
 
-	void_c reflection_enumeration_c::initialize_for_bit_flags()
-	{
-		_is_for_bit_flags = true;
-	}
-
-	void_c reflection_enumeration_c::initialize_value( string8_c const & name, string8_c const & description, sint32_c value )
+	void_c reflection_enumeration_c::add_value( string8_c const & name, string8_c const & description, sint32_c value )
 	{
 		value_c * new_value = new value_c( name, description, value );
 		_value_list.insert( -1, new_value );

@@ -1769,7 +1769,7 @@ namespace cheonsa
 		// creates vertex shader from source code. looks for the entry point "vs_main".
 		video_vertex_shader_d3d11_c( video_interface_c * video_interface, ID3D11Device * d3d11_device, char16_c const * name, char8_c const * source_code, sint32_c source_code_size, char8_c const * source_code_file_path, video_shader_includer_c * shader_includer, video_shader_defines_c const * shader_defines, video_vertex_layout_c const * input_vertex_layout )
 			: video_vertex_shader_c( video_interface )
-			, _name( core_list_mode_e_dynamic, name )
+			, _name( name )
 			, _input_vertex_layout()
 			, _output_vertex_format()
 			, _d3d11_input_layout( nullptr )
@@ -1825,7 +1825,7 @@ namespace cheonsa
 		// creates vertex shader from pre-compiled code.
 		video_vertex_shader_d3d11_c( video_interface_c * video_interface, ID3D11Device * d3d11_device, char16_c const * name, char8_c const * compiled_code, sint32_c compiled_code_size, video_vertex_layout_c const * vertex_layout )
 			: video_vertex_shader_c( video_interface )
-			, _name( core_list_mode_e_dynamic, name )
+			, _name( name )
 			, _input_vertex_layout()
 			, _output_vertex_format()
 			, _d3d11_input_layout( nullptr )
@@ -1907,7 +1907,7 @@ namespace cheonsa
 		// creates geometry shader from source code. looks for the entry point "gs_main".
 		video_geometry_shader_d3d11_c( video_interface_c * video_interface, ID3D11Device * d3d11_device, char16_c const * name, char8_c const * source_code, sint32_c source_code_size, char8_c const * source_code_file_path, video_shader_includer_c * shader_includer, video_shader_defines_c const * shader_defines )
 			: video_geometry_shader_c( video_interface )
-			, _name( core_list_mode_e_dynamic, name )
+			, _name( name )
 			, _d3d11_compiled_program( nullptr )
 			, _d3d11_geometry_shader( nullptr )
 			, _error_messages()
@@ -1955,7 +1955,7 @@ namespace cheonsa
 		// creates geometry shader from pre-compiled code.
 		video_geometry_shader_d3d11_c( video_interface_c * video_interface, ID3D11Device * d3d11_device, char16_c const * name, char8_c const * compiled_code, sint32_c compiled_code_size )
 			: video_geometry_shader_c( video_interface )
-			, _name( core_list_mode_e_dynamic, name )
+			, _name( name )
 			, _d3d11_compiled_program( nullptr )
 			, _d3d11_geometry_shader( nullptr )
 			, _error_messages()
@@ -1999,7 +1999,7 @@ namespace cheonsa
 	protected:
 		video_pixel_shader_d3d11_c( video_interface_c * video_interface, ID3D11Device * d3d11_device, char16_c const * name, char8_c const * source_code, sint32_c source_code_size, char8_c const * source_code_file_path, video_shader_includer_c * shader_includer, video_shader_defines_c const * shader_defines )
 			: video_pixel_shader_c( video_interface )
-			, _name( core_list_mode_e_dynamic, name )
+			, _name( name )
 			, _d3d11_compiled_program( nullptr )
 			, _d3d11_pixel_shader( nullptr )
 			, _error_messages()
@@ -2047,7 +2047,7 @@ namespace cheonsa
 		// creates pixel shader from pre-compiled code.
 		video_pixel_shader_d3d11_c( video_interface_c * video_interface, ID3D11Device * d3d11_device, char16_c const * name, char8_c const * compiled_code, sint32_c compiled_code_size )
 			: video_pixel_shader_c( video_interface )
-			, _name( core_list_mode_e_dynamic, name )
+			, _name( name )
 			, _d3d11_compiled_program( nullptr )
 			, _d3d11_pixel_shader( nullptr )
 			, _error_messages()

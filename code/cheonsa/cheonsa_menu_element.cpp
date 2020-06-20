@@ -24,19 +24,19 @@ namespace cheonsa
 		if ( attribute )
 		{
 			sint32_c temp = 0;
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "left" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "left", core_list_mode_e_static ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_left;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "top" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "top", core_list_mode_e_static ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_top;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "right" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "right", core_list_mode_e_static ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_right;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( core_list_mode_e_static, "bottom" ), temp ) )
+			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "bottom", core_list_mode_e_static ), temp ) )
 			{
 				new_local_box_anchor |= menu_anchor_e_bottom;
 			}

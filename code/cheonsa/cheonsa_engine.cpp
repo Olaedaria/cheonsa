@@ -79,7 +79,7 @@ namespace cheonsa
 		char16_c module_file_path[ MAX_PATH + 1 ];
 		GetModuleFileNameW( NULL, module_file_path, MAX_PATH + 1 );
 		module_file_path[ MAX_PATH ] = 0;
-		string16_c executable_file_path = string16_c( core_list_mode_e_static, module_file_path );
+		string16_c executable_file_path = string16_c( module_file_path, core_list_mode_e_static );
 		string16_c executable_folder_path = ops::path_get_folder_path( executable_file_path );
 		string16_c executable_file_name = ops::path_get_file_or_folder_name( executable_file_path );
 		
@@ -115,7 +115,7 @@ namespace cheonsa
 		sint32_c const arg_data_length = ops::string8_find_length( arg_data );
 		for ( sint32_c i = 1; i < arguments_count; i++ ) // start at 1 to skip the first arg, it's just the file path of the exe.
 		{
-			string16_c arg = string16_c( core_list_mode_e_static, arguments[ i ] );
+			string16_c arg = string16_c( arguments[ i ], core_list_mode_e_static );
 			if ( ops::string16_starts_with( arg.character_list.get_internal_array(), arg_data ) )
 			{
 				// extract value. note that if the argument contained a file path that was enclosed by double quotes, windows will remove those quotes before giving it to us.

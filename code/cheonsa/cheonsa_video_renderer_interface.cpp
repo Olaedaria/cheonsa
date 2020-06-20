@@ -132,17 +132,17 @@ namespace cheonsa
 	{
 		if ( value == window_mode_e_window )
 		{
-			result = string8_c( core_list_mode_e_static, "window" );
+			result = string8_c( "window", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == window_mode_e_window_full_screen )
 		{
-			result = string8_c( core_list_mode_e_static, "window_full_screen" );
+			result = string8_c( "window_full_screen", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == window_mode_e_full_screen )
 		{
-			result = string8_c( core_list_mode_e_static, "full_screen" );
+			result = string8_c( "full_screen", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -172,12 +172,12 @@ namespace cheonsa
 	{
 		if ( value == presentation_mode_e_immediate )
 		{
-			result = string8_c( core_list_mode_e_static, "immediate" );
+			result = string8_c( "immediate", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == presentation_mode_e_v_sync )
 		{
-			result = string8_c( core_list_mode_e_static, "v_sync" );
+			result = string8_c( "v_sync", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -202,12 +202,12 @@ namespace cheonsa
 	{
 		if ( value == post_process_quality_e_off )
 		{
-			result = string8_c( core_list_mode_e_static, "off" );
+			result = string8_c( "off", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == post_process_quality_e_high )
 		{
-			result = string8_c( core_list_mode_e_static, "high" );
+			result = string8_c( "high", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -232,17 +232,17 @@ namespace cheonsa
 	{
 		if ( value == texture_resolution_e_quarter )	
 		{
-			result = string8_c( core_list_mode_e_static, "quarter" );
+			result = string8_c( "quarter", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == texture_resolution_e_half )
 		{
-			result = string8_c( core_list_mode_e_static, "half" );
+			result = string8_c( "half", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == texture_resolution_e_whole )
 		{
-			result = string8_c( core_list_mode_e_static, "whole" );
+			result = string8_c( "whole", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -272,32 +272,32 @@ namespace cheonsa
 	{
 		if ( value == texture_sample_quality_e_bilinear )
 		{
-			result = string8_c( core_list_mode_e_static, "bilinear" );
+			result = string8_c( "bilinear", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == texture_sample_quality_e_trilinear )
 		{
-			result = string8_c( core_list_mode_e_static, "trilinear" );
+			result = string8_c( "trilinear", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == texture_sample_quality_e_anisotropic_2x )
 		{
-			result = string8_c( core_list_mode_e_static, "anisotropic_2x" );
+			result = string8_c( "anisotropic_2x", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == texture_sample_quality_e_anisotropic_4x )
 		{
-			result = string8_c( core_list_mode_e_static, "anisotropic_4x" );
+			result = string8_c( "anisotropic_4x", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == texture_sample_quality_e_anisotropic_8x )
 		{
-			result = string8_c( core_list_mode_e_static, "anisotropic_8x" );
+			result = string8_c( "anisotropic_8x", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == texture_sample_quality_e_anisotropic_16x )
 		{
-			result = string8_c( core_list_mode_e_static, "anisotropic_16x" );
+			result = string8_c( "anisotropic_16x", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -342,22 +342,22 @@ namespace cheonsa
 	{
 		if ( value == light_count_e_16 )
 		{
-			result = string8_c( core_list_mode_e_static, "16" );
+			result = string8_c( "16", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == light_count_e_32 )
 		{
-			result = string8_c( core_list_mode_e_static, "32" );
+			result = string8_c( "32", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == light_count_e_64 )
 		{
-			result = string8_c( core_list_mode_e_static, "64" );
+			result = string8_c( "64", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == light_count_e_128 )
 		{
-			result = string8_c( core_list_mode_e_static, "128" );
+			result = string8_c( "128", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -403,22 +403,22 @@ namespace cheonsa
 	{
 		if ( value == shadow_view_count_e_8 )
 		{
-			result = string8_c( core_list_mode_e_static, "8" );
+			result = string8_c( "8", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_view_count_e_16 )
 		{
-			result = string8_c( core_list_mode_e_static, "16" );
+			result = string8_c( "16", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_view_count_e_32 )
 		{
-			result = string8_c( core_list_mode_e_static, "32" );
+			result = string8_c( "32", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_view_count_e_64 )
 		{
-			result = string8_c( core_list_mode_e_static, "64" );
+			result = string8_c( "64", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -464,17 +464,17 @@ namespace cheonsa
 	{
 		if ( value == shadow_resolution_e_512 )
 		{
-			result = string8_c( core_list_mode_e_static, "512" );
+			result = string8_c( "512", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_resolution_e_1024 )
 		{
-			result = string8_c( core_list_mode_e_static, "1024" );
+			result = string8_c( "1024", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_resolution_e_2048 )
 		{
-			result = string8_c( core_list_mode_e_static, "2048" );
+			result = string8_c( "2048", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -515,22 +515,22 @@ namespace cheonsa
 	{
 		if ( value == shadow_sample_quality_e_1x )
 		{
-			result = string8_c( core_list_mode_e_static, "1x" );
+			result = string8_c( "1x", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_sample_quality_e_5x )
 		{
-			result = string8_c( core_list_mode_e_static, "5x" );
+			result = string8_c( "5x", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_sample_quality_e_9x )
 		{
-			result = string8_c( core_list_mode_e_static, "9x" );
+			result = string8_c( "9x", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == shadow_sample_quality_e_16x )
 		{
-			result = string8_c( core_list_mode_e_static, "16x" );
+			result = string8_c( "16x", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -569,17 +569,17 @@ namespace cheonsa
 	{
 		if ( value == light_probe_resolution_e_16 )
 		{
-			result = string8_c( core_list_mode_e_static, "16" );
+			result = string8_c( "16", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == light_probe_resolution_e_32 )
 		{
-			result = string8_c( core_list_mode_e_static, "32" );
+			result = string8_c( "32", core_list_mode_e_static );
 			return true;
 		}
 		else if ( value == light_probe_resolution_e_64 )
 		{
-			result = string8_c( core_list_mode_e_static, "64" );
+			result = string8_c( "64", core_list_mode_e_static );
 			return true;
 		}
 		return false;
@@ -3854,56 +3854,56 @@ namespace cheonsa
 
 		_settings.reset_to_default();
 
-		scribe.add_section( string8_c( core_list_mode_e_static, "video" ) );
+		scribe.add_section( string8_c( "video", core_list_mode_e_static ) );
 
 		if ( settings_c::get_window_mode_string( _settings.window_mode, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "window_mode" ), value );
+			scribe.add_property( string8_c( "window_mode", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_presentation_mode_string( _settings.presentation_mode, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "presentation_mode" ), value );
+			scribe.add_property( string8_c( "presentation_mode", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_post_process_quality_string( _settings.post_process_quality, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "post_process_quality" ), value );
+			scribe.add_property( string8_c( "post_process_quality", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_texture_resolution_string( _settings.texture_resolution, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "texture_resolution" ), value );
+			scribe.add_property( string8_c( "texture_resolution", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_texture_sample_quality_string( _settings.texture_sample_quality, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "texture_sample_quality" ), value );
+			scribe.add_property( string8_c( "texture_sample_quality", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_light_count_string( _settings.light_count, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "light_count" ), value );
+			scribe.add_property( string8_c( "light_count", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_light_probe_resolution_string( _settings.light_probe_resolution, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "light_probe_resolution" ), value );
+			scribe.add_property( string8_c( "light_probe_resolution", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_shadow_view_count_string( _settings.shadow_view_count, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "shadow_view_count" ), value );
+			scribe.add_property( string8_c( "shadow_view_count", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_shadow_resolution_string( _settings.shadow_resolution, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "shadow_resolution" ), value );
+			scribe.add_property( string8_c( "shadow_resolution", core_list_mode_e_static ), value );
 		}
 
 		if ( settings_c::get_shadow_sample_quality_string( _settings.shadow_sample_quality, value ) )
 		{
-			scribe.add_property( string8_c( core_list_mode_e_static, "shadow_sample_quality" ), value );
+			scribe.add_property( string8_c( "shadow_sample_quality", core_list_mode_e_static ), value );
 		}
 	}
 
@@ -3913,54 +3913,54 @@ namespace cheonsa
 
 		string8_c value;
 
-		string8_c section( core_list_mode_e_static, "video" );
+		string8_c section( "video", core_list_mode_e_static );
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "window_mode" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "window_mode", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_window_mode_value( value, new_settings.window_mode );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "presentation_mode" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "presentation_mode", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_presentation_mode_value( value, new_settings.presentation_mode );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "post_process_quality" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "post_process_quality", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_post_process_quality_value( value, new_settings.post_process_quality );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "texture_resolution" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "texture_resolution", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_texture_resolution_value( value, new_settings.texture_resolution );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "texture_sample_quality" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "texture_sample_quality", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_texture_sample_quality_value( value, new_settings.texture_sample_quality );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "light_count" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "light_count", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_light_count_value( value, new_settings.light_count );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "light_probe_resolution" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "light_probe_resolution", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_light_probe_resolution_value( value, new_settings.light_probe_resolution );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "shadow_view_count" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "shadow_view_count", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_shadow_view_count_value( value, new_settings.shadow_view_count );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "shadow_resolution" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "shadow_resolution", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_shadow_resolution_value( value, new_settings.shadow_resolution );
 		}
 
-		if ( scribe.find_property_value( section, string8_c( core_list_mode_e_static, "shadow_sample_quality" ), value ) )
+		if ( scribe.find_property_value( section, string8_c( "shadow_sample_quality", core_list_mode_e_static ), value ) )
 		{
 			settings_c::get_shadow_sample_quality_value( value, new_settings.shadow_sample_quality );
 		}

@@ -171,8 +171,8 @@ namespace cheonsa
 
 	menu_control_scroll_bar_i::menu_control_scroll_bar_i( mode_e mode, orientation_e orientation )
 		: menu_control_c()
-		, _rail_element( string8_c( core_list_mode_e_static, "rail_frame" ) )
-		, _grip_element( string8_c( core_list_mode_e_static, "grip_frame" ) )
+		, _rail_element( string8_c( "rail_frame", core_list_mode_e_static ) )
+		, _grip_element( string8_c( "grip_frame", core_list_mode_e_static ) )
 		, _mode( mode )
 		, _orientation( orientation )
 		, _page_size( 0.0 )
@@ -205,7 +205,7 @@ namespace cheonsa
 		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_daughter_element( &_grip_element );
 
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_scroll" ) );
+		set_style_map_key( string8_c( "e_scroll", core_list_mode_e_static ) );
 
 		_update_transform_and_layout();
 	}

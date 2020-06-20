@@ -147,7 +147,7 @@ namespace cheonsa
 
 	menu_frame_style_c::reference_c::reference_c()
 		: _global_list_node( this )
-		, _key( core_list_mode_e_static, "" )
+		, _key()
 		, _value( nullptr )
 	{
 		_global_list.insert_at_end( &_global_list_node );
@@ -455,7 +455,7 @@ namespace cheonsa
 
 	menu_text_style_c::reference_c::reference_c()
 		: _global_list_node( this )
-		, _key( core_list_mode_e_static, "" )
+		, _key()
 		, _value( nullptr )
 	{
 		_global_list.insert_at_end( &_global_list_node );

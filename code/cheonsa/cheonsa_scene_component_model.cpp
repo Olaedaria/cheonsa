@@ -809,7 +809,7 @@ namespace cheonsa
 	{
 		result.remove_all();
 		core_list_c< string8_c > name_list;
-		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, ";" ), name_list );
+		ops::string8_split_at_delimiter( names, string8_c( ";", core_list_mode_e_static ), name_list );
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
@@ -1007,7 +1007,7 @@ namespace cheonsa
 	scene_component_model_c::bone_c * scene_component_model_c::find_bone_at_path( string8_c const & path )
 	{
 		core_list_c< string8_c > path_nodes;
-		ops::string8_split_at_delimiter( path, string8_c( core_list_mode_e_static, "/" ), path_nodes );
+		ops::string8_split_at_delimiter( path, string8_c( "/", core_list_mode_e_static ), path_nodes );
 		core_linked_list_c< bone_c * >::node_c const * bone_list_node = _root_bone_list.get_first();
 		sint32_c i = 0;
 		while ( bone_list_node && i < path_nodes.get_length() )
@@ -1058,7 +1058,7 @@ namespace cheonsa
 	{
 		result.remove_all();
 		core_list_c< string8_c > name_list;
-		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, ";" ), name_list );
+		ops::string8_split_at_delimiter( names, string8_c( ";", core_list_mode_e_static ), name_list );
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
@@ -1119,8 +1119,8 @@ namespace cheonsa
 		, _that_bone_name()
 		, _that_bone( nullptr )
 	{
-		_mother_model->_model_resource->find_bone_logic_property_as_string8( _source_bone_logic, string8_c( core_list_mode_e_static, "this_bone_name" ), _this_bone_name );
-		_mother_model->_model_resource->find_bone_logic_property_as_string8( _source_bone_logic, string8_c( core_list_mode_e_static, "that_bone_name" ), _that_bone_name );
+		_mother_model->_model_resource->find_bone_logic_property_as_string8( _source_bone_logic, string8_c( "this_bone_name", core_list_mode_e_static ), _this_bone_name );
+		_mother_model->_model_resource->find_bone_logic_property_as_string8( _source_bone_logic, string8_c( "that_bone_name", core_list_mode_e_static ), _that_bone_name );
 	}
 
 	void_c scene_component_model_c::bone_logic_c::start()
@@ -1160,9 +1160,9 @@ namespace cheonsa
 		, rotation_weight( 1.0f )
 		, scale_weight( 1.0f )
 	{
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "position_weight" ), position_weight );
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "rotation_weight" ), rotation_weight );
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "scale_weight" ), scale_weight );
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "position_weight", core_list_mode_e_static ), position_weight );
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "rotation_weight", core_list_mode_e_static ), rotation_weight );
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "scale_weight", core_list_mode_e_static ), scale_weight );
 	}
 
 	void_c scene_component_model_c::bone_logic_copy_animation_c::start()
@@ -1190,7 +1190,7 @@ namespace cheonsa
 		: bone_logic_c( model, source_bone_logic )
 		, compression_factor( 1.0f )
 	{
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "compression_factor" ), compression_factor );
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "compression_factor", core_list_mode_e_static ), compression_factor );
 	}
 
 	void_c scene_component_model_c::bone_logic_muscle_c::start()
@@ -1254,14 +1254,14 @@ namespace cheonsa
 		_is_simulated = true;
 
 		float32_c t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "head_tension" ), t ); _head_particle.tension = t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "head_damping" ), t ); _head_particle.damping = t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "head_limit" ), t ); _head_particle.limit = t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "head_gravity" ), t ); _head_particle.gravity = t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "tail_tension" ), t ); _tail_particle.tension = t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "tail_damping" ), t ); _tail_particle.damping = t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "tail_limit" ), t ); _tail_particle.limit = t;
-		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( core_list_mode_e_static, "tail_gravity" ), t ); _tail_particle.gravity = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "head_tension", core_list_mode_e_static ), t ); _head_particle.tension = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "head_damping", core_list_mode_e_static ), t ); _head_particle.damping = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "head_limit", core_list_mode_e_static ), t ); _head_particle.limit = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "head_gravity", core_list_mode_e_static ), t ); _head_particle.gravity = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "tail_tension", core_list_mode_e_static ), t ); _tail_particle.tension = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "tail_damping", core_list_mode_e_static ), t ); _tail_particle.damping = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "tail_limit", core_list_mode_e_static ), t ); _tail_particle.limit = t;
+		model->_model_resource->find_bone_logic_property_as_float32( source_bone_logic, string8_c( "tail_gravity", core_list_mode_e_static ), t ); _tail_particle.gravity = t;
 	}
 
 	void_c scene_component_model_c::bone_logic_jiggle_c::start()
@@ -1371,7 +1371,7 @@ namespace cheonsa
 	{
 		result.remove_all();
 		core_list_c< string8_c > name_list;
-		ops::string8_split_at_delimiter( names, string8_c( core_list_mode_e_static, ";" ), name_list );
+		ops::string8_split_at_delimiter( names, string8_c( ";", core_list_mode_e_static ), name_list );
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );

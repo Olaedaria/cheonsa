@@ -105,7 +105,7 @@ namespace cheonsa
 #endif
 		if ( engine.get_debug_manager() )
 		{
-			engine.get_debug_manager()->_log( type, string16_c( core_list_mode_e_static_volatile, message ) );
+			engine.get_debug_manager()->_log( type, string16_c( message, core_list_mode_e_static_volatile ) );
 		}
 	}
 

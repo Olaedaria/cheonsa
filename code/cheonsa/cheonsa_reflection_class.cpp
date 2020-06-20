@@ -38,7 +38,7 @@ namespace cheonsa
 		return _base_class;
 	}
 
-	reflection_property_c * reflection_class_c::initialize_property( string8_c const & name, string8_c const & description )
+	reflection_property_c * reflection_class_c::add_property( string8_c const & name, string8_c const & description )
 	{
 		assert( ops::string8_is_valid_for_key( name ) );
 		reflection_property_c * new_property = new reflection_property_c( this, name, description );

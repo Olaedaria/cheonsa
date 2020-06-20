@@ -159,7 +159,7 @@ namespace cheonsa
 			{
 				if ( item.type == item_c::type_e_property && property_name == item.name )
 				{
-					result = string8_c( core_list_mode_e_static, item.value );
+					result = string8_c( item.value, core_list_mode_e_static );
 					return true;
 				}
 				else if ( item.type == item_c::type_e_section )

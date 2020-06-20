@@ -358,7 +358,7 @@ namespace cheonsa
 		}
 		else
 		{
-			string16_c flipped_string = string16_c( core_list_mode_e_dynamic, value.character_list.get_internal_array(), value.character_list.get_length() );
+			string16_c flipped_string = string16_c( value.character_list.get_internal_array(), core_list_mode_e_dynamic, value.character_list.get_length() );
 			uint8_c * bytes = reinterpret_cast< uint8_c * >( flipped_string.character_list.get_internal_array() );
 			for ( sint32_c i = 0; i < length; i++ )
 			{

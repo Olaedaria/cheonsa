@@ -1075,7 +1075,7 @@ namespace cheonsa
 		// helper function for looking up strings.
 		inline string8_c get_string( uint16_c offset ) const
 		{
-			return string8_c( core_list_mode_e_static, &_data.string_table[ offset ] );
+			return string8_c( &_data.string_table[ offset ], core_list_mode_e_static );
 		}
 
 		// helper function for looking up strings.

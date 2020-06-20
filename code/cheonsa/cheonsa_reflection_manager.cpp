@@ -26,10 +26,10 @@ namespace cheonsa
 		return true;
 	}
 
-	reflection_enumeration_c * reflection_manager_c::_add_enumeration( string8_c const & name, string8_c const & description )
+	reflection_enumeration_c * reflection_manager_c::add_enumeration( string8_c const & name, string8_c const & description, boolean_c is_for_bit_flags )
 	{
 		assert( find_enumeration( name ) == nullptr );
-		reflection_enumeration_c * new_enumeration = new reflection_enumeration_c( this, name, description );
+		reflection_enumeration_c * new_enumeration = new reflection_enumeration_c( this, name, description, is_for_bit_flags );
 		_enumeration_list.insert( -1, new_enumeration );
 		return new_enumeration;
 	}
@@ -46,7 +46,7 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	reflection_class_c * reflection_manager_c::_add_class( string8_c const & name, string8_c const & description, reflection_class_c * base_class )
+	reflection_class_c * reflection_manager_c::add_class( string8_c const & name, string8_c const & description, reflection_class_c * base_class )
 	{
 		assert( find_class( name ) == nullptr );
 

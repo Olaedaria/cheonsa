@@ -6,8 +6,8 @@ namespace cheonsa
 
 	menu_control_button_c::menu_control_button_c()
 		: menu_control_c()
-		, _frame_element( string8_c( core_list_mode_e_static, "frame" ) )
-		, _text_element( string8_c( core_list_mode_e_static, "text" ) )
+		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
+		, _text_element( string8_c( "text", core_list_mode_e_static ) )
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
@@ -19,7 +19,7 @@ namespace cheonsa
 		_text_element.set_text_interact_mode( menu_text_interact_mode_e_static );
 		_add_daughter_element( &_text_element );
 
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_button" ) );
+		set_style_map_key( string8_c( "e_button", core_list_mode_e_static ) );
 	}
 
 	string16_c menu_control_button_c::get_plain_text_value() const

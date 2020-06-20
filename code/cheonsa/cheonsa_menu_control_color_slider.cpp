@@ -224,9 +224,9 @@ namespace cheonsa
 
 	menu_control_color_slider_c::menu_control_color_slider_c()
 		: menu_control_c()
-		, _mesh_element( string8_c( core_list_mode_e_static, "mesh" ) )
-		, _slider_frame_element( string8_c( core_list_mode_e_static, "slider_frame" ) )
-		, _border_frame_element( string8_c( core_list_mode_e_static, "border_frame" ) )
+		, _mesh_element( string8_c( "mesh", core_list_mode_e_static ) )
+		, _slider_frame_element( string8_c( "slider_frame", core_list_mode_e_static ) )
+		, _border_frame_element( string8_c( "border_frame", core_list_mode_e_static ) )
 		, _mode( mode_e_red )
 		, _value( 0.0f )
 		, _color()
@@ -236,14 +236,14 @@ namespace cheonsa
 		_mesh_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_daughter_element( &_mesh_element );
 
-		_slider_frame_element.set_style_key( string8_c( core_list_mode_e_static, "e_precision_slider_frame" ) );
+		_slider_frame_element.set_style_key( string8_c( "e_precision_slider_frame", core_list_mode_e_static ) );
 		_add_daughter_element( &_slider_frame_element );
 
 		_border_frame_element.set_is_overlay( true );
 		_add_daughter_element( &_border_frame_element );
 
 		set_shared_color_class( menu_shared_color_class_e_button );
-		set_style_map_key( string8_c( core_list_mode_e_static, "e_color_slider" ) );
+		set_style_map_key( string8_c( "e_color_slider", core_list_mode_e_static ) );
 	}
 
 	menu_control_color_slider_c::~menu_control_color_slider_c()

@@ -20,7 +20,7 @@ namespace cheonsa
 	boolean_c content_manager_c::locale_c::get_code_language( string16_c & result ) const
 	{
 		sint32_c index = 0;
-		if ( ops::string16_find_index_of( _code, string16_c( core_list_mode_e_static, L"_" ), index ) )
+		if ( ops::string16_find_index_of( _code, string16_c( L"_", core_list_mode_e_static ), index ) )
 		{
 			if ( index > 0 )
 			{
@@ -34,7 +34,7 @@ namespace cheonsa
 	boolean_c content_manager_c::locale_c::get_code_country( string16_c & result ) const
 	{
 		sint32_c index = 0;
-		if ( ops::string16_find_index_of( _code, string16_c( core_list_mode_e_static, L"_" ), index ) )
+		if ( ops::string16_find_index_of( _code, string16_c( L"_", core_list_mode_e_static ), index ) )
 		{
 			index++;
 			if ( index < _code.get_length() )
@@ -53,20 +53,20 @@ namespace cheonsa
 
 	void_c content_manager_c::_save_settings( data_scribe_ini_c & scribe )
 	{
-		scribe.add_section( string8_c( core_list_mode_e_static, "locale" ) );
-		scribe.add_property( string8_c( core_list_mode_e_static, "code" ), string8_c( _preferred_locale_code ) );
+		scribe.add_section( string8_c( "locale", core_list_mode_e_static ) );
+		scribe.add_property( string8_c( "code", core_list_mode_e_static ), string8_c( _preferred_locale_code ) );
 	}
 
 	void_c content_manager_c::_load_settings( data_scribe_ini_c & scribe )
 	{
 		string8_c value;
-		if ( scribe.find_property_value( string8_c( core_list_mode_e_static, "locale" ), string8_c( core_list_mode_e_static, "code" ), value ) )
+		if ( scribe.find_property_value( string8_c( "locale", core_list_mode_e_static ), string8_c( "code", core_list_mode_e_static ), value ) )
 		{
 			set_preferred_locale_code( string16_c( value ) );
 		}
 		else
 		{
-			set_preferred_locale_code( string16_c( core_list_mode_e_static, L"en" ) );
+			set_preferred_locale_code( string16_c( L"en", core_list_mode_e_static ) );
 		}
 	}
 

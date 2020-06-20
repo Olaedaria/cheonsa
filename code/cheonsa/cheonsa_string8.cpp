@@ -22,8 +22,8 @@ namespace cheonsa
 		*this = other;
 	}
 
-	string8_c::string8_c( char8_c const * other, core_list_mode_e mode )
-		: character_list( mode, other, ops::string8_find_length( other ) + 1 )
+	string8_c::string8_c( char8_c const * other, core_list_mode_e mode, sint32_c other_length_with_null_terminator )
+		: character_list( mode, other, other_length_with_null_terminator > 0 ? other_length_with_null_terminator : ops::string8_find_length( other ) + 1 )
 	{
 	}
 
@@ -32,17 +32,6 @@ namespace cheonsa
 	{
 		assert( other );
 		*this = other;
-	}
-
-	string8_c::string8_c( core_list_mode_e mode, char8_c const * other )
-		: character_list( mode, other, ops::string8_find_length( other ) + 1 )
-	{
-	}
-
-	string8_c::string8_c( core_list_mode_e mode, char8_c const * other, sint32_c other_length_with_null_terminator )
-		: character_list( mode, other, other_length_with_null_terminator )
-	{
-		assert( other[ other_length_with_null_terminator - 1 ] == 0 );
 	}
 
 	boolean_c string8_c::is_set() const
@@ -56,22 +45,6 @@ namespace cheonsa
 		assert( character_list[ character_list.get_length() - 1 ] == 0 );
 		return character_list.get_length() - 1;
 	}
-
-	//void_c string8_c::construct_mode_static()
-	//{
-	//	character_list.construct_mode_static_from_array( "", 1 );
-	//}
-
-	//void_c string8_c::construct_mode_static_from_array( char8_c const * other )
-	//{
-	//	character_list.construct_mode_static_from_array( other, ops::string8_find_length( other ) + 1 );
-	//}
-
-	//void_c string8_c::construct_mode_dynamic()
-	//{
-	//	character_list.construct_mode_dynamic( 1 ); // this will behave like character_list.construct_mode_dynamic_but_keep_allocated() if character_list is already allocated to allocation length >= 1, otherwise it will reallocate it.
-	//	character_list[ 0 ] = 0;
-	//}
 
 	string8_c & string8_c::operator = ( char8_c const * other )
 	{
