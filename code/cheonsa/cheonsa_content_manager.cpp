@@ -19,22 +19,19 @@ namespace cheonsa
 
 	boolean_c content_manager_c::locale_c::get_code_language( string16_c & result ) const
 	{
-		sint32_c index = 0;
-		if ( ops::string16_find_index_of( _code, string16_c( L"_", core_list_mode_e_static ), index ) )
+		sint32_c index = ops::string16_find_index_of_2( _code, string16_c( L"_", core_list_mode_e_static ) );
+		if ( index > 0 )
 		{
-			if ( index > 0 )
-			{
-				result = ops::string16_sub_string( _code, 0, index );
-				return true;
-			}
+			result = ops::string16_sub_string( _code, 0, index );
+			return true;
 		}
 		return false;
 	}
 
 	boolean_c content_manager_c::locale_c::get_code_country( string16_c & result ) const
 	{
-		sint32_c index = 0;
-		if ( ops::string16_find_index_of( _code, string16_c( L"_", core_list_mode_e_static ), index ) )
+		sint32_c index = ops::string16_find_index_of_2( _code, string16_c( L"_", core_list_mode_e_static ) );
+		if ( index > 0 )
 		{
 			index++;
 			if ( index < _code.get_length() )
@@ -93,6 +90,7 @@ namespace cheonsa
 		, _text_sprites_resources()
 		, _text_sprites_users_are_dirty( false )
 		, _settings_file()
+		, _wants_to_refresh( false )
 	{
 	}
 

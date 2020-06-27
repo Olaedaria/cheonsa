@@ -688,12 +688,12 @@ namespace cheonsa
 		{
 			boolean_c hex = false;
 			sint32_c hex_start = 0;
-			if ( string8_starts_with( string.character_list.get_internal_array(), "#" ) )
+			if ( string8_starts_with( string, string8_c( "#", core_list_mode_e_static ) ) )
 			{
 				hex = true;
 				hex_start = 1;
 			}
-			else if ( string8_starts_with( string.character_list.get_internal_array(), "0x" ) )
+			else if ( string8_starts_with( string, string8_c( "0x", core_list_mode_e_static ) ) )
 			{
 				hex = true;
 				hex_start = 2;
@@ -990,8 +990,14 @@ namespace cheonsa
 				}
 			}
 			result = string;
-			result.character_list.remove( -1, end - start );
-			result.character_list.remove( 0, start );
+			if ( end - start > 0 )
+			{
+				result.character_list.remove( -1, end - start );
+			}
+			if ( start > 0 )
+			{
+				result.character_list.remove( 0, start );
+			}
 			return result;
 		}
 
@@ -1026,9 +1032,8 @@ namespace cheonsa
 		}
 
 		template< typename string_type_c >
-		boolean_c _string_find_index_of( string_type_c const & string, string_type_c const & find, sint32_c & result )
+		sint32_c _string_find_index_of( string_type_c const & string, string_type_c const & find )
 		{
-			result = -1;
 			sint32_c i = 0; // current position in string.
 			sint32_c j = 0; // current position in needle.
 			auto const * a = string.character_list.get_internal_array();
@@ -1043,8 +1048,7 @@ namespace cheonsa
 						j++;
 						if ( b[ j ] == 0 )
 						{
-							result = i;
-							return true;
+							return i;
 						}
 					}
 					else
@@ -1054,17 +1058,17 @@ namespace cheonsa
 				}
 				i++;
 			}
-			return false;
+			return -1;
 		}
 
-		boolean_c string8_find_index_of( string8_c const & string, string8_c const & find, sint32_c & result )
+		sint32_c string8_find_index_of_2( string8_c const & string, string8_c const & find )
 		{
-			return _string_find_index_of< string8_c >( string, find, result );
+			return _string_find_index_of< string8_c >( string, find );
 		}
 
-		boolean_c string16_find_index_of( string16_c const & string, string16_c const & find, sint32_c & result )
+		sint32_c string16_find_index_of_2( string16_c const & string, string16_c const & find )
 		{
-			return _string_find_index_of< string16_c >( string, find, result );
+			return _string_find_index_of< string16_c >( string, find );
 		}
 
 		template< typename string_type_c >
@@ -1104,10 +1108,10 @@ namespace cheonsa
 		}
 
 		template< typename string_type_c >
-		string_type_c _string_find_and_replace_all( string_type_c const & string, string_type_c const & find, string_type_c const & replace, boolean_c case_sensitive )
+		sint32_c _string_find_and_replace_all( string_type_c const & string, string_type_c const & find, string_type_c const & replace, boolean_c case_sensitive, string_type_c & result )
 		{
 			assert( find.get_length() > 0 );
-			string_type_c result;
+			sint32_c instances_replaced = 0;
 			result.character_list.remove_all();
 			auto const * s = string.character_list.get_internal_array();
 			auto const * f = find.character_list.get_internal_array();
@@ -1128,6 +1132,7 @@ namespace cheonsa
 							k++;
 						}
 						i += j;
+						instances_replaced++;
 						goto replaced;
 					}
 				}
@@ -1136,18 +1141,18 @@ namespace cheonsa
 			replaced:
 				continue;
 			}
-			result.character_list.insert( -1, 0 );
-			return result;
+			result.character_list.insert( -1, '\0' );
+			return instances_replaced;
 		}
 
-		string8_c string8_find_and_replace_all( string8_c const & string, string8_c const & find, string8_c const & replace, boolean_c case_sensitive )
+		sint32_c string8_find_and_replace_all( string8_c const & string, string8_c const & find, string8_c const & replace, boolean_c case_sensitive, string8_c & result )
 		{
-			return _string_find_and_replace_all< string8_c >( string, find, replace, case_sensitive );
+			return _string_find_and_replace_all< string8_c >( string, find, replace, case_sensitive, result );
 		}
 
-		string16_c string16_find_and_replace_all( string16_c const & string, string16_c const & find, string16_c const & replace, boolean_c case_sensitive )
+		sint32_c string16_find_and_replace_all( string16_c const & string, string16_c const & find, string16_c const & replace, boolean_c case_sensitive, string16_c & result )
 		{
-			return _string_find_and_replace_all< string16_c >( string, find, replace, case_sensitive );
+			return _string_find_and_replace_all< string16_c >( string, find, replace, case_sensitive, result );
 		}
 
 		template< typename string_type_c >
@@ -1267,78 +1272,80 @@ namespace cheonsa
 			return _string_sub_string< string16_c >( string, start, length );
 		}
 
-
-		template< typename char_type_c >
-		boolean_c _string_starts_with( char_type_c const * a, char_type_c const * b )
+		template< typename string_type_c >
+		boolean_c _string_starts_with( string_type_c const & a, string_type_c const & b )
 		{
-			while ( *a && *b )
+			auto * a_c = a.character_list.get_internal_array();
+			auto * b_c = b.character_list.get_internal_array();
+			while ( *a_c && *b_c )
 			{
-				if ( *a != *b )
+				if ( *a_c != *b_c )
 				{
 					return false;
 				}
-				a++;
-				b++;
+				a_c++;
+				b_c++;
 			}
-			return *b == 0;
+			return *b_c == '\0';
 		}
 
-
-		boolean_c string8_starts_with( char8_c const * a, char8_c const * b )
+		boolean_c string8_starts_with( string8_c const & a, string8_c const & b )
 		{
-			return _string_starts_with< char8_c >( a, b );
+			return _string_starts_with( a, b );
 		}
 
-		boolean_c string8_starts_with( char8_c const * a, char16_c const * b )
+		boolean_c string8_starts_with( string8_c const & a, string16_c const & b )
 		{
 			char8_c c_buffer[ 3 ];
-			while ( *a && *b )
+			auto * a_c = a.character_list.get_internal_array();
+			auto * b_c = b.character_list.get_internal_array();
+			while ( *a_c && *b_c )
 			{
 				char8_c * c_buffer_pointer = c_buffer;
-				sint8_c byte_count = convert_char16_to_utf8( *b, c_buffer_pointer );
+				sint8_c byte_count = convert_char16_to_utf8( *b_c, c_buffer_pointer );
 				for ( sint8_c i = 0; i < byte_count; i++ )
 				{
-					if ( a[ i ] != c_buffer[ i ] )
+					if ( a_c[ i ] != c_buffer[ i ] )
 					{
 						return false;
 					}
 				}
-				a += byte_count;
-				b += 1;
+				a_c += byte_count;
+				b_c += 1;
 			}
-			return *b == 0;// || *a == *b; // *b will == 0 if pass, *a will == *b if both are 0 which is also pass.
+			return *b_c == '\0';
 		}
 
-		boolean_c string16_starts_with( char16_c const * a, char8_c const * b )
+		boolean_c string16_starts_with( string16_c const & a, string8_c const & b )
 		{
-			while ( *a && *b )
+			char16_c const * a_c = a.character_list.get_internal_array();
+			char8_c const * b_c = b.character_list.get_internal_array();
+			while ( *a_c && *b_c )
 			{
 				char16_c c;
-				convert_utf8_to_char16( b, c );
-				if ( *a != c )
+				convert_utf8_to_char16( b_c, c );
+				if ( *a_c != c )
 				{
 					return false;
 				}
-				a += 1;
+				a_c += 1;
 			}
-			return *b == 0;// || *a == *b; // *b will == 0 if pass, *a will == *b if both are 0 which is also pass.
+			return *b_c == '\0';// || *a == *b; // *b will == 0 if pass, *a will == *b if both are 0 which is also pass.
 		}
 
-		boolean_c string16_starts_with( char16_c const * a, char16_c const * b )
+		boolean_c string16_starts_with( string16_c const & a, string16_c const & b )
 		{
-			return _string_starts_with< char16_c >( a, b );
+			return _string_starts_with( a, b );
 		}
 
-		template< typename char_type_c >
-		boolean_c _string_ends_with( char_type_c const * a, char_type_c const * b )
+		template< typename string_type_c >
+		boolean_c _string_ends_with( string_type_c const & a, string_type_c const & b )
 		{
-			sint32_c a_length = _string_find_length< char_type_c >( a );
-			sint32_c b_length = _string_find_length< char_type_c >( b );
-			sint32_c a_index = a_length - 1;
-			sint32_c b_index = b_length - 1;
+			sint32_c a_index = a.get_length() - 1;
+			sint32_c b_index = b.get_length() - 1;
 			while ( a_index >= 0 && b_index >= 0 )
 			{
-				if ( a[ a_index ] != b[ b_index ] )
+				if ( a.character_list[ a_index ] != b.character_list[ b_index ] )
 				{
 					return false;
 				}
@@ -1348,28 +1355,25 @@ namespace cheonsa
 			return b_index == -1 || a_index == b_index; // b_index will == -1 if pass, a_index will == b_index if both are -1, which is also pass.
 		}
 
-		boolean_c string8_ends_with( char8_c const * a, char8_c const * b )
+		boolean_c string8_ends_with( string8_c const & a, string8_c const & b )
 		{
-			return _string_ends_with< char8_c >( a, b );
+			return _string_ends_with( a, b );
 		}
 
-		boolean_c string8_ends_with( char8_c const * a, char16_c const * b )
+		boolean_c string8_ends_with( string8_c const & a, string16_c const & b )
 		{
-			sint32_c a_length = string8_find_length( a );
-			sint32_c b_length = string16_find_length( b );
-
-			sint32_c a_index = a_length - 1;
-			sint32_c b_index = b_length - 1;
+			sint32_c a_index = a.get_length() - 1;
+			sint32_c b_index = b.get_length() - 1;
 
 			char8_c b_buffer[ 3 ];
 			while ( a_index >= 0 && b_index >= 0 )
 			{
 				char8_c * b_buffer_pointer = b_buffer;
-				sint8_c b_bytes_length = convert_char16_to_utf8( b[ b_index ], b_buffer_pointer );
+				sint8_c b_bytes_length = convert_char16_to_utf8( b.character_list[ b_index ], b_buffer_pointer );
 				sint8_c b_bytes_index = b_bytes_length - 1;
 				while ( a_index >= 0 && b_bytes_index >= 0 )
 				{
-					if ( a[ a_index ] != b_buffer[ b_bytes_index ] )
+					if ( a.character_list[ a_index ] != b_buffer[ b_bytes_index ] )
 					{
 						return false;
 					}
@@ -1381,7 +1385,7 @@ namespace cheonsa
 			return b_index == -1 || a_index == b_index; // b_index will == -1 if pass, a_index will == b_index if both are -1, which is also pass.
 		}
 
-		boolean_c string16_ends_with( char16_c const * a, char8_c const * b )
+		boolean_c string16_ends_with( string16_c const & a, string8_c const & b )
 		{
 			0x80; // 1 byte sequence: first byte signature mask, 1 bit, for 1 byte sequence.
 
@@ -1394,36 +1398,33 @@ namespace cheonsa
 			0x80; // 2 and 3 byte sequences: subsequent byte signature, 2 bits.
 			0xC0; // 2 and 3 byte sequences: subsequent byte sitnature bit mask, 2 bits.
 
-			sint32_c a_length = string16_find_length( a );
-			sint32_c b_length = string8_find_length( b );
-
-			sint32_c a_index = a_length - 1;
-			sint32_c b_index = b_length - 1;
+			sint32_c a_index = a.get_length() - 1;
+			sint32_c b_index = b.get_length() - 1;
 
 			while ( a_index >= 0 && b_index >= 0 )
 			{
 				char16_c b_character = 0;
 				char8_c const * b_buffer = nullptr;
-				if ( ( b[ b_index ] & 0x80 ) == 0x00 )
+				if ( ( b.character_list[ b_index ] & 0x80 ) == 0x00 )
 				{
 					// 1 byte sequence.
-					b_buffer = &b[ b_index ];
+					b_buffer = &b.character_list[ b_index ];
 					b_index -= 1;
 				}
-				else if ( ( b[ b_index ] & 0xC0 ) == 0x80 )
+				else if ( ( b.character_list[ b_index ] & 0xC0 ) == 0x80 )
 				{
-					if ( ( b_index >= 1 ) && ( b[ b_index - 1 ] & 0xE0 ) == 0xC0 )
+					if ( ( b_index >= 1 ) && ( b.character_list[ b_index - 1 ] & 0xE0 ) == 0xC0 )
 					{
 						// 2 byte sequence
-						b_buffer = &b[ b_index - 1 ];
+						b_buffer = &b.character_list[ b_index - 1 ];
 						b_index -= 2;
 					}
-					else if ( ( b_index >= 1 ) && ( b[ b_index - 1 ] & 0xC0 ) == 0x80 )
+					else if ( ( b_index >= 1 ) && ( b.character_list[ b_index - 1 ] & 0xC0 ) == 0x80 )
 					{
-						if ( ( b_index >= 2 ) && ( b[ b_index - 2 ] & 0xF0 ) == 0xE0 )
+						if ( ( b_index >= 2 ) && ( b.character_list[ b_index - 2 ] & 0xF0 ) == 0xE0 )
 						{
 							// 3 byte sequence.
-							b_buffer = &b[ b_index - 2 ];
+							b_buffer = &b.character_list[ b_index - 2 ];
 							b_index -= 3;
 						}
 						else
@@ -1441,7 +1442,7 @@ namespace cheonsa
 					assert( false );
 				}
 				convert_utf8_to_char16( b_buffer, b_character );
-				if ( a[ a_index ] != b_character )
+				if ( a.character_list[ a_index ] != b_character )
 				{
 					return false;
 				}
@@ -1450,35 +1451,35 @@ namespace cheonsa
 			return b_index == -1 || a_index == b_index; // b_index will == -1 if pass, a_index will == b_index if both are -1, which is also pass.
 		}
 
-		boolean_c string16_ends_with( char16_c const * a, char16_c const * b )
+		boolean_c string16_ends_with( string16_c const & a, string16_c const & b )
 		{
-			return _string_ends_with< char16_c >( a, b );
+			return _string_ends_with( a, b );
 		}
 
-		boolean_c string8_sort_compare( string8_c const * const & a, string8_c const * const & b )
+		sint32_c string8_sort_compare( string8_c const * const & a, string8_c const * const & b )
 		{
 			assert( a != nullptr && b != nullptr );
-			return strnatcmp::strnatcmp0< char8_c >( a->character_list.get_internal_array(), b->character_list.get_internal_array(), false ) > 0;
+			return strnatcmp::strnatcmp0< char8_c >( a->character_list.get_internal_array(), b->character_list.get_internal_array(), false );
 		}
 
-		boolean_c string8_sort_compare( string8_c const & a, string8_c const & b )
+		sint32_c string8_sort_compare( string8_c const & a, string8_c const & b )
 		{
-			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false ) > 0;
+			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false );
 		}
 
-		boolean_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b )
+		sint32_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b )
 		{
-			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true ) > 0;
+			return strnatcmp::strnatcmp0< char8_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true );
 		}
 
-		boolean_c string16_sort_compare( string16_c const & a, string16_c const & b )
+		sint32_c string16_sort_compare( string16_c const & a, string16_c const & b )
 		{
-			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false ) > 0;
+			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), false );
 		}
 
-		boolean_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b )
+		sint32_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b )
 		{
-			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true ) > 0;
+			return strnatcmp::strnatcmp0< char16_c >( a.character_list.get_internal_array(), b.character_list.get_internal_array(), true );
 		}
 
 		boolean_c string8_compare( char8_c const * a, char8_c const * b )

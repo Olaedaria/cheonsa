@@ -15,11 +15,10 @@ namespace cheonsa
 		window_state_e_maximized,
 	};
 
-	// manages creating a borderless style window.
-	// window can still be resized by the edges and moved by the title bar, but they are invisible.
-	// because the window is borderless, the area that can be rendered to is the entire window rectangle.
-	// the engine creates the main client window at start up.
-	// then the user interface creates a canvas with the window as the output.
+	// manages creating the game's client window.
+	// the window is borderless but it can be resized and moved as usual, it's just that the title bar and edges are invisible.
+	// the window is borderless so the area that the gpu renders to is the entire window rectangle.
+	// also processes events received from the operating system, and passes user input related events to the input manager.
 	class window_manager_c
 	{
 		friend class engine_c;

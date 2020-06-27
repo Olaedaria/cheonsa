@@ -35,7 +35,8 @@ namespace cheonsa
 	protected:
 		menu_element_frame_c _frame_element; // name is "frame", draws the background of this panel.
 		menu_element_frame_c _border_frame_element; // name is "border_frame".
-		
+
+		box32x2_c _client_margins;
 		menu_control_c * _client; // name is "client". panel control that makes up the client area and publicly accessable controls, and for the scroll bars to plug their values into.
 
 		box32x2_c const & _get_client_margins() const;
@@ -52,6 +53,8 @@ namespace cheonsa
 		menu_visibility_mode_e _get_vertical_scroll_bar_visibility_mode() const;
 		void_c _set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value );
 		void_c _lay_out_vertical_scroll_bar();
+
+		virtual void_c _update_transform_and_layout() override;
 
 		void_c _update_scroll_bar_visibility(); // evaluates content size and updates visibility of scroll bars accordingly.
 

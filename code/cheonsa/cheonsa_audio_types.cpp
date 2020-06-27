@@ -693,13 +693,12 @@ namespace cheonsa
 		}
 		_queued_scene_source_list.remove_all();
 
-		core_linked_list_c< audio_scene_source_c * >::node_c const * sources_node = _scene_source_list.get_first();
-		while ( sources_node )
+		while ( _scene_source_list.get_first() )
 		{
-			sources_node->get_value()->remove_reference();
-			sources_node = sources_node->get_next();
+			audio_scene_source_c * scene_source = _scene_source_list.get_first()->get_value();
+			_scene_source_list.remove( _scene_source_list.get_first() ); // remove from list before removing reference, because removing reference could delete the list node.
+			scene_source->remove_reference();
 		}
-		_scene_source_list.remove_all_quick_and_dirty();
 
 		_critical_section.exit();
 	}

@@ -97,11 +97,11 @@ namespace cheonsa
 		vector32x2_c const & get_maximum_size() const;
 		void_c set_maximum_size( vector32x2_c const & value );
 
-		vector32x2_c const & get_position() const; // position of top left corner of window.
-		void_c set_position( vector32x2_c const & value );
+		vector32x2_c const & get_position() const; // gets the position of the top left corner of the window.
+		void_c set_position( vector32x2_c const & value ); // sets the position of the top left corner of the window.
 
-		vector32x2_c get_size() const;
-		void_c set_size( vector32x2_c const & value );
+		vector32x2_c get_size() const; // gets the width and height of the window.
+		void_c set_size( vector32x2_c const & value ); // sets the width and height of the window.
 
 		menu_visibility_mode_e get_horizontal_scroll_bar_visibility_mode() const;
 		void_c set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value );
@@ -124,9 +124,8 @@ namespace cheonsa
 		// this modal screen is a root level control, created by the user interface system, provided for us to remember.
 		virtual void_c show_dialog( menu_control_c * modal_screen );
 
-		// hides this window, does not delete it.
-		// hides and deletes modal screen if one is associated.
-		virtual void_c hide_dialog();
+		// hides this window and also hides and deletes modal screen if one is associated.
+		virtual void_c hide_dialog( boolean_c and_delete = false );
 
 		menu_dialog_result_e get_dialog_result() const; // gets the current or last result.
 		core_event_c< void_c, menu_control_window_c * > on_dialog_result; // dialog windows are not responsible for calling hide_dialog() on their own.

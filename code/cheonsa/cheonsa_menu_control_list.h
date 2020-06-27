@@ -47,6 +47,9 @@ namespace cheonsa
 		menu_control_list_c();
 		virtual ~menu_control_list_c() override;
 
+		sint32_c get_selected_item_limit() const;
+		void_c set_selected_item_limit( sint32_c value );
+
 		sint32_c get_item_count() const;
 		menu_control_list_item_i const * get_item_at_index( sint32_c item_index ) const;
 		menu_control_list_item_i * get_item_at_index( sint32_c item_index );
@@ -62,6 +65,8 @@ namespace cheonsa
 		void_c set_selected_item_index( sint32_c item_index ); // selects a single item, or deselects everything if -1.
 
 		core_list_c< menu_control_list_item_i * > const & get_selected_item_list() const;
+
+		void_c sort_items_by_plain_text_value( boolean_c invert = false );
 
 		core_event_c< void_c, menu_control_list_c * > on_selected_item_list_changed; // occurs when list item selection state changes.
 

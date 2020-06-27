@@ -205,7 +205,7 @@ namespace cheonsa
 		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
 		_add_daughter_element( &_grip_element );
 
-		set_style_map_key( string8_c( "e_scroll", core_list_mode_e_static ) );
+		set_style_map_key( string8_c( "e_scroll_bar", core_list_mode_e_static ) );
 
 		_update_transform_and_layout();
 	}
@@ -390,20 +390,34 @@ namespace cheonsa
 		return _mode;
 	}
 
-	void_c menu_control_scroll_bar_i::update_visibility( menu_visibility_mode_e value )
+	boolean_c menu_control_scroll_bar_i::update_visibility( menu_visibility_mode_e value )
 	{
 		if ( value == menu_visibility_mode_e_automatic )
 		{
-			set_is_showed( _value_maximum - _value_minimum > _page_size );
+			boolean_c new_value = _value_maximum - _value_minimum > _page_size;
+			if ( new_value != _is_showed )
+			{
+				set_is_showed( new_value );
+				return true;
+			}
 		}
 		else if ( value == menu_visibility_mode_e_always )
 		{
-			set_is_showed( true );
+			if ( _is_showed == false )
+			{
+				set_is_showed( true );
+				return true;
+			}
 		}
 		else
 		{
-			set_is_showed( false );
+			if ( _is_showed == true )
+			{
+				set_is_showed( false );
+				return true;
+			}
 		}
+		return false;
 	}
 
 	void_c menu_control_scroll_bar_i::set_value_range_and_page_size( float64_c value_minimum, float64_c value_maximum, float64_c page_size )

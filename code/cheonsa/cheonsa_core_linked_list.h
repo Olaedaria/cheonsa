@@ -206,10 +206,25 @@ namespace cheonsa
 			_length++;
 		}
 
-		// empties this linked list in a quick and dirty way, doesn't try to delete values or reset next and previous pointers in nodes.
-		// use this if you deleted all of the values already.
+		// empties this list state, but all nodes that were in the list will still have their _previous and _next pointers set.
 		void_c remove_all_quick_and_dirty()
 		{
+			_first = nullptr;
+			_last = nullptr;
+			_length = 0;
+		}
+
+		// removes all values in the list.
+		void_c remove_all()
+		{
+			node_c * node = _first;
+			while ( node )
+			{
+				node_c * next = node->_next;
+				node->_next = nullptr;
+				node->_previous = nullptr;
+				node = next;
+			}
 			_first = nullptr;
 			_last = nullptr;
 			_length = 0;

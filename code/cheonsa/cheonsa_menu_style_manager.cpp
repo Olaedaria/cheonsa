@@ -211,11 +211,15 @@ namespace cheonsa
 			color_style_list_node->get_value()->unresolve();
 			color_style_list_node = color_style_list_node->get_next();
 		}
+
+		sint32_c i = 0;
 		core_linked_list_c< menu_frame_style_c::reference_c * >::node_c * frame_style_list_node = menu_frame_style_c::reference_c::_global_list.get_first();
 		while ( frame_style_list_node )
 		{
 			frame_style_list_node->get_value()->unresolve();
+			core_linked_list_c< menu_frame_style_c::reference_c * >::node_c * frame_style_list_node_previous = frame_style_list_node;
 			frame_style_list_node = frame_style_list_node->get_next();
+			i++;
 		}
 		core_linked_list_c< menu_text_style_c::reference_c * >::node_c * text_style_list_node = menu_text_style_c::reference_c::_global_list.get_first();
 		while ( text_style_list_node )

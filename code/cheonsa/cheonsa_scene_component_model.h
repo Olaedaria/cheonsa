@@ -25,7 +25,8 @@ namespace cheonsa
 		static inline uint8_c get_type_code_static() { return scene_component_type_e_model; }
 		virtual inline uint8_c get_type_code() const override { return get_type_code_static(); }
 
-
+	public:
+		core_linked_list_c< scene_component_model_c * >::node_c _model_list_node; // used by scene to hold all of the model components in a flat list.
 
 
 	//
@@ -940,8 +941,8 @@ namespace cheonsa
 	//
 	private:
 		void_c _update_world_transforms(); // builds world space transforms of all bones, and attachments, and lights, based on their local space transforms and inheritance.
-		virtual void_c _handle_before_removed_from_scene(); // is called when the scene object is added to a scene. the scene may or may not already be associated with the engine's user interface at this point.
 		virtual void_c _handle_after_added_to_scene(); // is called when the scene object is removed from a scene. the scene may or may not already be associated with the engine's user interface at this point.
+		virtual void_c _handle_before_removed_from_scene(); // is called when the scene object is added to a scene. the scene may or may not already be associated with the engine's user interface at this point.
 		virtual void_c _handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator ) override;
 
 	public:

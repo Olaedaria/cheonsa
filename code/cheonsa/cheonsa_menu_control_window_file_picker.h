@@ -67,6 +67,7 @@ namespace cheonsa
 
 		menu_control_button_c * _cancel_button; // name is "cancel_button", cancel button at bottom, right of file name.
 		menu_control_button_c * _okay_button; // name is "okay_button", save or open button at bottom, right of file name.
+		void_c _refresh_okay_button_state(); // evaluates file picker state and enables or disables the okay button based on the state.
 
 		mode_e _mode; // if the file picker is being used to load a file or save a file.
 		void_c _try_to_okay(); // tries to pick the currently selected file, which means that if mode is load then it checks if the file can be opened, if mode is save then it warns on overwrite.

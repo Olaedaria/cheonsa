@@ -48,7 +48,7 @@ namespace cheonsa
 
 		video_depth_stencil_c * _target_depth_stencil; // full size. typical depth stencil buffer.
 		video_texture_c * _target_outline; // full size. each pixel represents an index into _outline_color_palette, except for index 0 which means no outline.
-		video_texture_c * _target_normal; // full size. view space normal, z coordinate can be reconstructed from x and y coordinates.
+		video_texture_c * _target_normal; // full size. view space normal, view space z coordinate can be reconstructed from x and y coordinates: z = sqrt( 1.0 - ( x * x ) - ( y * y ) ).
 		video_texture_c * _target_depth; // full size. high precision depth for certain effects, is redundant with the depth stencil buffer because shaders can't sample from the depth stencil buffer.
 		video_texture_c * _target_color; // full size.
 		video_texture_c * _target_color_copy; // full size. used as input for overlay material passes (to do things like refractions) so that _target_color can "read"/"sample" itself while it is being rendered to.
@@ -66,6 +66,8 @@ namespace cheonsa
 		video_output_c * _output; // if set, then this canvas is associated with an operating system window, it will be resized as the window is resized, and it will output to the window.
 
 		//video_renderer_canvas_c * _reflections_canvas; // full size. used as target to render planar reflectors|screens. not anti aliased, even if _msaa_count > 1.
+
+		void_c _release_targets();
 
 	public:
 		video_renderer_canvas_c( boolean_c primary_enable, boolean_c post_enable, void_c * window_handle );
@@ -90,9 +92,6 @@ namespace cheonsa
 		void_c set_apparent_size( sint32_c width, sint32_c height ); // render target textures will be resized if needed on next call to update().
 
 		video_texture_c * create_readable_copy(); // creates a new instance of a texture that can be read by the CPU. please delete it when you're done using it so you don't waste or leak.
-
-		//video_texture_c * get_readable_copy(); // creates a copy of the final color render target that can be read by the CPU (which basically means that get_data can be called on the returned texture to get a copy of the the pixels of the canvas). this copy instance's lifetime is managed by this canvas, so call release_readable_copy() when you want to let it go.
-		//void_c release_readable_copy();
 
 		//float64_c get_frame_rate();
 		sint32_c get_statistic_object_count();

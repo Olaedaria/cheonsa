@@ -42,6 +42,25 @@ namespace cheonsa
 		return false;
 	}
 
+	void_c menu_control_window_file_picker_c::_refresh_okay_button_state()
+	{
+		if ( _mode == mode_e_load )
+		{
+			if ( _file_name_text->get_plain_text_value().is_set() )
+			{
+				_okay_button->set_is_enabled( ops::file_system_does_file_exist( get_file_path_absolute() ) );
+			}
+			else
+			{
+				_okay_button->set_is_enabled( false );
+			}
+		}
+		else if ( _mode == mode_e_save )
+		{
+			_okay_button->set_is_enabled( _file_name_text->get_plain_text_value().is_set() );
+		}
+	}
+
 	void_c menu_control_window_file_picker_c::_try_to_okay()
 	{
 		assert( _mother_user_interface );
@@ -152,6 +171,7 @@ namespace cheonsa
 		}
 		else if ( control == _file_name_text )
 		{
+			_refresh_okay_button_state();
 		}
 	}
 
@@ -310,6 +330,7 @@ namespace cheonsa
 
 		_short_cut_list = new menu_control_list_c();
 		_short_cut_list->set_name( string8_c( "short_cut_list", core_list_mode_e_static ) );
+		_short_cut_list->set_selected_item_limit( 1 );
 		_short_cut_list->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 8, 46, 136, 46 ) );
 		add_daughter_control_to_client( _short_cut_list );
 
@@ -332,7 +353,7 @@ namespace cheonsa
 		_message_dialog->add_reference();
 		_message_dialog->set_is_showed_immediately( false );
 		_message_dialog->on_dialog_result.subscribe( this, &menu_control_window_file_picker_c::_handle_on_dialog_result );
-		_add_supplemental_control( _message_dialog );
+		add_supplemental_daughter_control( _message_dialog );
 	}
 
 	menu_control_window_file_picker_c::~menu_control_window_file_picker_c()
@@ -400,14 +421,7 @@ namespace cheonsa
 				_is_muted = false;
 				refresh_files_collection();
 			}
-			if ( _file_name_text->get_plain_text_value().is_set() )
-			{
-				_okay_button->set_is_enabled( ops::file_system_does_file_exist( get_file_path_absolute() ) );
-			}
-			else
-			{
-				_okay_button->set_is_enabled( false );
-			}
+			_refresh_okay_button_state();
 			return true;
 #if defined( cheonsa_platform_windows )
 		}
@@ -429,14 +443,7 @@ namespace cheonsa
 			_up_button->set_is_enabled( ops::path_get_folder_path( _folder_path ).get_length() > 0 );
 			_is_muted = false;
 			refresh_files_collection();
-			if ( _file_name_text->get_plain_text_value().is_set() )
-			{
-				_okay_button->set_is_enabled( ops::file_system_does_file_exist( get_file_path_absolute() ) );
-			}
-			else
-			{
-				_okay_button->set_is_enabled( false );
-			}
+			_refresh_okay_button_state();
 			return true;
 		}
 		return false;
@@ -456,14 +463,7 @@ namespace cheonsa
 			_up_button->set_is_enabled( ops::path_get_folder_path( _folder_path ).get_length() > 0 );
 			_is_muted = false;
 			refresh_files_collection();
-			if ( _file_name_text->get_plain_text_value().is_set() )
-			{
-				_okay_button->set_is_enabled( ops::file_system_does_file_exist( get_file_path_absolute() ) );
-			}
-			else
-			{
-				_okay_button->set_is_enabled( false );
-			}
+			_refresh_okay_button_state();
 			return true;
 		}
 		return false;
@@ -492,21 +492,6 @@ namespace cheonsa
 	void_c menu_control_window_file_picker_c::set_file_name( string16_c const & value )
 	{
 		_file_name_text->set_plain_text_value( value );
-		if ( _mode == mode_e_load )
-		{
-			if ( can_load.get_subscriber_count() > 0 )
-			{
-				_okay_button->set_is_enabled( can_load.invoke_with_return_value( this ) );
-			}
-			else
-			{
-				_okay_button->set_is_enabled( ops::file_system_does_file_exist( get_file_path_absolute() ) );
-			}
-		}
-		else if ( _mode == mode_e_save )
-		{
-			_okay_button->set_is_enabled( value.is_set() );
-		}
 	}
 
 	void_c menu_control_window_file_picker_c::set_user_can_pick_file_name( boolean_c value )

@@ -79,7 +79,7 @@ namespace cheonsa
 
 		mode_e get_mode() const;
 
-		void_c update_visibility( menu_visibility_mode_e value );
+		boolean_c update_visibility( menu_visibility_mode_e value ); // returns true if _is_showed state changed.
 
 		void_c set_value_range_and_page_size( float64_c value_minimum, float64_c value_maximum, float64_c page_size ); // lets you set three different properties at once then calls update_transform_and_layout(), because to set the properties individually would call update_transform_and_layout() each time.
 

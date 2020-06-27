@@ -116,7 +116,7 @@ namespace cheonsa
 		for ( sint32_c i = 1; i < arguments_count; i++ ) // start at 1 to skip the first arg, it's just the file path of the exe.
 		{
 			string16_c arg = string16_c( arguments[ i ], core_list_mode_e_static );
-			if ( ops::string16_starts_with( arg.character_list.get_internal_array(), arg_data ) )
+			if ( ops::string16_starts_with( arg, string8_c( arg_data, core_list_mode_e_static ) ) )
 			{
 				// extract value. note that if the argument contained a file path that was enclosed by double quotes, windows will remove those quotes before giving it to us.
 				engine_data_folder_path = ops::string16_sub_string( arg, arg_data_length, arg.get_length() - arg_data_length );

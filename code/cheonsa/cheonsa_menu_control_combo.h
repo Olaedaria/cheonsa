@@ -15,8 +15,8 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	protected:
-		virtual void_c _on_clicked( input_event_c * input_event ) override;
 		virtual void_c _on_is_mouse_overed_changed() override;
+		virtual void_c _on_clicked( input_event_c * input_event ) override;
 
 	public:
 		menu_control_combo_item_text_c();
@@ -40,8 +40,6 @@ namespace cheonsa
 		menu_control_c * _combo_button;
 		boolean_c _was_just_hidden;
 
-		boolean_c _use_toggle_behavior; // if true then item selected states are toggled when the items are clicked on and the list stays open until it loses focus.
-
 		virtual void_c _on_selected_item_list_changed() override;
 		virtual void_c _handle_user_interface_local_box_changed() override;
 		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
@@ -50,10 +48,7 @@ namespace cheonsa
 		menu_control_combo_c();
 		virtual ~menu_control_combo_c() override;
 
-		boolean_c get_use_toggle_behavior() const;
-		void_c set_use_toggle_behavior( boolean_c value );
-
-		void_c show_like_combo_list( menu_control_c * combo_to_spawn_pop_up_around ); // opens to bottom or top.
+		void_c show_like_combo_list( menu_control_c * combo_button_to_spawn_pop_up_around ); // opens to bottom or top.
 
 		sint32_c get_item_count() const;
 		menu_control_list_item_i const * get_item_at_index( sint32_c item_index ) const;
@@ -65,6 +60,10 @@ namespace cheonsa
 
 		menu_control_list_item_i * get_selected_item() const; // gets the most recently selected item or nullptr.
 		void_c set_selected_item( menu_control_list_item_i * item );
+
+		sint32_c get_selected_item_count() const;
+		menu_control_list_item_i const * get_selected_item_at_index( sint32_c index ) const;
+		menu_control_list_item_i * get_selected_item_at_index( sint32_c index );
 
 		sint32_c get_selected_item_index() const;
 		void_c set_selected_item_index( sint32_c item_index );
@@ -95,6 +94,7 @@ namespace cheonsa
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
 
 		void_c _handle_on_selected_item_changed( menu_control_combo_c * combo_list );
+		void_c _update_plain_text_value();
 
 	public:
 		menu_control_combo_button_c();

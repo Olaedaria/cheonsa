@@ -7,12 +7,12 @@
 namespace cheonsa
 {
 
-	// there are two modalities of input:
-	//     input events: input events from the operating system are collected and processed at the next frame's update.
-	//     input snapshots: input states are snapshotted at the start of the current frame's update.
-	// this input manager supports both modes simultaneously, so the game has access to whatever it needs.
-	// for systems need to handle user input in a deterministic way, input events should be used.
-	// for systems that are bound to frame rate, snap shots are often easier and better, however not as reliable if frame rate is slow (fast down/up pressed/released inputs that last less than a frame might not register at all, this can be frustrating to players, there's a way to fix this but i don't think i've implemented it).
+	// there are two modes of input:
+	//     input events: input events from the operating system are collected and processed at the next frame's update. any number of events may occur in a given frame, so input events may occur at a sub-frame resolution.
+	//     input frame snapshots: input states are snapshotted at the start of each frame.
+	// both modes are supported simultaneously, so the game has access to whatever it needs.
+	// for systems need to handle user input in a deterministic way (user interfaces), input events should be used.
+	// for systems that are bound to frame rate (character movement), snap shots are often easier and better, however not as reliable if frame rate is slow (fast down/up pressed/released inputs that last less than a frame might not register at all, this can be frustrating to players, there's a way to fix this but i don't think i've implemented it).
 	// 
 	// information about single-clicks:
 	// single-click detection is not performed here, it is performed in the user interface, but here is some information about them regardless.
@@ -82,13 +82,9 @@ namespace cheonsa
 		boolean_c get_mouse_pointer_visibility();
 		void_c set_mouse_pointer_visibility( boolean_c value );
 
-		//vector32x2_c get_mouse_pointer_position(); // gets the last known position of the mouse cursor, relative to the client window's client area.
 		void_c set_mouse_pointer_position( vector32x2_c value ); // sets the position of the mouse cursor, relative to the client window's client area.
 
 		core_list_c< input_event_c > & get_events() const; // gets the list of input events to process for the current frame.
-
-		//boolean_c get_mouse_key_is_pressed( input_mouse_key_e key ) const; // gets state of a key in the frame's input state snapshot.
-		//boolean_c get_keyboard_key_is_pressed( input_keyboard_key_e key ) const; // gets state of a key in the frame's input state snapshot.
 
 		input_modifier_flag_e get_frame_modifier_flags() const;
 		vector32x2_c get_frame_mouse_position() const; // gets the position of the mouse pointer at the start of the current frame, relative to the client window's client area.

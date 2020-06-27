@@ -390,7 +390,7 @@ namespace cheonsa
 		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
 		while ( daughter_control_list_node )
 		{
-			if ( !daughter_control_list_node->get_value()->_is_supplemental )
+			if ( daughter_control_list_node->get_value()->_supplemental_mother_control == nullptr )
 			{
 				daughter_controls_to_remove.insert( -1, daughter_control_list_node->get_value() );
 			}
@@ -516,7 +516,16 @@ namespace cheonsa
 			control->update_animations( time_step );
 			if ( control->get_wants_to_be_deleted() && control->get_is_showed_weight() <= 0.0f )
 			{
-				remove_daughter_control( control );
+				if ( control->_supplemental_mother_control )
+				{
+					control->_supplemental_mother_control->remove_supplemental_daughter_control( control );
+					//control->_supplemental_mother_control->_supplemental_daughter_control_list.remove_value( control );
+					//control->_supplemental_mother_control = nullptr;
+				}
+				else
+				{
+					remove_daughter_control( control );
+				}
 			}
 			else
 			{
@@ -592,7 +601,6 @@ namespace cheonsa
 		assert( control->_mother_control == nullptr );
 		assert( control->_index == -1 );
 		assert( index >= -1 && index <= _daughter_control_list.get_length() );
-		assert( control->_name.get_length() > 0 );
 
 		// update relationships, insert in list.
 		control->add_reference();
@@ -711,6 +719,7 @@ namespace cheonsa
 			deep_text_focused->_is_deep_text_focused++;
 			deep_text_focused = deep_text_focused->get_mother_control();
 		}
+
 		// then decrement, and send out _on_deep_text_focus_lost() to affected controls.
 		deep_text_focused = previous;
 		while ( deep_text_focused )
@@ -1064,11 +1073,11 @@ namespace cheonsa
 		return _find_pop_up_box( around_box, around_global_basis, around_global_origin, menu_pop_up_type_e_right_bottom, pop_up_size, give_result_in_global_space );
 	}
 
-	box32x2_c user_interface_c::find_combo_list_pop_up_box( menu_control_c * combo_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space )
+	box32x2_c user_interface_c::find_combo_list_pop_up_box( menu_control_c * combo_button_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space )
 	{
-		box32x2_c around_box = combo_to_spawn_pop_up_around->get_local_box();
-		matrix32x2x2_c around_global_basis = combo_to_spawn_pop_up_around->get_global_basis();
-		vector32x2_c around_global_origin = combo_to_spawn_pop_up_around->get_global_origin();
+		box32x2_c around_box = combo_button_to_spawn_pop_up_around->get_local_box();
+		matrix32x2x2_c around_global_basis = combo_button_to_spawn_pop_up_around->get_global_basis();
+		vector32x2_c around_global_origin = combo_button_to_spawn_pop_up_around->get_global_origin();
 		return _find_pop_up_box( around_box, around_global_basis, around_global_origin, menu_pop_up_type_e_bottom_right, pop_up_size, give_result_in_global_space );
 	}
 

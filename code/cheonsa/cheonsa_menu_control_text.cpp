@@ -32,6 +32,7 @@ namespace cheonsa
 		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
 		if ( !input_event->get_was_handled() )
 		{
+			// still process even if get_is_actually_enabled() == false, since it's still allowable for the user to select and copy text, but not input.
 			_text_element.handle_on_input( input_event );
 		}
 	}

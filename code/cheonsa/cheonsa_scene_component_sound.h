@@ -19,7 +19,7 @@ namespace cheonsa
 		virtual inline uint8_c get_type_code() const override { return get_type_code_static(); }
 
 	private:
-		core_linked_list_c< scene_component_sound_c * >::node_c _sound_list_node;
+		core_linked_list_c< scene_component_sound_c * >::node_c _sound_list_node; // used by scene to hold all of the sound components in a flat list.
 
 		resource_file_sound_c::reference_c _sound_resource;
 

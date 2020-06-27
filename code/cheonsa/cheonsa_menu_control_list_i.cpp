@@ -5,23 +5,105 @@
 namespace cheonsa
 {
 
-	void_c menu_control_list_item_i::_set_is_selected( boolean_c is_selected, boolean_c try_to_multi_select )
+	void_c menu_control_list_item_i::_set_is_selected( boolean_c value, boolean_c try_to_multi_select )
 	{
 		assert( _can_be_selected == true ); // this function should only be called if this type of list item is designed to have a toggleable selected state.
+
 		menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
 		if ( mother_list )
 		{
-			// work with mother.
-			mother_list->_set_selected_item( this, is_selected, try_to_multi_select );
+			if ( _can_be_toggled )
+			{
+				if ( _is_selected != value )
+				{
+					_is_selected = value;
+					_on_is_selected_changed();
+					if ( _is_selected )
+					{
+						mother_list->_selected_item_list.insert( -1, this );
+					}
+					else
+					{
+						assert( mother_list->_selected_item_list.remove_value( this ) );
+					}
+					mother_list->_on_selected_item_list_changed();
+				}
+			}
+			else
+			{
+				if ( try_to_multi_select )
+				{
+					if ( _is_selected != value )
+					{
+						_is_selected = value;
+						if ( _is_selected )
+						{
+							_is_selected = true;
+							_on_is_selected_changed();
+							mother_list->_selected_item_list.insert( -1, this );
+							mother_list->_deselect_items_over_limit();
+							mother_list->_on_selected_item_list_changed();
+						}
+						else
+						{
+							_is_selected = false;
+							_on_is_selected_changed();
+							mother_list->_selected_item_list.remove_value( this );
+							mother_list->_on_selected_item_list_changed();
+						}
+					}
+				}
+				else
+				{
+					if ( value )
+					{
+						// deselect everything except this.
+						boolean_c selected_item_list_changed = false;
+						for ( sint32_c i = 0; i < mother_list->_selected_item_list.get_length(); i++ )
+						{
+							menu_control_list_item_i * selected_item = mother_list->_selected_item_list[ i ];
+							if ( selected_item != this )
+							{
+								selected_item_list_changed = true;
+								selected_item->_is_selected = false;
+								selected_item->_on_is_selected_changed();
+							}
+						}
+						mother_list->_selected_item_list.remove_all();
+						mother_list->_selected_item_list.insert( -1, this );
+						if ( !_is_selected )
+						{
+							_is_selected = true;
+							_on_is_selected_changed();
+						}
+						if ( selected_item_list_changed )
+						{
+							mother_list->_on_selected_item_list_changed();
+						}
+					}
+					else
+					{
+						// deselect everything including this.
+						if ( mother_list->_selected_item_list.get_length() )
+						{
+							for ( sint32_c i = 0; i < mother_list->_selected_item_list.get_length(); i++ )
+							{
+								menu_control_list_item_i * selected_item = mother_list->_selected_item_list[ i ];
+								selected_item->_is_selected = false;
+								selected_item->_on_is_selected_changed();
+							}
+							mother_list->_selected_item_list.remove_all();
+							mother_list->_on_selected_item_list_changed();
+						}
+					}
+				}
+			}
 		}
 		else
 		{
 			// go it alone.
-			if ( _is_selected != is_selected )
-			{
-				_is_selected = is_selected;
-				_on_is_selected_changed();
-			}
+			_is_selected = value;
+			_on_is_selected_changed();
 		}
 	}
 
@@ -39,10 +121,16 @@ namespace cheonsa
 		return _is_selected;
 	}
 
+	boolean_c menu_control_list_item_i::get_can_be_toggled() const
+	{
+		return _can_be_toggled;
+	}
+
 	menu_control_list_item_i::menu_control_list_item_i()
 		: menu_control_c()
 		, _can_be_selected( false )
 		, _is_selected( false )
+		, _can_be_toggled( false )
 	{
 	}
 
@@ -99,14 +187,44 @@ namespace cheonsa
 
 	void_c menu_control_list_item_text_i::_on_clicked( input_event_c * input_event )
 	{
-		assert( _mother_control );
-		menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
-		assert( mother_list );
-		if ( mother_list )
+		if ( get_is_actually_enabled() )
 		{
-			_set_is_selected( true, input_event->get_modifier_flags() == input_modifier_flag_e_ctrl );
+			assert( _mother_control );
+			menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
+			assert( mother_list );
+			if ( _can_be_toggled )
+			{
+				_set_is_selected( !_is_selected, true );
+			}
+			else
+			{
+				if ( input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
+				{
+					_set_is_selected( !_is_selected, true );
+				}
+				else
+				{
+					_set_is_selected( true, false );
+				}
+			}
+			on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
 		}
-		on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+	}
+
+	void_c menu_control_list_item_text_i::_on_multi_clicked( input_event_c * input_event )
+	{
+		if ( get_is_actually_enabled() )
+		{
+			if ( input_event->get_menu_multi_click_count() == 2 )
+			{
+				_mother_user_interface->reset_multi_click_detection();
+			}
+			on_multi_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+		else
+		{
+			_mother_user_interface->reset_multi_click_detection();
+		}
 	}
 
 	void_c menu_control_list_item_text_i::_update_daughter_element_animations( float32_c time_step )
@@ -190,6 +308,11 @@ namespace cheonsa
 		_set_is_selected( value, try_to_multi_select );
 	}
 
+	string16_c const & menu_control_list_item_text_i::get_internal_plain_text_value() const
+	{
+		return _text_element.get_internal_plain_text_value();
+	}
+
 	string16_c menu_control_list_item_text_i::get_plain_text_value() const
 	{
 		return _text_element.get_plain_text_value();
@@ -220,7 +343,12 @@ namespace cheonsa
 		_text_element.clear_text_value();
 	}
 
-	void_c menu_control_list_i::_lay_out_item_origins()
+	void_c menu_control_list_item_text_i::set_can_be_toggled( boolean_c value )
+	{
+		_can_be_toggled = value;
+	}
+
+	void_c menu_control_list_i::_layout_item_origins()
 	{
 		// position list items in a stack from top to bottom, and also measure their total height.
 		float32_c list_item_width = _client->get_local_box().get_width();
@@ -247,12 +375,13 @@ namespace cheonsa
 				content_height = _vertical_size_maximum;
 			}
 
-			_client->get_local_box().minimum.b = content_height * -0.5f;
-			_client->get_local_box().maximum.b = content_height * 0.5f;
-			_local_box.minimum.b = _client->get_local_box().minimum.b - _client->get_local_anchor_measures().minimum.b;
-			_local_box.maximum.b = _client->get_local_box().maximum.b + _client->get_local_anchor_measures().maximum.b;
+			_client->_local_origin.b = content_height * -0.5f;
+			_client->_local_box.minimum.b = 0.0f; //content_height * -0.5f;
+			_client->_local_box.maximum.b = content_height; //content_height * 0.5f;
+			_local_box.minimum.b = content_height * -0.5f - _client_margins.minimum.b;
+			_local_box.maximum.b = content_height *  0.5f + _client_margins.maximum.b;
 
-			list_item_top = _client->get_local_box().minimum.b;
+			list_item_top = 0.0f; //_client->get_local_box().minimum.b;
 			core_linked_list_c< menu_control_c * >::node_c const * list_item_list_node = _client->get_daughter_control_list().get_first();
 			while ( list_item_list_node )
 			{
@@ -389,71 +518,6 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	void_c menu_control_list_i::_set_selected_item( menu_control_list_item_i * item )
-	{
-		assert( item->_can_be_selected );
-		assert( item->get_mother_control() == _client );
-
-		for ( sint32_c i = 0; i < _selected_item_list.get_length(); i++ )
-		{
-			menu_control_list_item_i * selected_item = _selected_item_list[ i ];
-			selected_item->_is_selected = false;
-			selected_item->_on_is_selected_changed();
-		}
-		_selected_item_list.remove_all();
-
-		if ( item )
-		{
-			item->_is_selected = true;
-			item->_on_is_selected_changed();
-			_selected_item_list.insert( -1, item );
-		}
-
-		_on_selected_item_list_changed();
-	}
-
-	void_c menu_control_list_i::_set_selected_item( menu_control_list_item_i * item, boolean_c is_selected, boolean_c try_to_multi_select )
-	{
-		assert( item );
-		assert( item->_can_be_selected == true );
-		assert( item->get_mother_control() == _client );
-		if ( _selected_item_limit != 0 && item->_is_selected != is_selected )
-		{
-			if ( is_selected )
-			{
-				// this item wants to become selected.
-				assert( _selected_item_list.find_index_of( item ) == -1 );
-				if ( try_to_multi_select )
-				{
-					_selected_item_list.insert( -1, item );
-					_deselect_items_over_limit();
-				}
-				else
-				{
-					for ( sint32_c i = 0; i < _selected_item_list.get_length(); i++ )
-					{
-						menu_control_list_item_i * selected_item = _selected_item_list[ i ];
-						selected_item->_is_selected = false;
-						selected_item->_on_is_selected_changed();
-					}
-					_selected_item_list.remove_all();
-				}
-				item->_is_selected = is_selected;
-				item->_on_is_selected_changed();
-				_selected_item_list.insert( -1, item );
-				_on_selected_item_list_changed();
-			}
-			else
-			{
-				// this item wants to become deselected.
-				item->_is_selected = is_selected;
-				item->_on_is_selected_changed();
-				assert( _selected_item_list.remove_value( item ) );
-				_on_selected_item_list_changed();
-			}
-		}
-	}
-
 	void_c menu_control_list_i::_on_selected_item_list_changed()
 	{
 		// does nothing here, but should invoke associated public event in derived implementations.
@@ -496,6 +560,12 @@ namespace cheonsa
 		}
 	}
 
+	void_c menu_control_list_i::_update_transform_and_layout()
+	{
+		menu_control_panel_i::_update_transform_and_layout();
+		_layout_item_origins();
+	}
+
 	menu_control_list_i::menu_control_list_i()
 		: menu_control_panel_i()
 		, _item_origins_are_dirty( true )
@@ -516,7 +586,7 @@ namespace cheonsa
 	{
 		if ( _item_origins_are_dirty )
 		{
-			_lay_out_item_origins();
+			_layout_item_origins();
 		}
 		menu_control_c::update_animations( time_step );
 	}

@@ -32,7 +32,7 @@ namespace cheonsa
 				else
 				{
 					assert( _mother_user_interface );
-					_mother_user_interface->set_text_focused( nullptr ); // this should have the effect of hiding the whole popup menu hierarchy.
+					_mother_user_interface->set_text_focused( nullptr ); // this should hide the pop up.
 				}
 			}
 			menu_control_list_item_i::_on_clicked( input_event );
@@ -132,6 +132,7 @@ namespace cheonsa
 		_vertical_size_mode = menu_size_mode_e_fit_content;
 		_vertical_size_maximum = 0.0f;
 		set_is_showed_immediately( false );
+		set_non_client_type( menu_non_client_type_e_client );
 		set_style_map_key( string8_c( "e_menu", core_list_mode_e_static ) );
 	}
 
@@ -244,7 +245,7 @@ namespace cheonsa
 	{
 		if ( _menu_control )
 		{
-			_remove_supplemental_control( _menu_control );
+			remove_supplemental_daughter_control( _menu_control );
 			_menu_control->_menu_button = nullptr;
 		}
 		_menu_control = value;
@@ -253,7 +254,7 @@ namespace cheonsa
 			assert( _menu_control->_menu_button == nullptr );
 			_menu_control->set_is_showed_immediately( false );
 			_menu_control->_menu_button = this;
-			_add_supplemental_control( _menu_control );
+			add_supplemental_daughter_control( _menu_control );
 		}
 	}
 

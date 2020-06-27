@@ -21,26 +21,29 @@ namespace cheonsa
 	// this class can be inherited from to create everything from simple buttons to complex color pickers and property inspectors.
 	// cheonsa menus are 2d by nature, but can be placed in 3d space when _scene_component is linked (but it will still be a flat plane in 3d space).
 	//
-	// controls must be newed on the heap.
-	// controls have an "owner".
-	// the language of "give" and "take" is used to tell the programmer when ownership is being transferred.
-	// it is always the responsibility of the owner to delete its controls at the end of its life to avoid leaks.
+	// control lifetimes are managed by reference counting with add_reference() and remove_reference().
+	// controls initially have a reference count of 0 after they are constructed.
+	// if you create a control instance on the stack, call add_reference() on it right after so that it has a "fake" user so that its reference count never drops to zero and so that it never tries to delete itself.
+	// adding a control as a daughter to a mother (user interface or control) increases its reference count by one.
+	// removing a control from its mother reduces its reference count by one.
+	// when a control's reference count drops to 0 it will delete itself.
 	//
 	// controls have many properties, which can be classified into categories as a way to make it easier to think about and understand.
 	//   static data properties:
 	//     these are things like non-user-editable text values displayed by the control.
 	//     these are things like layout, transform, and style map assignment values.
-	//     these values may be managed by the program, but the xml file may set these values itself.
+	//     these values may be managed by the program, but the menu layout xml file may define these values.
 	//   dynamic data and functional properties:
 	//     these are things like user-editable text and number values displayed by the control.
 	//     these are things like events that the program hooks up to.
 	//     these may also be hidden values like the page range and scroll position of a scroll bar, which is closely integrated with the layout logic system.
-	//     these values are always managed by the program, the xml file can not interact with these values.
+	//     these values are always managed by the program, the menu layout xml file can not define these values.
 	class menu_control_c
 	{
 		friend class user_interface_c;
 		friend class menu_style_manager_c; // to call _global_resolve_style_maps.
 		friend class video_renderer_interface_c;
+		friend class menu_control_list_i;
 
 	public:
 		static inline char8_c const * get_type_name_static() { return "control"; }
@@ -59,8 +62,7 @@ namespace cheonsa
 
 		user_interface_c * _mother_user_interface; // the mother user interface, only set on the root control.
 
-		menu_control_c * _mother_control; // the mother control.
-
+		menu_control_c * _mother_control; // the mother control
 		core_linked_list_c< menu_control_c * > _daughter_control_list; // daughter controls.
 		core_linked_list_c< menu_control_c * >::node_c _daughter_control_list_node;
 
@@ -69,10 +71,10 @@ namespace cheonsa
 		void_c _remove_daughter_element( menu_element_c * element );
 		void_c _find_daughter_elements_with_name( string8_c const & name, core_list_c< menu_element_c * > & result ); // searches private daughter elements for all elements that match the given name.
 
-		core_list_c< menu_control_c * > _supplemental_control_list; // these are controls that will be added to or removed from the root level of the user interface when this control is added to or removed from the user interface.
-		boolean_c _is_supplemental; // will be set to true on root-level controls that are created and managed by other controls. this tells the user interface's destructor not to remove these controls directly, and to only remove non supplemental controls directly, in this way the supplemental controls will be removed indirectly by the non supplemental controls.
-		void_c _add_supplemental_control( menu_control_c * control );
-		void_c _remove_supplemental_control( menu_control_c * control );
+		menu_control_c * _supplemental_mother_control; // if this control is a supplemental daughter control, then _supplemental_mother_control is the supplemental mother control. the _supplemental_mother_control owns the life of this control.
+		core_list_c< menu_control_c * > _supplemental_daughter_control_list; // these are controls that will be added to or removed from the root level of the user interface when this control is added to or removed from the user interface.
+
+		menu_control_c * _temporary_supplemental_mother_control; // this is intended to be used for right click context menus, which are open for a short time. we want to associate with the control that they were right clicked on so that is_ascendant_of() can determine that text focused pop up menu is related to the control that was right clicked on. this also makes it possible for the program to create a single context menu instance (for example "select all, cut, copy, paste") and use it with all text box control instances. this is a one-way link (the temporary mother doesn't hold any reference to the temporary daughter), but the temporary daughter will hold a reference count on the temporary mother (may not be needed, but doing it just to be safer, and it's not the only way to be safe, idk).
 
 		sint32_c _index; // this control's index within its mother's _control_list or _private_control_list.
 
@@ -228,10 +230,18 @@ namespace cheonsa
 		menu_control_c const * get_mother_control() const; // returns the control that is the immediate mother of this control.
 
 		core_linked_list_c< menu_control_c * > const & get_daughter_control_list() const;
+		core_linked_list_c< menu_control_c * > & _get_daughter_control_list(); // occasionally non-const access is needed, for example to sort the items.
+		core_linked_list_c< menu_control_c * >::node_c & _get_daughter_control_list_node(); // occasionally non-const access is needed, for example to sort the items.
+
 		void_c add_daughter_control( menu_control_c * control, sint32_c index = -1 ); // index of -1 means insert at end. this control will hold a one-way reference count on the daughter control.
 		void_c remove_daughter_control( menu_control_c * control );
 		void_c remove_all_daughter_controls();
 		menu_control_c * find_daughter_control( string8_c const & name, string8_c const & type );
+
+		void_c add_supplemental_daughter_control( menu_control_c * control );
+		void_c remove_supplemental_daughter_control( menu_control_c * control );
+
+		void_c set_temporary_supplemental_mother_control( menu_control_c * control );
 
 		boolean_c is_ascendant_of( menu_control_c * control ); // returns true if this control is equal to the given control or if the given control is a descendant of this control.
 
@@ -244,7 +254,7 @@ namespace cheonsa
 
 		boolean_c get_is_showed() const;
 		float32_c get_is_showed_weight() const;
-		virtual void_c set_is_showed( boolean_c value, boolean_c and_wants_to_be_deleted = false ); // and_wants_to_be_deleted will be respected if value is false.
+		virtual void_c set_is_showed( boolean_c value, boolean_c and_delete = false ); // and_delete is only relevant if value is false.
 		virtual void_c set_is_showed_immediately( boolean_c value );
 
 		boolean_c get_is_actually_enabled() const; // returns true if this control and all controls up the hierarchy are enabled, false if not.
@@ -267,7 +277,6 @@ namespace cheonsa
 		void_c set_local_origin( vector32x2_c const & value );
 
 		box32x2_c const & get_local_box() const;
-		box32x2_c & get_local_box(); // in rare siutations, to enable direct modification of local box members.
 
 		box32x2_c const & get_local_anchor_measures() const;
 		void_c set_local_anchor_measures( box32x2_c const & value );

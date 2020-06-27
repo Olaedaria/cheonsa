@@ -90,28 +90,12 @@ namespace cheonsa
 				{
 					// only pass through messages for visible characters.
 					// ignore all messages for characters less than 32, as these are for control characters that we can ignore.
-					if ( wParam >= 32 && engine.get_input_manager() )
+					if ( engine.get_input_manager() && wParam >= 32 )
 					{
 						engine.get_input_manager()->_push_character( static_cast< char16_c >( wParam ), static_cast< uint8_c >( lParam & 0xFFFF ) );
 					}
 					return 0;
 				}
-
-				//case WM_CHAR:
-				//	if ( ( Input.keyboard.InputImmediate[Input::EKey_LControl].State & Input::State_Held ) || ( Input.keyboard.InputImmediate[Input::EKey_RControl].State & Input::State_Held ) || ( Input.keyboard.InputImmediate[Input::EKey_LAlt].State & Input::State_Held ) || ( Input.keyboard.InputImmediate[Input::EKey_RAlt].State & Input::State_Held ) )
-				//	{
-				//		// this is not a 100% effective way to filter out input modifiers (such as ctrl and alt)
-				//		// if ctrl + anykey is pressed at nearly the same time, the resulting character will still be passed through
-				//		// i have to find a better way to deal with this
-				//		// WM_CHAR really kind of sucks
-				//		// more info:
-				//		// http://blog.ngedit.com/2005/06/13/whats-broken-in-the-wm_keydownwm_char-input-model/
-				//	}
-				//	else
-				//	{
-				//		Input.Text.Update_AddCharacter( wParam, ( uint8_c )( lParam & 0xFFFF ) );
-				//	}
-				//	return 0;
 
 				case WM_MOUSEMOVE:
 				{
@@ -202,23 +186,6 @@ namespace cheonsa
 					}
 					return 0;
 				}
-
-				//case WM_INPUT:
-				//	{
-				//		RAWINPUT RawInput;
-				//		UINT RawInputsize = sizeof( RawInput );
-				//		GetRawInputData( reinterpret_cast< HRAWINPUT >( lParam ), RID_INPUT, & RawInput, & RawInputsize, sizeof( RAWINPUTHEADER ) );
-				//		if ( RawInput.header.dwType == RIM_TYPEMOUSE )
-				//		{
-				//			global_engine_instance.input.mouse.position_delta_accumulator.a += RawInput.data.mouse.lLastX;
-				//			global_engine_instance.input.mouse.position_delta_accumulator.b += RawInput.data.mouse.lLastY;
-				//			if ( RawInput.data.mouse.usButtonFlags & RI_MOUSE_WHEEL )
-				//			{
-				//				global_engine_instance.input.mouse.wheel_delta_accumulator += static_cast< float32_c >( static_cast< short >( LOWORD( RawInput.data.mouse.usButtonData ) ) / static_cast< float32_c >( WHEEL_DELTA ) );
-				//			}
-				//		}
-				//	}
-				//	return 0;
 
 				case WM_MOVING:
 				{
@@ -541,23 +508,8 @@ namespace cheonsa
 		assert( _window_handle );
 		SetWindowLongPtr( static_cast< HWND >( _window_handle ), GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) ); // associate our global game engine instance with the window.
 
-		//SetWindowLongPtr( _members->window_handle, GWL_STYLE, cheonsa_window_style_borderless );
-		//const MARGINS shadow_off = { 0, 0, 0, 0 };
-		//DwmExtendFrameIntoClientArea( _members->window_handle, &shadow_off );
-		//SetWindowPos( _members->window_handle, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE );
-		//ShowWindow( _members->window_handle, SW_SHOW );
-
 		//center_client_window();
 		maximize_client_window();
-
-		// register mouse for raw input so we can get reliable mouse deltas.
-		// this enables us to receive WM_INPUT messages.
-		RAWINPUTDEVICE raw_input_device_array[ 1 ];
-		raw_input_device_array[ 0 ].usUsagePage = 0x01;
-		raw_input_device_array[ 0 ].usUsage = 0x02;
-		raw_input_device_array[ 0 ].dwFlags = 0;
-		raw_input_device_array[ 0 ].hwndTarget = static_cast< HWND >( _window_handle );
-		assert( RegisterRawInputDevices( raw_input_device_array, 1, sizeof( RAWINPUTDEVICE ) ) );
 
 		return true;
 #else

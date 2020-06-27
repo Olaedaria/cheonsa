@@ -79,6 +79,7 @@ namespace cheonsa
 			friend class menu_control_collection_c;
 
 		public:
+			/*
 			// cached column/property values. 
 			// used to sort items by column/property.
 			class value_c
@@ -91,15 +92,16 @@ namespace cheonsa
 				value_c();
 
 			};
+			*/
 
 		protected:
 			menu_control_collection_c * _mother_collection; // the collection that is holding this item.
-			value_c * _value_cache; // list of resolved column values, always the same length as the _column_list in the _mother_collection.
+			//value_c * _value_cache; // list of resolved column values, always the same length as the _column_list in the _mother_collection.
 			sint32_c _group; // can be used to group together items of the same type when items are sorted. for example, when used by file collections, folders will be assigned group 0 and files will be assigned group 1, which causes folders to group together and files to group together.
 			sint32_c _index; // the index of this item within the list.
 			boolean_c _is_selected; // this item's selected state.
 
-			void_c _cache_values(); // rebuilds _value_list for this item, queries and caches property column values.
+			//void_c _cache_values(); // rebuilds _value_list for this item, queries and caches property column values.
 
 			item_i();
 
@@ -134,9 +136,9 @@ namespace cheonsa
 			void_c set_is_selected( boolean_c value );
 
 		public:
-			static boolean_c relative_compare( item_i * const & a, item_i * const & b ); // for insertion sort.
-			static uint64_c absolute_value( item_i * const & a ); // for quick sort.
-			static boolean_c relative_group_compare( item_i * const & a, item_i * const & b ); // for insertion sort, secondary sort.
+			static sint32_c sort_compare_display_value( item_i * const & a, item_i * const & b );
+			static sint64_c sort_compare_absolute_value( item_i * const & a );
+			static sint32_c sort_compare_group( item_i * const & a );
 
 		};
 
@@ -198,8 +200,8 @@ namespace cheonsa
 
 		select_mode_e _select_mode; // determines how items can be selected in this collection.
 
-		boolean_c _value_cache_is_dirty; // if true then item values need to be queried and cached.
-		void_c _update_value_cache(); // caches items values based on current columns settings.
+		//boolean_c _value_cache_is_dirty; // if true then item values need to be queried and cached.
+		//void_c _update_value_cache(); // caches items values based on current columns settings.
 
 		string8_c _sort_key; // basically which column to sort by. if this can't be resolved then items will be sorted by "name", and if that can't be resolved then items will not be sorted.
 		sint32_c _sort_index;

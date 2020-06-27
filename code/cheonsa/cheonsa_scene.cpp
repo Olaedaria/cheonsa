@@ -73,6 +73,30 @@ namespace cheonsa
 		_physics_scene = nullptr;
 	}
 
+	void_c scene_c::update( float32_c time_step )
+	{
+		// update physics simulation state.
+		_physics_scene->update( time_step );
+
+		// update model animation states.
+		core_linked_list_c< scene_component_model_c * >::node_c const * model_list_node = _model_list.get_first();
+		while ( model_list_node )
+		{
+			model_list_node->get_value()->update_animations( time_step );
+			model_list_node = model_list_node->get_next();
+		}
+
+		// update audio player and audio source states.
+		_audio_scene->get_scene_listener().set_world_space_transform( _scene_camera.get_world_space_transform() );
+		core_linked_list_c< scene_component_sound_c * >::node_c const * sound_list_node = _sound_list.get_first();
+		while ( sound_list_node )
+		{
+			scene_component_sound_c * sound = sound_list_node->get_value();
+			sound->update_audio( time_step );
+			sound_list_node = sound_list_node->get_next();
+		}
+	}
+
 	vector32x4_c const & scene_c::get_clear_color() const
 	{
 		return _clear_color;
@@ -108,18 +132,6 @@ namespace cheonsa
 	{
 		assert( index >= 0 && index < video_renderer_interface_c::scene_colors_count );
 		_color_array[ index ] = value;
-	}
-
-	void_c scene_c::update_audio( float32_c time_step )
-	{
-		_audio_scene->get_scene_listener().set_world_space_transform( _scene_camera.get_world_space_transform() );
-		core_linked_list_c< scene_component_sound_c * >::node_c const * sound_list_node = _sound_list.get_first();
-		while ( sound_list_node )
-		{
-			scene_component_sound_c * sound = sound_list_node->get_value();
-			sound_list_node = sound_list_node->get_next();
-			sound->update_audio( time_step );
-		}
 	}
 
 	void_c scene_c::add_object( scene_object_c * object )

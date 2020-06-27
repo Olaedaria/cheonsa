@@ -9,36 +9,6 @@ namespace cheonsa
 
 	core_linked_list_c< menu_control_c * > menu_control_c::_global_list;
 
-	void_c menu_control_c::_add_supplemental_control( menu_control_c * control )
-	{
-		assert( control );
-		assert( control->_mother_control == nullptr );
-		assert( control->_mother_user_interface == nullptr );
-		assert( !control->_is_supplemental );
-		assert( _supplemental_control_list.find_index_of( control ) == -1 );
-		control->_is_supplemental = true;
-		_supplemental_control_list.insert( -1, control );
-		if ( _mother_user_interface )
-		{
-			_mother_user_interface->add_daughter_control( control );
-		}
-	}
-
-	void_c menu_control_c::_remove_supplemental_control( menu_control_c * control )
-	{
-		assert( control );
-		assert( control->_is_supplemental );
-		assert( control->_mother_control == nullptr );
-		assert( control->_mother_user_interface == _mother_user_interface );
-		assert( _supplemental_control_list.find_index_of( control ) != -1 );
-		control->_is_supplemental = false;
-		_supplemental_control_list.remove_value( control );
-		if ( _mother_user_interface )
-		{
-			_mother_user_interface->remove_daughter_control( control );
-		}
-	}
-
 	void_c menu_control_c::_handle_style_map_reference_on_resolved( menu_style_map_c::reference_c const * resource )
 	{
 		for ( sint32_c i = 0; i < _style_map_reference.get_value()->_entry_list.get_length(); i++ )
@@ -91,6 +61,17 @@ namespace cheonsa
 				index++;
 			}
 			daughter_control_list_node = next;
+		}
+
+		// we scan and prune supplemental daughter controls (but we probably don't need to since the user interface will do this for us).
+		for ( sint32_c i = 0; i < _supplemental_daughter_control_list.get_length(); i++ )
+		{
+			menu_control_c * supplemental_daughter_control = _supplemental_daughter_control_list[ i ];
+			if ( supplemental_daughter_control->get_wants_to_be_deleted() && supplemental_daughter_control->get_is_showed_weight() < 0.0f )
+			{
+				remove_supplemental_daughter_control( supplemental_daughter_control );
+				i--;
+			}
 		}
 	}
 
@@ -178,9 +159,9 @@ namespace cheonsa
 	void_c menu_control_c::_handle_added_to_user_interface( user_interface_c * user_interface )
 	{
 		_mother_user_interface = user_interface;
-		for ( sint32_c i = 0; i < _supplemental_control_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _supplemental_daughter_control_list.get_length(); i++ )
 		{
-			_mother_user_interface->add_daughter_control( _supplemental_control_list[ i ] );
+			_mother_user_interface->add_daughter_control( _supplemental_daughter_control_list[ i ] );
 		}
 		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
 		while ( daughter_control_list_node )
@@ -192,9 +173,9 @@ namespace cheonsa
 
 	void_c menu_control_c::_handle_removed_from_user_interface()
 	{
-		for ( sint32_c i = 0; i < _supplemental_control_list.get_length(); i++ )
+		for ( sint32_c i = 0; i < _supplemental_daughter_control_list.get_length(); i++ )
 		{
-			_mother_user_interface->remove_daughter_control( _supplemental_control_list[ i ] );
+			_mother_user_interface->remove_daughter_control( _supplemental_daughter_control_list[ i ] );
 		}
 		_mother_user_interface = nullptr;
 		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
@@ -405,7 +386,7 @@ namespace cheonsa
 			_old_local_box = _local_box;
 
 			// invalidate content bounds.
-			//_content_bounds_is_dirty = true;
+			_content_bounds_is_dirty = true;
 		}
 
 		// layout daughter elements.
@@ -432,8 +413,9 @@ namespace cheonsa
 		, _daughter_control_list()
 		, _daughter_control_list_node( this )
 		, _daughter_element_list()
-		, _supplemental_control_list()
-		, _is_supplemental( false )
+		, _supplemental_mother_control( nullptr )
+		, _supplemental_daughter_control_list()
+		, _temporary_supplemental_mother_control( nullptr )
 		, _index( -1 )
 		, _content_offset( 0.0f, 0.0f )
 		, _content_bounds( 0.0f, 0.0f, 0.0f, 0.0f )
@@ -603,21 +585,20 @@ namespace cheonsa
 		attribute = node->find_attribute( "local_anchor" );
 		if ( attribute )
 		{
-			sint32_c dummy = 0;
 			_local_anchor = menu_anchor_e_none;
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "left", core_list_mode_e_static ), dummy ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "left", core_list_mode_e_static ) ) >= 0 )
 			{
 				_local_anchor |= menu_anchor_e_left;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "top", core_list_mode_e_static ), dummy ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "top", core_list_mode_e_static ) ) >= 0 )
 			{
 				_local_anchor |= menu_anchor_e_top;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "right", core_list_mode_e_static ), dummy ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "right", core_list_mode_e_static ) ) >= 0 )
 			{
 				_local_anchor |= menu_anchor_e_right;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "bottom", core_list_mode_e_static ), dummy ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "bottom", core_list_mode_e_static ) ) >= 0 )
 			{
 				_local_anchor |= menu_anchor_e_bottom;
 			}
@@ -798,6 +779,16 @@ namespace cheonsa
 		return _daughter_control_list;
 	}
 
+	core_linked_list_c< menu_control_c * > & menu_control_c::_get_daughter_control_list()
+	{
+		return _daughter_control_list;
+	}
+
+	core_linked_list_c< menu_control_c * >::node_c & menu_control_c::_get_daughter_control_list_node()
+	{
+		return _daughter_control_list_node;
+	}
+
 	void_c menu_control_c::add_daughter_control( menu_control_c * control, sint32_c index )
 	{
 		assert( control );
@@ -840,7 +831,7 @@ namespace cheonsa
 		}
 
 		// update layout.
-		//_content_bounds_is_dirty = true;
+		_content_bounds_is_dirty = true;
 		if ( _mother_user_interface )
 		{
 			control->_handle_added_to_user_interface( _mother_user_interface );
@@ -892,7 +883,7 @@ namespace cheonsa
 			_daughter_control_list.remove( daughter_control_list_node );
 			daughter_control->remove_reference();
 		}
-		//_content_bounds_is_dirty = true;
+		_content_bounds_is_dirty = true;
 	}
 
 	menu_control_c * menu_control_c::find_daughter_control( string8_c const & name, string8_c const & type )
@@ -910,6 +901,52 @@ namespace cheonsa
 		return nullptr;
 	}
 
+	void_c menu_control_c::add_supplemental_daughter_control( menu_control_c * control )
+	{
+		assert( control );
+		assert( control->_mother_control == nullptr );
+		assert( control->_mother_user_interface == nullptr );
+		assert( control->_supplemental_mother_control == nullptr );
+		assert( _supplemental_daughter_control_list.find_index_of( control ) == -1 );
+		control->_supplemental_mother_control = this;
+		_supplemental_daughter_control_list.insert( -1, control );
+		if ( _mother_user_interface )
+		{
+			_mother_user_interface->add_daughter_control( control );
+		}
+	}
+
+	void_c menu_control_c::remove_supplemental_daughter_control( menu_control_c * control )
+	{
+		assert( control );
+		assert( control->_supplemental_mother_control == this );
+		assert( control->_mother_control == nullptr );
+		assert( control->_mother_user_interface == _mother_user_interface );
+		control->_supplemental_mother_control = nullptr;
+		_supplemental_daughter_control_list.remove_value( control );
+		if ( _mother_user_interface )
+		{
+			_mother_user_interface->remove_daughter_control( control );
+		}
+	}
+
+	void_c menu_control_c::set_temporary_supplemental_mother_control( menu_control_c * control )
+	{
+		assert( control);
+		assert( control->_mother_control == nullptr );
+		assert( control->_supplemental_mother_control == nullptr );
+		assert( control->_temporary_supplemental_mother_control = nullptr );
+		if ( _temporary_supplemental_mother_control )
+		{
+			_temporary_supplemental_mother_control->remove_reference();
+		}
+		_temporary_supplemental_mother_control = control;
+		if ( _temporary_supplemental_mother_control )
+		{
+			_temporary_supplemental_mother_control->add_reference();
+		}
+	}
+
 	boolean_c menu_control_c::is_ascendant_of( menu_control_c * control )
 	{
 		while ( control )
@@ -918,7 +955,22 @@ namespace cheonsa
 			{
 				return true;
 			}
-			control = control->_mother_control;
+			if ( control->_mother_control )
+			{
+				control = control->_mother_control;
+			}
+			else if ( control->_supplemental_mother_control )
+			{
+				control = control->_supplemental_mother_control;
+			}
+			else if ( control->_temporary_supplemental_mother_control )
+			{
+				control = control->_temporary_supplemental_mother_control;
+			}
+			else
+			{
+				break;
+			}
 		}
 		return false;
 	}
@@ -962,7 +1014,7 @@ namespace cheonsa
 		return _is_showed_weight;
 	}
 
-	void_c menu_control_c::set_is_showed( boolean_c value, boolean_c and_wants_to_be_deleted )
+	void_c menu_control_c::set_is_showed( boolean_c value, boolean_c and_delete )
 	{
 		if ( value )
 		{
@@ -978,7 +1030,7 @@ namespace cheonsa
 			if ( _is_showed == true )
 			{
 				_is_showed = false;
-				_wants_to_be_deleted = and_wants_to_be_deleted;
+				_wants_to_be_deleted = and_delete;
 				_on_is_showed_changed();
 				if ( _mother_user_interface )
 				{
@@ -1151,11 +1203,6 @@ namespace cheonsa
 		return _local_box;
 	}
 
-	box32x2_c & menu_control_c::get_local_box()
-	{
-		return _local_box;
-	}
-
 	box32x2_c const & menu_control_c::get_local_anchor_measures() const
 	{
 		return _local_anchor_measures;
@@ -1298,7 +1345,7 @@ namespace cheonsa
 			while ( daughter_control_list_node )
 			{
 				menu_control_c const * daughter_control = daughter_control_list_node->get_value();
-				box32x2_c daughter_control_box = ops::make_aabb_from_obb( daughter_control->_local_box, vector32x2_c(), daughter_control->_local_basis );
+				box32x2_c daughter_control_box = ops::make_aabb_from_obb( daughter_control->_local_box, daughter_control->_local_origin, daughter_control->_local_basis );
 				if ( first == false )
 				{
 					_content_bounds.accumulate_bounds( daughter_control_box );
@@ -1308,6 +1355,7 @@ namespace cheonsa
 					first = false;
 					_content_bounds = daughter_control_box;
 				}
+				daughter_control_list_node = daughter_control_list_node->get_next();
 			}
 			for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 			{
@@ -1476,7 +1524,7 @@ namespace cheonsa
 
 			// control group spatial transform.
 			_control_group_basis = _mother_control->_control_group_basis * _local_basis;
-			_control_group_origin = ops::rotate_and_scale_vector32x2( _local_origin, _mother_control->_control_group_basis ) + _mother_control->_control_group_origin;
+			_control_group_origin = ops::rotate_and_scale_vector32x2( _local_origin, _mother_control->_control_group_basis ) + _mother_control->_control_group_origin + _mother_control->_content_offset;
 			_control_group_color = _mother_control->_control_group_color * _local_color;
 		}
 

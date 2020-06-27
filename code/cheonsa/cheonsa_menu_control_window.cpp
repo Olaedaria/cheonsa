@@ -226,7 +226,7 @@ namespace cheonsa
 		{
 			constrain_transform();
 		}
-		menu_control_c::_update_transform_and_layout();
+		menu_control_panel_i::_update_transform_and_layout();
 	}
 
 	menu_control_window_c::menu_control_window_c()
@@ -480,9 +480,9 @@ namespace cheonsa
 		give_text_focus();
 	}
 
-	void_c menu_control_window_c::hide_dialog()
+	void_c menu_control_window_c::hide_dialog( boolean_c and_delete )
 	{
-		set_is_showed( false );
+		set_is_showed( false, and_delete );
 		if ( _modal_screen )
 		{
 			_modal_screen->set_is_showed( false, true );

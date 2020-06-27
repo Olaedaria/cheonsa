@@ -351,6 +351,30 @@ namespace cheonsa
 			return _array[ index ];
 		}
 
+		// inserts a value at end of list.
+		void_c insert_at_end( value_type_c const & value )
+		{
+			assert( _array_length_allocated >= 0 );
+			_reallocate_to_fuzzy_length( _array_length_used + 1 );
+			_array_length_used++;
+			_array[ index ] = value;
+		}
+
+		// inserts a range of values at end of list.
+		void_c insert_at_end( value_type_c const * values, sint32_c values_count )
+		{
+			assert( _array_length_allocated >= 0 );
+			if ( values_count > 0 )
+			{
+				assert( values );
+				_reallocate_to_fuzzy_length( _array_length_used + values_count );
+				for ( sint32_c i = 0; i < values_count; i++, _array_length_used++ )
+				{
+					_array[ _array_length_used ] = values[ i ];
+				}
+			}
+		}
+
 		// inserts a value at index.
 		// if index == -1, then inserts the value at the end of the list.
 		void_c insert( sint32_c index, value_type_c const & value )
@@ -627,9 +651,9 @@ namespace cheonsa
 			return false;
 		}
 
+		/*
 		// sorts the values in this list using an insertion sort algorithm.
-		// insertion sort uses relative valuations of list item values (compares list item values to each other) to sort.
-		// insertion sort is good for sorting strings since they don't have an absolute numeric value that we can sort by, instead they are sorted by comparing for relative inequality against each other.
+		// insertion sort is used for sorting strings since they don't have an absolute numeric value that we can sort by, they are compared to other strings and a relative valuation is calculated from that, so it's different depending on which strings are compared to each other.
 		void_c insertion_sort( boolean_c (*is_b_less_than_a)( value_type_c const & a, value_type_c const & b ), boolean_c invert, sint32_c start = -1, sint32_c end = -1 )
 		{
 			if ( start == -1 )
@@ -664,78 +688,148 @@ namespace cheonsa
 				_array[ j + 1 ] = value;
 			}
 		}
+		*/
 
-		// sorts the values in this list using a quick sort algorithm.
-		// quick sort uses absolute valuations of list item values to sort.
+	public:
 		template< typename sort_type_c >
-		void_c quick_sort( sort_type_c (*absolute_value_function)( value_type_c const & a ), boolean_c invert, sint32_c start = -1, sint32_c end = -1 ) // quick sort is good for sorting numbers and values that can be sorted by absolute values.
+		void_c quick_sort_1( sort_type_c (*value_function)( value_type_c const & a ), boolean_c invert, sint32_c start_index = -1, sint32_c end_index = -1 )
 		{
-			if ( start == -1 )
+			if ( start_index < 0 )
 			{
-				start = 0;
+				start_index = 0;
 			}
-			if ( end == -1 )
+			if ( end_index < 0 )
 			{
-				end = _array_length_used;
+				end_index = _array_length_used - 1;
 			}
-			assert( start >= 0 && end <= _array_length_used );
-			_quick_sort_internal< sort_type_c >( absolute_value_function, start, end - 1, invert );
+			if ( start_index < end_index )
+			{
+				sint32_c partition_border = _quick_sort_1_partition( value_function, invert, start_index, end_index );
+				quick_sort_1( value_function, invert, start_index, partition_border );
+				quick_sort_1( value_function, invert, partition_border + 1, end_index );
+			}
 		}
 
 	private:
-		// recursive quick sort function.
 		template< typename sort_type_c >
-		void_c _quick_sort_internal( sort_type_c (*absolute_value_function)( value_type_c const & a ), sint32_c start_index, sint32_c end_index, boolean_c invert )
+		sint32_c _quick_sort_1_partition( sort_type_c (*value_function)( value_type_c const & a ), boolean_c invert, sint32_c lo_index, sint32_c hi_index )
 		{
-			if ( start_index >= end_index )
-			{
-				return;
-			}
-			sort_type_c pivot_value = absolute_value_function( _array[ start_index ] );
-			if ( invert )
-			{
-				#pragma warning( push )
-				#pragma warning( disable: 4146 )
-				if ( constants< sort_type_c >::is_signed() )
-				{
-					pivot_value = -pivot_value;
-				}
-				else
-				{
-					pivot_value = constants< sort_type_c >::maximum() - pivot_value;
-				}
-				#pragma warning( pop )
-			}
-			sint32_c left_index = start_index;
-			sint32_c right_index = end_index;
-			sint32_c middle_index;
+			assert( lo_index >= 0 && hi_index < _array_length_used );
+			assert( lo_index < hi_index );
+			sort_type_c pivot_value = value_function( _array[ ( lo_index + hi_index ) / 2 ] );
+			sint32_c inner_lo_index = lo_index;
+			sint32_c inner_hi_index = hi_index;
 			while ( true )
 			{
-				while ( absolute_value_function( _array[ right_index ] ) > pivot_value )
+				while ( value_function( _array[ inner_lo_index ] ) < pivot_value )
 				{
-					right_index--;
+					inner_lo_index++;
 				}
-				while ( absolute_value_function( _array[ left_index ] ) < pivot_value )
+				while ( value_function( _array[ inner_hi_index ] ) > pivot_value )
 				{
-					left_index++;
+					inner_hi_index--	;
 				}
-				if ( left_index < right_index )
+				if ( inner_lo_index >= inner_hi_index )
 				{
-					value_type_c temp = _array[ left_index ];
-					_array[ left_index ] = _array[ right_index ];
-					_array[ right_index ] = temp;
-					left_index++;
-					right_index--;
+					return inner_hi_index;
 				}
-				else
+				value_type_c temp = _array[ inner_lo_index ];
+				_array[ inner_lo_index ] = _array[ inner_hi_index ];
+				_array[ inner_hi_index ] = temp;
+				inner_lo_index++;
+				inner_hi_index--;
+			}
+		}
+
+	public:
+		template< typename sort_type_c >
+		void_c quick_sort_2( sort_type_c (*compare_function)( value_type_c const & a, value_type_c const & b ), boolean_c invert, sint32_c start_index = -1, sint32_c end_index = -1 )
+		{
+			if ( start_index < 0 )
+			{
+				start_index = 0;
+			}
+			if ( end_index < 0 )
+			{
+				end_index = _array_length_used - 1;
+			}
+			assert( start_index >= 0 && end_index < _array_length_used );
+			if ( start_index < end_index )
+			{
+				sint32_c partition_border = _quick_sort_2_partition( compare_function, invert, start_index, end_index );
+				quick_sort_2( compare_function, invert, start_index, partition_border );
+				quick_sort_2( compare_function, invert, partition_border + 1, end_index );
+			}
+		}
+
+	private:
+		template< typename sort_type_c >
+		sint32_c _quick_sort_2_partition( sort_type_c (*compare_function)( value_type_c const & a, value_type_c const & b ), boolean_c invert, sint32_c lo_index, sint32_c hi_index )
+		{
+			value_type_c const & pivot_value = _array[ ( lo_index + hi_index ) / 2 ];
+			sint32_c inner_lo_index = lo_index;
+			sint32_c inner_hi_index = hi_index;
+			while ( true )
+			{
+				while ( compare_function( _array[ inner_lo_index ], pivot_value ) < 0 )
 				{
-					middle_index = right_index;
-					break;
+					inner_lo_index++;
+				}
+				while ( compare_function( _array[ inner_hi_index ], pivot_value ) > 0 )
+				{
+					inner_hi_index--;
+				}
+				if ( inner_lo_index >= inner_hi_index )
+				{
+					return inner_hi_index;
+				}
+				value_type_c temp = _array[ inner_lo_index ];
+				_array[ inner_lo_index ] = _array[ inner_hi_index ];
+				_array[ inner_hi_index ] = temp;
+				inner_lo_index++;
+				inner_hi_index--;
+			}
+		}
+
+		/*
+		// recursive quick sort function.
+		template< typename sort_type_c >
+		void_c _quick_sort_internal( sort_type_c (*compare_function)( value_type_c const & a, value_type_c const & b ), boolean_c invet, sint32_c lo_index, sint32_c hi_index )
+		{
+			assert( lo_index >= 0 && hi_index < _array_length_used );
+			assert( lo_index < hi_index );
+			sint32_c inner_lo_index = lo_index;
+			sint32_c inner_hi_index = hi_index;
+			value_type_c pivot_value = _array[ lo_index + ( hi_index - lo_index ) / 2 ];
+			while ( inner_lo_index < inner_hi_index )
+			{
+				while ( compare_function( _array[ inner_lo_index ], pivot_value ) < 0 )
+				{
+					inner_lo_index++;
+				}
+				while ( compare_function( _array[ inner_hi_index ], pivot_value ) > 0 )
+				{
+					inner_hi_index--;
+				}
+				if ( inner_lo_index <= inner_hi_index )
+				{
+					value_type_c temp = _array[ inner_lo_index ];
+					_array[ inner_lo_index ] = _array[ inner_hi_index ];
+					_array[ inner_hi_index ] = temp;
+					inner_lo_index++;
+					inner_hi_index--;
+				}
+				if ( lo_index < inner_hi_index )
+				{
+					_quick_sort_internal( compare_function, lo_index, inner_hi_index, invert );
+				}
+				if ( inner_lo_index < hi_index )
+				{
+					_quick_sort_internal( compare_function, inner_lo_index, hi_index, invert );
 				}
 			}
-			_quick_sort_internal( absolute_value_function, start_index, middle_index, invert );
-			_quick_sort_internal( absolute_value_function, middle_index + 1, end_index, invert );
 		}
+		*/
 
 	public:
 		// transfers ownership of internal array from this to other, converts this to an empty dynamic mode list as a side effect of disassociating ownership.

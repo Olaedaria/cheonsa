@@ -8,6 +8,7 @@ namespace cheonsa
 	namespace ops
 	{
 
+		boolean_c path_is_file_or_folder_path_allowable( string16_c const & value );
 		boolean_c path_is_file_or_folder_name_allowable( string16_c const & value ); // returns true if value is set, is less than an arbitrary length, and contains only alpha numeric and underscore characters.
 
 		string16_c path_get_folder_path( string16_c const & path ); // removes the last node from the given path and returns it. works with forward slashes and back slashes. works with and without trailing slash.

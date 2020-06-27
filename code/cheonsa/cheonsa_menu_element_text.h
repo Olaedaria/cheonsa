@@ -129,7 +129,7 @@ namespace cheonsa
 			void_c _handle_text_style_reference_on_refreshed( menu_text_style_c * text_style );
 
 		private:
-			text_span_c();
+			text_span_c( text_paragraph_c * mother_paragraph );
 
 			// called in response to insertion of text in _plain_text.
 			// this will extend spans that intersect with the given character range.
@@ -397,6 +397,7 @@ namespace cheonsa
 		// text_style_key is a text style key that references a text style instance in the menu style manager.
 		virtual void_c set_style_key( string8_c const & text_style_key ) override;
 
+		string16_c const & get_internal_plain_text_value() const; // returns a direct reference of this text element's plain text value (which with a new line character).
 		string16_c get_plain_text_value() const; // returns a copy of the plain text contents of this text element (with the very last internal use terminating new line character omitted).
 		void_c set_plain_text_value( string8_c const & value );
 		void_c set_plain_text_value( string16_c const & value );

@@ -11,6 +11,19 @@ namespace cheonsa
 	// this is in contrast to a direct memory access model, which is an alternative way to do things.
 	class reflection_property_c
 	{
+		friend boolean_c reflection_get_object_property_value( reflection_object_c *, reflection_property_c const *, reflection_value_container_c & );
+		friend boolean_c reflection_set_object_property_value( reflection_object_c *, reflection_property_c const *, reflection_value_container_c const & );
+		friend string16_c reflection_convert_value_to_string16( reflection_property_c const * property, reflection_value_container_c const & property_value );
+		friend boolean_c reflection_convert_string16_to_value( reflection_property_c const * property, reflection_value_container_c & property_value, string16_c const & property_value_as_string16 );
+		friend vector64x4_c reflection_convert_value_to_color( reflection_property_c const * property, reflection_value_container_c const & value );
+		friend void_c reflection_convert_color_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector64x4_c const & value_as_color );
+		friend vector32x3_c reflection_convert_value_to_euler_angles( reflection_property_c const * property, reflection_value_container_c const & value );
+		friend void_c reflection_convert_euler_angles_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector32x3_c const & value_as_euler_angles );
+		friend boolean_c reflection_compare_values( reflection_property_c const * property, reflection_value_container_c const & a, reflection_value_container_c const & b );
+		friend class reflection_class_c;
+		friend class reflection_manager_c;
+		friend class menu_control_property_inspector_c;
+
 	public:
 		// value type must point to a buffer|instance of the same type that is defined by the property type and type count.
 		// the property's value_type and value_count are passed in each time just so that the programmer can verify that they're casting to the same data type that they said they would when they initialized the reflection property.
@@ -32,19 +45,6 @@ namespace cheonsa
 		typedef boolean_c (*object_list_item_sorter_f)( reflection_object_c * instance );
 
 	private:
-		friend boolean_c reflection_get_object_property_value( reflection_object_c *, reflection_property_c const *, reflection_value_container_c & );
-		friend boolean_c reflection_set_object_property_value( reflection_object_c *, reflection_property_c const *, reflection_value_container_c const & );
-		friend string16_c reflection_convert_value_to_string16( reflection_property_c const * property, reflection_value_container_c const & property_value );
-		friend boolean_c reflection_convert_string16_to_value( reflection_property_c const * property, reflection_value_container_c & property_value, string16_c const & property_value_as_string16 );
-		friend vector64x4_c reflection_convert_value_to_color( reflection_property_c const * property, reflection_value_container_c const & value );
-		friend void_c reflection_convert_color_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector64x4_c const & value_as_color );
-		friend vector32x3_c reflection_convert_value_to_euler_angles( reflection_property_c const * property, reflection_value_container_c const & value );
-		friend void_c reflection_convert_euler_angles_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector32x3_c const & value_as_euler_angles );
-		friend boolean_c reflection_compare_values( reflection_property_c const * property, reflection_value_container_c const & a, reflection_value_container_c const & b );
-		friend class menu_control_property_inspector_c;
-		friend class reflection_class_c;
-		friend class reflection_manager_c;
-
 		reflection_class_c const * _reflection_class; // the reflection class that owns this property.
 		string8_c _name; // name of property. currently not localizable.
 		string8_c _description; // description of property. currently not localizable.
@@ -56,8 +56,8 @@ namespace cheonsa
 		// if view is file path, then this is a vertical slash separated list of file extensions to filter ".txt|.log".
 		// (not stored in _defaults_and_limits because that's a union and this is not a base type so it wouldn't play well with the union).
 		string8_c _additional_options;
-		reflection_enumeration_c const * _enumeration; // for use with _types of int with _type_count of 1, and with _view of enumeration.
-		reflection_class_c const * _class; // for use with _type of data_type_e_object and data_type_e_object_list.
+		reflection_enumeration_c const * _type_enumeration; // for use with _types of int with _type_count of 1, and with _view of enumeration.
+		reflection_class_c const * _type_reflection_class; // for use with _type of data_type_e_object and data_type_e_object_list.
 
 		union
 		{
@@ -174,19 +174,26 @@ namespace cheonsa
 		void_c initialize_basic_view_scrub_bar(); // type must be float32x1 or float64x1.
 		void_c initialize_basic_view_text(); // type must be string8x1 or string16x1.
 		void_c initialize_basic_view_euler_angles(); // type must be float32x3 (euler), float32x4 (quaternion), float64x3 (euler), or float64x4 (quaternion). if the type is a quaternion then it does the conversion to and from euler angles.
-		void_c initialize_basic_view_enumeration( reflection_enumeration_c const * enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1. will display a combo box that allows the user to select at most one item.
-		void_c initialize_basic_view_enumeration_flags( reflection_enumeration_c const * enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1. will display a combo box that allows the user to check on and off each item in the enumeration.
+		void_c initialize_basic_view_enumeration( reflection_enumeration_c const * type_enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1. will display a combo box that allows the user to select at most one item.
+		void_c initialize_basic_view_enumeration_flags( reflection_enumeration_c const * type_enumeration ); // type must be any int type with count of 1: uint8x1, sint8x1, uint16x1, sint16x1, uint32x1, sint32x1, uint64x1, sint64x1. will display a combo box that allows the user to check on and off each item in the enumeration.
 		void_c initialize_basic_view_file_path( string8_c file_type_filter ); // enables file picker. file_type_filter is a vertical slash separated list of file extensions, for example "*.txt|*.log".
 
-		void_c initialize_object( reflection_class_c const * _class, object_getter_f object_getter );
+		void_c initialize_object( reflection_class_c const * type_reflection_class, object_getter_f object_getter );
 
-		void_c initialize_object_list( reflection_class_c const * _class, object_list_item_count_getter_f object_list_item_count_getter, object_list_item_getter_f object_list_item_getter, object_list_item_adder_f object_list_item_adder, object_list_item_remover_f object_list_item_remover, object_list_item_mover_f object_list_item_mover, object_list_item_sorter_f object_list_item_sorter ); // mover and sorter functions are optional.
+		void_c initialize_object_list( reflection_class_c const * type_reflection_class, object_list_item_count_getter_f object_list_item_count_getter, object_list_item_getter_f object_list_item_getter, object_list_item_adder_f object_list_item_adder, object_list_item_remover_f object_list_item_remover, object_list_item_mover_f object_list_item_mover, object_list_item_sorter_f object_list_item_sorter ); // mover and sorter functions are optional.
 
 	public:
+		reflection_class_c const * get_reflection_class() const;
+
 		string8_c const & get_name() const;
 		string8_c const & get_description() const;
 		data_type_e get_type() const;
 		uint8_c get_type_count() const;
+		data_view_e get_view() const;
+
+		string8_c const & get_additional_options() const;
+		reflection_enumeration_c const * get_type_enumeration() const;
+		reflection_class_c const * get_type_reflection_class() const;
 
 	};
 

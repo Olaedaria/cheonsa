@@ -38,6 +38,20 @@
 namespace cheonsa
 {
 
+	enum loop_type_e
+	{
+		// engine updates frames as frequently as needed to maintain the target frame rate.
+		// engine renders frames as frequently as possible to keep up with the update frames. if the gpu can't keep up, then render frames will be dropped.
+		// if the target frame rate is 60, then the fixed time step value in seconds is 1 / 60.
+		// if the cpu can't keep up, then the game will appear to run in slow motion. if this slow down is temporary, then the game will appear to run in fast motion afterwards to compensate.
+		loop_type_e_fixed_time_step,
+		// engine updates and renders as fast as possible.
+		// for each update frame there is also one render frame. if either the cpu or gpu can't keep up, then the frame rate will lower, but the time step will also increase proportionally.
+		// (physics simulation will still run at fixed time step so as to remain deterministic, and since inaccuracy errors (like tunneling) are more likely to occur with larger time steps).
+		// the variable time step is calculated at the start of each update frame, and it is the difference in time since the start of the previous update frame.
+		loop_type_e_variable_time_step,
+	};
+
 	/*
 
 	the engine class.

@@ -145,10 +145,11 @@ namespace cheonsa
 
 	core_linked_list_c< menu_frame_style_c::reference_c * > menu_frame_style_c::reference_c::_global_list;
 
-	menu_frame_style_c::reference_c::reference_c()
+	menu_frame_style_c::reference_c::reference_c( menu_element_frame_c * owner )
 		: _global_list_node( this )
 		, _key()
 		, _value( nullptr )
+		, _owner( owner )
 	{
 		_global_list.insert_at_end( &_global_list_node );
 	}
@@ -453,10 +454,11 @@ namespace cheonsa
 
 	core_linked_list_c< menu_text_style_c::reference_c * > menu_text_style_c::reference_c::_global_list;
 
-	menu_text_style_c::reference_c::reference_c()
+	menu_text_style_c::reference_c::reference_c( menu_element_text_c * owner )
 		: _global_list_node( this )
 		, _key()
 		, _value( nullptr )
+		, _owner( owner )
 	{
 		_global_list.insert_at_end( &_global_list_node );
 	}

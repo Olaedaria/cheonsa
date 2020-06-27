@@ -55,20 +55,22 @@ namespace cheonsa
 	{
 		assert( object && property );
 		assert( object->_reflection_class == property->_reflection_class );
-		assert( property->_type >= data_type_e_string8 && property->_type <= data_type_e_float64 );
-		assert( property->_accessors._value_getter );
 		if ( property->_type == data_type_e_string8 )
 		{
+			assert( property->_accessors._value_getter );
 			return property->_accessors._value_getter( object, &value.string8, property->_type, property->_type_count );
 		}
 		else if ( property->_type == data_type_e_string16 )
 		{
+			assert( property->_accessors._value_getter );
 			return property->_accessors._value_getter( object, &value.string16, property->_type, property->_type_count );
 		}
-		else
+		else if ( property->_type >= data_type_e_uint8 && property->_type <= data_type_e_float64 )
 		{
+			assert( property->_accessors._value_getter );
 			return property->_accessors._value_getter( object, &value, property->_type, property->_type_count );
 		}
+		return false;
 	}
 
 	boolean_c reflection_set_object_property_value( reflection_object_c * object, reflection_property_c const * property, reflection_value_container_c const & value )
@@ -432,7 +434,7 @@ namespace cheonsa
 		{
 			if ( property->_type == data_type_e_string8 )
 			{
-				value.string8 = value_as_string8;
+				value.string8 = value_as_string16;
 			}
 			else if ( property->_type == data_type_e_string16 )
 			{

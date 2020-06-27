@@ -4,32 +4,6 @@
 namespace cheonsa
 {
 
-	void_c menu_control_combo_item_text_c::_on_clicked( input_event_c * input_event )
-	{
-		_mother_user_interface->reset_multi_click_detection();
-		if ( get_is_actually_enabled() )
-		{
-			if ( input_event->get_mouse_key() == input_mouse_key_e_left )
-			{
-				if ( _mother_control )
-				{
-					menu_control_combo_c * mother_list = dynamic_cast< menu_control_combo_c * >( _mother_control );
-					if ( mother_list->get_use_toggle_behavior() )
-					{
-						_set_is_selected( !_is_selected, true );
-					}
-					else
-					{
-						_set_is_selected( true, true );
-						assert( _mother_user_interface );
-						_mother_user_interface->set_text_focused( nullptr ); // this should have the effect of hiding the whole popup menu hierarchy.
-					}
-				}
-			}
-			menu_control_list_item_i::_on_clicked( input_event );
-		}
-	}
-
 	void_c menu_control_combo_item_text_c::_on_is_mouse_overed_changed()
 	{
 		if ( _is_mouse_overed )
@@ -41,9 +15,38 @@ namespace cheonsa
 		}
 	}
 
+	void_c menu_control_combo_item_text_c::_on_clicked( input_event_c * input_event )
+	{
+		_mother_user_interface->reset_multi_click_detection();
+		if ( get_is_actually_enabled() )
+		{
+			assert( _mother_control );
+			menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
+			assert( mother_list );
+			if ( _can_be_toggled )
+			{
+				_set_is_selected( !_is_selected, true );
+			}
+			else
+			{
+				if ( input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
+				{
+					_set_is_selected( true, true );
+				}
+				else
+				{
+					_set_is_selected( true, false );
+					_mother_user_interface->set_text_focused( nullptr ); // this should hide the pop up.
+				}
+			}
+			on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+	}
+
 	menu_control_combo_item_text_c::menu_control_combo_item_text_c()
 		: menu_control_list_item_text_i()
 	{
+		set_non_client_type( menu_non_client_type_e_client );
 	}
 
 	menu_control_combo_item_text_c::~menu_control_combo_item_text_c()
@@ -72,11 +75,8 @@ namespace cheonsa
 	{
 		if ( _is_deep_text_focused == false )
 		{
-			if ( !_use_toggle_behavior )
-			{
-				_was_just_hidden = _combo_button == next_control;
-				set_is_showed( false );
-			}
+			_was_just_hidden = _combo_button == next_control;
+			set_is_showed( false );
 		}
 		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
@@ -85,34 +85,33 @@ namespace cheonsa
 		: menu_control_list_i()
 		, _combo_button( nullptr )
 		, _was_just_hidden( false )
-		, _use_toggle_behavior( false )
 	{
 		_layer = menu_layer_e_popup;
 		_selected_item_limit = 1;
 		_vertical_size_mode = menu_size_mode_e_fit_content;
 		_vertical_size_maximum = 0.0f;
 		set_is_showed_immediately( false ); // start hidden.
+		set_non_client_type( menu_non_client_type_e_client );
 	}
 
 	menu_control_combo_c::~menu_control_combo_c()
 	{
 	}
 
-	boolean_c menu_control_combo_c::get_use_toggle_behavior() const
-	{
-		return _use_toggle_behavior;
-	}
-
-	void_c menu_control_combo_c::set_use_toggle_behavior( boolean_c value )
-	{
-		_use_toggle_behavior = value;
-	}
-
-	void_c menu_control_combo_c::show_like_combo_list( menu_control_c * combo_to_spawn_pop_up_around )
+	void_c menu_control_combo_c::show_like_combo_list( menu_control_c * combo_button_to_spawn_pop_up_around )
 	{
 		assert( _mother_user_interface );
-		box32x2_c new_local_box = _mother_user_interface->find_combo_list_pop_up_box( combo_to_spawn_pop_up_around, _local_box.get_size(), true );
+		box32x2_c pop_up_box;
+		pop_up_box.minimum.a = 0.0f;
+		pop_up_box.maximum.a = combo_button_to_spawn_pop_up_around->get_local_box().get_width();
+		pop_up_box.minimum.b = 0.0f;
+		pop_up_box.maximum.b = 1000.0f;
+		set_layout_simple( pop_up_box );
+
+		box32x2_c new_local_box = _mother_user_interface->find_combo_list_pop_up_box( combo_button_to_spawn_pop_up_around, _local_box.get_size(), true );
 		set_layout_simple( new_local_box );
+		//new_local_box = _mother_user_interface->find_combo_list_pop_up_box( combo_button_to_spawn_pop_up_around, _local_box.get_size(), true );
+		//set_layout_simple( new_local_box );
 		set_is_showed_immediately( true );
 		bring_to_front();
 		give_text_focus();
@@ -156,7 +155,26 @@ namespace cheonsa
 
 	void_c menu_control_combo_c::set_selected_item( menu_control_list_item_i * item )
 	{
-		_set_selected_item( item );
+		menu_control_combo_item_text_c * combo_item = dynamic_cast< menu_control_combo_item_text_c * >( item );
+		if ( combo_item )
+		{
+			combo_item->select();
+		}
+	}
+
+	sint32_c menu_control_combo_c::get_selected_item_count() const
+	{
+		return _selected_item_list.get_length();
+	}
+
+	menu_control_list_item_i const * menu_control_combo_c::get_selected_item_at_index( sint32_c index ) const
+	{
+		return _selected_item_list[ index ];
+	}
+
+	menu_control_list_item_i * menu_control_combo_c::get_selected_item_at_index( sint32_c index )
+	{
+		return _selected_item_list[ index ];
 	}
 
 	sint32_c menu_control_combo_c::get_selected_item_index() const
@@ -182,7 +200,7 @@ namespace cheonsa
 	void_c menu_control_combo_button_c::_on_clicked( input_event_c * input_event )
 	{
 		_mother_user_interface->reset_multi_click_detection();
-		if ( _is_enabled )
+		if ( get_is_actually_enabled() )
 		{
 			if ( _combo_control && input_event->get_mouse_key() == input_mouse_key_e_left )
 			{
@@ -201,23 +219,30 @@ namespace cheonsa
 
 	void_c menu_control_combo_button_c::_handle_on_selected_item_changed( menu_control_combo_c * combo_list )
 	{
-		menu_control_list_item_i const * selected_item = _combo_control->get_selected_item();
-		if ( selected_item )
+		_update_plain_text_value();
+	}
+
+	void_c menu_control_combo_button_c::_update_plain_text_value()
+	{
+		string16_c plain_text_value;
+		menu_control_combo_c * combo_control = dynamic_cast< menu_control_combo_c * >( _combo_control );
+		if ( combo_control )
 		{
-			menu_control_combo_item_text_c const * selected_combo_list_item_text = dynamic_cast< menu_control_combo_item_text_c const * >( selected_item );
-			if ( selected_combo_list_item_text )
+			// walk the whole item list (rather than just the selected item list) so that string building is done in the same order that the items are inserted into the list rather than in the order that the items are selected.
+			for ( sint32_c i = 0; i < combo_control->get_item_count(); i++ )
 			{
-				_text_element.set_plain_text_value( selected_combo_list_item_text->get_plain_text_value() );
-			}
-			else
-			{
-				_text_element.clear_text_value();
+				menu_control_combo_item_text_c * combo_item_text = dynamic_cast< menu_control_combo_item_text_c * >( combo_control->get_item_at_index( i ) );
+				if ( combo_item_text && combo_item_text->get_is_selected() )
+				{
+					if ( plain_text_value.is_set() )
+					{
+						plain_text_value += ", ";
+					}
+					plain_text_value += combo_item_text->get_plain_text_value();
+				}
 			}
 		}
-		else
-		{
-			_text_element.clear_text_value();
-		}
+		set_plain_text_value( plain_text_value );
 	}
 
 	menu_control_combo_button_c::menu_control_combo_button_c()
@@ -247,7 +272,7 @@ namespace cheonsa
 	{
 		if ( _combo_control )
 		{
-			_remove_supplemental_control( _combo_control );
+			remove_supplemental_daughter_control( _combo_control );
 			_combo_control->_combo_button = nullptr;
 			_combo_control->on_selected_item_changed.unsubscribe( this, &menu_control_combo_button_c::_handle_on_selected_item_changed );
 		}
@@ -258,8 +283,9 @@ namespace cheonsa
 			_combo_control->set_is_showed_immediately( false );
 			_combo_control->_combo_button = this;
 			_combo_control->on_selected_item_changed.subscribe( this, &menu_control_combo_button_c::_handle_on_selected_item_changed );
-			_add_supplemental_control( _combo_control );
+			add_supplemental_daughter_control( _combo_control );
 		}
+		_update_plain_text_value();
 	}
 
 }

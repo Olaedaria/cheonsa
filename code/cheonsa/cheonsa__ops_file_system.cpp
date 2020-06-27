@@ -23,7 +23,7 @@ namespace cheonsa
 			for ( sint32_c i = 0; i < value.get_length(); i++ )
 			{
 				char16_c c = value.character_list[ i ];
-				if ( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' ) || ( c == '_' ) )
+				if ( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' ) || ( c == '_' ) || ( c == '.' ) )
 				{
 				}
 				else
@@ -628,7 +628,7 @@ namespace cheonsa
 						add = false;
 						for ( sint32_c i = 0; i < file_extension_filter_list.get_length(); i++ )
 						{
-							if ( string16_ends_with( find_file_data.cFileName, file_extension_filter_list[ i ].character_list.get_internal_array() ) )
+							if ( string16_ends_with( string16_c( find_file_data.cFileName, core_list_mode_e_static ), file_extension_filter_list[ i ] ) )
 							{
 								add = true;
 								break;
@@ -677,7 +677,7 @@ namespace cheonsa
 				if ( ( find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 )
 				{
 					string16_c sub_file_name = string16_c( find_file_data.cFileName, core_list_mode_e_static );
-					if ( ( extension_filter == nullptr ) || ( string16_ends_with( sub_file_name.character_list.get_internal_array(), extension_filter ) ) )
+					if ( ( extension_filter == nullptr ) || ( string16_ends_with( sub_file_name, string8_c( extension_filter, core_list_mode_e_static ) ) ) )
 					{
 						string16_c sub_file_path;
 						sub_file_path += folder_path_absolute;

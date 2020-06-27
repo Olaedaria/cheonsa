@@ -41,7 +41,7 @@ namespace cheonsa
 			reflection_property_c const * _reflection_property; // the reflection property associated with this field. this will not be set for the class label.
 			//database_field_schema_c const * bound_database_field_schema;
 
-			menu_control_text_c * _label_control; // class name, category name, or property name.
+			menu_control_label_c * _label_control; // class name, category name, or property name.
 
 			menu_control_text_c * _text_control; // text box for editing string values. also used with sliders to display and edit the value of the slider.
 			menu_control_combo_button_c * _combo_button_control; // combo box for editing enumerated values.
@@ -54,6 +54,8 @@ namespace cheonsa
 			menu_control_button_c * _item_move_up_button_control;
 			menu_control_button_c * _item_move_down_button_control;
 			menu_control_button_c * _item_sort_button_control;
+
+			menu_control_property_inspector_c * _property_inspector; // inline property inspector, used to edit object and object_list values.
 
 		public:
 			property_field_c();
@@ -75,36 +77,29 @@ namespace cheonsa
 		} styled_properties;
 
 		menu_control_property_inspector_c * _mother_property_inspector; // if set then this property inspector is owned and managed by this property inspector.
-		reflection_class_c const * _fixed_reflection_class; // if this is set, then the property editing interface will remain static, even if _reflection_object is set to nullptr, but this also means that _reflection_object type must correspond to _fixed_reflection_class.
+		reflection_class_c const * _fixed_reflection_class; // if this is set, then all of the property field controls will be initialized once, and they will still be shown even when _reflection_object is set to nullptr, but this also means that _reflection_object type must always be the same as _fixed_reflection_class.
 
-		reflection_object_c * _reflection_object; // the object that we are reflecting and editing.
+		reflection_object_c * _bound_reflection_object; // the object that we are reflecting and editing.
 		//database_record_c * _bound_database_record; // the database record that we are reflecting and editing.
 
 		core_list_c< property_field_c * > _property_field_list; // a list of the properties that we are reflecting.
 
 		property_field_c * _editing_property_field; // if an additional dialog window is open (like a color picker), then this is a pointer to the property that that dialog window is editing.
 		vector64x4_c _editing_value_as_color_original; // if the user cancels the color pick opreation then we need to revert to this value.
-		sint32_c _pending_delete_list_item_index; // the index of the list item that we are in the process of asking the user if they are sure they want to delete it.
+		sint32_c _editing_item_index; // the index of the list item that we are in the process of asking the user if they are sure they want to delete it.
 
 		menu_control_window_message_c * _message_dialog;
 		menu_control_window_color_picker_c * _color_picker_dialog;
 		menu_control_window_file_picker_c * _file_picker_dialog;
 		menu_control_window_text_editor_c * _text_editor_dialog;
 
-		menu_control_window_c * _property_inspector_window; // will be initialized at the moment that this property inspector needs to open up another property inspector in order to edit nestable types (data_type_e_object or data_type_e_object_list type properties).
-		menu_control_property_inspector_c * _property_inspector; // is added to _property_inspector_window.
-		menu_control_button_c * _property_inspector_cancel_button;
-		menu_control_button_c * _property_inspector_okay_button;
-		void_c _initialize_property_inspector(); // creates the window (in hidden state) and property inspector. adds it to the user interface if able.
-		void_c _handle_property_inspector_button_on_clicked( menu_event_information_c event_information );
-
 		float32_c _y; // current y offset of the cursor, when appending property menu controls (rows) with _add_row().
 		void_c _layout_controls_for_property( property_field_c * property_field ); // lays out the controls for the given property field.
 
 		boolean_c _is_muted; // if true then all the _handle_* functions will ignore events from menu controls, because the values of those controls are being updated to sync and match with the data. if false then the opposite is happening, the data is being updated to sync and match with the menu controls.
-		void_c _clear(); // removes and deletes all controls from the property inspector. hides any open dialogs.
-		void_c _add( reflection_class_c const * reflection_class ); // adds property field editor controls for the given reflection class.
-		//void_c _add( database_record_schema_c const * database_record_schema ); // adds property field editor controls for the given database record schema.
+		void_c _clear_controls(); // removes and deletes all controls from the property inspector. hides any open dialogs.
+		void_c _add_controls( reflection_class_c const * reflection_class ); // adds property field editor controls for the given reflection class.
+		//void_c _add_controls( database_record_schema_c const * database_record_schema ); // adds property field editor controls for the given database record schema.
 
 		// updates controls to reflect the current value of the property of the bound object.
 		void_c _update_ui_from_property( property_field_c * property_field );
@@ -114,11 +109,8 @@ namespace cheonsa
 		// only invokes on_property_value_changed if and_commit is true, which allows value changes to be previewed without committing them to the undo stack.
 		void_c _update_property_from_ui( property_field_c * property_field, menu_control_c * control, boolean_c and_commit );
 
-		//string16_c _original_text_value;
-		//void _handle_value_text_on_character_focus_gained( menu_control_c * control );
-		//void _handle_value_text_on_character_focus_lost( menu_control_c * control );
-		void_c _handle_value_text_on_value_changed_preview( menu_control_text_c * text );
-		void_c _handle_value_text_on_value_changed( menu_control_text_c * text );
+		void_c _handle_value_text_on_plain_text_value_changed_preview( menu_control_text_c * text );
+		void_c _handle_value_text_on_plain_text_value_changed( menu_control_text_c * text );
 		void_c _handle_value_scroll_on_value_changed_preview( menu_control_scroll_bar_i * scroll );
 		void_c _handle_value_scroll_on_value_changed( menu_control_scroll_bar_i * scroll );
 		void_c _handle_value_combo_on_selected_item_changed_preview( menu_control_combo_c * combo_list ); // is called as user mouses over options in combo list.
@@ -133,16 +125,20 @@ namespace cheonsa
 		void_c _handle_item_sort_on_clicked( menu_event_information_c event_information );
 		void_c _handle_dialog_on_result( menu_control_window_c * window );
 
+		virtual void_c _on_input( input_event_c * input_event ) override;
+
 	public:
 		menu_control_property_inspector_c( menu_control_property_inspector_c * mother_property_inspector, reflection_class_c const * fixed_reflection_class ); // initializes a child property panel for editing nested properties such as for editing a class instance that is a part of a core_list_c or by itself.
 		virtual ~menu_control_property_inspector_c() override;
 
-		void_c bind_reflection_object( reflection_object_c * value ); // sets the object that is to be reflected by this property inspector.
-		//void_c bind_database_record( database_record_c * value ); // sets the database record to be edited by this property inspector. unsubscribes the property inspector from the database events.
+		virtual void_c update_animations( float32_c time_step ) override;
+
+		void_c set_bound_reflection_object( reflection_object_c * value ); // sets the object that is to be reflected by this property inspector.
+		reflection_object_c * get_bound_reflection_object() const;
+
+		//void_c set_bound_database_record( database_record_c * value ); // sets the database record to be edited by this property inspector. unsubscribes the property inspector from the database events.
 
 		void_c refresh_ui(); // refreshes the values displayed in the user interface to be up to date with the current state of the reflection object.
-
-		float32_c get_content_height() const;
 
 		core_event_c< void_c, reflection_property_value_changed_information_c * > on_property_value_changed; // is invoked whenever a property value is modified and committed by this property inspector interface. an undo/redo system can plug into this to record changes.
 

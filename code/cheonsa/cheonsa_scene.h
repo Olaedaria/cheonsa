@@ -12,27 +12,7 @@ namespace cheonsa
 {
 
 	// a 3d scene, or world.
-	//
-	// manages scene state for renderables, audio, and physics simulation.
-	//
-	// primarily manages the scene state for gpu renderables.
-	// secondarily interfaces with a couple other systems that also need to maintain their own internal scene representations (somewhat redundant):
-	//     audio
-	//     physics
-	// the engine's user interface manager acts as an interface between the scene and the user.
-	//
-	// the scene's contents will probably be managed closely by the game.
-	//
-	// it's spatially optimized a little bit for general case (open world), it uses octo trees to hold scene components and scene lights, which allows for quick look up based on proximity.
-	//
-	// update on scene objects has to be managed by the game, and it should occur in the following order:
-	//     game calls update_animations() on all its animated model scene components.
-	//     game calls update() on the physics scene contained in the scene.
-	//     game calls update_simulated_bone_logics() on all its animated model scene components.
-	//     game calls get_scene_camera() to update the camera's properties. the camera's transform will be fed to the audio scene listener when update_audio() is called.
-	//     game calls update_audio() on the scene to tell the sound components in the scene to add their sources to the audio scene if they are in range of the camera.
-	// in order to render the scene, it must be associated with the engine's user interface manager.
-	// or you can render it manually to an off-screen target using the engine's video renderer interface.
+	// manages scene states for renderables (models, lights, etc), audio sources, and physics simulation.
 	class scene_c
 	{
 		friend class scene_component_c;
@@ -86,8 +66,10 @@ namespace cheonsa
 		core_linked_list_c< scene_component_light_probe_c * > _light_probe_list; // all of the light probe components in this scene in a flat list.
 		scene_component_light_probe_c * _last_baked_light_probe; // used by the renderer to keep track of the last light probe that was baked, for incremental baking over multiple frames.
 
+		// models.
+		core_linked_list_c< scene_component_model_c * > _model_list;
 		// audibles.
-		core_linked_list_c< scene_component_sound_c * > _sound_list; // flat list for now, could be spatially partitioned later.
+		core_linked_list_c< scene_component_sound_c * > _sound_list; // flat list for now, in the future this should be stored in some kind of spatial data structure which we can gather from based on distance to the listener.
 
 		// sky setup.
 		// any number of models to render "behind" everything else.
@@ -118,6 +100,11 @@ namespace cheonsa
 		scene_c();
 		~scene_c(); // does not delete any scene objects in the scene. it is the game's responsibility to manage life time of scene objects. will assert if there are still any scene objects associated with the scene when the destructor is called.
 
+		// updates physics simulation.
+		// updates animations of models in the scene.
+		// updates audio source states.
+		void_c update( float32_c time_step );
+
 		vector32x4_c const & get_clear_color() const;
 		void_c set_clear_color( vector32x4_c const & value );
 		void_c reset_clear_color();
@@ -128,8 +115,6 @@ namespace cheonsa
 
 		vector32x4_c const & get_color( sint32_c index ) const; // the scene has 16 colors that can be set by the game and which the shaders can be programmed to read.
 		void_c set_color( sint32_c index, vector32x4_c const & value ); // the scene has 16 colors that can be set by the game and which the shaders can be programmed to read.
-
-		void_c update_audio( float32_c time_step ); // takes the properties of the camera to update the properties of the listener in the audio scene.
 
 		void_c add_object( scene_object_c * object ); // adds a scene object to this scene.
 		void_c remove_object( scene_object_c * object ); // removes a scene object from this scene.

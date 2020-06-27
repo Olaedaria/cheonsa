@@ -6,12 +6,15 @@
 namespace cheonsa
 {
 
+	/*
 	menu_control_collection_c::item_i::value_c::value_c()
 		: display_value( L"[none]", core_list_mode_e_static )
 		, absolute_value( 0 )
 	{
 	}
+	*/
 
+	/*
 	void_c menu_control_collection_c::item_i::_cache_values()
 	{
 		if ( _value_cache )
@@ -32,10 +35,11 @@ namespace cheonsa
 			}
 		}
 	}
+	*/
 
 	menu_control_collection_c::item_i::item_i()
 		: _mother_collection( nullptr )
-		, _value_cache( nullptr )
+		//, _value_cache( nullptr )
 		, _group( 0 )
 		, _index( -1 )
 		, _is_selected( false )
@@ -64,16 +68,16 @@ namespace cheonsa
 
 	boolean_c menu_control_collection_c::item_i::get_value( string8_c const & property_key, string16_c & display_value, sint64_c & absolute_value ) const
 	{
-		assert( _value_cache );
-		for ( sint32_c i = 0; i < _mother_collection->_column_list.get_length(); i++ )
-		{
-			if ( _mother_collection->_column_list[ i ]->get_key() == property_key )
-			{
-				display_value = _value_cache[ i ].display_value;
-				absolute_value = _value_cache[ i ].absolute_value;
-				return true;
-			}
-		}
+		//assert( _value_cache );
+		//for ( sint32_c i = 0; i < _mother_collection->_column_list.get_length(); i++ )
+		//{
+		//	if ( _mother_collection->_column_list[ i ]->get_key() == property_key )
+		//	{
+		//		display_value = _value_cache[ i ].display_value;
+		//		absolute_value = _value_cache[ i ].absolute_value;
+		//		return true;
+		//	}
+		//}
 		display_value = string16_c( L"[none]", core_list_mode_e_static );
 		absolute_value = 0;
 		return false;
@@ -126,19 +130,35 @@ namespace cheonsa
 		}
 	}
 
-	boolean_c menu_control_collection_c::item_i::relative_compare( item_i * const & a, item_i * const & b )
+	sint32_c menu_control_collection_c::item_i::sort_compare_display_value( item_i * const & a, item_i * const & b )
 	{
-		return ops::string16_sort_compare_case_insensitive( a->_value_cache[ a->_mother_collection->_sort_index ].display_value, b->_value_cache[ a->_mother_collection->_sort_index ].display_value );
+		string8_c const & key = a->_mother_collection->_column_list[ a->_mother_collection->_sort_index ]->_key;
+
+		string16_c a_display_value;
+		sint64_c a_absolute_value;
+		a->get_value( key, a_display_value, a_absolute_value );
+
+		string16_c b_display_value;
+		sint64_c b_absolute_value;
+		b->get_value( key, b_display_value, b_absolute_value );
+
+		return ops::string16_sort_compare_case_insensitive( a_display_value, b_display_value );
 	}
 
-	uint64_c menu_control_collection_c::item_i::absolute_value( item_i * const & a )
+	sint64_c menu_control_collection_c::item_i::sort_compare_absolute_value( item_i * const & a )
 	{
-		return a->_value_cache[ a->_mother_collection->_sort_index ].absolute_value;
+		string8_c const & key = a->_mother_collection->_column_list[ a->_mother_collection->_sort_index ]->_key;
+
+		string16_c a_display_value;
+		sint64_c a_absolute_value;
+		a->get_value( key, a_display_value, a_absolute_value );
+
+		return a_absolute_value;
 	}
 
-	boolean_c menu_control_collection_c::item_i::relative_group_compare( item_i * const & a, item_i * const & b )
+	sint32_c menu_control_collection_c::item_i::sort_compare_group( item_i * const & a )
 	{
-		return b->_group < a->_group;
+		return a->_group;
 	}
 
 	menu_control_collection_c::column_c::column_c()
@@ -160,16 +180,17 @@ namespace cheonsa
 	void_c menu_control_collection_c::_handle_scroll_bar_on_value_changed( menu_control_scroll_bar_i * scroll )
 	{
 		_item_layout_is_dirty = true;
+		refresh();
 	}
 
-	void_c menu_control_collection_c::_update_value_cache()
-	{
-		for ( sint32_c i = 0; i < _item_list.get_length(); i++ )
-		{
-			_item_list[ i ]->_cache_values();
-		}
-		_value_cache_is_dirty = false;
-	}
+	//void_c menu_control_collection_c::_update_value_cache()
+	//{
+	//	for ( sint32_c i = 0; i < _item_list.get_length(); i++ )
+	//	{
+	//		_item_list[ i ]->_cache_values();
+	//	}
+	//	_value_cache_is_dirty = false;
+	//}
 
 	void_c menu_control_collection_c::_update_sort()
 	{
@@ -178,12 +199,12 @@ namespace cheonsa
 			return;
 		}
 
-		// update value cache if needed.
-		// these values need to be up to date because these are what we sort items by.
-		if ( _value_cache_is_dirty )
-		{
-			_update_value_cache();
-		}
+		//// update value cache if needed.
+		//// these values need to be up to date because these are what we sort items by.
+		//if ( _value_cache_is_dirty )
+		//{
+		//	_update_value_cache();
+		//}
 
 		// find column index to sort by.
 		for ( sint32_c i = 0; i < _column_list.get_length(); i++ )
@@ -194,7 +215,7 @@ namespace cheonsa
 				column_c * sort_column = _column_list[ _sort_index ];
 
 				// primary sort, by group.
-				_item_list.insertion_sort( &menu_control_collection_c::item_i::relative_group_compare, false );
+				_item_list.quick_sort_1( &menu_control_collection_c::item_i::sort_compare_group, false );
 
 				// secondary sort, for each sub range of group, sort sub range.
 				sint32_c j_start = 0;
@@ -209,15 +230,19 @@ namespace cheonsa
 							break;
 						}
 					}
-					if ( sort_column->_sort_by == sort_by_e_display_value )
+					j_end--;
+					if ( j_start < j_end )
 					{
-						_item_list.insertion_sort( &menu_control_collection_c::item_i::relative_compare, _sort_order == sort_order_e_descending, j_start, j_end );
+						if ( sort_column->_sort_by == sort_by_e_display_value )
+						{
+							_item_list.quick_sort_2( &menu_control_collection_c::item_i::sort_compare_display_value, _sort_order == sort_order_e_descending, j_start, j_end );
+						}
+						else if ( sort_column->_sort_by == sort_by_e_absolute_value )
+						{
+							_item_list.quick_sort_1( &menu_control_collection_c::item_i::sort_compare_absolute_value, _sort_order == sort_order_e_descending, j_start, j_end );
+						}
 					}
-					else if ( sort_column->_sort_by == sort_by_e_absolute_value )
-					{
-						_item_list.quick_sort( &menu_control_collection_c::item_i::absolute_value, _sort_order == sort_order_e_descending, j_start, j_end );
-					}
-					j_start = j_end;
+					j_start = j_end + 1;
 				} while ( j_start < _item_list.get_length() );
 
 				// finish up.
@@ -235,10 +260,15 @@ namespace cheonsa
 
 	void_c menu_control_collection_c::_update_item_layout()
 	{
-		if ( _value_cache_is_dirty )
+		if ( _column_list.get_length() == 0 )
 		{
-			_update_value_cache();
+			return;
 		}
+
+		//if ( _value_cache_is_dirty )
+		//{
+		//	_update_value_cache();
+		//}
 
 		if ( _sort_is_dirty )
 		{
@@ -269,7 +299,7 @@ namespace cheonsa
 		if ( _display_mode == display_mode_e_icons )
 		{
 			sint32_c items_per_x = ops::math_maximum( 1, static_cast< sint32_c >( ( _local_box.get_width() - _icons_item_spacing ) / ( _icons_item_width + _icons_item_spacing ) ) );
-			sint32_c items_per_y = ops::math_maximum( 1, static_cast< sint32_c >( ( _local_box.get_height() - _icons_item_spacing ) / ( _icons_item_height + _icons_item_spacing ) ) + 1 );
+			sint32_c items_per_y = ops::math_maximum( 1, static_cast< sint32_c >( ( _local_box.get_height() - _icons_item_spacing ) / ( _icons_item_height + _icons_item_spacing ) ) + 2 ); // plus 2 to account for extra partial rows that may appear intersecting with top and bottom.
 			sint32_c visible_item_count = items_per_x * items_per_y; // highest number of items that are potentially visible with the current layout configuration.
 			sint32_c elements_per_item = 3; // item_selected_frame, item_icon_frame, item_text.
 			content_height = _icons_item_spacing + ( _item_list.get_length() / items_per_x + 1 ) * ( _icons_item_height + _icons_item_spacing );
@@ -357,7 +387,12 @@ namespace cheonsa
 						}
 						item_text->set_is_showed( true );
 						item_text->set_layout_simple( box32x2_c( item_box.minimum.a, item_box.minimum.b + _icons_icon_height + 1.0f, item_box.maximum.a, item_box.maximum.b ) );
-						item_text->set_plain_text_value( item->_value_cache[ 0 ].display_value );
+
+						string16_c display_value;
+						sint64_c absolute_value;
+						item->get_value( _column_list[ 0 ]->_key, display_value, absolute_value );
+
+						item_text->set_plain_text_value( display_value );
 						item_text->set_invert_shared_colors( item->get_is_selected() );
 						continue;
 					}
@@ -450,7 +485,12 @@ namespace cheonsa
 							menu_element_text_c * item_text = dynamic_cast< menu_element_text_c * >( _item_elements[ i * elements_per_item + 2 + k ] );
 							item_text->set_is_showed( true );
 							item_text->set_layout_simple( box32x2_c( item_box.minimum.a + _details_item_height + column->_position, item_box.minimum.b, item_box.minimum.a + _details_item_height + column->_position + column->_width, item_box.maximum.b ) );
-							item_text->set_plain_text_value( item->_value_cache[ k ].display_value );
+
+							string16_c display_value;
+							sint64_c absolute_value;
+							item->get_value( column->_key, display_value, absolute_value );
+
+							item_text->set_plain_text_value( display_value );
 							item_text->set_invert_shared_colors( item->get_is_selected() );
 						}
 						continue;
@@ -531,6 +571,7 @@ namespace cheonsa
 				clear_selected_items();
 			}
 		}
+		on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
 	}
 
 	void_c menu_control_collection_c::_on_multi_clicked( input_event_c * input_event )
@@ -552,7 +593,6 @@ namespace cheonsa
 			if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 			{
 				_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
-				refresh();
 			}
 			else if ( input_event->get_type() == input_event_c::type_e_mouse_move || input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 			{
@@ -616,7 +656,7 @@ namespace cheonsa
 		, _vertical_scroll_bar( nullptr )
 		, _display_mode( display_mode_e_icons )
 		, _icons_item_width( 100 )
-		, _icons_item_height( 120 )
+		, _icons_item_height( 130 )
 		, _icons_icon_height( 80 )
 		, _icons_item_spacing( 10 )
 		, _details_item_height( 20 )
@@ -664,10 +704,10 @@ namespace cheonsa
 	void_c menu_control_collection_c::refresh()
 	{
 		assert( _column_list.get_length() > 0 );
-		if ( _value_cache_is_dirty )
-		{
-			_update_value_cache();
-		}
+		//if ( _value_cache_is_dirty )
+		//{
+		//	_update_value_cache();
+		//}
 		if ( _sort_is_dirty )
 		{
 			_update_sort();
@@ -840,7 +880,7 @@ namespace cheonsa
 		_column_list.remove_and_delete_all();
 		_daughter_element_list.set_length( 4 );
 		_item_elements.remove_and_delete_all();
-		_value_cache_is_dirty = true;
+		//_value_cache_is_dirty = true;
 		_item_layout_is_dirty = true;
 		_sort_is_dirty = true;
 	}
@@ -891,7 +931,7 @@ namespace cheonsa
 
 		_daughter_element_list.set_length( 4 );
 		_item_elements.remove_and_delete_all();
-		_value_cache_is_dirty = true;
+		//_value_cache_is_dirty = true;
 		_item_layout_is_dirty = true;
 		if ( _sort_key == key )
 		{
@@ -920,10 +960,10 @@ namespace cheonsa
 		assert( _column_list.get_length() > 0 );
 		item->_mother_collection = this;
 		item->_index = _item_list.get_length();
-		if ( _value_cache_is_dirty == false ) // if value cache is already up to date, then we can cache this new item's values. otherwise, we won't bother, entire cache will need to be updated later anyway.
-		{
-			item->_cache_values();
-		}
+		//if ( _value_cache_is_dirty == false ) // if value cache is already up to date, then we can cache this new item's values. otherwise, we won't bother, entire cache will need to be updated later anyway.
+		//{
+		//	item->_cache_values();
+		//}
 		_item_list.insert( -1, item );
 		if ( item->_is_selected )
 		{
@@ -961,7 +1001,7 @@ namespace cheonsa
 		_highlighted_frame_element.set_is_showed( false );
 		_vertical_scroll_bar->set_value_range_and_page_size( 0.0, 0.0f, _local_box.get_height() );
 		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
-		_value_cache_is_dirty = false;
+		//_value_cache_is_dirty = false;
 		_sort_is_dirty = false;
 	}
 

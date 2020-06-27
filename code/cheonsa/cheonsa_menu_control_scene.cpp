@@ -13,7 +13,7 @@ namespace cheonsa
 		if ( _canvas->update() )
 		{
 			_frame_style.state_list[ 0 ].texture_map[ 0 ] = 0;
-			_frame_style.state_list[ 0 ].texture_map[ 1 ] = 1;
+			_frame_style.state_list[ 0 ].texture_map[ 1 ] = 0;
 			_frame_style.state_list[ 0 ].texture_map[ 2 ] = static_cast< sint16_c >( _canvas->get_apparent_width() );
 			_frame_style.state_list[ 0 ].texture_map[ 3 ] = static_cast< sint16_c >( _canvas->get_apparent_height() );
 			_canvas_wrapper.set_video_texture( _canvas->get_target_color_final() );

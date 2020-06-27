@@ -31,6 +31,7 @@ namespace cheonsa
 		~video_renderer_interface_c();
 
 		boolean_c start();
+		void_c stop();
 
 	public:
 		// bakes count number of light probes.

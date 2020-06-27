@@ -813,13 +813,13 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
-			if ( ops::string8_ends_with( name.character_list.get_internal_array(), "*" ) )
+			if ( ops::string8_ends_with( name, string8_c( "*", core_list_mode_e_static ) ) )
 			{
 				name = ops::string8_sub_string( name, 0, name.get_length() - 1 );
 				for ( sint32_c j = 0; j < _mesh_list.get_length(); j++ )
 				{
 					mesh_c * mesh = &_mesh_list[ j ];
-					if ( ops::string8_starts_with( _model_resource->get_string_pointer( mesh->_source_mesh->name ), name.character_list.get_internal_array() ) )
+					if ( ops::string8_starts_with( _model_resource->get_string( mesh->_source_mesh->name ), name ) )
 					{
 						result.insert( -1, mesh );
 					}
@@ -1062,13 +1062,13 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
-			if ( ops::string8_ends_with( name.character_list.get_internal_array(), "*" ) )
+			if ( ops::string8_ends_with( name, string8_c( "*", core_list_mode_e_static ) ) )
 			{
 				name = ops::string8_sub_string( name, 0, name.get_length() - 1 );
 				for ( sint32_c j = 0; j < _bone_list.get_length(); j++ )
 				{
 					bone_c * bone = &_bone_list[ j ];
-					if ( ops::string8_starts_with( _model_resource->get_string_pointer( bone->_source_bone->name ), name.character_list.get_internal_array() ) )
+					if ( ops::string8_starts_with( _model_resource->get_string( bone->_source_bone->name ), name ) )
 					{
 						result.insert( -1, &_bone_list[ j ] );
 					}
@@ -1375,13 +1375,13 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < name_list.get_length(); i++ )
 		{
 			string8_c name = ops::string8_trim( name_list[ i ] );
-			if ( ops::string8_ends_with( name.character_list.get_internal_array(), "*" ) )
+			if ( ops::string8_ends_with( name, string8_c( "*", core_list_mode_e_static ) ) )
 			{
 				name = ops::string8_sub_string( name, 0, name.get_length() - 1 );
 				for ( sint32_c j = 0; j < _attachment_point_list.get_length(); j++ )
 				{
 					attachment_point_c * attachment_point = &_attachment_point_list[ j ];
-					if ( ops::string8_starts_with( _model_resource->get_string_pointer( attachment_point->_source_attachment_point->name ), name.character_list.get_internal_array() ) )
+					if ( ops::string8_starts_with( _model_resource->get_string( attachment_point->_source_attachment_point->name ), name ) )
 					{
 						result.insert( -1, attachment_point );
 					}
@@ -2771,21 +2771,11 @@ namespace cheonsa
 		}
 	}
 
-	void_c scene_component_model_c::_handle_before_removed_from_scene()
-	{
-		scene_component_c::_handle_before_removed_from_scene();
-		for ( sint32_c i = 0; i < _light_list.get_length(); i++ )
-		{
-			_scene_object->get_scene()->remove_light( &_light_list[ i ]._scene_light );
-		}
-		if ( _scene_object->get_scene()->_automatic_light_probe_invalidation_enabled )
-		{
-			invalidate_light_probes();
-		}
-	}
-
 	void_c scene_component_model_c::_handle_after_added_to_scene()
 	{
+		assert( _scene_object );
+		assert( _scene_object->get_scene() );
+		_scene_object->get_scene()->_model_list.insert_at_end( &_model_list_node );
 		scene_component_c::_handle_after_added_to_scene();
 		if ( _scene_object->get_scene()->_automatic_light_probe_invalidation_enabled )
 		{
@@ -2794,6 +2784,21 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _light_list.get_length(); i++ )
 		{
 			_scene_object->get_scene()->add_light( &_light_list[ i ]._scene_light );
+		}
+	}
+
+	void_c scene_component_model_c::_handle_before_removed_from_scene()
+	{
+		assert( _scene_object );
+		assert( _scene_object->get_scene() );
+		_scene_object->get_scene()->_model_list.remove( &_model_list_node );
+		for ( sint32_c i = 0; i < _light_list.get_length(); i++ )
+		{
+			_scene_object->get_scene()->remove_light( &_light_list[ i ]._scene_light );
+		}
+		if ( _scene_object->get_scene()->_automatic_light_probe_invalidation_enabled )
+		{
+			invalidate_light_probes();
 		}
 	}
 
@@ -2809,6 +2814,7 @@ namespace cheonsa
 
 	scene_component_model_c::scene_component_model_c()
 		: scene_component_c()
+		, _model_list_node( this )
 		, _mother_model( nullptr )
 		, _daughter_model_list()
 		, _model_resource_is_bound( false )

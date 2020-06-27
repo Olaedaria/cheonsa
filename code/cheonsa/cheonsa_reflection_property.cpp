@@ -14,7 +14,8 @@ namespace cheonsa
 		, _type_count( 0 )
 		, _view( data_view_e_default )
 		, _additional_options()
-		, _enumeration( nullptr )
+		, _type_enumeration( nullptr )
+		, _type_reflection_class( nullptr )
 		, _defaults_and_limits()
 		, _accessors()
 	{
@@ -130,24 +131,24 @@ namespace cheonsa
 		_view = data_view_e_euler_angles;
 	}
 
-	void_c reflection_property_c::initialize_basic_view_enumeration( reflection_enumeration_c const * enumeration )
+	void_c reflection_property_c::initialize_basic_view_enumeration( reflection_enumeration_c const * type_enumeration )
 	{
 		assert( _view == data_view_e_default );
 		assert( _type >= data_type_e_uint8 && _type <= data_type_e_sint64 );
 		assert( _type_count == 1 );
-		assert( enumeration );
+		assert( type_enumeration );
 		_view = data_view_e_enumeration;
-		_enumeration = enumeration;
+		_type_enumeration = type_enumeration;
 	}
 
-	void_c reflection_property_c::initialize_basic_view_enumeration_flags( reflection_enumeration_c const * enumeration )
+	void_c reflection_property_c::initialize_basic_view_enumeration_flags( reflection_enumeration_c const * type_enumeration )
 	{
 		assert( _view == data_view_e_default );
 		assert( _type >= data_type_e_uint8 && _type <= data_type_e_sint64 );
 		assert( _type_count == 1 );
-		assert( enumeration );
+		assert( type_enumeration );
 		_view = data_view_e_enumeration_flags;
-		_enumeration = enumeration;
+		_type_enumeration = type_enumeration;
 	}
 
 	void_c reflection_property_c::initialize_basic_view_file_path( string8_c file_type_filter )
@@ -159,36 +160,41 @@ namespace cheonsa
 		_additional_options = file_type_filter;
 	}
 
-	void_c reflection_property_c::initialize_object( reflection_class_c const * _class, object_getter_f object_getter )
+	void_c reflection_property_c::initialize_object( reflection_class_c const * type_reflection_class, object_getter_f object_getter )
 	{
 		assert( _view == data_view_e_default );
 		assert( _type == data_type_e_none );
-		assert( _class );
+		assert( type_reflection_class );
 		assert( object_getter );
 		_type = data_type_e_object;
 		_type_count = 1;
-		this->_class = _class;
+		_type_reflection_class = type_reflection_class;
 		_accessors._object_getter = object_getter;
 	}
 
-	void_c reflection_property_c::initialize_object_list( reflection_class_c const * _class, object_list_item_count_getter_f object_list_item_count_getter, object_list_item_getter_f object_list_item_getter, object_list_item_adder_f object_list_item_adder, object_list_item_remover_f object_list_item_remover, object_list_item_mover_f object_list_item_mover, object_list_item_sorter_f object_list_item_sorter )
+	void_c reflection_property_c::initialize_object_list( reflection_class_c const * type_reflection_class, object_list_item_count_getter_f object_list_item_count_getter, object_list_item_getter_f object_list_item_getter, object_list_item_adder_f object_list_item_adder, object_list_item_remover_f object_list_item_remover, object_list_item_mover_f object_list_item_mover, object_list_item_sorter_f object_list_item_sorter )
 	{
 		assert( _view == data_view_e_default );
 		assert( _type == data_type_e_none );
-		assert( _class );
+		assert( type_reflection_class );
 		assert( object_list_item_count_getter );
 		assert( object_list_item_getter );
 		assert( object_list_item_adder );
 		assert( object_list_item_remover );
 		_type = data_type_e_object_list;
 		_type_count = 1;
-		this->_class = _class;
+		_type_reflection_class = type_reflection_class;
 		_accessors._object_list_item_count_getter = object_list_item_count_getter;
 		_accessors._object_list_item_getter = object_list_item_getter;
 		_accessors._object_list_item_adder = object_list_item_adder;
 		_accessors._object_list_item_remover = object_list_item_remover;
 		_accessors._object_list_item_mover = object_list_item_mover;
 		_accessors._object_list_item_sorter = object_list_item_sorter;
+	}
+
+	reflection_class_c const * reflection_property_c::get_reflection_class() const
+	{
+		return _reflection_class;
 	}
 
 	string8_c const & reflection_property_c::get_name() const
@@ -209,6 +215,26 @@ namespace cheonsa
 	uint8_c reflection_property_c::get_type_count() const
 	{
 		return _type_count;
+	}
+
+	data_view_e reflection_property_c::get_view() const
+	{
+		return _view;
+	}
+
+	string8_c const & reflection_property_c::get_additional_options() const
+	{
+		return _additional_options;
+	}
+
+	reflection_enumeration_c const * reflection_property_c::get_type_enumeration() const
+	{
+		return _type_enumeration;
+	}
+
+	reflection_class_c const * reflection_property_c::get_type_reflection_class() const
+	{
+		return _type_reflection_class;
 	}
 
 }

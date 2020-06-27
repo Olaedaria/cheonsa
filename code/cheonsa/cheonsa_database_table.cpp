@@ -9,12 +9,12 @@
 namespace cheonsa
 {
 
-	sint32_c absolute_value_sint32( sint32_c const & a )
+	sint32_c sint32_sort_compare( sint32_c const & a )
 	{
 		return a;
 	}
 
-	uint32_c absolute_value_uint32( uint32_c const & a )
+	sint32_c uint32_sort_compare( uint32_c const & a )
 	{
 		return a;
 	}
@@ -49,7 +49,7 @@ namespace cheonsa
 			return false;
 		}
 		core_list_c< sint32_c > string_offsets = _string_table_map.get_value_list();
-		string_offsets.quick_sort( &absolute_value_sint32, false );
+		string_offsets.quick_sort_1( &sint32_sort_compare, false );
 		if ( !scribe.save_sint32( string_offsets.get_length() ) )
 		{
 			return false;
@@ -394,7 +394,7 @@ namespace cheonsa
 			// go through each old record and determine if it needs to be converted or deleted (ignored).
 			sint32_c new_record_size = _record_schema.get_size();
 			core_list_c< uint32_c > record_ids = old_records_map.get_key_list();
-			record_ids.quick_sort( &absolute_value_uint32, false );
+			record_ids.quick_sort_1( &uint32_sort_compare, false );
 			for ( sint32_c i = 0; i < record_ids.get_length(); i++ )
 			{
 				uint32_c record_id = record_ids[ i ];

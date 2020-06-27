@@ -327,7 +327,9 @@ namespace cheonsa
 			if ( obb_basis.b.b < 0.0f ) { obb_basis.b.b = -obb_basis.b.b; }
 			vector32x2_c center = ( obb.minimum + obb.maximum ) * 0.5f;
 			vector32x2_c extent = rotate_and_scale_vector32x2( obb.minimum - center, obb_basis );
-			return box32x2_c( center - extent + obb_position, center + extent + obb_position);
+			if ( extent.a < 0.0f ) { extent.a = -extent.a; }
+			if ( extent.b < 0.0f ) { extent.b = -extent.b; }
+			return box32x2_c( center - extent + obb_position, center + extent + obb_position );
 		}
 
 		float32_c distance_between_point_and_line( vector32x2_c const & point, line32_c const & line )

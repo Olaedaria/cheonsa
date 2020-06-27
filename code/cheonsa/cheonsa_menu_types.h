@@ -34,6 +34,8 @@ namespace cheonsa
 {
 
 	class menu_element_c;
+	class menu_element_frame_c;
+	class menu_element_text_c;
 	class menu_control_c;
 	class input_event_c;
 
@@ -293,8 +295,10 @@ namespace cheonsa
 			string8_c _key; // persistent key, remains the same between reloading of style files.
 			menu_frame_style_c const * _value; // volatile reference, changes between reloading of style files.
 
+			menu_element_frame_c * _owner; // temporary, just to try to track down a random bug..
+
 		public:
-			reference_c();
+			reference_c( menu_element_frame_c * owner );
 			~reference_c();
 
 			string8_c const & get_key() const;
@@ -371,8 +375,10 @@ namespace cheonsa
 			string8_c _key; // persistent key, remains the same between reloading of style files.
 			menu_text_style_c const * _value; // volatile reference, changes between reloading of style files.
 
+			menu_element_text_c * _owner;
+
 		public:
-			reference_c();
+			reference_c( menu_element_text_c * owner );
 			~reference_c();
 
 			string8_c const & get_key() const;

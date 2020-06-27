@@ -110,43 +110,43 @@ namespace cheonsa
 		string8_c string8_trim( string8_c const & string );
 		string16_c string16_trim( string16_c const & string );
 
-		boolean_c string8_find_index_of( string8_c const & string, string8_c const & find, sint32_c & result ); // finds the index of the first occurrence of find in the string. returns true if an instance is found, false if not.
-		boolean_c string16_find_index_of( string16_c const & string, string16_c const & find, sint32_c & result ); // finds the index of the first occurrence of find in the string. returns true if an instance is found, false if not.
+		sint32_c string8_find_index_of_2( string8_c const & string, string8_c const & find ); // finds the index of the first occurrence of find in the string. returns a value >= 0 if an instance was found, -1 if not.
+		sint32_c string16_find_index_of_2( string16_c const & string, string16_c const & find ); // finds the index of the first occurrence of find in the string. returns a value >= 0 if an instance was found, -1 if not.
 
 		boolean_c string8_find_indices_of( string8_c const & string, string8_c const & find, core_list_c< sint32_c > & result ); // finds the indices of occurrences of find in the string. overlapping matches are counted, so the whole entire string of "nanan" will be a match to "nan" 2 times instead of 1.
 		boolean_c string16_find_indices_of( string16_c const & string, string16_c const & find, core_list_c< sint32_c > & result ); // finds the indices of occurrences of find in the string. overlapping matches are counted, so the whole entire string of "nanan" will be a match to "nan" 2 times instead of 1.
 
-		string8_c string8_find_and_replace_all( string8_c const & string, string8_c const & find, string8_c const & replace, boolean_c case_sensitive );
-		string16_c string16_find_and_replace_all( string16_c const & string, string16_c const & find, string16_c const & replace, boolean_c case_sensitive );
+		sint32_c string8_find_and_replace_all( string8_c const & string, string8_c const & find, string8_c const & replace, boolean_c case_sensitive, string8_c & result ); // returns the number of instances replaced.
+		sint32_c string16_find_and_replace_all( string16_c const & string, string16_c const & find, string16_c const & replace, boolean_c case_sensitive, string16_c & result ); // returns the number of instances replaced.
 
-		void_c string8_split_at_spaces( string8_c const & string, core_list_c< string8_c > & result ); // splits string apart at all intervals of white space, result strings will not contain white space.
-		void_c string8_split_at_delimiter( string8_c const & string, string8_c const & delimiter, core_list_c< string8_c > & result ); // splits string into multiple string instances wherever an occurrence of needle is found.
+		void_c string8_split_at_spaces( string8_c const & string, core_list_c< string8_c > & result ); // splits string into multiple strings at instances of white space, result strings will not contain white space.
+		void_c string8_split_at_delimiter( string8_c const & string, string8_c const & delimiter, core_list_c< string8_c > & result ); // splits string into multiple strings at instances of delimiter. result strings will not contain delimiter.
 
-		void_c string16_split_at_spaces( string16_c const & string, core_list_c< string16_c > & result ); // splits string apart at all intervals of white space, result strings will not contain white space.
-		void_c string16_split_at_delimiter( string16_c const & string, string16_c const & delimiter, core_list_c< string16_c > & result ); // splits string into multiple string instances wherever an occurrence of needle is found.
+		void_c string16_split_at_spaces( string16_c const & string, core_list_c< string16_c > & result ); // splits string into multiple strings at instances of white space, result strings will not contain white space.
+		void_c string16_split_at_delimiter( string16_c const & string, string16_c const & delimiter, core_list_c< string16_c > & result ); // splits string into multiple strings at instances of delimiter. result strings will not contain delimiter.
 
 		string8_c string8_sub_string( string8_c const & string, sint32_c start, sint32_c length );
 		string16_c string16_sub_string( string16_c const & string, sint32_c start, sint32_c length );
 
-		boolean_c string8_starts_with( char8_c const * a, char8_c const * b ); // checks if string a starts with string b.
-		boolean_c string8_starts_with( char8_c const * a, char16_c const * b ); // checks if string a starts with string b, interprets b as utf-8 stream, so converts char16_c to 1 to 3 byte long utf-8 sequence then compares with a.
+		boolean_c string8_starts_with( string8_c const & a, string8_c const & b ); // checks if string a starts with string b.
+		boolean_c string8_starts_with( string8_c const & a, string16_c const & b ); // checks if string a starts with string b, interprets b as utf-8 stream, so converts char16_c to 1 to 3 byte long utf-8 sequence then compares with a.
 
-		boolean_c string16_starts_with( char16_c const * a, char8_c const * b ); // checks if string a starts with string b, interprets b as utf-8 stream, so reads char16_c characters one at a time from utf-8 then compares with b.
-		boolean_c string16_starts_with( char16_c const * a, char16_c const * b ); // checks if string a starts with string b.
+		boolean_c string16_starts_with( string16_c const & a, string8_c const & b ); // checks if string a starts with string b, interprets b as utf-8 stream, so reads char16_c characters one at a time from utf-8 then compares with b.
+		boolean_c string16_starts_with( string16_c const & a, string16_c const & b ); // checks if string a starts with string b.
 
-		boolean_c string8_ends_with( char8_c const * a, char8_c const * b );
-		boolean_c string8_ends_with( char8_c const * a, char16_c const * b );
+		boolean_c string8_ends_with( string8_c const & a, string8_c const & b );
+		boolean_c string8_ends_with( string8_c const & a, string16_c const & b );
 
-		boolean_c string16_ends_with( char16_c const * a, char8_c const * b );
-		boolean_c string16_ends_with( char16_c const * a, char16_c const * b );
+		boolean_c string16_ends_with( string16_c const & a, string8_c const & b );
+		boolean_c string16_ends_with( string16_c const & a, string16_c const & b );
 
-		boolean_c string8_sort_compare( string8_c const * const & a, string8_c const * const & b );
+		sint32_c string8_sort_compare( string8_c const * const & a, string8_c const * const & b );
 
-		boolean_c string8_sort_compare( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
-		boolean_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
+		sint32_c string8_sort_compare( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
+		sint32_c string8_sort_compare_case_insensitive( string8_c const & a, string8_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
 
-		boolean_c string16_sort_compare( string16_c const & a, string16_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
-		boolean_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
+		sint32_c string16_sort_compare( string16_c const & a, string16_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
+		sint32_c string16_sort_compare_case_insensitive( string16_c const & a, string16_c const & b ); // for use with insertion sort algorithm, returns true if b is less than a, false if not.
 
 		boolean_c string8_compare( char8_c const * a, char8_c const * b );
 		boolean_c string8_compare_case_insensitive( char8_c const * a, char8_c const * b );

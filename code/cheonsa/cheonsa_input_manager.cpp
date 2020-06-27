@@ -185,74 +185,15 @@ namespace cheonsa
 			_frame_gamepad_state._index = 0;
 			_frame_gamepad_state._is_connected	= true;
 			_frame_gamepad_state._button_states = 0;
-			// since cheonsa's flags currently match xinput's flags exactly, we could just say:
-			_frame_gamepad_state._button_states = xinput_state.Gamepad.wButtons;
-			// instead of "translating" by hand:
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_dpad_up;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_dpad_down;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_dpad_left;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_dpad_right;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_START )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_menu;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_view;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_left_stick;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_right_stick;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_left_bumper;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_right_bumper;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_A )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_a;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_B )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_b;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_X )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_x;
-			//}
-			//if ( xinput_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y )
-			//{
-			//	_frame_gamepad_state._button_states |= input_gamepad_button_e_y;
-			//}
-			// convert analog input integer values to float values.
+			_frame_gamepad_state._button_states = xinput_state.Gamepad.wButtons; // cheonsa's gamepad button flags are currently the same as xinput's button flags, so we can just copy value without translating it.
+
+			// convert analog input integer values to unit float values.
 			// map triggers values to range 0 to 1.
 			_frame_gamepad_state._left_trigger_state = static_cast< float32_c >( xinput_state.Gamepad.bLeftTrigger ) / 255.0f;
 			_frame_gamepad_state._right_trigger_state = static_cast< float32_c >( xinput_state.Gamepad.bRightTrigger ) / 255.0f;
+
 			// xinput documentation states that range of thumb stick values is between -32768 and 32767.
 			// this is asymmetrical. there's one more point of negative values than there is of positive values.
-			// why?
-			// thanks.
-			// i hate it.
 			// map thumb stick values to range -1 to 1.
 			_frame_gamepad_state._left_stick_state.a = static_cast< float32_c >( ops::math_clamp( xinput_state.Gamepad.sThumbLX, -32767, 32767 ) ) / 32767.0f;
 			_frame_gamepad_state._left_stick_state.b = static_cast< float32_c >( ops::math_clamp( xinput_state.Gamepad.sThumbLY, -32767, 32767 ) ) / 32767.0f;
@@ -303,18 +244,6 @@ namespace cheonsa
 #endif
 	}
 
-//	vector32x2_c input_manager_c::get_mouse_pointer_position()
-//	{
-//#if defined( cheonsa_platform_windows )
-//		//POINT cursor_position;
-//		//GetCursorPos( &cursor_position );
-//		//RECT window_client_rectangle;
-//		//GetClientRect( static_cast< HWND >( global_engine_instance.environment.get_window_handle() ), &window_client_rectangle );
-//		//return vector32x2_c( static_cast< float32_c >( cursor_position.x - window_client_rectangle.left ), static_cast< float32_c >( cursor_position.y - window_client_rectangle.top ) );
-//#endif
-//		return _mouse_position;
-//	}
-
 	void_c input_manager_c::set_mouse_pointer_position( vector32x2_c value )
 	{
 #if defined( cheonsa_platform_windows )
@@ -327,7 +256,7 @@ namespace cheonsa
 
 	void_c input_manager_c::_push_keyboard_key_pressed( input_keyboard_key_e keyboard_key )
 	{
-		if ( keyboard_key == 0 )
+		if ( keyboard_key == input_keyboard_key_e_none )
 		{
 			return;
 		}
@@ -445,24 +374,6 @@ namespace cheonsa
 	{
 		return *_events_current;
 	}
-
-	//input_key_state_bit_e input_manager_c::get_keyboard_key_state( input_keyboard_key_e key ) const
-	//{
-	//	assert( key >= 0 && key < input_keyboard_key_e_count_ );
-	//	return _keyboard_keys_state[ key ];
-	//}
-
-	//boolean_c input_manager_c::get_mouse_key_is_pressed( input_mouse_key_e key ) const
-	//{
-	//	assert( key > input_mouse_key_e_none && key < input_mouse_key_e_count_ );
-	//	return ( _mouse_keys_state[ key ] & input_key_state_bit_e_on ) != 0;
-	//}
-
-	//boolean_c input_manager_c::get_keyboard_key_is_pressed( input_keyboard_key_e key ) const
-	//{
-	//	assert( key > input_keyboard_key_e_none && key < input_keyboard_key_e_count_ );
-	//	return ( _keyboard_keys_state[ key ] & input_key_state_bit_e_on ) != 0;
-	//}
 
 	input_modifier_flag_e input_manager_c::get_frame_modifier_flags() const
 	{

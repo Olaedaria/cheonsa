@@ -467,11 +467,11 @@ namespace cheonsa
 		root_span->_mother_paragraph->_mother_text_element->_is_glyph_layout_dirty = true;
 	}
 
-	menu_element_text_c::text_span_c::text_span_c()
-		: _mother_paragraph( nullptr )
+	menu_element_text_c::text_span_c::text_span_c( text_paragraph_c * mother_paragraph )
+		: _mother_paragraph( mother_paragraph )
 		, _character_start( 0 )
 		, _character_end( 0 )
-		, _text_style_reference()
+		, _text_style_reference( mother_paragraph->_mother_text_element )
 	{
 	}
 
@@ -520,8 +520,7 @@ namespace cheonsa
 				// character range is entirely contained by this span.
 
 				// create new span to hold everything on right side of split.
-				text_span_c * right_span = new text_span_c();
-				right_span->_mother_paragraph = span->_mother_paragraph;
+				text_span_c * right_span = new text_span_c( span->_mother_paragraph );
 				right_span->_character_start = character_end_plus_one;
 				right_span->_character_end = span->_character_end;
 				right_span->_text_style_reference.set_key( span->_text_style_reference.get_key() );
@@ -732,7 +731,7 @@ namespace cheonsa
 		: _mother_text_element( mother_text_element )
 		, _character_start( 0 )
 		, _character_end( 0 )
-		, _text_style_reference()
+		, _text_style_reference( mother_text_element )
 		, _span_list()
 		, _top( 0.0f )
 		, _content_width( 0.0f )
@@ -2550,8 +2549,7 @@ namespace cheonsa
 			}
 
 			// create and insert the new span.
-			text_span_c * new_span = new text_span_c();
-			new_span->_mother_paragraph = paragraph;
+			text_span_c * new_span = new text_span_c( paragraph );
 			new_span->_character_start = capped_character_start;
 			new_span->_character_end = capped_character_end;
 			new_span->_text_style_reference.set_key( text_style_key );
@@ -2673,8 +2671,7 @@ namespace cheonsa
 						sint32_c span_character_end = _plain_text.character_list.get_length() - 2;
 						if ( span_character_end >= span_character_start )
 						{
-							text_span_c * span = new text_span_c();
-							span->_mother_paragraph = paragraph;
+							text_span_c * span = new text_span_c( paragraph );
 							span->_character_start = span_character_start;
 							span->_character_end = span_character_end;
 							paragraph->_span_list.insert( -1, span );
@@ -2894,7 +2891,7 @@ namespace cheonsa
 		, _text_select_mode( menu_text_select_mode_e_character )
 		, _text_select_anchor_index_start( 0 )
 		, _text_select_anchor_index_end( 0 )
-		, _text_style_reference()
+		, _text_style_reference( this )
 		, _text_align_horizontal( menu_text_align_horizontal_e_inherit_from_style )
 		, _text_align_vertical( menu_text_align_vertical_e_inherit_from_style )
 		, _character_limit( -1 )
@@ -3172,6 +3169,11 @@ namespace cheonsa
 		return character_count > 0;
 	}
 
+	string16_c const & menu_element_text_c::get_internal_plain_text_value() const
+	{
+		return _plain_text;
+	}
+
 	string16_c menu_element_text_c::get_plain_text_value() const
 	{
 		assert( _plain_text.character_list.get_length() >= 2 ); // plain text must at minimum be 2 long because it must end with a new line character and a null character.
@@ -3346,7 +3348,7 @@ namespace cheonsa
 
 	boolean_c menu_element_text_c::handle_on_input( input_event_c * input_event )
 	{
-		if ( _text_interact_mode == menu_text_interact_mode_e_static || !_mother_control->get_is_enabled() )
+		if ( _text_interact_mode == menu_text_interact_mode_e_static )
 		{
 			return false;
 		}
@@ -3355,8 +3357,11 @@ namespace cheonsa
 		{
 			if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 			{
-				input_character( input_event->get_character() );
-				return true;
+				if ( _mother_control->get_is_actually_enabled() )
+				{
+					input_character( input_event->get_character() );
+					return true;
+				}
 			}
 		}
 		else if ( input_event->get_type() == input_event_c::type_e_keyboard_key_pressed )
@@ -3395,24 +3400,33 @@ namespace cheonsa
 			{
 				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
-					input_delete_back();
-					return true;
+					if ( _mother_control->get_is_actually_enabled() )
+					{
+						input_delete_back();
+						return true;
+					}
 				}
 			}
 			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_delete )
 			{
 				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
-					input_delete_fore();
-					return true;
+					if ( _mother_control->get_is_actually_enabled() )
+					{
+						input_delete_fore();
+						return true;
+					}
 				}
 			}
 			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_enter )
 			{
 				if ( _text_interact_mode == menu_text_interact_mode_e_editable )
 				{
-					input_return( input_event->get_modifier_flags() & input_modifier_flag_e_shift );
-					return true;
+					if ( _mother_control->get_is_actually_enabled() )
+					{
+						input_return( input_event->get_modifier_flags() & input_modifier_flag_e_shift );
+						return true;
+					}
 				}
 			}
 			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_a && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
@@ -3424,15 +3438,24 @@ namespace cheonsa
 			}
 			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_x && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
 			{
-				cut_text_to_clip_board();
+				if ( _mother_control->get_is_actually_enabled() )
+				{
+					cut_text_to_clip_board();
+					return true;
+				}
 			}
 			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_c && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
 			{
 				copy_text_to_clip_board();
+				return true;
 			}
 			else if ( input_event->get_keyboard_key() == input_keyboard_key_e_v && input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
 			{
-				paste_text_from_clip_board();
+				if ( _mother_control->get_is_actually_enabled() )
+				{
+					paste_text_from_clip_board();
+					return true;
+				}
 			}
 		}
 		else if ( input_event->get_type() == input_event_c::type_e_mouse_key_pressed )

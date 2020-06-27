@@ -23,20 +23,19 @@ namespace cheonsa
 		attribute = node->find_attribute( "local_box_anchor" );
 		if ( attribute )
 		{
-			sint32_c temp = 0;
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "left", core_list_mode_e_static ), temp ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "left", core_list_mode_e_static ) ) >= 0 )
 			{
 				new_local_box_anchor |= menu_anchor_e_left;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "top", core_list_mode_e_static ), temp ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "top", core_list_mode_e_static ) ) >= 0 )
 			{
 				new_local_box_anchor |= menu_anchor_e_top;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "right", core_list_mode_e_static ), temp ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "right", core_list_mode_e_static ) ) >= 0 )
 			{
 				new_local_box_anchor |= menu_anchor_e_right;
 			}
-			if ( ops::string8_find_index_of( attribute->get_value(), string8_c( "bottom", core_list_mode_e_static ), temp ) )
+			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "bottom", core_list_mode_e_static ) ) >= 0 )
 			{
 				new_local_box_anchor |= menu_anchor_e_bottom;
 			}

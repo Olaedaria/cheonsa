@@ -30,7 +30,9 @@ namespace cheonsa
 		boolean_c _can_be_selected; // will be true for list item types that can be selected, false if otherwise.
 		boolean_c _is_selected; // will be true if this list item is selected, false if otherwise.
 
-		void_c _set_is_selected( boolean_c is_selected, boolean_c try_to_multi_select ); // sets the selected state of this list item.
+		boolean_c _can_be_toggled; // if true, then this item's selected state will be toggled when it is clicked on, and clicking on it won't dismiss the pop up list.
+
+		void_c _set_is_selected( boolean_c value, boolean_c try_to_multi_select ); // sets the selected state of this list item.
 		virtual void_c _on_is_selected_changed(); // is called after _is_selected value is changed.
 
 		menu_control_list_item_i();
@@ -38,6 +40,7 @@ namespace cheonsa
 	public:
 		boolean_c get_can_be_selected() const;
 		boolean_c get_is_selected() const;
+		boolean_c get_can_be_toggled() const;
 
 	};
 
@@ -82,6 +85,7 @@ namespace cheonsa
 		void_c _handle_element_text_on_value_changed( menu_element_text_c * element ); // need to invalidate layout of list if text value changes to force reflow of list items.
 
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
+		virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
 
 		virtual void_c _update_daughter_element_animations( float32_c time_step ) override;
 
@@ -92,12 +96,15 @@ namespace cheonsa
 	public:
 		void_c set_is_selected( boolean_c value, boolean_c try_to_multi_select ); // sets the selected state of this item. if selecting this item would go over the select limit, then the oldest selected items will be deselected.
 
+		string16_c const & get_internal_plain_text_value() const; // lower overhead than get_plain_text_value(), but will end with a new line character.
 		string16_c get_plain_text_value() const;
 		void_c set_plain_text_value( string8_c const & plain_text );
 		void_c set_plain_text_value( string16_c const & plain_text );
 		void_c set_rich_text_value( string8_c const & plain_text_with_mark_up );
 		void_c set_rich_text_value( string16_c const & plain_text_with_mark_up );
 		void_c clear_text_value();
+
+		void_c set_can_be_toggled( boolean_c value );
 
 	};
 
@@ -118,7 +125,7 @@ namespace cheonsa
 
 	protected:
 		boolean_c _item_origins_are_dirty; // if true then _lay_out_list_items() needs to be called.
-		void_c _lay_out_item_origins(); // assumes that all items have up to date local boxes, and sets their origins so that lay out edge to edge.
+		void_c _layout_item_origins(); // assumes that all items have up to date local boxes, and sets their origins so that lay out edge to edge.
 
 		menu_size_mode_e _vertical_size_mode; // if height of list box should fit-to-height of contents or not.
 		float32_c _vertical_size_maximum; // a value <= 0.0f indicates no maximum height. otherwise this list box's fit-to-content height will not be larger than this, and the scroll bar may be shown.
@@ -136,13 +143,13 @@ namespace cheonsa
 		void_c _set_selected_item_index( sint32_c item_index );
 
 		menu_control_list_item_i * _get_selected_item() const; // gets the most recently selected item, or nullptr if no item is selected.
-		void_c _set_selected_item( menu_control_list_item_i * item ); // sets the is selected state of the given item to true, or deselects everything if nullptr. does call/invoke _on_selected_item_list_changed even if nothing changes.
-		void_c _set_selected_item( menu_control_list_item_i * item, boolean_c is_selected, boolean_c try_to_multi_select ); // sets the is selected state of the given item to true or false.
 
 		virtual void_c _on_selected_item_list_changed(); // is called when the selected items change. does nothing in this base class, but in derived classes it should invoke the associated event.
 		virtual void_c _on_is_mouse_overed_changed() override;
 		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
+
+		virtual void_c _update_transform_and_layout() override;
 
 		menu_control_list_i();
 

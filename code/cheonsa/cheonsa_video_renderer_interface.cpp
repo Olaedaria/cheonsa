@@ -985,7 +985,7 @@ namespace cheonsa
 
 				// sort object draw lists from near to far.
 				video_renderer_quick_sort_plane = view.world_space_frustum.planes[ frustum_plane_index_e_near ];
-				_models_to_render.quick_sort( &video_renderer_quick_sort_models, false );
+				_models_to_render.quick_sort_1( &video_renderer_quick_sort_models, false );
 
 				// bind shadow map texture.
 				textures_to_bind[ 0 ] = _shadow_map_texture2darray;
@@ -1173,11 +1173,11 @@ namespace cheonsa
 
 			// sort object draw lists from near to far, which is optimal for rendering opaque geometry with a z-buffer and depth test.
 			video_renderer_quick_sort_plane = view.world_space_frustum.planes[ frustum_plane_index_e_near ];
-			_models_to_render.quick_sort( &video_renderer_quick_sort_models, false );
-			_models_to_render_for_outline.quick_sort( &video_renderer_quick_sort_models, false );
-			_sprites_to_render.quick_sort( &video_renderer_quick_sort_sprites, false );
-			_sprites_to_render_for_outline.quick_sort( &video_renderer_quick_sort_sprites, false );
-			_menu_controls_to_render.quick_sort( &video_renderer_quick_sort_menu_controls, false );
+			_models_to_render.quick_sort_1( &video_renderer_quick_sort_models, false );
+			_models_to_render_for_outline.quick_sort_1( &video_renderer_quick_sort_models, false );
+			_sprites_to_render.quick_sort_1( &video_renderer_quick_sort_sprites, false );
+			_sprites_to_render_for_outline.quick_sort_1( &video_renderer_quick_sort_sprites, false );
+			_menu_controls_to_render.quick_sort_1( &video_renderer_quick_sort_menu_controls, false );
 
 			//// compile menu render procedure for 3d controls.
 			//menu_render_procedure.reset();
@@ -1315,7 +1315,7 @@ namespace cheonsa
 								_scene->_pick_list_final.insert( -1, *pick );
 							}
 						}
-						_scene->_pick_list_final.quick_sort( &scene_pick_c::quick_sort_function, false );
+						_scene->_pick_list_final.quick_sort_1( &scene_pick_c::quick_sort_function, false );
 					}
 				}
 			}

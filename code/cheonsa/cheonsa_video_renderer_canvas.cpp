@@ -6,6 +6,36 @@
 namespace cheonsa
 {
 
+	void_c video_renderer_canvas_c::_release_targets()
+	{
+		delete _target_depth_stencil;
+		_target_depth_stencil = nullptr;
+		delete _target_outline;
+		_target_outline = nullptr;
+		delete _target_normal;
+		_target_normal = nullptr;
+		delete _target_depth;
+		_target_depth = nullptr;
+		delete _target_color;
+		_target_color = nullptr;
+		delete _target_color_copy;
+		_target_color_copy = nullptr;
+		delete _target_color_half_blurred_x;
+		_target_color_half_blurred_x = nullptr;
+		delete _target_color_half_blurred_xy;
+		_target_color_half_blurred_xy = nullptr;
+		delete _target_color_quarter_blurred_x;
+		_target_color_quarter_blurred_x = nullptr;
+		delete _target_color_quarter_blurred_xy;
+		_target_color_quarter_blurred_xy = nullptr;
+		delete _target_color_eighth_blurred_x;
+		_target_color_eighth_blurred_x = nullptr;
+		delete _target_color_eighth_blurred_xy;
+		_target_color_eighth_blurred_xy = nullptr;
+		delete _target_color_final;
+		_target_color_final = nullptr;
+	}
+
 	video_renderer_canvas_c::video_renderer_canvas_c( boolean_c primary_enable, boolean_c post_enable, void_c * window_handle )
 		: _primary_enable( primary_enable )
 		, _post_process_enable( post_enable )
@@ -28,7 +58,6 @@ namespace cheonsa
 		, _target_color_eighth_blurred_x( nullptr )
 		, _target_color_eighth_blurred_xy( nullptr )
 		, _target_color_final( nullptr )
-		//, _target_color_final_readable( nullptr )
 		, _output( nullptr )
 		//, _reflections_canvas( nullptr )
 	{
@@ -49,87 +78,8 @@ namespace cheonsa
 	{
 		if ( _target_depth_stencil )
 		{
-			delete _target_depth_stencil;
-			_target_depth_stencil = nullptr;
+			_release_targets();
 		}
-
-		if ( _target_outline )
-		{
-			delete _target_outline;
-			_target_outline = nullptr;
-		}
-
-		if ( _target_normal )
-		{
-			delete _target_normal;
-			_target_normal = nullptr;
-		}
-		
-		if ( _target_depth )
-		{
-			delete _target_depth;
-			_target_depth = nullptr;
-		}
-
-		if ( _target_color )
-		{
-			delete _target_color;
-			_target_color = nullptr;
-		}
-
-		if ( _target_color_copy )
-		{
-			delete _target_color_copy;
-			_target_color_copy = nullptr;
-		}
-
-		if ( _target_color_half_blurred_x )
-		{
-			delete _target_color_half_blurred_x;
-			_target_color_half_blurred_x = nullptr;
-		}
-
-		if ( _target_color_half_blurred_xy )
-		{
-			delete _target_color_half_blurred_xy;
-			_target_color_half_blurred_xy = nullptr;
-		}
-
-		if ( _target_color_eighth_blurred_x )
-		{
-			delete _target_color_eighth_blurred_x;
-			_target_color_eighth_blurred_x = nullptr;
-		}
-
-		if ( _target_color_eighth_blurred_xy )
-		{
-			delete _target_color_eighth_blurred_xy;
-			_target_color_eighth_blurred_xy = nullptr;
-		}
-
-		if ( _target_color_quarter_blurred_x )
-		{
-			delete _target_color_quarter_blurred_x;
-			_target_color_quarter_blurred_x = nullptr;
-		}
-
-		if ( _target_color_quarter_blurred_xy )
-		{
-			delete _target_color_quarter_blurred_xy;
-			_target_color_quarter_blurred_xy = nullptr;
-		}
-
-		if ( _target_color_final )
-		{
-			delete _target_color_final;
-			_target_color_final = nullptr;
-		}
-
-		//if ( _target_color_final_readable )
-		//{
-		//	delete _target_color_final_readable;
-		//	_target_color_final_readable = nullptr;
-		//}
 
 		if ( _output )
 		{
@@ -178,34 +128,7 @@ namespace cheonsa
 		// release existing targets.
 		if ( _target_depth_stencil )
 		{
-			delete _target_depth_stencil;
-			_target_depth_stencil = nullptr;
-			delete _target_outline;
-			_target_outline = nullptr;
-			delete _target_normal;
-			_target_normal = nullptr;
-			delete _target_depth;
-			_target_depth = nullptr;
-			delete _target_color;
-			_target_color = nullptr;
-			delete _target_color_copy;
-			_target_color_copy = nullptr;
-			delete _target_color_half_blurred_x;
-			_target_color_half_blurred_x = nullptr;
-			delete _target_color_half_blurred_xy;
-			_target_color_half_blurred_xy = nullptr;
-			delete _target_color_quarter_blurred_x;
-			_target_color_quarter_blurred_x = nullptr;
-			delete _target_color_quarter_blurred_xy;
-			_target_color_quarter_blurred_xy = nullptr;
-			delete _target_color_eighth_blurred_x;
-			_target_color_eighth_blurred_x = nullptr;
-			delete _target_color_eighth_blurred_xy;
-			_target_color_eighth_blurred_xy = nullptr;
-			delete _target_color_final;
-			_target_color_final = nullptr;
-			//delete _target_color_final_readable;
-			//_target_color_final_readable = nullptr;
+			_release_targets();
 		}
 
 		// create new targets.
@@ -304,18 +227,6 @@ namespace cheonsa
 		engine.get_video_interface()->copy_sub_resource( result, 0, _target_color_final, 0 );
 		return result;
 	}
-
-	//video_texture_c * video_renderer_canvas_c::get_readable_copy()
-	//{
-	//	assert( _target_color_final );
-	//	if ( _target_color_final_readable == nullptr )
-	//	{
-	//		_target_color_final_readable = engine.get_video_interface()->create_texture( _format_color_final, _actual_width, _actual_height, 1, 1, nullptr, 0, false, true, false, false );
-	//	}
-	//	assert( _target_color_final_readable );
-	//	engine.get_video_interface()->copy_sub_resource( _target_color_final_readable, 0, _target_color_final, 0 );
-	//	return _target_color_final_readable;
-	//}
 
 	sint32_c video_renderer_canvas_c::get_statistic_object_count()
 	{

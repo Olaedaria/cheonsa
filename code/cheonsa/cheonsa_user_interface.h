@@ -37,8 +37,9 @@ namespace cheonsa
 		friend class engine_c;
 		friend class video_renderer_interface_c;
 
-	protected:
+	private:
 		box32x2_c _local_box; // used to lay out root controls that use anchor layout, because they need a rectangle to anchor to. minimum will always be (0, 0). maximum will be (width, height). this is the "window" area of the user interface.
+		//box32x2_c _effective_local_box; // the client window is borderless, but it has "imaginary" edges and title bar, so this rectangle is a little smaller. this area is guranteed to be clickable by the user. this rectangle is used when finding pop up rectangles.
 
 		video_renderer_canvas_c * _canvas_and_output; // canvas and output associated with operating system window that this user interface will render to.
 
@@ -79,6 +80,7 @@ namespace cheonsa
 
 		void_c _handle_modal_screen_on_is_showed_changed( menu_event_information_c event_information );
 
+	private:
 		user_interface_c();
 		~user_interface_c();
 
@@ -121,7 +123,7 @@ namespace cheonsa
 
 		box32x2_c find_context_menu_pop_up_box( vector32x2_c screen_space_point_to_spawn_pop_up_around, vector32x2_c const & pop_up_size ); // prefers to open down and to the right of the given point.
 		box32x2_c find_sub_menu_pop_up_box( menu_control_c * menu_item_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down and to the right of the given box defined by the given control.
-		box32x2_c find_combo_list_pop_up_box( menu_control_c * combo_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down of the given box defined by the given control.
+		box32x2_c find_combo_list_pop_up_box( menu_control_c * combo_button_to_spawn_pop_up_around, vector32x2_c const & pop_up_size, boolean_c give_result_in_global_space ); // prefers to open down of the given box defined by the given control.
 
 		// opens a new modal screen to block the user's ability to interact with anything behind it.
 		// after opening a modal screen, the next controls that are added or brought to front will appear over the modal screen.

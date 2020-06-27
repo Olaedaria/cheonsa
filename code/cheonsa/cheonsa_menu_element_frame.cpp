@@ -406,7 +406,7 @@ namespace cheonsa
 
 	menu_element_frame_c::menu_element_frame_c( string8_c const & name )
 		: menu_element_c( name )
-		, _style_reference()
+		, _style_reference( this )
 		, _override_style( nullptr )
 	{
 	}
