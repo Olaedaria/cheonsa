@@ -89,24 +89,24 @@ namespace cheonsa
 		_text_element.set_word_wrap( value );
 	}
 
-	menu_text_align_horizontal_e menu_control_label_c::get_text_align_horizontal() const
+	menu_text_align_x_e menu_control_label_c::get_text_align_x() const
 	{
-		return _text_element.get_text_align_horizontal();
+		return _text_element.get_text_align_x();
 	}
 
-	void_c menu_control_label_c::set_text_align_horizontal( menu_text_align_horizontal_e value )
+	void_c menu_control_label_c::set_text_align_x( menu_text_align_x_e value )
 	{
-		_text_element.set_text_align_horizontal( value );
+		_text_element.set_text_align_x( value );
 	}
 
-	menu_text_align_vertical_e menu_control_label_c::get_text_align_vertical() const
+	menu_text_align_y_e menu_control_label_c::get_text_align_y() const
 	{
-		return _text_element.get_text_align_vertical();
+		return _text_element.get_text_align_y();
 	}
 
-	void_c menu_control_label_c::set_text_align_vertical( menu_text_align_vertical_e value )
+	void_c menu_control_label_c::set_text_align_y( menu_text_align_y_e value )
 	{
-		_text_element.set_text_align_vertical( value );
+		_text_element.set_text_align_y( value );
 	}
 
 }

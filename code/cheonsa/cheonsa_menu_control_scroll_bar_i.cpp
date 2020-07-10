@@ -489,19 +489,22 @@ namespace cheonsa
 		return _value;
 	}
 
-	void_c menu_control_scroll_bar_i::set_value( float64_c value )
+	boolean_c menu_control_scroll_bar_i::set_value( float64_c value )
 	{
 		value = ops::math_clamp( value, _value_minimum, _value_maximum - _page_size );
 		if ( _value_increment > 0.0 )
 		{
 			value = ops::math_nearest_multiple( value - _value_minimum, _value_increment ) + _value_minimum;
+			value = ops::math_clamp( value, _value_minimum, _value_maximum - _page_size );
 		}
 		if ( _value != value )
 		{
 			_value = value;
 			on_value_changed_preview.invoke( this );
 			on_value_changed.invoke( this );
+			return true;
 		}
+		return false;
 	}
 
 	float64_c menu_control_scroll_bar_i::get_value_smoothed() const
@@ -559,9 +562,9 @@ namespace cheonsa
 		_update_transform_and_layout();
 	}
 
-	void_c menu_control_scroll_bar_i::inject_mouse_wheel_input( float32_c value )
+	boolean_c menu_control_scroll_bar_i::inject_mouse_wheel_input( float32_c value )
 	{
-		set_value( _value - ( value * _line_size ) );
+		return set_value( _value - ( value * _line_size ) );
 	}
 
 }

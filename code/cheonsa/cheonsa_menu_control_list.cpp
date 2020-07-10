@@ -1,4 +1,5 @@
 #include "cheonsa_menu_control_list.h"
+#include "cheonsa_user_interface.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -13,6 +14,64 @@ namespace cheonsa
 	{
 	}
 
+	menu_control_list_c * menu_control_list_item_separator_c::get_list() const
+	{
+		menu_control_list_c * result = nullptr;
+		if ( _mother_control )
+		{
+			assert( _mother_control->get_mother_control() );
+			result = dynamic_cast< menu_control_list_c * >( _mother_control->get_mother_control() );
+			assert( result );
+		}
+		return result;
+	}
+
+	void_c menu_control_list_item_text_c::_on_clicked( input_event_c * input_event )
+	{
+		if ( get_is_actually_enabled() )
+		{
+			assert( _mother_control );
+			menu_control_list_i * mother_list = dynamic_cast< menu_control_list_i * >( _mother_control->get_mother_control() );
+			assert( mother_list );
+			if ( _can_be_toggled )
+			{
+				_set_is_selected( !_is_selected, true );
+			}
+			else
+			{
+				if ( input_event->get_modifier_flags() == input_modifier_flag_e_ctrl )
+				{
+					_set_is_selected( !_is_selected, true );
+				}
+				else
+				{
+					_set_is_selected( true, false );
+				}
+			}
+			on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+		else
+		{
+			_mother_user_interface->reset_multi_click_detection();
+		}
+	}
+
+	void_c menu_control_list_item_text_c::_on_multi_clicked( input_event_c * input_event )
+	{
+		if ( get_is_actually_enabled() )
+		{
+			if ( input_event->get_menu_multi_click_count() >= 2 )
+			{
+				_mother_user_interface->reset_multi_click_detection();
+			}
+			on_multi_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+		else
+		{
+			_mother_user_interface->reset_multi_click_detection();
+		}
+	}
+
 	menu_control_list_item_text_c::menu_control_list_item_text_c()
 		: menu_control_list_item_text_i()
 	{
@@ -21,6 +80,18 @@ namespace cheonsa
 
 	menu_control_list_item_text_c::~menu_control_list_item_text_c()
 	{
+	}
+
+	menu_control_list_c * menu_control_list_item_text_c::get_list() const
+	{
+		menu_control_list_c * result = nullptr;
+		if ( _mother_control )
+		{
+			assert( _mother_control->get_mother_control() );
+			result = dynamic_cast< menu_control_list_c * >( _mother_control->get_mother_control() );
+			assert( result );
+		}
+		return result;
 	}
 
 	void_c menu_control_list_item_text_c::set_is_selected( boolean_c is_selected, boolean_c try_to_multi_select )

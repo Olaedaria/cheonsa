@@ -65,32 +65,34 @@ namespace cheonsa
 		, _c_button( nullptr )
 		, _mode( mode_e_okay )
 	{
+		set_user_can_resize( false );
 		set_size( vector32x2_c( default_size.a, default_size.b ) );
+		//set_title_plain_text_value( string8_c() );
+		set_is_showed_immediately( false );
 
-		_bottom_bar_size = 30.0f + 8.0f;
 		_apply_client_margins();
 
 		_message_label = new menu_control_label_c();
 		_message_label->set_name( string8_c( "message_label", core_list_mode_e_static ) );
-		_message_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
-		_message_label->set_text_align_horizontal( menu_text_align_horizontal_e_center );
+		_message_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 3-.0f ) );
+		_message_label->set_text_align_x( menu_text_align_x_e_center );
 		add_daughter_control_to_client( _message_label );
 
 		_a_button = new menu_control_button_c();
 		_a_button->set_name( string8_c( "button_a", core_list_mode_e_static ) );
-		_a_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 8, 8 ) );
+		_a_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100.0f, 30.0f, 8.0f, 8.0f ) );
 		_a_button->on_clicked.subscribe( this, &menu_control_window_message_c::_handle_button_on_clicked );
 		add_daughter_control( _a_button );
 
 		_b_button = new menu_control_button_c();
 		_b_button->set_name( string8_c( "button_b", core_list_mode_e_static ) );
-		_b_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 116, 8 ) );
+		_b_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100.0f, 30.0f, 116.0f, 8.0f ) );
 		_b_button->on_clicked.subscribe( this, &menu_control_window_message_c::_handle_button_on_clicked );
 		add_daughter_control( _b_button );
 
 		_c_button = new menu_control_button_c();
 		_c_button->set_name( string8_c( "button_c", core_list_mode_e_static ) );
-		_c_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100, 30, 224, 8 ) );
+		_c_button->set_layout_box_anchor( menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 100.0f, 30.0f, 224.0f, 8.0f ) );
 		_c_button->on_clicked.subscribe( this, &menu_control_window_message_c::_handle_button_on_clicked );
 		add_daughter_control( _c_button );
 	}
@@ -142,17 +144,17 @@ namespace cheonsa
 		}
 	}
 
-	string16_c menu_control_window_message_c::get_message_text_value() const
+	string16_c menu_control_window_message_c::get_message_plain_text_value() const
 	{
 		return _message_label->get_plain_text_value();
 	}
 
-	void_c menu_control_window_message_c::set_message_text_value( string8_c const & plain_text )
+	void_c menu_control_window_message_c::set_message_plain_text_value( string8_c const & plain_text )
 	{
 		_message_label->set_plain_text_value( plain_text );
 	}
 
-	void_c menu_control_window_message_c::set_message_text_value( string16_c const & plain_text )
+	void_c menu_control_window_message_c::set_message_plain_text_value( string16_c const & plain_text )
 	{
 		_message_label->set_plain_text_value( plain_text );
 	}

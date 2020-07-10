@@ -30,11 +30,6 @@
 
 #include "cheonsa_game_i.h"
 
-#define debug_key_toggle_console input_keyboard_key_e_grave
-#define debug_key_toggle_stats input_keyboard_key_e_f1
-#define debug_key_toggle_menu_bounds input_keyboard_key_e_f2
-#define debug_key_refresh_resources input_keyboard_key_e_f5
-
 namespace cheonsa
 {
 

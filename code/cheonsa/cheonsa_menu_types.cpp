@@ -7,6 +7,240 @@ namespace cheonsa
 {
 
 
+
+	string8_c menu_state_e_to_string( menu_state_e value )
+	{
+		string8_c result;
+		if ( value == menu_state_e_normal )
+		{
+			result = string8_c( "normal", core_list_mode_e_static );
+		}
+		else if ( value == menu_state_e_selected )
+		{
+			result = string8_c( "selected", core_list_mode_e_static );
+		}
+		else if ( value == menu_state_e_pressed )
+		{
+			result = string8_c( "pressed", core_list_mode_e_static );
+		}
+		else if ( value == menu_state_e_disabled )
+		{
+			result = string8_c( "disabled", core_list_mode_e_static );
+		}
+		return result;
+	}
+
+	menu_state_e menu_state_e_from_string( string8_c const & value )
+	{
+		menu_state_e result = menu_state_e_normal;
+		if ( value == "normal" )
+		{
+			result = menu_state_e_normal;
+		}
+		else if ( value == "selected" )
+		{
+			result = menu_state_e_selected;
+		}
+		else if ( value == "pressed" )
+		{
+			result = menu_state_e_pressed;
+		}
+		else if ( value == "disabled" )
+		{
+			result = menu_state_e_disabled;
+		}
+		return result;
+	}
+
+	string8_c menu_anchor_e_to_string( menu_anchor_e value )
+	{
+		string8_c result;
+		if ( value & menu_anchor_e_left )
+		{
+			result += "left";
+		}
+		if ( value & menu_anchor_e_top )
+		{
+			if ( result.is_set() )
+			{
+				result += ", ";
+			}
+			result += "top";
+		}
+		if ( value & menu_anchor_e_right )
+		{
+			if ( result.is_set() )
+			{
+				result += ", ";
+			}
+			result += "right";
+		}
+		if ( value & menu_anchor_e_bottom )
+		{
+			if ( result.is_set() )
+			{
+				result += ", ";
+			}
+			result += "bottom";
+		}
+		return result;
+	}
+
+	menu_anchor_e menu_anchor_e_from_string( string8_c const & value )
+	{
+		uint8_c result = 0;
+		if ( ops::string8_find_index_of_2( value, string8_c( "left", core_list_mode_e_static ) ) >= 0 )
+		{
+			result |= menu_anchor_e_left;
+		}
+		if ( ops::string8_find_index_of_2( value, string8_c( "top", core_list_mode_e_static ) ) >= 0 )
+		{
+			result |= menu_anchor_e_top;
+		}
+		if ( ops::string8_find_index_of_2( value, string8_c( "right", core_list_mode_e_static ) ) >= 0 )
+		{
+			result |= menu_anchor_e_right;
+		}
+		if ( ops::string8_find_index_of_2( value, string8_c( "bottom", core_list_mode_e_static ) ) >= 0 )
+		{
+			result |= menu_anchor_e_bottom;
+		}
+		return static_cast< menu_anchor_e >( result );
+	}
+
+	string8_c menu_texture_map_mode_e_to_string( menu_texture_map_mode_e value )
+	{
+		string8_c result;
+		if ( value == menu_texture_map_mode_e_stretch )
+		{
+			result = string8_c( "stretch", core_list_mode_e_static );
+		}
+		else if ( value == menu_texture_map_mode_e_scale_to_fit )
+		{
+			result = string8_c( "scale_to_fit", core_list_mode_e_static );
+		}
+		else if ( value == menu_texture_map_mode_e_scale_to_fill )
+		{
+			result = string8_c( "scale_to_fill", core_list_mode_e_static );
+		}
+		else if ( value == menu_texture_map_mode_e_nine_slice_stretch )
+		{
+			result = string8_c( "nine_slice_stretch", core_list_mode_e_static );
+		}
+		else if ( value == menu_texture_map_mode_e_nine_slice_tile )
+		{
+			result = string8_c( "nine_slice_tile", core_list_mode_e_static );
+		}
+		return result;
+	}
+
+	menu_texture_map_mode_e menu_texture_map_mode_e_from_string( string8_c const & value )
+	{
+		menu_texture_map_mode_e result = menu_texture_map_mode_e_stretch;
+		if ( value == "stretch" )
+		{
+			result = menu_texture_map_mode_e_stretch;
+		}
+		else if ( value == "scale_to_fit" )
+		{
+			result = menu_texture_map_mode_e_scale_to_fit;
+		}
+		else if ( value == "scale_to_fill" )
+		{
+			result = menu_texture_map_mode_e_scale_to_fill;
+		}
+		else if ( value == "nine_slice_stretch" )
+		{
+			result = menu_texture_map_mode_e_nine_slice_stretch;
+		}
+		else if ( value == "nine_slice_tile" )
+		{
+			result = menu_texture_map_mode_e_nine_slice_tile;
+		}
+		return result;
+	}
+
+	string8_c menu_text_align_x_e_to_string( menu_text_align_x_e value )
+	{
+		string8_c result;
+		if ( value  == menu_text_align_x_e_left )
+		{
+			result = string8_c( "left", core_list_mode_e_static );
+		}
+		else if ( value == menu_text_align_x_e_center )
+		{
+			result = string8_c( "center", core_list_mode_e_static );
+		}
+		else if ( value == menu_text_align_x_e_right )
+		{
+			result = string8_c( "right", core_list_mode_e_static );
+		}
+		else if ( value == menu_text_align_x_e_justify )
+		{
+			result = string8_c( "justify", core_list_mode_e_static );
+		}
+		return result;
+	}
+
+	menu_text_align_x_e menu_text_align_x_e_from_string( string8_c const & value )
+	{
+		menu_text_align_x_e result = menu_text_align_x_e_left;
+		if ( value == "left" )
+		{
+			result = menu_text_align_x_e_left;
+		}
+		else if ( value == "center" )
+		{
+			result = menu_text_align_x_e_center;
+		}
+		else if ( value == "right" )
+		{
+			result = menu_text_align_x_e_right;
+		}
+		else if ( value == "justify" )
+		{
+			result = menu_text_align_x_e_justify;
+		}
+		return result;
+	}
+
+	string8_c menu_text_align_y_e_to_string( menu_text_align_y_e value )
+	{
+		string8_c result;
+		if ( value == menu_text_align_y_e_top )
+		{
+			result = string8_c( "top", core_list_mode_e_static );
+		}
+		else if ( value == menu_text_align_y_e_center )
+		{
+			result = string8_c( "center", core_list_mode_e_static );
+		}
+		else if ( value == menu_text_align_y_e_bottom )
+		{
+			result = string8_c( "bottom", core_list_mode_e_static );
+		}
+		return result;
+	}
+
+	menu_text_align_y_e menu_text_align_y_e_from_string( string8_c const & value )
+	{
+		menu_text_align_y_e result = menu_text_align_y_e_center;
+		if ( value == "top" )
+		{
+			result = menu_text_align_y_e_top;
+		}
+		else if ( value == "center" )
+		{
+			result = menu_text_align_y_e_center;
+		}
+		else if ( value == "bottom" )
+		{
+			result = menu_text_align_y_e_bottom;
+		}
+		return result;
+	}
+
+
 	//
 	//
 	// menu_color_style_c::reference_c
@@ -222,7 +456,7 @@ namespace cheonsa
 	menu_frame_style_c::menu_frame_style_c()
 		: key()
 		, texture( nullptr )
-		, texture_map_mode( texture_map_mode_e_stretch )
+		, texture_map_mode( menu_texture_map_mode_e_stretch )
 		, texture_map_fill_middle( true )
 		, pixel_shader_reference()
 		, state_list()
@@ -233,7 +467,7 @@ namespace cheonsa
 	{
 		key = string8_c();
 		texture = nullptr;
-		texture_map_mode = texture_map_mode_e_stretch;
+		texture_map_mode = menu_texture_map_mode_e_stretch;
 		texture_map_fill_middle = true;
 		pixel_shader_reference = nullptr;
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
@@ -287,26 +521,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "texture_map_mode" );
 		if ( attribute )
 		{
-			if ( attribute->get_value() == "stretch" )
-			{
-				texture_map_mode = texture_map_mode_e_stretch;
-			}
-			else if ( attribute->get_value() == "scale_to_fit" )
-			{
-				texture_map_mode = texture_map_mode_e_scale_to_fit;
-			}
-			else if ( attribute->get_value() == "scale_to_fill" )
-			{
-				texture_map_mode = texture_map_mode_e_scale_to_fill;
-			}
-			else if ( attribute->get_value() == "nine_slice_stretch" )
-			{
-				texture_map_mode = texture_map_mode_e_nine_slice_stretch;
-			}
-			else if ( attribute->get_value() == "nine_slice_tile" )
-			{
-				texture_map_mode = texture_map_mode_e_nine_slice_tile;
-			}
+			texture_map_mode = menu_texture_map_mode_e_from_string( attribute->get_value() );
 		}
 
 		attribute = node->find_attribute( "texture_map_fill_middle" );
@@ -365,22 +580,7 @@ namespace cheonsa
 				attribute = sub_node->find_attribute( "key" );
 				if ( attribute )
 				{
-					if ( attribute->get_value() == "normal" )
-					{
-						state_index = menu_state_e_normal;
-					}
-					else if ( attribute->get_value() == "selected" )
-					{
-						state_index = menu_state_e_selected;
-					}
-					else if ( attribute->get_value() == "pressed" )
-					{
-						state_index = menu_state_e_pressed;
-					}
-					else if ( attribute->get_value() == "disabled" )
-					{
-						state_index = menu_state_e_disabled;
-					}
+					state_index = menu_state_e_from_string( attribute->get_value() );
 				}
 
 				// if state index is valid, then continue.
@@ -572,10 +772,10 @@ namespace cheonsa
 		line_spacing = 0.0f;
 		glyph_spacing_is_defined = false;
 		glyph_spacing = 0.0f;
-		text_align_horizontal_is_defined = false;
-		text_align_horizontal = menu_text_align_horizontal_e_left;
-		text_align_vertical_is_defined = false;
-		text_align_vertical = menu_text_align_vertical_e_center;
+		text_align_x_is_defined = false;
+		text_align_x = menu_text_align_x_e_left;
+		text_align_y_is_defined = false;
+		text_align_y = menu_text_align_y_e_center;
 		margin_is_defined = false;
 		margin = box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f );
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
@@ -657,44 +857,18 @@ namespace cheonsa
 			glyph_spacing_is_defined = ops::convert_string8_to_float32( attribute->get_value(), glyph_spacing );
 		}
 
-		attribute = node->find_attribute( "align_horizontal" );
+		attribute = node->find_attribute( "align_x" );
 		if ( attribute )
 		{
-			text_align_horizontal_is_defined = true;
-			if ( attribute->get_value() == "left" )
-			{
-				text_align_horizontal = menu_text_align_horizontal_e_left;
-			}
-			else if ( attribute->get_value() == "center" )
-			{
-				text_align_horizontal = menu_text_align_horizontal_e_center;
-			}
-			else if ( attribute->get_value() == "right" )
-			{
-				text_align_horizontal = menu_text_align_horizontal_e_right;
-			}
-			else if ( attribute->get_value() == "justify" )
-			{
-				text_align_horizontal = menu_text_align_horizontal_e_justify;
-			}
+			text_align_x_is_defined = true;
+			text_align_x = menu_text_align_x_e_from_string( attribute->get_value() );
 		}
 
-		attribute = node->find_attribute( "align_vertical" );
+		attribute = node->find_attribute( "align_y" );
 		if ( attribute )
 		{
-			text_align_vertical_is_defined = true;
-			if ( attribute->get_value() == "top" )
-			{
-				text_align_vertical = menu_text_align_vertical_e_top;
-			}
-			else if ( attribute->get_value() == "center" )
-			{
-				text_align_vertical = menu_text_align_vertical_e_center;
-			}
-			else if ( attribute->get_value() == "bottom" )
-			{
-				text_align_vertical = menu_text_align_vertical_e_bottom;
-			}
+			text_align_y_is_defined = true;
+			text_align_y = menu_text_align_y_e_from_string( attribute->get_value() );
 		}
 
 		attribute = node->find_attribute( "margin" );
@@ -734,22 +908,7 @@ namespace cheonsa
 				attribute = sub_node->find_attribute( "key" );
 				if ( attribute )
 				{
-					if ( attribute->get_value() == "normal" )
-					{
-						state_index = 0;
-					}
-					else if ( attribute->get_value() == "selected" )
-					{
-						state_index = 1;
-					}
-					else if ( attribute->get_value() == "pressed" )
-					{
-						state_index = 2;
-					}
-					else if ( attribute->get_value() == "disabled" )
-					{
-						state_index = 3;
-					}
+					state_index = menu_state_e_from_string( attribute->get_value() );
 				}
 				
 				if ( state_index < menu_state_e_count_ )

@@ -945,8 +945,8 @@ namespace cheonsa
 		_message_dialog = new menu_control_window_message_c();
 		_message_dialog->set_name( string8_c( "message_dialog", core_list_mode_e_static ) );
 		_message_dialog->set_is_showed_immediately( false );
-		_message_dialog->set_title_bar_text_value( string8_c( "delete?", core_list_mode_e_static ) );
-		_message_dialog->set_message_text_value( string8_c( "are you sure you want to delete the selected item?", core_list_mode_e_static ) );
+		_message_dialog->set_title_plain_text_value( string8_c( "delete?", core_list_mode_e_static ) );
+		_message_dialog->set_message_plain_text_value( string8_c( "are you sure you want to delete the selected item?", core_list_mode_e_static ) );
 
 		add_supplemental_daughter_control( _message_dialog );
 		_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
@@ -1061,12 +1061,14 @@ namespace cheonsa
 	void_c menu_control_property_inspector_c::_on_input( input_event_c * input_event )
 	{
 		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
-
 		if ( !input_event->get_was_handled() )
 		{
 			if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 			{
-				_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
+				if ( _scroll_bar_y->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() ) )
+				{
+					input_event->set_was_handled( true );
+				}
 			}
 		}
 	}
@@ -1107,7 +1109,7 @@ namespace cheonsa
 		styled_properties.width_for_property_control = 20.0f;
 		styled_properties.width_for_property_control_padding = 5.0f;
 
-		_set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic );
+		_set_scroll_bar_y_visibility_mode( menu_visibility_mode_e_automatic );
 
 		set_style_map_key( string8_c( "e_panel_borderless", core_list_mode_e_static ) );
 

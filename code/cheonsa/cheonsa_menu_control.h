@@ -44,6 +44,7 @@ namespace cheonsa
 		friend class menu_style_manager_c; // to call _global_resolve_style_maps.
 		friend class video_renderer_interface_c;
 		friend class menu_control_list_i;
+		friend class menu_control_panel_i;
 
 	public:
 		static inline char8_c const * get_type_name_static() { return "control"; }

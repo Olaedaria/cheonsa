@@ -24,10 +24,10 @@ namespace cheonsa
 		menu_element_text_c * _place_holder_text_element; // name is "place_holder_text". this element is only newed if a placeholder is enabled, and is deleted if it is disabled.
 		menu_element_frame_c _border_frame_element; // name is "border_frame".
 
-		menu_visibility_mode_e _horizontal_scroll_bar_visibility_mode;
-		menu_control_scroll_bar_x_c * _horizontal_scroll_bar;
-		menu_visibility_mode_e _vertical_scroll_bar_visibility_mode;
-		menu_control_scroll_bar_y_c * _vertical_scroll_bar;
+		menu_visibility_mode_e _scroll_bar_x_visibility_mode;
+		menu_control_scroll_bar_x_c * _scroll_bar_x;
+		menu_visibility_mode_e _scroll_bar_y_visibility_mode;
+		menu_control_scroll_bar_y_c * _scroll_bar_y;
 
 		virtual void_c _on_is_text_focused_changed( menu_control_c * next_control ) override;
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
@@ -55,6 +55,10 @@ namespace cheonsa
 		void_c set_rich_text_value( string16_c const & plain_text_with_mark_up );
 		void_c clear_text_value();
 
+		void_c append_plain_text( string16_c const & plain_text );
+
+		void_c append_plain_text_as_new_paragraph( string16_c const & plain_text );
+
 		menu_text_format_mode_e get_text_format_mode() const;
 		void_c set_text_format_mode( menu_text_format_mode_e value );
 
@@ -77,11 +81,11 @@ namespace cheonsa
 		sint32_c get_cursor_index() const;
 		void_c set_cursor_index( sint32_c value );
 
-		menu_text_align_horizontal_e get_text_align_horizontal() const;
-		void_c set_text_align_horizontal( menu_text_align_horizontal_e value );
+		menu_text_align_x_e get_text_align_x() const;
+		void_c set_text_align_x( menu_text_align_x_e value );
 
-		menu_text_align_vertical_e get_text_align_vertical() const;
-		void_c set_text_align_vertical( menu_text_align_vertical_e value );
+		menu_text_align_y_e get_text_align_y() const;
+		void_c set_text_align_y( menu_text_align_y_e value );
 
 		menu_visibility_mode_e get_horizontal_scroll_visibility_mode() const;
 		void_c set_horizontal_scroll_visibility_mode( menu_visibility_mode_e value );

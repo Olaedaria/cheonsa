@@ -8,11 +8,20 @@
 namespace cheonsa
 {
 
-	debug_manager_c::console_line_c & debug_manager_c::console_line_c::operator = ( console_line_c const & other )
+	debug_log_message_c::debug_log_message_c()
+		: _type( debug_log_type_e_information )
+		, _message()
 	{
-		type = other.type;
-		message = other.message;
-		return *this;
+	}
+
+	debug_log_type_e debug_log_message_c::get_type() const
+	{
+		return _type;
+	}
+
+	string16_c const & debug_log_message_c::get_message() const
+	{
+		return _message;
 	}
 
 	debug_manager_c::debug_manager_c()
@@ -36,8 +45,6 @@ namespace cheonsa
 		, _log_file()
 		, _statistics_is_showing( false )
 		, _statistics_text()
-		, _console_is_showing( false )
-		, _console_lines( 4096 )
 	{
 	}
 
@@ -58,45 +65,48 @@ namespace cheonsa
 		return true;
 	}
 
-	boolean_c debug_manager_c::get_statistics_is_showing()
+	void_c debug_manager_c::_log( debug_log_type_e type, string16_c const & message )
 	{
-		return _statistics_is_showing;
-	}
-
-	void_c debug_manager_c::set_statistics_is_showing( boolean_c value )
-	{
-		_statistics_is_showing = false;
-	}
-
-	boolean_c debug_manager_c::get_console_is_showing()
-	{
-		return _console_is_showing;
-	}
-
-	void_c debug_manager_c::set_console_is_showing( boolean_c value )
-	{
-		_console_is_showing = value;
-	}
-
-	void_c debug_manager_c::_log( log_type_e type, string16_c const & message )
-	{
-		if ( _log_file_is_open && type != log_type_e_information )
+		if ( _log_file_is_open && type != debug_log_type_e_information )
 		{
 			core_list_c< char8_c > utf8;
 			ops::append_string16_to_string8( message.character_list, utf8 );
 			_log_file.save( utf8.get_internal_array(), utf8.get_length() - 1 );
 			_log_file.save( "\n", 1 );
 		}
-		if ( _console_lines.get_length() == _console_lines.get_capacity() )
-		{
-			_console_lines.pop_front();
-		}
-		console_line_c & console_line = _console_lines.emplace_back();
-		console_line.type = type;
-		console_line.message = message;
+		debug_log_message_c log_message;
+		log_message._type = type;
+		log_message._message = message;
+		on_message_logged.invoke( log_message );
 	}
 
-	void_c debug_log( log_type_e type, char16_c const * message )
+	void_c debug_log( debug_log_type_e type, char8_c const * message )
+	{
+#if defined( _DEBUG ) && defined( cheonsa_platform_windows )
+		OutputDebugStringA( message );
+#else
+#error not implemented.
+#endif
+		if ( engine.get_debug_manager() )
+		{
+			engine.get_debug_manager()->_log( type, string16_c( message ) );
+		}
+	}
+
+	void_c debug_log( debug_log_type_e type, string8_c const & message )
+	{
+		#if defined( _DEBUG ) && defined( cheonsa_platform_windows )
+		OutputDebugStringA( message.character_list.get_internal_array() );
+#else
+#error not implemented.
+#endif
+		if ( engine.get_debug_manager() )
+		{
+			engine.get_debug_manager()->_log( type, string16_c( message ) );
+		}
+	}
+
+	void_c debug_log( debug_log_type_e type, char16_c const * message )
 	{
 #if defined( _DEBUG ) && defined( cheonsa_platform_windows )
 		OutputDebugStringW( message );
@@ -107,6 +117,28 @@ namespace cheonsa
 		{
 			engine.get_debug_manager()->_log( type, string16_c( message, core_list_mode_e_static_volatile ) );
 		}
+	}
+
+	void_c debug_log( debug_log_type_e type, string16_c const & message )
+	{
+		#if defined( _DEBUG ) && defined( cheonsa_platform_windows )
+		OutputDebugStringW( message.character_list.get_internal_array() );
+#else
+#error not implemented.
+#endif
+		if ( engine.get_debug_manager() )
+		{
+			engine.get_debug_manager()->_log( type, message );
+		}
+	}
+
+	void_c debug_annoy( char8_c const * title, char8_c const * message )
+	{
+#if defined( cheonsa_platform_windows )
+		MessageBoxA( NULL, message, title, MB_OK | MB_ICONERROR );
+#else
+#error not implemented.
+#endif
 	}
 
 	void_c debug_annoy( char16_c const * title, char16_c const * message )

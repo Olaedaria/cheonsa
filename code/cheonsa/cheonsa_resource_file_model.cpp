@@ -164,7 +164,7 @@ namespace cheonsa
 		{
 			if ( ops::get_native_byte_order() != byte_order_e_little )
 			{
-				debug_log( log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is little endian but this environment's native byte order is big endian." );
+				debug_log( debug_log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is little endian but this environment's native byte order is big endian." );
 			}
 			scribe.set_byte_order_( byte_order_e::byte_order_e_little );
 		}
@@ -172,7 +172,7 @@ namespace cheonsa
 		{
 			if ( ops::get_native_byte_order() != byte_order_e_big )
 			{
-				debug_log( log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is big endian but this environment's native byte order is little endian." );
+				debug_log( debug_log_type_e_information, L"resource_file_model_c::_load() : loading file where byte order is big endian but this environment's native byte order is little endian." );
 			}
 			scribe.set_byte_order_( byte_order_e::byte_order_e_big );
 		}

@@ -187,6 +187,7 @@ namespace cheonsa
 
 	void_c menu_control_list_item_text_i::_on_clicked( input_event_c * input_event )
 	{
+		_mother_user_interface->reset_multi_click_detection();
 		if ( get_is_actually_enabled() )
 		{
 			assert( _mother_control );
@@ -208,22 +209,6 @@ namespace cheonsa
 				}
 			}
 			on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
-		}
-	}
-
-	void_c menu_control_list_item_text_i::_on_multi_clicked( input_event_c * input_event )
-	{
-		if ( get_is_actually_enabled() )
-		{
-			if ( input_event->get_menu_multi_click_count() == 2 )
-			{
-				_mother_user_interface->reset_multi_click_detection();
-			}
-			on_multi_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
-		}
-		else
-		{
-			_mother_user_interface->reset_multi_click_detection();
 		}
 	}
 
@@ -280,6 +265,7 @@ namespace cheonsa
 		: menu_control_list_item_i()
 		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
 		, _selected_frame_element( string8_c( "selected_frame", core_list_mode_e_static ) )
+		//, _icon_frame_element( string8_c( "icon_frame", core_list_mode_e_static ) )
 		, _text_element( string8_c( "text", core_list_mode_e_static ) )
 	{
 		_can_be_selected = true;
@@ -295,6 +281,10 @@ namespace cheonsa
 		_selected_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
 		_selected_frame_element.set_is_showed( false );
 		_add_daughter_element( &_selected_frame_element );
+
+		//_icon_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		//_icon_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 20.0f, 10.0f ) );
+		//_add_daughter_element( &_icon_frame_element );
 
 		_text_element.set_shared_color_class( menu_shared_color_class_e_field );
 		_text_element.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
@@ -396,8 +386,8 @@ namespace cheonsa
 		_item_origins_are_dirty = false;
 
 		// this might cause one more recursion (call to this function) if the scroll bar value changes, but it should not be infinite.
-		_vertical_scroll_bar->set_value_range_and_page_size( 0.0f, content_height, _client->get_local_box().get_height() );
-		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+		_scroll_bar_y->set_value_range_and_page_size( 0.0f, content_height, _client->get_local_box().get_height() );
+		_scroll_bar_y->update_visibility( _scroll_bar_y_visibility_mode );
 	}
 
 	void_c menu_control_list_i::_set_selected_item_limit( sint32_c value )
@@ -427,6 +417,17 @@ namespace cheonsa
 				_selected_item_list.remove( 0, deselect_count );
 			}
 		}
+	}
+
+	void_c menu_control_list_i::_deselect_all_items()
+	{
+		for ( sint32_c i = 0; i < _selected_item_list.get_length(); i++ )
+		{
+			menu_control_list_item_i * list_item = _selected_item_list[ i ];
+			list_item->_is_selected = false;
+			list_item->_on_is_selected_changed();
+		}
+		_selected_item_list.remove_all();
 	}
 
 	void_c menu_control_list_i::_add_item( menu_control_list_item_i * item, sint32_c index )
@@ -547,6 +548,15 @@ namespace cheonsa
 		on_is_deep_text_focused_changed.invoke( menu_event_information_c( this, next_control, nullptr ) );
 	}
 
+	void_c menu_control_list_i::_on_clicked( input_event_c * input_event )
+	{
+		if ( get_is_actually_enabled() )
+		{
+			_deselect_all_items();
+			on_clicked.invoke( menu_event_information_c( this, nullptr, input_event ) );
+		}
+	}
+
 	void_c menu_control_list_i::_on_input( input_event_c * input_event )
 	{
 		on_input.invoke( menu_event_information_c( this, nullptr, input_event ) );
@@ -554,8 +564,10 @@ namespace cheonsa
 		{
 			if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 			{
-				_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
-				input_event->set_was_handled( true );
+				if ( _scroll_bar_y->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() ) )
+				{
+					input_event->set_was_handled( true );
+				}
 			}
 		}
 	}
@@ -578,8 +590,8 @@ namespace cheonsa
 		_vertical_size_mode = menu_size_mode_e_fixed;
 		_vertical_size_maximum = 0.0f;
 
-		_set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e_never );
-		_set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic );
+		_set_scroll_bar_x_visibility_mode( menu_visibility_mode_e_never );
+		_set_scroll_bar_y_visibility_mode( menu_visibility_mode_e_automatic );
 	}
 
 	void_c menu_control_list_i::update_animations( float32_c time_step )

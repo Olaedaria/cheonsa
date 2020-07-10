@@ -39,7 +39,7 @@ namespace cheonsa
 			return;
 		}
 
-		vector32x4_c draw_color = _local_color;
+		vector32x4_c draw_color = _local_color * _mother_control->get_local_color();
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
 		menu_color_style_c * shared_color = nullptr;
 		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
@@ -82,20 +82,20 @@ namespace cheonsa
 
 		box32x2_c margin = _get_style_margin();
 
-		float32_c vertically_algined_y = margin.minimum.b;
-		menu_text_align_vertical_e text_align_vertical = _get_style_text_align_vertical();
-		if ( text_align_vertical == menu_text_align_vertical_e_center )
+		float32_c text_align_y_offset = margin.minimum.b;
+		menu_text_align_y_e text_align_y = _get_style_text_align_y();
+		if ( text_align_y == menu_text_align_y_e_center )
 		{
 			float32_c effective_height = _local_box.get_height() - margin.minimum.b - margin.maximum.b;
 			if ( effective_height < 0.0f )
 			{
 				effective_height = 0.0f;
 			}
-			vertically_algined_y = ( effective_height * 0.5f ) - ( get_content_height() * 0.5f );
+			text_align_y_offset = ( effective_height * 0.5f ) - ( get_content_height() * 0.5f );
 		}
-		else if ( text_align_vertical == menu_text_align_vertical_e_bottom )
+		else if ( text_align_y == menu_text_align_y_e_bottom )
 		{
-			vertically_algined_y = _local_box.get_height() - margin.maximum.b - get_content_height();
+			text_align_y_offset = _local_box.get_height() - margin.maximum.b - get_content_height();
 		}
 
 		for ( sint32_c i = 0; i < _paragraph_list.get_length(); i++ )
@@ -104,7 +104,7 @@ namespace cheonsa
 
 			float32_c paragraph_left = _local_box.minimum.a + margin.minimum.a + _content_offset.a;
 			float32_c paragraph_right = paragraph_left + _local_box.get_width() - ( margin.maximum.a * 2 );
-			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
+			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + paragraph->_top + text_align_y_offset;
 			float32_c paragraph_bottom = paragraph_top + paragraph->_content_height;
 
 			// render this paragraph if it is visible.
@@ -158,11 +158,11 @@ namespace cheonsa
 							vertex->color = selection_color;
 						}
 
-						sint32_c glyph_start = line->_character_start - paragraph->_character_start;
-						sint32_c glyph_end = line->_character_end - paragraph->_character_start;
-						for ( sint32_c k = glyph_start; k < glyph_end; k++ )
+						sint32_c local_glyph_start = line->_character_start - paragraph->_character_start;
+						sint32_c local_glyph_end = line->_character_end - paragraph->_character_start;
+						for ( sint32_c k = local_glyph_start; k <= local_glyph_end; k++ )
 						{
-							char16_c character = _plain_text.character_list[ paragraph->_character_start + k ];
+							//char16_c character = _plain_text.character_list[ paragraph->_character_start + k ];
 							menu_element_text_c::text_glyph_c const * laid_out_glyph = &paragraph->_glyph_list[ k ];
 							assert( laid_out_glyph->_style_index != -1 );
 							menu_text_glyph_style_c const * text_glyph_style = _text_glyph_style_cache[ laid_out_glyph->_style_index ];
@@ -282,7 +282,7 @@ namespace cheonsa
 			text_line_c * cursor_line = &cursor_paragraph->_line_list[ cursor_glyph_information.paragraph_line_index - cursor_paragraph->_line_index_base ];
 
 			float32_c paragraph_left = _local_box.minimum.a + margin.minimum.a + _content_offset.a;
-			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + cursor_paragraph->_top + vertically_algined_y;
+			float32_c paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + cursor_paragraph->_top + text_align_y_offset;
 
 			boolean_c do_cursor = false;
 			float32_c cursor_left;
@@ -405,17 +405,17 @@ namespace cheonsa
 		return *this;
 	}
 
-	void_c menu_element_text_c::text_line_c::_update_horizontal_layout( menu_text_align_horizontal_e text_align_horizontal, float32_c element_width )
+	void_c menu_element_text_c::text_line_c::_update_horizontal_layout( menu_text_align_x_e text_align_x, float32_c element_width )
 	{
-		if ( text_align_horizontal == menu_text_align_horizontal_e_left )
+		if ( text_align_x == menu_text_align_x_e_left )
 		{
 			_left = 0.0f;
 		}
-		else if ( text_align_horizontal == menu_text_align_horizontal_e_center )
+		else if ( text_align_x == menu_text_align_x_e_center )
 		{
 			_left = ( element_width * 0.5f ) - ( _width * 0.5f );
 		}
-		else if ( text_align_horizontal == menu_text_align_horizontal_e_right )
+		else if ( text_align_x == menu_text_align_x_e_right )
 		{
 			_left = element_width - _width;
 		}
@@ -768,9 +768,9 @@ namespace cheonsa
 		boolean_c word_wrap_has_word = false; // will be set to true if we are parsing a string of displayable characters.
 		boolean_c word_wrap_has_space = false; // will be set to true if we are parsing a string of invisible characters.
 		boolean_c word_wrap_just_wrapped = true; // will be set to true if a virtual line break was just inserted to prevent a perpetual insertion of virtual line breaks for words that are wider than word_wrap_width. is initially set to true to prevent a virtual line break from being inserted at character index 0, in the case that the very first word is wider than the box.
-		sint32_c current_line_start = 0; // index of character in _plain_text that is the first character of the current line.
+		sint32_c current_line_start = _character_start; // index of character in _plain_text that is the first character of the current line.
 		float32_c current_word_width = 0.0f; // current accumulated width of consecutive displayable non-line-breaking characters.
-		sint32_c current_word_start = 0; // index of character in _plain_text that is the first character of the current word.
+		sint32_c current_word_start = current_line_start; // index of character in _plain_text that is the first character of the current word.
 		float32_c current_space_width = 0.0f; // current accumulated width of consecutive spaces. space width does not contribute to the width of the line until it is followed up by a word.
 		float32_c current_line_top = 0.0f; // current offset of top of line from top of paragraph.
 		float32_c current_line_width = 0.0f; // current accumulated width of line.
@@ -976,10 +976,12 @@ namespace cheonsa
 				current_glyph->_box.maximum.a = current_glyph->_horizontal_advance;
 				current_glyph->_box.maximum.b = current_laid_out_descender * current_scale_to_unquantize_size;
 
-				_do_glyph_layout_finish_line( current_line_start, _glyph_list.get_length() - 1, current_line_width + current_word_width + current_space_width, current_line_top );
-				current_line_start = j - _character_start + 1;
-				assert( current_line_start >= 0 );
-				current_word_start = j - _character_start + 1;
+				_do_glyph_layout_finish_line( current_line_start, _character_start + _glyph_list.get_length() - 1, current_line_width + current_word_width + current_space_width, current_line_top );
+				//current_line_start = j - _character_start + 1;
+				//assert( current_line_start >= 0 );
+				//current_word_start = j - _character_start + 1;
+				current_line_start = _glyph_list.get_length();
+				current_word_start = current_line_start;
 				current_line_width = 0.0f;
 				current_word_width = 0.0f;
 				current_space_width = 0.0f;
@@ -1075,7 +1077,7 @@ namespace cheonsa
 	void_c menu_element_text_c::text_paragraph_c::_do_glyph_layout_finish_line( sint32_c character_start, sint32_c character_end, float32_c laid_out_width, float32_c & laid_out_top )
 	{
 		assert( character_start >= _character_start );
-		assert( character_end - _character_start < _glyph_list.get_length() );
+		assert( character_end - _character_start <= _glyph_list.get_length() );
 
 		// advance by extra line spacing if needed.
 		if ( _line_list.get_length() > 0 )
@@ -1085,8 +1087,8 @@ namespace cheonsa
 
 		// create new laid out line.
 		text_line_c * line = _line_list.emplace( -1, 1 );
-		line->_character_start = _character_start + character_start;
-		line->_character_end = _character_start + character_end;
+		line->_character_start = character_start;
+		line->_character_end = character_end;
 		line->_width = laid_out_width;
 		if ( _content_width < laid_out_width )
 		{
@@ -1094,7 +1096,7 @@ namespace cheonsa
 		}
 
 		// take into account horizontal text alignment.
-		line->_update_horizontal_layout( _get_style_text_align_horizontal(), _mother_text_element->_local_box.get_width() );
+		line->_update_horizontal_layout( _get_style_text_align_x(), _mother_text_element->_local_box.get_width() );
 
 		// this is straight forward because it's relative to the paragraph's top, so we don't need to take into account vertical text alignment here, that is done in the paragraph.
 		line->_top = laid_out_top;
@@ -1293,17 +1295,17 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	menu_text_align_horizontal_e menu_element_text_c::text_paragraph_c::_get_style_text_align_horizontal() const
+	menu_text_align_x_e menu_element_text_c::text_paragraph_c::_get_style_text_align_x() const
 	{
 		assert( _mother_text_element );
 		if ( _text_style_reference.get_value())
 		{
-			if ( _text_style_reference.get_value()->text_align_horizontal_is_defined )
+			if ( _text_style_reference.get_value()->text_align_x_is_defined )
 			{
-				return _text_style_reference.get_value()->text_align_horizontal;
+				return _text_style_reference.get_value()->text_align_x;
 			}
 		}
-		return _mother_text_element->_get_style_text_align_horizontal();
+		return _mother_text_element->_get_style_text_align_x();
 	}
 
 	float32_c menu_element_text_c::text_paragraph_c::_get_style_paragraph_spacing() const
@@ -1544,7 +1546,7 @@ namespace cheonsa
 			for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
 			{
 				text_line_c * line = &paragraph->_line_list[ j ];
-				line->_update_horizontal_layout( paragraph->_get_style_text_align_horizontal(), _local_box.get_width() );
+				line->_update_horizontal_layout( paragraph->_get_style_text_align_x(), _local_box.get_width() );
 			}
 		}
 	}
@@ -1614,7 +1616,7 @@ namespace cheonsa
 		// place cursor on target line and preserve sticky x.
 		sint32_c j = line->_character_start;
 		sint32_c j_end = line->_character_end;
-		if ( _plain_text.character_list[ line->_character_end ] == L'\n' )
+		if ( j_end > j && _plain_text.character_list[ j_end ] == L'\n' )
 		{
 			j_end--; // exclude terminating new line from scan if one is present.
 		}
@@ -1639,6 +1641,13 @@ namespace cheonsa
 	void_c menu_element_text_c::_place_cursor_at_local_point( vector32x2_c const & local_point, boolean_c shift )
 	{
 		glyph_information_c glyph_information = _get_glyph_information( local_point );
+
+		if ( glyph_information.paragraph_index < 0 || glyph_information.paragraph_line_index < 0 || glyph_information.character_index < 0 )
+		{
+			// idk how this happens.
+			return;
+		}
+
 		text_paragraph_c const * paragraph = _paragraph_list[ glyph_information.paragraph_index ];
 		text_line_c const * line = &paragraph->_line_list[ glyph_information.paragraph_line_index ];
 		text_glyph_c const * glyph = &paragraph->_glyph_list[ glyph_information.character_index - paragraph->_character_start ];
@@ -2300,20 +2309,20 @@ namespace cheonsa
 
 		box32x2_c margin = _get_style_margin();
 
-		float32_c vertically_algined_y = margin.minimum.b;
-		menu_text_align_vertical_e text_align_vertical = _get_style_text_align_vertical();
-		if ( text_align_vertical == menu_text_align_vertical_e_center )
+		float32_c text_align_y_offset = margin.minimum.b;
+		menu_text_align_y_e text_align_y = _get_style_text_align_y();
+		if ( text_align_y == menu_text_align_y_e_center )
 		{
 			float32_c effective_height = _local_box.get_height() - margin.minimum.b - margin.maximum.b;
 			if ( effective_height < 0.0f )
 			{
 				effective_height = 0.0f;
 			}
-			vertically_algined_y = ( effective_height * 0.5f ) - ( get_content_height() * 0.5f );
+			text_align_y_offset = ( effective_height * 0.5f ) - ( get_content_height() * 0.5f );
 		}
-		else if ( text_align_vertical == menu_text_align_vertical_e_bottom )
+		else if ( text_align_y == menu_text_align_y_e_bottom )
 		{
-			vertically_algined_y = _local_box.get_height() - margin.maximum.b - get_content_height();
+			text_align_y_offset = _local_box.get_height() - margin.maximum.b - get_content_height();
 		}
 
 		boolean_c picked = false;
@@ -2330,7 +2339,7 @@ namespace cheonsa
 
 			paragraph_left = _local_box.minimum.a + margin.minimum.a + _content_offset.a;
 			//paragraph_right = paragraph_left + _local_box.get_width() - ( _margin * 2 );
-			paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + paragraph->_top + vertically_algined_y;
+			paragraph_top = _local_box.minimum.b + margin.minimum.b + _content_offset.b + paragraph->_top + text_align_y_offset;
 			//paragraph_top_virtual = i == 0 ? paragraph_top : paragraph_bottom; // virtual top of all paragraphs after the frist, so that if the pick point falls within the padding between paragraphs then we can still pick characters.
 			paragraph_bottom = paragraph_top + paragraph->_content_height;
 
@@ -2347,7 +2356,7 @@ namespace cheonsa
 				local_point_copy.b = paragraph_bottom;
 			}
 
-			if ( local_point_copy.b >= paragraph_top && local_point_copy.b <= paragraph_bottom )
+			if ( /*local_point_copy.b >= paragraph_top && */ local_point_copy.b <= paragraph_bottom )
 			{
 				result.paragraph_index = i;
 				for ( sint32_c j = 0; j < paragraph->_line_list.get_length(); j++ )
@@ -2691,38 +2700,38 @@ namespace cheonsa
 		return true;
 	}
 
-	menu_text_align_vertical_e menu_element_text_c::_get_style_text_align_vertical() const
+	menu_text_align_x_e menu_element_text_c::_get_style_text_align_x() const
 	{
-		if ( _text_align_vertical != menu_text_align_vertical_e_inherit_from_style )
+		if ( _text_align_x != menu_text_align_x_e_inherit_from_style )
 		{
-			return _text_align_vertical;
+			return _text_align_x;
 		}
 		if ( _text_style_reference.get_value() )
 		{
-			if ( _text_style_reference.get_value()->text_align_vertical_is_defined )
+			if ( _text_style_reference.get_value()->text_align_x_is_defined )
 			{
-				return _text_style_reference.get_value()->text_align_vertical;
+				return _text_style_reference.get_value()->text_align_x;
 			}
 		}
-		assert( engine.get_menu_style_manager()->get_default_text_style()->text_align_vertical_is_defined );
-		return engine.get_menu_style_manager()->get_default_text_style()->text_align_vertical;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->text_align_x_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->text_align_x;
 	}
 
-	menu_text_align_horizontal_e menu_element_text_c::_get_style_text_align_horizontal() const
+	menu_text_align_y_e menu_element_text_c::_get_style_text_align_y() const
 	{
-		if ( _text_align_horizontal != menu_text_align_horizontal_e_inherit_from_style )
+		if ( _text_align_y != menu_text_align_y_e_inherit_from_style )
 		{
-			return _text_align_horizontal;
+			return _text_align_y;
 		}
 		if ( _text_style_reference.get_value() )
 		{
-			if ( _text_style_reference.get_value()->text_align_horizontal_is_defined )
+			if ( _text_style_reference.get_value()->text_align_y_is_defined )
 			{
-				return _text_style_reference.get_value()->text_align_horizontal;
+				return _text_style_reference.get_value()->text_align_y;
 			}
 		}
-		assert( engine.get_menu_style_manager()->get_default_text_style()->text_align_horizontal_is_defined );
-		return engine.get_menu_style_manager()->get_default_text_style()->text_align_horizontal;
+		assert( engine.get_menu_style_manager()->get_default_text_style()->text_align_y_is_defined );
+		return engine.get_menu_style_manager()->get_default_text_style()->text_align_y;
 	}
 
 	float32_c menu_element_text_c::_get_style_paragraph_spacing() const
@@ -2892,8 +2901,8 @@ namespace cheonsa
 		, _text_select_anchor_index_start( 0 )
 		, _text_select_anchor_index_end( 0 )
 		, _text_style_reference( this )
-		, _text_align_horizontal( menu_text_align_horizontal_e_inherit_from_style )
-		, _text_align_vertical( menu_text_align_vertical_e_inherit_from_style )
+		, _text_align_x( menu_text_align_x_e_inherit_from_style )
+		, _text_align_y( menu_text_align_y_e_inherit_from_style )
 		, _character_limit( -1 )
 		, _multi_line( true )
 		, _word_wrap( true )
@@ -2951,14 +2960,47 @@ namespace cheonsa
 		_text_style_reference.set_key( text_style_key );
 	}
 
-	menu_text_style_c::reference_c const & menu_element_text_c::get_style_reference() const
+	string16_c const & menu_element_text_c::get_internal_plain_text_value() const
 	{
-		return _text_style_reference;
+		return _plain_text;
 	}
 
-	menu_text_style_c::reference_c & menu_element_text_c::get_style_reference()
+	string16_c menu_element_text_c::get_plain_text_value() const
 	{
-		return _text_style_reference;
+		assert( _plain_text.character_list.get_length() >= 2 ); // plain text must at minimum be 2 long because it must end with a new line character and a null character.
+		assert( _plain_text.character_list[ _plain_text.character_list.get_length() - 2 ] == L'\n' );
+		assert( _plain_text.character_list[ _plain_text.character_list.get_length() - 1 ] == L'\0' );
+		string16_c result;
+		result = _plain_text;
+		result.character_list.remove( result.character_list.get_length() - 2, 1 ); // remove the terminating new line character.
+		return result;
+	}
+
+	void_c menu_element_text_c::set_plain_text_value( string8_c const & value )
+	{
+		_set_plain_text_value( string16_c( value ) );
+	}
+
+	void_c menu_element_text_c::set_plain_text_value( string16_c const & value )
+	{
+		_set_plain_text_value( value );
+	}
+
+	void_c menu_element_text_c::set_rich_text_value( string8_c const & value )
+	{
+		assert( _text_format_mode == menu_text_format_mode_e_rich );
+		_set_rich_text_value( value );
+	}
+
+	void_c menu_element_text_c::set_rich_text_value( string16_c const & value )
+	{
+		assert( _text_format_mode == menu_text_format_mode_e_rich );
+		_set_rich_text_value( string8_c( value ) );
+	}
+
+	void_c menu_element_text_c::clear_text_value()
+	{
+		_clear_text_value();
 	}
 
 	menu_text_format_mode_e menu_element_text_c::get_text_format_mode() const
@@ -3005,16 +3047,38 @@ namespace cheonsa
 		_text_filter_string = value;
 	}
 
-	menu_text_align_horizontal_e menu_element_text_c::get_text_align_horizontal() const
+	boolean_c menu_element_text_c::has_selected_text_range() const
 	{
-		return _text_align_horizontal;
+		return ( _text_select_anchor_index_start < _text_select_anchor_index_end ) || ( _cursor_index != _text_select_anchor_index_start ) || ( _cursor_index != _text_select_anchor_index_end );
 	}
 
-	void_c menu_element_text_c::set_text_align_horizontal( menu_text_align_horizontal_e value )
+	boolean_c menu_element_text_c::get_selected_text_range( sint32_c & character_start, sint32_c & character_count ) const
 	{
-		if ( _text_align_horizontal != value )
+		character_start = ( _cursor_index < _text_select_anchor_index_start ? _cursor_index : _text_select_anchor_index_start );
+		character_count = ( _cursor_index > _text_select_anchor_index_end ? _cursor_index : _text_select_anchor_index_end ) - character_start;
+		return character_count > 0;
+	}
+
+	menu_text_style_c::reference_c const & menu_element_text_c::get_style_reference() const
+	{
+		return _text_style_reference;
+	}
+
+	menu_text_style_c::reference_c & menu_element_text_c::get_style_reference()
+	{
+		return _text_style_reference;
+	}
+
+	menu_text_align_x_e menu_element_text_c::get_text_align_x() const
+	{
+		return _text_align_x;
+	}
+
+	void_c menu_element_text_c::set_text_align_x( menu_text_align_x_e value )
+	{
+		if ( _text_align_x != value )
 		{
-			_text_align_horizontal = value;
+			_text_align_x = value;
 			if ( _is_glyph_layout_dirty )
 			{
 				_do_glyph_layout();
@@ -3026,16 +3090,16 @@ namespace cheonsa
 		}
 	}
 
-	menu_text_align_vertical_e menu_element_text_c::get_text_align_vertical() const
+	menu_text_align_y_e menu_element_text_c::get_text_align_y() const
 	{
-		return _text_align_vertical;
+		return _text_align_y;
 	}
 
-	void_c menu_element_text_c::set_text_align_vertical( menu_text_align_vertical_e value )
+	void_c menu_element_text_c::set_text_align_y( menu_text_align_y_e value )
 	{
-		if ( _text_align_vertical != value )
+		if ( _text_align_y != value )
 		{
-			_text_align_vertical = value;
+			_text_align_y = value;
 			if ( _is_glyph_layout_dirty )
 			{
 				_do_glyph_layout();
@@ -3155,61 +3219,6 @@ namespace cheonsa
 			result_line_index--;
 		}
 		result_line_index += paragraph->_line_index_base;
-	}
-
-	boolean_c menu_element_text_c::has_selected_text_range() const
-	{
-		return ( _text_select_anchor_index_start < _text_select_anchor_index_end ) || ( _cursor_index != _text_select_anchor_index_start ) || ( _cursor_index != _text_select_anchor_index_end );
-	}
-
-	boolean_c menu_element_text_c::get_selected_text_range( sint32_c & character_start, sint32_c & character_count ) const
-	{
-		character_start = ( _cursor_index < _text_select_anchor_index_start ? _cursor_index : _text_select_anchor_index_start );
-		character_count = ( _cursor_index > _text_select_anchor_index_end ? _cursor_index : _text_select_anchor_index_end ) - character_start;
-		return character_count > 0;
-	}
-
-	string16_c const & menu_element_text_c::get_internal_plain_text_value() const
-	{
-		return _plain_text;
-	}
-
-	string16_c menu_element_text_c::get_plain_text_value() const
-	{
-		assert( _plain_text.character_list.get_length() >= 2 ); // plain text must at minimum be 2 long because it must end with a new line character and a null character.
-		assert( _plain_text.character_list[ _plain_text.character_list.get_length() - 2 ] == L'\n' );
-		assert( _plain_text.character_list[ _plain_text.character_list.get_length() - 1 ] == L'\0' );
-		string16_c result;
-		result = _plain_text;
-		result.character_list.remove( result.character_list.get_length() - 2, 1 ); // remove the terminating new line character.
-		return result;
-	}
-
-	void_c menu_element_text_c::set_plain_text_value( string8_c const & value )
-	{
-		_set_plain_text_value( string16_c( value ) );
-	}
-
-	void_c menu_element_text_c::set_plain_text_value( string16_c const & value )
-	{
-		_set_plain_text_value( value );
-	}
-
-	void_c menu_element_text_c::set_rich_text_value( string8_c const & value )
-	{
-		assert( _text_format_mode == menu_text_format_mode_e_rich );
-		_set_rich_text_value( value );
-	}
-
-	void_c menu_element_text_c::set_rich_text_value( string16_c const & value )
-	{
-		assert( _text_format_mode == menu_text_format_mode_e_rich );
-		_set_rich_text_value( string8_c( value ) );
-	}
-
-	void_c menu_element_text_c::clear_text_value()
-	{
-		_clear_text_value();
 	}
 
 	boolean_c menu_element_text_c::get_text_style_key_at_cursor( string8_c & result_text_style_key )
@@ -3497,7 +3506,7 @@ namespace cheonsa
 		return false;
 	}
 
-	void_c menu_element_text_c::append_line( string16_c const & plain_text )
+	void_c menu_element_text_c::append_plain_text( string16_c const & plain_text )
 	{
 		_plain_text.character_list.remove( -1, 2 ); // remove terminating new line character and null character.
 		_plain_text.character_list.insert( -1, plain_text.character_list.get_internal_array(), plain_text.character_list.get_length() - 1 ); // append new text excluding the terminating null character.
@@ -3505,32 +3514,37 @@ namespace cheonsa
 
 		assert( _paragraph_list.get_length() > 0 );
 		text_paragraph_c * paragraph = _paragraph_list[ _paragraph_list.get_length() - 1 ];
-		paragraph->_is_glyph_layout_dirty = true;
 		paragraph->_character_end += plain_text.get_length();
-
-		_paragraph_list[ _paragraph_list.get_length() - 1 ]->_do_glyph_layout(); // instead of deferring layout, we'll just do it here.
-		_update_vertical_layout_of_all_paragraphs();
-	}
-
-	void_c menu_element_text_c::append_paragraph( string16_c const & plain_text )
-	{
-		_plain_text.character_list.remove( -1, 1 ); // remove terminating null character.
-		sint32_c new_paragraph_character_start = _plain_text.character_list.get_length();
-		_plain_text.character_list.insert( -1, plain_text.character_list.get_internal_array(), plain_text.character_list.get_length() - 1 ); // append new text excluding the terminating null character.
-		_plain_text.character_list.insert( -1, L"\n\0", 2 ); // append terminating new line character and null character.
-		sint32_c new_paragraph_character_end = _plain_text.get_length();
-
-		text_paragraph_c * new_paragraph = new text_paragraph_c( this );
-		new_paragraph->_character_start = new_paragraph_character_start;
-		new_paragraph->_character_end = new_paragraph_character_end;
-		new_paragraph->_is_glyph_layout_dirty = true;
-		_paragraph_list.insert( -1, new_paragraph );
-
+		paragraph->_is_glyph_layout_dirty = true;
 		_is_glyph_layout_dirty = true;
 
-		//_reflow_glyphs_in_paragraph( _paragraph_list.get_length() - 1 ); // instead of deferring layout, we'll just do it here.
+		//_paragraph_list[ _paragraph_list.get_length() - 1 ]->_do_glyph_layout(); // instead of deferring layout, we'll just do it here.
 		//_update_vertical_layout_of_all_paragraphs();
-		//_is_glyph_layout_dirty = false;
+	}
+
+	void_c menu_element_text_c::append_plain_text_as_new_paragraph( string16_c const & plain_text )
+	{
+		text_paragraph_c * paragraph = nullptr;
+		if ( _plain_text.character_list.get_length() == 2 )
+		{
+			// the text value is empty "\n\0", rather than append a new paragraph, populate the existing one which is empty.
+			// remove the new line character and null character.
+			_plain_text.character_list.remove( -1, 2 );
+			paragraph = _paragraph_list[ 0 ];
+		}
+		else
+		{
+			// remove the null character.
+			_plain_text.character_list.remove( -1, 1 );
+			paragraph = new text_paragraph_c( this );
+			_paragraph_list.insert( -1, paragraph );
+		}
+		paragraph->_character_start = _plain_text.character_list.get_length();
+		_plain_text.character_list.insert( -1, plain_text.character_list.get_internal_array(), plain_text.character_list.get_length() - 1 ); // append new text excluding the terminating null character.
+		_plain_text.character_list.insert( -1, L"\n\0", 2 ); // append terminating new line character and null character.
+		paragraph->_character_end = _plain_text.character_list.get_length() - 2;
+		paragraph->_is_glyph_layout_dirty = true;
+		_is_glyph_layout_dirty = true;
 	}
 
 	void_c menu_element_text_c::input_character( char16_c character )

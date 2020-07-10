@@ -303,9 +303,9 @@ namespace cheonsa
 			sint32_c visible_item_count = items_per_x * items_per_y; // highest number of items that are potentially visible with the current layout configuration.
 			sint32_c elements_per_item = 3; // item_selected_frame, item_icon_frame, item_text.
 			content_height = _icons_item_spacing + ( _item_list.get_length() / items_per_x + 1 ) * ( _icons_item_height + _icons_item_spacing );
-			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
-			_vertical_scroll_bar->set_line_size( _icons_item_height );
-			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+			_scroll_bar_y->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
+			_scroll_bar_y->set_line_size( _icons_item_height );
+			_scroll_bar_y->update_visibility( _scroll_bar_y_visibility_mode );
 			if ( visible_item_count > _item_elements.get_length() / elements_per_item )
 			{
 				// look up style map style assignments.
@@ -353,7 +353,7 @@ namespace cheonsa
 			}
 
 			// allocate and lay out elements to the currently visible set of items.
-			sint32_c visible_item_index = static_cast< sint32_c >( ( _vertical_scroll_bar->get_value() - _icons_item_spacing ) / ( _icons_item_height + _icons_item_spacing ) ) * items_per_x; // index of first visible item.
+			sint32_c visible_item_index = static_cast< sint32_c >( ( _scroll_bar_y->get_value() - _icons_item_spacing ) / ( _icons_item_height + _icons_item_spacing ) ) * items_per_x; // index of first visible item.
 			sint32_c allocated_item_count = _item_elements.get_length() / elements_per_item;
 			for ( sint32_c i = 0; i < allocated_item_count; i++, visible_item_index++ )
 			{
@@ -408,9 +408,9 @@ namespace cheonsa
 			sint32_c visible_item_count = items_per_y;
 			sint32_c elements_per_item = 2 + _column_list.get_length(); // item_selected_frame, item_icon_frame, item_text, ... .
 			content_height = _details_item_height * _item_list.get_length();
-			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
-			_vertical_scroll_bar->set_line_size( _details_item_height );
-			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+			_scroll_bar_y->set_value_range_and_page_size( 0.0, content_height, _local_box.get_height() );
+			_scroll_bar_y->set_line_size( _details_item_height );
+			_scroll_bar_y->update_visibility( _scroll_bar_y_visibility_mode );
 			if ( visible_item_count > _item_elements.get_length() / elements_per_item )
 			{
 				// look up style map style assignments.
@@ -462,7 +462,7 @@ namespace cheonsa
 			}
 
 			// allocate and lay out elements to the currently visible set of items.
-			sint32_c visible_item_index = static_cast< sint32_c >( _vertical_scroll_bar->get_value() / _details_item_height );
+			sint32_c visible_item_index = static_cast< sint32_c >( _scroll_bar_y->get_value() / _details_item_height );
 			sint32_c allocated_item_count = _item_elements.get_length() / elements_per_item;
 			for ( sint32_c i = 0; i < allocated_item_count; i++, visible_item_index++ )
 			{
@@ -512,7 +512,7 @@ namespace cheonsa
 	box32x2_c menu_control_collection_c::_get_item_box( sint32_c item_index )
 	{
 		box32x2_c result;
-		float32_c y = static_cast< float32_c >( -_vertical_scroll_bar->get_value() );
+		float32_c y = static_cast< float32_c >( -_scroll_bar_y->get_value() );
 		if ( _display_mode == display_mode_e_icons )
 		{
 			sint32_c items_per_x = ops::math_maximum( 1, static_cast< sint32_c >( ( _local_box.get_width() - _icons_item_spacing ) / ( _icons_item_width + _icons_item_spacing ) ) );
@@ -592,7 +592,7 @@ namespace cheonsa
 			_last_selected_frame_element.set_is_showed( false );
 			if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 			{
-				_vertical_scroll_bar->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
+				_scroll_bar_y->inject_mouse_wheel_input( input_event->get_mouse_wheel_delta() );
 			}
 			else if ( input_event->get_type() == input_event_c::type_e_mouse_move || input_event->get_type() == input_event_c::type_e_mouse_key_pressed )
 			{
@@ -652,8 +652,8 @@ namespace cheonsa
 		, _border_frame_element( string8_c( "border_frame", core_list_mode_e_static ) )
 		, _last_selected_item( nullptr )
 		, _mouse_selected_item( nullptr )
-		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_automatic )
-		, _vertical_scroll_bar( nullptr )
+		, _scroll_bar_y_visibility_mode( menu_visibility_mode_e_automatic )
+		, _scroll_bar_y( nullptr )
 		, _display_mode( display_mode_e_icons )
 		, _icons_item_width( 100 )
 		, _icons_item_height( 130 )
@@ -682,16 +682,16 @@ namespace cheonsa
 		_border_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
 		_add_daughter_element( &_border_frame_element );
 
-		_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
-		_vertical_scroll_bar->set_name( string8_c( "vertical_scroll_bar", core_list_mode_e_static ) );
-		_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
-		_vertical_scroll_bar->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_scroll_bar_on_value_changed );
-		add_daughter_control( _vertical_scroll_bar );
-		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+		_scroll_bar_y = new menu_control_scroll_bar_y_c();
+		_scroll_bar_y->set_name( string8_c( "scroll_bar_y", core_list_mode_e_static ) );
+		_scroll_bar_y->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 10.0f, 0.0f, 0.0f, 0.0f ) );
+		_scroll_bar_y->on_value_changed_preview.subscribe( this, &menu_control_collection_c::_handle_scroll_bar_on_value_changed );
+		add_daughter_control( _scroll_bar_y );
+		_scroll_bar_y->update_visibility( _scroll_bar_y_visibility_mode );
 
 		set_style_map_key( string8_c( "e_collection", core_list_mode_e_static ) );
 
-		_item_icon_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
+		_item_icon_frame_style.texture_map_mode = menu_texture_map_mode_e_scale_to_fit;
 	}
 
 	menu_control_collection_c::~menu_control_collection_c()
@@ -999,8 +999,8 @@ namespace cheonsa
 		_item_list.remove_and_delete_all();
 		_last_selected_frame_element.set_is_showed( false );
 		_highlighted_frame_element.set_is_showed( false );
-		_vertical_scroll_bar->set_value_range_and_page_size( 0.0, 0.0f, _local_box.get_height() );
-		_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
+		_scroll_bar_y->set_value_range_and_page_size( 0.0, 0.0f, _local_box.get_height() );
+		_scroll_bar_y->update_visibility( _scroll_bar_y_visibility_mode );
 		//_value_cache_is_dirty = false;
 		_sort_is_dirty = false;
 	}

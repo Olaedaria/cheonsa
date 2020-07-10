@@ -21,7 +21,7 @@ namespace cheonsa
 
 		virtual void_c refresh() = 0; // may occur between updates. if applicable to the game's design, the game should scan its files for changes and reload as needed.
 
-		virtual string16_c const & get_user_data_folder_name() const = 0; // user generated setting files, save game files, and screen shot files should be saved in a folder with this name.
+		virtual string16_c get_user_data_folder_name() const = 0; // user generated setting files, save game files, and screen shot files should be saved in a folder with this name.
 
 	};
 

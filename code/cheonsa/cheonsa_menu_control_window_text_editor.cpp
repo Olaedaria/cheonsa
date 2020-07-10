@@ -41,7 +41,9 @@ namespace cheonsa
 		, _cancel_button( nullptr )
 		, _okay_button( nullptr )
 	{
-		set_layout_simple( box32x2_c( 0, 0, default_size.a, default_size.b ) );
+		set_user_can_resize( true );
+		set_size( default_size );
+		set_title_plain_text_value( string8_c( "text editor", core_list_mode_e_static ) );
 
 		_text = new menu_control_text_c();
 		_text->set_name( string8_c( "text", core_list_mode_e_static ) );

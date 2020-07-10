@@ -18,8 +18,8 @@ namespace cheonsa
 		boolean_c _primary_enable; // if true then this canvas will manage another canvas used for rendering reflections to.
 		boolean_c _post_process_enable; // determines if _target_color_half, _target_color_quarter, _target_color_quarter_blurred_x, and _target_color_quarter_blurred_xy are used.
 
-		sint32_c _statistic_object_count; // number of scene objects that were rendered in the last frame.
-		sint32_c _statistic_triangle_count; // number of triangles that were drawn in the last frame, includes those from scene and menu.
+		uint32_c _statistic_object_count; // number of scene objects that were rendered in the last frame.
+		uint32_c _statistic_triangle_count; // number of triangles that were drawn in the last frame, includes those from scene and menu.
 
 		sint32_c _actual_width; // the width of the original size target, which is rounded up to the nearest value to _view_port_width that is evenly divisible by 4, which is done to ensure that downsampling/blurring behaves well.
 		sint32_c _actual_height; // the height of the original size target, which is rounded up to the nearest value to _view_port_height that is evenly divisible by 4, which is done to ensure that downsampling/blurring behaves well.
@@ -68,17 +68,19 @@ namespace cheonsa
 		//video_renderer_canvas_c * _reflections_canvas; // full size. used as target to render planar reflectors|screens. not anti aliased, even if _msaa_count > 1.
 
 		void_c _release_targets();
-
+ 
 	public:
 		video_renderer_canvas_c( boolean_c primary_enable, boolean_c post_enable, void_c * window_handle );
 		~video_renderer_canvas_c();
 
+		// this should be called once per frame, before rendering, if the canvas is associated with a window.
 		// if this canvas is associated with a window, and if the window size changed or msaa_count changed, then this will recreate the textures at the new size.
-		// if this canvas is not associated with a window, and if the apparent size changed enough to change the actual size, then this will recreate the textures at a new size.
-		// returns true if canvas was resized, false if not.
-		boolean_c update();
+		// if this canvas is not associated with a window, and if the apparent size changed enough to change the actual size internal targets size, then this will recreate the textures at a new size.
+		// returns true if the operation is successful, false if not.
+		boolean_c size_to_fit_window();
 
 		// clears all the render targets in this canvas.
+		// clears statistic counters.
 		void_c clear( vector32x4_c const & clear_color );
 
 		// if this canvas is associated with an output window, then this function will present the backbuffer to the window.
@@ -89,13 +91,13 @@ namespace cheonsa
 
 		sint32_c get_apparent_width() const; // the apparent width of the canvas in pixels. the actual canvas may be larger than this, in order to accommodate multiple-of-four dimensions needed for down sampling (blur) effects.
 		sint32_c get_apparent_height() const; // the apparent height of the canvas in pixels. the actual canvas may be larger than this, in order to accommodate multiple-of-four dimensions needed for down sampling (blur) effects.
-		void_c set_apparent_size( sint32_c width, sint32_c height ); // render target textures will be resized if needed on next call to update().
+		boolean_c set_apparent_size( sint32_c width, sint32_c height ); // this should only be called if the canvas is not associated with a window.
 
 		video_texture_c * create_readable_copy(); // creates a new instance of a texture that can be read by the CPU. please delete it when you're done using it so you don't waste or leak.
 
 		//float64_c get_frame_rate();
-		sint32_c get_statistic_object_count();
-		sint32_c get_statistic_triangle_count();
+		sint32_c get_statistic_object_count() const;
+		sint32_c get_statistic_triangle_count() const;
 
 		video_texture_c * get_target_color_final() const; // gets the video texture that contains the final render result, so that it can be used as input.
 

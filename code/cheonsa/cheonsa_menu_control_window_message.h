@@ -8,6 +8,7 @@ namespace cheonsa
 {
 
 	// a dialog window with a message label and a configurable set of button choices.
+	// is initially hidden, so you should show it via show_dialog() or set_is_showed().
 	class menu_control_window_message_c
 		: public menu_control_window_c
 	{
@@ -46,9 +47,9 @@ namespace cheonsa
 		mode_e get_mode() const;
 		void_c set_mode( mode_e value );
 
-		string16_c get_message_text_value() const;
-		void_c set_message_text_value( string8_c const & plain_text );
-		void_c set_message_text_value( string16_c const & plain_text );
+		string16_c get_message_plain_text_value() const;
+		void_c set_message_plain_text_value( string8_c const & plain_text );
+		void_c set_message_plain_text_value( string16_c const & plain_text );
 		void_c clear_message_text_value();
 
 	};

@@ -53,10 +53,10 @@ namespace cheonsa
 		, _text_element( string8_c( "text", core_list_mode_e_static ) )
 		, _place_holder_text_element( nullptr )
 		, _border_frame_element( string8_c( "border_frame", core_list_mode_e_static ) )
-		, _horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
-		, _horizontal_scroll_bar( nullptr )
-		, _vertical_scroll_bar_visibility_mode( menu_visibility_mode_e_never )
-		, _vertical_scroll_bar( nullptr )
+		, _scroll_bar_x_visibility_mode( menu_visibility_mode_e_never )
+		, _scroll_bar_x( nullptr )
+		, _scroll_bar_y_visibility_mode( menu_visibility_mode_e_never )
+		, _scroll_bar_y( nullptr )
 	{
 		_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
 		_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
@@ -92,17 +92,17 @@ namespace cheonsa
 		menu_control_c::update_animations( time_step );
 
 		vector32x2_c content_offset = vector32x2_c( 0.0f, 0.0f );
-		if ( _horizontal_scroll_bar )
+		if ( _scroll_bar_x )
 		{
-			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _text_element .get_content_width(), _local_box.get_width() );
-			_horizontal_scroll_bar->update_visibility( _horizontal_scroll_bar_visibility_mode );
-			content_offset.a = static_cast< float32_c >( _horizontal_scroll_bar->get_value() );
+			_scroll_bar_x->set_value_range_and_page_size( 0.0, _text_element .get_content_width(), _local_box.get_width() );
+			_scroll_bar_x->update_visibility( _scroll_bar_x_visibility_mode );
+			content_offset.a = static_cast< float32_c >( _scroll_bar_x->get_value() );
 		}
-		if ( _vertical_scroll_bar )
+		if ( _scroll_bar_y )
 		{
-			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _text_element .get_content_height(), _local_box.get_height() );
-			_vertical_scroll_bar->update_visibility( _vertical_scroll_bar_visibility_mode );
-			content_offset.b = static_cast< float32_c >( _vertical_scroll_bar->get_value() );
+			_scroll_bar_y->set_value_range_and_page_size( 0.0, _text_element .get_content_height(), _local_box.get_height() );
+			_scroll_bar_y->update_visibility( _scroll_bar_y_visibility_mode );
+			content_offset.b = static_cast< float32_c >( _scroll_bar_y->get_value() );
 		}
 		_text_element.set_content_offset( content_offset );
 		_text_element.update_animations( time_step );
@@ -185,6 +185,16 @@ namespace cheonsa
 		_text_element.clear_text_value();
 	}
 
+	void_c menu_control_text_c::append_plain_text( string16_c const & plain_text )
+	{
+		_text_element.append_plain_text( plain_text );
+	}
+
+	void_c menu_control_text_c::append_plain_text_as_new_paragraph( string16_c const & plain_text )
+	{
+		_text_element.append_plain_text_as_new_paragraph( plain_text );
+	}
+
 	menu_text_format_mode_e menu_control_text_c::get_text_format_mode() const
 	{
 		return _text_element.get_text_format_mode();
@@ -260,89 +270,89 @@ namespace cheonsa
 		_text_element.set_cursor_index( value );
 	}
 
-	menu_text_align_horizontal_e menu_control_text_c::get_text_align_horizontal() const
+	menu_text_align_x_e menu_control_text_c::get_text_align_x() const
 	{
-		return _text_element.get_text_align_horizontal();
+		return _text_element.get_text_align_x();
 	}
 
-	void_c menu_control_text_c::set_text_align_horizontal( menu_text_align_horizontal_e value )
+	void_c menu_control_text_c::set_text_align_x( menu_text_align_x_e value )
 	{
-		_text_element.set_text_align_horizontal( value );
+		_text_element.set_text_align_x( value );
 	}
 
-	menu_text_align_vertical_e menu_control_text_c::get_text_align_vertical() const
+	menu_text_align_y_e menu_control_text_c::get_text_align_y() const
 	{
-		return _text_element.get_text_align_vertical();
+		return _text_element.get_text_align_y();
 	}
 
-	void_c menu_control_text_c::set_text_align_vertical( menu_text_align_vertical_e value )
+	void_c menu_control_text_c::set_text_align_y( menu_text_align_y_e value )
 	{
-		_text_element.set_text_align_vertical( value );
+		_text_element.set_text_align_y( value );
 	}
 
 	menu_visibility_mode_e menu_control_text_c::get_horizontal_scroll_visibility_mode() const
 	{
-		return _horizontal_scroll_bar_visibility_mode;
+		return _scroll_bar_x_visibility_mode;
 	}
 
 	void_c menu_control_text_c::set_horizontal_scroll_visibility_mode( menu_visibility_mode_e value )
 	{
-		_horizontal_scroll_bar_visibility_mode = value;
+		_scroll_bar_x_visibility_mode = value;
 		if ( value == menu_visibility_mode_e_always || value == menu_visibility_mode_e_automatic )
 		{
-			if ( _horizontal_scroll_bar == nullptr )
+			if ( _scroll_bar_x == nullptr )
 			{
-				_horizontal_scroll_bar = new menu_control_scroll_bar_x_c();
-				_horizontal_scroll_bar->set_name( string8_c( "horizontal_scroll_bar", core_list_mode_e_static ) );
-				_horizontal_scroll_bar->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, _horizontal_scroll_bar->get_preferred_thickness(), 0.0f, 0.0f ) );
-				add_daughter_control( _horizontal_scroll_bar );
+				_scroll_bar_x = new menu_control_scroll_bar_x_c();
+				_scroll_bar_x->set_name( string8_c( "scroll_bar_x", core_list_mode_e_static ) );
+				_scroll_bar_x->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, _scroll_bar_x->get_preferred_thickness(), 0.0f, 0.0f ) );
+				add_daughter_control( _scroll_bar_x );
 			}
 		}
 		else
 		{
-			if ( _horizontal_scroll_bar )
+			if ( _scroll_bar_x )
 			{
-				remove_daughter_control( _horizontal_scroll_bar ); // this will remove a reference from _horizontal_scroll_bar, which will (probably) delete it.
-				_horizontal_scroll_bar = nullptr;
+				remove_daughter_control( _scroll_bar_x ); // this will remove a reference from _scroll_bar_x, which will (probably) delete it.
+				_scroll_bar_x = nullptr;
 			}
 		}
-		if ( _horizontal_scroll_bar )
+		if ( _scroll_bar_x )
 		{
-			_horizontal_scroll_bar->set_value_range_and_page_size( 0.0, _text_element.get_content_width(), _local_box.get_width() );
-			_horizontal_scroll_bar->update_visibility( value );
+			_scroll_bar_x->set_value_range_and_page_size( 0.0, _text_element.get_content_width(), _local_box.get_width() );
+			_scroll_bar_x->update_visibility( value );
 		}
 	}
 
 	menu_visibility_mode_e menu_control_text_c::get_vertical_scroll_visibility_mode() const
 	{
-		return _vertical_scroll_bar_visibility_mode;
+		return _scroll_bar_y_visibility_mode;
 	}
 
 	void_c menu_control_text_c::set_vertical_scroll_visibility_mode( menu_visibility_mode_e value )
 	{
-		_vertical_scroll_bar_visibility_mode = value;
+		_scroll_bar_y_visibility_mode = value;
 		if ( value == menu_visibility_mode_e_always || value == menu_visibility_mode_e_automatic )
 		{
-			if ( _vertical_scroll_bar == nullptr )
+			if ( _scroll_bar_y == nullptr )
 			{
-				_vertical_scroll_bar = new menu_control_scroll_bar_y_c();
-				_vertical_scroll_bar->set_name( string8_c( "vertical_scroll_bar", core_list_mode_e_static ) );
-				_vertical_scroll_bar->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( _vertical_scroll_bar->get_preferred_thickness(), 0.0f, 0.0f, 0.0f ) );
-				add_daughter_control( _vertical_scroll_bar );
+				_scroll_bar_y = new menu_control_scroll_bar_y_c();
+				_scroll_bar_y->set_name( string8_c( "scroll_bar_y", core_list_mode_e_static ) );
+				_scroll_bar_y->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( _scroll_bar_y->get_preferred_thickness(), 0.0f, 0.0f, 0.0f ) );
+				add_daughter_control( _scroll_bar_y );
 			}
 		}
 		else
 		{
-			if ( _vertical_scroll_bar )
+			if ( _scroll_bar_y )
 			{
-				remove_daughter_control( _vertical_scroll_bar ); // this will remove a reference from _vertical_scroll_bar, which will (probably) delete it.
-				_vertical_scroll_bar = nullptr;
+				remove_daughter_control( _scroll_bar_y ); // this will remove a reference from _scroll_bar_y, which will (probably) delete it.
+				_scroll_bar_y = nullptr;
 			}
 		}
-		if ( _vertical_scroll_bar )
+		if ( _scroll_bar_y )
 		{
-			_vertical_scroll_bar->set_value_range_and_page_size( 0.0, _text_element.get_content_height(), _local_box.get_height() );
-			_vertical_scroll_bar->update_visibility( value );
+			_scroll_bar_y->set_value_range_and_page_size( 0.0, _text_element.get_content_height(), _local_box.get_height() );
+			_scroll_bar_y->update_visibility( value );
 		}
 	}
 

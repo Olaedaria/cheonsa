@@ -26,9 +26,10 @@ namespace cheonsa
 		menu_element_frame_c _title_bar_frame_element; // name is "title_bar".
 		menu_element_text_c _title_bar_text_element; // name is "text".
 
+		menu_control_button_c * _close_button; // optional close button that may be displayed in title bar.
+
 		float32_c _edge_size; // thickness of each grab-able edge, used for hit testing, user can grab this to resize the window.
-		float32_c _top_bar_size; // extra thickness of top edge, for title bar, for hit testing, user can grab this to move the window.
-		float32_c _bottom_bar_size; // extra thickness of bottom edge, for additional dialog buttons.
+		float32_c _title_bar_size; // extra thickness of top edge, for title bar, for hit testing, user can grab this to move the window.
 
 		boolean_c _user_can_move; // if true then the user can move and resize the window. the window must be a root level control.
 		boolean_c _user_can_resize; // if true then the user can move and resize the window. the window must be a root level control.
@@ -51,9 +52,13 @@ namespace cheonsa
 
 		menu_control_c * _modal_screen; // if set, then when this window is responsible for hiding this modal screen when this window is dismissed.
 
+		void_c const * _dialog_operation; // similar to user pointer, but intended to be used by the game to associate this window with some kind of command or operation, so that it can respond accordingly in its on_dialog_result handler.
+
 		menu_dialog_result_e _dialog_result; // optional, used by dialog windows to hold result of dialog interaction.
 
 		void_c _apply_client_margins();
+
+		void_c _handle_button_on_clicked( menu_event_information_c event_information ); // responds to close button.
 
 		void_c _handle_modal_screen_on_input( menu_event_information_c event_information );
 
@@ -71,10 +76,13 @@ namespace cheonsa
 
 		void_c constrain_transform(); // snaps window to fit in bounds of user interface, so that the user doesn't lose it.
 
-		string16_c get_title_bar_text_value() const;
-		void_c set_title_bar_text_value( string8_c const & plain_text );
-		void_c set_title_bar_text_value( string16_c const & plain_text );
-		void_c clear_title_bar_text_value();
+		boolean_c get_close_button_is_enabled() const;
+		void_c set_close_button_is_enabled( boolean_c value );
+
+		string16_c get_title_plain_text_value() const;
+		void_c set_title_plain_text_value( string8_c const & plain_text );
+		void_c set_title_plain_text_value( string16_c const & plain_text );
+		void_c clear_title_text_value();
 
 		boolean_c get_user_can_move() const;
 		void_c set_user_can_move( boolean_c value );
@@ -82,11 +90,8 @@ namespace cheonsa
 		boolean_c get_user_can_resize() const;
 		void_c set_user_can_resize( boolean_c value );
 
-		float32_c get_top_bar_size() const;
-		void_c set_top_bar_size( float32_c value );
-
-		float32_c get_bottom_bar_size() const;
-		void_c set_bottom_bar_size( float32_c value );
+		float32_c get_title_bar_size() const;
+		void_c set_title_bar_size( float32_c value );
 
 		float32_c get_edge_size() const;
 		void_c set_edge_size( float32_c value );
@@ -103,11 +108,11 @@ namespace cheonsa
 		vector32x2_c get_size() const; // gets the width and height of the window.
 		void_c set_size( vector32x2_c const & value ); // sets the width and height of the window.
 
-		menu_visibility_mode_e get_horizontal_scroll_bar_visibility_mode() const;
-		void_c set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value );
+		menu_visibility_mode_e get_scroll_bar_x_visibility_mode() const;
+		void_c set_scroll_bar_x_visibility_mode( menu_visibility_mode_e value );
 
-		menu_visibility_mode_e get_vertical_scroll_bar_visibility_mode() const;
-		void_c set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value );
+		menu_visibility_mode_e get_scroll_bar_y_visibility_mode() const;
+		void_c set_scroll_bar_y_visibility_mode( menu_visibility_mode_e value );
 
 		sint32_c get_daughter_controls_in_client_count() const;
 		menu_control_c * get_daughter_control_in_client_at_index( sint32_c control_index ) const;
@@ -126,6 +131,9 @@ namespace cheonsa
 
 		// hides this window and also hides and deletes modal screen if one is associated.
 		virtual void_c hide_dialog( boolean_c and_delete = false );
+
+		void_c const * get_dialog_operation() const;
+		void_c set_dialog_operation( void_c const * value );
 
 		menu_dialog_result_e get_dialog_result() const; // gets the current or last result.
 		core_event_c< void_c, menu_control_window_c * > on_dialog_result; // dialog windows are not responsible for calling hide_dialog() on their own.

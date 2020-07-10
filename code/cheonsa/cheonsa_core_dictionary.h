@@ -218,26 +218,30 @@ namespace cheonsa
 		}
 
 		// inserts new or replaces existing value with key.
+		// returns true if new key value was inserted.
+		// returns false if existing key value was replaced.
 		boolean_c insert( key_type_c const & key, value_type_c const & value )
 		{
-			if ( _length / _buckets.get_length() > 16 )
-			{
-				_set_buckets_count( _buckets.get_length() * 2 );
-			}
-
+			// find existing entry to replace.
 			entry_c * entry = nullptr;
 			if ( find_entry( key, nullptr, nullptr, &entry ) )
 			{
 				const_cast< entry_c * >( entry )->value = value;
+				return false;
 			}
-			else
+
+			// scale up if needed.
+			if ( ( _length + 1 ) / _buckets.get_length() > 16 )
 			{
-				core_list_c< entry_c > & bucket = _buckets[ core_hasher< key_type_c >::hash( key ) % _buckets.get_length() ];
-				entry_c * entry = bucket.emplace( -1, 1 );
-				entry->key = key;
-				entry->value = value;
-				_length++;
+				_set_buckets_count( _buckets.get_length() * 2 );
 			}
+
+			// create new entry.
+			core_list_c< entry_c > & bucket = _buckets[ core_hasher< key_type_c >::hash( key ) % _buckets.get_length() ];
+			entry = bucket.emplace( -1, 1 );
+			entry->key = key;
+			entry->value = value;
+			_length++;
 			return true;
 		}
 

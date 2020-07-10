@@ -17,23 +17,41 @@ namespace cheonsa
 
 	platform_icon_c::~platform_icon_c()
 	{
-		un_load();
+		unload();
 	}
 
-	boolean_c platform_icon_c::load( string16_c const & relative_file_path )
+	boolean_c platform_icon_c::load_from_exe( string8_c const & resource_name )
 	{
-		un_load();
+		icon_handle = static_cast< void_c * >( LoadImageA( GetModuleHandleA( NULL ), resource_name.character_list.get_internal_array(), IMAGE_ICON, 0, 0, 0 ) );
+		return icon_handle != 0;
+	}
+
+	boolean_c platform_icon_c::load_from_exe( string16_c const & resource_name )
+	{
+		icon_handle = static_cast< void_c * >( LoadImageW( GetModuleHandleW( NULL ), resource_name.character_list.get_internal_array(), IMAGE_ICON, 0, 0, 0 ) );
+		return icon_handle != 0;
+	}
+
+	boolean_c platform_icon_c::load_from_absolute_file_path( string16_c const & file_path_absolute )
+	{
+		icon_handle = static_cast< void_c * >( LoadImageW( NULL, file_path_absolute.character_list.get_internal_array(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE ) );
+		return icon_handle != 0;
+	}
+
+	boolean_c platform_icon_c::load_from_relative_file_path( string16_c const & file_path_relative )
+	{
+		unload();
 #if defined( cheonsa_platform_windows )
-		string16_c absolute_file_path;
-		if ( engine.get_content_manager()->resolve_absolute_file_path( relative_file_path, absolute_file_path, true, true ) )
+		string16_c file_path_absolute;
+		if ( engine.get_content_manager()->resolve_absolute_file_path( file_path_relative, file_path_absolute, true, true ) )
 		{
-			icon_handle = static_cast< void_c * >( LoadImageW( NULL, absolute_file_path.character_list.get_internal_array(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE ) );
+			icon_handle = static_cast< void_c * >( LoadImageW( NULL, file_path_absolute.character_list.get_internal_array(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE ) );
 		}
 #endif
-		return icon_handle;
+		return icon_handle != 0;
 	}
 
-	void_c platform_icon_c::un_load()
+	void_c platform_icon_c::unload()
 	{
 		if ( icon_handle )
 		{

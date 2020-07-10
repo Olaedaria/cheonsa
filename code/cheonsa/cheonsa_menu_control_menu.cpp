@@ -14,6 +14,18 @@ namespace cheonsa
 	{
 	}
 
+	menu_control_menu_c * menu_control_menu_item_separator_c::get_menu() const
+	{
+		menu_control_menu_c * result = nullptr;
+		if ( _mother_control )
+		{
+			assert( _mother_control->get_mother_control() );
+			result = dynamic_cast< menu_control_menu_c * >( _mother_control->get_mother_control() );
+			assert( result );
+		}
+		return result;
+	}
+
 	void_c menu_control_menu_item_text_c::_on_clicked( input_event_c * input_event )
 	{
 		_mother_user_interface->reset_multi_click_detection();
@@ -50,6 +62,18 @@ namespace cheonsa
 
 	menu_control_menu_item_text_c::~menu_control_menu_item_text_c()
 	{
+	}
+
+	menu_control_menu_c * menu_control_menu_item_text_c::get_menu() const
+	{
+		menu_control_menu_c * result = nullptr;
+		if ( _mother_control )
+		{
+			assert( _mother_control->get_mother_control() );
+			result = dynamic_cast< menu_control_menu_c * >( _mother_control->get_mother_control() );
+			assert( result );
+		}
+		return result;
 	}
 
 	boolean_c menu_control_menu_item_text_c::get_can_be_checked() const

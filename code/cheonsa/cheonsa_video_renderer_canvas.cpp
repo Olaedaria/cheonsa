@@ -91,7 +91,7 @@ namespace cheonsa
 		//_reflections_canvas = nullptr;
 	}
 
-	boolean_c video_renderer_canvas_c::update()
+	boolean_c video_renderer_canvas_c::size_to_fit_window()
 	{
 		_statistic_object_count = 0;
 		_statistic_triangle_count = 0;
@@ -106,6 +106,7 @@ namespace cheonsa
 			}
 			else
 			{
+				assert( false );
 				return false;
 			}
 		}
@@ -171,6 +172,8 @@ namespace cheonsa
 		{
 			engine.get_video_interface()->clear_texture( _output, clear_color.a, clear_color.b, clear_color.c, clear_color.d );
 		}
+		_statistic_object_count = 0;
+		_statistic_triangle_count = 0;
 	}
 
 	void_c video_renderer_canvas_c::present()
@@ -210,13 +213,14 @@ namespace cheonsa
 		return _apparent_height;
 	}
 
-	void_c video_renderer_canvas_c::set_apparent_size( sint32_c width, sint32_c height )
+	boolean_c video_renderer_canvas_c::set_apparent_size( sint32_c width, sint32_c height )
 	{
 		assert( _output == nullptr );
 		assert( width > 0 );
 		assert( height > 0 );
 		_apparent_width = width;
 		_apparent_height = height;
+		return size_to_fit_window();
 	}
 
 	video_texture_c * video_renderer_canvas_c::create_readable_copy()
@@ -228,12 +232,12 @@ namespace cheonsa
 		return result;
 	}
 
-	sint32_c video_renderer_canvas_c::get_statistic_object_count()
+	sint32_c video_renderer_canvas_c::get_statistic_object_count() const
 	{
 		return _statistic_object_count;
 	}
 
-	sint32_c video_renderer_canvas_c::get_statistic_triangle_count()
+	sint32_c video_renderer_canvas_c::get_statistic_triangle_count() const
 	{
 		return _statistic_triangle_count;
 	}

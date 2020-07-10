@@ -5,6 +5,8 @@
 #include "cheonsa_input_manager.h"
 #include "cheonsa_video_renderer_canvas.h"
 #include "cheonsa_menu_control_scene.h"
+#include "cheonsa_menu_control_debug_statistics.h"
+#include "cheonsa_menu_control_debug_console.h"
 #include "cheonsa_scene_types.h"
 #include "cheonsa_scene_object.h"
 
@@ -17,6 +19,8 @@ namespace cheonsa
 	// the user interface is the highest level interface between the human user or player and the game.
 	//
 	// it manages a canvas (collection of texture render targets) which is associated with the client window.
+	//
+	// it also manages some menu controls used for debugging: statistics overlay and console window.
 	//
 	// it can associate with one 3d scene at a time.
 	// the 3d scene may contain any number of 3d objects and 3d menu controls (2d menu controls positioned in 3d space).
@@ -41,7 +45,7 @@ namespace cheonsa
 		box32x2_c _local_box; // used to lay out root controls that use anchor layout, because they need a rectangle to anchor to. minimum will always be (0, 0). maximum will be (width, height). this is the "window" area of the user interface.
 		//box32x2_c _effective_local_box; // the client window is borderless, but it has "imaginary" edges and title bar, so this rectangle is a little smaller. this area is guranteed to be clickable by the user. this rectangle is used when finding pop up rectangles.
 
-		video_renderer_canvas_c * _canvas_and_output; // canvas and output associated with operating system window that this user interface will render to.
+		video_renderer_canvas_c * _output_canvas; // the main canvas, with an "output" (on screen (rather than off-screen)) render target that is associated with engine's operating system client window. this is the main canvas that the engine renders to.
 
 		scene_c * _scene; // this scene needs to be set by the game. it will be the world that the user experiences. this scene is rendered behind all of the 2d menus.
 
@@ -80,19 +84,27 @@ namespace cheonsa
 
 		void_c _handle_modal_screen_on_is_showed_changed( menu_event_information_c event_information );
 
+		boolean_c _update_canvas();
+
+	private:
+		// built in controls for "debugging" "convenience".
+		menu_control_debug_statistics_c * _debug_statistics;
+		menu_control_debug_console_c * _debug_console;
+
 	private:
 		user_interface_c();
 		~user_interface_c();
 
 		boolean_c start( void_c * window_handle );
 
-		void_c update_canvas();
 		void_c update( float32_c time_step ); // time_step here is the time since last update, updates animations, deletes controls that want to be deleted.
 		void_c render_and_present( float32_c time_step ); // time_step here is the time since last render, which is used to calculate per-second statistics. also resolves the 3d pixel perfect pick query.
 
 	public:
 		box32x2_c const & get_local_box() const; // gets a rectangle that can be used to lay out 2d menu controls in the client window.
 		core_event_c< void_c, user_interface_c * > on_local_box_changed; // is invoked when local box changes, and before 2d menu controls are laid out again.
+
+		video_renderer_canvas_c const * get_canvas() const;
 
 		scene_c * get_scene() const; // gets the scene that is associated with this user interface.
 		void_c set_scene( scene_c * scene ); // sets the scene to associate with this user interface. if the current scene has any 3d menu controls, then they will be removed from this user interface. if the new scene has any 3d menu controls, then they will be added to this user interface. you can set it to nullptr to disassociate.

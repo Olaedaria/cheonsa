@@ -1812,7 +1812,7 @@ namespace cheonsa
 			if ( FAILED( h_result ) )
 			{
 				_error_messages = reinterpret_cast< char8_c * >( d3d11_error_messages->GetBufferPointer() );
-				debug_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
+				debug_log( debug_log_type_e_error, _error_messages.character_list.get_internal_array() );
 				d3d11_error_messages->Release();
 				return;
 			}
@@ -1942,7 +1942,7 @@ namespace cheonsa
 			if ( FAILED( h_result ) )
 			{
 				_error_messages = reinterpret_cast< char8_c * >( d3d11_error_messages->GetBufferPointer() );
-				debug_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
+				debug_log( debug_log_type_e_error, _error_messages.character_list.get_internal_array() );
 				d3d11_error_messages->Release();
 				return;
 			}
@@ -2034,7 +2034,7 @@ namespace cheonsa
 			if ( FAILED( h_result ) )
 			{
 				_error_messages = reinterpret_cast< char8_c * >( d3d11_error_messages->GetBufferPointer() );
-				debug_log( log_type_e_error, _error_messages.character_list.get_internal_array() );
+				debug_log( debug_log_type_e_error, _error_messages.character_list.get_internal_array() );
 				d3d11_error_messages->Release();
 				return;
 			}
@@ -2130,6 +2130,7 @@ namespace cheonsa
 			sint32_c client_size_b = client_rectangle.bottom - client_rectangle.top;
 			if ( client_size_a == 0 || client_size_b == 0 )
 			{
+				assert( false );
 				return false;
 			}
 
@@ -2204,6 +2205,7 @@ namespace cheonsa
 			assert( SUCCEEDED( h_result ) );
 			if ( !SUCCEEDED( h_result ) )
 			{
+				assert( false );
 				return false;
 			}
 
@@ -2212,6 +2214,7 @@ namespace cheonsa
 			assert( SUCCEEDED( h_result ) );
 			if ( !SUCCEEDED( h_result ) )
 			{
+				assert( false );
 				return false;
 			}
 

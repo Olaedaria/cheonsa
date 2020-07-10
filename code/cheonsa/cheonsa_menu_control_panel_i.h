@@ -42,17 +42,17 @@ namespace cheonsa
 		box32x2_c const & _get_client_margins() const;
 		void_c _set_client_margins( box32x2_c const & value );
 
-		menu_visibility_mode_e _horizontal_scroll_bar_visibility_mode;
-		menu_control_scroll_bar_x_c * _horizontal_scroll_bar;
-		menu_visibility_mode_e _get_horizontal_scroll_bar_visibility_mode() const;
-		void_c _set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value );
-		void_c _lay_out_horizontal_scroll_bar();
+		menu_visibility_mode_e _scroll_bar_x_visibility_mode;
+		menu_control_scroll_bar_x_c * _scroll_bar_x;
+		menu_visibility_mode_e _get_scroll_bar_x_visibility_mode() const;
+		void_c _set_scroll_bar_x_visibility_mode( menu_visibility_mode_e value );
+		void_c _lay_out_scroll_bar_x();
 
-		menu_visibility_mode_e _vertical_scroll_bar_visibility_mode;
-		menu_control_scroll_bar_y_c * _vertical_scroll_bar;
-		menu_visibility_mode_e _get_vertical_scroll_bar_visibility_mode() const;
-		void_c _set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value );
-		void_c _lay_out_vertical_scroll_bar();
+		menu_visibility_mode_e _scroll_bar_y_visibility_mode;
+		menu_control_scroll_bar_y_c * _scroll_bar_y;
+		menu_visibility_mode_e _get_scroll_bar_y_visibility_mode() const;
+		void_c _set_scroll_bar_y_visibility_mode( menu_visibility_mode_e value );
+		void_c _lay_out_scroll_bar_y();
 
 		virtual void_c _update_transform_and_layout() override;
 

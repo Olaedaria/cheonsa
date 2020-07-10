@@ -39,11 +39,11 @@ namespace cheonsa
 		boolean_c get_word_wrap() const;
 		void_c set_word_wrap( boolean_c value );
 
-		menu_text_align_horizontal_e get_text_align_horizontal() const;
-		void_c set_text_align_horizontal( menu_text_align_horizontal_e value );
+		menu_text_align_x_e get_text_align_x() const;
+		void_c set_text_align_x( menu_text_align_x_e value );
 
-		menu_text_align_vertical_e get_text_align_vertical() const;
-		void_c set_text_align_vertical( menu_text_align_vertical_e value );
+		menu_text_align_y_e get_text_align_y() const;
+		void_c set_text_align_y( menu_text_align_y_e value );
 
 	};
 

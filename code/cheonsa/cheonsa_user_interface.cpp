@@ -8,6 +8,12 @@
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
+#define debug_key_toggle_console input_keyboard_key_e_f1
+#define debug_key_toggle_menu_bounds input_keyboard_key_e_f2
+#define debug_key_toggle_scene_bounds input_keyboard_key_e_f3
+#define debug_key_toggle_stats input_keyboard_key_e_f4
+#define debug_key_refresh_resources input_keyboard_key_e_f5
+
 #if defined( cheonsa_platform_windows )
 #include <windows.h>
 #endif
@@ -263,7 +269,7 @@ namespace cheonsa
 						_multi_click_position = input_event->get_mouse_position();
 						if ( _multi_click_count == 1 )
 						{
-							_bubble_input_event( _mouse_focused, input_event );
+							_mouse_focused->_on_input( input_event );
 						}
 						else
 						{
@@ -320,7 +326,7 @@ namespace cheonsa
 				}
 				if ( _mouse_focused ) // it's possible for _mouse_focused to be lost if _on_is_pressed_changed or _on_clicked did something.
 				{
-					_bubble_input_event( _mouse_focused, input_event );
+					_mouse_focused->_on_input( input_event );
 				}
 			}
 			else
@@ -344,13 +350,14 @@ namespace cheonsa
 		}
 		else if ( input_event->get_type() == input_event_c::type_e_mouse_wheel )
 		{
+			// bubble wheel events up the hierarchy so that scroll bars get a chance to respond.
 			_bubble_input_event( _mouse_overed, input_event );
 		}
 		else if ( input_event->get_type() != input_event_c::type_e_mouse_move ) // because we bubbled the input event for mouse move at the start (special treatment), we'll pass bubbling it here if event was mouse move.
 		{
 			if ( _text_focused )
 			{
-				_bubble_input_event( _text_focused, input_event );
+				_text_focused->_on_input( input_event );
 			}
 		}
 
@@ -367,68 +374,17 @@ namespace cheonsa
 		set_text_focused( next_text_focused );
 	}
 
-	user_interface_c::user_interface_c()
-		: _local_box()
-		, _canvas_and_output( nullptr )
-		, _scene( nullptr )
-		, _daughter_control_list()
-		, _text_focused_stack()
-		, _mouse_overed( nullptr )
-		, _mouse_focused( nullptr )
-		, _text_focused( nullptr )
-		, _is_mouse_overed( false )
-		, _is_set_text_focused_changing( false )
-		, _multi_click_control( nullptr )
-		, _multi_click_time( 0 )
-		, _multi_click_position()
-	{
-	}
-
-	user_interface_c::~user_interface_c()
-	{
-		core_list_c< menu_control_c * > daughter_controls_to_remove; // take stock of the non-supplemental controls to remove.
-		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
-		while ( daughter_control_list_node )
-		{
-			if ( daughter_control_list_node->get_value()->_supplemental_mother_control == nullptr )
-			{
-				daughter_controls_to_remove.insert( -1, daughter_control_list_node->get_value() );
-			}
-			daughter_control_list_node = daughter_control_list_node->get_next();
-		}
-		for ( sint32_c i = 0; i < daughter_controls_to_remove.get_length(); i++ ) // remove the non-supplemental controls.
-		{
-			remove_daughter_control( daughter_controls_to_remove[ i ] );
-		}
-		assert( _daughter_control_list.get_length() == 0 ); // all controls (non-supplemental and supplemental) should be removed now.
-
-		delete _canvas_and_output;
-		_canvas_and_output = nullptr;
-		_scene = nullptr;
-		_mouse_overed = nullptr;
-		_mouse_focused = nullptr;
-		_text_focused = nullptr;
-		_is_mouse_overed = false;
-		_is_set_text_focused_changing = false;
-	}
-
-	boolean_c user_interface_c::start( void_c * window_handle )
-	{
-		assert( window_handle );
-
-		_canvas_and_output = new video_renderer_canvas_c( true, true, window_handle );
-
-		update_canvas();
-
-		return true;
-	}
-
-	void_c user_interface_c::update_canvas()
+	boolean_c user_interface_c::_update_canvas()
 	{
 		// update canvas and size.
-		_canvas_and_output->update();
-		sint32_c width = _canvas_and_output->get_apparent_width();
-		sint32_c height = _canvas_and_output->get_apparent_height();
+		if ( !_output_canvas->size_to_fit_window() )
+		{
+			//assert( false );
+			return false;
+		}
+
+		sint32_c width = _output_canvas->get_apparent_width();
+		sint32_c height = _output_canvas->get_apparent_height();
 		if ( width < 100 )
 		{
 			width = 100;
@@ -462,14 +418,94 @@ namespace cheonsa
 				control_list_node = control_list_node->get_next();
 			}
 
+			if ( _debug_console )
+			{
+				_debug_console->center();
+			}
+
 			on_local_box_changed.invoke( this );
 		}
+
+		return true;
+	}
+
+	user_interface_c::user_interface_c()
+		: _local_box()
+		, _output_canvas( nullptr )
+		, _scene( nullptr )
+		, _daughter_control_list()
+		, _text_focused_stack()
+		, _mouse_overed( nullptr )
+		, _mouse_focused( nullptr )
+		, _text_focused( nullptr )
+		, _is_mouse_overed( false )
+		, _is_set_text_focused_changing( false )
+		, _multi_click_control( nullptr )
+		, _multi_click_time( 0 )
+		, _multi_click_position()
+		, _debug_statistics( nullptr )
+		, _debug_console( nullptr )
+	{
+	}
+
+	user_interface_c::~user_interface_c()
+	{
+		core_list_c< menu_control_c * > daughter_controls_to_remove; // take stock of the non-supplemental controls to remove.
+		core_linked_list_c< menu_control_c * >::node_c const * daughter_control_list_node = _daughter_control_list.get_first();
+		while ( daughter_control_list_node )
+		{
+			if ( daughter_control_list_node->get_value()->_supplemental_mother_control == nullptr )
+			{
+				daughter_controls_to_remove.insert( -1, daughter_control_list_node->get_value() );
+			}
+			daughter_control_list_node = daughter_control_list_node->get_next();
+		}
+		for ( sint32_c i = 0; i < daughter_controls_to_remove.get_length(); i++ ) // remove the non-supplemental controls.
+		{
+			remove_daughter_control( daughter_controls_to_remove[ i ] );
+		}
+		assert( _daughter_control_list.get_length() == 0 ); // all controls (non-supplemental and supplemental) should be removed now.
+
+		delete _output_canvas;
+		_output_canvas = nullptr;
+		_scene = nullptr;
+		_mouse_overed = nullptr;
+		_mouse_focused = nullptr;
+		_text_focused = nullptr;
+		_is_mouse_overed = false;
+		_is_set_text_focused_changing = false;
+	}
+
+	boolean_c user_interface_c::start( void_c * window_handle )
+	{
+		assert( _output_canvas == nullptr );
+		assert( window_handle );
+
+		_output_canvas = new video_renderer_canvas_c( true, true, window_handle );
+		assert( _output_canvas );
+		if ( !_output_canvas )
+		{
+			debug_log( debug_log_type_e_error, string8_c( "could not create output canvas.", core_list_mode_e_static ) );
+			return false;
+		}
+
+		_update_canvas();
+
+		_debug_statistics = new menu_control_debug_statistics_c();
+		add_daughter_control( _debug_statistics );
+
+		_debug_console = new menu_control_debug_console_c();
+		add_daughter_control( _debug_console );
+		_debug_console->center();
+		_debug_console->set_is_showed_immediately( false );
+
+		return true;
 	}
 
 	void_c user_interface_c::update( float32_c time_step )
 	{
 		// update canvas.
-		update_canvas();
+		_update_canvas();
 
 		// process input events.
 		boolean_c wants_to_refresh_resources = false;
@@ -481,19 +517,25 @@ namespace cheonsa
 			// check for engine hot keys.
 			if ( input_event.get_type() == input_event_c::type_e_keyboard_key_pressed )
 			{
-				if ( input_event.get_keyboard_key() == debug_key_toggle_console )
+				if ( input_event.get_keyboard_key() == input_keyboard_key_e_f1 )
 				{
-					engine.get_debug_manager()->set_console_is_showing( !engine.get_debug_manager()->get_console_is_showing() );
+					_debug_statistics->set_is_showed( !_debug_statistics->get_is_showed() );
 				}
-				else if ( input_event.get_keyboard_key() == debug_key_toggle_stats )
+				else if ( input_event.get_keyboard_key() == input_keyboard_key_e_f2 )
 				{
-					engine.get_debug_manager()->set_statistics_is_showing( !engine.get_debug_manager()->get_statistics_is_showing() );
+					_debug_console->set_is_showed( !_debug_console->get_is_showed() );
 				}
-				else if ( input_event.get_keyboard_key() == debug_key_toggle_menu_bounds )
+				else if ( input_event.get_keyboard_key() == input_keyboard_key_e_f3 )
 				{
 					engine.get_debug_manager()->set_draw_menu_bounds( !engine.get_debug_manager()->get_draw_menu_bounds() );
 				}
-				else if ( input_event.get_keyboard_key() == debug_key_refresh_resources )
+				else if ( input_event.get_keyboard_key() == input_keyboard_key_e_f4 )
+				{
+					engine.get_debug_manager()->set_draw_object_axes( !engine.get_debug_manager()->get_draw_object_axes() );
+					engine.get_debug_manager()->set_draw_object_bounds( !engine.get_debug_manager()->get_draw_object_bounds() );
+					engine.get_debug_manager()->set_draw_object_bones( !engine.get_debug_manager()->get_draw_object_bones() );
+				}
+				else if ( input_event.get_keyboard_key() == input_keyboard_key_e_f5 )
 				{
 					engine.get_content_manager()->queue_refresh();
 				}
@@ -548,24 +590,29 @@ namespace cheonsa
 		{
 			clear_color = _scene->get_clear_color();
 		}
-		_canvas_and_output->clear( clear_color );
+		_output_canvas->clear( clear_color );
 
 		// render 3d scene and 3d menus to canvas.
 		if ( _scene )
 		{
-			engine.get_video_renderer_interface()->render_scene( _scene, &_scene->get_camera(), _canvas_and_output );
+			engine.get_video_renderer_interface()->render_scene( _scene, &_scene->get_camera(), _output_canvas );
 		}
 
 		// render 2d menus to canvas.
 		engine.get_video_renderer_interface()->render_menu2( this );
 
 		// flip canvas back buffer to output window.
-		_canvas_and_output->present();
+		_output_canvas->present();
 	}
 
 	box32x2_c const & user_interface_c::get_local_box() const
 	{
 		return _local_box;
+	}
+
+	video_renderer_canvas_c const * user_interface_c::get_canvas() const
+	{
+		return _output_canvas;
 	}
 
 	scene_c * user_interface_c::get_scene() const

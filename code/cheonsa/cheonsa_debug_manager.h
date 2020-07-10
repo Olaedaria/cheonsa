@@ -3,16 +3,33 @@
 #include "cheonsa__types.h"
 #include "cheonsa_data_stream_file.h"
 #include "cheonsa_core_circle_buffer.h"
+#include "cheonsa_core_event.h"
 
 namespace cheonsa
 {
 
-	enum log_type_e
+	enum debug_log_type_e
 	{
-		log_type_e_information, // white.
-		log_type_e_okay, // green-yellow.
-		log_type_e_warning, // yellow.
-		log_type_e_error, // red-orange.
+		debug_log_type_e_information, // white.
+		debug_log_type_e_okay, // green-yellow.
+		debug_log_type_e_warning, // yellow.
+		debug_log_type_e_error, // red-orange.
+	};
+
+	class debug_log_message_c
+	{
+		friend class debug_manager_c;
+
+	private:
+		debug_log_type_e _type;
+		string16_c _message;
+
+	public:
+		debug_log_message_c();
+
+		debug_log_type_e get_type() const;
+		string16_c const & get_message() const;
+
 	};
 
 	// defines which debug overlays for the renderer to render.
@@ -48,16 +65,6 @@ namespace cheonsa
 
 		boolean_c _statistics_is_showing;
 		string16_c _statistics_text;
-
-		struct console_line_c
-		{
-			log_type_e type;
-			string16_c message;
-			console_line_c & operator = ( console_line_c const & other );
-		};
-
-		boolean_c _console_is_showing;
-		core_circle_buffer_c< console_line_c > _console_lines;
 
 		debug_manager_c();
 		~debug_manager_c();
@@ -113,17 +120,18 @@ namespace cheonsa
 		inline boolean_c get_draw_object_physics() const { return _draw_object_physics; }
 		inline void_c set_draw_object_physics( boolean_c value ) { _draw_object_physics = value; }
 
-		boolean_c get_statistics_is_showing();
-		void_c set_statistics_is_showing( boolean_c value );
+		void_c _log( debug_log_type_e type, string16_c const & message ); // don't call this directly, prefer to call debug_log() instead.
 
-		boolean_c get_console_is_showing();
-		void_c set_console_is_showing( boolean_c value );
-
-		void_c _log( log_type_e type, string16_c const & message ); // don't call this directly, prefer to call debug_log() instead.
+		core_event_c< void_c, debug_log_message_c const & > on_message_logged; // this event is invoked each time a message is logged with debug_log or debug_annoy.
 
 	};
 
-	void_c debug_log( log_type_e type, char16_c const * message ); // if debugging then writes a message to the debug output in the ide. if the debug manager is started then it also writes a message to the engine's log file and console.
+	void_c debug_log( debug_log_type_e type, char8_c const * message ); // if debugging then writes a message to the debug output in the ide. if the debug manager is started then it also writes a message to the engine's log file and console.
+	void_c debug_log( debug_log_type_e type, string8_c const & message );
+	void_c debug_log( debug_log_type_e type, char16_c const * message ); // if debugging then writes a message to the debug output in the ide. if the debug manager is started then it also writes a message to the engine's log file and console.
+	void_c debug_log( debug_log_type_e type, string16_c const & message );
+
+	void_c debug_annoy( char8_c const * title, char8_c const * message );
 	void_c debug_annoy( char16_c const * title, char16_c const * message ); // this will open up an operating system message box pop up window with an OK button, it blocks execution until the user dismisses it.
 
 }

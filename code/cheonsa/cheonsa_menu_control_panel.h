@@ -20,11 +20,11 @@ namespace cheonsa
 		menu_control_panel_c();
 		virtual ~menu_control_panel_c() override;
 
-		menu_visibility_mode_e get_horizontal_scroll_bar_visibility_mode() const;
-		void_c set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value );
+		menu_visibility_mode_e get_scroll_bar_x_visibility_mode() const;
+		void_c set_scroll_bar_x_visibility_mode( menu_visibility_mode_e value );
 
-		menu_visibility_mode_e get_vertical_scroll_bar_visibility_mode() const;
-		void_c set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value );
+		menu_visibility_mode_e get_scroll_bar_y_visibility_mode() const;
+		void_c set_scroll_bar_y_visibility_mode( menu_visibility_mode_e value );
 
 		void_c update_scroll_bar_visibility();
 

@@ -3645,7 +3645,7 @@ namespace cheonsa
 			return;
 		}
 
-		video_renderer_canvas_c const * canvas = user_interface->_canvas_and_output;
+		video_renderer_canvas_c const * canvas = user_interface->_output_canvas;
 		video_texture_c * output_target = canvas->_output ? canvas->_output->get_texture_resource() : canvas->_target_color_final;
 		assert( output_target );
 

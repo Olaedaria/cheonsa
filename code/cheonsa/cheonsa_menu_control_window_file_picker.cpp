@@ -77,8 +77,8 @@ namespace cheonsa
 				else
 				{
 					_message_dialog->set_mode( menu_control_window_message_c::mode_e_okay );
-					_message_dialog->set_title_bar_text_value( string16_c( L"unrecognized file type.", core_list_mode_e_static ) );
-					_message_dialog->set_message_text_value( string16_c( L"this program does not recognize that type of file.", core_list_mode_e_static ) );
+					_message_dialog->set_title_plain_text_value( string8_c( "unrecognized file type.", core_list_mode_e_static ) );
+					_message_dialog->set_message_plain_text_value( string8_c( "this program does not recognize that type of file.", core_list_mode_e_static ) );
 					_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
 					_message_dialog->center();
 				}
@@ -89,8 +89,8 @@ namespace cheonsa
 			if ( ops::file_system_does_file_exist( file_path_absolute ) )
 			{
 				_message_dialog->set_mode( menu_control_window_message_c::mode_e_no_yes );
-				_message_dialog->set_title_bar_text_value( string16_c( L"that file already exists.", core_list_mode_e_static ) );
-				_message_dialog->set_message_text_value( string16_c( L"do you want to over write the existing file?", core_list_mode_e_static ) );
+				_message_dialog->set_title_plain_text_value( string8_c( "that file already exists.", core_list_mode_e_static ) );
+				_message_dialog->set_message_plain_text_value( string8_c( "do you want to over write the existing file?", core_list_mode_e_static ) );
 				_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
 				_message_dialog->center();
 				_message_dialog_is_asking_for_over_write = true;
@@ -284,7 +284,9 @@ namespace cheonsa
 		, _message_dialog_is_asking_for_over_write( false )
 		, _message_dialog( nullptr )
 	{
+		set_user_can_resize( true );
 		set_size( vector32x2_c( default_size.a, default_size.b ) );
+		set_title_plain_text_value( string8_c( "file picker", core_list_mode_e_static ) );
 
 		_folder_path_text = new menu_control_text_c();
 		_folder_path_text->set_name( string8_c( "folder_path_text", core_list_mode_e_static ) );

@@ -12,24 +12,24 @@ namespace cheonsa
 	{
 	}
 
-	menu_visibility_mode_e menu_control_panel_c::get_horizontal_scroll_bar_visibility_mode() const
+	menu_visibility_mode_e menu_control_panel_c::get_scroll_bar_x_visibility_mode() const
 	{
-		return _get_horizontal_scroll_bar_visibility_mode();
+		return _get_scroll_bar_x_visibility_mode();
 	}
 
-	void_c menu_control_panel_c::set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value )
+	void_c menu_control_panel_c::set_scroll_bar_x_visibility_mode( menu_visibility_mode_e value )
 	{
-		_set_horizontal_scroll_bar_visibility_mode( value );
+		_set_scroll_bar_x_visibility_mode( value );
 	}
 
-	menu_visibility_mode_e menu_control_panel_c::get_vertical_scroll_bar_visibility_mode() const
+	menu_visibility_mode_e menu_control_panel_c::get_scroll_bar_y_visibility_mode() const
 	{
-		return _get_vertical_scroll_bar_visibility_mode();
+		return _get_scroll_bar_y_visibility_mode();
 	}
 
-	void_c menu_control_panel_c::set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value )
+	void_c menu_control_panel_c::set_scroll_bar_y_visibility_mode( menu_visibility_mode_e value )
 	{
-		_set_vertical_scroll_bar_visibility_mode( value );
+		_set_scroll_bar_y_visibility_mode( value );
 	}
 
 	void_c menu_control_panel_c::update_scroll_bar_visibility()

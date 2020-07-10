@@ -69,7 +69,7 @@ namespace cheonsa
 		{
 		public:
 			sint32_c _character_start; // index of first character within _plain_text that belongs to this text line.
-			sint32_c _character_end; // index of last character within _plain_text that belongs to this text line. if this is the last line in the paragraph then this is the index of the paragraph's terminating new line character.
+			sint32_c _character_end; // index of last character within _plain_text that belongs to this text line. if this is the last line in the paragraph then this is the index of the paragraph's terminating new line character. if this is a virtual line within the paragraph, then this does not include any terminating new line character.
 			float32_c _width; // total measured width of the contents of this line, which is used to calculate _left base on horizontal text alignment.
 			float32_c _left; // offset of the left edge of this line from the left edge of the paragraph or text element, after taking into account the horizontal text alignment.
 			float32_c _top; // offset from top edge of mother paragraph to top edge of this line. this includes style line spacing.
@@ -81,7 +81,7 @@ namespace cheonsa
 
 			text_line_c & operator = ( text_line_c const & other );
 
-			void_c _update_horizontal_layout( menu_text_align_horizontal_e text_align_horizontal, float32_c element_width );
+			void_c _update_horizontal_layout( menu_text_align_x_e text_align_x, float32_c element_width );
 
 		};
 
@@ -201,7 +201,7 @@ namespace cheonsa
 			menu_element_text_c * _mother_text_element; // the mother text element that owns this paragraph.
 
 			sint32_c _character_start; // index of first character within _plain_text that belongs to this paragraph.
-			sint32_c _character_end; // index of last character within _plain_text that belongs to this paragraph, including this paragraph's terminating new line character. in the case that the paragraph only contains the (bare minimum) new line character, then _character_start will equal _character_end.
+			sint32_c _character_end; // index of last character within _plain_text that belongs to this paragraph, including this paragraph's terminating new line character. in the case that the paragraph only contains the (bare minimum) new line character, then _character_end == _character_start.
 
 			menu_text_style_c::reference_c _text_style_reference; // a reference of the text style to apply to text in this paragraph. if it is not defined, then the _style_reference from the text element will be used.
 			void_c _handle_text_style_reference_on_resolved( menu_text_style_c::reference_c const * text_style_reference );
@@ -259,7 +259,7 @@ namespace cheonsa
 			text_line_c const * _get_line_at_character_index( sint32_c character_index, sint32_c * result_line_index ) const;
 			text_line_c * _get_line_at_character_index( sint32_c character_index, sint32_c * result_line_index );
 
-			menu_text_align_horizontal_e _get_style_text_align_horizontal() const; // goes up the inheritance tree to find the horizontal text align for this paragraph.
+			menu_text_align_x_e _get_style_text_align_x() const; // goes up the inheritance tree to find the horizontal text align for this paragraph.
 			float32_c _get_style_paragraph_spacing() const;
 			float32_c _get_style_line_spacing() const;
 			float32_c _get_style_glyph_spacing() const;
@@ -315,13 +315,13 @@ namespace cheonsa
 		sint32_c _text_select_anchor_index_start; // anchored selected range, inclusive.
 		sint32_c _text_select_anchor_index_end; // anchored selected range, exclusive.
 		menu_text_style_c::reference_c _text_style_reference; // the base text style to apply to text in this text element when no other text style is defined (via paragraph and/or span).
-		menu_text_align_horizontal_e _text_align_horizontal; // horizontal text alignment to apply to all of the text, if set then it overrides the value defined by the text _style_reference.
-		menu_text_align_vertical_e _text_align_vertical; // vertical text alignment to apply to all of the text, if set then it overrides the value defined by the text _style_reference.
+		menu_text_align_x_e _text_align_x; // horizontal text alignment to apply to all of the text, if set then it overrides the value defined by the text _style_reference.
+		menu_text_align_y_e _text_align_y; // vertical text alignment to apply to all of the text, if set then it overrides the value defined by the text _style_reference.
 		sint32_c _character_limit; // if greater than or equal to 0 then a character limit enforced on the _plain_text string (this does not include the terminating '\n' and '\0' characters).
 		boolean_c _multi_line; // if true, then pressing enter will insert a new line. if false, and if _is_text_value_modified is true, then pressing enter will invoke on_value_committed and _is_text_value_modified will be set to false.
 		boolean_c _word_wrap; // if true, then automatic word wrapping will be performed.
 		vector32x2_c _content_offset; // translation (usually from scroll bars) that offsets where text is placed within the text element.
-		sint32_c _cursor_index; // the index in _plain_text that the cursor is located at.
+		sint32_c _cursor_index; // the index in _plain_text that the cursor is located at. the cursor is placed to the left side of the glyph that corresponds to this character index.
 		boolean_c _cursor_is_on_previous_line; // because the character index at the end of a virtual (word wrapped) line is the same as the character index at the start of the next line, this determines if the cursor should be drawn at the end of the previous line or not. this is only really needed when clicking and dragging to select a range of characters that includes the end of a virtual line of text, as it will force the cursor to appear at the end of the selected line of text rather than on the next line of text.
 		float32_c _cursor_sticky_x; // cursor will try to stick to this x coordinate when up and down arrows are pressed.
 		float32_c _cursor_time; // accumulates time to drive cursor blink animation.
@@ -365,8 +365,8 @@ namespace cheonsa
 		void_c _set_plain_text_value( string16_c const & value ); // value should be plain text without mark up.
 		boolean_c _set_rich_text_value( string8_c const & value ); // value should be plain text with mark up.
 
-		menu_text_align_vertical_e _get_style_text_align_vertical() const;
-		menu_text_align_horizontal_e _get_style_text_align_horizontal() const;
+		menu_text_align_x_e _get_style_text_align_x() const;
+		menu_text_align_y_e _get_style_text_align_y() const;
 		float32_c _get_style_paragraph_spacing() const;
 		float32_c _get_style_line_spacing() const;
 		float32_c _get_style_glyph_spacing() const;
@@ -421,11 +421,11 @@ namespace cheonsa
 		menu_text_style_c::reference_c const & get_style_reference() const;
 		menu_text_style_c::reference_c & get_style_reference();
 
-		menu_text_align_horizontal_e get_text_align_horizontal() const;
-		void_c set_text_align_horizontal( menu_text_align_horizontal_e value );
+		menu_text_align_x_e get_text_align_x() const;
+		void_c set_text_align_x( menu_text_align_x_e value );
 
-		menu_text_align_vertical_e get_text_align_vertical() const;
-		void_c set_text_align_vertical( menu_text_align_vertical_e value );
+		menu_text_align_y_e get_text_align_y() const;
+		void_c set_text_align_y( menu_text_align_y_e value );
 
 		sint32_c get_character_limit() const;
 		void_c set_character_limit( sint32_c value ); // if needed then this will truncate the existing text value to fit within the new character limit.
@@ -488,8 +488,8 @@ namespace cheonsa
 		// returns true if input event is handled (consumed), false if otherwise.
 		boolean_c handle_on_input( input_event_c * input_event );
 
-		void_c append_line( string16_c const & plain_text ); // appends a line of plain text to the end of the last paragraph. costs more computation time if the last paragraph has a lot of text in it, since all of the text in that paragraph will need to be reflowed.
-		void_c append_paragraph( string16_c const & plain_text ); // appends a line of plain text as a new paragraph. should cost less comptation time than append_line(), but might cost a little more memory than append_line().
+		void_c append_plain_text( string16_c const & plain_text ); // appends a line of plain text to the end of the last paragraph. costs more computation time if the last paragraph has a lot of text in it, since all of the text in that paragraph will need to be reflowed.
+		void_c append_plain_text_as_new_paragraph( string16_c const & plain_text ); // appends a line of plain text as a new paragraph. should cost less comptation time than append_line(), but might cost a little more memory than append_line().
 		void_c input_character( char16_c character ); // deletes the currently selected range of text and inserts a printable character (which may be a space or tab). don't use this to insert new lines or paragraphs, use input_return for that instead.
 		void_c input_return( boolean_c shift ); // deletes the currently selected range of text, if shift is false then inserts a new text paragraph else inserts a new line in the existing paragraph/span.
 		void_c input_delete_fore(); // deletes the currently selected range of text or character after the cursor, and merges text paragraphs if needed.

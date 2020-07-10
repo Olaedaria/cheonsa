@@ -99,7 +99,7 @@ namespace cheonsa
 		void_c set_value_increment( float64_c value );
 
 		float64_c get_value() const;
-		void_c set_value( float64_c value );
+		boolean_c set_value( float64_c value );
 
 		float64_c get_value_smoothed() const;
 
@@ -115,7 +115,10 @@ namespace cheonsa
 		float32_c get_fixed_grip_length() const;
 		void_c set_fixed_grip_length( float32_c value );
 
-		void_c inject_mouse_wheel_input( float32_c value ); // scroll bars don't care about mouse wheel events, it's the responsibility of the mother control (which has a larger surface area) to delegate those mouse wheel events to the scroll bar.
+		// scroll bars actually don't respond directly to mouse wheel events.
+		// it's the responsibility of the mother control (which has a larger surface area) to route those mouse wheel events to the scroll bar.
+		// returns true if scroll value changed, false if not. this lets the event bubble up to potentially another scroll bar if the scroll bar is already at its limit.
+		boolean_c inject_mouse_wheel_input( float32_c value );
 
 	public:
 		core_event_c< void_c, menu_control_scroll_bar_i * > on_value_changed_preview; // occurs as the user drags the mouse.

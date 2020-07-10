@@ -9,7 +9,7 @@ namespace cheonsa
 		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
 		, _frame_style()
 	{
-		_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
+		_frame_style.texture_map_mode = menu_texture_map_mode_e_scale_to_fit;
 
 		_frame_element.set_override_style( &_frame_style );
 		_add_daughter_element( &_frame_element );
@@ -51,15 +51,15 @@ namespace cheonsa
 
 	menu_control_image_c::mode_e menu_control_image_c::get_mode() const
 	{
-		if ( _frame_style.texture_map_mode == menu_frame_style_c::texture_map_mode_e_stretch )
+		if ( _frame_style.texture_map_mode == menu_texture_map_mode_e_stretch )
 		{
 			return mode_e_stretch;
 		}
-		else if ( _frame_style.texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fit )
+		else if ( _frame_style.texture_map_mode == menu_texture_map_mode_e_scale_to_fit )
 		{
 			return mode_e_scale_to_fit;
 		}
-		else if ( _frame_style.texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fill )
+		else if ( _frame_style.texture_map_mode == menu_texture_map_mode_e_scale_to_fill )
 		{
 			return mode_e_scale_to_fill;
 		}
@@ -71,15 +71,15 @@ namespace cheonsa
 	{
 		if ( mode == mode_e_stretch )
 		{
-			_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_stretch;
+			_frame_style.texture_map_mode = menu_texture_map_mode_e_stretch;
 		}
 		else if ( mode == mode_e_scale_to_fit )
 		{
-			_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fit;
+			_frame_style.texture_map_mode = menu_texture_map_mode_e_scale_to_fit;
 		}
 		else if ( mode == mode_e_scale_to_fill )
 		{
-			_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_scale_to_fill;
+			_frame_style.texture_map_mode = menu_texture_map_mode_e_scale_to_fill;
 		}
 	}
 

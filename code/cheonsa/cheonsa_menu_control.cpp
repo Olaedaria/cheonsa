@@ -585,23 +585,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "local_anchor" );
 		if ( attribute )
 		{
-			_local_anchor = menu_anchor_e_none;
-			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "left", core_list_mode_e_static ) ) >= 0 )
-			{
-				_local_anchor |= menu_anchor_e_left;
-			}
-			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "top", core_list_mode_e_static ) ) >= 0 )
-			{
-				_local_anchor |= menu_anchor_e_top;
-			}
-			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "right", core_list_mode_e_static ) ) >= 0 )
-			{
-				_local_anchor |= menu_anchor_e_right;
-			}
-			if ( ops::string8_find_index_of_2( attribute->get_value(), string8_c( "bottom", core_list_mode_e_static ) ) >= 0 )
-			{
-				_local_anchor |= menu_anchor_e_bottom;
-			}
+			_local_anchor = menu_anchor_e_from_string( attribute->get_value() );
 		}
 
 		attribute = node->find_attribute( "local_anchor_measures" );

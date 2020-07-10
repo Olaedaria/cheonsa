@@ -43,8 +43,8 @@ namespace cheonsa
 	public:
 		void_c * get_window_handle(); // gets the client window handle, but reinterpreted as a void pointer so that it's platform neutral.
 		void_c set_window_title( string16_c const & value ); // called by client to set title of the window.
-		void_c set_window_icon_big( platform_icon_c * value ); // called by client to set icon of the window. the big icon is shown when alt+tabbing.
-		void_c set_window_icon_small( platform_icon_c * value ); // called by client to set icon of the window. the small icon is shown in the title bar of the window.
+		void_c set_window_icon_big( platform_icon_c * value ); // in windows 10, this is the icon that is shown when alt+tab task switching and in the task bar (with large icon setting). optimal size is 32x32.
+		void_c set_window_icon_small( platform_icon_c * value ); // in windows 10, this is the icon that is shown in the window title bar and in the task bar (with small icon settting). optimal size is 16x16.
 
 		window_state_e get_window_state() const;
 		void_c set_window_state( window_state_e value );

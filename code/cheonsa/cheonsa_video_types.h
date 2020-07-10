@@ -329,9 +329,9 @@ namespace cheonsa
 
 	public:
 		virtual ~video_output_c() = 0;
-		virtual boolean_c update() = 0;
+		virtual boolean_c update() = 0; // this should be called once each frame before rendering, to resize (if needed) the render target (swap chain) to in response to if the (output) window was resized. returns true if okay, false if it encountered some kind of error.
 		virtual video_texture_c * get_texture_resource() const = 0;
-		virtual void_c * get_window_handle() const = 0;
+		virtual void_c * get_window_handle() const = 0; // gets the handle of the window that is associated with this render target (swap chain).
 		virtual void_c present() const = 0;
 
 	};

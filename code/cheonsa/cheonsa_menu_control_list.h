@@ -5,6 +5,8 @@
 namespace cheonsa
 {
 
+	class menu_control_list_c;
+
 	class menu_control_list_item_separator_c
 		: public menu_control_list_item_separator_i
 	{
@@ -16,6 +18,8 @@ namespace cheonsa
 		menu_control_list_item_separator_c();
 		virtual ~menu_control_list_item_separator_c() override;
 
+		menu_control_list_c * get_list() const; // gets the list that this list item is added to, if any.
+
 	};
 
 	class menu_control_list_item_text_c
@@ -25,9 +29,15 @@ namespace cheonsa
 		static inline char8_c const * get_type_name_static() { return "list_item_text"; }
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
+	protected:
+		virtual void_c _on_clicked( input_event_c * input_event ) override;
+		virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
+
 	public:
 		menu_control_list_item_text_c();
 		virtual ~menu_control_list_item_text_c() override;
+
+		menu_control_list_c * get_list() const; // gets the list that this list item is added to, if any.
 
 		void_c set_is_selected( boolean_c is_selected, boolean_c try_to_multi_select );
 

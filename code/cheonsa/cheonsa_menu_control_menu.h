@@ -20,6 +20,8 @@ namespace cheonsa
 		menu_control_menu_item_separator_c();
 		virtual ~menu_control_menu_item_separator_c() override;
 
+		menu_control_menu_c * get_menu() const; // gets the menu control that this menu item is added to, if any.
+
 	};
 
 	// a single menu item in a list of menu items, can have text and an icon.
@@ -41,6 +43,8 @@ namespace cheonsa
 	public:
 		menu_control_menu_item_text_c();
 		virtual ~menu_control_menu_item_text_c() override;
+
+		menu_control_menu_c * get_menu() const; // gets the menu control that this menu item is added to, if any.
 
 		boolean_c get_can_be_checked() const;
 		void_c set_can_be_checked( boolean_c value );

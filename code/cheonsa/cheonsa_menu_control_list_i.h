@@ -80,12 +80,12 @@ namespace cheonsa
 	protected:
 		menu_element_frame_c _frame_element; // name is "frame".
 		menu_element_frame_c _selected_frame_element; // name is "selected_frame". this frame's visibility is toggled when this list item is selected.
+		//menu_element_frame_c _icon_frame_element;
 		menu_element_text_c _text_element; // name is "text".
 
 		void_c _handle_element_text_on_value_changed( menu_element_text_c * element ); // need to invalidate layout of list if text value changes to force reflow of list items.
 
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
-		virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
 
 		virtual void_c _update_daughter_element_animations( float32_c time_step ) override;
 
@@ -134,6 +134,7 @@ namespace cheonsa
 		void_c _set_selected_item_limit( sint32_c value );
 		core_list_c< menu_control_list_item_i * > _selected_item_list; // holds all of the items that currently have their _is_selected state set to true.
 		void_c _deselect_items_over_limit(); // deselects a number of selected items, does not call/invoke _on_selected_item_list_changed.
+		void_c _deselect_all_items();
 
 		void_c _add_item( menu_control_list_item_i * item, sint32_c index );
 		void_c _remove_item( menu_control_list_item_i * item );
@@ -147,6 +148,7 @@ namespace cheonsa
 		virtual void_c _on_selected_item_list_changed(); // is called when the selected items change. does nothing in this base class, but in derived classes it should invoke the associated event.
 		virtual void_c _on_is_mouse_overed_changed() override;
 		virtual void_c _on_is_deep_text_focused_changed( menu_control_c * next_control ) override;
+		virtual void_c _on_clicked( input_event_c * input_event ) override;
 		virtual void_c _on_input( input_event_c * input_event ) override;
 
 		virtual void_c _update_transform_and_layout() override;

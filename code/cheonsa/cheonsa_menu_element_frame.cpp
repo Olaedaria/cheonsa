@@ -40,7 +40,7 @@ namespace cheonsa
 			return;
 		}
 
-		vector32x4_c draw_color = _local_color;
+		vector32x4_c draw_color = _local_color * _mother_control->get_local_color();
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
 		menu_color_style_c * shared_color = nullptr;
 		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
@@ -74,7 +74,7 @@ namespace cheonsa
 		float32_c tile_size[ 2 ];
 		float32_c overlap;
 
-		if ( frame_style->texture_map_mode != menu_frame_style_c::texture_map_mode_e_center )
+		if ( frame_style->texture_map_mode != menu_texture_map_mode_e_center )
 		{
 			// calculate some measurements that are usable in most texture map modes.
 			x[ 0 ] = _local_box.minimum.a; // left edge.
@@ -132,13 +132,13 @@ namespace cheonsa
 			v[ 3 ] *= texture_height_inverse;
 
 			// branch based on texture map mode.
-			if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_stretch )
+			if ( frame_style->texture_map_mode == menu_texture_map_mode_e_stretch )
 			{
 				box32x2_c box( x[ 0 ], y[ 0 ], x[ 3 ], y[ 3 ] );
 				box32x2_c map( u[ 0 ], v[ 0 ], u[ 3 ], v[ 3 ] );
 				_draw_list.append_rectangle( box, map, pixel_shader, texture, draw_color, draw_shared_colors );
 			}
-			else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fit )
+			else if ( frame_style->texture_map_mode == menu_texture_map_mode_e_scale_to_fit )
 			{
 				float32_c texture_aspect_ratio = texture_width / texture_height;
 				float32_c frame_width = _local_box.get_width();
@@ -162,7 +162,7 @@ namespace cheonsa
 				box32x2_c map( 0.0f, 0.0f, 1.0f, 1.0f );
 				_draw_list.append_rectangle( box, map, pixel_shader, texture, draw_color, draw_shared_colors );
 			}
-			else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_scale_to_fill )
+			else if ( frame_style->texture_map_mode == menu_texture_map_mode_e_scale_to_fill )
 			{
 				float32_c texture_aspect_ratio = texture_width / texture_height;
 				float32_c frame_width = _local_box.get_width();
@@ -185,7 +185,7 @@ namespace cheonsa
 				box32x2_c map( -texture_width_scale * 0.5f + 0.5f, -texture_height_scale * 0.5f + 0.5f, texture_width_scale * 0.5f + 0.5f, texture_height_scale * 0.5f + 0.5f );
 				_draw_list.append_rectangle( _local_box, map, pixel_shader, texture, draw_color, draw_shared_colors );
 			}
-			else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_nine_slice_stretch )
+			else if ( frame_style->texture_map_mode == menu_texture_map_mode_e_nine_slice_stretch )
 			{
 				for ( sint32_c row = 0; row < 3; row++ )
 				{
@@ -207,7 +207,7 @@ namespace cheonsa
 					}
 				}
 			}
-			else if ( frame_style->texture_map_mode == menu_frame_style_c::texture_map_mode_e_nine_slice_tile )
+			else if ( frame_style->texture_map_mode == menu_texture_map_mode_e_nine_slice_tile )
 			{
 				float32_c fill_size[ 2 ];
 				fill_size[ 0 ] = x[ 2 ] - x[ 1 ];

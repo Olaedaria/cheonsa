@@ -129,7 +129,7 @@ namespace cheonsa
 			debug_annoy( L"error", L"default_frame_style.texture could not be loaded." );
 			return false;
 		}
-		_default_frame_style.texture_map_mode = menu_frame_style_c::texture_map_mode_e_nine_slice_stretch;
+		_default_frame_style.texture_map_mode = menu_texture_map_mode_e_nine_slice_stretch;
 		_default_frame_style.texture_map_fill_middle = true;
 		_default_frame_style.state_list[ 0 ].texture_map[ 0 ] = 21;
 		_default_frame_style.state_list[ 0 ].texture_map[ 1 ] = 11;
@@ -186,10 +186,10 @@ namespace cheonsa
 		_default_text_style.line_spacing = 0.0f;
 		_default_text_style.glyph_spacing_is_defined = true;
 		_default_text_style.glyph_spacing = 0.0f;
-		_default_text_style.text_align_horizontal_is_defined = true;
-		_default_text_style.text_align_horizontal = menu_text_align_horizontal_e_center;
-		_default_text_style.text_align_vertical_is_defined = true;
-		_default_text_style.text_align_vertical = menu_text_align_vertical_e_center;
+		_default_text_style.text_align_x_is_defined = true;
+		_default_text_style.text_align_x = menu_text_align_x_e_center;
+		_default_text_style.text_align_y_is_defined = true;
+		_default_text_style.text_align_y = menu_text_align_y_e_center;
 		_default_text_style.margin_is_defined = true;
 		_default_text_style.margin = box32x2_c( 4.0f, 4.0f, 4.0f, 4.0f );
 

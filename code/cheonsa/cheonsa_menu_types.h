@@ -84,6 +84,8 @@ namespace cheonsa
 		menu_state_e_disabled,
 		menu_state_e_count_
 	};
+	string8_c menu_state_e_to_string( menu_state_e value );
+	menu_state_e menu_state_e_from_string( string8_c const & value );
 
 	// size mode defines how size of a control is determined.
 	// size mode can be defined independently for x and y axes.
@@ -117,6 +119,8 @@ namespace cheonsa
 		menu_anchor_e_right = 0x04,
 		menu_anchor_e_bottom = 0x08,
 	};
+	string8_c menu_anchor_e_to_string( menu_anchor_e value );
+	menu_anchor_e menu_anchor_e_from_string( string8_c const & value );
 
 	inline menu_anchor_e operator | ( menu_anchor_e a, menu_anchor_e b )
 	{
@@ -132,7 +136,7 @@ namespace cheonsa
 	// determines how a control may be selected by the user.
 	enum menu_select_mode_e : uint8_c
 	{
-		menu_select_mode_e_none,	// this control is not selectable by mouse or directional input, the context will ignore this control when it comes to mouse selection, the context will not set mouse_hit_was_blocked even if the mouse happens to intersect with this control's area.
+		menu_select_mode_e_none, // this control is not selectable by mouse or directional input, the context will ignore this control when it comes to mouse selection, the context will not set mouse_hit_was_blocked even if the mouse happens to intersect with this control's area.
 		menu_select_mode_e_mouse, // this control is selectable by mouse only, the context will set mouse_hit_was_blocked to true if the mouse intersects with this control.
 		menu_select_mode_e_mouse_and_directional, // this control is selectable, the context will set mouse_hit_was_blocked to true if the mouse intersects with this control, the context will also use directional inputs to select neighboring controls.
 	};
@@ -146,22 +150,39 @@ namespace cheonsa
 		menu_visibility_mode_e_automatic,
 	};
 
-	enum menu_text_align_horizontal_e
+	// used with frames to specify how to map the texture to the frame.
+	enum menu_texture_map_mode_e : uint8_c
 	{
-		menu_text_align_horizontal_e_inherit_from_style, // can be set on the text element only, if it wants to inherit horizontal text alignment property from the text style that it has assigned to it.
-		menu_text_align_horizontal_e_left,
-		menu_text_align_horizontal_e_center,
-		menu_text_align_horizontal_e_right,
-		menu_text_align_horizontal_e_justify,
+		menu_texture_map_mode_e_stretch, // stretches a texture over a rectangle, with the size of the edges defined by frame_texture_margins.
+		menu_texture_map_mode_e_scale_to_fit, // scales a texture over a rectangle to fit completely within it, preserves aspect ratio of the texture. some of the rectangle might not be covered if its aspect ratio is different from the texture.
+		menu_texture_map_mode_e_scale_to_fill, // scales a texture over a rectangle to completely cover it, preserves aspect ratio of the texture. some of the texture might be cut off if its aspect ratio is different from the rectangle.
+		menu_texture_map_mode_e_nine_slice_stretch, // nine slice, with the texture stretched over the edges and the middle.
+		menu_texture_map_mode_e_nine_slice_tile, // nine slice, with the texture tiled over the edges and the middle.
+		menu_texture_map_mode_e_center, // single instance texture_map, centered, never scaled (each pixel in texture (texel) maps 1:1 to each pixel in render target), will be clipped if it's larger than dimensions of element.
 	};
+	string8_c menu_texture_map_mode_e_to_string( menu_texture_map_mode_e value );
+	menu_texture_map_mode_e menu_texture_map_mode_e_from_string( string8_c const & value );
 
-	enum menu_text_align_vertical_e
+	enum menu_text_align_x_e
 	{
-		menu_text_align_vertical_e_inherit_from_style, // can be set on the text element only, if it wants to inherit the vertical text alignment property from the text style that it has assigned to it.
-		menu_text_align_vertical_e_top,
-		menu_text_align_vertical_e_center,
-		menu_text_align_vertical_e_bottom,
+		menu_text_align_x_e_inherit_from_style, // can be set on the text element only, if it wants to inherit horizontal text alignment property from the text style that it has assigned to it.
+		menu_text_align_x_e_left,
+		menu_text_align_x_e_center,
+		menu_text_align_x_e_right,
+		menu_text_align_x_e_justify,
 	};
+	string8_c menu_text_align_x_e_to_string( menu_text_align_x_e value );
+	menu_text_align_x_e menu_text_align_x_e_from_string( string8_c const & value );
+
+	enum menu_text_align_y_e
+	{
+		menu_text_align_y_e_inherit_from_style, // can be set on the text element only, if it wants to inherit the vertical text alignment property from the text style that it has assigned to it.
+		menu_text_align_y_e_top,
+		menu_text_align_y_e_center,
+		menu_text_align_y_e_bottom,
+	};
+	string8_c menu_text_align_y_e_to_string( menu_text_align_y_e value );
+	menu_text_align_y_e menu_text_align_y_e_from_string( string8_c const & value );
 
 	enum menu_text_select_mode_e
 	{
@@ -312,17 +333,6 @@ namespace cheonsa
 
 		};
 
-		// used with frames to specify how to map the texture to the frame.
-		enum texture_map_mode_e : uint8_c
-		{
-			texture_map_mode_e_stretch, // stretches a texture over a rectangle, with the size of the edges defined by frame_texture_margins.
-			texture_map_mode_e_scale_to_fit, // scales a texture over a rectangle to fit completely within it, preserves aspect ratio of the texture. some of the rectangle might not be covered if its aspect ratio is different from the texture.
-			texture_map_mode_e_scale_to_fill, // scales a texture over a rectangle to completely cover it, preserves aspect ratio of the texture. some of the texture might be cut off if its aspect ratio is different from the rectangle.
-			texture_map_mode_e_nine_slice_stretch, // nine slice, with the texture stretched over the edges and the middle.
-			texture_map_mode_e_nine_slice_tile, // nine slice, with the texture tiled over the edges and the middle.
-			texture_map_mode_e_center, // single instance texture_map, centered, never scaled (each pixel in texture (texel) maps 1:1 to each pixel in render target), will be clipped if it's larger than dimensions of element.
-		};
-
 		// element appearance properties that can be defined for each visual state.
 		class state_c
 		{
@@ -345,7 +355,7 @@ namespace cheonsa
 	public:
 		string8_c key; // unique key to identify this frame style by.
 		resource_file_texture_c::reference_c texture; // texture to map to the frame.
-		texture_map_mode_e texture_map_mode; // how we want to map the texture to the frame.
+		menu_texture_map_mode_e texture_map_mode; // how we want to map the texture to the frame.
 		boolean_c texture_map_fill_middle; // for nine slice texture mapping modes, this says whether to draw the middle part or not.
 		video_renderer_pixel_shader_c::reference_c pixel_shader_reference; // pixel shader override, if not set then the built-in frame pixel shader will be used.
 		state_c state_list[ menu_state_e_count_ ];
@@ -444,11 +454,11 @@ namespace cheonsa
 		boolean_c glyph_spacing_is_defined;
 		float32_c glyph_spacing; // extra horizontal spacing in pixels to place between glyphs.
 
-		boolean_c text_align_horizontal_is_defined;
-		menu_text_align_horizontal_e text_align_horizontal; // how to align text in the block (it can only be applied to block types like headers and paragraphs).
+		boolean_c text_align_x_is_defined;
+		menu_text_align_x_e text_align_x; // how to align text in the block (it can only be applied to block types like headers and paragraphs).
 
-		boolean_c text_align_vertical_is_defined;
-		menu_text_align_vertical_e text_align_vertical;
+		boolean_c text_align_y_is_defined;
+		menu_text_align_y_e text_align_y;
 
 		boolean_c margin_is_defined;
 		box32x2_c margin; // space between left, top, right, and bottom edges of text element to where actualy text layout rectangle is.

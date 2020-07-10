@@ -283,9 +283,9 @@ namespace cheonsa
 		, _cancel_button( nullptr )
 		, _okay_button( nullptr )
 	{
-		set_size( vector32x2_c( default_size.a, default_size.b ) );
+		set_size( default_size );
 		set_user_can_resize( false );
-		set_title_bar_text_value( string16_c( L"color picker", core_list_mode_e_static ) );
+		set_title_plain_text_value( string8_c( "color picker", core_list_mode_e_static ) );
 
 		// labels.
 		float32_c label_left = 8;

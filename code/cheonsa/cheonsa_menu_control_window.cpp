@@ -6,9 +6,14 @@ namespace cheonsa
 
 	void_c menu_control_window_c::_apply_client_margins()
 	{
-		_title_bar_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
-		_title_bar_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
-		_set_client_margins( box32x2_c( _edge_size, _edge_size + _top_bar_size + _edge_size, _edge_size, _edge_size + _bottom_bar_size ) );
+		_title_bar_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _title_bar_size ) );
+		_title_bar_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _title_bar_size ) );
+		_set_client_margins( box32x2_c( _edge_size, _edge_size + _title_bar_size + _edge_size, _edge_size, _edge_size ) );
+	}
+
+	void_c menu_control_window_c::_handle_button_on_clicked( menu_event_information_c event_information )
+	{
+		set_is_showed( false );
 	}
 
 	void_c menu_control_window_c::_handle_modal_screen_on_input( menu_event_information_c event_information )
@@ -105,7 +110,7 @@ namespace cheonsa
 					if ( _user_can_move )
 					{
 						// check for intersection with title bar.
-						if ( _grabbed_element == grabbed_element_e_none && local_mouse_position.a > _local_box.minimum.a + _edge_size && local_mouse_position.a < _local_box.maximum.a - _edge_size && local_mouse_position.b > _local_box.minimum.a + _edge_size && local_mouse_position.b <= _local_box.minimum.b + _edge_size + _top_bar_size )
+						if ( _grabbed_element == grabbed_element_e_none && local_mouse_position.a > _local_box.minimum.a + _edge_size && local_mouse_position.a < _local_box.maximum.a - _edge_size && local_mouse_position.b > _local_box.minimum.a + _edge_size && local_mouse_position.b <= _local_box.minimum.b + _edge_size + _title_bar_size )
 						{
 							input_event->set_was_handled( true );
 							_grabbed_element = grabbed_element_e_title_bar;
@@ -233,9 +238,9 @@ namespace cheonsa
 		: menu_control_panel_i()
 		, _title_bar_frame_element( string8_c( "title_bar_frame", core_list_mode_e_static ) )
 		, _title_bar_text_element( string8_c( "title_bar_text", core_list_mode_e_static ) )
+		, _close_button( nullptr )
 		, _edge_size( 8.0f )
-		, _top_bar_size( 30.0f )
-		, _bottom_bar_size( 0.0f )
+		, _title_bar_size( 30.0f )
 		, _user_can_move( true )
 		, _user_can_resize( true )
 		, _minimum_size( 100.0f, 100.0f )
@@ -247,11 +252,11 @@ namespace cheonsa
 		set_size( vector32x2_c( 500, 500 ) );
 
 		_title_bar_frame_element.set_shared_color_class( menu_shared_color_class_e_window );
-		_title_bar_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
+		_title_bar_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _title_bar_size ) );
 		_add_daughter_element( &_title_bar_frame_element );
 
 		_title_bar_text_element.set_shared_color_class( menu_shared_color_class_e_window );
-		_title_bar_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _top_bar_size ) );
+		_title_bar_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _title_bar_size ) );
 		_add_daughter_element( &_title_bar_text_element );
 
 		_apply_client_margins();
@@ -268,7 +273,7 @@ namespace cheonsa
 		// constrain window title bar to stay in bounds of user interface.
 		if ( _mother_user_interface )
 		{
-			float32_c cap_bottom = _mother_user_interface->get_local_box().maximum.b - engine.get_window_manager()->get_window_edge_thickness() - _top_bar_size;
+			float32_c cap_bottom = _mother_user_interface->get_local_box().maximum.b - engine.get_window_manager()->get_window_edge_thickness() - _title_bar_size;
 			if ( _local_origin.b > cap_bottom )
 			{
 				_local_origin.b = cap_bottom;
@@ -294,22 +299,45 @@ namespace cheonsa
 		}
 	}
 
-	string16_c menu_control_window_c::get_title_bar_text_value() const
+	boolean_c menu_control_window_c::get_close_button_is_enabled() const
+	{
+		return _close_button != nullptr;
+	}
+
+	void_c menu_control_window_c::set_close_button_is_enabled( boolean_c value )
+	{
+		if ( value && _close_button == nullptr )
+		{
+			_close_button = new menu_control_button_c();
+			_close_button->set_name( string8_c( "close_button", core_list_mode_e_static ) );
+			_close_button->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 60.0f, 8.0f, 8.0f, 30.0f ) );
+			_close_button->set_plain_text_value( string16_c( L"\u00d7", core_list_mode_e_static ) );
+			_close_button->on_clicked.subscribe( this, &menu_control_window_c::_handle_button_on_clicked );
+			add_daughter_control( _close_button );
+		}
+		else if ( !value && _close_button != nullptr )
+		{
+			remove_daughter_control( _close_button );
+			_close_button = nullptr;
+		}
+	}
+
+	string16_c menu_control_window_c::get_title_plain_text_value() const
 	{
 		return _title_bar_text_element.get_plain_text_value();
 	}
 
-	void_c menu_control_window_c::set_title_bar_text_value( string8_c const & plain_text )
+	void_c menu_control_window_c::set_title_plain_text_value( string8_c const & plain_text )
 	{
 		_title_bar_text_element.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_control_window_c::set_title_bar_text_value( string16_c const & plain_text )
+	void_c menu_control_window_c::set_title_plain_text_value( string16_c const & plain_text )
 	{
 		_title_bar_text_element.set_plain_text_value( plain_text );
 	}
 
-	void_c menu_control_window_c::clear_title_bar_text_value()
+	void_c menu_control_window_c::clear_title_text_value()
 	{
 		_title_bar_text_element.clear_text_value();
 	}
@@ -334,25 +362,14 @@ namespace cheonsa
 		_user_can_resize = value;
 	}
 
-	float32_c menu_control_window_c::get_top_bar_size() const
+	float32_c menu_control_window_c::get_title_bar_size() const
 	{
-		return _top_bar_size;
+		return _title_bar_size;
 	}
 
-	void_c menu_control_window_c::set_top_bar_size( float32_c value )
+	void_c menu_control_window_c::set_title_bar_size( float32_c value )
 	{
-		_top_bar_size = value;
-		_apply_client_margins();
-	}
-
-	float32_c menu_control_window_c::get_bottom_bar_size() const
-	{
-		return _bottom_bar_size;
-	}
-
-	void_c menu_control_window_c::set_bottom_bar_size( float32_c value )
-	{
-		_bottom_bar_size = value;
+		_title_bar_size = value;
 		_apply_client_margins();
 	}
 
@@ -411,24 +428,24 @@ namespace cheonsa
 		_update_transform_and_layout();
 	}
 
-	menu_visibility_mode_e menu_control_window_c::get_horizontal_scroll_bar_visibility_mode() const
+	menu_visibility_mode_e menu_control_window_c::get_scroll_bar_x_visibility_mode() const
 	{
-		return _get_horizontal_scroll_bar_visibility_mode();
+		return _get_scroll_bar_x_visibility_mode();
 	}
 
-	void_c menu_control_window_c::set_horizontal_scroll_bar_visibility_mode( menu_visibility_mode_e value )
+	void_c menu_control_window_c::set_scroll_bar_x_visibility_mode( menu_visibility_mode_e value )
 	{
-		_set_horizontal_scroll_bar_visibility_mode( value );
+		_set_scroll_bar_x_visibility_mode( value );
 	}
 
-	menu_visibility_mode_e menu_control_window_c::get_vertical_scroll_bar_visibility_mode() const
+	menu_visibility_mode_e menu_control_window_c::get_scroll_bar_y_visibility_mode() const
 	{
-		return _get_vertical_scroll_bar_visibility_mode();
+		return _get_scroll_bar_y_visibility_mode();
 	}
 
-	void_c menu_control_window_c::set_vertical_scroll_bar_visibility_mode( menu_visibility_mode_e value )
+	void_c menu_control_window_c::set_scroll_bar_y_visibility_mode( menu_visibility_mode_e value )
 	{
-		_set_vertical_scroll_bar_visibility_mode( value );
+		_set_scroll_bar_y_visibility_mode( value );
 	}
 
 	sint32_c menu_control_window_c::get_daughter_controls_in_client_count() const
@@ -488,6 +505,16 @@ namespace cheonsa
 			_modal_screen->set_is_showed( false, true );
 			_modal_screen = nullptr;
 		}
+	}
+
+	void_c const * menu_control_window_c::get_dialog_operation() const
+	{
+		return _dialog_operation;
+	}
+
+	void_c menu_control_window_c::set_dialog_operation( void_c const * value )
+	{
+		_dialog_operation = value;
 	}
 
 	menu_dialog_result_e menu_control_window_c::get_dialog_result() const
