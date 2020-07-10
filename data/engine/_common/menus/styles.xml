@@ -41,23 +41,39 @@
 		key="e_window_title_bar_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
-		align_horizontal="left"
-		align_vertical="center"
+		align_x="left"
+		align_y="center"
 		swap_shared_colors="true"/>
 
 	<text
 		key="e_label_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="12.0"
-		align_horizontal="left"
-		align_vertical="center"/>
+		align_x="left"
+		align_y="center"/>
 
 	<text
 		key="e_label_head_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
-		align_horizontal="left"
-		align_vertical="center"/>
+		align_x="left"
+		align_y="center"/>
+
+	<text
+		key="e_tab_button_text"
+		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
+		size="12.0"
+		align_x="center"
+		align_y="center"/>
+	
+	<frame
+		key="e_tab_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_origin="46 11"
+		texture_map_size="8 8"
+		texture_map_edges="2 2 2 6"/>
 
 	<frame
 		key="e_field_frame"
@@ -82,8 +98,8 @@
 		key="e_field_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="12.0"
-		align_horizontal="left"
-		align_vertical="center"/>
+		align_x="left"
+		align_y="center"/>
 
 	<frame
 		key="e_button_frame"
@@ -103,12 +119,36 @@
 			texture_map_edges="3 3 3 3"/>
 	</frame>
 
+	<frame
+		key="e_button_borderless_frame"
+		pixel_shader="menu_ps_frame_keyed.hlsl"
+		texture="menus/atlas.png"
+		texture_map_mode="nine_slice_stretch"
+		texture_map_origin="1 21"
+		texture_map_size="8 8"
+		texture_map_edges="3 3 3 3">
+		<state
+			key="normal"
+			show="false"/>
+		<state
+			key="selected"
+			texture_map_origin="21 1"
+			texture_map_edges="3 3 3 3"/>
+		<state
+			key="pressed"
+			texture_map_origin="21 1"
+			texture_map_edges="3 3 3 3"/>
+		<state
+			key="disabled"
+			show="false"/>
+	</frame>
+
 	<text
 		key="e_button_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
-		align_horizontal="center"
-		align_vertical="center">
+		align_x="center"
+		align_y="center">
 		<state
 			key="selected"
 			swap_shared_colors="true"/>
@@ -121,8 +161,8 @@
 		key="e_button_text_small"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="12.0"
-		align_horizontal="center"
-		align_vertical="center"/>
+		align_x="center"
+		align_y="center"/>
 
 	<frame
 		key="e_button_priority_frame"
@@ -138,8 +178,8 @@
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
 		weight="0.0125"
-		align_horizontal="center"
-		align_vertical="center"/>
+		align_x="center"
+		align_y="center"/>
 
 	<frame
 		key="e_menu_button_frame"
@@ -169,16 +209,16 @@
 		key="e_menu_button_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="16.0"
-		align_horizontal="center"
-		align_vertical="center">
+		align_x="center"
+		align_y="center">
 	</text>
 
 	<text
 		key="e_menu_button_text_small"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
 		size="12.0"
-		align_horizontal="center"
-		align_vertical="center">
+		align_x="center"
+		align_y="center">
 	</text>
 
 	<frame
@@ -190,7 +230,7 @@
 		texture_map_edges="3 3 3 3"/>
 
 	<frame
-		key="e_scroll_rail_frame"
+		key="e_scroll_bar_rail_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
@@ -199,7 +239,7 @@
 		texture_map_edges="3 3 3 3"/>
 
 	<frame
-		key="e_scroll_grip_frame"
+		key="e_scroll_bar_grip_frame"
 		pixel_shader="menu_ps_frame_keyed.hlsl"
 		texture="menus/atlas.png"
 		texture_map_mode="nine_slice_stretch"
@@ -254,7 +294,7 @@
 	<text
 		key="e_list_item_text"
 		font="fonts/DXLBaB-KSCpc-EUC-H.ttf"
-		size="14.0"
+		size="12.0"
 		offset="0.0 0.0"
 		skew="0.0"
 		weight="0.0"
@@ -262,8 +302,8 @@
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
 		glyph_spacing="0.0"
-		align_horizontal="left"
-		align_vertical="center"
+		align_x="left"
+		align_y="center"
 		margin="8 0 8 0">
 		<state
 			key="normal"
@@ -325,8 +365,8 @@
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
 		glyph_spacing="0.0"
-		align_horizontal="left"
-		align_vertical="center"
+		align_x="left"
+		align_y="center"
 		margin="8 0 8 0">
 		<state
 			key="normal"
@@ -371,8 +411,8 @@
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
 		glyph_spacing="0.0"
-		align_horizontal="left"
-		align_vertical="center"/>
+		align_x="left"
+		align_y="center"/>
 
 	<frame
 		key="e_collection_item_selected_frame"
@@ -394,7 +434,8 @@
 		softness="0.0"
 		paragraph_spacing="5.0"
 		line_spacing="0.0"
-		glyph_spacing="0.0"/>
+		glyph_spacing="0.0"
+		align_y="top"/>
 
 	<frame
 		key="e_precision_slider_frame"
@@ -445,6 +486,20 @@
 	<map key="e_button">
 		<item element_name="frame" style_key="e_button_frame"/>
 		<item element_name="text" style_key="e_button_text"/>
+	</map>
+
+	<map key="e_button_borderless">
+		<item element_name="frame" style_key="e_button_borderless_frame"/>
+		<item element_name="text" style_key="e_button_text"/>
+	</map>
+	
+	<map key="e_tab_button">
+		<item element_name="frame" style_key=""/>
+		<item element_name="text" style_key="e_tab_button_text"/>
+	</map>
+	
+	<map key="e_tab_frame">
+		<item element_name="frame" style_key="e_tab_frame"/>
 	</map>
 
 	<map key="e_menu_button">
@@ -506,9 +561,9 @@
 		<item element_name="text" style_key="e_list_item_text"/>
 	</map>
 
-	<map key="e_scroll">
-		<item element_name="rail_frame" style_key="e_scroll_rail_frame"/>
-		<item element_name="grip_frame" style_key="e_scroll_grip_frame"/>
+	<map key="e_scroll_bar">
+		<item element_name="rail_frame" style_key="e_scroll_bar_rail_frame"/>
+		<item element_name="grip_frame" style_key="e_scroll_bar_grip_frame"/>
 	</map>
 
 	<map key="e_file_picker">
@@ -524,10 +579,6 @@
 		<item element_name="column_text" style_key="e_collection_column_text"/>
 		<item element_name="item_selected_frame" style_key="e_collection_item_selected_frame"/>
 		<item element_name="item_text" style_key="e_collection_item_text"/>
-	</map>
-
-	<map key="e_property_inspector">
-		<item element_name="frame" style_key="e_field_frame"/>
 	</map>
 
 	<map key="e_color_slider">

@@ -3,6 +3,7 @@
 #include "cheonsa__types.h"
 #include "cheonsa_string16.h"
 #include "cheonsa_platform_icon.h"
+#include "cheonsa_core_event.h"
 
 namespace cheonsa
 {
@@ -10,9 +11,9 @@ namespace cheonsa
 	enum window_state_e
 	{
 		window_state_e_undefined, // window is not created yet.
-		window_state_e_minimized,
-		window_state_e_normaled,
-		window_state_e_maximized,
+		window_state_e_minimized, // window is minimized, hidden.
+		window_state_e_normaled, // window is normal window.
+		window_state_e_maximized, // window is maximized to fill a screen.
 	};
 
 	// manages creating the game's client window.
@@ -48,6 +49,7 @@ namespace cheonsa
 
 		window_state_e get_window_state() const;
 		void_c set_window_state( window_state_e value );
+		core_event_c< void_c, window_state_e > on_window_state_changed; // is invoked each time the window state changes.
 
 		sint32_c get_window_edge_thickness() const;
 		sint32_c get_window_title_bar_thickness() const;

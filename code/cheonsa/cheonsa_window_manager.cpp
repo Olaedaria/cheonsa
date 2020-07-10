@@ -203,19 +203,18 @@ namespace cheonsa
 					if ( wParam == SIZE_MAXIMIZED )
 					{
 						engine.get_window_manager()->_window_state = window_state_e_maximized;
+						engine.get_window_manager()->on_window_state_changed.invoke( window_state_e_maximized );
 					}
 					else if ( wParam == SIZE_MINIMIZED )
 					{
 						engine.get_window_manager()->_window_state = window_state_e_minimized;
+						engine.get_window_manager()->on_window_state_changed.invoke( window_state_e_minimized );
 					}
 					else if ( wParam == SIZE_RESTORED )
 					{
 						engine.get_window_manager()->_window_state = window_state_e_normaled;
+						engine.get_window_manager()->on_window_state_changed.invoke( window_state_e_normaled );
 					}
-					//if ( engine->interfaces._game )
-					//{
-					//	engine->interfaces._game->on_window_state_changed();
-					//}
 					break;
 				}
 
@@ -508,7 +507,7 @@ namespace cheonsa
 		assert( _window_handle );
 		SetWindowLongPtr( static_cast< HWND >( _window_handle ), GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) ); // associate our global game engine instance with the window.
 
-		//center_client_window();
+		center_client_window();
 		maximize_client_window();
 
 		return true;
