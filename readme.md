@@ -1,5 +1,7 @@
 # cheonsa
 
+support me on [SubscribeStar](https://subscribestar.adult/olaedaria)!
+
 [documentation](https://olaedaria.github.io/cheonsa/) (place holder at the moment)
 
 ## how to build
