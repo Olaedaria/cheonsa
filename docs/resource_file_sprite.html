@@ -1,0 +1,34 @@
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="favicon.png">
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	    <title>(천사) cheonsa / feature list</title>
+	</head>
+	<body>
+		<a href="index.html" class="navigation">&#8598; index</a>
+		<h2>sprite</h2>
+		<div class="code_information">
+			<p>
+				loads ".sprite.xml" files.<br/>
+				(file extension is a suggestion, you may deviate from it).
+			</p>
+		</div>
+		<p>a sprite sheet defines a list of animations, each of which references a texture and defines a list of frames, each of which defines a duration and a rectangle sub-area of the texture.</p>
+		<code class="no_wrap">
+			&lt;sprite&gt; <small>single document level root tag, just to comply with picky xml text editors.</small><br/>
+			&emsp;&lt;animation&gt;<br/>
+			&emsp;&emsp;name="" <small>a unique name to identify this sprite animation by.</small><br/>
+			&emsp;&emsp;texture="sprites/texture.png" <small>a file path to a sprite sheet texture file that has all of the sprite frame images.</small><br/>
+			&emsp;&emsp;font_size="10" <small>only needed if you plan to inline the sprite in text, this tells the text layout logic how to scale the sprite. if the sprite is inlined in a font of the same size, then the sprite will display at 1:1 scale, otherwise it will scale proportionally. the individual frames in the sprite do not need to have this height.</small><br/>
+			&emsp;&emsp;font_horizontal_advance="10"&gt; <small>only needed if you plan to inline the sprite in text, this tells the text layout logic how far to advance the text cursor after printing the sprite.</small><br/>
+			&emsp;&emsp;&lt;frame<br/>
+			&emsp;&emsp;&emsp;box="0 -10 10 0" <small>defines the rectangular region of the sprite quad geometry around the sprite origin in pixels. if the sprite will be inlined in text, then the origin is at the cursor horizontal position (x) and the text baseline (y).</small><br/>
+			&emsp;&emsp;&emsp;map="0 0 10 10" <small>defines the rectangular sub-region of the texture in pixels.</small><br/>
+			&emsp;&emsp;&emsp;duration="0.1"/&gt; <small>duration of this frame in seconds. or 0 for infinite.</small><br/>
+			&emsp;&emsp;<small>insert as many frames as you need.</small><br/>
+			&emsp;&lt;/animation&gt;<br/>
+			&emsp;<small>insert as many animations as you need.</small><br/>
+			&lt;/sprite&gt;
+		</code>
+	</body>
+</html>

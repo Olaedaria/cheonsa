@@ -13,8 +13,9 @@ namespace cheonsa
 
 	menu_control_property_inspector_c::property_field_c::property_field_c()
 		: _reflection_property( nullptr )
+		, _grid_control( nullptr )
 		, _label_control( nullptr )
-		, _text_control( nullptr )
+		, _text_controls{}
 		, _combo_button_control( nullptr )
 		, _scroll_bar_control( nullptr )
 		, _button_control( nullptr )
@@ -40,36 +41,45 @@ namespace cheonsa
 			if ( property_field->_reflection_property->get_type() != data_type_e_category_label )
 			{
 				// property label.
-				property_field->_label_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 0.0f, _y, 0.0f, styled_properties.height_for_property_row ) );
+				property_field->_label_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 8.0f, _y, 0.0f, styled_properties.height_for_property_row ) );
 				_y += styled_properties.height_for_property_row + styled_properties.height_for_property_row_padding;
 
-				float32_c left_indent = 0.0f;
+				box32x2_c field_box;
+				field_box.minimum.a = 16.0f;
+				field_box.minimum.b = _y;
+				field_box.maximum.b = styled_properties.height_for_property_row;
+
 				if ( property_field->_item_list_control == nullptr )
 				{
 					// property edit button.
-					float32_c right = 0.0f;
+					float32_c client_width = _client->get_local_box().get_width();
 					if ( property_field->_button_control )
 					{
-						right = styled_properties.width_for_property_control + styled_properties.width_for_property_control_padding;
+						client_width -= styled_properties.width_for_property_control;
 						property_field->_button_control->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( styled_properties.width_for_property_control, _y, 0.0f, styled_properties.height_for_property_row ) );
+						field_box.maximum.a = styled_properties.width_for_property_control + styled_properties.width_for_property_control_padding;
 					}
 
 					// property editor(s).
-					if ( property_field->_text_control )
+					if ( property_field->_grid_control )
 					{
-						property_field->_text_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( left_indent, _y, right, styled_properties.height_for_property_row ) );
-						_y += styled_properties.height_for_property_row + styled_properties.height_for_property_row_padding;
+						property_field->_grid_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, field_box );
 					}
-					if ( property_field->_combo_button_control )
+					else if ( property_field->_text_controls[ 0 ] )
 					{
-						property_field->_combo_button_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( left_indent, _y, right, styled_properties.height_for_property_row ) );
-						_y += styled_properties.height_for_property_row + styled_properties.height_for_property_row_padding;
+						assert( property_field->_text_controls[ 1 ] == nullptr );
+						property_field->_text_controls[ 0 ]->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, field_box );
+					}
+					else if ( property_field->_combo_button_control )
+					{
+						property_field->_combo_button_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, field_box );
 					}
 					if ( property_field->_scroll_bar_control )
 					{
-						property_field->_scroll_bar_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( left_indent, _y, right, styled_properties.height_for_property_row ) );
-						_y += styled_properties.height_for_property_row + styled_properties.height_for_property_row_padding;
+						property_field->_scroll_bar_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, field_box );
 					}
+
+					_y += styled_properties.height_for_property_row + styled_properties.height_for_property_row_padding;
 				}
 				
 				if ( property_field->_item_list_control )
@@ -81,9 +91,7 @@ namespace cheonsa
 					assert( property_field->_item_move_down_button_control );
 					assert( property_field->_item_sort_button_control );
 
-					float32_c right = styled_properties.width_for_property_control + styled_properties.width_for_property_control_padding;
-
-					property_field->_item_list_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( left_indent, _y, right, styled_properties.height_for_property_list ) );
+					property_field->_item_list_control->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( 8.0f, _y, styled_properties.width_for_property_control + styled_properties.width_for_property_control_padding, styled_properties.height_for_property_list ) );
 
 					float32_c y = _y;
 					property_field->_item_add_button_control->set_layout_box_anchor( menu_anchor_e_top | menu_anchor_e_right, box32x2_c( styled_properties.width_for_property_control, y, 0.0f, styled_properties.height_for_property_row ) );
@@ -174,7 +182,7 @@ namespace cheonsa
 		_y = 0.0f;
 	}
 
-	void_c menu_control_property_inspector_c::_add_controls( reflection_class_c const * reflection_class )
+	void_c menu_control_property_inspector_c::_create_and_add_controls( reflection_class_c const * reflection_class )
 	{
 		assert( _is_muted == false );
 
@@ -192,6 +200,7 @@ namespace cheonsa
 		//property_field->label->set_style_map_key( styled_properties.style_map_key_for_class_label );
 		//_y += styled_properties.height_for_class_row + styled_properties.height_for_class_row_padding;
 
+		_laid_out_width = _local_box.get_width();
 		for ( sint32_c i = 0; i < reflection_class->get_property_count(); i++ )
 		{
 			property_field_c * property_field = new property_field_c();
@@ -220,19 +229,37 @@ namespace cheonsa
 				{
 					if ( property_field->_reflection_property->get_view() != data_view_e_enumeration && property_field->_reflection_property->get_view() != data_view_e_enumeration_flags )
 					{
-						property_field->_text_control = new menu_control_text_c();
-						property_field->_text_control->set_name( string8_c( "property_value_text", core_list_mode_e_static ) );
-						property_field->_text_control->set_user_pointer( property_field );
-						if ( property_field->_reflection_property->get_view() == data_view_e_text )
+						sint32_c effective_type_count = property_field->_reflection_property->get_effective_type_count();
+						if ( effective_type_count > 1 )
 						{
-							property_field->_text_control->set_text_interact_mode( menu_text_interact_mode_e_static );
+							property_field->_grid_control = new menu_control_grid_c();
+							property_field->_grid_control->set_grid_cell_count_x( effective_type_count );
+							_client->add_daughter_control( property_field->_grid_control );
 						}
-						else
+						for ( sint32_c i = 0; i < effective_type_count; i++ )
 						{
-							//property_field->_text_control->on_plain_text_value_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_text_on_plain_text_value_changed_preview );
-							property_field->_text_control->on_plain_text_value_changed.subscribe( this, &menu_control_property_inspector_c::_handle_value_text_on_plain_text_value_changed );
+							property_field->_text_controls[ i ] = new menu_control_text_c();
+							property_field->_text_controls[ i ]->set_name( string8_c( "property_value_text", core_list_mode_e_static ) );
+							property_field->_text_controls[ i ]->set_user_pointer( property_field );
+							if ( property_field->_reflection_property->get_view() == data_view_e_text )
+							{
+								property_field->_text_controls[ i ]->set_text_interact_mode( menu_text_interact_mode_e_static );
+							}
+							else
+							{
+								//property_field->_text_control->on_plain_text_value_changed_preview.subscribe( this, &menu_control_property_inspector_c::_handle_value_text_on_plain_text_value_changed_preview );
+								property_field->_text_controls[ i ]->on_plain_text_value_changed.subscribe( this, &menu_control_property_inspector_c::_handle_value_text_on_plain_text_value_changed );
+							}
+							if ( property_field->_grid_control )
+							{
+								property_field->_text_controls[ i ]->set_grid_cell_index_x( i );
+								property_field->_grid_control->add_daughter_control( property_field->_text_controls[ i ] );
+							}
+							else
+							{
+								_client->add_daughter_control( property_field->_text_controls[ i ] );
+							}
 						}
-						_client->add_daughter_control( property_field->_text_control );
 					}
 				}
 
@@ -292,7 +319,6 @@ namespace cheonsa
 					menu_control_combo_c * combo = new menu_control_combo_c();
 					combo->set_name( string8_c( "property_value_combo", core_list_mode_e_static ) );
 					combo->set_user_pointer( property_field );
-					combo->set_layout_simple( box32x2_c( 0.0f, 0.0f, _local_box.get_width(), 100.0f ) );
 					property_field->_combo_button_control->set_combo_control( combo );
 					if ( property_field->_reflection_property->get_view() == data_view_e_enumeration_flags )
 					{
@@ -390,10 +416,13 @@ namespace cheonsa
 			{
 				property_field->_label_control->set_is_enabled( false );
 			}
-			if ( property_field->_text_control )
+			for ( sint32_c i = 0; i < 4; i++ )
 			{
-				property_field->_text_control->set_is_enabled( false );
-				property_field->_text_control->clear_text_value();
+				if ( property_field->_text_controls[ i ] )
+				{
+					property_field->_text_controls[ i ]->set_is_enabled( false );
+					property_field->_text_controls[ i ]->clear_text_value();
+				}
 			}
 			if ( property_field->_button_control )
 			{
@@ -433,13 +462,12 @@ namespace cheonsa
 		_is_muted = true;
 
 		// convert value to string if needed.
-		if ( property_field->_text_control )
+		for ( sint32_c i = 0; i < 4; i++ )
 		{
-			property_field->_text_control->set_is_enabled( true );
-
 			string16_c value_as_string16;
-			value_as_string16 = reflection_convert_value_to_string16( property_field->_reflection_property, value );
-			property_field->_text_control->set_plain_text_value( value_as_string16 );
+			value_as_string16 = reflection_convert_value_to_string16( property_field->_reflection_property, value, i );
+			property_field->_text_controls[ 0 ]->set_plain_text_value( value_as_string16 );
+			property_field->_text_controls[ 0 ]->set_is_enabled( true );
 		}
 
 		// provide value to view editors.
@@ -610,7 +638,7 @@ namespace cheonsa
 			return;
 		}
 
-		if ( property_field->_text_control == nullptr && property_field->_combo_button_control == nullptr )
+		if ( property_field->_text_controls[ 0 ] == nullptr && property_field->_combo_button_control == nullptr )
 		{
 			return;
 		}
@@ -686,10 +714,25 @@ namespace cheonsa
 				assert( false );
 			}
 		}
-		else if ( control == property_field->_text_control )
+		else if ( control == property_field->_text_controls[ 0 ] )
 		{
-			string16_c new_value_as_string16 = property_field->_text_control->get_plain_text_value();
-			reflection_convert_string16_to_value( property_field->_reflection_property, after_value, new_value_as_string16 );
+			string16_c new_value_as_string16 = property_field->_text_controls[ 0 ]->get_plain_text_value();
+			reflection_convert_string16_to_value( property_field->_reflection_property, after_value, 0, new_value_as_string16 );
+		}
+		else if ( control == property_field->_text_controls[ 1 ] )
+		{
+			string16_c new_value_as_string16 = property_field->_text_controls[ 1 ]->get_plain_text_value();
+			reflection_convert_string16_to_value( property_field->_reflection_property, after_value, 1, new_value_as_string16 );
+		}
+		else if ( control == property_field->_text_controls[ 2 ] )
+		{
+			string16_c new_value_as_string16 = property_field->_text_controls[ 2 ]->get_plain_text_value();
+			reflection_convert_string16_to_value( property_field->_reflection_property, after_value, 2, new_value_as_string16 );
+		}
+		else if ( control == property_field->_text_controls[ 3 ] )
+		{
+			string16_c new_value_as_string16 = property_field->_text_controls[ 3 ]->get_plain_text_value();
+			reflection_convert_string16_to_value( property_field->_reflection_property, after_value, 3, new_value_as_string16 );
 		}
 		else if ( control == _color_picker_dialog )
 		{
@@ -1111,11 +1154,11 @@ namespace cheonsa
 
 		_set_scroll_bar_y_visibility_mode( menu_visibility_mode_e_automatic );
 
-		set_style_map_key( string8_c( "e_panel_borderless", core_list_mode_e_static ) );
+		set_style_map_key( string8_c( "e_property_inspector", core_list_mode_e_static ) );
 
 		if ( _fixed_reflection_class )
 		{
-			_add_controls( _fixed_reflection_class );
+			_create_and_add_controls( _fixed_reflection_class );
 		}
 	}
 
@@ -1142,7 +1185,7 @@ namespace cheonsa
 		}
 		if ( _bound_reflection_object && _fixed_reflection_class == nullptr )
 		{
-			_add_controls( _bound_reflection_object->_reflection_class );
+			_create_and_add_controls( _bound_reflection_object->_reflection_class );
 		}
 		if ( _bound_reflection_object && _fixed_reflection_class )
 		{

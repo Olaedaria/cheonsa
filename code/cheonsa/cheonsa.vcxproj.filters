@@ -557,6 +557,7 @@
     <ClInclude Include="cheonsa_scene_component_rigid_body.h" />
     <ClInclude Include="cheonsa_menu_control_debug_statistics.h" />
     <ClInclude Include="cheonsa_menu_control_debug_console.h" />
+    <ClInclude Include="cheonsa_menu_control_grid.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheonsa_string16.cpp" />
@@ -723,5 +724,6 @@
     <ClCompile Include="cheonsa_scene_component_rigid_body.cpp" />
     <ClCompile Include="cheonsa_menu_control_debug_statistics.cpp" />
     <ClCompile Include="cheonsa_menu_control_debug_console.cpp" />
+    <ClCompile Include="cheonsa_menu_control_grid.cpp" />
   </ItemGroup>
 </Project>

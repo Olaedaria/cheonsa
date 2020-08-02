@@ -1,5 +1,6 @@
 #include "cheonsa_menu_control_list.h"
 #include "cheonsa_user_interface.h"
+#include "cheonsa_engine.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -8,6 +9,8 @@ namespace cheonsa
 	menu_control_list_item_separator_c::menu_control_list_item_separator_c()
 		: menu_control_list_item_separator_i()
 	{
+		set_style_map_key( string8_c( "e_list_item_separator", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_field_color_theme() );
 	}
 
 	menu_control_list_item_separator_c::~menu_control_list_item_separator_c()
@@ -24,6 +27,30 @@ namespace cheonsa
 			assert( result );
 		}
 		return result;
+	}
+
+	void_c menu_control_list_item_text_c::_on_is_selected_changed()
+	{
+		if ( _style_map_reference.get_key().is_set() )
+		{
+			if ( _is_selected )
+			{
+				if ( !ops::string8_ends_with( _style_map_reference.get_key(), string8_c( "_selected", core_list_mode_e_static ) ) )
+				{
+					string8_c new_key = _style_map_reference.get_key();
+					new_key += "_selected";
+					_style_map_reference.set_key( new_key );
+				}
+			}
+			else
+			{
+				if ( ops::string8_ends_with( _style_map_reference.get_key(), string8_c( "_selected", core_list_mode_e_static ) ) )
+				{
+					string8_c new_key = ops::string8_sub_string( _style_map_reference.get_key(), 0, _style_map_reference.get_key().get_length() - 9 );
+					_style_map_reference.set_key( new_key );
+				}
+			}
+		}
 	}
 
 	void_c menu_control_list_item_text_c::_on_clicked( input_event_c * input_event )
@@ -75,7 +102,8 @@ namespace cheonsa
 	menu_control_list_item_text_c::menu_control_list_item_text_c()
 		: menu_control_list_item_text_i()
 	{
-		_name = string8_c( "list_item", core_list_mode_e_static );
+		set_style_map_key( string8_c( "e_list_item", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_field_color_theme() );
 	}
 
 	menu_control_list_item_text_c::~menu_control_list_item_text_c()

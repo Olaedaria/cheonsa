@@ -8,12 +8,6 @@
 #include "cheonsa__ops.h"
 #include "cheonsa_engine.h"
 
-#define debug_key_toggle_console input_keyboard_key_e_f1
-#define debug_key_toggle_menu_bounds input_keyboard_key_e_f2
-#define debug_key_toggle_scene_bounds input_keyboard_key_e_f3
-#define debug_key_toggle_stats input_keyboard_key_e_f4
-#define debug_key_refresh_resources input_keyboard_key_e_f5
-
 #if defined( cheonsa_platform_windows )
 #include <windows.h>
 #endif
@@ -48,7 +42,7 @@ namespace cheonsa
 			while ( control_list_node )
 			{
 				menu_control_c * control = control_list_node->get_value();
-				if ( control->_scene_component == nullptr )
+				if ( control->_scene_component == nullptr && control->_select_mode != menu_select_mode_e_none )
 				{
 					menu_control_c * candidate_control = nullptr;
 					float64_c candidate_control_distance = 0.0;

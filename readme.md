@@ -1,7 +1,5 @@
 # cheonsa
 
-support me on [SubscribeStar](https://subscribestar.adult/olaedaria)!
-
 [documentation](https://olaedaria.github.io/cheonsa/) (place holder at the moment)
 
 ## how to build
@@ -31,3 +29,7 @@ at run time, cheonsa depends on one dynamic link library from the windows sdk (o
 * "d3dcompiler_47.dll"
 
 this is included with the windows sdk, which you should have if you installed visual studio community. on my system this is located at "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\d3dcompiler_47.dll". once you have the dynamic link library file, copy it to "[project folder]\data\engine\d3dcompiler_47.dll". the engine will look for this dll at start up.
+
+## donate
+
+support me on [SubscribeStar](https://subscribestar.adult/olaedaria)!

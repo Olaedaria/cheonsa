@@ -6,11 +6,12 @@ namespace cheonsa
 
 	menu_control_image_c::menu_control_image_c()
 		: menu_control_c()
-		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
+		, _frame_element()
 		, _frame_style()
 	{
 		_frame_style.texture_map_mode = menu_texture_map_mode_e_scale_to_fit;
 
+		_frame_element.set_name( string8_c( "frame", core_list_mode_e_static ) );
 		_frame_element.set_override_style( &_frame_style );
 		_add_daughter_element( &_frame_element );
 	}
@@ -90,7 +91,7 @@ namespace cheonsa
 
 	void_c menu_control_image_c::set_pixel_shader( video_renderer_pixel_shader_c * pixel_shader )
 	{
-		_frame_style.pixel_shader_reference = pixel_shader;
+		_frame_style.pixel_shader = pixel_shader;
 	}
 
 }

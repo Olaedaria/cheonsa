@@ -3,6 +3,7 @@
 #include "cheonsa_database_types.h"
 #include "cheonsa_reflection_types.h"
 #include "cheonsa_menu_control.h"
+#include "cheonsa_menu_control_grid.h"
 #include "cheonsa_menu_control_panel_i.h"
 #include "cheonsa_menu_control_button.h"
 #include "cheonsa_menu_control_combo.h"
@@ -43,7 +44,8 @@ namespace cheonsa
 
 			menu_control_label_c * _label_control; // class name, category name, or property name.
 
-			menu_control_text_c * _text_control; // text box for editing string values. also used with sliders to display and edit the value of the slider.
+			menu_control_grid_c * _grid_control; // is used if _text_controls is more than one.
+			menu_control_text_c * _text_controls[ 4 ]; // text box for editing string values. also used with sliders to display and edit the value of the slider. for vector types, one text is created per element, for other types just one text is created.
 			menu_control_combo_button_c * _combo_button_control; // combo box for editing enumerated values.
 			menu_control_scroll_bar_i * _scroll_bar_control; // might be a horizontal scroll bar or a horizontal scrub bar, for editing number values that are constrained to a certain range.
 			menu_control_button_c * _button_control; // optional edit button that appears to the right of text box, for values that can be edited by dialog windows.
@@ -98,8 +100,11 @@ namespace cheonsa
 
 		boolean_c _is_muted; // if true then all the _handle_* functions will ignore events from menu controls, because the values of those controls are being updated to sync and match with the data. if false then the opposite is happening, the data is being updated to sync and match with the menu controls.
 		void_c _clear_controls(); // removes and deletes all controls from the property inspector. hides any open dialogs.
-		void_c _add_controls( reflection_class_c const * reflection_class ); // adds property field editor controls for the given reflection class.
+		void_c _create_and_add_controls( reflection_class_c const * reflection_class ); // adds property field editor controls for the given reflection class.
 		//void_c _add_controls( database_record_schema_c const * database_record_schema ); // adds property field editor controls for the given database record schema.
+
+		// if the width of the property inspector changed, then this will re-do the layout of columns for vector types.
+		float32_c _laid_out_width;
 
 		// updates controls to reflect the current value of the property of the bound object.
 		void_c _update_ui_from_property( property_field_c * property_field );

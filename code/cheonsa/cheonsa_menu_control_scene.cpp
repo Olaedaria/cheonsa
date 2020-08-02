@@ -11,10 +11,10 @@ namespace cheonsa
 		sint32_c height = static_cast< sint32_c >( _local_box.get_height() );
 		if ( _canvas->set_apparent_size( width, height ) )
 		{
-			_frame_style.state_list[ 0 ].texture_map[ 0 ] = 0;
-			_frame_style.state_list[ 0 ].texture_map[ 1 ] = 0;
-			_frame_style.state_list[ 0 ].texture_map[ 2 ] = static_cast< sint16_c >( _canvas->get_apparent_width() );
-			_frame_style.state_list[ 0 ].texture_map[ 3 ] = static_cast< sint16_c >( _canvas->get_apparent_height() );
+			_frame_style.states[ 0 ].texture_map[ 0 ] = 0;
+			_frame_style.states[ 0 ].texture_map[ 1 ] = 0;
+			_frame_style.states[ 0 ].texture_map[ 2 ] = static_cast< sint16_c >( _canvas->get_apparent_width() );
+			_frame_style.states[ 0 ].texture_map[ 3 ] = static_cast< sint16_c >( _canvas->get_apparent_height() );
 			_canvas_wrapper.set_video_texture( _canvas->get_target_color_final() );
 		}
 		else
@@ -25,7 +25,7 @@ namespace cheonsa
 
 	menu_control_scene_c::menu_control_scene_c()
 		: menu_control_c()
-		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
+		, _frame_element()
 		, _frame_style()
 		, _scene( nullptr )
 		, _canvas( nullptr )
@@ -38,6 +38,7 @@ namespace cheonsa
 		_frame_style.texture_map_mode = menu_texture_map_mode_e_stretch;
 		_frame_style.texture = &_canvas_wrapper;
 
+		_frame_element.set_name( string8_c( "frame", core_list_mode_e_static ) );
 		_frame_element.set_override_style( &_frame_style );
 		_add_daughter_element( &_frame_element );
 	}

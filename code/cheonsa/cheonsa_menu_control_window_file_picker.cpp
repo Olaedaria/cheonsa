@@ -76,7 +76,7 @@ namespace cheonsa
 				}
 				else
 				{
-					_message_dialog->set_mode( menu_control_window_message_c::mode_e_okay );
+					_message_dialog->set_dialog_mode( menu_dialog_mode_e_okay );
 					_message_dialog->set_title_plain_text_value( string8_c( "unrecognized file type.", core_list_mode_e_static ) );
 					_message_dialog->set_message_plain_text_value( string8_c( "this program does not recognize that type of file.", core_list_mode_e_static ) );
 					_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );
@@ -88,7 +88,7 @@ namespace cheonsa
 		{
 			if ( ops::file_system_does_file_exist( file_path_absolute ) )
 			{
-				_message_dialog->set_mode( menu_control_window_message_c::mode_e_no_yes );
+				_message_dialog->set_dialog_mode( menu_dialog_mode_e_no_yes );
 				_message_dialog->set_title_plain_text_value( string8_c( "that file already exists.", core_list_mode_e_static ) );
 				_message_dialog->set_message_plain_text_value( string8_c( "do you want to over write the existing file?", core_list_mode_e_static ) );
 				_message_dialog->show_dialog( _mother_user_interface->open_modal_screen() );

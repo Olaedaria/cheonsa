@@ -19,7 +19,7 @@ namespace cheonsa
 		}
 
 		// unload current data.
-		_color_style_dictionary.remove_and_delete_all();
+		_color_theme_dictionary.remove_and_delete_all();
 		_frame_style_dictionary.remove_and_delete_all();
 		_text_style_dictionary.remove_and_delete_all();
 		_style_map_dictionary.remove_and_delete_all();
@@ -36,28 +36,34 @@ namespace cheonsa
 		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
 		while ( sub_node )
 		{
-			if ( sub_node->get_value() == "color" )
+			if ( sub_node->get_value() == "color_theme" )
 			{
-				menu_color_style_c * color_style = new menu_color_style_c();
-				color_style->load( sub_node );
-				if ( color_style->key.get_length() > 0 )
+				menu_color_theme_c * color_theme = new menu_color_theme_c();
+				color_theme->load_markup( sub_node );
+				if ( color_theme->key.is_set() )
 				{
-					if ( _color_style_dictionary.contains( color_style->key ) )
+					menu_color_theme_c * existing_color_theme = _color_theme_dictionary.find_value_else_nullptr( color_theme->key );
+					if ( existing_color_theme )
 					{
-						delete _color_style_dictionary.find_value( color_style->key );
+						delete existing_color_theme;
 					}
-					_color_style_dictionary.insert( color_style->key, color_style );
+					_color_theme_dictionary.insert( color_theme->key, color_theme );
+				}
+				else
+				{
+					delete color_theme;
 				}
 			}
 			else if ( sub_node->get_value() == "frame" )
 			{
 				menu_frame_style_c * frame_style = new menu_frame_style_c();
-				frame_style->load( sub_node );
-				if ( frame_style->key.get_length() > 0 )
+				frame_style->load_markup( sub_node );
+				if ( frame_style->key.is_set() )
 				{
-					if ( _frame_style_dictionary.contains( frame_style->key ) )
+					menu_frame_style_c * existing_frame_style = _frame_style_dictionary.find_value_else_nullptr( frame_style->key );
+					if ( existing_frame_style )
 					{
-						delete _frame_style_dictionary.find_value( frame_style->key );
+						delete existing_frame_style;
 					}
 					_frame_style_dictionary.insert( frame_style->key, frame_style );
 				}
@@ -69,12 +75,13 @@ namespace cheonsa
 			else if ( sub_node->get_value() == "text" )
 			{
 				menu_text_style_c * text_style = new menu_text_style_c();
-				text_style->load( sub_node );
-				if ( text_style->key.get_length() > 0 )
+				text_style->load_markup( sub_node );
+				if ( text_style->key.is_set() )
 				{
-					if ( _text_style_dictionary.contains( text_style->key ) )
+					menu_text_style_c * existing_text_style = _text_style_dictionary.find_value_else_nullptr( text_style->key );
+					if ( existing_text_style )
 					{
-						delete _text_style_dictionary.find_value( text_style->key );
+						delete existing_text_style;
 					}
 					_text_style_dictionary.insert( text_style->key, text_style );
 				}
@@ -89,9 +96,10 @@ namespace cheonsa
 				style_map->load( sub_node );
 				if ( style_map->get_key().get_length() > 0 )
 				{
-					if ( _style_map_dictionary.contains( style_map->get_key() ) )
+					menu_style_map_c * existing_style_map = _style_map_dictionary.find_value_else_nullptr( style_map->get_key() );
+					if ( existing_style_map )
 					{
-						delete _style_map_dictionary.find_value( style_map->get_key() );
+						delete existing_style_map;
 					}
 					_style_map_dictionary.insert( style_map->get_key(), style_map );
 				}
@@ -117,7 +125,7 @@ namespace cheonsa
 
 		_is_loaded = false;
 
-		_color_style_dictionary.remove_and_delete_all();
+		_color_theme_dictionary.remove_and_delete_all();
 		_frame_style_dictionary.remove_and_delete_all();
 		_text_style_dictionary.remove_and_delete_all();
 		_style_map_dictionary.remove_and_delete_all();
@@ -125,7 +133,7 @@ namespace cheonsa
 
 	menu_style_file_c::menu_style_file_c( string16_c const & file_path )
 		: resource_file_c( file_path )
-		, _color_style_dictionary()
+		, _color_theme_dictionary()
 		, _frame_style_dictionary()
 		, _text_style_dictionary()
 		, _style_map_dictionary()
@@ -140,9 +148,9 @@ namespace cheonsa
 		}
 	}
 
-	menu_color_style_c const * menu_style_file_c::find_color_style( string8_c const & key ) const
+	menu_color_theme_c const * menu_style_file_c::find_color_theme( string8_c const & key ) const
 	{
-		return _color_style_dictionary.find_value_else_nullptr( key );
+		return _color_theme_dictionary.find_value_else_nullptr( key );
 	}
 
 	menu_frame_style_c const * menu_style_file_c::find_frame_style( string8_c const & key ) const

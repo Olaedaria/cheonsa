@@ -19,8 +19,8 @@ namespace cheonsa
 		_draw_list.append_triangle_list( vertex_list, index_list, pixel_shader, nullptr );
 	}
 
-	menu_element_mesh_c::menu_element_mesh_c( string8_c const & name )
-		: menu_element_c( name )
+	menu_element_mesh_c::menu_element_mesh_c()
+		: menu_element_c()
 		, vertex_list()
 		, index_list()
 	{

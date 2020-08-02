@@ -11,29 +11,29 @@ namespace cheonsa
 	{
 		if ( event_information.control == _a_button )
 		{
-			if ( _mode == mode_e_okay || _mode == mode_e_cancel_okay )
+			if ( _dialog_mode == menu_dialog_mode_e_okay || _dialog_mode == menu_dialog_mode_e_cancel_okay )
 			{
 				_dialog_result = menu_dialog_result_e_okay;
 			}
-			else if ( _mode == mode_e_no_yes || _mode == mode_e_cancel_no_yes )
+			else if ( _dialog_mode == menu_dialog_mode_e_no_yes || _dialog_mode == menu_dialog_mode_e_cancel_no_yes )
 			{
 				_dialog_result = menu_dialog_result_e_yes;
 			}
 		}
 		else if ( event_information.control == _b_button )
 		{
-			if ( _mode == mode_e_cancel_okay )
+			if ( _dialog_mode == menu_dialog_mode_e_cancel_okay )
 			{
 				_dialog_result = menu_dialog_result_e_cancel;
 			}
-			else if ( _mode == mode_e_no_yes || _mode == mode_e_cancel_no_yes )
+			else if ( _dialog_mode == menu_dialog_mode_e_no_yes || _dialog_mode == menu_dialog_mode_e_cancel_no_yes )
 			{
 				_dialog_result = menu_dialog_result_e_no;
 			}
 		}
 		else if ( event_information.control == _c_button )
 		{
-			if ( _mode == mode_e_cancel_no_yes )
+			if ( _dialog_mode == menu_dialog_mode_e_cancel_no_yes )
 			{
 				_dialog_result = menu_dialog_result_e_cancel;
 			}
@@ -63,7 +63,7 @@ namespace cheonsa
 		, _a_button( nullptr )
 		, _b_button( nullptr )
 		, _c_button( nullptr )
-		, _mode( mode_e_okay )
+		, _dialog_mode( menu_dialog_mode_e_okay )
 	{
 		set_user_can_resize( false );
 		set_size( vector32x2_c( default_size.a, default_size.b ) );
@@ -74,7 +74,7 @@ namespace cheonsa
 
 		_message_label = new menu_control_label_c();
 		_message_label->set_name( string8_c( "message_label", core_list_mode_e_static ) );
-		_message_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 3-.0f ) );
+		_message_label->set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		_message_label->set_text_align_x( menu_text_align_x_e_center );
 		add_daughter_control_to_client( _message_label );
 
@@ -101,23 +101,23 @@ namespace cheonsa
 	{
 	}
 
-	menu_control_window_message_c::mode_e menu_control_window_message_c::get_mode() const
+	menu_dialog_mode_e menu_control_window_message_c::get_dialog_mode() const
 	{
-		return _mode;
+		return _dialog_mode;
 	}
 
-	void_c menu_control_window_message_c::set_mode( mode_e value )
+	void_c menu_control_window_message_c::set_dialog_mode( menu_dialog_mode_e value )
 	{
 		_dialog_result = menu_dialog_result_e_none;
-		_mode = value;
-		if ( _mode == mode_e_okay )
+		_dialog_mode = value;
+		if ( _dialog_mode == menu_dialog_mode_e_okay )
 		{
 			_c_button->set_is_showed_immediately( false );
 			_b_button->set_is_showed_immediately( false );
 			_a_button->set_is_showed_immediately( true );
 			_a_button->set_plain_text_value( string16_c( L"okay", core_list_mode_e_static ) );
 		}
-		else if ( _mode == mode_e_cancel_okay )
+		else if ( _dialog_mode == menu_dialog_mode_e_cancel_okay )
 		{
 			_c_button->set_is_showed_immediately( false );
 			_b_button->set_is_showed_immediately( true );
@@ -125,7 +125,7 @@ namespace cheonsa
 			_a_button->set_is_showed_immediately( true );
 			_a_button->set_plain_text_value( string16_c( L"okay", core_list_mode_e_static ) );
 		}
-		else if ( _mode == mode_e_no_yes )
+		else if ( _dialog_mode == menu_dialog_mode_e_no_yes )
 		{
 			_c_button->set_is_showed_immediately( false );
 			_b_button->set_is_showed_immediately( true );
@@ -133,7 +133,7 @@ namespace cheonsa
 			_a_button->set_is_showed_immediately( true );
 			_a_button->set_plain_text_value( string16_c( L"yes", core_list_mode_e_static ) );
 		}
-		else if ( _mode == mode_e_cancel_no_yes )
+		else if ( _dialog_mode == menu_dialog_mode_e_cancel_no_yes )
 		{
 			_c_button->set_is_showed_immediately( true );
 			_c_button->set_plain_text_value( string16_c( L"cancel", core_list_mode_e_static ) );

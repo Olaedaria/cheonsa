@@ -1,5 +1,6 @@
 #include "cheonsa_menu_control_menu.h"
 #include "cheonsa_user_interface.h"
+#include "cheonsa_engine.h"
 
 namespace cheonsa
 {
@@ -7,7 +8,8 @@ namespace cheonsa
 	menu_control_menu_item_separator_c::menu_control_menu_item_separator_c()
 		: menu_control_list_item_separator_i()
 	{
-		set_style_map_key( string8_c( "e_menu_item", core_list_mode_e_static ) );
+		set_style_map_key( string8_c( "e_menu_item_separator", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_window_color_theme() );
 	}
 
 	menu_control_menu_item_separator_c::~menu_control_menu_item_separator_c()
@@ -58,6 +60,7 @@ namespace cheonsa
 		, _sub_menu( nullptr )
 	{
 		set_style_map_key( string8_c( "e_menu_item", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_window_color_theme() );
 	}
 
 	menu_control_menu_item_text_c::~menu_control_menu_item_text_c()

@@ -1,5 +1,6 @@
 #include "cheonsa_menu_control_list_i.h"
 #include "cheonsa_user_interface.h"
+#include "cheonsa_engine.h"
 #include "cheonsa__ops.h"
 
 namespace cheonsa
@@ -161,9 +162,11 @@ namespace cheonsa
 
 	menu_control_list_item_separator_i::menu_control_list_item_separator_i()
 		: menu_control_list_item_i()
-		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
+		, _frame_element()
 		, _height( 10.0f )
 	{
+		_frame_element.set_name( string8_c( "frame", core_list_mode_e_static ) );
+		_add_daughter_element( &_frame_element );
 	}
 
 	float32_c menu_control_list_item_separator_i::get_height() const
@@ -222,8 +225,6 @@ namespace cheonsa
 			daughter_element->set_is_pressed( _is_enabled && _is_pressed );
 			daughter_element->update_animations( time_step );
 		}
-		_text_element.set_invert_shared_colors( _is_selected );
-		_selected_frame_element.set_is_showed( _is_selected );
 	}
 
 	void_c menu_control_list_item_text_i::_update_transform_and_layout()
@@ -263,10 +264,10 @@ namespace cheonsa
 
 	menu_control_list_item_text_i::menu_control_list_item_text_i()
 		: menu_control_list_item_i()
-		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
-		, _selected_frame_element( string8_c( "selected_frame", core_list_mode_e_static ) )
-		//, _icon_frame_element( string8_c( "icon_frame", core_list_mode_e_static ) )
-		, _text_element( string8_c( "text", core_list_mode_e_static ) )
+		, _frame_element()
+		//, _icon_frame_element()
+		//, _selected_frame_element()
+		, _text_element()
 	{
 		_can_be_selected = true;
 
@@ -275,22 +276,20 @@ namespace cheonsa
 
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_frame_element.set_name( string8_c( "frame", core_list_mode_e_static ) );
 		_add_daughter_element( &_frame_element );
 
-		_selected_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
-		_selected_frame_element.set_is_showed( false );
-		_add_daughter_element( &_selected_frame_element );
+		//_selected_frame_element.set_name( string8_c( "selected_frame", core_list_mode_e_static ) );
+		//_selected_frame_element.set_is_showed( false );
+		//_add_daughter_element( &_selected_frame_element );
 
-		//_icon_frame_element.set_shared_color_class( menu_shared_color_class_e_field );
+		//_icon_frame_element.set_name( string8_c( "icon_frame", core_list_mode_e_static );
 		//_icon_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 20.0f, 10.0f ) );
 		//_add_daughter_element( &_icon_frame_element );
 
-		_text_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_text_element.set_name( string8_c( "text", core_list_mode_e_static ) );
 		_text_element.on_text_value_changed.subscribe( this, &menu_control_list_item_text_i::_handle_element_text_on_value_changed );
 		_add_daughter_element( &_text_element );
-
-		set_style_map_key( string8_c( "e_list_item", core_list_mode_e_static ) );
 	}
 
 	void_c menu_control_list_item_text_i::set_is_selected( boolean_c value, boolean_c try_to_multi_select )

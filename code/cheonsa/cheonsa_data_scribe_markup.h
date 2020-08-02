@@ -212,7 +212,8 @@ namespace cheonsa
 		// the node heap is a flat list, so it doesn't exactly reflect the nested structure of the parsed document.
 		node_c const * get_node( sint32_c index ) const;
 
-		void_c get_error_message( string16_c & message, sint32_c & line, sint32_c & column, sint32_c & character ) const; // if parse returned false, then this can be used to get more details about the error.
+		string16_c get_error_message(); // gets the error message, with the line and column integrated in the result like "[line: $_current_line, column: $_current_column] $_error_message".
+		string16_c const & get_error_message( sint32_c & line, sint32_c & column, sint32_c & character ) const; // gets the error message, with the location of occurrence of the error separated.
 
 	public:
 		// this function is specifically designed to parse only the first tag in a stream.

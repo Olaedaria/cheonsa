@@ -33,7 +33,7 @@ namespace cheonsa
 		boolean_c _can_be_toggled; // if true, then this item's selected state will be toggled when it is clicked on, and clicking on it won't dismiss the pop up list.
 
 		void_c _set_is_selected( boolean_c value, boolean_c try_to_multi_select ); // sets the selected state of this list item.
-		virtual void_c _on_is_selected_changed(); // is called after _is_selected value is changed.
+		virtual void_c _on_is_selected_changed(); // is called after _is_selected value is changed. overridden by inherited classes to append or remove "_selected" to the style map key.
 
 		menu_control_list_item_i();
 
@@ -70,6 +70,7 @@ namespace cheonsa
 
 	// has several frame elements and a text element.
 	// can be highlighted and selected.
+	// when selected state is changed, then "_selected" is appended to or removed from the style map key of _frame_element and _text_element.
 	class menu_control_list_item_text_i
 		: public menu_control_list_item_i
 	{
@@ -79,7 +80,7 @@ namespace cheonsa
 
 	protected:
 		menu_element_frame_c _frame_element; // name is "frame".
-		menu_element_frame_c _selected_frame_element; // name is "selected_frame". this frame's visibility is toggled when this list item is selected.
+		//menu_element_frame_c _selected_frame_element; // name is "selected_frame". this frame's visibility is toggled when this list item is selected.
 		//menu_element_frame_c _icon_frame_element;
 		menu_element_text_c _text_element; // name is "text".
 

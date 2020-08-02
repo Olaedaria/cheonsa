@@ -66,9 +66,15 @@ namespace cheonsa
 	boolean_c reflection_set_object_property_value( reflection_object_c * object, reflection_property_c const * property, reflection_value_container_c const & value );
 
 	// to interoperate with text boxes. takes into account property data view to convert as needed.
-	string16_c reflection_convert_value_to_string16( reflection_property_c const * property, reflection_value_container_c const & value );
+	// property describes the value type that is being converted to a string.
+	// property_value holds the value of value type to convert to a string.
+	// property_value_element_index may be set between 0 and property->_type_count - 1 to get the converted string value of a single element, or it may be set to -1 to get the converted string value of all elements.
+	string16_c reflection_convert_value_to_string16( reflection_property_c const * property, reflection_value_container_c const & property_value, sint32_c property_value_element_index );
 	// to interoperate with text boxes. takes into account property data view to convert as needed.
-	boolean_c reflection_convert_string16_to_value( reflection_property_c const * property, reflection_value_container_c & value, string16_c const & value_as_string16 );
+	// property describes the target value type to convert the string value to.
+	// property_value holds the result value of the string after it is converted from the string value.
+	// property_value_element_index may be set between 0 and property->_type_count - 1 to set the value of a single element, or it may be set to -1 if the input string is vector (list) of values.
+	boolean_c reflection_convert_string16_to_value( reflection_property_c const * property, reflection_value_container_c & property_value, sint32_c property_value_element_index, string16_c const & value_as_string16 );
 
 	vector64x4_c reflection_convert_value_to_color( reflection_property_c const * property, reflection_value_container_c const & value );
 	void_c reflection_convert_color_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector64x4_c const & value_as_color );

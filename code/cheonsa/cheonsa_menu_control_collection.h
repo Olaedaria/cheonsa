@@ -155,8 +155,8 @@ namespace cheonsa
 			sint32_c _width; // width in pixels of this column, the user can resize both fixed an non-fixed columns.
 			sort_by_e _sort_by; // which value to sort this column by.
 			boolean_c _is_editable; // if true, then the user is supposed to be able to edit (rename) item display value in this column.
-			menu_element_frame_c _element_frame; // name is "column_frame". this is displayed at the top of the collection when display mode is display_mode_e_details.
-			menu_element_text_c _element_text; // name is "column_text". this is displayed at the top of the collection when display mode is display_mode_e_details.
+			menu_element_frame_c _column_frame_element; // name is "column_frame". this is displayed at the top of the collection when display mode is display_mode_e_details.
+			menu_element_text_c _column_text_element; // name is "column_text". this is displayed at the top of the collection when display mode is display_mode_e_details.
 
 		public:
 			column_c();

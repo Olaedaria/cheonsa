@@ -88,6 +88,8 @@ namespace cheonsa
 			return true;
 		}
 
+		// returns true if conversion was successful.
+		// returns false if input string contained an invalid (non-numeric) character.
 		template< typename string_type_c, typename int_type_c >
 		boolean_c _convert_string_to_int( string_type_c const & in, int_type_c & out, sint8_c base )
 		{
@@ -901,16 +903,27 @@ namespace cheonsa
 			}
 		}
 
-		void_c string8_pad_with_leading_zeros( string8_c & string, sint32_c desired_length )
+		void_c string8_pad_whole_number_with_leading_zeros( string8_c & string, sint32_c desired_whole_number_length )
 		{
-			sint32_c how_many = desired_length - string.get_length();
+			// measure length of the whole number part of the string.
+			// assumes that the string is already formatted correctly, so just scans for decimal point or end of string.
+			sint32_c current_whole_number_length = 0;
+			char8_c const * c = string.character_list.get_internal_array();
+			while ( *c != '\0' && *c != '.' )
+			{
+				current_whole_number_length++;
+				c++;
+			}
+
+			// add the leading zeros.
+			sint32_c how_many = desired_whole_number_length - current_whole_number_length;
 			if ( how_many > 0 )
 			{
 				string.character_list.emplace( 0, how_many );
 				char8_c * c = string.character_list.get_internal_array();
 				for ( sint32_c i = 0; i < how_many; i++ )
 				{
-					c[ i ] = 0;
+					c[ i ] = '0';
 				}
 			}
 		}

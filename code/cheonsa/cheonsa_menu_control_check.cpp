@@ -26,26 +26,27 @@ namespace cheonsa
 		: menu_control_c()
 		, _mode( mode_e_normal )
 		, _is_checked( false )
-		, _box_element( string8_c( "box_frame", core_list_mode_e_static ) )
-		, _mark_element( string8_c( "mark_frame", core_list_mode_e_static ) )
-		, _text_element( string8_c( "text", core_list_mode_e_static ) )
+		, _box_element()
+		, _mark_element()
+		, _text_element()
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_box_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_box_element.set_name( string8_c( "box_frame", core_list_mode_e_static ) );
 		_box_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
 		_add_daughter_element( &_box_element );
 
-		_mark_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_mark_element.set_name( string8_c( "mark_frame", core_list_mode_e_static ) );
 		_mark_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_bottom, box32x2_c( 0.0f, 0.0f, 0.0f, 16.0f ) );
 		_mark_element.set_is_showed( _is_checked );
 		_add_daughter_element( &_mark_element );
 
-		_text_element.set_shared_color_class( menu_shared_color_class_e_field );
+		_text_element.set_name( string8_c( "text", core_list_mode_e_static ) );
 		_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom, box32x2_c( 18.0f, 0.0f, 0.0f, 0.0f ) );
 		_add_daughter_element( &_text_element );
 
 		set_style_map_key( string8_c( "e_check", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_field_color_theme() );
 	}
 
 	menu_control_check_c::~menu_control_check_c()

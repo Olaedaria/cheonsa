@@ -1,0 +1,85 @@
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="favicon.png">
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	    <title>(천사) cheonsa / feature list</title>
+	</head>
+	<body>
+		<a href="index.html" class="navigation">&#8598; index</a>
+		<h2>conventions</h2>
+		<h3>coordinate spaces</h3>
+	    <ul>
+			<li>in comments, documentation, and function names, when communicating axes to the user, we use <code>x</code>, <code>y</code>, and <code>z</code>.</li>
+			<li>internally, for all vector math types, we name member elements with <code>a</code>, <code>b</code>, <code>c</code>, and <code>d</code> instead of <code>x</code>, <code>y</code>, <code>z</code>, and <code>w</code>.</li>
+			<li>2d coordinate space of user interface and menu system:
+				<ul>
+					<li>origin is in top left corner.</li>
+					<li>coordinates are in pixels.</li>
+					<li>+x goes right.</li>
+					<li>+y goes down.</li>
+				</ul>
+			</li>
+			<li>2d coordinate space of texture maps:<br/>
+				<small>uses the direct3d convention. in the opengl convention the vertical axis origin and direction is inverted compared to this.</small>
+				<ul>
+					<li>origin is in top left corner.</li>
+					<li>coordinates are in unit space from 0 to 1.</li>
+					<li>+u goes right. 0 is left edge of texture, 1 is right edge of texture.</li>
+					<li>+v goes down. 0 is top edge of texture, 1 is bottom edge of texture.</li>
+				</ul>
+			</li>
+			<li>2d coordinate space of view space (gpu):<br/>
+				<small>this is the kind of view space that the gpu works in, the gpu hardware rasterizer expects view and projection matrices to transform vertices to this space, etc.</small>
+				<ul>
+					<li>origin is in dead center of render target.</li>
+					<li>coordinates are in unit space from -1 to 1.</li>
+					<li>+x goes right. -1 maps to left edge of render target, +1 maps to right edge of render target.</li>
+					<li>+y goes up. -1 maps to bottom edge of render target, +1 maps to top edge of render target.</li>
+				</ul>
+			</li>
+			<li>3d coordinate spaces:
+				<ul>
+					<li>+x goes to the right.</li>
+					<li>+y goes forward. <small>for lights and cameras, this defines the direction that the camera or light faces. for bones, this defines the axis of the bone from head towards tail.</small></li>
+					<li>+z goes up.</li>
+				</ul>
+			</li>
+		</ul>
+		<h3>matrices</h3>
+		<ul>
+			<li><code>matrix32x2x2_c</code> and <code>matrix32x3x3_c</code> and <code>matrix32x4x4_c</code> elements are stored in row-major order.</li>
+			<li><code>matrix32x3x3_c</code> and <code>matrix32x4x4_c</code> are right-handed.</li>
+			<li>all 4x4 matrices are transposed when they are uploaded to the gpu. (i will probably change this and just upload matrices as-is, and then invert all of the mul() calls in the hlsl, and it should work exctly the same.)</li>
+		</ul>
+		<h3>units of measurement</h3>
+		<ul>
+			<li>time:<br/>
+				<small>seconds.</small>
+			</li>
+			<li>distance (2d coordinate spaces):<br/>
+				<small>pixels (usually).</small>
+			</li>
+			<li>distance (3d coordinate spaces):<br/>
+				<small>meters.</small>
+			</li>
+			<li>angles:<br/>
+				<small>internally, all angles are in radians (unless specified otherwise).</small><br/>
+                <small>externally (user-facing interfaces), angles are translated to degrees.</small><br/>
+				<small>angles define clock-wise rotation about an axis. [need to verify if this is true]</small>
+			</li>
+			<li>mass:<br/>
+				<small>kilograms.</small>
+			</li>
+			<li>force:<br/>
+				<small>newtons.</small>
+			</li>
+		</ul>
+	    <h3>file system paths</h3>
+	    <ul>
+			<li>file and folder paths are always relative paths, relative to the content system defined data folders.</li>
+			<li>file paths always use forward slashes as node delimiters.</li>
+			<li>folder paths always end with a forward slash.</li>
+			<li>internally, for each relative path, the content manager will search each data folder to see if it can find a matching file, and if it does then that is called resolving the relative file path to an absolute file path (in the operating system's path format). internally, this absolute file path will be used to reference that file exactly. but as a high level user of the engine, you don't need to be concerned with this.</li>
+	    </ul>
+	</body>
+</html>

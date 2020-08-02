@@ -34,7 +34,7 @@ namespace cheonsa
 
 		// state color and saturation.
 		menu_state_e state = get_state();
-		menu_frame_style_c::state_c const & frame_style_state = frame_style->state_list[ state ];
+		menu_frame_style_c::state_c const & frame_style_state = frame_style->states[ state ];
 		if ( frame_style_state.show == false )
 		{
 			return;
@@ -42,24 +42,12 @@ namespace cheonsa
 
 		vector32x4_c draw_color = _local_color * _mother_control->get_local_color();
 		vector32x4_c draw_shared_colors[ 3 ]; // these will be uploaded to "menu_colors" in the shaders.
-		menu_color_style_c * shared_color = nullptr;
-		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_primary );
-		assert( shared_color );
-		draw_shared_colors[ 0 ] = shared_color->value;
-		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_secondary );
-		assert( shared_color );
-		draw_shared_colors[ 1 ] = shared_color->value;
-		shared_color = engine.get_menu_style_manager()->get_shared_color_style( _shared_color_class, state, menu_shared_color_slot_e_accent );
-		assert( shared_color );
-		draw_shared_colors[ 2 ] = shared_color->value;
-		if ( frame_style_state.swap_shared_colors != _invert_shared_colors )
-		{
-			vector32x4_c t = draw_shared_colors[ 0 ];
-			draw_shared_colors[ 0 ] = draw_shared_colors[ 1 ];
-			draw_shared_colors[ 1 ] = t;
-		}
+		menu_color_theme_c const * color_theme = _color_theme.get_value() ? _color_theme.get_value() : engine.get_menu_style_manager()->get_internal_undefined_color_theme();
+		draw_shared_colors[ 0 ] = color_theme->colors[ menu_color_slot_e_primary ][ state  ];
+		draw_shared_colors[ 1 ] = color_theme->colors[ menu_color_slot_e_secondary ][ state ];
+		draw_shared_colors[ 2 ] = color_theme->colors[ menu_color_slot_e_text ][ state ];
 
-		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader_reference ? frame_style->pixel_shader_reference->get_ps() : engine.get_video_renderer_shader_manager()->get_menu_ps_frame();
+		video_pixel_shader_c * pixel_shader = frame_style->pixel_shader ? frame_style->pixel_shader->get_ps() : engine.get_video_renderer_shader_manager()->get_menu_ps_frame();
 		assert( pixel_shader );
 
 		// to hold calculated measurements of what to draw.
@@ -404,9 +392,9 @@ namespace cheonsa
 		_draw_list_is_dirty = false;
 	}
 
-	menu_element_frame_c::menu_element_frame_c( string8_c const & name )
-		: menu_element_c( name )
-		, _style_reference( this )
+	menu_element_frame_c::menu_element_frame_c()
+		: menu_element_c()
+		, _style_reference()
 		, _override_style( nullptr )
 	{
 	}

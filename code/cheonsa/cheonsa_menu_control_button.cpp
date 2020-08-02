@@ -1,25 +1,27 @@
 #include "cheonsa_menu_control_button.h"
 #include "cheonsa_user_interface.h"
+#include "cheonsa_engine.h"
 
 namespace cheonsa
 {
 
 	menu_control_button_c::menu_control_button_c()
 		: menu_control_c()
-		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
-		, _text_element( string8_c( "text", core_list_mode_e_static ) )
+		, _frame_element()
+		, _text_element()
 	{
 		_select_mode = menu_select_mode_e_mouse_and_directional;
 
-		_frame_element.set_shared_color_class( menu_shared_color_class_e_button );
+		_frame_element.set_name( string8_c( "frame", core_list_mode_e_static ) );
 		_add_daughter_element( &_frame_element );
 
-		_text_element.set_shared_color_class( menu_shared_color_class_e_button );
+		_text_element.set_name( string8_c( "text", core_list_mode_e_static ) );
 		_text_element.set_text_format_mode( menu_text_format_mode_e_rich );
 		_text_element.set_text_interact_mode( menu_text_interact_mode_e_static );
 		_add_daughter_element( &_text_element );
 
 		set_style_map_key( string8_c( "e_button", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_button_color_theme() );
 	}
 
 	string16_c menu_control_button_c::get_plain_text_value() const

@@ -1,5 +1,6 @@
 #include "cheonsa_menu_control_panel.h"
 #include "cheonsa_user_interface.h"
+#include "cheonsa_engine.h"
 
 namespace cheonsa
 {
@@ -185,8 +186,8 @@ namespace cheonsa
 
 	menu_control_panel_i::menu_control_panel_i()
 		: menu_control_c()
-		, _frame_element( string8_c( "frame", core_list_mode_e_static ) )
-		, _border_frame_element( string8_c( "border_frame", core_list_mode_e_static ) )
+		, _frame_element()
+		, _border_frame_element()
 		, _client_margins( 0.0f, 0.0f, 0.0f, 0.0f )
 		, _client( nullptr )
 		, _scroll_bar_x_visibility_mode( menu_visibility_mode_e_never )
@@ -194,9 +195,10 @@ namespace cheonsa
 		, _scroll_bar_y_visibility_mode( menu_visibility_mode_e_never )
 		, _scroll_bar_y( nullptr )
 	{
-		_frame_element.set_shared_color_class( menu_shared_color_class_e_window );
+		_frame_element.set_name( string8_c( "frame", core_list_mode_e_static ) );
 		_add_daughter_element( &_frame_element );
 
+		_border_frame_element.set_name( string8_c( "border_frame", core_list_mode_e_static ) );
 		_border_frame_element.set_is_overlay( true );
 		_add_daughter_element( &_border_frame_element );
 
@@ -206,6 +208,7 @@ namespace cheonsa
 		add_daughter_control( _client );
 
 		set_style_map_key( string8_c( "e_panel", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_window_color_theme() );
 	}
 
 	void_c menu_control_panel_i::update_animations( float32_c time_step )

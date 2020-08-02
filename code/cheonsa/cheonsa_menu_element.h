@@ -30,8 +30,7 @@ namespace cheonsa
 
 		string8_c _name; // name to identify this element by, unique within the control that this element belongs to, can be used by the control to find the element and map styles to it.
 
-		menu_shared_color_class_e _shared_color_class; // defines which set of shared colors are used to draw this control's elements.
-		boolean_c _invert_shared_colors; // if true then inverts the primary and secondary shared colors.
+		menu_color_theme_c::reference_c _color_theme;
 
 		vector32x4_c _local_color; // color tint of this element to upload to menu_colors[ 3 ]. opacity defined here is ignored. actual opacity is always inherited from control, this is a limitation to keep the render procedure (layering, compositing) design simple.
 
@@ -55,11 +54,14 @@ namespace cheonsa
 		virtual void_c _load_properties( data_scribe_markup_c::node_c const * node );
 
 	public:
-		menu_element_c( string8_c const & name );
+		menu_element_c();
 
 		virtual void_c update_animations( float32_c time_step ) = 0;
 
 		virtual void_c set_style_key( string8_c const & value ) = 0;
+
+		void_c set_color_theme_key( string8_c const & value );
+		void_c set_color_theme( menu_color_theme_c const * value );
 
 		void_c set_layout_simple( box32x2_c const & local_box ); // sets layout mode to simple and sets metrics.
 		void_c set_layout_box_anchor( menu_anchor_e local_box_anchor, box32x2_c const & local_box_anchor_measures ); // sets layout mode to anchor and sets metrices.
@@ -72,15 +74,10 @@ namespace cheonsa
 		void_c set_mother_control( menu_control_c * value ); // the need for this is very specific, generally you don't need to use this directly.
 
 		string8_c const & get_name() const;
+		void_c set_name( string8_c const & value );
 
 		vector32x4_c const & get_local_color() const;
 		void_c set_local_color( vector32x4_c const & value );
-
-		menu_shared_color_class_e get_shared_color_class() const;
-		void_c set_shared_color_class( menu_shared_color_class_e value );
-
-		boolean_c get_invert_shared_colors() const;
-		void_c set_invert_shared_colors( boolean_c value );
 
 		boolean_c get_is_showed() const;
 		void_c set_is_showed( boolean_c value );

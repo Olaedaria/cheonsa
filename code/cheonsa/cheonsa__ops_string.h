@@ -9,80 +9,95 @@ namespace cheonsa
 	namespace ops
 	{
 
+		/*
+		for string to list (vector) conversion functions:
+				convert_string8_to_*xn
+			the string should contain a list of number values separated by non-number characters.
+			this allows number values to be extracted even from "bad" or ugly formatting.
+			the following formats are all parsable:
+				"(1.0, 2, 03.0" will produce a list of 3 number values.
+				"1, 2 3" will produce a list of 3 number values.
+		for all list (vector) to string conversion functions:
+				convert_*xn_to_string8
+			the result string will be formatted like:
+				"(a, b, c)"
+		*/
+
+
 		char8_c convert_digit_to_char8( sint8_c const digit ); // converts a number value in range 0-15 to a character value in range '0'-'9' or 'A'-'F'.
 		sint8_c convert_char8_to_digit( char8_c const character ); // converts a character value in range '0'-'9' or 'a'-'f' or 'A'-'F' to a number value in range 0-15. returns -1 (which in unsigned types is actually maximum: 0xFF, 255) if character is invalid.
 
-		boolean_c convert_string8_to_sint8( string8_c const & in, sint8_c & out );
-		void_c convert_sint8_to_string8( sint8_c in, string8_c & out );
-		boolean_c convert_string8_to_sint8xn( string8_c const & in, core_list_c< sint8_c > & out );
-		void_c convert_sint8xn_to_string8( core_list_c< sint8_c > const & in, string8_c & out );
+		boolean_c convert_string8_to_sint8( string8_c const & in, sint8_c & out ); // converts a base 10 integer string value to a sint8 value.
+		void_c convert_sint8_to_string8( sint8_c in, string8_c & out ); // converts a sint8 value to a base 10 integer string value.
+		boolean_c convert_string8_to_sint8xn( string8_c const & in, core_list_c< sint8_c > & out ); // converts a base 10 integer vector string value to a list of sint8 values.
+		void_c convert_sint8xn_to_string8( core_list_c< sint8_c > const & in, string8_c & out ); // converts a list of sint8 values to a base 10 integer vector string value.
 
-		boolean_c convert_string8_to_uint8( string8_c const & in, uint8_c & out );
-		void_c convert_uint8_to_string8( uint8_c in, string8_c & out );
-		boolean_c convert_string8_to_uint8xn( string8_c const & in, core_list_c< uint8_c > & out );
-		void_c convert_uint8xn_to_string8( core_list_c< uint8_c > const & in, string8_c & out );
+		boolean_c convert_string8_to_uint8( string8_c const & in, uint8_c & out ); // converts a base 10 integer string value to a uint8 value.
+		void_c convert_uint8_to_string8( uint8_c in, string8_c & out ); // converts a uint8 value to a base 10 integer string value.
+		boolean_c convert_string8_to_uint8xn( string8_c const & in, core_list_c< uint8_c > & out ); // converts a base 10 integer vector string value to a list of uint8 values.
+		void_c convert_uint8xn_to_string8( core_list_c< uint8_c > const & in, string8_c & out ); // converts a list of uint8 values to a base 10 integer vector string value.
 
-		boolean_c convert_string8_to_sint16( string8_c const & in, sint16_c & out );
-		void_c convert_sint16_to_string8( sint16_c in, string8_c & out ); // if desired_length > 0, then result string will add leading zeros or truncate leading digits.
-		boolean_c convert_string8_to_sint16xn( string8_c const & in, core_list_c< sint16_c > & out ); // converts a string of number values into a list of numbers, each number is expected to be delimited by non-numeric characters, so it can be commas, spaces, letters, whatever. if out is a dynamic mode list then values will be appended to the end of it, otherwise if out is a static mode list then values in the list will be set in-place.
-		void_c convert_sint16xn_to_string8( core_list_c< sint16_c > const & in, string8_c & out ); // converts strings to parenthesis enclosed comma separated list of number values, "(N1, N2, N3, N...)".
+		boolean_c convert_string8_to_sint16( string8_c const & in, sint16_c & out ); // converts a base 10 integer string value to a sint16 value.
+		void_c convert_sint16_to_string8( sint16_c in, string8_c & out ); // converts a sint16 value to a base 10 integer string value.
+		boolean_c convert_string8_to_sint16xn( string8_c const & in, core_list_c< sint16_c > & out ); // converts a base 10 integer vector string value to a list of sint16 values.
+		void_c convert_sint16xn_to_string8( core_list_c< sint16_c > const & in, string8_c & out ); // converts a list of sint16 values to a base 10 integer vector string value.
 
-		boolean_c convert_string8_to_uint16( string8_c const & in, uint16_c & out );
-		void_c convert_uint16_to_string8( uint16_c in, string8_c & out );
-		boolean_c convert_string8_to_uint16xn( string8_c const & in, core_list_c< uint16_c > & out );
-		void_c convert_uint16xn_to_string8( core_list_c< uint16_c > const & in, string8_c & out );
+		boolean_c convert_string8_to_uint16( string8_c const & in, uint16_c & out ); // converts a base 10 integer string value to a uint16 value.
+		void_c convert_uint16_to_string8( uint16_c in, string8_c & out ); // converts uint16 value to a base 10 integer string value.
+		boolean_c convert_string8_to_uint16xn( string8_c const & in, core_list_c< uint16_c > & out ); // cnverts a base 10 integer vector string value to a list of uint16 values.
+		void_c convert_uint16xn_to_string8( core_list_c< uint16_c > const & in, string8_c & out ); // converts a list of uint16 values to a base 10 integer vector string value.
 
-		boolean_c convert_string8_to_sint32( string8_c const & in, sint32_c & out );
-		void_c convert_sint32_to_string8( sint32_c in, string8_c & out ); // if desired_length > 0, then result string will add leading zeros or truncate leading digits.
-		boolean_c convert_string8_to_sint32xn( string8_c const & in, core_list_c< sint32_c > & out ); // converts a string of number values into a list of numbers, each number is expected to be delimited by non-numeric characters, so it can be commas, spaces, letters, whatever. if out is a dynamic mode list then values will be appended to the end of it, otherwise if out is a static mode list then values in the list will be set in-place.
-		void_c convert_sint32xn_to_string8( core_list_c< sint32_c > const & in, string8_c & out ); // converts strings to parenthesis enclosed comma separated list of number values, "(N1, N2, N3, N...)".
+		boolean_c convert_string8_to_sint32( string8_c const & in, sint32_c & out ); // converts a base 10 integer string value to a sint32 value.
+		void_c convert_sint32_to_string8( sint32_c in, string8_c & out ); // converts a sint32 value to a base 10 integer string value.
+		boolean_c convert_string8_to_sint32xn( string8_c const & in, core_list_c< sint32_c > & out ); // converts a base 10 integer vector string value to a list of sint32 values.
+		void_c convert_sint32xn_to_string8( core_list_c< sint32_c > const & in, string8_c & out ); // converts a list of sint32 values to a base 10 integer vector string value.
 
-		boolean_c convert_string8_to_uint32( string8_c const & in, uint32_c & out );
-		void_c convert_uint32_to_string8( uint32_c in, string8_c & out );
-		boolean_c convert_string8_to_uint32xn( string8_c const & in, core_list_c< uint32_c > & out );
-		void_c convert_uint32xn_to_string8( core_list_c< uint32_c > const & in, string8_c & out );
+		boolean_c convert_string8_to_uint32( string8_c const & in, uint32_c & out ); // converts a base 10 integer string value to a uint32 value.
+		void_c convert_uint32_to_string8( uint32_c in, string8_c & out ); // converts a uint32 value to a base 10 integer string value.
+		boolean_c convert_string8_to_uint32xn( string8_c const & in, core_list_c< uint32_c > & out ); // converts a base 10 integer vector string value to a list of uint32 values.
+		void_c convert_uint32xn_to_string8( core_list_c< uint32_c > const & in, string8_c & out ); // converts a list of uint32 values to a base 10 integer vector string value.
 
-		boolean_c convert_string8_to_sint64( string8_c const & in, sint64_c & out );
-		void_c convert_sint64_to_string8( sint64_c in, string8_c & out );
-		boolean_c convert_string8_to_sint64xn( string8_c const & in, core_list_c< sint64_c > & out );
-		void_c convert_sint64xn_to_string8( core_list_c< sint64_c > const & in, string8_c & out );
+		boolean_c convert_string8_to_sint64( string8_c const & in, sint64_c & out ); // converts a base 10 integer string value to a sint64 value.
+		void_c convert_sint64_to_string8( sint64_c in, string8_c & out ); // converts a sint64 value to a base 10 integer string value.
+		boolean_c convert_string8_to_sint64xn( string8_c const & in, core_list_c< sint64_c > & out ); // converts a base 10 integer vector string value to a list of sint64 values.
+		void_c convert_sint64xn_to_string8( core_list_c< sint64_c > const & in, string8_c & out ); // converts a list of sint64 values to a base 10 integer vector string value.
 
-		boolean_c convert_string8_to_uint64( string8_c const & in, uint64_c & out );
-		void_c convert_uint64_to_string8( uint64_c in, string8_c & out );
-		boolean_c convert_string8_to_uint64xn( string8_c const & in, core_list_c< uint64_c > & out );
-		void_c convert_uint64xn_to_string8( core_list_c< uint64_c > const & in, string8_c & out );
+		boolean_c convert_string8_to_uint64( string8_c const & in, uint64_c & out ); // converts a base 10 integer string value to a uint64 value.
+		void_c convert_uint64_to_string8( uint64_c in, string8_c & out ); // converts a uint64 value to a base 10 integer string value.
+		boolean_c convert_string8_to_uint64xn( string8_c const & in, core_list_c< uint64_c > & out ); // converts a base 10 integer vector string value to a list of uint64 values.
+		void_c convert_uint64xn_to_string8( core_list_c< uint64_c > const & in, string8_c & out ); // converts a list of uint64 values to base 10 integer vector string value.
 
 		boolean_c convert_hexadecimal_string8_to_uint64( string8_c const & in, uint64_c & out );
 		void_c convert_uint64_to_hexadecimal_string8( uint64_c in, string8_c & out );
 
-		boolean_c convert_string8_to_float32( string8_c const & in, float32_c & out ); // at the moment, always returns true even if the string was not valid for conversion.
-		void_c convert_float32_to_string8( float32_c in, string8_c & out );
-		boolean_c convert_string8_to_float32xn( string8_c const & in, core_list_c< float32_c > & out ); // converts a string of number values into a list of numbers, each number is expected to be delimited by non-numeric characters, so it can be commas, spaces, letters, whatever. if out is a dynamic mode list then values will be appended to the end of it, otherwise if out is a static mode list then values in the list will be set in-place.
-		void_c convert_float32xn_to_string8( core_list_c< float32_c > const & in, string8_c & out ); // converts strings to parenthesis enclosed comma separated list of number values, "(N1, N2, N3, N...)".
+		boolean_c convert_string8_to_float32( string8_c const & in, float32_c & out ); // converts a base 10 decimal string value to a float32 value. at the moment, always returns true even if the string was not valid for conversion.
+		void_c convert_float32_to_string8( float32_c in, string8_c & out ); // converts a float32 value to a base 10 decimal string value with a decimal precision of 4.
+		boolean_c convert_string8_to_float32xn( string8_c const & in, core_list_c< float32_c > & out ); // converts a base 10 decimal vector string value to a list of float32 values.
+		void_c convert_float32xn_to_string8( core_list_c< float32_c > const & in, string8_c & out ); // converts a list of float32 values to a base 10 decimal vector string value.
 
-		boolean_c convert_string8_to_float64( string8_c const & in, float64_c & out );
-		void_c convert_float64_to_string8( float64_c const in, string8_c & out );
-		boolean_c convert_string8_to_float64xn( string8_c const & in, core_list_c< float64_c > & out ); // converts a string of number values into a list of numbers, each number is expected to be delimited by non-numeric characters, so it can be commas, spaces, letters, whatever. if out is a dynamic mode list then values will be appended to the end of it, otherwise if out is a static mode list then values in the list will be set in-place.
-		void_c convert_float64xn_to_string8( core_list_c< float64_c > const & in, string8_c & out ); // converts strings to parenthesis enclosed comma separated list of number values, "(N1, N2, N3, N...)".
+		boolean_c convert_string8_to_float64( string8_c const & in, float64_c & out ); // converts a base 10 decimal string value to a float64 value.
+		void_c convert_float64_to_string8( float64_c const in, string8_c & out ); // converts a float64 value to a base 10 decimal string value with decimal precision of 4.
+		boolean_c convert_string8_to_float64xn( string8_c const & in, core_list_c< float64_c > & out ); // converts a base 10 decimal vector string value to a list of float64 values.
+		void_c convert_float64xn_to_string8( core_list_c< float64_c > const & in, string8_c & out ); // converts a list of float64 values to a base 10 decimal vector string value.
 
-		boolean_c convert_string8_to_boolean( string8_c const & in, boolean_c & out );
-		void_c convert_boolean_to_string8( boolean_c in, string8_c & out );
+		boolean_c convert_string8_to_boolean( string8_c const & in, boolean_c & out ); // converts a string value to a boolean value. checks for "true", "false", "1", and "0".
+		void_c convert_boolean_to_string8( boolean_c in, string8_c & out ); // converts a boolean value to a "true" or "false" string value.
 
 		boolean_c convert_rgb_to_hexadecimal_string8( vector64x3_c const & rgb, string8_c & string ); // converts an rgb color to a string of hexadecimal digits.
 		boolean_c convert_rgba_to_hexadecimal_string8( vector64x4_c const & rgba, string8_c & string ); // converts an rgba color to a string of hexadecimal digits.
 
-		boolean_c convert_string8_to_rgb( string8_c const & string, vector32x3_c & rgb );
-		boolean_c convert_string8_to_rgb( string8_c const & string, vector64x3_c & rgb );
-		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
-		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba ); // converts a list of R, G, B, and A floats, or a hexadecimal #rgb, #rgba, #rrggbb, #rrggbbaa. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
+		boolean_c convert_string8_to_rgb( string8_c const & string, vector32x3_c & rgb ); // detects and converts base 10 decimal vector string value, or hexadecimal encoded #rgb, #rgba, #rrggbb, #rrggbbaa.
+		boolean_c convert_string8_to_rgb( string8_c const & string, vector64x3_c & rgb ); // detects and converts base 10 decimal vector string value, or hexadecimal encoded #rgb, #rgba, #rrggbb, #rrggbbaa.
+		boolean_c convert_string8_to_rgba( string8_c const & string, vector32x4_c & rgba ); // detects and converts base 10 decimal vector string value, or hexadecimal encoded #rgb, #rgba, #rrggbb, #rrggbbaa.. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
+		boolean_c convert_string8_to_rgba( string8_c const & string, vector64x4_c & rgba ); // detects and converts base 10 decimal vector string value, or hexadecimal encoded #rgb, #rgba, #rrggbb, #rrggbbaa.. if alpha value is not defined in string, then the result's alpha will be set to 1.0f.
 
-		boolean_c char16_is_printable( char16_c a ); // any printable character.
-		boolean_c char16_is_space( char16_c a );
-		boolean_c char16_is_latin_letter( char16_c a );
-		boolean_c char16_is_decimal_digit( char16_c a );
-		boolean_c char16_is_hexadecimal_digit( char16_c a );
-		boolean_c char16_is_punctuation( char16_c a );
-		boolean_c char16_is_control( char16_c a );
+		boolean_c char16_is_printable( char16_c a ); // returns true if a refers to any type of printable character.
+		boolean_c char16_is_space( char16_c a ); // returns true if a refers to a white space type of character.
+		boolean_c char16_is_latin_letter( char16_c a ); // returns true if a refers to a latin letter between 'a' and 'z' or 'A' and 'Z'.
+		boolean_c char16_is_decimal_digit( char16_c a ); // returns true if a refers to a decimal digit between '0' and '9'.
+		boolean_c char16_is_hexadecimal_digit( char16_c a ); // returns true if a refers to a hexadecimal digit between '0' and '9' or 'a' and 'f' or 'A' and 'F'.
+		boolean_c char16_is_punctuation( char16_c a ); // returns true if a refers to any kind of punctuation character.
+		boolean_c char16_is_control( char16_c a ); // returns true if a refers to any kind of control character. cheonsa's text processing is only programmed to know how to deal with '\n' (new line).
 
 		boolean_c char8_compare( char8_c a, char8_c b, boolean_c case_sensitive );
 		boolean_c char16_compare( char16_c a, char16_c b, boolean_c case_sensitive );
@@ -99,7 +114,9 @@ namespace cheonsa
 		void_c string8_to_lower( string8_c & string ); // converts the input string instance to lower case.
 		void_c string16_to_lower( string16_c & string ); // converts the input string instance to lower case.
 
-		void_c string8_pad_with_leading_zeros( string8_c & string, sint32_c desired_length ); // string will be padded with as many zeros as needed so that it's length reaches desired_length. if string's length is already >= desired_length then nothing will happen.
+		// pads a base 10 integer or decimal string value with as many leading zeros as needed so that it reaches desired_whole_number_length long.
+		// if the whole number part of the string value is already at least desired_whole_number_length long, then this won't do anything.
+		void_c string8_pad_whole_number_with_leading_zeros( string8_c & string, sint32_c desired_whole_number_length );
 
 		string8_c string8_trim_front( string8_c const & string );
 		string16_c string16_trim_front( string16_c const & string );

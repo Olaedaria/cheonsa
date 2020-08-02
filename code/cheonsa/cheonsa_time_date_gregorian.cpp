@@ -341,7 +341,7 @@ namespace cheonsa
 						ops::convert_sint32_to_string8( year, temp );
 						if ( temp.get_length() < 2 )
 						{
-							ops::string8_pad_with_leading_zeros( temp, 2 );
+							ops::string8_pad_whole_number_with_leading_zeros( temp, 2 );
 						}
 						else if ( temp.get_length() > 2 )
 						{
@@ -350,7 +350,7 @@ namespace cheonsa
 						break;
 					case time_date_code_e_MM:
 						ops::convert_sint32_to_string8( month_of_year, temp );
-						ops::string8_pad_with_leading_zeros( temp, 2 );
+						ops::string8_pad_whole_number_with_leading_zeros( temp, 2 );
 						break;
 					case time_date_code_e_M:
 						ops::convert_sint32_to_string8( month_of_year, temp );
@@ -379,7 +379,7 @@ namespace cheonsa
 						break;
 					case time_date_code_e_DD:
 						ops::convert_sint32_to_string8( day_of_month, temp );
-						ops::string8_pad_with_leading_zeros( temp, 2 );
+						ops::string8_pad_whole_number_with_leading_zeros( temp, 2 );
 						break;
 					case time_date_code_e_D:
 						ops::convert_sint32_to_string8( day_of_month, temp );
@@ -408,18 +408,18 @@ namespace cheonsa
 						break;
 					case time_date_code_e_hh:
 						ops::convert_sint32_to_string8( hour_of_day, temp );
-						ops::string8_pad_with_leading_zeros( temp, 2 );
+						ops::string8_pad_whole_number_with_leading_zeros( temp, 2 );
 						break;
 					case time_date_code_e_h:
 						ops::convert_sint32_to_string8( hour_of_day, temp );
 						break;
 					case time_date_code_e_mm:
 						ops::convert_sint32_to_string8( minute_of_hour, temp );
-						ops::string8_pad_with_leading_zeros( temp, 2 );
+						ops::string8_pad_whole_number_with_leading_zeros( temp, 2 );
 						break;
 					case time_date_code_e_ss:
 						ops::convert_sint32_to_string8( second_of_minute, temp );
-						ops::string8_pad_with_leading_zeros( temp, 2 );
+						ops::string8_pad_whole_number_with_leading_zeros( temp, 2 );
 						break;
 				}
 				string += code_length;

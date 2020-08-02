@@ -18,15 +18,6 @@ namespace cheonsa
 
 		static vector32x2_c default_size; // new file picker windows will be set to this size by default.
 
-	public:
-		enum mode_e
-		{
-			mode_e_okay,
-			mode_e_cancel_okay,
-			mode_e_no_yes,
-			mode_e_cancel_no_yes,
-		};
-
 	protected:
 		menu_control_label_c * _message_label;
 
@@ -34,7 +25,7 @@ namespace cheonsa
 		menu_control_button_c * _b_button; // second from right.
 		menu_control_button_c * _c_button; // third from right.
 
-		mode_e _mode;
+		menu_dialog_mode_e _dialog_mode;
 
 		void_c _handle_button_on_clicked( menu_event_information_c event_information );
 
@@ -44,8 +35,8 @@ namespace cheonsa
 		menu_control_window_message_c();
 		virtual ~menu_control_window_message_c() override;
 
-		mode_e get_mode() const;
-		void_c set_mode( mode_e value );
+		menu_dialog_mode_e get_dialog_mode() const;
+		void_c set_dialog_mode( menu_dialog_mode_e value );
 
 		string16_c get_message_plain_text_value() const;
 		void_c set_message_plain_text_value( string8_c const & plain_text );

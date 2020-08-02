@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="cheonsa_menu_control_debug_statistics.h" />
     <ClInclude Include="cheonsa_menu_control_debug_console.h" />
+    <ClInclude Include="cheonsa_menu_control_grid.h" />
     <ClInclude Include="cheonsa__ops.h" />
     <ClInclude Include="cheonsa__types.h" />
     <ClInclude Include="cheonsa__types_box32x2.h" />
@@ -728,6 +729,7 @@
     <ClCompile Include="cheonsa_debug_manager.cpp" />
     <ClCompile Include="cheonsa_menu_control_debug_statistics.cpp" />
     <ClCompile Include="cheonsa_menu_control_debug_console.cpp" />
+    <ClCompile Include="cheonsa_menu_control_grid.cpp" />
     <ClCompile Include="cheonsa__types_box32x2.cpp" />
     <ClCompile Include="cheonsa__types_box32x3.cpp" />
     <ClCompile Include="cheonsa__types_box64x2.cpp" />

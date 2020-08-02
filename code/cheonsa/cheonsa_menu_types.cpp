@@ -240,16 +240,35 @@ namespace cheonsa
 		return result;
 	}
 
+	menu_color_slot_e menu_color_slot_e_from_string( string8_c const & value )
+	{
+		menu_color_slot_e result = menu_color_slot_e_primary;
+		if ( value == "primary" )
+		{
+			result = menu_color_slot_e_primary;
+		}
+		else if ( value == "secondary" )
+		{
+			result = menu_color_slot_e_secondary;
+		}
+		else if ( value == "text" )
+		{
+			result = menu_color_slot_e_text;
+		}
+		return result;
+	}
+
+
 
 	//
 	//
-	// menu_color_style_c::reference_c
+	// menu_color_theme_c::reference_c
 	//
 	//
 
-	core_linked_list_c< menu_color_style_c::reference_c * > menu_color_style_c::reference_c::_global_list;
+	core_linked_list_c< menu_color_theme_c::reference_c * > menu_color_theme_c::reference_c::_global_list;
 
-	menu_color_style_c::reference_c::reference_c()
+	menu_color_theme_c::reference_c::reference_c()
 		: _global_list_node( this )
 		, _key()
 		, _value( nullptr )
@@ -257,63 +276,86 @@ namespace cheonsa
 		_global_list.insert_at_end( &_global_list_node );
 	}
 
-	menu_color_style_c::reference_c::~reference_c()
+	menu_color_theme_c::reference_c::~reference_c()
 	{
 		_global_list.remove( &_global_list_node );
 	}
 
-	string8_c const & menu_color_style_c::reference_c::get_key() const
+	string8_c const & menu_color_theme_c::reference_c::get_key() const
 	{
 		return _key;
 	}
 
-	void_c menu_color_style_c::reference_c::set_key( string8_c const & value )
+	void_c menu_color_theme_c::reference_c::set_key( string8_c const & value )
 	{
 		_key = value;
 		resolve();
 	}
 
-	menu_color_style_c const * menu_color_style_c::reference_c::get_value() const
+	menu_color_theme_c const * menu_color_theme_c::reference_c::get_value() const
 	{
 		return _value;
 	}
 
-	void_c menu_color_style_c::reference_c::resolve()
+	void_c menu_color_theme_c::reference_c::set_value( menu_color_theme_c const * value )
 	{
-		menu_color_style_c const * new_value = engine.get_menu_style_manager()->find_color_style( _key );
+		if ( _value != value )
+		{
+			if ( _value )
+			{
+				//on_unloaded.invoke( this );
+			}
+			_value = value;
+			if ( _value )
+			{
+				_key = _value->key;
+				//on_loaded.invoke( this );
+			}
+			else
+			{
+				_key = string8_c();
+			}
+		}
+	}
+
+	void_c menu_color_theme_c::reference_c::resolve()
+	{
+		menu_color_theme_c const * new_value = engine.get_menu_style_manager()->find_color_theme( _key );
 		if ( _value != new_value )
 		{
 			_value = new_value;
 		}
 	}
-
-	void_c menu_color_style_c::reference_c::unresolve()
+	void_c menu_color_theme_c::reference_c::unresolve()
 	{
-		_value = nullptr;
 	}
 
 
-
-
 	//
 	//
-	// menu_color_style_c
+	// menu_color_theme_c
 	//
 	//
 
-	menu_color_style_c::menu_color_style_c()
+	menu_color_theme_c::menu_color_theme_c()
 		: key()
-		, value( 1.0f, 1.0f, 1.0f, 1.0f )
+		, colors()
 	{
+		reset();
 	}
 
-	void_c menu_color_style_c::reset()
+	void_c menu_color_theme_c::reset()
 	{
-		key = string8_c();
-		value = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+		for ( sint32_c i = 0; i < menu_color_slot_e_count_; i++ )
+		{
+			for ( sint32_c j = 0; j < menu_state_e_count_; j++ )
+			{
+				colors[ i ][ j ] = vector32x4_c( 1.0f, 1.0f, 1.0f, 1.0f );
+			}
+		}
 	}
 
-	void_c menu_color_style_c::load( data_scribe_markup_c::node_c const * node )
+	void_c menu_color_theme_c::load_markup( data_scribe_markup_c::node_c const * node )
 	{
 		reset();
 
@@ -325,17 +367,161 @@ namespace cheonsa
 			key = attribute->get_value();
 		}
 
-		attribute = node->find_attribute( "value" );
+		attribute = node->find_attribute( "primary_normal" );
 		if ( attribute )
 		{
-			ops::convert_string8_to_rgba( attribute->get_value(), value );
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_primary ][ menu_state_e_normal ] );
+		}
+
+		attribute = node->find_attribute( "primary_selected" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_primary ][ menu_state_e_selected ] );
+		}
+
+		attribute = node->find_attribute( "primary_pressed" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_primary ][ menu_state_e_pressed ] );
+		}
+
+		attribute = node->find_attribute( "primary_disabled" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_primary ][ menu_state_e_disabled ] );
+		}
+
+		attribute = node->find_attribute( "secondary_normal" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_secondary ][ menu_state_e_normal ] );
+		}
+
+		attribute = node->find_attribute( "secondary_selected" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_secondary ][ menu_state_e_selected ] );
+		}
+
+		attribute = node->find_attribute( "secondary_pressed" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_secondary ][ menu_state_e_pressed ] );
+		}
+
+		attribute = node->find_attribute( "secondary_disabled" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_secondary ][ menu_state_e_disabled ] );
+		}
+
+		attribute = node->find_attribute( "text_normal" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_text ][ menu_state_e_normal ] );
+		}
+
+		attribute = node->find_attribute( "text_selected" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_text ][ menu_state_e_selected ] );
+		}
+
+		attribute = node->find_attribute( "text_pressed" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_text ][ menu_state_e_pressed ] );
+		}
+
+		attribute = node->find_attribute( "text_disabled" );
+		if ( attribute )
+		{
+			ops::convert_string8_to_rgba( attribute->get_value(), colors[ menu_color_slot_e_text ][ menu_state_e_disabled ] );
 		}
 	}
 
-	void_c menu_color_style_c::initialize( string8_c const & key, vector32x4_c const & value )
+	void_c menu_color_theme_c::save_markup( string8_c & document ) const
 	{
-		this->key = key;
-		this->value = value;
+		string8_c value_as_string8;
+
+		document += "\t<color_theme\r\n";
+
+		document += "\t\tkey=\"";
+		document += key;
+		document += "\"\r\n";
+
+		document += "\t\tprimary_normal=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_primary ][ menu_state_e_normal ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\tprimary_selected=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_primary ][ menu_state_e_selected ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\tprimary_pressed=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_primary ][ menu_state_e_pressed ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\tprimary_disabled=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_primary ][ menu_state_e_disabled ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\tsecondary_normal=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_secondary ][ menu_state_e_normal ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\tsecondary_selected=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_secondary ][ menu_state_e_selected ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\tsecondary_pressed=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_secondary ][ menu_state_e_pressed ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\tsecondary_disabled=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_secondary ][ menu_state_e_disabled ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\ttext_normal=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_text ][ menu_state_e_normal ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\ttext_selected=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_text ][ menu_state_e_selected ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\ttext_pressed=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_text ][ menu_state_e_pressed ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"\r\n";
+
+		document += "\t\ttext_disabled=\"";
+		ops::convert_float32xn_to_string8( core_list_c< float32_c >( core_list_mode_e_static, colors[ menu_color_slot_e_text ][ menu_state_e_disabled ].as_array(), 4 ), value_as_string8 );
+		document += value_as_string8;
+		document += "\"/>\r\n";
+	}
+
+	menu_color_theme_c & menu_color_theme_c::operator = ( menu_color_theme_c const & other )
+	{
+		key = other.key;
+		for ( sint32_c i = 0; i < menu_color_slot_e_count_; i++ )
+		{
+			for ( sint32_c j = 0; j < menu_state_e_count_; j++ )
+			{
+				colors[ i ][ j ] = other.colors[ i ][ j ];
+			}
+		}
+		return *this;
 	}
 
 
@@ -355,7 +541,6 @@ namespace cheonsa
 	void_c menu_frame_style_c::state_c::reset()
 	{
 		show = true;
-		swap_shared_colors = false;
 		saturation = 1.0f;
 		apparent_scale = 1.0f;
 		texture_map[ 0 ] = 0;
@@ -379,11 +564,10 @@ namespace cheonsa
 
 	core_linked_list_c< menu_frame_style_c::reference_c * > menu_frame_style_c::reference_c::_global_list;
 
-	menu_frame_style_c::reference_c::reference_c( menu_element_frame_c * owner )
+	menu_frame_style_c::reference_c::reference_c()
 		: _global_list_node( this )
 		, _key()
 		, _value( nullptr )
-		, _owner( owner )
 	{
 		_global_list.insert_at_end( &_global_list_node );
 	}
@@ -458,8 +642,8 @@ namespace cheonsa
 		, texture( nullptr )
 		, texture_map_mode( menu_texture_map_mode_e_stretch )
 		, texture_map_fill_middle( true )
-		, pixel_shader_reference()
-		, state_list()
+		, pixel_shader()
+		, states()
 	{
 	}
 
@@ -469,14 +653,14 @@ namespace cheonsa
 		texture = nullptr;
 		texture_map_mode = menu_texture_map_mode_e_stretch;
 		texture_map_fill_middle = true;
-		pixel_shader_reference = nullptr;
+		pixel_shader = nullptr;
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 		{
-			state_list[ i ].reset();
+			states[ i ].reset();
 		}
 	}
 
-	void_c menu_frame_style_c::load( data_scribe_markup_c::node_c const * node )
+	void_c menu_frame_style_c::load_markup( data_scribe_markup_c::node_c const * node )
 	{
 		reset();
 
@@ -533,7 +717,7 @@ namespace cheonsa
 		attribute = node->find_attribute( "pixel_shader" );
 		if ( attribute )
 		{
-			pixel_shader_reference = engine.get_video_renderer_shader_manager()->load_ps( string16_c( attribute->get_value() ) );
+			pixel_shader = engine.get_video_renderer_shader_manager()->load_ps( string16_c( attribute->get_value() ) );
 		}
 
 		boolean_c show = true;
@@ -543,21 +727,13 @@ namespace cheonsa
 			ops::convert_string8_to_boolean( attribute->get_value(), show );
 		}
 
-		boolean_c swap_shared_colors = false;
-		attribute = node->find_attribute( "swap_shared_colors" );
-		if ( attribute )
-		{
-			ops::convert_string8_to_boolean( attribute->get_value(), swap_shared_colors );
-		}
-
-		// apply defaults if they were defined.
+		// apply generic default states if they were defined.
 		if ( texture_map_origin_is_defined && texture_map_size_is_defined && texture_map_edges_is_defined )
 		{
 			for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 			{
-				state_c & state = state_list[ i ];
+				state_c & state = states[ i ];
 				state.show = show;
-				state.swap_shared_colors = swap_shared_colors;
 				state.texture_map[ 0 ] = texture_map_origin[ 0 ];
 				state.texture_map[ 1 ] = texture_map_origin[ 1 ];
 				state.texture_map[ 2 ] = texture_map_origin[ 0 ] + texture_map_size[ 0 ];
@@ -569,6 +745,7 @@ namespace cheonsa
 			}
 		}
 
+		// load specific states if they are defined.
 		sint32_c state_index = 0;
 		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
 		while ( sub_node )
@@ -586,7 +763,7 @@ namespace cheonsa
 				// if state index is valid, then continue.
 				if ( state_index >= 0 && state_index < menu_state_e_count_ )
 				{
-					state_c & state = state_list[ state_index ];
+					state_c & state = states[ state_index ];
 
 					state.show = true;
 
@@ -594,12 +771,6 @@ namespace cheonsa
 					if ( attribute )
 					{
 						ops::convert_string8_to_boolean( attribute->get_value(), state.show );
-					}
-
-					attribute = sub_node->find_attribute( "swap_shared_colors" );
-					if ( attribute )
-					{
-						ops::convert_string8_to_boolean( attribute->get_value(), state.swap_shared_colors );
 					}
 
 					attribute = sub_node->find_attribute( "saturation" );
@@ -645,7 +816,6 @@ namespace cheonsa
 
 
 
-
 	//
 	//
 	// menu_text_style_c
@@ -658,7 +828,6 @@ namespace cheonsa
 		: _global_list_node( this )
 		, _key()
 		, _value( nullptr )
-		, _owner( owner )
 	{
 		_global_list.insert_at_end( &_global_list_node );
 	}
@@ -739,7 +908,7 @@ namespace cheonsa
 	void_c menu_text_style_c::state_c::reset()
 	{
 		show = true;
-		swap_shared_colors = false;
+		color_slot = menu_color_slot_e_text;
 		saturation = 1.0f;
 		apparent_scale = 1.0f;
 	}
@@ -780,11 +949,11 @@ namespace cheonsa
 		margin = box32x2_c( 0.0f, 0.0f, 0.0f, 0.0f );
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 		{
-			state_list[ i ].reset();
+			states[ i ].reset();
 		}
 	}
 
-	void_c menu_text_style_c::load( data_scribe_markup_c::node_c const * node )
+	void_c menu_text_style_c::load_markup( data_scribe_markup_c::node_c const * node )
 	{
 		reset();
 
@@ -884,21 +1053,22 @@ namespace cheonsa
 			ops::convert_string8_to_boolean( attribute->get_value(), show );
 		}
 
-		boolean_c swap_shared_colors = false;
-		attribute = node->find_attribute( "swap_shared_colors" );
+		menu_color_slot_e color_slot = menu_color_slot_e_text;
+		attribute = node->find_attribute( "color_slot" );
 		if ( attribute )
 		{
-			ops::convert_string8_to_boolean( attribute->get_value(), swap_shared_colors );
+			color_slot = menu_color_slot_e_from_string( attribute->get_value() );
 		}
 
-		// apply defaults.
+		// apply generic default states.
 		for ( sint32_c i = 0; i < menu_state_e_count_; i++ )
 		{
-			state_c & state = state_list[ i ];
+			state_c & state = states[ i ];
 			state.show = show;
-			state.swap_shared_colors = swap_shared_colors;
+			state.color_slot = color_slot;
 		}
 
+		// load specific states.
 		sint32_c state_index = 0;
 		data_scribe_markup_c::node_c const * sub_node = node->get_first_daughter();
 		while ( sub_node )
@@ -913,7 +1083,7 @@ namespace cheonsa
 				
 				if ( state_index < menu_state_e_count_ )
 				{
-					state_c & state = state_list[ state_index ];
+					state_c & state = states[ state_index ];
 
 					attribute = sub_node->find_attribute( "show" );
 					if ( attribute )
@@ -921,10 +1091,10 @@ namespace cheonsa
 						ops::convert_string8_to_boolean( attribute->get_value(), state.show );
 					}
 
-					attribute = sub_node->find_attribute( "swap_shared_colors" );
+					attribute = sub_node->find_attribute( "color_slot" );
 					if ( attribute )
 					{
-						ops::convert_string8_to_boolean( attribute->get_value(), state.swap_shared_colors );
+						state.color_slot = menu_color_slot_e_from_string( attribute->get_value() );
 					}
 
 					attribute = sub_node->find_attribute( "saturation" );

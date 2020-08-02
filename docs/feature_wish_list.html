@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="favicon.png">
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	    <title>(천사) cheonsa / feature list</title>
+	</head>
+	<body>
+		<a href="index.html" class="navigation">&#8598; index</a>
+		<h2>feature wish list</h2>
+		<ul>
+			<li>pre-cache glyphs.<br/>
+				<small>ranges of glyphs for certain fonts can be pre-rendered to the glyph atlas at first time start up to avoid performance hitches at run time.</small>
+			</li>
+			<li>font lists.<br/>
+				<small>if a requested glyph is not defined in the first font, then check the next font, and so on.</small>
+			</li>
+			<li>voxel fog.<br/>
+				<small>prefer to implement fog as voxels where fog is implemented in the forward render pass (which also works with transparent geometry), rather than as sprites where fog is applied in the post process pass (and only works for opaque geometry since only opaque geometry renders to depth buffer).</small>
+			</li>
+			<li>height map terrain.<br/>
+				<small>also implement a wysiwyg editor, with brush editing, pen tablet input friendly, texture splat painting, automatic generation of signed distance fields of distance to water shore line.</small>
+			</li>
+			<li>off screen bloom sources, glare.<br/>
+				<small>simulate how camera lenses might pick up light from light sources that are out side of the visible field of view. we could simulate the camera lense with a mesh and use pixel shaders, or do it in a post process. but the intention is to create soft, pretty, dreamy, washed out moods.</small>
+			</li>
+			<li>particles and ribbons</li>
+			<li>global illumination.<br/>
+				<small>with sparse voxel octrees or reflective shadow maps or something. or, just wait until real time ray tracing becomes more accessable and this problem might solve itself.</small>
+			</li>
+			<li>cloth simulation.<br/>
+				<small>it would be nice.</small>
+			</li>
+			<li>parallelize certain tasks.<br/>
+				resource loading is currently offers the option of loading resources asynchronously.
+				audio mixer currently runs on another thread, but this is typical.
+				my modern desktop has 8 cores/16 threads... think about what work loads could be parallelized.
+			</li>
+			<li>flesh simulation.<br/>
+				<small>create a physically based modeling system to model and simulate skeletons, muscle groups and tendons, fat, and skin (can slide around, can stretch, can bunch up and wrinkle). possibly through some point-spring soup. most of my difficulty in thinking about this is how to create a way to author in and export from blender, since blender doesn't have these kinds of features that we can translate from. systems like this exist for movies already, but i want to make something that can work in real time.</small>
+			</li>
+			<li>integrated auto updater.<br/>
+				<small>for live service games, let the game update itself without a separate launcher.</small>
+			</li>
+			<li>server/client networking model.<br/>
+				<small>for mmorpg style games.</small>
+			</li>
+			<li>layered depth slices. render the whole scene in several passes and composite them together, as a way to get around depth buffer precision limitations if we wanted to say (for example) render objects at millimeters away to millions of kilometers away.<br/>
+				<small>for example:<br/>
+					pass 0, very near depth slice: clip_near = 0.001, clip_far = 1.0.<br/>
+					pass 1, middle depth slice: clip_near = 1.0, clip_far = 1000.0.<br/>
+					pass 2, very far depth slice: clip near = 1000.0, clip_far = 1000000.0.
+				</small>
+			</li>
+		</ul>
+	</body>
+</html>

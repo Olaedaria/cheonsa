@@ -9,8 +9,7 @@ namespace cheonsa
 
 	menu_style_manager_c::menu_style_manager_c()
 		: _shared_transition_speed( 6.0f )
-		, _shared_color_style_list()
-		, _shared_color_style_dictionary()
+		, _internal_color_theme_dictionary()
 		, _default_font()
 		, _default_frame_style()
 		, _default_text_style()
@@ -29,89 +28,71 @@ namespace cheonsa
 
 	boolean_c menu_style_manager_c::start()
 	{
-		// initialize shared color styles.
-		sint32_c shared_color_style_index = 0;
-		// window
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_normal_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_normal_secondary", core_list_mode_e_static ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_normal_accent", core_list_mode_e_static ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_selected_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_selected_secondary", core_list_mode_e_static ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_selected_accent", core_list_mode_e_static ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_pressed_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_pressed_secondary", core_list_mode_e_static ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_pressed_accent", core_list_mode_e_static ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_disabled_primary", core_list_mode_e_static ), vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_disabled_secondary", core_list_mode_e_static ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_window, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_window_disabled_accent", core_list_mode_e_static ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
-		// button
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_normal_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_normal_secondary", core_list_mode_e_static ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_normal_accent", core_list_mode_e_static ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_selected_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_selected_secondary", core_list_mode_e_static ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_selected_accent", core_list_mode_e_static ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_pressed_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_pressed_secondary", core_list_mode_e_static ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_pressed_accent", core_list_mode_e_static ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_disabled_primary", core_list_mode_e_static ), vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_disabled_secondary", core_list_mode_e_static ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_button, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_button_disabled_accent", core_list_mode_e_static ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
-		// field
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_normal_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_normal_secondary", core_list_mode_e_static ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_normal, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_normal_accent", core_list_mode_e_static ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_selected_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_selected_secondary", core_list_mode_e_static ), vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_selected, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_selected_accent", core_list_mode_e_static ), vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_pressed_primary", core_list_mode_e_static ), vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_pressed_secondary", core_list_mode_e_static ), vector32x4_c( 0.8000f, 0.8000f, 0.8000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_pressed, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_pressed_accent", core_list_mode_e_static ), vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_primary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_disabled_primary", core_list_mode_e_static ), vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_secondary );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_disabled_secondary", core_list_mode_e_static ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
-		shared_color_style_index = get_shared_color_index( menu_shared_color_class_e_field, menu_state_e_disabled, menu_shared_color_slot_e_accent );
-		_shared_color_style_list[ shared_color_style_index ].initialize( string8_c( "e_field_disabled_accent", core_list_mode_e_static ), vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f ) );
-		// insert into dictionary.
-		sint32_c shared_color_count = menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_;
-		for ( sint32_c i = 0; i < shared_color_count; i++ )
-		{
-			_shared_color_style_dictionary.insert( _shared_color_style_list[ i ].key, &_shared_color_style_list[ i ] );
-		}
+		// initialize default shared color styles.
+
+		// fallback.
+		_internal_undefined_color_theme.key = string8_c( "internal_undefined", core_list_mode_e_static );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_normal ] = vector32x4_c( 1.0000f, 0.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_selected ] = vector32x4_c( 1.0000f, 0.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_pressed ] = vector32x4_c( 1.0000f, 0.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_disabled ] = vector32x4_c( 1.0000f, 0.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_normal ] = vector32x4_c( 0.0000f, 1.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_selected ] = vector32x4_c( 0.0000f, 1.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_pressed ] = vector32x4_c( 0.0000f, 1.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_disabled ] = vector32x4_c( 0.0000f, 1.0000f, 0.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_normal ] = vector32x4_c( 0.0000f, 0.0000f, 1.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_selected ] = vector32x4_c( 0.0000f, 0.0000f, 1.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_pressed ] = vector32x4_c( 0.0000f, 0.0000f, 1.0000f, 1.0000f );
+		_internal_undefined_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_disabled ] = vector32x4_c( 0.0000f, 0.0000f, 1.0000f, 1.0000f );
+		_internal_color_theme_dictionary.insert( _internal_undefined_color_theme.key, &_internal_undefined_color_theme );
+
+		// window.
+		_internal_window_color_theme.key = string8_c( "internal_window", core_list_mode_e_static );
+		_internal_window_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_normal ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_selected ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_pressed ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_disabled ] = vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_normal ] = vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_selected ] = vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_pressed ] = vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_disabled ] = vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_normal ] = vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_selected ] = vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_pressed ] = vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f );
+		_internal_window_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_disabled ] = vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f );
+		_internal_color_theme_dictionary.insert( _internal_window_color_theme.key, &_internal_window_color_theme );
+
+		// button.
+		_internal_button_color_theme.key = string8_c( "internal_button", core_list_mode_e_static );
+		_internal_button_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_normal ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_primary ][  menu_state_e_selected ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_primary ][  menu_state_e_pressed ] =vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_primary ][  menu_state_e_disabled ] = vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_normal ] = vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_selected ] = vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_pressed ] = vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_disabled ] = vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_normal ] = vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_selected ] = vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_pressed ] = vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f );
+		_internal_button_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_disabled ] = vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f );
+		_internal_color_theme_dictionary.insert( _internal_button_color_theme.key, &_internal_button_color_theme );
+
+		// field.
+		_internal_field_color_theme.key = string8_c( "internal_field", core_list_mode_e_static );
+		_internal_field_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_normal ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_selected ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_pressed ] = vector32x4_c( 1.0000f, 1.0000f, 1.0000f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_primary ][ menu_state_e_disabled ] = vector32x4_c( 0.9900f, 0.9900f, 0.9900f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_normal ] = vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_selected ] = vector32x4_c( 0.0000f, 0.8676f, 1.0000f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_pressed ] = vector32x4_c( 0.2500f, 0.9007f, 1.0000f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_secondary ][ menu_state_e_disabled ] = vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_normal ] = vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_selected ] = vector32x4_c( 0.7500f, 0.7500f, 0.7500f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_pressed ] = vector32x4_c( 0.8000f, 0.8000f, 0.8000f, 1.0000f );
+		_internal_field_color_theme.colors[ menu_color_slot_e_text ][ menu_state_e_disabled ] = vector32x4_c( 0.9000f, 0.9000f, 0.9000f, 1.0000f );
+		_internal_color_theme_dictionary.insert( _internal_field_color_theme.key, &_internal_field_color_theme );
 
 		// load default font.
 		_default_font = engine.get_resource_manager()->load_font( string16_c( L"fonts/DXLBaB-KSCpc-EUC-H.ttf", core_list_mode_e_static ), true, false );
@@ -121,7 +102,7 @@ namespace cheonsa
 			return false;
 		}
 
-		// load default frame style.
+		// create default frame style.
 		_default_frame_style.key = string8_c( "default", core_list_mode_e_static );
 		_default_frame_style.texture = engine.get_resource_manager()->load_texture( string16_c( L"menus/atlas.png", core_list_mode_e_static ), true, false );
 		if ( !_default_frame_style.texture.get_is_value_set_and_loaded() )
@@ -131,40 +112,40 @@ namespace cheonsa
 		}
 		_default_frame_style.texture_map_mode = menu_texture_map_mode_e_nine_slice_stretch;
 		_default_frame_style.texture_map_fill_middle = true;
-		_default_frame_style.state_list[ 0 ].texture_map[ 0 ] = 21;
-		_default_frame_style.state_list[ 0 ].texture_map[ 1 ] = 11;
-		_default_frame_style.state_list[ 0 ].texture_map[ 2 ] = 29;
-		_default_frame_style.state_list[ 0 ].texture_map[ 3 ] = 19;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 0 ] = 3;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 1 ] = 3;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 2 ] = 3;
-		_default_frame_style.state_list[ 0 ].texture_map_edges[ 3 ] = 3;
-		_default_frame_style.state_list[ 1 ].texture_map[ 0 ] = 21;
-		_default_frame_style.state_list[ 1 ].texture_map[ 1 ] = 11;
-		_default_frame_style.state_list[ 1 ].texture_map[ 2 ] = 29;
-		_default_frame_style.state_list[ 1 ].texture_map[ 3 ] = 19;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 0 ] = 3;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 1 ] = 3;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 2 ] = 3;
-		_default_frame_style.state_list[ 1 ].texture_map_edges[ 3 ] = 3;
-		_default_frame_style.state_list[ 2 ].texture_map[ 0 ] = 21;
-		_default_frame_style.state_list[ 2 ].texture_map[ 1 ] = 11;
-		_default_frame_style.state_list[ 2 ].texture_map[ 2 ] = 29;
-		_default_frame_style.state_list[ 2 ].texture_map[ 3 ] = 19;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 0 ] = 3;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 1 ] = 3;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 2 ] = 3;
-		_default_frame_style.state_list[ 2 ].texture_map_edges[ 3 ] = 3;
-		_default_frame_style.state_list[ 3 ].texture_map[ 0 ] = 21;
-		_default_frame_style.state_list[ 3 ].texture_map[ 1 ] = 11;
-		_default_frame_style.state_list[ 3 ].texture_map[ 2 ] = 29;
-		_default_frame_style.state_list[ 3 ].texture_map[ 3 ] = 19;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 0 ] = 3;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 1 ] = 3;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 2 ] = 3;
-		_default_frame_style.state_list[ 3 ].texture_map_edges[ 3 ] = 3;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map[ 0 ] = 21;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map[ 1 ] = 11;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map[ 2 ] = 29;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map[ 3 ] = 19;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.states[ menu_state_e_normal ].texture_map_edges[ 3 ] = 3;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map[ 0 ] = 21;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map[ 1 ] = 11;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map[ 2 ] = 29;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map[ 3 ] = 19;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.states[ menu_state_e_selected ].texture_map_edges[ 3 ] = 3;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map[ 0 ] = 21;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map[ 1 ] = 11;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map[ 2 ] = 29;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map[ 3 ] = 19;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.states[ menu_state_e_pressed ].texture_map_edges[ 3 ] = 3;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map[ 0 ] = 21;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map[ 1 ] = 11;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map[ 2 ] = 29;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map[ 3 ] = 19;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map_edges[ 0 ] = 3;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map_edges[ 1 ] = 3;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map_edges[ 2 ] = 3;
+		_default_frame_style.states[ menu_state_e_disabled ].texture_map_edges[ 3 ] = 3;
 
-		// load default text style.
+		// create default text style.
 		_default_text_style.key = string8_c( "default", core_list_mode_e_static );
 		_default_text_style.font_is_defined = true;
 		_default_text_style.font = _default_font;
@@ -199,19 +180,15 @@ namespace cheonsa
 
 	void_c menu_style_manager_c::refresh()
 	{
+		// unresolve style map references.
 		core_linked_list_c< menu_style_map_c::reference_c * >::node_c * style_map_list_node = menu_style_map_c::reference_c::_global_list.get_first();
 		while ( style_map_list_node )
 		{
 			style_map_list_node->get_value()->unresolve();
 			style_map_list_node = style_map_list_node->get_next();
 		}
-		core_linked_list_c< menu_color_style_c::reference_c * >::node_c * color_style_list_node = menu_color_style_c::reference_c::_global_list.get_first();
-		while ( color_style_list_node )
-		{
-			color_style_list_node->get_value()->unresolve();
-			color_style_list_node = color_style_list_node->get_next();
-		}
 
+		// unresolve frame style references.
 		sint32_c i = 0;
 		core_linked_list_c< menu_frame_style_c::reference_c * >::node_c * frame_style_list_node = menu_frame_style_c::reference_c::_global_list.get_first();
 		while ( frame_style_list_node )
@@ -221,6 +198,8 @@ namespace cheonsa
 			frame_style_list_node = frame_style_list_node->get_next();
 			i++;
 		}
+
+		// unresolve text style references.
 		core_linked_list_c< menu_text_style_c::reference_c * >::node_c * text_style_list_node = menu_text_style_c::reference_c::_global_list.get_first();
 		while ( text_style_list_node )
 		{
@@ -228,27 +207,43 @@ namespace cheonsa
 			text_style_list_node = text_style_list_node->get_next();
 		}
 
+		// unresolve color style references.
+		core_linked_list_c< menu_color_theme_c::reference_c * >::node_c * color_style_list_node = menu_color_theme_c::reference_c::_global_list.get_first();
+		while ( color_style_list_node )
+		{
+			color_style_list_node->get_value()->unresolve();
+			color_style_list_node = color_style_list_node->get_next();
+		}
+
+		// reload styles.
 		_engine_styles.refresh();
 		_game_styles.refresh();
 
-		color_style_list_node = menu_color_style_c::reference_c::_global_list.get_first();
+		// resolve color style references.
+		color_style_list_node = menu_color_theme_c::reference_c::_global_list.get_first();
 		while ( color_style_list_node )
 		{
 			color_style_list_node->get_value()->resolve();
 			color_style_list_node = color_style_list_node->get_next();
 		}
+
+		// resolve frame style references.
 		frame_style_list_node = menu_frame_style_c::reference_c::_global_list.get_first();
 		while ( frame_style_list_node )
 		{
 			frame_style_list_node->get_value()->resolve();
 			frame_style_list_node = frame_style_list_node->get_next();
 		}
+
+		// resolve text style references.
 		text_style_list_node = menu_text_style_c::reference_c::_global_list.get_first();
 		while ( text_style_list_node )
 		{
 			text_style_list_node->get_value()->resolve();
 			text_style_list_node = text_style_list_node->get_next();
 		}
+
+		// resolve style map references.
 		style_map_list_node = menu_style_map_c::reference_c::_global_list.get_first();
 		while ( style_map_list_node )
 		{
@@ -257,44 +252,32 @@ namespace cheonsa
 		}
 	}
 
-	menu_color_style_c * menu_style_manager_c::get_shared_color_style( sint32_c shared_color_index )
+	menu_color_theme_c const * menu_style_manager_c::find_color_theme( string8_c const & key ) const
 	{
-		assert( shared_color_index >= 0 && shared_color_index < menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_ );
-		return &_shared_color_style_list[ shared_color_index ];
-	}
-
-	menu_color_style_c * menu_style_manager_c::get_shared_color_style( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot )
-	{
-		sint32_c shared_color_index = get_shared_color_index( color_class, color_state, color_slot );
-		return &_shared_color_style_list[ shared_color_index ];
-	}
-
-	menu_color_style_c * menu_style_manager_c::find_shared_color_style( string8_c key )
-	{
-		return _shared_color_style_dictionary.find_value_else_nullptr( key );
-	}
-
-	menu_color_style_c const * menu_style_manager_c::find_color_style( string8_c const & key ) const
-	{
-		if ( key != "" )
+		menu_color_theme_c const * result = nullptr;
+		if ( !key.is_set() )
 		{
-			menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
-			for ( sint32_c i = 0; i < 2; i++ )
-			{
-				menu_color_style_c const * result = style_file_list[ i ]->find_color_style( key );
-				if ( result )
-				{
-					return result;
-				}
-			}
-			return _shared_color_style_dictionary.find_value_else_nullptr( key );
+			return nullptr;
 		}
-		return nullptr;
+		else if ( key == "[default]" )
+		{
+			return &_internal_undefined_color_theme;
+		}
+		menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
+		for ( sint32_c i = 0; i < 2; i++ )
+		{
+			result = style_file_list[ i ]->find_color_theme( key );
+			if ( result )
+			{
+				return result;
+			}
+		}
+		return _internal_color_theme_dictionary.find_value_else_nullptr( key );
 	}
 
 	menu_frame_style_c const * menu_style_manager_c::find_frame_style( string8_c const & key ) const
 	{
-		if ( key == "" || key == "[none]" )
+		if ( !key.is_set() || key == "[none]" )
 		{
 			return nullptr;
 		}
@@ -302,16 +285,13 @@ namespace cheonsa
 		{
 			return &_default_frame_style;
 		}
-		if ( key.get_length() > 0 )
+		menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
+		for ( sint32_c i = 0; i < 2; i++ )
 		{
-			menu_style_file_c const * style_file_list[ 2 ] = { &_game_styles, &_engine_styles };
-			for ( sint32_c i = 0; i < 2; i++ )
+			menu_frame_style_c const * result = style_file_list[ i ]->find_frame_style( key );
+			if ( result )
 			{
-				menu_frame_style_c const * result = style_file_list[ i ]->find_frame_style( key );
-				if ( result )
-				{
-					return result;
-				}
+				return result;
 			}
 		}
 		return nullptr;
@@ -360,6 +340,25 @@ namespace cheonsa
 			}
 		}
 		return nullptr;
+	}
+
+	menu_color_theme_c * menu_style_manager_c::get_internal_color_theme( sint32_c index )
+	{
+		switch ( index )
+		{
+		case 0:
+			return &_internal_window_color_theme;
+		case 1:
+			return &_internal_button_color_theme;
+		case 2:
+			return &_internal_field_color_theme;
+		}
+		return nullptr;
+	}
+
+	menu_color_theme_c * menu_style_manager_c::find_internal_color_theme( string8_c const & key )
+	{
+		return _internal_color_theme_dictionary.find_value_else_nullptr( key );
 	}
 
 }

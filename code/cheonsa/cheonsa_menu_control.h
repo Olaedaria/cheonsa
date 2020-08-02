@@ -78,6 +78,8 @@ namespace cheonsa
 		menu_control_c * _temporary_supplemental_mother_control; // this is intended to be used for right click context menus, which are open for a short time. we want to associate with the control that they were right clicked on so that is_ascendant_of() can determine that text focused pop up menu is related to the control that was right clicked on. this also makes it possible for the program to create a single context menu instance (for example "select all, cut, copy, paste") and use it with all text box control instances. this is a one-way link (the temporary mother doesn't hold any reference to the temporary daughter), but the temporary daughter will hold a reference count on the temporary mother (may not be needed, but doing it just to be safer, and it's not the only way to be safe, idk).
 
 		sint32_c _index; // this control's index within its mother's _control_list or _private_control_list.
+		sint32_c _grid_cell_index_x; // defines which grid cell this control occupies, when this control is added as a daughter to a grid control.
+		sint32_c _grid_cell_index_y; // defines which grid cell this control occupies, when this control is added as a daughter to a grid control.
 
 		vector32x2_c _content_offset; // scroll bars can plug in to this to scroll the daughter controls of this control.
 		box32x2_c _content_bounds; // minimum axis aligned bounding box that contains all of the daughter controls and elements.
@@ -171,7 +173,8 @@ namespace cheonsa
 
 		virtual void_c _update_daughter_element_animations( float32_c time_step );
 
-		virtual void_c _update_transform_and_layout(); // updates global space properties based on inheritance and local space properties.
+		void_c _update_transform_and_layout_base(); // updates transform and layout for this control only.
+		virtual void_c _update_transform_and_layout(); // calls _update_transform_and_layout_base(), then also updates layout of daughter elements, then recurses to daughter controls.
 
 	public:
 		menu_control_c();
@@ -223,6 +226,12 @@ namespace cheonsa
 
 		sint32_c get_index() const; // gets the index of this control within it's mother's daughter list.
 
+		sint32_c get_grid_cell_index_x() const;
+		void_c set_grid_cell_index_x( sint32_c value );
+
+		sint32_c get_grid_cell_index_y() const;
+		void_c set_grid_cell_index_y( sint32_c value );
+
 		user_interface_c * get_mother_user_interface() const;
 
 		menu_control_c * get_root_mother_control(); // returns the root mother control of this control, also called a window (regardless of if it acts like one or not), which is the control that is directly added to the menu context.
@@ -269,6 +278,7 @@ namespace cheonsa
 		boolean_c get_is_pressed() const;
 		menu_state_e get_state() const;
 
+		void_c set_layout_simple( vector32x2_c const & local_origin, vector32x2_c const & local_box_size_around_origin, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // spatial properties are in mother's coordinate space.
 		void_c set_layout_simple( vector32x2_c const & local_origin, box32x2_c const & local_box_around_origin, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // spatial properties are in mother's coordinate space.
 		void_c set_layout_simple( box32x2_c const & local_box, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // spatial properties are in mother's coordinate space. origin will be placed at center of local_box.
 		void_c set_layout_box_anchor( menu_anchor_e local_anchor, box32x2_c const & local_anchor_measures, float32_c local_angle = 0.0f, float32_c local_scale = 1.0f ); // enables anchor layout. measurements are in mother control's coordinate space.
@@ -291,7 +301,8 @@ namespace cheonsa
 		vector32x4_c const & get_local_color() const;
 		void_c set_local_color( vector32x4_c const & value );
 
-		void_c set_shared_color_class( menu_shared_color_class_e value ); // sets the color class of all elements, so that they might express a different set of colors than default.
+		void_c set_color_theme_key( string8_c const & value ); // sets the color theme of all elements, so that they might express a different set of colors than default. resolves (looks up) the color theme from the menu style manager by its key.
+		void_c set_color_theme( menu_color_theme_c const * value ); // sets the color theme of all elements, so that they might express a different set of colors than default.
 
 		vector32x2_c const & get_global_origin() const;
 		matrix32x2x2_c const & get_global_basis() const;

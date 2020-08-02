@@ -236,8 +236,8 @@ namespace cheonsa
 
 	menu_control_window_c::menu_control_window_c()
 		: menu_control_panel_i()
-		, _title_bar_frame_element( string8_c( "title_bar_frame", core_list_mode_e_static ) )
-		, _title_bar_text_element( string8_c( "title_bar_text", core_list_mode_e_static ) )
+		, _title_bar_frame_element()
+		, _title_bar_text_element()
 		, _close_button( nullptr )
 		, _edge_size( 8.0f )
 		, _title_bar_size( 30.0f )
@@ -251,17 +251,18 @@ namespace cheonsa
 	{
 		set_size( vector32x2_c( 500, 500 ) );
 
-		_title_bar_frame_element.set_shared_color_class( menu_shared_color_class_e_window );
+		_title_bar_frame_element.set_name( string8_c( "title_bar_frame", core_list_mode_e_static ) );
 		_title_bar_frame_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _title_bar_size ) );
 		_add_daughter_element( &_title_bar_frame_element );
 
-		_title_bar_text_element.set_shared_color_class( menu_shared_color_class_e_window );
+		_title_bar_text_element.set_name( string8_c( "title_bar_text", core_list_mode_e_static ) );
 		_title_bar_text_element.set_layout_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right, box32x2_c( _edge_size, _edge_size, _edge_size, _title_bar_size ) );
 		_add_daughter_element( &_title_bar_text_element );
 
 		_apply_client_margins();
 
 		set_style_map_key( string8_c( "e_window", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_window_color_theme() );
 	}
 
 	menu_control_window_c::~menu_control_window_c()

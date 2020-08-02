@@ -1,0 +1,44 @@
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="favicon.png">
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	    <title>(천사) cheonsa / feature list</title>
+	</head>
+	<body>
+		<a href="index.html" class="navigation">&#8598; index</a>
+		<h2>engine</h2>
+		<div class="code_information">
+			<p>
+				<code>class cheonsa::engine_c</code><br/>
+				<code>/cheonsa_engine.h</code><br/>
+				<code>/cheonsa_engine.cpp</code><br/>
+				<br/>
+				the single global engine instance is <code>cheonsa::engine</code>, which you can access from any <code>.cpp</code> file by including <code>cheonsa_engine.h</code>.
+			</p>
+		</div>
+		<p>the engine class is the thing that ties all of the systems together, which your game interfaces with, and which manages updating and rendering of your game. there is a single global engine instance <code>cheonsa::engine</code>, which you can access from any <code>.cpp</code> file by including <code>cheonsa_engine.h</code>.</p>
+		
+		<h3>data, folders, files, and locale</h3>
+
+	    <ul>
+	        <li><code><b>[exe_folder_path]</b></code> refers to the folder path of that the engine exe is executing from. this folder path is often used to find other folders.</li>
+	        <li><code><b>[engine_data_folder_path]</b></code> refers to the folder path that contains the engine data files. by default, this is expected to be at "[exe_folder_path]/data/engine/", but this can be overridden.</li>
+	        <li><code><b>[game_data_folder_path]</b></code> refers to the folder path that contains the game data files. normally for the game client this defaults to "[exe_folder_path]/data/game/". but for the game editor, loading of this folder will be deferred to when a game project is opened.</li>
+	        <li><code><b>"engine_data_folder_path.txt"</b></code> refers to the text file that is scanned for within [exe_folder_path] at start up. if it is found, then it is expected to contain a line of text, that references the path to use for [engine_data_folder_path], which if valid will override the default.</li>
+	    </ul>
+
+	    <p>
+	    <code>[engine_data_folder_path]</code> and <code>[game_data_folder_path]</code> are both <b>content folders</b>, which are expected to contain a certain sub-folder structure that is tied to locale and localization. the current locale setting of the engine and the sub-folder structure of these content folders determines which files will be loaded at run time when a particuar resource is requested. this lets us publish different versions of the same file, one for each locale, as needed. this also lets us publish one version of the file to use for all locales (which is most cases).
+	    </p>
+	    
+	    <ul>
+	        <li><b>"engine"</b> contains files used by the engine.</li>
+	        <li><b>"game"</b> contains files used by the game.</li>
+	    </ul>
+
+	    <p>
+	        additional folders may also be referenced
+	        the sub-folders in two these root folders determine what data is loaded, based on the engine's locale setting. 
+	    </p>
+	</body>
+</html>

@@ -64,11 +64,10 @@ namespace cheonsa
 		set_style_key( new_style_key );
 	}
 
-	menu_element_c::menu_element_c( string8_c const & name )
+	menu_element_c::menu_element_c()
 		: _mother_control( nullptr )
-		, _name( name )
-		, _shared_color_class( menu_shared_color_class_e_window )
-		, _invert_shared_colors( false )
+		, _name()
+		, _color_theme()
 		, _local_color( 1.0f, 1.0f, 1.0f, 1.0f )
 		, _local_box_anchor( menu_anchor_e_left | menu_anchor_e_top | menu_anchor_e_right | menu_anchor_e_bottom )
 		, _local_box_anchor_measures( 0.0f, 0.0f, 0.0f, 0.0f )
@@ -80,6 +79,16 @@ namespace cheonsa
 		, _is_pressed( false )
 		, _is_overlay( false )
 	{
+	}
+
+	void_c menu_element_c::set_color_theme_key( string8_c const & value )
+	{
+		_color_theme.set_key( value );
+	}
+
+	void_c menu_element_c::set_color_theme( menu_color_theme_c const * value )
+	{
+		_color_theme.set_value( value );
 	}
 
 	void_c menu_element_c::set_layout_simple( box32x2_c const & local_box )
@@ -181,6 +190,11 @@ namespace cheonsa
 		return _name;
 	}
 
+	void_c menu_element_c::set_name( string8_c const & value )
+	{
+		_name = value;
+	}
+
 	vector32x4_c const & menu_element_c::get_local_color() const
 	{
 		return _local_color;
@@ -189,26 +203,6 @@ namespace cheonsa
 	void_c menu_element_c::set_local_color( vector32x4_c const & value )
 	{
 		_local_color = value;
-	}
-
-	menu_shared_color_class_e menu_element_c::get_shared_color_class() const
-	{
-		return _shared_color_class;
-	}
-
-	void_c menu_element_c::set_shared_color_class( menu_shared_color_class_e value )
-	{
-		_shared_color_class = value;
-	}
-
-	boolean_c menu_element_c::get_invert_shared_colors() const
-	{
-		return _invert_shared_colors;
-	}
-
-	void_c menu_element_c::set_invert_shared_colors( boolean_c value )
-	{
-		_invert_shared_colors = value;
 	}
 
 	boolean_c menu_element_c::get_is_showed() const

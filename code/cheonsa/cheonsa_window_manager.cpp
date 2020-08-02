@@ -7,8 +7,10 @@
 //#include <dwmapi.h>
 #define cheonsa_window_style_normal ( WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CLIPCHILDREN )
 #define cheonsa_window_style_borderless ( WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CLIPCHILDREN )
-#define cheonsa_window_width_minimum 1440
-#define cheonsa_window_height_minimum 810
+#define cheonsa_window_width_standard 1440
+#define cheonsa_window_height_standard 810
+#define cheonsa_window_width_minimum 640
+#define cheonsa_window_height_minimum 480
 #endif
 
 namespace cheonsa
@@ -503,7 +505,7 @@ namespace cheonsa
 		//environment.window_position[ 0 ] = ( ( monitor.rectangle[ 2 ] - monitor.rectangle[ 0 ] ) / 2 ) - ( environment.window_size[ 0 ] / 2 );
 		//environment.window_position[ 1 ] = ( ( monitor.rectangle[ 3 ] - monitor.rectangle[ 1 ] ) / 2 ) - ( environment.window_size[ 1 ] / 2 );
 		
-		_window_handle = CreateWindow( L"cheonsa", L"cheonsa", cheonsa_window_style_borderless, 0, 0, cheonsa_window_width_minimum, cheonsa_window_height_minimum, NULL, NULL, static_cast< HINSTANCE >( _process_handle ), nullptr );
+		_window_handle = CreateWindow( L"cheonsa", L"cheonsa", cheonsa_window_style_borderless, 0, 0, cheonsa_window_width_standard, cheonsa_window_height_standard, NULL, NULL, static_cast< HINSTANCE >( _process_handle ), nullptr );
 		assert( _window_handle );
 		SetWindowLongPtr( static_cast< HWND >( _window_handle ), GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) ); // associate our global game engine instance with the window.
 

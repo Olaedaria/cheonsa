@@ -1,19 +1,21 @@
 #include "cheonsa_menu_control_label.h"
+#include "cheonsa_engine.h"
 
 namespace cheonsa
 {
 
 	menu_control_label_c::menu_control_label_c()
 		: menu_control_c()
-		, _text_element( string8_c( "text", core_list_mode_e_static ) )
+		, _text_element()
 	{
-		_text_element.set_shared_color_class( menu_shared_color_class_e_window );
+		_text_element.set_name( string8_c( "text", core_list_mode_e_static ) );
 		_text_element.set_multi_line( true );
 		_text_element.set_text_format_mode( menu_text_format_mode_e_rich );
 		_text_element.set_text_interact_mode( menu_text_interact_mode_e_static );
 		_add_daughter_element( &_text_element );
 
 		set_style_map_key( string8_c( "e_label", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_window_color_theme() );
 	}
 
 	menu_control_label_c::~menu_control_label_c()

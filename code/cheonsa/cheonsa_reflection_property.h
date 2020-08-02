@@ -13,8 +13,8 @@ namespace cheonsa
 	{
 		friend boolean_c reflection_get_object_property_value( reflection_object_c *, reflection_property_c const *, reflection_value_container_c & );
 		friend boolean_c reflection_set_object_property_value( reflection_object_c *, reflection_property_c const *, reflection_value_container_c const & );
-		friend string16_c reflection_convert_value_to_string16( reflection_property_c const * property, reflection_value_container_c const & property_value );
-		friend boolean_c reflection_convert_string16_to_value( reflection_property_c const * property, reflection_value_container_c & property_value, string16_c const & property_value_as_string16 );
+		friend string16_c reflection_convert_value_to_string16( reflection_property_c const * property, reflection_value_container_c const & property_value, sint32_c property_value_element_index );
+		friend boolean_c reflection_convert_string16_to_value( reflection_property_c const * property, reflection_value_container_c & property_value, sint32_c property_value_element_index, string16_c const & property_value_as_string16 );
 		friend vector64x4_c reflection_convert_value_to_color( reflection_property_c const * property, reflection_value_container_c const & value );
 		friend void_c reflection_convert_color_to_value( reflection_property_c const * property, reflection_value_container_c & value, vector64x4_c const & value_as_color );
 		friend vector32x3_c reflection_convert_value_to_euler_angles( reflection_property_c const * property, reflection_value_container_c const & value );
@@ -189,6 +189,7 @@ namespace cheonsa
 		string8_c const & get_description() const;
 		data_type_e get_type() const;
 		uint8_c get_type_count() const;
+		uint8_c get_effective_type_count() const; // rgba color can be stored in a single uint32, which is 1 actual element, and 4 effective elements. xyz euler rotations can be stored in float32x4 and float64x4 quaternions, which is 4 actual elements, and 3 effective elements. for all other combinations, this just returns _type_count. the reflection system uses this to determine how many text boxes to create for a given property.
 		data_view_e get_view() const;
 
 		string8_c const & get_additional_options() const;

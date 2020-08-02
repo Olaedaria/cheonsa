@@ -171,8 +171,8 @@ namespace cheonsa
 
 	menu_control_scroll_bar_i::menu_control_scroll_bar_i( mode_e mode, orientation_e orientation )
 		: menu_control_c()
-		, _rail_element( string8_c( "rail_frame", core_list_mode_e_static ) )
-		, _grip_element( string8_c( "grip_frame", core_list_mode_e_static ) )
+		, _rail_element()
+		, _grip_element()
 		, _mode( mode )
 		, _orientation( orientation )
 		, _page_size( 0.0 )
@@ -199,13 +199,14 @@ namespace cheonsa
 			_fixed_grip_length = 10.0f;
 		}
 
-		_rail_element.set_shared_color_class( menu_shared_color_class_e_button );
+		_rail_element.set_name( string8_c( "rail_frame", core_list_mode_e_static ) );
 		_add_daughter_element( &_rail_element );
 
-		_grip_element.set_shared_color_class( menu_shared_color_class_e_button );
+		_grip_element.set_name( string8_c( "grip_frame", core_list_mode_e_static ) );
 		_add_daughter_element( &_grip_element );
 
 		set_style_map_key( string8_c( "e_scroll_bar", core_list_mode_e_static ) );
+		set_color_theme( engine.get_menu_style_manager()->get_internal_button_color_theme() );
 
 		_update_transform_and_layout();
 	}

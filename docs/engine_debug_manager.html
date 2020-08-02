@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="favicon.png">
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	    <title>(천사) cheonsa / feature list</title>
+	</head>
+	<body>
+		<a href="index.html" class="navigation">&#8598; index</a>
+		<h2>engine debug manager</h2>
+		<div class="code_information">
+			<p>
+				<code>class cheonsa::debug_manager_c</code><br/>
+				<code>/cheonsa_debug_manager.h</code><br/>
+				<code>/cheonsa_debug_manager.cpp</code><br/>
+				<br/>
+				access by including <code>cheonsa_engine.h</code>.<br/>
+				+ access debug display options through <code>cheonsa::engine.get_debug_manager()</code> (will return nullptr if debug manager is not started yet).<br/>
+				+ access debug logging with <code>cheonsa::debug_log()</code> (may be called at any time even before the engine is finished starting up).<br/>
+				+ access debug message boxing with <code>cheonsa::debug_annoy()</code> (may be called at any time even before the engine is finished starting up).
+			</p>
+		</div>
+		<p>the debug manager lets you get and set various options for display of run-time statistics in the client window. it also lets you get and set what colors to use when visualizing things like bones, physics, axes, grids, etc. the debug manager also manages opening a log file at start up, and debug messages that are logged by the program while this file is open will be saved to the file so that a developer can review it when the program is closed. it also manages the engine's console feature.</p>
+		<p>there is also a function <code>cheonsa::debug_log()</code> which logs a message to the debug output console in the ide, and if the debug manager is open then it also logs it to the engine's log file and console.</p>
+		<p>there is also a function <code>cheonsa::debug_annoy()</code> which opens a message box and blocks execution of the program until the user closes it. this is just provided for convenience if you as a developer want to use it while working on a new feature, but this function should never be called in a release version.</p>
+	</body>
+</html>

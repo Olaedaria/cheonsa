@@ -1,0 +1,20 @@
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="favicon.png">
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	    <title>(천사) cheonsa / feature list</title>
+	</head>
+	<body>
+		<a href="index.html" class="navigation">&#8598; index</a>
+		<h2>resource file types</h2>
+		<p>these are the file types that are used to create content for cheonsa.</p>
+		<p><b>textures:</b> .jpg, .png. supports loading of 1, 2, 3, and 4 channel textures. supports 8-bit and 16-bit channel bit depths (will be loaded as unorm type).</p>
+		<p><b>sounds:</b> .wav, .ogg. pretty much any bitrate should work, and mono and stereo channel counts should work.</p>
+		<p><b>fonts:</b> vector type .ttf. other font file formats may also work since freetype is used to load and render under the hood, but i haven't tested with other font file formats yet.</p>
+		<p><b>models:</b> .model (cheonsa model file), this is a binary format which stores meshes, bones, bone logics, bone animations, shape keys, physics simulation shapes and ridgid bodies, lights, attachment points, etc. it does not define any materials for rendering, the materials file does that.</p>
+		<p><b>materials:</b> .materials.xml (cheonsa materials file), this is a markup file which defines and assigns materials to meshes in a model. this feature could also be built in to the model file format itself, but separating it out like this enables model reuse (lazy reskins).</p>
+		<p><b>sprites:</b> .sprites.xml (cheonsa sprites file), this is a markup file which defines sprite animations and frame lists.</p>
+		<p><b>menu styles:</b> .menu.styles.xml (cheonsa menu styles file), this is a markup file which defines frame element styles (texture mappings) and text element styles (fonts), and it defines style maps which can be assigned to controls to define which element styles should apply to which elements. there is one file in the engine's content folder to define built-in engine styles, and there is another file in the game's content folder to define the game's styles.</p>
+		<p><b>menu layout:</b> .menu.layout.xml (cheonsa menu layout file), this is a markup file which can modify the appearance of game menus, it defines the layouts of the controls in the menus and defines what style maps those controls should use. there can be one file per menu in the game.</p>
+	</body>
+</html>

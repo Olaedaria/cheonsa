@@ -214,8 +214,8 @@ namespace cheonsa
 			float32_c _content_width; // width of the widest laid out line in this paragraph.
 			float32_c _content_height; // height of all of the lines in this paragraph.
 			sint32_c _line_index_base; // the line index of the first line in this paragrpah relative to all of the lines in the whole document.
-			core_list_c< text_line_c > _line_list; // all of the lines in this paragraph, this can be a mix of real and virtual (broken by automatic word wrap algorithm) lines of text.
-			core_list_c< text_glyph_c > _glyph_list; // all of the laid out glyphs in this paragraph.
+			core_list_c< text_line_c > _text_line_list; // all of the lines in this paragraph, this can be a mix of real and virtual (broken by automatic word wrap algorithm) lines of text.
+			core_list_c< text_glyph_c > _text_glyph_list; // all of the laid out glyphs in this paragraph.
 
 			core_list_c< text_entity_c * > _entity_list; // all the entity instances in this text element.
 			text_entity_c * _find_entity( sint32_c character_start, sint32_c character_end, string8_c const & key );
@@ -386,7 +386,7 @@ namespace cheonsa
 		virtual void_c _build_draw_list() override;
 
 	public:
-		menu_element_text_c( string8_c const & name );
+		menu_element_text_c();
 		virtual ~menu_element_text_c();
 
 		// updates visual state animations, cursor animation, and any in-lined sprite animations.

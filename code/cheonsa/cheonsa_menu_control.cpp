@@ -264,7 +264,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_control_c::_update_transform_and_layout()
+	void_c menu_control_c::_update_transform_and_layout_base()
 	{
 		if ( _mother_user_interface == nullptr )
 		{
@@ -388,6 +388,11 @@ namespace cheonsa
 			// invalidate content bounds.
 			_content_bounds_is_dirty = true;
 		}
+	}
+
+	void_c menu_control_c::_update_transform_and_layout()
+	{
+		_update_transform_and_layout_base();
 
 		// layout daughter elements.
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
@@ -417,6 +422,8 @@ namespace cheonsa
 		, _supplemental_daughter_control_list()
 		, _temporary_supplemental_mother_control( nullptr )
 		, _index( -1 )
+		, _grid_cell_index_x( 0 )
+		, _grid_cell_index_y( 0 )
 		, _content_offset( 0.0f, 0.0f )
 		, _content_bounds( 0.0f, 0.0f, 0.0f, 0.0f )
 		, _content_bounds_is_dirty( true )
@@ -425,7 +432,7 @@ namespace cheonsa
 		, _select_mode( menu_select_mode_e_mouse )
 		, _wants_to_be_deleted( false )
 		, _is_showed( true )
-		, _is_showed_weight( 0.0f )
+		, _is_showed_weight( 1.0f )
 		, _is_enabled( true )
 		, _is_deep_text_focused( 0 )
 		, _is_text_focused( 0 )
@@ -731,6 +738,26 @@ namespace cheonsa
 	sint32_c menu_control_c::get_index() const
 	{
 		return _index;
+	}
+
+	sint32_c menu_control_c::get_grid_cell_index_x() const
+	{
+		return _grid_cell_index_x;
+	}
+
+	void_c menu_control_c::set_grid_cell_index_x( sint32_c value )
+	{
+		_grid_cell_index_x = value;
+	}
+
+	sint32_c menu_control_c::get_grid_cell_index_y() const
+	{
+		return _grid_cell_index_y;
+	}
+
+	void_c menu_control_c::set_grid_cell_index_y( sint32_c value )
+	{
+		_grid_cell_index_y = value;
 	}
 
 	user_interface_c * menu_control_c::get_mother_user_interface() const
@@ -1067,14 +1094,10 @@ namespace cheonsa
 
 	void_c menu_control_c::set_is_enabled( boolean_c value )
 	{
-		_is_enabled = value;
-		_on_is_enabled_changed();
-		if ( value == false )
+		if ( _is_enabled != value )
 		{
-			if ( _mother_user_interface )
-			{
-				_mother_user_interface->_suspend_control( this );
-			}
+			_is_enabled = value;
+			_on_is_enabled_changed();
 		}
 	}
 
@@ -1124,6 +1147,17 @@ namespace cheonsa
 		{
 			return menu_state_e_disabled;
 		}
+	}
+	
+	void_c menu_control_c::set_layout_simple( vector32x2_c const & local_origin, vector32x2_c const & local_box_size_around_origin, float32_c local_angle, float32_c local_scale )
+	{
+		_layout_mode = menu_layout_mode_e_simple;
+		_local_anchor = menu_anchor_e_none;
+		_local_origin = local_origin;
+		_local_box = box32x2_c( local_box_size_around_origin.a * -0.5f, local_box_size_around_origin.b * -0.5f, local_box_size_around_origin.a * 0.5f, local_box_size_around_origin.b * 0.5f );
+		_local_angle = local_angle;
+		_local_scale = local_scale;
+		_update_transform_and_layout();
 	}
 
 	void_c menu_control_c::set_layout_simple( vector32x2_c const & local_origin, box32x2_c const & local_box_around_origin, float32_c local_angle, float32_c local_scale )
@@ -1231,11 +1265,19 @@ namespace cheonsa
 		_update_transform_and_layout();
 	}
 
-	void_c menu_control_c::set_shared_color_class( menu_shared_color_class_e value )
+	void_c menu_control_c::set_color_theme_key( string8_c const & value )
 	{
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
-			_daughter_element_list[ i ]->set_shared_color_class( value );
+			_daughter_element_list[ i ]->set_color_theme_key( value );
+		}
+	}
+
+	void_c menu_control_c::set_color_theme( menu_color_theme_c const * value )
+	{
+		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
+		{
+			_daughter_element_list[ i ]->set_color_theme( value );
 		}
 	}
 

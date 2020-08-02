@@ -217,6 +217,19 @@ namespace cheonsa
 		return _type_count;
 	}
 
+	uint8_c reflection_property_c::get_effective_type_count() const
+	{
+		if ( _type == data_type_e_uint32 && _type_count == 1 && _view == data_view_e_color )
+		{
+			return 4;
+		}
+		else if ( _view == data_view_e_euler_angles )
+		{
+			return 3;
+		}
+		return _type_count;
+	}
+
 	data_view_e reflection_property_c::get_view() const
 	{
 		return _view;

@@ -30,6 +30,8 @@ namespace cheonsa
 		virtual inline char8_c const * get_type_name() const override { return get_type_name_static(); }
 
 	protected:
+		virtual void_c _on_is_selected_changed() override;
+
 		virtual void_c _on_clicked( input_event_c * input_event ) override;
 		virtual void_c _on_multi_clicked( input_event_c * input_event ) override;
 

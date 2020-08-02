@@ -642,7 +642,7 @@ namespace cheonsa
 		}
 		if ( _current[ 0 ] == 0 )
 		{
-			//_error_message = UnexpectedEndOfFile;
+			//_error_message = UnexpectedEndOfFile; // error message will be assigned after returning, by caller.
 			return false;
 		}
 		char8_c * end = _current;
@@ -904,11 +904,17 @@ namespace cheonsa
 		return nullptr;
 	}
 
-	void_c data_scribe_markup_c::get_error_message( string16_c & message, sint32_c & line, sint32_c & column, sint32_c & character ) const
+	string16_c data_scribe_markup_c::get_error_message()
+	{
+		return _error_message;
+	}
+
+	string16_c const & data_scribe_markup_c::get_error_message( sint32_c & line, sint32_c & column, sint32_c & character ) const
 	{
 		line = _current_line;
 		column = _current_column;
 		character = _current_character;
+		return _error_message;
 	}
 
 	boolean_c data_scribe_markup_c::parse_first_tag( data_stream_c * stream )

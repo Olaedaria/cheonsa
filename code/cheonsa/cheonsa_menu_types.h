@@ -75,7 +75,7 @@ namespace cheonsa
 	};
 
 	// all controls are going to be in any one of these states at a time.
-	// these in turn can drive the visual state of the control.
+	// these in turn can drive the visual state of the control, and color theme.
 	enum menu_state_e : uint8_c
 	{
 		menu_state_e_normal,
@@ -106,7 +106,7 @@ namespace cheonsa
 	enum menu_layout_mode_e : uint8_c
 	{
 		menu_layout_mode_e_simple, // _local_box is what it is.
-		menu_layout_mode_e_box_anchor, // _local_box is calculated from _local_anchor and _local_anchor_measures, then _local_origin set to center of _local_box, then _local_box is translated by negative _local_origin.
+		menu_layout_mode_e_box_anchor, // _local_box is calculated from _local_anchor and _local_anchor_measures (pixel coordinates), then _local_origin set to center of _local_box, then _local_box is translated by negative _local_origin.
 		menu_layout_mode_e_point_anchor, // _local_box is what it is. _local_origin is calculated from _local_anchor.
 	};
 
@@ -220,6 +220,14 @@ namespace cheonsa
 		menu_text_flag_e_underline = 0x04,
 	};
 
+	enum menu_dialog_mode_e
+	{
+		menu_dialog_mode_e_okay,
+		menu_dialog_mode_e_cancel_okay,
+		menu_dialog_mode_e_no_yes,
+		menu_dialog_mode_e_cancel_no_yes,
+	};
+
 	enum menu_dialog_result_e
 	{
 		menu_dialog_result_e_none, // is set when the window is initially shown, and also is set if cancel or close button is clicked. indicates no result.
@@ -229,107 +237,94 @@ namespace cheonsa
 		menu_dialog_result_e_no,
 	};
 
-	enum menu_shared_color_class_e
+	// individual color theme color.
+	enum menu_color_slot_e
 	{
-		menu_shared_color_class_e_window,
-		menu_shared_color_class_e_button,
-		menu_shared_color_class_e_field,
-		menu_shared_color_class_e_count_,
+		menu_color_slot_e_primary, // used for frames (backgrounds). for color keyed shader, this maps to red channel in texture.
+		menu_color_slot_e_secondary, // used for frames (accents). for color keyed shader, this maps to green channel in texture.
+		menu_color_slot_e_text, // default color for texts (but text styles may specify to use primary or secondary instead). for color keyed shader, this maps to blue channel in texture.
+		menu_color_slot_e_count_,
 	};
+	menu_color_slot_e menu_color_slot_e_from_string( string8_c const & value );
 
-	// frames can use all three, via rgb channels of texture.
-	// texts will only use secondary.
-	enum menu_shared_color_slot_e
-	{
-		menu_shared_color_slot_e_primary, // used for frames. for color keyed shader, this maps to red channel in texture.
-		menu_shared_color_slot_e_secondary, // used for texts. for color keyed shader, this maps to green channel in texture.
-		menu_shared_color_slot_e_accent, // used for frames (accents). for color keyed shader, this maps to blue channel in texture.
-		menu_shared_color_slot_e_count_,
-	};
-
-	sint32_c const shared_color_count = menu_shared_color_class_e_count_ * menu_state_e_count_ * menu_shared_color_slot_e_count_;
-
-	inline sint32_c get_shared_color_index( menu_shared_color_class_e color_class, menu_state_e color_state, menu_shared_color_slot_e color_slot )
-	{
-		return ( color_class * menu_state_e_count_ * menu_shared_color_slot_e_count_ ) + ( color_state * menu_shared_color_slot_e_count_ ) + color_slot;
-	}
-
-	// these define color values that can be shared and used by any number of elements.
-	// the menu style manager holds a built in fixed length collection of these, one for each enum menu_shared_color_e, these built in shared colors are intended to be controlled by the program at run time.
-	// the menu "styles.xml" files may define (in a data driven way) additional color styles.
-	class menu_color_style_c
+	// color themes define a set of colors, per each menu color slot and per each menu state.
+	// color themes are applied to frame elements and text elements.
+	// color themes may be created for common classes of controls, for example: windows, buttons, text fields, list boxes, etc, so that they may be reused between them.
+	class menu_color_theme_c
 	{
 	public:
+		// used by users to reference a menu_color_theme_c instance that may be shared between any number of other users.
+		// 
 		class reference_c
 		{
-		private:
 			friend class menu_style_manager_c;
 
+		private:
 			static core_linked_list_c< reference_c * > _global_list;
 			core_linked_list_c< reference_c * >::node_c _global_list_node;
 
-			string8_c _key;
-			menu_color_style_c const * _value;
+			string8_c _key; // persistent key, remains the same between reloading of style files.
+			menu_color_theme_c const * _value; // volatile reference, changes between reloading of style files.
 
 		public:
 			reference_c();
 			~reference_c();
 
-			string8_c const & get_key() const;
-			void_c set_key( string8_c const & value );
+			string8_c const & get_key() const; // gets the key.
+			void_c set_key( string8_c const & value ); // sets the key and resolves the value.
 
-			menu_color_style_c const * get_value() const;
+			menu_color_theme_c const * get_value() const; // gets the value.
+			void_c set_value( menu_color_theme_c const * value ); // situational, a little more optimal than set_key() since it avoids doing a look up.
 
-			void_c resolve();
-			void_c unresolve();
+			void_c resolve(); // resolves (looks up) the value using the key.
+			void_c unresolve(); // releases (nullptrs) the value but keeps the key.
 
 		};
 
 	public:
 		string8_c key;
-		vector32x4_c value; 
+
+		vector32x4_c colors[ menu_color_slot_e_count_ ][ menu_state_e_count_ ];
 
 	public:
-		menu_color_style_c();
+		menu_color_theme_c();
 
 		void_c reset();
-		void_c load( data_scribe_markup_c::node_c const * node );
+		void_c load_markup( data_scribe_markup_c::node_c const * node );
+		void_c save_markup( string8_c & document ) const;
 
-		void_c initialize( string8_c const & key, vector32x4_c const & value );
+		menu_color_theme_c & operator = ( menu_color_theme_c const & other );
 
 	};
 
-	// defines how to render a frame element.
-	// frame styles can be defined by "styles.xml".
-	// or they can be hard coded into existence.
+	// frame styles are applied to frame elements, and they define the appearance of the frame element.
+	// frame styles can be defined by "styles.xml" via the "frame_style" tag, or they can be hard coded into existence.
 	class menu_frame_style_c
 	{
 	public:
 		class reference_c
 		{
-		private:
 			friend class menu_style_manager_c;
 
+		private:
 			static core_linked_list_c< reference_c * > _global_list;
 			core_linked_list_c< reference_c * >::node_c _global_list_node;
 
 			string8_c _key; // persistent key, remains the same between reloading of style files.
 			menu_frame_style_c const * _value; // volatile reference, changes between reloading of style files.
 
-			menu_element_frame_c * _owner; // temporary, just to try to track down a random bug..
-
 		public:
-			reference_c( menu_element_frame_c * owner );
+			reference_c();
 			~reference_c();
 
-			string8_c const & get_key() const;
-			void_c set_key( string8_c const & value );
+			string8_c const & get_key() const; // gets the key.
+			void_c set_key( string8_c const & value ); // sets the key and resolves the value.
 
-			menu_frame_style_c const * get_value() const;
-			void_c set_value( menu_frame_style_c const * value ); // a little more optimal than set_key() since it avoids doing a look up.
+			menu_frame_style_c const * get_value() const; // gets the value.
+			void_c set_value( menu_frame_style_c const * value ); // situational, a little more optimal than set_key() since it avoids doing a look up.
 
-			void_c resolve();
-			void_c unresolve();
+			void_c resolve(); // resolves (looks up) the value using the key.
+			void_c unresolve(); // releases (nullptrs) the value but keeps the key.
 
 		};
 
@@ -338,7 +333,7 @@ namespace cheonsa
 		{
 		public:
 			boolean_c show; // if true then this element will be shown in this state.
-			boolean_c swap_shared_colors; // swaps primary and secondary shared colors.
+			//boolean_c swap_shared_colors; // swaps primary and secondary shared colors.
 			float32_c saturation; // color saturation, applied to ( element_color.rgb * texture.rgb ).
 			float32_c apparent_scale; // when rendered, the frame is scaled by this factor around its center point. this is an apparent scale, meaning that it affects the visual representation only, and does not affect the actual scale of the control itself or hit detection.
 			sint16_c texture_map[ 4 ]; // left, top, right, and bottom coordinates in pixels of edges of texture map rectangle.
@@ -357,35 +352,35 @@ namespace cheonsa
 		resource_file_texture_c::reference_c texture; // texture to map to the frame.
 		menu_texture_map_mode_e texture_map_mode; // how we want to map the texture to the frame.
 		boolean_c texture_map_fill_middle; // for nine slice texture mapping modes, this says whether to draw the middle part or not.
-		video_renderer_pixel_shader_c::reference_c pixel_shader_reference; // pixel shader override, if not set then the built-in frame pixel shader will be used.
-		state_c state_list[ menu_state_e_count_ ];
+		video_renderer_pixel_shader_c::reference_c pixel_shader; // pixel shader override, if not set then the built-in frame pixel shader will be used.
+		state_c states[ menu_state_e_count_ ];
 
 	public:
 		menu_frame_style_c();
 
 		void_c reset();
-		void_c load( data_scribe_markup_c::node_c const * node );
+		void_c load_markup( data_scribe_markup_c::node_c const * node );
 
 	};
 
-	// defines how to format and render text in a text element.
+	// text styles are applied to text elements, and they define how to format and render the text in the text element.
 	// these style can be applied to the whole text element, or to sub-ranges of text in the text element.
-	// text styles can be defined by "styles.xml".
+	// text styles can be defined by "styles.xml" via the "text_style" tag.
 	class menu_text_style_c
 	{
 	public:
 		class reference_c
 		{
-		private:
 			friend class menu_style_manager_c;
 
+		private:
 			static core_linked_list_c< reference_c * > _global_list;
 			core_linked_list_c< reference_c * >::node_c _global_list_node;
 
 			string8_c _key; // persistent key, remains the same between reloading of style files.
 			menu_text_style_c const * _value; // volatile reference, changes between reloading of style files.
 
-			menu_element_text_c * _owner;
+			//menu_element_text_c * _owner;
 
 		public:
 			reference_c( menu_element_text_c * owner );
@@ -409,10 +404,10 @@ namespace cheonsa
 		class state_c
 		{
 		public:
-			boolean_c show;
-			boolean_c swap_shared_colors; // swaps primary and secondary shared colors.
-			float32_c saturation; // multiplicative color saturation.
-			float32_c apparent_scale; // multiplicative apparent element scale.
+			boolean_c show; // defaults to true.
+			menu_color_slot_e color_slot; // defaults to menu_color_slot_e_text.
+			float32_c saturation; // default is 1. multiplicative color saturation.
+			float32_c apparent_scale; // default is 1. multiplicative apparent element scale.
 
 		public:
 			state_c();
@@ -431,8 +426,8 @@ namespace cheonsa
 		float32_c size; // size of font in pixels.
 
 		boolean_c color_is_defined;
-		vector32x4_c color; // color of font.
-		
+		vector32x4_c color; // color of font. if set, then overrides the color defined by color_slot.
+
 		boolean_c skew_is_defined;
 		float32_c skew; // skew of font.
 		
@@ -463,17 +458,17 @@ namespace cheonsa
 		boolean_c margin_is_defined;
 		box32x2_c margin; // space between left, top, right, and bottom edges of text element to where actualy text layout rectangle is.
 
-		state_c state_list[ menu_state_e_count_ ];
+		state_c states[ menu_state_e_count_ ];
 
 	public:
 		menu_text_style_c();
 
 		void_c reset();
-		void_c load( data_scribe_markup_c::node_c const * node );
+		void_c load_markup( data_scribe_markup_c::node_c const * node );
 
 	};
 
-	// the style map defines which styles to map to which daughter elements, and which style maps to map to which daughter controls.
+	// control styles are applied to control instances, and they define which frame styles to apply to daughter frame elements, and which text styles to apply to daughter text elements.
 	// it also can define named property values that control implementations can use, for example for defining the fixed thickness of scroll bars, or fixed height of text boxes or combo boxes, etc.
 	class menu_style_map_c
 	{
@@ -548,7 +543,9 @@ namespace cheonsa
 		friend class menu_control_c;
 
 		string8_c _key; // unique key to identify this style map by.
+
 		core_list_c< entry_c * > _entry_list; // defines style mappings for sub-elements and sub-controls.
+
 		//core_list_c< property_c * > property_list; // defines property values for this control.
 
 	public:
