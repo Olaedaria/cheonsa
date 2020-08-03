@@ -2805,7 +2805,7 @@ namespace cheonsa
 	void_c scene_component_model_c::_handle_on_world_space_transform_modified( transform3d_c const & old_world_space_transform, scene_component_c * initiator )
 	{
 		scene_component_c::_handle_on_world_space_transform_modified( old_world_space_transform, initiator );
-		if ( _automatic_light_probe_invalidation_enabled && _scene_object->get_scene()->_automatic_light_probe_invalidation_enabled && old_world_space_transform != _scene_object->get_world_space_transform() )
+		if ( _automatic_light_probe_invalidation_enabled && _scene_object->get_scene() && _scene_object->get_scene()->_automatic_light_probe_invalidation_enabled && old_world_space_transform != _scene_object->get_world_space_transform() )
 		{
 			_scene_object->get_scene()->invalidate_light_probes_with_box( box64x3_c( _local_space_obb ), old_world_space_transform );
 			_scene_object->get_scene()->invalidate_light_probes_with_box( box64x3_c( _local_space_obb ), _scene_object->get_world_space_transform() );

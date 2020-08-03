@@ -30,7 +30,7 @@ namespace cheonsa
 	{
 	}
 
-	void_c menu_element_mesh_c::set_style_key( string8_c const & value )
+	void_c menu_element_mesh_c::set_style( string8_c const & key )
 	{
 	}
 

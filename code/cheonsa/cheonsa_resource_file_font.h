@@ -65,7 +65,7 @@ namespace cheonsa
 
 		float32_c get_unquantized_ascender( float32_c font_size ) const; // gets the ascender in pixels for the given size which represents the distance away from the baseline, positive values go up, negative values go down (be mindful because this is backwards from cheonsa's 2d convention).
 		float32_c get_unquantized_descender( float32_c font_size ) const; // gets the descender in pixels for the given size which represents the distance away from the baseline, positive values go up, negative values go down (be mindful because this is backwards from cheonsa's 2d convention).
-		float32_c get_unquantized_horizontal_advance_for_space( float32_c font_size ) const; // gets the distance in pixels to advance the cursor horizontally for a space.
+		float32_c get_unquantized_space_horizontal_advance( float32_c font_size ) const; // gets the distance in pixels to advance the cursor horizontally for a space.
 
 		float32_c find_kern_advance( float32_c left_font_size, char16_c left_code_point, float32_c right_font_size, char16_c right_code_point );
 

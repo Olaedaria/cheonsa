@@ -214,8 +214,8 @@ namespace cheonsa
 					}
 					else if ( wParam == SIZE_RESTORED )
 					{
-						engine.get_window_manager()->_window_state = window_state_e_normaled;
-						engine.get_window_manager()->on_window_state_changed.invoke( window_state_e_normaled );
+						engine.get_window_manager()->_window_state = window_state_e_normalized;
+						engine.get_window_manager()->on_window_state_changed.invoke( window_state_e_normalized );
 					}
 					break;
 				}
@@ -606,7 +606,7 @@ namespace cheonsa
 	{
 #if defined( cheonsa_platform_windows )
 		// ShowWindow() should inadvertently set _window_state, when windows sends us a WM_SIZE message to process.
-		if ( value == window_state_e_normaled )
+		if ( value == window_state_e_normalized )
 		{
 			ShowWindow( static_cast< HWND >( _window_handle ), SW_RESTORE );
 		}

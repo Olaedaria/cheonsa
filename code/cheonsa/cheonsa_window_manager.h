@@ -11,8 +11,8 @@ namespace cheonsa
 	enum window_state_e
 	{
 		window_state_e_undefined, // window is not created yet.
-		window_state_e_minimized, // window is minimized, hidden.
-		window_state_e_normaled, // window is normal window.
+		window_state_e_minimized, // window is minimized to task bar, hidden.
+		window_state_e_normalized, // window is normal state, restored.
 		window_state_e_maximized, // window is maximized to fill a screen.
 	};
 

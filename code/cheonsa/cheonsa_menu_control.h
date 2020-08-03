@@ -301,8 +301,8 @@ namespace cheonsa
 		vector32x4_c const & get_local_color() const;
 		void_c set_local_color( vector32x4_c const & value );
 
-		void_c set_color_theme_key( string8_c const & value ); // sets the color theme of all elements, so that they might express a different set of colors than default. resolves (looks up) the color theme from the menu style manager by its key.
-		void_c set_color_theme( menu_color_theme_c const * value ); // sets the color theme of all elements, so that they might express a different set of colors than default.
+		void_c set_color_theme( string8_c const & value ); // sets the color theme of all elements using a color theme key which is used to look up a color theme instance, so that they might express a different set of colors than default. resolves (looks up) the color theme from the menu style manager by its key.
+		void_c set_color_theme( menu_color_theme_c const * value ); // sets the color theme of all elements using a color theme instance, so that they might express a different set of colors than default.
 
 		vector32x2_c const & get_global_origin() const;
 		matrix32x2x2_c const & get_global_basis() const;

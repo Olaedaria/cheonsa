@@ -61,7 +61,7 @@ namespace cheonsa
 		{
 			new_style_key = attribute->get_value();
 		}
-		set_style_key( new_style_key );
+		set_style( new_style_key );
 	}
 
 	menu_element_c::menu_element_c()

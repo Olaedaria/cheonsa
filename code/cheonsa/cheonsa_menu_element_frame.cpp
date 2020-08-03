@@ -407,9 +407,9 @@ namespace cheonsa
 	{
 	}
 
-	void_c menu_element_frame_c::set_style_key( string8_c const & value )
+	void_c menu_element_frame_c::set_style( string8_c const & frame_style_key )
 	{
-		_style_reference.set_key( value );
+		_style_reference.set_key( frame_style_key );
 	}
 
 	menu_frame_style_c::reference_c const & menu_element_frame_c::get_style_reference() const

@@ -58,7 +58,8 @@ namespace cheonsa
 
 		virtual void_c update_animations( float32_c time_step ) = 0;
 
-		virtual void_c set_style_key( string8_c const & value ) = 0;
+		// used by style maps system to apply frame styles to frame elements and text styles to text elements.
+		virtual void_c set_style( string8_c const & key ) = 0;
 
 		void_c set_color_theme_key( string8_c const & value );
 		void_c set_color_theme( menu_color_theme_c const * value );

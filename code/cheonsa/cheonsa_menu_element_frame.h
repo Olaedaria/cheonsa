@@ -30,7 +30,7 @@ namespace cheonsa
 
 		virtual void_c update_animations( float32_c time_step ) override;
 
-		virtual void_c set_style_key( string8_c const & value ) override;
+		virtual void_c set_style( string8_c const & frame_style_key ) override;
 
 		menu_frame_style_c::reference_c const & get_style_reference() const;
 		menu_frame_style_c::reference_c & get_style_reference();

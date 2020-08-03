@@ -393,9 +393,9 @@ namespace cheonsa
 		// reflows text if text layout is dirty.
 		virtual void_c update_animations( float32_c time_step ) override;
 
-		// sets the base text style of this text element, this is the text style that will be applied to plain text or otherwise unstyled text.
-		// text_style_key is a text style key that references a text style instance in the menu style manager.
-		virtual void_c set_style_key( string8_c const & text_style_key ) override;
+		// you can use get_style_reference().set_key() instead, but this interface is provided because is virtual and abstract (caller doesn't need to know the difference between frame style and text style).
+		// key is the key of a text style, which is used to look up that text style in the engine's menu style manager.
+		virtual void_c set_style( string8_c const & text_style_key ) override;
 
 		string16_c const & get_internal_plain_text_value() const; // returns a direct reference of this text element's plain text value (which with a new line character).
 		string16_c get_plain_text_value() const; // returns a copy of the plain text contents of this text element (with the very last internal use terminating new line character omitted).

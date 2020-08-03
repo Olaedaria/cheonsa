@@ -758,21 +758,20 @@ namespace cheonsa
 		}
 		boolean_c is_accumulating_word = false; // will be set to true if we are parsing a string of displayable characters.
 		float32_c accumulated_word_width = 0.0f; // current accumulated width of consecutive displayable non-line-breaking characters.
-
 		boolean_c is_accumulating_space = false; // will be set to true if we are parsing a string of invisible characters.
 		float32_c accumulated_space_width = 0.0f; // current accumulated width of consecutive spaces. space width does not contribute to the width of the line until it is followed up by a word.
-
+		float32_c accumulated_line_width = 0.0f; // current accumulated width of line.
 		boolean_c just_word_wrapped = true; // will be set to true if a virtual line break was just inserted to prevent a perpetual insertion of virtual line breaks for words that are wider than word_wrap_width. is initially set to true to prevent a virtual line break from being inserted at character index 0, in the case that the very first word is wider than the box.
 
 		sint32_c current_line_start = _character_start; // index of character in _plain_text that is the first character of the current line.
 		sint32_c current_word_start = current_line_start; // index of character in _plain_text that is the first character of the current word.
 		float32_c current_line_top = 0.0f; // current offset of top of line from top of paragraph.
-		float32_c current_line_width = 0.0f; // current accumulated width of line.
 		float32_c current_line_spacing = _get_style_line_spacing(); // extra space to place between lines is defined by the paragraph.
-		float32_c current_laid_out_ascender; // current unquantized ascender for the current style of the current character.
-		float32_c current_laid_out_descender; // current unquantized descender for the current style of the current character.
-		float32_c current_laid_out_glyph_spacing; // current unquantized glyph spacing (extra horizontal advance) for the current style of the current character.
-		float32_c current_scale_to_unquantize_size; // corrective scale, to scale glyph from size it was baked at (quantized) to arbitrary size that the style wants it to be rendered at (dequantized).
+		float32_c current_laid_out_ascender = 0.0f; // current unquantized ascender for the current style of the current character.
+		float32_c current_laid_out_descender = 0.0f; // current unquantized descender for the current style of the current character.
+		float32_c current_laid_out_glyph_spacing = 0.0f; // current unquantized glyph spacing (extra horizontal advance) for the current style of the current character.
+		float32_c current_scale_to_unquantize_size = 0.0f; // corrective scale, to scale glyph from size it was baked at (quantized) to arbitrary size that the style wants it to be rendered at (dequantized).
+		float32_c current_space_horizontal_advance = 0.0f;
 
 		text_span_c const * current_span = nullptr; // span of the current character, may be nullptr.
 
@@ -823,7 +822,7 @@ namespace cheonsa
 				current_scale_to_unquantize_size = current_text_glyph_style.size / static_cast< float32_c >( glyph_manager_c::get_quantized_size( current_text_glyph_style.size ) );
 				current_laid_out_ascender = current_text_glyph_style.font->get_unquantized_ascender( current_text_glyph_style.size );
 				current_laid_out_descender = current_text_glyph_style.font->get_unquantized_descender( current_text_glyph_style.size );
-				accumulated_space_width = current_text_glyph_style.font->get_unquantized_horizontal_advance_for_space( current_text_glyph_style.size );
+				current_space_horizontal_advance = current_text_glyph_style.font->get_unquantized_space_horizontal_advance( current_text_glyph_style.size );
 				_mother_text_element->_cache_text_glyph_style( current_text_glyph_style, current_text_glyph_style_in_cache, current_text_glyph_style_in_cache_index );
 			}
 
@@ -840,7 +839,7 @@ namespace cheonsa
 			current_text_glyph->_descender = current_laid_out_descender;
 			current_text_glyph->_style_index = current_text_glyph_style_in_cache_index;
 
-			if ( current_code_point != L'\n' && current_code_point != L' ' && current_code_point != L'\t' )
+			if ( current_code_point != '\n' && current_code_point != ' ' && current_code_point != '\t' )
 			{
 				current_code_point_is_space = false;
 
@@ -854,7 +853,7 @@ namespace cheonsa
 					return;
 				}
 
-				assert( glyph->key.code_point == current_code_point || glyph->key.code_point == L'?' );
+				assert( glyph->key.code_point == current_code_point || glyph->key.code_point == '?' ); // used to have a bug where this would be set to a garbage value somehow.
 
 				// create laid out glyph for the current character.
 				current_text_glyph->_glyph = glyph;
@@ -875,24 +874,24 @@ namespace cheonsa
 				current_code_point_is_space = true;
 
 				// create laid out glyph of width of space.
-				current_text_glyph->_horizontal_advance = ( accumulated_space_width * current_scale_to_unquantize_size ) + current_laid_out_glyph_spacing;
+				current_text_glyph->_horizontal_advance = current_space_horizontal_advance + current_laid_out_glyph_spacing;
 				current_text_glyph->_box.minimum.a = 0.0f;
 				current_text_glyph->_box.minimum.b = current_laid_out_ascender * current_scale_to_unquantize_size;
 				current_text_glyph->_box.maximum.a = current_text_glyph->_horizontal_advance;
 				current_text_glyph->_box.maximum.b = current_laid_out_descender * current_scale_to_unquantize_size;
 			}
-			else if ( current_code_point == L'\t' )
+			else if ( current_code_point == '\t' )
 			{
 				current_code_point_is_space = true;
 
 				// create laid out glyph of width of tab, which is dynamic.
-				current_text_glyph->_horizontal_advance = ( accumulated_space_width * current_scale_to_unquantize_size ) + current_laid_out_glyph_spacing;
+				current_text_glyph->_horizontal_advance = current_space_horizontal_advance + current_laid_out_glyph_spacing;
 				current_text_glyph->_box.minimum.a = 0.0f;
 				current_text_glyph->_box.minimum.b = current_laid_out_ascender * current_scale_to_unquantize_size;
 				current_text_glyph->_box.maximum.a = current_text_glyph->_horizontal_advance;
 				current_text_glyph->_box.maximum.b = current_laid_out_descender * current_scale_to_unquantize_size;
 			}
-			else if ( current_code_point == L'\n' )
+			else if ( current_code_point == '\n' )
 			{
 				current_code_point_is_space = false;
 
@@ -903,16 +902,16 @@ namespace cheonsa
 				current_text_glyph->_box.maximum.a = current_text_glyph->_horizontal_advance;
 				current_text_glyph->_box.maximum.b = current_laid_out_descender * current_scale_to_unquantize_size;
 
-				_do_glyph_layout_finish_line( current_line_start, _character_start + _text_glyph_list.get_length() - 1, current_line_width + accumulated_word_width + accumulated_space_width, current_line_top );
+				_do_glyph_layout_finish_line( current_line_start, _character_start + _text_glyph_list.get_length() - 1, accumulated_line_width + accumulated_word_width + accumulated_space_width, current_line_top );
 				current_line_start = _text_glyph_list.get_length() + _character_start;
 				current_word_start = current_line_start;
-				current_line_width = 0.0f;
-				accumulated_word_width = 0.0f;
-				accumulated_space_width = 0.0f;
 
-				is_accumulating_word = false;
-				is_accumulating_space = false;
-				just_word_wrapped = true;
+				is_accumulating_word = false; // will be set to true if we are parsing a string of displayable characters.
+				accumulated_word_width = 0.0f; // current accumulated width of consecutive displayable non-line-breaking characters.
+				is_accumulating_space = false; // will be set to true if we are parsing a string of invisible characters.
+				accumulated_space_width = 0.0f; // current accumulated width of consecutive spaces. space width does not contribute to the width of the line until it is followed up by a word.
+				accumulated_line_width = 0.0f;
+				just_word_wrapped = true; // will be set to true if a virtual line break was just inserted to prevent a perpetual insertion of virtual line breaks for words that are wider than word_wrap_width. is initially set to true to prevent a virtual line break from being inserted at character index 0, in the case that the very first word is wider than the box.
 
 				continue;
 			}
@@ -931,11 +930,11 @@ namespace cheonsa
 					}
 					accumulated_word_width += current_text_glyph->_horizontal_advance;
 					is_accumulating_space = false;
-					if ( !just_word_wrapped && current_line_width + accumulated_space_width + accumulated_word_width - current_laid_out_glyph_spacing > word_wrap_width )
+					if ( !just_word_wrapped && accumulated_line_width + accumulated_space_width + accumulated_word_width - current_laid_out_glyph_spacing > word_wrap_width )
 					{
-						_do_glyph_layout_finish_line( current_line_start, current_word_start - 1, current_line_width, current_line_top ); // note that automatic word wrapping does not factor in the current accumulated width of white space at the end of the line, this lets the line ignore this trailing white space when text is horizontally aligned center or right.
+						_do_glyph_layout_finish_line( current_line_start, current_word_start - 1, accumulated_line_width, current_line_top ); // note that automatic word wrapping does not factor in the current accumulated width of white space at the end of the line, this lets the line ignore this trailing white space when text is horizontally aligned center or right.
 						current_line_start = current_word_start;
-						current_line_width = 0.0f;
+						accumulated_line_width = 0.0f;
 						just_word_wrapped = true;
 					}
 				}
@@ -946,7 +945,7 @@ namespace cheonsa
 					{
 						// accumulate current run of spaces (space width) and current run of letters (word width) to the line width.
 						is_accumulating_word = false;
-						current_line_width += accumulated_space_width + accumulated_word_width;
+						accumulated_line_width += accumulated_space_width + accumulated_word_width;
 						accumulated_space_width = 0.0f;
 						accumulated_word_width = 0.0f;
 					}
@@ -962,7 +961,7 @@ namespace cheonsa
 			}
 			else
 			{
-				current_line_width += current_text_glyph->_horizontal_advance;
+				accumulated_line_width += current_text_glyph->_horizontal_advance;
 			}
 		}
 		assert( _text_line_list.get_length() > 0 );
@@ -2846,7 +2845,7 @@ namespace cheonsa
 		}
 	}
 
-	void_c menu_element_text_c::set_style_key( string8_c const & text_style_key )
+	void_c menu_element_text_c::set_style( string8_c const & text_style_key )
 	{
 		_text_style_reference.set_key( text_style_key );
 	}

@@ -24,7 +24,8 @@ namespace cheonsa
 
 		virtual void_c update_animations( float32_c time_step ) override;
 
-		virtual void_c set_style_key( string8_c const & value ) override;
+		// mesh element styles don't exist at this time, so this function does not do anything, but it needs to be implemented anyway since it's a pure virtual method in the base class.
+		virtual void_c set_style( string8_c const & key ) override;
 
 	};
 

@@ -238,7 +238,7 @@ namespace cheonsa
 		_add_daughter_element( &_mesh_element );
 
 		_slider_frame_element.set_name( string8_c( "slider_frame", core_list_mode_e_static ) );
-		_slider_frame_element.set_style_key( string8_c( "e_precision_slider_frame", core_list_mode_e_static ) );
+		_slider_frame_element.set_style( string8_c( "e_precision_slider_frame", core_list_mode_e_static ) );
 		_add_daughter_element( &_slider_frame_element );
 
 		_border_frame_element.set_name( string8_c( "border_frame", core_list_mode_e_static ) );

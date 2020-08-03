@@ -464,10 +464,14 @@ namespace cheonsa
 		// convert value to string if needed.
 		for ( sint32_c i = 0; i < 4; i++ )
 		{
+			if ( !property_field->_text_controls[ i ] )
+			{
+				break;
+			}
 			string16_c value_as_string16;
 			value_as_string16 = reflection_convert_value_to_string16( property_field->_reflection_property, value, i );
-			property_field->_text_controls[ 0 ]->set_plain_text_value( value_as_string16 );
-			property_field->_text_controls[ 0 ]->set_is_enabled( true );
+			property_field->_text_controls[ i ]->set_plain_text_value( value_as_string16 );
+			property_field->_text_controls[ i ]->set_is_enabled( true );
 		}
 
 		// provide value to view editors.

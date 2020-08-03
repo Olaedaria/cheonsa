@@ -218,7 +218,7 @@ namespace cheonsa
 		return size_metrics->descender * ( size / static_cast< float32_c >( size_metrics->quantized_size ) );
 	}
 
-	float32_c resource_file_font_c::get_unquantized_horizontal_advance_for_space( float32_c size ) const
+	float32_c resource_file_font_c::get_unquantized_space_horizontal_advance( float32_c size ) const
 	{
 		assert( _is_loaded );
 		size_metrics_c const * size_metrics = get_quantized_size_metrics( size );

@@ -22,12 +22,12 @@ namespace cheonsa
 				if ( entry->get_style_key().is_set() )
 				{
 					daughter_element->_is_showed_from_style = true;
-					daughter_element->set_style_key( entry->get_style_key() );
+					daughter_element->set_style( entry->get_style_key() );
 				}
 				else
 				{
 					daughter_element->_is_showed_from_style = false;
-					daughter_element->set_style_key( string8_c() );
+					daughter_element->set_style( string8_c() );
 				}
 			}
 		}
@@ -38,7 +38,7 @@ namespace cheonsa
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
 			menu_element_c * daughter_element = _daughter_element_list[ i ];
-			_daughter_element_list[ i ]->set_style_key( string8_c() );
+			_daughter_element_list[ i ]->set_style( string8_c() );
 		}
 	}
 
@@ -95,7 +95,7 @@ namespace cheonsa
 				menu_style_map_c::entry_c const * style_map_entry = _style_map_reference.get_value()->find_entry( element->get_name() );
 				if ( style_map_entry )
 				{
-					element->set_style_key( style_map_entry->get_style_key() );
+					element->set_style( style_map_entry->get_style_key() );
 				}
 			}
 		}
@@ -1265,7 +1265,7 @@ namespace cheonsa
 		_update_transform_and_layout();
 	}
 
-	void_c menu_control_c::set_color_theme_key( string8_c const & value )
+	void_c menu_control_c::set_color_theme( string8_c const & value )
 	{
 		for ( sint32_c i = 0; i < _daughter_element_list.get_length(); i++ )
 		{
